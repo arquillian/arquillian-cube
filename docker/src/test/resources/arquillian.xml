@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://jboss.org/schema/arquillian"
+    xsi:schemaLocation="http://jboss.org/schema/arquillian http://www.jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+
+    <extension qualifier="docker">
+        <property name="serverVersion">1.12</property>
+        <property name="serverUri">http://localhost:2375</property>
+        <property name="dockerContainers">
+            tomcat:
+              image: tutum/tomcat:7.0
+              exposedPorts: [8089/tcp]
+        </property>
+    </extension>
+
+</arquillian>

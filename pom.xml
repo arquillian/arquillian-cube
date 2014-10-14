@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <!-- Parent -->
+    <parent>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>14</version>
+        <relativePath />
+    </parent>
+
+    <!-- Model Version -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Artifact Configuration -->
+    <groupId>org.jboss.arquillian.extension</groupId>
+    <artifactId>arquillian-cube</artifactId>
+    <version>1.0.0.Alpha1</version>
+    <packaging>pom</packaging>
+
+    <name>Arquillian Cube Extension</name>
+    <url>http://www.jboss.org</url>
+    <description>Arquillian Cube Extension to integrate Arquillian to Docker</description>
+
+    <modules>
+        <module>api</module>
+        <module>docker</module>
+        <module>ftest</module>
+    </modules>
+
+    <developers>
+        <developer>
+            <name>Alex Soto</name>
+            <timezone>UTC+1</timezone>
+            <email>asotobu@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+        </license>
+    </licenses>
+
+    <scm></scm>
+    <issueManagement></issueManagement>
+
+    <properties>
+        <version.arquillian_core>1.1.5.Final</version.arquillian_core>
+        <version.junit>4.11</version.junit>
+        <version.docker-java>0.10.2</version.docker-java>
+        <version.mockito>1.10.8</version.mockito>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${version.arquillian_core}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java</artifactId>
+                <version>${version.docker-java}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${version.mockito}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.14</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

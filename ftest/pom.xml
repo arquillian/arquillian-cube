@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jboss.arquillian.extension</groupId>
+        <artifactId>arquillian-cube</artifactId>
+        <version>1.0.0.Alpha1</version>
+    </parent>
+    <artifactId>arquillian-cube-ftest</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-cube-docker</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>tomcat-7</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-tomcat-remote-7</artifactId>
+                    <version>1.0.0.CR7</version>
+                    <scope>test</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-servlet-api</artifactId>
+                    <version>7.0.56</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <testResources>
+                    <testResource>
+                        <directory>
+                            src/test/resources-tomcat-7
+                        </directory>
+                    </testResource>
+                </testResources>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
