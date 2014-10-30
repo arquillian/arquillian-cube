@@ -1,0 +1,326 @@
+= Arquillian Cube
+
+== What is this?
+
+*Arquillian Cube* is an _Arquillian_ extension that can be used to manager _Docker_ containers from _Arquillian_.
+
+Extension is named *Cube* for two reasons:
+
+* Because Docker is like a cube
+* Because http://en.memory-alpha.org/wiki/Borg_cube[Borg starship] is named *cube* and well because we are moving tests close to production we can say that "any resistance is futile, bugs will be assimilated".
+
+With this extension you can start a _Docker_ container with a server installed, deploy the required deployable file within it and execute _Arquillian_ tests.
+
+The key point here is that if _Docker_ is used as deployable platform in production, your tests are executed in a the same container as it will be in production, so your tests are even more real than before.
+
+But also let you start a container with every required service like database, mail server, ... and instead of stubbing or using fake objects your tests can use real servers.
+
+[WARNING]
+====
+This extension has been developed and tested in a Linux machine with _Docker_ server already installed.
+It should work with *Boot2Docker* as well in _Windows_ and _MacOS_ machines, but some parameters like _host ip_ must be the _Boot2Docker_ server instead of _localhost_ (in case you have _Docker_ server installed inside your own machine).
+
+One of the best resources to learn about why using _Boot2Docker_ is different from using _Docker_ in Linux can be read here http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide
+====
+
+== Preliminaries
+
+*Arquillian Cube* relies on https://github.com/docker-java/docker-java[docker-java] API.
+
+To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it can be local or not), but probably it will be at local.
+
+By default _Docker_ server is using UNIX sockets for communication with the _Docker_ client, however _docker-java_ client uses TCP/IP to connect to the Docker server, so you will need to make sure that your _Docker_ server is listening on TCP port.
+To allow _Docker_ server to use TCP add the following line to +/etc/default/docker+:
+
++DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"+
+
+After restarting the _Docker_ daemon you need to make sure that _Docker_ is up and listening on TCP.
+
+[source, terminal]
+----
+$ docker -H tcp://127.0.0.1:2375 version
+
+Client version: 0.8.0
+Go version (client): go1.2
+Git commit (client): cc3a8c8
+Server version: 1.2.0
+Git commit (server): fa7b24f
+Go version (server): go1.3.1
+----
+
+If you cannot see the client and server versions then means that something is wrong in _Docker_ installation.
+
+== Basic Example
+
+After having a _Docker_ server installed we can start using *Arquillian Cube*.
+In this case we are going to use a very simple example using a _Docker_ image with an _Apache Tomcat_ and we are going to test a _Servlet_ on it.
+
+[source, java]
+.HelloWorldServlet.java
+----
+@WebServlet("/HelloWorld")
+public class HelloWorldServlet extends HttpServlet {
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    PrintWriter writer = resp.getWriter();
+    writer.println("Hello World");
+  }
+}
+----
+
+[source, java]
+.HelloWorldServletTest.java
+----
+@RunWith(Arquillian.class)
+public class HelloWorldServletTest {
+
+  @Deployment(testable=false) //<1>
+  public static WebArchive create() {
+    return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class); //<2>
+  }
+
+  @Test
+  public void should_parse_and_load_configuration_file(@ArquillianResource URL resource) throws IOException { //<3>
+
+    URL obj = new URL(resource, "HelloWorld");
+    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+    con.setRequestMethod("GET");
+
+    BufferedReader in = new BufferedReader(
+            new InputStreamReader(con.getInputStream()));
+    String inputLine;
+    StringBuffer response = new StringBuffer();
+
+    while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+    }
+    in.close();
+
+    assertThat(response.toString(), is("Hello World"));//<4>
+  }
+}
+----
+<1> In this case we are running test as a client. So in fact this test is executed against the container instead of inside the container.
+<2> No changes in this part, we need to create a deployable file, and because it is a _Tomcat_, a _war_ file is created.
+<3> Because test is run as client, we can use +@ArquillianResource+ to get the URL where file is deployed. Note that this will be the URL to access to _TomcaT_ that is running inside _Docker_ container.
+<4> Typical jUnit assertion of servlet response.
+
+Now this test could be run in any container, there is nothing that tights this to _Docker_.
+Next step is adding some dependencies apart from the typical _Arquillian_ dependencies.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+  <groupId>org.jboss.arquillian.extension</groupId>
+  <artifactId>arquillian-cube-docker</artifactId> <!--1-->
+  <version>${project.version}</version>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.jboss.arquillian.container</groupId>
+  <artifactId>arquillian-tomcat-remote-7</artifactId> <!--2-->
+  <version>1.0.0.CR7</version>
+  <scope>test</scope>
+</dependency>
+----
+<1> Adds *Arquillian Cube* dependency.
+<2> From the point of view of _Arquillian_, _Tomcat_ is being executed in a remote host (in fact this is true because _Tomcat_ is running inside _Docker_ which is external to _Arquillian_), so we need to add the remote adapter.
+
+And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* in +arquillian.xml+ file.
+
+[source, xml]
+.arquillian.xml
+----
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
+  http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="docker"> <!--1-->
+      <property name="serverVersion">1.12</property> <!--2-->
+      <property name="serverUri">http://localhost:2375</property> <!--3-->
+      <property name="dockerContainers"> <!--4-->
+          tomcat:
+            image: tutum/tomcat:7.0
+            exposedPorts: [8089/tcp]
+            await:
+              strategy: polling
+            env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+            portBindings:
+              - exposedPort: 8089/tcp
+                port: 8089
+
+              - exposedPort: 8080/tcp
+                port: 8080
+      </property>
+  </extension>
+
+  <container qualifier="tomcat" default="true"> <!--5-->
+      <configuration>
+          <property name="host">localhost</property> <!--6-->
+          <property name="httpPort">8080</property> <!--7-->
+          <property name="user">admin</property> <!--8-->
+          <property name="pass">mypass</property>
+      </configuration>
+  </container>
+
+</arquillian>
+----
+<1> *Arquillian Cube* extension is registered.
+<2> _Docker_ server version is required.
+<3> _Docker_ server URI is required. In case you are using a remote _Docker_ host or _Boot2Docker_ here you need to set the remote host ip, but in this case _Docker_ server is on same machine.
+<4> A _Docker_ container contains a lot of parameters that can be configured. To avoid having to create one XML property for each one, a YAML content can be embedded directly as property.
+<5> Configuration of _Tomcat_ remote adapter.
+<6> Host can be _localhost_ because there is a port forwarding between container and _Docker_ server.
+<7> Port is exposed as well.
+<8> User and password are required to deploy the war file to remote _Tomcat_.
+
+And that's all.
+Now you can run your test and you will see how _tutum/tomcat:7.0_ image is downloaded and started.
+Ports 8080 (Tomcat standard port) and 8089(JMX port used by Arquillian) are exposed.
+Finally in _env_ section, environment variables are set. Read next link to understand why this is required https://docs.jboss.org/author/display/ARQ/Tomcat+7.0+-+Remote
+
+== Configuration
+
+*Arquillian Cube* requires some parameters to be configured, some related with _Docker_ server and others related on the image that is being used.
+Let's see valid attributes:
+
+|===
+|serverVersion
+|Version of REST API provided by_Docker_ server. You should check on _Docker_ site which version of REST API is shipped inside installed _Docker_ service.
+
+|serverUri
+|Uri of _Docker_ server. If _Docker_ server is run on a Linux and installed locally is _localhost_ but if you are using _Boot2Docker_ or remote _Docker_ server then the URI should be changed to point to _Docker_ remote _URI_.
+
+|dockerContainers
+|Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
+
+|dockerContainersFile
+|Instead of embedding YAML string, you can set YAML file location in this attribute.
+|===
+
+In next example you can see a whole YAML document with configuration properties.
+Keep in mind that almost all of them are configuration parameters provided by _Docker_ remote API.
+In this example we are going to explain the attributes that are most used and special cases.
+Of course not all of them are mandatory:
+
+NOTE: In YAML adding brackets ("[" "]") is for setting a list.
+
+[source, yaml]
+----
+tomcat: #1
+  image: tutum/tomcat:7.0 #2
+  exposedPorts: [8089/tcp] #3
+  await: #4
+    strategy: polling #5
+  workingDir: .
+  disableNetwork: true
+  hostName: host
+  portSpecs: [80,81]
+  user: alex
+  tty: true
+  stdinOpen: true
+  stdinOnce: true
+  memoryLimit: 1
+  memorySwap: 1
+  cpuShares: 1
+  attachStdin: true
+  attachStderr: true
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] #6
+  cmd: [] #7
+  dns: [127.0.0.1]
+  volumes: [/tmp]
+  volumesFrom: [tomcat]
+  binds:
+    - /host:/container:ro
+  links:
+    - name:alias
+    - name2:alias2
+  portBindings: #8
+    - exposedPort: 8089/tcp
+    - port: 8089
+
+    - exposedPort: 8089/tcp
+    - port: localhost:8089 #9
+  privileged: true
+  publishAllPorts: true
+  networkMode: host
+  dnsSearch: [127.0.0.1]
+  devices:
+    - cGroupPermissions: a
+    - pathOnHost: b
+    - pathInContainer: c
+  restartPolicy: #10
+    - name: failure
+    - maximumRetryCount: 1
+  capAdd: [a]
+  capDrop: [b]
+----
+<1> The name that are going to be assign to running container. It is *mandatory*.
+<2> Name of the image to be used. It is *mandatory*.
+<3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
+<4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
+<5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
+<6> You can pass environment variables by using `env`.
+<7> After container is up, a list of commands can be executed within it.
+<8> Port forwarding is configured using `portBinding` section. It contains a list of tuple `exposedPort` and `port`. Note that you need to use a CR to separate each pair of elements.
+<9> The exposed port can be bound to specific host and port by using _host_ colon (:) and _port_.
+
+=== Await
+
+After a container is started, it starts booting up the defined services/commands. 
+Depending on the nature of service, the lifecycle of these services are linked to start up or not. 
+For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the _Docker_ client, the container never finishes to start. 
+But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. 
+To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready.
+
+Currently next await strategies are supported:
+
+native:: it uses *wait* command. In this case current thread is waiting until the _Docker_ server notifies that has started. In case of foreground services this is not the approach to be used.
+polling:: in this case a polling (with _ping_) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledge, the container is considered to be up. This approach is the one to be used in case of services started in foreground.
+static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
+
+[source, yaml]
+.Example native
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await: 
+    strategy: native
+----
+
+[source, yaml]
+.Example polling
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await: 
+    strategy: polling
+----
+
+[source, yaml]
+.Example static
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await: 
+    strategy: static
+    ip: localhost
+    ports: [8080, 8089]
+----
+
+== Future work
+
+API will continuously evolve to fit requirements of an enterprise application as well as providing better integration with _Boot2Docker_. 
+Also some configuration parameters will be modified to fix any possible requirements. 
+Although we are going to try to not break compatibility with previous versions, we cannot guarantee until _beta_ stage.
+
+Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.
+
