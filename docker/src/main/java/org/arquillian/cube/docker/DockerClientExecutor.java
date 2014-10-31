@@ -1,7 +1,10 @@
 package org.arquillian.cube.docker;
 
+import java.net.ConnectException;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.ProcessingException;
 
 import org.arquillian.cube.client.CubeConfiguration;
 
@@ -9,6 +12,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Device;
@@ -57,24 +61,31 @@ public class DockerClientExecutor {
     private static final String WORKING_DIR = "workingDir";
     private static final String EXPOSED_PORTS = "exposedPorts";
     private static final String IMAGE = "image";
+
     private DockerClient dockerClient;
-    
+    private CubeConfiguration cubeConfiguration;
+
     public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder = DockerClientConfig
                 .createDefaultConfigBuilder();
         configBuilder.withVersion(cubeConfiguration.getDockerServerVersion())
                        .withUri(cubeConfiguration.getDockerServerUri());
-     
+
         this.dockerClient = DockerClientBuilder.getInstance(
                 configBuilder.build()).build();
+        this.cubeConfiguration = cubeConfiguration;
     }
-    
+
     public CreateContainerResponse createContainer(String name, Map<String, Object> containerConfiguration) {
+
+        //we check if Docker server is up and correctly configured.
+        this.pingDockerServer();
+
         String image = asString(containerConfiguration, IMAGE);
-        
+
         CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
         createContainerCmd.withName(name);
-        
+
         if (containerConfiguration.containsKey(EXPOSED_PORTS)) {
             List<String> exposedPorts = asListOfString(
                     containerConfiguration, EXPOSED_PORTS);
@@ -100,15 +111,15 @@ public class DockerClientExecutor {
                     PORT_SPECS);
             createContainerCmd.withPortSpecs(portSpecs.toArray(new String[portSpecs.size()]));
         }
-        
+
         if(containerConfiguration.containsKey(USER)) {
             createContainerCmd.withUser(asString(containerConfiguration, USER));
         }
-        
+
         if(containerConfiguration.containsKey(TTY)) {
             createContainerCmd.withTty(asBoolean(containerConfiguration, TTY));
         }
-        
+
         if(containerConfiguration.containsKey(STDIN_OPEN)) {
            createContainerCmd.withStdinOpen(asBoolean(containerConfiguration, STDIN_OPEN));
         }
@@ -116,32 +127,32 @@ public class DockerClientExecutor {
         if(containerConfiguration.containsKey(STDIN_ONCE)) {
             createContainerCmd.withStdInOnce(asBoolean(containerConfiguration, STDIN_ONCE));
         }
-        
+
         if(containerConfiguration.containsKey(MEMORY_LIMIT)) {
             createContainerCmd.withMemoryLimit(asInt(containerConfiguration, MEMORY_LIMIT));
         }
-        
+
         if(containerConfiguration.containsKey(MEMORY_SWAP)) {
             createContainerCmd.withMemorySwap(asInt(containerConfiguration, MEMORY_SWAP));
         }
-        
+
         if(containerConfiguration.containsKey(CPU_SHARES)) {
             createContainerCmd.withCpuShares(asInt(containerConfiguration, CPU_SHARES));
         }
-        
+
         if(containerConfiguration.containsKey(ATTACH_STDIN)) {
             createContainerCmd.withAttachStdin(asBoolean(containerConfiguration, ATTACH_STDIN));
         }
-        
+
         if(containerConfiguration.containsKey(ATTACH_STDERR)) {
            createContainerCmd.withAttachStderr(asBoolean(containerConfiguration, ATTACH_STDERR));
         }
-        
+
         if(containerConfiguration.containsKey(ENV)) {
             List<String> env = asListOfString(containerConfiguration, ENV);
             createContainerCmd.withEnv(env.toArray(new String[env.size()]));
         }
-        
+
         if(containerConfiguration.containsKey(CMD)) {
             List<String> cmd = asListOfString(containerConfiguration, CMD);
             createContainerCmd.withCmd(cmd.toArray(new String[cmd.size()]));
@@ -151,7 +162,7 @@ public class DockerClientExecutor {
             List<String> dns = asListOfString(containerConfiguration, DNS);
             createContainerCmd.withDns(dns.toArray(new String[dns.size()]));
         }
-        
+
         if(containerConfiguration.containsKey(VOLUMES)) {
             List<String> volumes = asListOfString(containerConfiguration, VOLUMES);
             createContainerCmd.withVolumes(toVolumes(volumes));
@@ -161,10 +172,10 @@ public class DockerClientExecutor {
             List<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
             createContainerCmd.withVolumesFrom(volumesFrom.toArray(new String[volumesFrom.size()]));
         }
-        
+
         return createContainerCmd.exec();
     }
-    
+
     public void startContainer(CreateContainerResponse createContainerResponse, Map<String, Object> containerConfiguration) {
         StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(createContainerResponse.getId());
         
@@ -246,6 +257,20 @@ public class DockerClientExecutor {
     
     public int waitContainer(CreateContainerResponse createContainerResponse) {
         return this.dockerClient.waitContainerCmd(createContainerResponse.getId()).exec();
+    }
+    
+    public void pingDockerServer() {
+        try {
+            PingCmd pingCmd = this.dockerClient.pingCmd();
+            pingCmd.exec();
+        } catch (ProcessingException e) {
+            if (e.getCause() instanceof ConnectException) {
+                throw new IllegalStateException(
+                        String.format(
+                                "Docker server is not running in %s host or it does not accept connections in tcp protocol, read https://github.com/arquillian/arquillian-cube#preliminaries to learn how to enable it.",
+                                this.cubeConfiguration.getDockerServerUri()), e);
+            }
+        }
     }
     
     private static final Device[] toDevices(List<Map<String, Object>> devicesMap) {
