@@ -11,6 +11,7 @@ import org.arquillian.cube.client.CubeConfiguration;
 import org.arquillian.cube.util.IOUtil;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -171,7 +172,12 @@ public class DockerClientExecutor {
             createContainerCmd.withVolumesFrom(volumesFrom.toArray(new String[volumesFrom.size()]));
         }
 
-        return createContainerCmd.exec();
+        try {
+            return createContainerCmd.exec();
+        }catch(NotFoundException e) {
+            this.pullImage(image);
+            return createContainerCmd.exec();
+        }
     }
 
     public void startContainer(CreateContainerResponse createContainerResponse,
@@ -276,6 +282,10 @@ public class DockerClientExecutor {
 
         PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(imageName);
 
+        if(this.cubeConfiguration.getDockerRegistry() != null) {
+            pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
+        }
+        
         int tagSeparator = imageName.indexOf(TAG_SEPARATOR);
         if (tagSeparator > 0) {
             pullImageCmd.withRepository(imageName.substring(0, tagSeparator));
