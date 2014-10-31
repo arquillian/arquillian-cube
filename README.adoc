@@ -189,12 +189,16 @@ Finally in _env_ section, environment variables are set. Read next link to under
 *Arquillian Cube* requires some parameters to be configured, some related with _Docker_ server and others related on the image that is being used.
 Let's see valid attributes:
 
+[cols="2*"]
 |===
 |serverVersion
 |Version of REST API provided by_Docker_ server. You should check on _Docker_ site which version of REST API is shipped inside installed _Docker_ service.
 
 |serverUri
 |Uri of _Docker_ server. If _Docker_ server is run on a Linux and installed locally is _localhost_ but if you are using _Boot2Docker_ or remote _Docker_ server then the URI should be changed to point to _Docker_ remote _URI_.
+
+|dockerRegistry
+|Sets the location of Docker registry. Default value is the official _Docker_ registry located at https://registry.hub.docker.com
 
 |dockerContainers
 |Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
@@ -261,7 +265,7 @@ tomcat: #1
   capDrop: [b]
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
-<2> Name of the image to be used. It is *mandatory*.
+<2> Name of the image to be used. It is *mandatory*. If image is not already pulled in _Docker_ server, *Arquillian Cube* will pull it for you.
 <3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
 <4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
