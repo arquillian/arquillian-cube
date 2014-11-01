@@ -1,7 +1,13 @@
 package org.arquillian.cube.docker;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +18,7 @@ import org.arquillian.cube.util.IOUtil;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
+import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -66,6 +73,10 @@ public class DockerClientExecutor {
     private static final String WORKING_DIR = "workingDir";
     private static final String EXPOSED_PORTS = "exposedPorts";
     private static final String IMAGE = "image";
+    private static final String BUILD_IMAGE = "buildImage";
+    private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
+    private static final String NO_CACHE = "noCache";
+    private static final String REMOVE = "remove";
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
@@ -84,7 +95,7 @@ public class DockerClientExecutor {
         // we check if Docker server is up and correctly configured.
         this.pingDockerServer();
 
-        String image = asString(containerConfiguration, IMAGE);
+        String image = getImageName(containerConfiguration);
 
         CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
         createContainerCmd.withName(name);
@@ -174,10 +185,39 @@ public class DockerClientExecutor {
 
         try {
             return createContainerCmd.exec();
-        }catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             this.pullImage(image);
             return createContainerCmd.exec();
         }
+    }
+
+    private String getImageName(Map<String, Object> containerConfiguration) {
+        String image = null;
+
+        if (containerConfiguration.containsKey(IMAGE)) {
+            image = asString(containerConfiguration, IMAGE);
+        } else {
+
+            if (containerConfiguration.containsKey(BUILD_IMAGE)) {
+
+                Map<String, Object> params = asMap(containerConfiguration, BUILD_IMAGE);
+
+                if (params.containsKey(DOCKERFILE_LOCATION)) {
+                    String dockerfileLocation = asString(params, DOCKERFILE_LOCATION);
+                    image = this.buildImage(dockerfileLocation, params);
+                } else {
+                    throw new IllegalArgumentException(
+                            "A tar file with Dockerfile on root or a directory with a Dockerfile should be provided.");
+                }
+
+            } else {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "Current configuration file does not contain %s nor %s parameter and one of both should be provided.",
+                                IMAGE, BUILD_IMAGE));
+            }
+        }
+        return image;
     }
 
     public void startContainer(CreateContainerResponse createContainerResponse,
@@ -278,14 +318,68 @@ public class DockerClientExecutor {
         }
     }
 
+    public String buildImage(String location, Map<String, Object> params) {
+
+        BuildImageCmd buildImageCmd = createBuildCommand(location);
+        configureBuildCommand(params, buildImageCmd);
+
+        InputStream response = buildImageCmd.exec();
+
+        // We must wait until InputStream is closed to know that image is build. Moreover we need the log to retrieve
+        // the image id to invoke it automatically.
+        // Currently this is a bit clunky but REST API does not provide any other way.
+        String fullLog = IOUtil.asString(response);
+        String imageId = IOUtil.substringBetween(fullLog, "Successfully built ", "\\n\"}").trim();
+
+        return imageId;
+    }
+
+    private void configureBuildCommand(Map<String, Object> params, BuildImageCmd buildImageCmd) {
+        if (params.containsKey(NO_CACHE)) {
+            buildImageCmd.withNoCache((boolean) params.get(NO_CACHE));
+        }
+
+        if (params.containsKey(REMOVE)) {
+            buildImageCmd.withRemove((boolean) params.get(REMOVE));
+        }
+    }
+
+    private BuildImageCmd createBuildCommand(String location) {
+        BuildImageCmd buildImageCmd = null;
+
+        try {
+            URL url = new URL(location);
+            buildImageCmd = this.dockerClient.buildImageCmd(url.openStream());
+        } catch (MalformedURLException e) {
+            // Means that it is not a URL so it can be a File or Directory
+            File file = new File(location);
+
+            if (file.exists()) {
+                if (file.isDirectory()) {
+                    buildImageCmd = this.dockerClient.buildImageCmd(file);
+                } else {
+                    try {
+                        buildImageCmd = this.dockerClient.buildImageCmd(new FileInputStream(file));
+                    } catch (FileNotFoundException notFoundFile) {
+                        throw new IllegalArgumentException(notFoundFile);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return buildImageCmd;
+    }
+
     public void pullImage(String imageName) {
 
         PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(imageName);
 
-        if(this.cubeConfiguration.getDockerRegistry() != null) {
+        if (this.cubeConfiguration.getDockerRegistry() != null) {
             pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
         }
-        
+
         int tagSeparator = imageName.indexOf(TAG_SEPARATOR);
         if (tagSeparator > 0) {
             pullImageCmd.withRepository(imageName.substring(0, tagSeparator));
@@ -293,9 +387,9 @@ public class DockerClientExecutor {
         }
 
         InputStream exec = pullImageCmd.exec();
-        
-        //To wait until image is pull we need to listen input stream until it is closed by the server
-        //At this point we can be sure that image is already pulled.
+
+        // To wait until image is pull we need to listen input stream until it is closed by the server
+        // At this point we can be sure that image is already pulled.
         String log = IOUtil.asString(exec);
 
     }
