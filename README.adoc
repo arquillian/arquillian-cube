@@ -246,21 +246,21 @@ tomcat: #1
     - name2:alias2
   portBindings: #8
     - exposedPort: 8089/tcp
-    - port: 8089
+      port: 8089
 
     - exposedPort: 8089/tcp
-    - port: localhost:8089 #9
+      port: localhost:8089 #9
   privileged: true
   publishAllPorts: true
   networkMode: host
   dnsSearch: [127.0.0.1]
   devices:
-    - cGroupPermissions: a
-    - pathOnHost: b
-    - pathInContainer: c
+    cGroupPermissions: a
+    pathOnHost: b
+    pathInContainer: c
   restartPolicy: #10
-    - name: failure
-    - maximumRetryCount: 1
+    name: failure
+    maximumRetryCount: 1
   capAdd: [a]
   capDrop: [b]
 ----
