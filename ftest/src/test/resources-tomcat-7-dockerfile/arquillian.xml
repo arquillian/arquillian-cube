@@ -13,10 +13,9 @@
                 dockerfileLocation: src/test/resources-tomcat-7-dockerfile/tomcat
                 noCache: true
                 remove: true
-              exposedPorts: [8089/tcp]
               await:
                 strategy: polling
-              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+              env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
               portBindings: 
                 - exposedPort: 8089/tcp
                   port: 8089
