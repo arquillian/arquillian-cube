@@ -330,7 +330,7 @@ To set that *Arquillian Cube* must build the container, the +image+ property mus
 Let's see previous example but instead of creating a container from a predefined image, we are going to build one:
 
 [source, yaml]
-arquillian.xml
+.arquillian.xml
 ----
 <property name="dockerContainers">
   tomcat:
@@ -358,11 +358,10 @@ TIP: +dockerfileLocation+ can be a directory that must contains +Dockerfile+ in 
 
 An example of +Dockerfile+ is:
 
-[source]
+[source, properties]
 .src/test/resources-tomcat-7-dockerfile/tomcat/Dockerfile
 ----
 FROM tutum/tomcat:7.0
-
 
 ENV JAVA_OPTS -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
 ADD tomcat-users.xml /tomcat/conf/ #1
