@@ -5,13 +5,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.arquillian.cube.await.AwaitStrategyFactory;
-import org.arquillian.cube.await.PollingAwaitStrategy;
 import org.arquillian.cube.docker.DockerClientExecutor;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.event.container.AfterStop;
 import org.jboss.arquillian.container.spi.event.container.BeforeSetup;
 import org.jboss.arquillian.container.spi.event.container.BeforeStart;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.InstanceProducer;
+import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
@@ -21,6 +22,14 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 
 public class CubeLifecycle {
 
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<ContainerMapping> containerMappingInstance;
+    
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<DockerClientExecutor> dockerClientExecutorInstance;
+    
     @Inject
     private Instance<CubeConfiguration> cubeConfigurationInstance;
 
@@ -45,36 +54,40 @@ public class CubeLifecycle {
     public void startDockerImage(@Observes BeforeStart event) {
         // start container managed by Arquillian
 
-        CubeConfiguration cubeConfiguration = cubeConfigurationInstance.get();
+        CubeConfiguration cubeConfiguration = this.cubeConfigurationInstance.get();
 
-        dockerClientExecutor = new DockerClientExecutor(cubeConfiguration);
-
+        this.dockerClientExecutor = new DockerClientExecutor(cubeConfiguration);
+        this.dockerClientExecutorInstance.set(this.dockerClientExecutor);
+        
         Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-
+        ContainerMapping containerMapping = new ContainerMapping();
+        
         Set<String> containerNames = dockerContainersContent.keySet();
 
         for (String containerName : containerNames) {
             Map<String, Object> containerConfiguration = (Map<String, Object>) dockerContainersContent
                     .get(containerName);
-            CreateContainerResponse createContainer = dockerClientExecutor.createContainer(containerName,
+            CreateContainerResponse createContainer = this.dockerClientExecutor.createContainer(containerName,
                     containerConfiguration);
             dockerClientExecutor.startContainer(createContainer, containerConfiguration);
 
-            if(!AwaitStrategyFactory.create(dockerClientExecutor, createContainer, containerConfiguration).await()) {
+            if(!AwaitStrategyFactory.create(this.dockerClientExecutor, createContainer, containerConfiguration).await()) {
                 throw new IllegalArgumentException(String.format("Cannot connect to %s container", containerName));
             }
-
-            createdContainers.add(createContainer);
+            
+            containerMapping.addContainer(containerName, createContainer.getId());
+            this.createdContainers.add(createContainer);
         }
-
+        
+        this.containerMappingInstance.set(containerMapping);
     }
 
     public void stopDockerImage(@Observes AfterStop event) {
         // stops container managed by Arquillian
 
-        for (CreateContainerResponse createContainerResponse : createdContainers) {
-            dockerClientExecutor.stopContainer(createContainerResponse);
-            dockerClientExecutor.removeContainer(createContainerResponse);
+        for (CreateContainerResponse createContainerResponse : this.createdContainers) {
+            this.dockerClientExecutor.stopContainer(createContainerResponse);
+            this.dockerClientExecutor.removeContainer(createContainerResponse);
         }
     }
 

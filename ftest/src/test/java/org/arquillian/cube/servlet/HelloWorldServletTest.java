@@ -2,6 +2,7 @@ package org.arquillian.cube.servlet;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,12 +10,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.arquillian.cube.Container;
+import org.arquillian.cube.Cube;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.github.dockerjava.api.DockerClient;
 
 @RunWith(Arquillian.class)
 public class HelloWorldServletTest {
@@ -23,6 +28,12 @@ public class HelloWorldServletTest {
     public static WebArchive create() {
         return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class);
     }
+    
+    @Container
+    String containerId;
+    
+    @Cube
+    DockerClient dockerClient;
     
     @Test
     public void should_parse_and_load_configuration_file() throws IOException {
@@ -45,5 +56,13 @@ public class HelloWorldServletTest {
         
     }
     
+    @Test
+    public void should_enrich_test_with_container_id() {
+        assertThat(containerId, notNullValue());
+    }
     
+    @Test
+    public void should_enrich_test_with_docker_client() {
+        assertThat(dockerClient, notNullValue());
+    }
 }

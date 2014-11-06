@@ -46,6 +46,12 @@
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-cube-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -505,4 +505,8 @@ public class DockerClientExecutor {
         return (Map<String, Object>) map.get(property);
     }
 
+    public DockerClient getDockerClient() {
+        return this.dockerClient;
+    }
+    
 }
