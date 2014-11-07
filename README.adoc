@@ -370,6 +370,31 @@ CMD ["/tomcat/bin/catalina.sh","run"]
 ----
 <1> +tomcat-users.xml+ file is located at same directory as +Dockerfile+.
 
+== Enrichers
+
+*Arquillian Cube* comes with two enrichers. 
+One for injecting _containerId_ of container created for executing the test and another one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
+
+The annotations used to enrich the test are +org.arquillian.cube.Container+ and +org.arquillian.cube.Cube+. 
+Both annotations only works if tests are run in client mode, that is by using +@RunAsClient+ or by setting testeable proprety to false +@Deployment(testable = false)+.
+
+As examples:
+
+[source, java]
+.ContainerIdEnricher.java
+----
+@Container
+String containerId;
+----
+
+[source, java]
+.DockerClientEnricher.java
+----
+@Cube
+DockerClient dockerClient;
+----
+
+
 == Future work
 
 API will continuously evolve to fit requirements of an enterprise application as well as providing better integration with _Boot2Docker_. 
