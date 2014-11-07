@@ -81,6 +81,63 @@
             </build>
         </profile>
         
+        <profile>
+            <id>wildfly-8-tck</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jboss.spec</groupId>
+                        <artifactId>jboss-javaee-7.0</artifactId>
+                        <version>1.0.1.Final</version>
+                        <type>pom</type>
+                        <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>org.arquillian.tck.container</groupId>
+                    <artifactId>arquillian-tck-container</artifactId>
+                    <version>1.0.0.Alpha1</version>
+                    <classifier>tests</classifier>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec.javax.servlet</groupId>
+                    <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>8.1.0.Final</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>org/arquillian/cube/*/**</exclude>
+                            </excludes>
+                            <dependenciesToScan>
+                                <dependency>org.arquillian.tck.container:arquillian-tck-container</dependency>
+                            </dependenciesToScan>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                <testResources>
+                    <testResource>
+                        <directory>
+                            src/test/resources-wildfly
+                        </directory>
+                    </testResource>
+                </testResources>
+            </build>
+        </profile>
     </profiles>
 
 </project>
