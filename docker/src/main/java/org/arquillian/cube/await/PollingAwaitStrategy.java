@@ -43,11 +43,10 @@ public class PollingAwaitStrategy implements AwaitStrategy {
         // this approach only works if you are not using boot2docker. In next versions we will add support for
         // boot2docker
         String containerIp = networkSettings.getIpAddress();
-        Collection<Binding> hostIpPort = bindings.values();
 
         // wait until container available
-        for (Binding binding : hostIpPort) {
-            if(!Ping.ping(containerIp, binding.getHostPort(), DEFAULT_POLL_ITERATIONS, DEFAULT_SLEEP_POLL_TIME,
+        for (Map.Entry<ExposedPort, Binding> binding : bindings.entrySet()) {
+            if(!Ping.ping(containerIp, binding.getKey().getPort(), DEFAULT_POLL_ITERATIONS, DEFAULT_SLEEP_POLL_TIME,
                     TimeUnit.MILLISECONDS)) {
                 return false;
             }

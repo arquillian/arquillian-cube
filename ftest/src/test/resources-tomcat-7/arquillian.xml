@@ -19,14 +19,14 @@
                   port: 8089
                   
                 - exposedPort: 8080/tcp
-                  port: 8080
+                  port: 8081
         </property>
     </extension>
 
     <container qualifier="tomcat" default="true">
         <configuration>
             <property name="host">localhost</property>
-            <property name="httpPort">8080</property>
+            <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>

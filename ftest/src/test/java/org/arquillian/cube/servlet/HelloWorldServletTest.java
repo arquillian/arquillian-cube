@@ -38,7 +38,7 @@ public class HelloWorldServletTest {
     @Test
     public void should_parse_and_load_configuration_file() throws IOException {
         
-        URL obj = new URL("http://localhost:8080/hello/HelloWorld");
+        URL obj = new URL("http://localhost:8081/hello/HelloWorld");
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
         
