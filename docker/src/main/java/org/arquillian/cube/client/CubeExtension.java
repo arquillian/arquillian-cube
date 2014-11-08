@@ -9,7 +9,8 @@ public class CubeExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.observer(CubeConfigurator.class);
         builder.observer(CubeLifecycle.class);
-        
+        builder.observer(ProtocolMetadataUpdater.class);
+
         builder.service(TestEnricher.class, ContainerEnricher.class);
         builder.service(TestEnricher.class, CubeEnricher.class);
     }
