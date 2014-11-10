@@ -1,6 +1,5 @@
 package org.arquillian.cube.client;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.arquillian.cube.await.AwaitStrategyFactory;
@@ -18,6 +17,7 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 
 public class CubeLifecycle {
@@ -37,7 +37,6 @@ public class CubeLifecycle {
     private Instance<ContainerRegistry> reg;
 
     private DockerClientExecutor dockerClientExecutor;
-    private Map<String, CreateContainerResponse> createdContainers = new HashMap<String, CreateContainerResponse>();
 
     public void startDockerImage(@Observes CubeConfiguration cubeConfiguration) {
         // starts suite containers
@@ -57,11 +56,9 @@ public class CubeLifecycle {
         // TODO need to override host property to boot2docker ip if host is set to boot2docker value.
     }
 
-    public void startDockerImage(@Observes BeforeStart event) {
+    public void startDockerImage(@Observes BeforeStart event, CubeConfiguration cubeConfiguration, ContainerMapping containerMapping) {
         // start container managed by Arquillian
 
-        CubeConfiguration cubeConfiguration = this.cubeConfigurationInstance.get();
-        ContainerMapping containerMapping = this.containerMappingInstance.get();
         Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
         Container container = getContainerByDeployableContainer(event.getDeployableContainer());
@@ -78,17 +75,17 @@ public class CubeLifecycle {
             throw new IllegalArgumentException(String.format("Cannot connect to %s container", containerName));
         }
         containerMapping.addContainer(containerName, createContainer.getId());
-        this.createdContainers.put(containerName, createContainer);
     }
 
-    public void stopDockerImage(@Observes AfterStop event) {
+    public void stopDockerImage(@Observes AfterStop event, ContainerMapping containerMapping) {
         // stops container managed by Arquillian
 
         Container container = getContainerByDeployableContainer(event.getDeployableContainer());
-        CreateContainerResponse response = this.createdContainers.get(container.getName());
-        if(response != null) { // no docker image started for this container
-            this.dockerClientExecutor.stopContainer(response);
-            this.dockerClientExecutor.removeContainer(response);
+        String id = containerMapping.removeContainer(container.getName());
+        if(id != null) { // no docker image started for this container
+            DockerClient client = this.dockerClientExecutor.getDockerClient();
+            client.stopContainerCmd(id).exec();
+            client.removeContainerCmd(id).exec();
         }
     }
 

@@ -1,6 +1,5 @@
 package org.arquillian.cube.await;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 

@@ -11,6 +11,10 @@ public class ContainerMapping {
         this.containers.put(containerName, containerId);
     }
     
+    public String removeContainer(String containerName) {
+        return this.containers.remove(containerName);
+    }
+
     public String getContainerByName(String containerName) {
         return this.containers.get(containerName);
     }
