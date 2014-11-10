@@ -76,17 +76,17 @@ public class CubeLifecycle {
         log.fine(String.format("Creating container with name %s and configuration %s.", containerName,
                 containerConfiguration));
 
-        CreateContainerResponse createContainer = this.dockerClientExecutor.createContainer(containerName,
+        String containerId = this.dockerClientExecutor.createContainer(containerName,
                 containerConfiguration);
 
-        log.fine(String.format("Created container with id %s.", createContainer.getId()));
+        log.fine(String.format("Created container with id %s.", containerId));
 
-        dockerClientExecutor.startContainer(createContainer, containerConfiguration);
+        dockerClientExecutor.startContainer(containerId, containerConfiguration);
 
-        if (!AwaitStrategyFactory.create(this.dockerClientExecutor, createContainer, containerConfiguration).await()) {
+        if (!AwaitStrategyFactory.create(this.dockerClientExecutor, containerId, containerConfiguration).await()) {
             throw new IllegalArgumentException(String.format("Cannot connect to %s container", containerName));
         }
-        containerMapping.addContainer(containerName, createContainer.getId());
+        containerMapping.addContainer(containerName, containerId);
     }
 
     public void stopDockerImage(@Observes AfterStop event, ContainerMapping containerMapping) {

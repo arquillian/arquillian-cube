@@ -25,16 +25,16 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
 
     private DockerClientExecutor dockerClientExecutor;
-    private CreateContainerResponse createContainer;
+    private String containerId;
 
-    public PollingAwaitStrategy(DockerClientExecutor dockerClientExecutor, CreateContainerResponse createContainer) {
+    public PollingAwaitStrategy(DockerClientExecutor dockerClientExecutor, String containerId) {
         this.dockerClientExecutor = dockerClientExecutor;
-        this.createContainer = createContainer;
+        this.containerId = containerId;
     }
 
     @Override
     public boolean await() {
-        InspectContainerResponse inspectContainer = this.dockerClientExecutor.inspectContainer(this.createContainer);
+        InspectContainerResponse inspectContainer = this.dockerClientExecutor.inspectContainer(this.containerId);
 
         HostConfig hostConfig = inspectContainer.getHostConfig();
         Ports portBindings = hostConfig.getPortBindings();

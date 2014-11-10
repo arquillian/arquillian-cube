@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.ws.rs.ProcessingException;
 
@@ -20,7 +21,6 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
@@ -78,6 +78,8 @@ public class DockerClientExecutor {
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
 
+    private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
+
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
 
@@ -90,7 +92,7 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
     }
 
-    public CreateContainerResponse createContainer(String name, Map<String, Object> containerConfiguration) {
+    public String createContainer(String name, Map<String, Object> containerConfiguration) {
 
         // we check if Docker server is up and correctly configured.
         this.pingDockerServer();
@@ -184,10 +186,12 @@ public class DockerClientExecutor {
         }
 
         try {
-            return createContainerCmd.exec();
+            return createContainerCmd.exec().getId();
         } catch (NotFoundException e) {
+            log.warning(String.format(
+                    "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
             this.pullImage(image);
-            return createContainerCmd.exec();
+            return createContainerCmd.exec().getId();
         }
     }
 
@@ -220,9 +224,8 @@ public class DockerClientExecutor {
         return image;
     }
 
-    public void startContainer(CreateContainerResponse createContainerResponse,
-            Map<String, Object> containerConfiguration) {
-        StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(createContainerResponse.getId());
+    public void startContainer(String containerId, Map<String, Object> containerConfiguration) {
+        StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(containerId);
 
         if (containerConfiguration.containsKey(BINDS)) {
             List<String> binds = asListOfString(containerConfiguration, BINDS);
@@ -288,20 +291,20 @@ public class DockerClientExecutor {
         startContainerCmd.exec();
     }
 
-    public void stopContainer(CreateContainerResponse createContainerResponse) {
-        this.dockerClient.stopContainerCmd(createContainerResponse.getId()).exec();
+    public void stopContainer(String containerId) {
+        this.dockerClient.stopContainerCmd(containerId).exec();
     }
 
-    public void removeContainer(CreateContainerResponse createContainerResponse) {
-        this.dockerClient.removeContainerCmd(createContainerResponse.getId()).exec();
+    public void removeContainer(String containerId) {
+        this.dockerClient.removeContainerCmd(containerId).exec();
     }
 
-    public InspectContainerResponse inspectContainer(CreateContainerResponse createContainerResponse) {
-        return this.dockerClient.inspectContainerCmd(createContainerResponse.getId()).exec();
+    public InspectContainerResponse inspectContainer(String containerId) {
+        return this.dockerClient.inspectContainerCmd(containerId).exec();
     }
 
-    public int waitContainer(CreateContainerResponse createContainerResponse) {
-        return this.dockerClient.waitContainerCmd(createContainerResponse.getId()).exec();
+    public int waitContainer(String containerId) {
+        return this.dockerClient.waitContainerCmd(containerId).exec();
     }
 
     public void pingDockerServer() {
@@ -508,5 +511,5 @@ public class DockerClientExecutor {
     public DockerClient getDockerClient() {
         return this.dockerClient;
     }
-    
+
 }
