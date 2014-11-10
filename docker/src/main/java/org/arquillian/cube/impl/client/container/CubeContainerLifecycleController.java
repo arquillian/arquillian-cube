@@ -1,0 +1,62 @@
+package org.arquillian.cube.impl.client.container;
+
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.events.CreateCube;
+import org.arquillian.cube.spi.events.CubeControlEvent;
+import org.arquillian.cube.spi.events.DestroyCube;
+import org.arquillian.cube.spi.events.StartCube;
+import org.arquillian.cube.spi.events.StopCube;
+import org.jboss.arquillian.container.spi.Container;
+import org.jboss.arquillian.container.spi.ContainerRegistry;
+import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
+import org.jboss.arquillian.container.spi.event.container.AfterStop;
+import org.jboss.arquillian.container.spi.event.container.BeforeStart;
+import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.core.api.annotation.Observes;
+
+public class CubeContainerLifecycleController {
+
+    @Inject
+    private Event<CubeControlEvent> controlEvent;
+
+    public void startCubeMappedContainer(@Observes BeforeStart event, CubeRegistry cubeRegistry, ContainerRegistry containerRegistry) {
+        Container container = getContainerByDeployableContainer(containerRegistry, event.getDeployableContainer());
+        if(container == null) {
+            return;
+        }
+
+        Cube cube = cubeRegistry.getCube(container.getName());
+        if(cube == null) {
+            return; // No Cube found matching Container name, not managed by Cube
+        }
+
+        controlEvent.fire(new CreateCube(cube));
+        controlEvent.fire(new StartCube(cube));
+    }
+
+    public void stopCubeMappedContainer(@Observes AfterStop event, CubeRegistry cubeRegistry, ContainerRegistry containerRegistry) {
+        Container container = getContainerByDeployableContainer(containerRegistry, event.getDeployableContainer());
+        if(container == null) {
+            return;
+        }
+
+        Cube cube = cubeRegistry.getCube(container.getName());
+        if(cube == null) {
+            return; // No Cube found matching Container name, not managed by Cube
+        }
+
+        controlEvent.fire(new StopCube(cube));
+        controlEvent.fire(new DestroyCube(cube));
+    }
+
+    private Container getContainerByDeployableContainer(ContainerRegistry registry, DeployableContainer<?> dc) {
+        for(Container container : registry.getContainers()) {
+            if(dc == container.getDeployableContainer()) {
+                return container;
+            }
+        }
+        return null;
+    }
+}
