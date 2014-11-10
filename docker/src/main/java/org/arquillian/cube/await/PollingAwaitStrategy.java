@@ -2,6 +2,7 @@ package org.arquillian.cube.await;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.DockerClientExecutor;
 import org.arquillian.cube.util.Ping;
@@ -16,19 +17,21 @@ import com.github.dockerjava.api.model.Ports.Binding;
 
 public class PollingAwaitStrategy implements AwaitStrategy {
 
+    private static final Logger log = Logger.getLogger(PollingAwaitStrategy.class.getName());
+
     public static final String TAG = "polling";
-    
+
     private static final int DEFAULT_POLL_ITERATIONS = 10;
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
-    
+
     private DockerClientExecutor dockerClientExecutor;
     private CreateContainerResponse createContainer;
-    
+
     public PollingAwaitStrategy(DockerClientExecutor dockerClientExecutor, CreateContainerResponse createContainer) {
         this.dockerClientExecutor = dockerClientExecutor;
         this.createContainer = createContainer;
     }
-    
+
     @Override
     public boolean await() {
         InspectContainerResponse inspectContainer = this.dockerClientExecutor.inspectContainer(this.createContainer);
@@ -41,12 +44,16 @@ public class PollingAwaitStrategy implements AwaitStrategy {
         NetworkSettings networkSettings = inspectContainer.getNetworkSettings();
         // wait until container available
         for (Map.Entry<ExposedPort, Binding> binding : bindings.entrySet()) {
-            if(!Ping.ping(networkSettings.getGateway(), binding.getValue().getHostPort(), DEFAULT_POLL_ITERATIONS, DEFAULT_SLEEP_POLL_TIME,
-                    TimeUnit.MILLISECONDS)) {
+
+            log.fine(String.format("Pinging host (gateway) %s and port %s", networkSettings.getGateway(), binding
+                    .getValue().getHostPort()));
+
+            if (!Ping.ping(networkSettings.getGateway(), binding.getValue().getHostPort(), DEFAULT_POLL_ITERATIONS,
+                    DEFAULT_SLEEP_POLL_TIME, TimeUnit.MILLISECONDS)) {
                 return false;
             }
         }
-        
+
         return true;
     }
 

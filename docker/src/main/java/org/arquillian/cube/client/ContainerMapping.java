@@ -23,7 +23,7 @@ public class ContainerMapping {
         if(this.containers.size() == 1) {
             return this.containers.values().iterator().next();
         } else {
-            throw new IllegalArgumentException("More than ...");
+            throw new IllegalArgumentException("More than one container configured.");
         }
     }
     

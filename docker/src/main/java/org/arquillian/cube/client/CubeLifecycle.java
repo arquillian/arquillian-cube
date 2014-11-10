@@ -1,6 +1,7 @@
 package org.arquillian.cube.client;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.arquillian.cube.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.DockerClientExecutor;
@@ -22,14 +23,16 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 
 public class CubeLifecycle {
 
+    private static final Logger log = Logger.getLogger(CubeLifecycle.class.getName());
+
     @Inject
     @ApplicationScoped
     private InstanceProducer<ContainerMapping> containerMappingInstance;
-    
+
     @Inject
     @ApplicationScoped
     private InstanceProducer<DockerClientExecutor> dockerClientExecutorInstance;
-    
+
     @Inject
     private Instance<CubeConfiguration> cubeConfigurationInstance;
 
@@ -56,7 +59,8 @@ public class CubeLifecycle {
         // TODO need to override host property to boot2docker ip if host is set to boot2docker value.
     }
 
-    public void startDockerImage(@Observes BeforeStart event, CubeConfiguration cubeConfiguration, ContainerMapping containerMapping) {
+    public void startDockerImage(@Observes BeforeStart event, CubeConfiguration cubeConfiguration,
+            ContainerMapping containerMapping) {
         // start container managed by Arquillian
 
         Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
@@ -65,13 +69,21 @@ public class CubeLifecycle {
         String containerName = container.getName();
         @SuppressWarnings("unchecked")
         Map<String, Object> containerConfiguration = (Map<String, Object>) dockerContainersContent.get(containerName);
-        if(containerConfiguration == null) {
+        if (containerConfiguration == null) {
             return; // no docker mapping found for this container
         }
-        CreateContainerResponse createContainer = this.dockerClientExecutor.createContainer(containerName, containerConfiguration);
+
+        log.fine(String.format("Creating container with name %s and configuration %s.", containerName,
+                containerConfiguration));
+
+        CreateContainerResponse createContainer = this.dockerClientExecutor.createContainer(containerName,
+                containerConfiguration);
+
+        log.fine(String.format("Created container with id %s.", createContainer.getId()));
+
         dockerClientExecutor.startContainer(createContainer, containerConfiguration);
 
-        if(!AwaitStrategyFactory.create(this.dockerClientExecutor, createContainer, containerConfiguration).await()) {
+        if (!AwaitStrategyFactory.create(this.dockerClientExecutor, createContainer, containerConfiguration).await()) {
             throw new IllegalArgumentException(String.format("Cannot connect to %s container", containerName));
         }
         containerMapping.addContainer(containerName, createContainer.getId());
@@ -82,7 +94,7 @@ public class CubeLifecycle {
 
         Container container = getContainerByDeployableContainer(event.getDeployableContainer());
         String id = containerMapping.removeContainer(container.getName());
-        if(id != null) { // no docker image started for this container
+        if (id != null) { // no docker image started for this container
             DockerClient client = this.dockerClientExecutor.getDockerClient();
             client.stopContainerCmd(id).exec();
             client.removeContainerCmd(id).exec();
@@ -91,8 +103,8 @@ public class CubeLifecycle {
 
     private Container getContainerByDeployableContainer(DeployableContainer<?> dc) {
         ContainerRegistry registry = reg.get();
-        for(Container container : registry.getContainers()) {
-            if(dc == container.getDeployableContainer()) {
+        for (Container container : registry.getContainers()) {
+            if (dc == container.getDeployableContainer()) {
                 return container;
             }
         }
