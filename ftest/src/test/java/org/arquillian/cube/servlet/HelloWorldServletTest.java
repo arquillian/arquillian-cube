@@ -11,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.arquillian.cube.Container;
-import org.arquillian.cube.Cube;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -33,7 +32,7 @@ public class HelloWorldServletTest {
     @Container
     String containerId;
     
-    @Cube
+    @ArquillianResource
     DockerClient dockerClient;
     
     @Test
