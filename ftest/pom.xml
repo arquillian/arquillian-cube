@@ -22,9 +22,31 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+
     <profiles>
         <profile>
             <id>tomcat-7</id>
+            <properties>
+                <arquillian.launch>tomcat</arquillian.launch>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
@@ -32,7 +54,6 @@
                     <version>1.0.0.CR7</version>
                     <scope>test</scope>
                 </dependency>
-
                 <dependency>
                     <groupId>org.apache.tomcat</groupId>
                     <artifactId>tomcat-servlet-api</artifactId>
@@ -40,20 +61,13 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-
-            <build>
-                <testResources>
-                    <testResource>
-                        <directory>
-                            src/test/resources-tomcat-7
-                        </directory>
-                    </testResource>
-                </testResources>
-            </build>
         </profile>
-        
+
         <profile>
             <id>tomcat-7-dockerfile</id>
+            <properties>
+                <arquillian.launch>tomcat_dockerfile</arquillian.launch>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
@@ -61,7 +75,6 @@
                     <version>1.0.0.CR7</version>
                     <scope>test</scope>
                 </dependency>
-
                 <dependency>
                     <groupId>org.apache.tomcat</groupId>
                     <artifactId>tomcat-servlet-api</artifactId>
@@ -69,20 +82,13 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-
-            <build>
-                <testResources>
-                    <testResource>
-                        <directory>
-                            src/test/resources-tomcat-7-dockerfile
-                        </directory>
-                    </testResource>
-                </testResources>
-            </build>
         </profile>
-        
+
         <profile>
             <id>wildfly-8-tck</id>
+            <properties>
+                <arquillian.launch>wildfly</arquillian.launch>
+            </properties>
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -114,7 +120,6 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
-
             <build>
                 <plugins>
                     <plugin>
@@ -129,14 +134,13 @@
                         </configuration>
                     </plugin>
                 </plugins>
-                <testResources>
-                    <testResource>
-                        <directory>
-                            src/test/resources-wildfly
-                        </directory>
-                    </testResource>
-                </testResources>
             </build>
+        </profile>
+        <profile>
+            <id>wildfly-8-group</id>
+            <properties>
+                <arquillian.launch>wildfly-group</arquillian.launch>
+            </properties>
         </profile>
     </profiles>
 

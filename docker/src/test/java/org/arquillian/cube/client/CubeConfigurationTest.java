@@ -11,13 +11,10 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
-@RunWith(Arquillian.class)
 public class CubeConfigurationTest {
 
     private static final String CONTENT = "tomcat:\n" + 
