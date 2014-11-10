@@ -44,6 +44,9 @@
     <profiles>
         <profile>
             <id>tomcat-7</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <arquillian.launch>tomcat</arquillian.launch>
             </properties>
