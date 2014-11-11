@@ -9,6 +9,17 @@ import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
+import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
+import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
+import org.arquillian.cube.spi.event.lifecycle.AfterStart;
+import org.arquillian.cube.spi.event.lifecycle.AfterStop;
+import org.arquillian.cube.spi.event.lifecycle.BeforeCreate;
+import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
+import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
+import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
+import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class DockerCube implements Cube {
 
@@ -19,6 +30,9 @@ public class DockerCube implements Cube {
     private Binding binding = null;
 
     private Map<String, Object> configuration;
+
+    @Inject
+    private Event<CubeLifecyleEvent> lifecycle;
 
     private DockerClientExecutor executor;
 
@@ -44,10 +58,12 @@ public class DockerCube implements Cube {
             return;
         }
         try {
+            lifecycle.fire(new BeforeCreate(id));
             log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
             executor.createContainer(id, configuration);
             log.fine(String.format("Created container with id %s.", id));
             state = State.CREATED;
+            lifecycle.fire(new AfterCreate(id));
         } catch(Exception e) {
             state = State.CREATE_FAILED;
             throw CubeControlException.failedCreate(id, e);
@@ -60,11 +76,13 @@ public class DockerCube implements Cube {
             return;
         }
         try {
+            lifecycle.fire(new BeforeStart(id));
             executor.startContainer(id, configuration);
             state = State.STARTED;
             if(!AwaitStrategyFactory.create(executor, this, configuration).await()) {
                 throw new IllegalArgumentException(String.format("Cannot connect to %s container", id));
             }
+            lifecycle.fire(new AfterStart(id));
         } catch(Exception e) {
             state = State.START_FAILED;
             throw CubeControlException.failedStart(id, e);
@@ -77,8 +95,10 @@ public class DockerCube implements Cube {
             return;
         }
         try {
+            lifecycle.fire(new BeforeStop(id));
             executor.stopContainer(id);
             state = State.STOPPED;
+            lifecycle.fire(new AfterStop(id));
         } catch(Exception e) {
             state = State.STOP_FAILED;
             throw CubeControlException.failedStop(id, e);
@@ -91,8 +111,10 @@ public class DockerCube implements Cube {
             return;
         }
         try {
+            lifecycle.fire(new BeforeDestroy(id));
             executor.removeContainer(id);
             state = State.DESTROYED;
+            lifecycle.fire(new AfterDestroy(id));
         } catch(Exception e) {
             state = State.DESTORY_FAILED;
             throw CubeControlException.failedDestroy(id, e);
