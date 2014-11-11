@@ -2,10 +2,10 @@ package org.arquillian.cube.impl.client;
 
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
-import org.arquillian.cube.spi.events.CreateCube;
-import org.arquillian.cube.spi.events.DestroyCube;
-import org.arquillian.cube.spi.events.StartCube;
-import org.arquillian.cube.spi.events.StopCube;
+import org.arquillian.cube.spi.event.CreateCube;
+import org.arquillian.cube.spi.event.DestroyCube;
+import org.arquillian.cube.spi.event.StartCube;
+import org.arquillian.cube.spi.event.StopCube;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class CubeLifecycleController {

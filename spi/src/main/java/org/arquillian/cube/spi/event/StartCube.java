@@ -1,16 +1,16 @@
-package org.arquillian.cube.spi.events;
+package org.arquillian.cube.spi.event;
 
 import org.arquillian.cube.spi.Cube;
 
-public class CreateCube implements CubeControlEvent {
+public class StartCube implements CubeControlEvent {
 
     private String cubeId;
 
-    public CreateCube(Cube cube) {
+    public StartCube(Cube cube) {
         this(cube.getId());
     }
 
-    public CreateCube(String cubeId) {
+    public StartCube(String cubeId) {
         this.cubeId = cubeId;
     }
 

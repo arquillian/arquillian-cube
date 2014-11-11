@@ -1,4 +1,4 @@
-package org.arquillian.cube.spi.events;
+package org.arquillian.cube.spi.event;
 
 import org.jboss.arquillian.core.spi.event.Event;
 
