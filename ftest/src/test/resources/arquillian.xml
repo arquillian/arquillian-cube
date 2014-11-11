@@ -44,10 +44,10 @@
                 strategy: polling
               portBindings:
                 - exposedPort: 8080/tcp
-                  port: 8080
+                  port: 8081
 
                 - exposedPort: 9990/tcp
-                  port: 9990
+                  port: 9991
             wildfly2:
               buildImage:
                 dockerfileLocation: src/test/resources/wildfly
@@ -84,6 +84,7 @@
     <container qualifier="wildfly">
         <configuration>
             <property name="target">wildfly:8.1.0.Final:remote</property>
+            <property name="managementPort">9991</property>
             <property name="username">admin</property>
             <property name="password">Admin#70365</property>
         </configuration>
