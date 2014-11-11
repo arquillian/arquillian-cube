@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.impl.util.Ping;
+import org.arquillian.cube.spi.Cube;
 
 public class StaticAwaitStrategy implements AwaitStrategy {
 
@@ -23,7 +24,7 @@ public class StaticAwaitStrategy implements AwaitStrategy {
     private List<Integer> ports = new ArrayList<Integer>();
 
     @SuppressWarnings("unchecked")
-    public StaticAwaitStrategy(Map<String, Object> params) {
+    public StaticAwaitStrategy(Cube cube, Map<String, Object> params) {
         this.ip = (String) params.get(IP);
         this.ports.addAll((Collection<? extends Integer>) params.get(PORTS));
     }

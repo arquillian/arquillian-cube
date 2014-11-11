@@ -1,7 +1,6 @@
 package org.arquillian.cube.impl.await;
 
 import java.util.Map;
-
 import java.util.logging.Logger;
 
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
@@ -30,19 +29,19 @@ public class AwaitStrategyFactory {
                 String strategy = ((String) awaitOptions.get(STRATEGY)).toLowerCase();
                 switch(strategy) {
                     case PollingAwaitStrategy.TAG: return new PollingAwaitStrategy(cube);
-                    case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(dockerClientExecutor, cube.getId());
-                    case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(awaitOptions);
-                    default: return new NativeAwaitStrategy(dockerClientExecutor, cube.getId());
+                    case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
+                    case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, awaitOptions);
+                    default: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                 }
 
             } else {
                 log.warning("No await strategy is set and Native one is going to be used.");
-                return new NativeAwaitStrategy(dockerClientExecutor, cube.getId());
+                return new NativeAwaitStrategy(cube, dockerClientExecutor);
             }
 
         } else {
             log.warning("No await strategy is set and Native one is going to be used.");
-            return new NativeAwaitStrategy(dockerClientExecutor, cube.getId());
+            return new NativeAwaitStrategy(cube, dockerClientExecutor);
         }
     }
 }
