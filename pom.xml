@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Artifact Configuration -->
-    <groupId>org.jboss.arquillian.extension</groupId>
+    <groupId>org.arquillian.extension</groupId>
     <artifactId>arquillian-cube</artifactId>
     <version>1.0.0.Alpha1</version>
     <packaging>pom</packaging>
@@ -57,17 +57,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jboss.arquillian.extension</groupId>
+                <groupId>org.arquillian.extension</groupId>
                 <artifactId>arquillian-cube-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.arquillian.extension</groupId>
+                <groupId>org.arquillian.extension</groupId>
                 <artifactId>arquillian-cube-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.arquillian.extension</groupId>
+                <groupId>org.arquillian.extension</groupId>
                 <artifactId>arquillian-cube-docker</artifactId>
                 <version>${project.version}</version>
             </dependency>
