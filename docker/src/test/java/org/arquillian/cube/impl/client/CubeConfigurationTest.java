@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -74,5 +75,37 @@ public class CubeConfigurationTest {
 
         String image = (String) actualTomcat.get("image");
         assertThat(image, is("tutum/tomcat:7.0"));
+    }
+
+    @Test
+    public void should_parse_empty_autostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(parameters);
+        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
+        Assert.assertEquals(0, cubeConfiguration.getAutoStartContainers().length);
+    }
+
+    @Test
+    public void should_parse_empty_values_autostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "  ,   ");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(parameters);
+        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
+        Assert.assertEquals(0, cubeConfiguration.getAutoStartContainers().length);
+    }
+
+    @Test
+    public void should_parse_trim_autostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "a , b ");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(parameters);
+        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
+        Assert.assertEquals(2, cubeConfiguration.getAutoStartContainers().length);
+        Assert.assertEquals("a", cubeConfiguration.getAutoStartContainers()[0]);
+        Assert.assertEquals("b", cubeConfiguration.getAutoStartContainers()[1]);
     }
 }
