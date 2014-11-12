@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.arquillian.cube.CubeID;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -27,7 +28,10 @@ public class HelloWorldServletTest {
     public static WebArchive create() {
         return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class);
     }
-    
+
+    @ArquillianResource
+    CubeID cubeId;
+
     @ArquillianResource
     DockerClient dockerClient;
     
@@ -55,5 +59,10 @@ public class HelloWorldServletTest {
     @Test
     public void should_enrich_test_with_docker_client() {
         assertThat(dockerClient, notNullValue());
+    }
+
+    @Test
+    public void should_enrich_test_with_cube_id() {
+        assertThat(cubeId, notNullValue());
     }
 }

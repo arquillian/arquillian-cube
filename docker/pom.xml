@@ -31,6 +31,12 @@
 
         <dependency>
             <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>arquillian-container-test-impl-base</artifactId> <!-- required to inherit logic of OperatesOnDeploymentAwareProvider -->
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
             <artifactId>arquillian-container-test-spi</artifactId>
         </dependency>
 
