@@ -58,10 +58,10 @@
                 strategy: polling
               portBindings:
                 - exposedPort: 8080/tcp
-                  port: 8081
+                  port: 8082
 
                 - exposedPort: 9990/tcp
-                  port: 9991
+                  port: 9992
         </property>
     </extension>
 
@@ -93,6 +93,7 @@
         <container qualifier="wildfly">
             <configuration>
                 <property name="target">wildfly:8.1.0.Final:remote</property>
+                <property name="managementPort">9991</property>
                 <property name="username">admin</property>
                 <property name="password">Admin#70365</property>
             </configuration>
@@ -100,7 +101,7 @@
         <container qualifier="wildfly2" default="true">
             <configuration>
                 <property name="target">wildfly:8.1.0.Final:remote</property>
-                <property name="managementPort">9991</property>
+                <property name="managementPort">9992</property>
                 <property name="username">admin</property>
                 <property name="password">Admin#70365</property>
             </configuration>
