@@ -1,5 +1,7 @@
 package org.arquillian.cube.spi;
 
+import java.util.Map;
+
 public interface Cube {
 
     public enum State {
@@ -26,4 +28,6 @@ public interface Cube {
     void destroy() throws CubeControlException;
 
     Binding bindings();
+
+    Map<String, Object> configuration();
 }

@@ -132,4 +132,9 @@ public class DockerCube implements Cube {
         binding = BindingUtil.binding(executor, id);
         return binding;
     }
+
+    @Override
+    public Map<String, Object> configuration() {
+        return configuration;
+    }
 }
