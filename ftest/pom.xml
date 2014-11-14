@@ -64,12 +64,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                       <arquillian.launch>${arquillian.launch}</arquillian.launch>
-                       <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
+                        <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                        <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
                     </systemPropertyVariables>
-                   <excludes>
-                       <exclude>**/persistence/**</exclude>
-                   </excludes>
+                    <excludes>
+                        <exclude>**/persistence/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -89,6 +89,24 @@
             </activation>
             <properties>
                 <arquillian.launch>tomcat</arquillian.launch>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-tomcat-remote-7</artifactId>
+                    <version>1.0.0.CR7</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>tomcat-7-default-ports</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <arquillian.launch>tomcat_default</arquillian.launch>
             </properties>
             <dependencies>
                 <dependency>
@@ -190,8 +208,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration combine.self="override">
                             <systemPropertyVariables>
-                               <arquillian.launch>${arquillian.launch}</arquillian.launch>
-                               <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
+                                <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                                <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

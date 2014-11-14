@@ -57,6 +57,18 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
         super.addExtensions(extensions);
     }
 
+    public static class ContainerConfiguration {
+        private int port = 8089;
+        
+        public int getPort() {
+            return port;
+        }
+        
+        public void setPort(int port) {
+            this.port = port;
+        }
+    }
+    
     @Before
     public void setup() {
 
@@ -68,6 +80,7 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
         when(cube.configuration()).thenReturn(content);
         when(container.getName()).thenReturn(CUBE_ID);
         when(container.getDeployableContainer()).thenReturn(deployableContainer);
+        when(deployableContainer.getConfigurationClass()).thenReturn(ContainerConfiguration.class);
         when(container.getContainerConfiguration()).thenReturn(containerDef);
         when(containerRegistry.getContainers()).thenReturn(Arrays.asList(container));
         registry = new DockerCubeRegistry();
@@ -82,11 +95,10 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
     public void shouldRemapContainerPortIfItIsEqualToExposedOne() {
 
         Map<String, String> containerConfig = new HashMap<String, String>();
-        containerConfig.put("PoRt", "8089");
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
 
         fire(new BeforeSetup(deployableContainer));
-        verify(containerDef).overrideProperty("PoRt", "8090");
+        verify(containerDef).overrideProperty("port", "8090");
 
     }
     
@@ -94,12 +106,12 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
     public void shouldNotRemapContainerPortIfItIsNotEqualToExposedOne() {
 
         Map<String, String> containerConfig = new HashMap<String, String>();
-        containerConfig.put("PoRt", "8090");
+        containerConfig.put("port", "8090");
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
 
         fire(new BeforeSetup(deployableContainer));
-        verify(containerDef, times(0)).overrideProperty("PoRt", "8090");
-        verify(containerDef, times(0)).overrideProperty("PoRt", "8089");
+        verify(containerDef, times(0)).overrideProperty("port", "8090");
+        verify(containerDef, times(0)).overrideProperty("port", "8089");
 
     }
 

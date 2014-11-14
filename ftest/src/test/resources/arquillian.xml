@@ -9,6 +9,18 @@
         <property name="serverUri">http://localhost:2375</property>
         <property name="autoStartContainers">${arquillian.cube.autostart}</property>
         <property name="dockerContainers">
+            tomcat_default:
+              image: tutum/tomcat:7.0
+              exposedPorts: [8089/tcp]
+              await:
+                strategy: polling
+              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+              portBindings: 
+                - exposedPort: 8089/tcp
+                  port: 8089
+                  
+                - exposedPort: 8080/tcp
+                  port: 8081
             tomcat:
               image: tutum/tomcat:7.0
               exposedPorts: [8089/tcp]
@@ -79,6 +91,13 @@
         <configuration>
             <property name="host">localhost</property>
             <property name="httpPort">8081</property>
+            <property name="user">admin</property>
+            <property name="pass">mypass</property>
+        </configuration>
+    </container>
+    <container qualifier="tomcat_default">
+        <configuration>
+            <property name="host">localhost</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
