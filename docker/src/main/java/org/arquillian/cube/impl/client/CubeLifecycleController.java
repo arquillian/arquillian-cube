@@ -18,11 +18,11 @@ public class CubeLifecycleController {
         validateAndGet(registry, event.getCubeId()).start();
     }
 
-    public void start(@Observes StopCube event, CubeRegistry registry) {
+    public void stop(@Observes StopCube event, CubeRegistry registry) {
         validateAndGet(registry, event.getCubeId()).stop();
     }
 
-    public void start(@Observes DestroyCube event, CubeRegistry registry) {
+    public void destroy(@Observes DestroyCube event, CubeRegistry registry) {
         validateAndGet(registry, event.getCubeId()).destroy();
     }
 
