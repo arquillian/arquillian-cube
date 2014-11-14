@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -107,5 +107,30 @@ public class CubeConfigurationTest {
         Assert.assertEquals(2, cubeConfiguration.getAutoStartContainers().length);
         Assert.assertEquals("a", cubeConfiguration.getAutoStartContainers()[0]);
         Assert.assertEquals("b", cubeConfiguration.getAutoStartContainers()[1]);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void should_be_able_to_extend_and_override_toplevel() throws Exception {
+        String config =
+                "tomcat6:\n" +
+                "  image: tutum/tomcat:6.0\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "  await:\n" +
+                "    strategy: static\n" +
+                "    ip: localhost\n" +
+                "    ports: [8080, 8089]\n" +
+                "tomcat7:\n" +
+                "  extends: tomcat6\n" +
+                "  image: tutum/tomcat:7.0\n";
+
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", config);
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(parameters);
+
+        Map<String, Object> tomcat7 = (Map<String, Object>)cubeConfiguration.getDockerContainersContent().get("tomcat7");
+        Assert.assertEquals("tutum/tomcat:7.0", tomcat7.get("image").toString());
+        Assert.assertTrue(tomcat7.containsKey("await"));
+        Assert.assertEquals("8089/tcp", ((List<Object>)tomcat7.get("exposedPorts")).get(0).toString());
     }
 }

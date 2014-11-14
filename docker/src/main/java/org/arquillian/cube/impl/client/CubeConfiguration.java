@@ -61,14 +61,14 @@ public class CubeConfiguration {
 
         if (map.containsKey(DOCKER_CONTAINERS)) {
             String content = map.get(DOCKER_CONTAINERS);
-            cubeConfiguration.dockerContainersContent = (Map<String, Object>) new Yaml().load(content);
+            cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(content));
         }
 
         if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
             String location = map.get(DOCKER_CONTAINERS_FILE);
             try {
-                cubeConfiguration.dockerContainersContent = (Map<String, Object>) new Yaml().load(new FileInputStream(
-                        location));
+                cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(new FileInputStream(
+                        location)));
             } catch (FileNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }

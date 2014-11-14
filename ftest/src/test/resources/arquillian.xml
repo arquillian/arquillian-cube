@@ -50,29 +50,11 @@
                 - exposedPort: 9990/tcp
                   port: 9991
             wildfly_database:
-              buildImage:
-                dockerfileLocation: src/test/resources/wildfly
-                noCache: true
-                remove: true
-              exposedPorts: [8080/tcp, 9990/tcp]
-              await:
-                strategy: polling
+              extends: wildfly
               links:
                 - database:database
-              portBindings:
-                - exposedPort: 8080/tcp
-                  port: 8081
-
-                - exposedPort: 9990/tcp
-                  port: 9991
             wildfly2:
-              buildImage:
-                dockerfileLocation: src/test/resources/wildfly
-                noCache: true
-                remove: true
-              exposedPorts: [8080/tcp, 9990/tcp]
-              await:
-                strategy: polling
+              extends: wildfly
               portBindings:
                 - exposedPort: 8080/tcp
                   port: 8082
