@@ -8,6 +8,22 @@
     </parent>
     <artifactId>arquillian-cube-ftest</artifactId>
 
+    <properties>
+        <arquillian.cube.autostart></arquillian.cube.autostart>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-7.0</artifactId>
+                <version>1.0.1.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
@@ -19,6 +35,27 @@
             <artifactId>arquillian-cube-docker</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jboss.spec.javax.servlet</groupId>
+            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.annotation</groupId>
+            <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -27,8 +64,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                       <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                       <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
                     </systemPropertyVariables>
+                   <excludes>
+                       <exclude>**/persistence/**</exclude>
+                   </excludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -56,12 +97,6 @@
                     <version>1.0.0.CR7</version>
                     <scope>test</scope>
                 </dependency>
-                <dependency>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>tomcat-servlet-api</artifactId>
-                    <version>7.0.56</version>
-                    <scope>provided</scope>
-                </dependency>
             </dependencies>
         </profile>
 
@@ -77,48 +112,17 @@
                     <version>1.0.0.CR7</version>
                     <scope>test</scope>
                 </dependency>
-                <dependency>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>tomcat-servlet-api</artifactId>
-                    <version>7.0.56</version>
-                    <scope>provided</scope>
-                </dependency>
             </dependencies>
         </profile>
 
         <profile>
-            <id>wildfly-8-tck</id>
-            <properties>
-                <arquillian.launch>wildfly</arquillian.launch>
-            </properties>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jboss.spec</groupId>
-                        <artifactId>jboss-javaee-7.0</artifactId>
-                        <version>1.0.1.Final</version>
-                        <type>pom</type>
-                        <scope>import</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
+            <id>tck</id>
             <dependencies>
                 <dependency>
                     <groupId>org.arquillian.tck.container</groupId>
                     <artifactId>arquillian-tck-container</artifactId>
                     <version>1.0.0.Alpha1</version>
                     <classifier>tests</classifier>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.jboss.spec.javax.servlet</groupId>
-                    <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.wildfly</groupId>
-                    <artifactId>wildfly-arquillian-container-remote</artifactId>
-                    <version>8.1.0.Final</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -139,10 +143,60 @@
             </build>
         </profile>
         <profile>
+            <id>wildfly-8</id>
+            <properties>
+                <arquillian.launch>wildfly</arquillian.launch>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>8.1.0.Final</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>wildfly-8-group</id>
             <properties>
                 <arquillian.launch>wildfly-group</arquillian.launch>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>8.1.0.Final</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>wildfly-8-database</id>
+            <properties>
+                <arquillian.launch>wildfly_database</arquillian.launch>
+                <arquillian.cube.autostart>database</arquillian.cube.autostart>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>8.1.0.Final</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration combine.self="override">
+                            <systemPropertyVariables>
+                               <arquillian.launch>${arquillian.launch}</arquillian.launch>
+                               <arquillian.cube.autostart>${arquillian.cube.autostart}</arquillian.cube.autostart>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 

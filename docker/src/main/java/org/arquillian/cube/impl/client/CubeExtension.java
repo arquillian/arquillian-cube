@@ -15,6 +15,7 @@ public class CubeExtension implements LoadableExtension {
                .observer(CubeClientCreator.class)
                .observer(CubeRegistrar.class)
                .observer(CubeLifecycleController.class)
+               .observer(CubeSuiteLifecycleController.class)
                .observer(CubeContainerLifecycleController.class);
 
         builder.observer(ProtocolMetadataUpdater.class);
