@@ -174,7 +174,7 @@ And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* i
 <2> _Docker_ server version is required.
 <3> _Docker_ server URI is required. In case you are using a remote _Docker_ host or _Boot2Docker_ here you need to set the remote host ip, but in this case _Docker_ server is on same machine.
 <4> A _Docker_ container contains a lot of parameters that can be configured. To avoid having to create one XML property for each one, a YAML content can be embedded directly as property.
-<5> Configuration of _Tomcat_ remote adapter.
+<5> Configuration of _Tomcat_ remote adapter. Cube will start the _Docker_ container when it is ran in the same context as an _Arquillian_ container with the same name.
 <6> Host can be _localhost_ because there is a port forwarding between container and _Docker_ server.
 <7> Port is exposed as well.
 <8> User and password are required to deploy the war file to remote _Tomcat_.
@@ -205,6 +205,9 @@ Let's see valid attributes:
 
 |dockerContainersFile
 |Instead of embedding YAML string, you can set YAML file location in this attribute.
+
+|autoStartContainers
+|Cube will normally only start a _Docker_ container when it has the same name as an active _Arquillian_ container. That works for things that are _DeployableContainer_'s. For any other service, e.g. a database, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _tomcat7, mysql_
 |===
 
 In next example you can see a whole YAML document with configuration properties.
@@ -263,6 +266,7 @@ tomcat: #1
     maximumRetryCount: 1
   capAdd: [a]
   capDrop: [b]
+  extends: container-id #10
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
 <2> Name of the image to be used. It is *mandatory*. If image is not already pulled in _Docker_ server, *Arquillian Cube* will pull it for you.
@@ -273,13 +277,14 @@ tomcat: #1
 <7> After container is up, a list of commands can be executed within it.
 <8> Port forwarding is configured using `portBinding` section. It contains a list of tuple `exposedPort` and `port`. Note that you need to use a CR to separate each pair of elements.
 <9> The exposed port can be bound to specific host and port by using _host_ colon (:) and _port_.
+<10> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
 === Await
 
-After a container is started, it starts booting up the defined services/commands. 
-Depending on the nature of service, the lifecycle of these services are linked to start up or not. 
-For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the _Docker_ client, the container never finishes to start. 
-But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. 
+After a container is started, it starts booting up the defined services/commands.
+Depending on the nature of service, the lifecycle of these services are linked to start up or not.
+For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the _Docker_ client, the container never finishes to start.
+But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there.
 To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready.
 
 Currently next await strategies are supported:
@@ -294,7 +299,7 @@ static:: similar to _polling_ but it uses the host ip and specified list of port
 tomcat:
   image: tutum/tomcat:7.0
   exposedPorts: [8089/tcp]
-  await: 
+  await:
     strategy: native
 ----
 
@@ -304,7 +309,7 @@ tomcat:
 tomcat:
   image: tutum/tomcat:7.0
   exposedPorts: [8089/tcp]
-  await: 
+  await:
     strategy: polling
 ----
 
@@ -314,7 +319,7 @@ tomcat:
 tomcat:
   image: tutum/tomcat:7.0
   exposedPorts: [8089/tcp]
-  await: 
+  await:
     strategy: static
     ip: localhost
     ports: [8080, 8089]
@@ -322,7 +327,7 @@ tomcat:
 
 == Building containers
 
-To build a container _Docker_ uses a file called +Dockerfile+ http://docs.docker.com/reference/builder/. 
+To build a container _Docker_ uses a file called +Dockerfile+ http://docs.docker.com/reference/builder/.
 *Arquillian Cube* also supports building and running a container from a +Dockerfile+.
 
 To set that *Arquillian Cube* must build the container, the +image+ property must be changed to +buildImage+ and add the location of +Dockerfile+.
@@ -341,7 +346,7 @@ Let's see previous example but instead of creating a container from a predefined
     await:
       strategy: polling
     env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-    portBindings: 
+    portBindings:
       - exposedPort: 8089/tcp
         port: 8089
 
@@ -372,34 +377,33 @@ CMD ["/tomcat/bin/catalina.sh","run"]
 
 == Enrichers
 
-*Arquillian Cube* comes with two enrichers. 
+*Arquillian Cube* comes with two enrichers.
 One for injecting _containerId_ of container created for executing the test and another one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
 
-The annotations used to enrich the test are +org.arquillian.cube.Container+ and +org.arquillian.cube.Cube+. 
+The annotations used to enrich the test are +org.arquillian.cube.Container+ and +org.arquillian.cube.Cube+.
 Both annotations only works if tests are run in client mode, that is by using +@RunAsClient+ or by setting testeable proprety to false +@Deployment(testable = false)+.
 
 As examples:
 
 [source, java]
-.ContainerIdEnricher.java
+.CubeIDResourceProvider.java
 ----
-@Container
-String containerId;
+@ArquillianResource
+CubeID containerId;
 ----
 
 [source, java]
-.DockerClientEnricher.java
+.CubeResourceProvider.java
 ----
-@Cube
+@ArquillianResource
 DockerClient dockerClient;
 ----
 
 
 == Future work
 
-API will continuously evolve to fit requirements of an enterprise application as well as providing better integration with _Boot2Docker_. 
-Also some configuration parameters will be modified to fix any possible requirements. 
+API will continuously evolve to fit requirements of an enterprise application as well as providing better integration with _Boot2Docker_.
+Also some configuration parameters will be modified to fix any possible requirements.
 Although we are going to try to not break compatibility with previous versions, we cannot guarantee until _beta_ stage.
 
 Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.
-
