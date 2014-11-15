@@ -7,11 +7,15 @@ package org.arquillian.cube;
  */
 public interface CubeController {
 
+    void create(String cubeId);
+    void create(CubeID cubeId);
+
     void start(String cubeId);
+    void start(CubeID cubeId);
 
     void stop(String cubeId);
-
-    void create(String cubeId);
+    void stop(CubeID cubeId);
 
     void destroy(String cubeId);
+    void destroy(CubeID cubeId);
 }

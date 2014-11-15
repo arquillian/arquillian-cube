@@ -84,6 +84,14 @@
 
                 - exposedPort: 81/tcp
                   port: 8181
+            database_manual:
+              extends: database
+              portBindings:
+                - exposedPort: 1521/tcp
+                  port: 1522
+
+                - exposedPort: 81/tcp
+                  port: 8182
         </property>
     </extension>
 

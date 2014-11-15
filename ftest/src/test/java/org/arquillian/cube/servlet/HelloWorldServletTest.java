@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -29,12 +30,6 @@ public class HelloWorldServletTest {
         return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class);
     }
 
-    @ArquillianResource
-    CubeID cubeId;
-
-    @ArquillianResource
-    DockerClient dockerClient;
-    
     @Test
     public void should_parse_and_load_configuration_file(@ArquillianResource URL base) throws IOException {
         
@@ -57,12 +52,17 @@ public class HelloWorldServletTest {
     }
     
     @Test
-    public void should_enrich_test_with_docker_client() {
+    public void should_enrich_test_with_docker_client(@ArquillianResource CubeController cubeController) {
+        assertThat(cubeController, notNullValue());
+    }
+
+    @Test
+    public void should_enrich_test_with_docker_client(@ArquillianResource DockerClient dockerClient) {
         assertThat(dockerClient, notNullValue());
     }
 
     @Test
-    public void should_enrich_test_with_cube_id() {
+    public void should_enrich_test_with_cube_id(@ArquillianResource CubeID cubeId) {
         assertThat(cubeId, notNullValue());
     }
 }

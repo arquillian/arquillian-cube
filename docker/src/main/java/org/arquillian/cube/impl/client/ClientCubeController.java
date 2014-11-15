@@ -1,6 +1,7 @@
-package org.arquillian.cube.impl.client.container;
+package org.arquillian.cube.impl.client;
 
 import org.arquillian.cube.CubeController;
+import org.arquillian.cube.CubeID;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.CreateCube;
@@ -27,6 +28,36 @@ public class ClientCubeController implements CubeController {
     private Event<CubeControlEvent> controlEvent;
 
     @Override
+    public void create(CubeID cubeId) {
+        create(cubeId.get());
+    }
+
+    @Override
+    public void start(CubeID cubeId) {
+        start(cubeId.get());
+    }
+
+    @Override
+    public void stop(CubeID cubeId) {
+        stop(cubeId.get());
+    }
+
+    @Override
+    public void destroy(CubeID cubeId) {
+        destroy(cubeId.get());
+    }
+
+
+    @Override
+    public void create(String cubeId) {
+        Cube cube = cubeRegistry.get().getCube(cubeId);
+
+        Validate.notNull(cube, "Cube with id '" + cubeId + "' to create does not exist.");
+
+        controlEvent.fire(new CreateCube(cubeId));
+    }
+
+    @Override
     public void start(String cubeId) {
         Cube cube = cubeRegistry.get().getCube(cubeId);
 
@@ -43,15 +74,6 @@ public class ClientCubeController implements CubeController {
 
         controlEvent.fire(new StopCube(cubeId));
 
-    }
-
-    @Override
-    public void create(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
-
-        Validate.notNull(cube, "Cube with id '" + cubeId + "' to create does not exist.");
-
-        controlEvent.fire(new CreateCube(cubeId));
     }
 
     @Override
