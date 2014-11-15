@@ -14,9 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Artifact Configuration -->
-    <groupId>org.arquillian.extension</groupId>
-    <artifactId>arquillian-cube</artifactId>
-    <version>1.0.0.Alpha1</version>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-parent</artifactId>
+    <version>1.0.0.Alpha1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Arquillian Cube Extension</name>
@@ -68,17 +68,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.arquillian.extension</groupId>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.arquillian.extension</groupId>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.arquillian.extension</groupId>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-docker</artifactId>
                 <version>${project.version}</version>
             </dependency>
