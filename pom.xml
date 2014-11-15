@@ -20,7 +20,7 @@
     <packaging>pom</packaging>
 
     <name>Arquillian Cube Extension</name>
-    <url>http://www.jboss.org</url>
+    <url>http://arquillian.org</url>
     <description>Arquillian Cube Extension to integrate Arquillian to Docker</description>
 
     <modules>
@@ -32,25 +32,36 @@
 
     <developers>
         <developer>
-            <name>Alex Soto</name>
-            <timezone>UTC+1</timezone>
-            <email>asotobu@gmail.com</email>
+            <id>arquillian.org</id>
+            <name>Arquillian Community</name>
+            <organization>arquillian.org</organization>
+            <organizationUrl>http://arquillian.org</organizationUrl>
         </developer>
     </developers>
 
     <licenses>
         <license>
-            <name>Apache License Version 2.0</name>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
-    <scm></scm>
-    <issueManagement></issueManagement>
+    <scm>
+        <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
+        <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
+        <url>git://github.com/arquillian/arquillian-cube.git</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/arquillian/arquillian-cube/issues</url>
+    </issueManagement>
 
     <properties>
         <version.arquillian_core>1.1.5.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
         <version.docker-java>0.10.2</version.docker-java>
+        <version.snakeyaml>1.14</version.snakeyaml>
         <version.mockito>1.10.8</version.mockito>
     </properties>
 
@@ -107,7 +118,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.14</version>
+                <version>${version.snakeyaml}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -121,4 +132,16 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
