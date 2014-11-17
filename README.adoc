@@ -377,11 +377,13 @@ CMD ["/tomcat/bin/catalina.sh","run"]
 
 == Enrichers
 
-*Arquillian Cube* comes with two enrichers.
-One for injecting _containerId_ of container created for executing the test and another one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
+*Arquillian Cube* comes with a few enrichers.
 
-The annotations used to enrich the test are +org.arquillian.cube.Container+ and +org.arquillian.cube.Cube+.
-Both annotations only works if tests are run in client mode, that is by using +@RunAsClient+ or by setting testeable proprety to false +@Deployment(testable = false)+.
+One for injecting the +CubeID+(_containerId_) of the current container created for executing the test, one that injects the +CubeController+ to call lifecycle methods on any cube and one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
+
+CubeID and DockerClient injections only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting testeable proprety to false +@Deployment(testable = false)+.
+
+These can be injected using the +@ArquillianResource+ annotation.
 
 As examples:
 
@@ -397,6 +399,13 @@ CubeID containerId;
 ----
 @ArquillianResource
 DockerClient dockerClient;
+----
+
+[source, java]
+.CubeControllerProvider.java
+----
+@ArquillianResource
+CubeController cubeController;
 ----
 
 
