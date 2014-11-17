@@ -113,7 +113,7 @@ Next step is adding some dependencies apart from the typical _Arquillian_ depend
 .pom.xml
 ----
 <dependency>
-  <groupId>org.jboss.arquillian.extension</groupId>
+  <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-docker</artifactId> <!--1-->
   <version>${project.version}</version>
   <scope>test</scope>
