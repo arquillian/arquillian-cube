@@ -39,7 +39,8 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
-    private static final String TAG_SEPARATOR = ":";
+    private static final String PORTS_SEPARATOR = ":";
+    private static final String TAG_SEPARATOR = PORTS_SEPARATOR;
     private static final String RESTART_POLICY = "restartPolicy";
     private static final String CAP_DROP = "capDrop";
     private static final String CAP_ADD = "capAdd";
@@ -48,8 +49,6 @@ public class DockerClientExecutor {
     private static final String NETWORK_MODE = "networkMode";
     private static final String PUBLISH_ALL_PORTS = "publishAllPorts";
     private static final String PRIVILEGED = "privileged";
-    private static final String PORT = "port";
-    private static final String EXPOSED_PORT = "exposedPort";
     private static final String PORT_BINDINGS = "portBindings";
     private static final String LINKS = "links";
     private static final String BINDS = "binds";
@@ -237,16 +236,9 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            List<Map<String, Object>> portBindings = asListOfMap(containerConfiguration, PORT_BINDINGS);
+            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
 
-            Ports ports = new Ports();
-            for (Map<String, Object> map : portBindings) {
-                if (map.containsKey(EXPOSED_PORT) && map.containsKey(PORT)) {
-                    String exposedPort = asString(map, EXPOSED_PORT);
-                    int port = asInt(map, PORT);
-                    ports.bind(ExposedPort.parse(exposedPort), toBinding(Integer.toString(port)));
-                }
-            }
+            Ports ports = assignPorts(portBindings);
             startContainerCmd.withPortBindings(ports);
         }
 
@@ -289,6 +281,34 @@ public class DockerClientExecutor {
         }
 
         startContainerCmd.exec();
+    }
+
+    private Ports assignPorts(List<String> portBindings) {
+        Ports ports = new Ports();
+        for (String portBinding : portBindings) {
+            String[] elements = portBinding.split(PORTS_SEPARATOR);
+
+            if (elements.length == 1) {
+
+                log.info("Only exposed port is set and it will be used as port binding as well. " + elements[0]);
+
+                // exposed port is only set and same port will be used as port binding.
+                String exposedPortValue = elements[0].substring(0, elements[0].indexOf("/"));
+                ports.bind(ExposedPort.parse(elements[0]), toBinding(exposedPortValue));
+            } else {
+                if (elements.length == 2) {
+                    // port and exposed port are set
+                    ports.bind(ExposedPort.parse(elements[1]), toBinding(elements[0]));
+                } else {
+                    if (elements.length == 3) {
+                        // host, port and exposed port are set
+                        ports.bind(ExposedPort.parse(elements[2]), toBinding(elements[0] + elements[1]));
+                    }
+                }
+            }
+
+        }
+        return ports;
     }
 
     public void stopContainer(String containerId) {

@@ -15,24 +15,14 @@
               await:
                 strategy: polling
               env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: 
-                - exposedPort: 8089/tcp
-                  port: 8089
-                  
-                - exposedPort: 8080/tcp
-                  port: 8081
+              portBindings: [8089/tcp, 8081:8080/tcp]
             tomcat:
               image: tutum/tomcat:7.0
               exposedPorts: [8089/tcp]
               await:
                 strategy: polling
               env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: 
-                - exposedPort: 8089/tcp
-                  port: 8089
-                  
-                - exposedPort: 8080/tcp
-                  port: 8081
+              portBindings: [8089/tcp, 8081:8080/tcp]
             tomcat_dockerfile:
               buildImage:
                 dockerfileLocation: src/test/resources/tomcat
@@ -41,12 +31,7 @@
               await:
                 strategy: polling
               env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: 
-                - exposedPort: 8089/tcp
-                  port: 8089
-                  
-                - exposedPort: 8080/tcp
-                  port: 8081
+              portBindings: [8089/tcp, 8081:8080/tcp]
             wildfly:
               buildImage:
                 dockerfileLocation: src/test/resources/wildfly
@@ -55,43 +40,23 @@
               exposedPorts: [8080/tcp, 9990/tcp]
               await:
                 strategy: polling
-              portBindings:
-                - exposedPort: 8080/tcp
-                  port: 8081
-
-                - exposedPort: 9990/tcp
-                  port: 9991
+              portBindings:[8081:8080/tcp, 9991:9990/tcp]
             wildfly_database:
               extends: wildfly
               links:
                 - database:database
             wildfly2:
               extends: wildfly
-              portBindings:
-                - exposedPort: 8080/tcp
-                  port: 8082
-
-                - exposedPort: 9990/tcp
-                  port: 9992
+              portBindings:[8082:8080/tcp, 9992:9990/tcp]
             database:
               image: zhilvis/h2-db
               exposedPorts: [81/tcp, 1521/tcp]
               await:
                 strategy: polling
-              portBindings:
-                - exposedPort: 1521/tcp
-                  port: 1521
-
-                - exposedPort: 81/tcp
-                  port: 8181
+              portBindings: [1521/tcp, 8181:81/tcp]
             database_manual:
               extends: database
-              portBindings:
-                - exposedPort: 1521/tcp
-                  port: 1522
-
-                - exposedPort: 81/tcp
-                  port: 8182
+              portBindings: [1522:1521/tcp, 8182:81/tcp]
         </property>
     </extension>
 
