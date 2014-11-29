@@ -15,14 +15,14 @@
               await:
                 strategy: polling
               env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081:8080/tcp]
+              portBindings: [8089/tcp, 8081->8080/tcp]
             tomcat:
               image: tutum/tomcat:7.0
               exposedPorts: [8089/tcp]
               await:
                 strategy: polling
               env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081:8080/tcp]
+              portBindings: [8089/tcp, 8081->8080/tcp]
             tomcat_dockerfile:
               buildImage:
                 dockerfileLocation: src/test/resources/tomcat
@@ -31,7 +31,7 @@
               await:
                 strategy: polling
               env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081:8080/tcp]
+              portBindings: [8089/tcp, 8081->8080/tcp]
             wildfly:
               buildImage:
                 dockerfileLocation: src/test/resources/wildfly
@@ -40,23 +40,23 @@
               exposedPorts: [8080/tcp, 9990/tcp]
               await:
                 strategy: polling
-              portBindings:[8081:8080/tcp, 9991:9990/tcp]
+              portBindings: [8081->8080/tcp, 9991->9990/tcp]
             wildfly_database:
               extends: wildfly
               links:
                 - database:database
             wildfly2:
               extends: wildfly
-              portBindings:[8082:8080/tcp, 9992:9990/tcp]
+              portBindings: [8082->8080/tcp, 9992->9990/tcp]
             database:
               image: zhilvis/h2-db
               exposedPorts: [81/tcp, 1521/tcp]
               await:
                 strategy: polling
-              portBindings: [1521/tcp, 8181:81/tcp]
+              portBindings: [1521/tcp, 8181->81/tcp]
             database_manual:
               extends: database
-              portBindings: [1522:1521/tcp, 8182:81/tcp]
+              portBindings: [1522->1521/tcp, 8182->81/tcp]
         </property>
     </extension>
 

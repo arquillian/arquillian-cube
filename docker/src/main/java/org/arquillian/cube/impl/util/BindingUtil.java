@@ -12,6 +12,7 @@ import com.github.dockerjava.api.model.ExposedPort;
 
 public final class BindingUtil {
 
+    public static final String PORTS_SEPARATOR = "->";
     private static final String NO_GATEWAY = null;
 
     private BindingUtil() {
@@ -38,19 +39,25 @@ public final class BindingUtil {
 
         if (cubeConfiguration.containsKey("portBindings")) {
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cubePortBindings = (List<Map<String, Object>>) cubeConfiguration
-                    .get("portBindings");
+            List<String> cubePortBindings = (List<String>) cubeConfiguration.get("portBindings");
 
-            for (Map<String, Object> cubePortBinding : cubePortBindings) {
-                if (cubePortBinding.containsKey("exposedPort") && cubePortBinding.containsKey("port")) {
+            for (String cubePortBinding : cubePortBindings) {
 
-                    String exposedPortAndProtocol = (String) cubePortBinding.get("exposedPort");
-                    int exposedPort = Integer.parseInt(exposedPortAndProtocol.substring(0,
-                            exposedPortAndProtocol.indexOf("/")));
-                    int port = (int) cubePortBinding.get("port");
+                String[] elements = cubePortBinding.split(PORTS_SEPARATOR);
 
-                    binding.addPortBinding(exposedPort, port);
+                if (elements.length == 1) {
+
+                    int exposedPort = Integer.parseInt(elements[0].substring(0, elements[0].indexOf("/")));
+                    binding.addPortBinding(exposedPort, exposedPort);
+                } else {
+                    if (elements.length == 2) {
+                        int exposedPort = Integer.parseInt(elements[1].substring(0, elements[1].indexOf("/")));
+                        int port = Integer.parseInt(elements[0]);
+
+                        binding.addPortBinding(exposedPort, port);
+                    }
                 }
+
             }
 
         }

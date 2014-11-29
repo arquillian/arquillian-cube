@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.ws.rs.ProcessingException;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
+import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 
 import com.github.dockerjava.api.DockerClient;
@@ -39,8 +40,8 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
-    private static final String PORTS_SEPARATOR = ":";
-    private static final String TAG_SEPARATOR = PORTS_SEPARATOR;
+    private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
+    private static final String TAG_SEPARATOR = ":";
     private static final String RESTART_POLICY = "restartPolicy";
     private static final String CAP_DROP = "capDrop";
     private static final String CAP_ADD = "capAdd";
@@ -299,11 +300,6 @@ public class DockerClientExecutor {
                 if (elements.length == 2) {
                     // port and exposed port are set
                     ports.bind(ExposedPort.parse(elements[1]), toBinding(elements[0]));
-                } else {
-                    if (elements.length == 3) {
-                        // host, port and exposed port are set
-                        ports.bind(ExposedPort.parse(elements[2]), toBinding(elements[0] + elements[1]));
-                    }
                 }
             }
 
