@@ -19,11 +19,13 @@ public class StaticAwaitStrategy implements AwaitStrategy {
 
     private static final int DEFAULT_POLL_ITERATIONS = 10;
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
+    private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
     private static final String POLLING_TIME = "sleepPollingTime";
     private static final String ITERATIONS = "iterations";
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private int sleepPollTime = DEFAULT_SLEEP_POLL_TIME;
+    private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
 
     private String ip;
     private List<Integer> ports = new ArrayList<Integer>();
@@ -34,12 +36,36 @@ public class StaticAwaitStrategy implements AwaitStrategy {
         this.ports.addAll((Collection<? extends Integer>) params.get(PORTS));
 
         if (params.containsKey(POLLING_TIME)) {
-            this.sleepPollTime = (Integer) params.get(POLLING_TIME);
+            configurePollingTime(params);
         }
 
         if (params.containsKey(ITERATIONS)) {
             this.pollIterations = (Integer) params.get(ITERATIONS);
         }
+    }
+
+    private void configurePollingTime(Map<String, Object> params) {
+        Object sleepTime = params.get(POLLING_TIME);
+        if(sleepTime instanceof Integer) {
+            this.sleepPollTime = (Integer) sleepTime;
+        } else {
+            String sleepTimeWithUnit = ((String) sleepTime).trim();
+            if(sleepTimeWithUnit.endsWith("ms")) {
+                this.timeUnit = TimeUnit.MILLISECONDS;
+            } else {
+                if(sleepTimeWithUnit.endsWith("s")) {
+                    this.timeUnit = TimeUnit.SECONDS;
+                    this.sleepPollTime = Integer.parseInt(sleepTimeWithUnit.substring(0, sleepTimeWithUnit.indexOf('s')).trim());
+                } else {
+                    this.timeUnit = TimeUnit.MILLISECONDS;
+                    this.sleepPollTime = Integer.parseInt(sleepTimeWithUnit.substring(0, sleepTimeWithUnit.indexOf("ms")).trim());
+                }
+            }
+        }
+    }
+
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
     }
 
     @Override

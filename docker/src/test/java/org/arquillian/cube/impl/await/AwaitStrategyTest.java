@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.impl.await.AwaitStrategy;
 import org.arquillian.cube.impl.await.AwaitStrategyFactory;
@@ -39,6 +40,16 @@ public class AwaitStrategyTest {
             "    sleepPollingTime: 200\n" +
             "    iterations: 3";
 
+    private static final String CONTENT_WITH_STATIC_STRATEGY_WITHOUT_DEFAULTS_UNIT = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: static\n" +
+            "    ip: localhost\n" +
+            "    ports: [8080,8089]\n" +
+            "    sleepPollingTime: 200 s\n" +
+            "    iterations: 3";
+
     private static final String CONTENT_WITH_NO_STRATEGY = "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n";
@@ -55,6 +66,14 @@ public class AwaitStrategyTest {
             "  await:\n" +
             "    strategy: polling\n" +
             "    sleepPollingTime: 200\n" +
+            "    iterations: 3";
+
+    private static final String CONTENT_WITH_POLLING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: polling\n" +
+            "    sleepPollingTime: 200 s\n" +
             "    iterations: 3";
 
     private static final String CONTENT_WITH_NATIVE_STRATEGY = "tomcat:\n" +
@@ -103,6 +122,27 @@ public class AwaitStrategyTest {
         assertThat(staticAwaitStrategy.getPollIterations(), is(3));
         assertThat(staticAwaitStrategy.getSleepPollTime(), is(200));
     }
+
+    @Test
+    public void should_create_static_await_strategy_without_defaults_and_units() {
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> content = (Map<String, Object>) new Yaml().load(CONTENT_WITH_STATIC_STRATEGY_WITHOUT_DEFAULTS_UNIT);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tomcatConfig = (Map<String, Object>) content.get("tomcat");
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, tomcatConfig);
+
+        assertThat(strategy, instanceOf(StaticAwaitStrategy.class));
+        StaticAwaitStrategy staticAwaitStrategy = (StaticAwaitStrategy)strategy;
+
+        assertThat(staticAwaitStrategy.getIp(), is("localhost"));
+        assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
+        assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
+        assertThat(staticAwaitStrategy.getPollIterations(), is(3));
+        assertThat(staticAwaitStrategy.getSleepPollTime(), is(200));
+        assertThat(staticAwaitStrategy.getTimeUnit(), is(TimeUnit.SECONDS));
+    }
     
     @Test
     public void should_create_native_await_strategy_if_no_strategy_is_provided() {
@@ -145,6 +185,22 @@ public class AwaitStrategyTest {
         assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
     }
 
+    @Test
+    public void should_create_polling_await_strategy_with_specific_times_and_unit() {
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> content = (Map<String, Object>) new Yaml().load(CONTENT_WITH_POLLING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tomcatConfig = (Map<String, Object>) content.get("tomcat");
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, tomcatConfig);
+
+        assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
+        assertThat(((PollingAwaitStrategy)strategy).getPollIterations(), is(3));
+        assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
+        assertThat(((PollingAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
+    }
+    
     @Test
     public void should_create_native_await_strategy() {
 
