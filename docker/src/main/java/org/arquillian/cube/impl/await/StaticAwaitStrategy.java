@@ -19,6 +19,11 @@ public class StaticAwaitStrategy implements AwaitStrategy {
 
     private static final int DEFAULT_POLL_ITERATIONS = 10;
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
+    private static final String POLLING_TIME = "sleepPollingTime";
+    private static final String ITERATIONS = "iterations";
+
+    private int pollIterations = DEFAULT_POLL_ITERATIONS;
+    private int sleepPollTime = DEFAULT_SLEEP_POLL_TIME;
 
     private String ip;
     private List<Integer> ports = new ArrayList<Integer>();
@@ -27,13 +32,21 @@ public class StaticAwaitStrategy implements AwaitStrategy {
     public StaticAwaitStrategy(Cube cube, Map<String, Object> params) {
         this.ip = (String) params.get(IP);
         this.ports.addAll((Collection<? extends Integer>) params.get(PORTS));
+
+        if (params.containsKey(POLLING_TIME)) {
+            this.sleepPollTime = (Integer) params.get(POLLING_TIME);
+        }
+
+        if (params.containsKey(ITERATIONS)) {
+            this.pollIterations = (Integer) params.get(ITERATIONS);
+        }
     }
 
     @Override
     public boolean await() {
 
         for (Integer port : this.ports) {
-            if(!Ping.ping(this.ip, port, DEFAULT_POLL_ITERATIONS, DEFAULT_SLEEP_POLL_TIME, TimeUnit.MILLISECONDS )) {
+            if(!Ping.ping(this.ip, port, this.pollIterations, this.sleepPollTime, TimeUnit.MILLISECONDS )) {
                 return false;
             }
         }
@@ -49,4 +62,11 @@ public class StaticAwaitStrategy implements AwaitStrategy {
         return ports;
     }
 
+    public int getPollIterations() {
+        return pollIterations;
+    }
+
+    public int getSleepPollTime() {
+        return sleepPollTime;
+    }
 }
