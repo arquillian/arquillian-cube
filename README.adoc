@@ -150,12 +150,7 @@ And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* i
             await:
               strategy: polling
             env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-            portBindings:
-              - exposedPort: 8089/tcp
-                port: 8089
-
-              - exposedPort: 8080/tcp
-                port: 8080
+            portBindings: [8089/tcp, 8080/tcp]
       </property>
   </extension>
 
@@ -247,12 +242,7 @@ tomcat: #1
   links:
     - name:alias
     - name2:alias2
-  portBindings: #8
-    - exposedPort: 8089/tcp
-      port: 8089
-
-    - exposedPort: 8089/tcp
-      port: localhost:8089 #9
+  portBindings: [8089/tcp, 8081->8080/tcp] #8
   privileged: true
   publishAllPorts: true
   networkMode: host
@@ -275,7 +265,7 @@ tomcat: #1
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
 <6> You can pass environment variables by using `env`.
 <7> After container is up, a list of commands can be executed within it.
-<8> Port forwarding is configured using `portBinding` section. It contains a list of tuple `exposedPort` and `port`. Note that you need to use a CR to separate each pair of elements.
+<8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Cube* will expose the same port number. In this example the container port 8089 is exposed to 8089 and container port 8080 is exposed to 8081.
 <9> The exposed port can be bound to specific host and port by using _host_ colon (:) and _port_.
 <10> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
@@ -346,12 +336,7 @@ Let's see previous example but instead of creating a container from a predefined
     await:
       strategy: polling
     env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-    portBindings:
-      - exposedPort: 8089/tcp
-        port: 8089
-
-      - exposedPort: 8080/tcp
-      port: 8080
+    portBindings: [8089/tcp, 8080/tcp]
 </property>
 ----
 <1> +buildImage+ section is used in front of +image+. In case of both sections present in a document, +image+ section has preference over +buildImage+.
