@@ -1,5 +1,7 @@
 = Arquillian Cube
 
+Documentation for version Alpha1 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha1/README.adoc
+
 == What is this?
 
 *Arquillian Cube* is an _Arquillian_ extension that can be used to manager _Docker_ containers from _Arquillian_.
