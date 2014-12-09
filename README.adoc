@@ -300,7 +300,11 @@ tomcat:
   exposedPorts: [8089/tcp]
   await:
     strategy: polling
+    sleepPollingTime: 200 s #1
+    iterations: 3 #2
 ----
+<1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+<2> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
 
 [source, yaml]
 .Example static
