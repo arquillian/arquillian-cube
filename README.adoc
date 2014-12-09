@@ -256,7 +256,7 @@ tomcat: #1
     maximumRetryCount: 1
   capAdd: [a]
   capDrop: [b]
-  extends: container-id #10
+  extends: container-id #9
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
 <2> Name of the image to be used. It is *mandatory*. If image is not already pulled in _Docker_ server, *Arquillian Cube* will pull it for you.
@@ -266,8 +266,7 @@ tomcat: #1
 <6> You can pass environment variables by using `env`.
 <7> After container is up, a list of commands can be executed within it.
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Cube* will expose the same port number. In this example the container port 8089 is exposed to 8089 and container port 8080 is exposed to 8081.
-<9> The exposed port can be bound to specific host and port by using _host_ colon (:) and _port_.
-<10> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
+<9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
 === Await
 
