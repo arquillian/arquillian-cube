@@ -265,7 +265,7 @@ tomcat: #1
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
 <6> You can pass environment variables by using `env`.
 <7> After container is up, a list of commands can be executed within it.
-<8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Cube* will expose the same port number. In this example the container port 8089 is exposed to 8089 and container port 8080 is exposed to 8081.
+<8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
 === Await
@@ -396,6 +396,50 @@ DockerClient dockerClient;
 CubeController cubeController;
 ----
 
+=== Auto-Remapping 
+
+*Arquillian Cube* can automatically configure default ports of container in case of port forwarding.
+
+What *Arquillian Cube* does internally is remapping default `DeployableContainer` port values to the ones configured in _Docker Containers_ configuration.
+
+Suppose you have a _Docker Container_ configuration like:
+
+[source, xml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+    tomcat_default:
+      image: tutum/tomcat:7.0
+      exposedPorts: [8089/tcp]
+      await:
+        strategy: polling
+      env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+      portBindings: [8089/tcp, 8081->8080/tcp] #1
+</property>
+----
+<1> Note that the exposed port is the 8081.
+
+Then in theory you should configure the remote _Tomcat_ adapter to port 8081 on your _arquillian.xml_ file. 
+But let's say that you are using that remote adapter for a remote local machine _Tomcat_ (outside _Docker_) too, and is configured to use 8080 port.
+
+[source, xml]
+.arquillian.xml
+----
+<container qualifier="tomcat_default">
+  configuration>
+    <property name="host">localhost</property>
+    <property name="user">admin</property>
+    <property name="pass">mypass</property>
+  </configuration>
+</container>
+----
+
+Which basically uses default port (8080) to connect to remote server. 
+
+In this case you don't need to create a new `container` tag, *Arquillian Cube* is smart enough to change the default port value automatically; in case of _Tomcat_ 8080 to 8081. 
+*Arquillan Cube* will apply autoremapping to all properties that contains `port` as a substring of the property, and will remap if it is necessary.
+
+NOTE: Automapping only works in case you want to change the default server port to a _Docker_ port forwarded port.
 
 == Future work
 
