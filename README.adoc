@@ -398,6 +398,69 @@ DockerClient dockerClient;
 CubeController cubeController;
 ----
 
+=== Auto starting Cubes outside of Arquillian Containers
+
+Probably any application you may write will need an application/servlet container but also other servers like database server or mail server. 
+Each one will be placed on one _Docker Container_. 
+So for example a full application may contain one _Docker Container_ with an application server (for example _Wildfly_) and another container with a database (for example _H2_). 
+
+*Arquillian Cube* can orchestrate these containers as well.
+
+An example of orchestration can be:
+
+[source, xml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+  wildfly_database:
+    extends: wildfly
+    links:
+      - database:database #1
+  database:
+    image: zhilvis/h2-db
+    exposedPorts: [81/tcp, 1521/tcp]
+    await:
+      strategy: polling
+    portBindings: [1521/tcp, 8181->81/tcp]
+  </property>
+
+<container qualifier="wildfly_database">
+  <configuration>
+    <property name="target">wildfly:8.1.0.Final:remote</property>
+    <property name="managementPort">9991</property>
+    <property name="username">admin</property>
+    <property name="password">Admin#70365</property>
+  </configuration>
+</container>
+----
+<1> We use _link_ property to connect _Wildfly_ container to _database_ container.
+
+In this case when a test is started both containers are started and when both are ready to receive requests, the test will be executed.
+
+And the database definition shall be:
+
+[source, java]
+UserRepository.java
+----
+@DataSourceDefinition(
+  name = "java:app/TestDataSource",
+  className = "org.h2.jdbcx.JdbcDataSource",
+  url = "jdbc:h2:tcp://database:1521/opt/h2-data/test",
+  user = "sa",
+  password = "sa"
+)
+@Stateless
+public class UserRepository {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    public void store(User user) {
+        em.persist(user);
+    }
+}
+----
+
 === Auto-Remapping 
 
 *Arquillian Cube* can automatically configure default ports of container in case of port forwarding.
