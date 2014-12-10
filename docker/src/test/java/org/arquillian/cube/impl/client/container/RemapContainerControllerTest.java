@@ -31,7 +31,7 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
 
     public static final String CUBE_ID = "test";
     private static final String CONTENT = "" + "image: tutum/tomcat:7.0\n" + "exposedPorts: [8089/tcp]\n"
-            + "portBindings: \n" + "  - exposedPort: 8089/tcp\n" + "    port: 8090";
+            + "portBindings: [8090->8089/tcp]";
 
     @Mock
     private Cube cube;
