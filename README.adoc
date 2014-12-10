@@ -440,7 +440,7 @@ In this case when a test is started both containers are started and when both ar
 And the database definition shall be:
 
 [source, java]
-UserRepository.java
+.UserRepository.java
 ----
 @DataSourceDefinition(
   name = "java:app/TestDataSource",
