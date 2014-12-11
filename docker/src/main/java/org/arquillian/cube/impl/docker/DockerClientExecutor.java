@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.ws.rs.ProcessingException;
@@ -58,6 +60,7 @@ public class DockerClientExecutor {
     private static final String DNS = "dns";
     private static final String CMD = "cmd";
     private static final String ENV = "env";
+    private static final String EXPOSED_PORTS = "exposedPorts";
     private static final String ATTACH_STDERR = "attachStderr";
     private static final String ATTACH_STDIN = "attachStdin";
     private static final String CPU_SHARES = "cpuShares";
@@ -71,7 +74,6 @@ public class DockerClientExecutor {
     private static final String HOST_NAME = "hostName";
     private static final String DISABLE_NETWORK = "disableNetwork";
     private static final String WORKING_DIR = "workingDir";
-    private static final String EXPOSED_PORTS = "exposedPorts";
     private static final String IMAGE = "image";
     private static final String BUILD_IMAGE = "buildImage";
     private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
@@ -102,11 +104,12 @@ public class DockerClientExecutor {
         CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
         createContainerCmd.withName(name);
 
-        if (containerConfiguration.containsKey(EXPOSED_PORTS)) {
-            List<String> exposedPorts = asListOfString(containerConfiguration, EXPOSED_PORTS);
-            createContainerCmd.withExposedPorts(toExposedPorts(exposedPorts));
+        Set<ExposedPort> allExposedPorts = resolveExposedPorts(containerConfiguration, createContainerCmd);
+        if(!allExposedPorts.isEmpty()) {
+            int numberOfExposedPorts = allExposedPorts.size();
+            createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
         }
-
+        
         if (containerConfiguration.containsKey(WORKING_DIR)) {
             createContainerCmd.withWorkingDir(asString(containerConfiguration, WORKING_DIR));
         }
@@ -193,6 +196,23 @@ public class DockerClientExecutor {
             this.pullImage(image);
             return createContainerCmd.exec().getId();
         }
+    }
+
+    private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration, CreateContainerCmd createContainerCmd) {
+        Set<ExposedPort> allExposedPorts = new HashSet<>();
+        if (containerConfiguration.containsKey(PORT_BINDINGS)) {
+            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
+
+            Ports assignPorts = assignPorts(portBindings);
+            Map<ExposedPort, Binding> bindings = assignPorts.getBindings();
+            Set<ExposedPort> exposedPorts = bindings.keySet();
+            allExposedPorts.addAll(exposedPorts);
+        }
+        if (containerConfiguration.containsKey(EXPOSED_PORTS)) {
+            Set<ExposedPort> exposedPorts = toExposedPorts(asListOfString(containerConfiguration, EXPOSED_PORTS));
+            allExposedPorts.addAll(exposedPorts);
+        }
+        return allExposedPorts;
     }
 
     private String getImageName(Map<String, Object> containerConfiguration) {
@@ -487,11 +507,11 @@ public class DockerClientExecutor {
         return binds;
     }
 
-    private static final ExposedPort[] toExposedPorts(List<String> exposedPortsList) {
-        ExposedPort[] exposedPorts = new ExposedPort[exposedPortsList.size()];
+    private static final Set<ExposedPort> toExposedPorts(List<String> exposedPortsList) {
+        Set<ExposedPort> exposedPorts = new HashSet<>();
 
-        for (int i = 0; i < exposedPorts.length; i++) {
-            exposedPorts[i] = ExposedPort.parse(exposedPortsList.get(i));
+        for (String exposedPort : exposedPortsList) {
+            exposedPorts.add(ExposedPort.parse(exposedPort));
         }
 
         return exposedPorts;
