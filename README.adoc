@@ -411,11 +411,12 @@ An example of orchestration can be:
 [source, xml]
 .arquillian.xml
 ----
+<property name="autoStartContainers">database</property> <!--1-->
 <property name="dockerContainers">
   wildfly_database:
     extends: wildfly
     links:
-      - database:database #1
+      - database:database #2
   database:
     image: zhilvis/h2-db
     exposedPorts: [81/tcp, 1521/tcp]
@@ -433,7 +434,8 @@ An example of orchestration can be:
   </configuration>
 </container>
 ----
-<1> We use _link_ property to connect _Wildfly_ container to _database_ container.
+<1> This property is used to start containers before any test is executed. In this case _database_ container.
+<2> We use _link_ property to connect _Wildfly_ container to _database_ container.
 
 In this case when a test is started both containers are started and when both are ready to receive requests, the test will be executed.
 
