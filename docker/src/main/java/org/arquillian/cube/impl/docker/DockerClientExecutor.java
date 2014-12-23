@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Device;
 import com.github.dockerjava.api.model.ExposedPort;
@@ -209,7 +211,7 @@ public class DockerClientExecutor {
             List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
 
             Ports assignPorts = assignPorts(portBindings);
-            Map<ExposedPort, Binding> bindings = assignPorts.getBindings();
+            Map<ExposedPort, Binding[]> bindings = assignPorts.getBindings();
             Set<ExposedPort> exposedPorts = bindings.keySet();
             allExposedPorts.addAll(exposedPorts);
         }
@@ -298,12 +300,12 @@ public class DockerClientExecutor {
 
         if (containerConfiguration.containsKey(CAP_ADD)) {
             List<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
-            startContainerCmd.withCapAdd(capAdds.toArray(new String[capAdds.size()]));
+            startContainerCmd.withCapAdd(toCapability(capAdds));
         }
 
         if (containerConfiguration.containsKey(CAP_DROP)) {
             List<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
-            startContainerCmd.withCapDrop(capDrop.toArray(new String[capDrop.size()]));
+            startContainerCmd.withCapDrop(toCapability(capDrop));
         }
 
         startContainerCmd.exec();
@@ -502,6 +504,14 @@ public class DockerClientExecutor {
         return links;
     }
 
+    private static final Capability[] toCapability(List<String> configuredCapabilities) {
+        List<Capability> capabilities = new ArrayList<Capability>();
+        for (String capability : configuredCapabilities) {
+            capabilities.add(Capability.valueOf(capability));
+        }
+        return capabilities.toArray(new Capability[capabilities.size()]);
+    }
+    
     private static final Bind[] toBinds(List<String> bindsList) {
 
         Bind[] binds = new Bind[bindsList.size()];
