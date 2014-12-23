@@ -12,7 +12,8 @@ public interface Cube {
         STOPPED,
         STOP_FAILED,
         DESTROYED,
-        DESTORY_FAILED
+        DESTORY_FAILED,
+        PRE_RUNNING
     }
 
     State state();
@@ -26,6 +27,8 @@ public interface Cube {
     void stop() throws CubeControlException;
 
     void destroy() throws CubeControlException;
+
+    void changeToPreRunning();
 
     Binding bindings();
 

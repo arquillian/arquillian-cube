@@ -29,6 +29,7 @@ import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Device;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Link;
@@ -94,6 +95,10 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
     }
 
+    public List<Container> listRunningContainers() {
+        return this.dockerClient.listContainersCmd().exec();
+    }
+    
     public String createContainer(String name, Map<String, Object> containerConfiguration) {
 
         // we check if Docker server is up and correctly configured.

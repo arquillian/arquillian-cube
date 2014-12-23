@@ -72,7 +72,7 @@ public class DockerCube implements Cube {
 
     @Override
     public void start() throws CubeControlException {
-        if(state == State.STARTED) {
+        if(state == State.STARTED || state == State.PRE_RUNNING) {
             return;
         }
         try {
@@ -91,7 +91,7 @@ public class DockerCube implements Cube {
 
     @Override
     public void stop() throws CubeControlException {
-        if(state == State.STOPPED) {
+        if(state == State.STOPPED || state == State.PRE_RUNNING) {
             return;
         }
         try {
@@ -126,8 +126,8 @@ public class DockerCube implements Cube {
         if(binding != null) {
             return binding;
         }
-        if(state != State.STARTED) {
-            throw new IllegalStateException("Can't get binding for cube " + id + " when status not " + State.STARTED + ". Status is " + state);
+        if(state != State.STARTED && state != State.PRE_RUNNING) {
+            throw new IllegalStateException("Can't get binding for cube " + id + " when status not " + State.STARTED + " or " + State.PRE_RUNNING + ". Status is " + state);
         }
         binding = BindingUtil.binding(executor, id);
         return binding;
@@ -136,5 +136,15 @@ public class DockerCube implements Cube {
     @Override
     public Map<String, Object> configuration() {
         return configuration;
+    }
+
+    @Override
+    public void changeToPreRunning() {
+        if(state != State.DESTROYED) {
+            return;
+        }
+
+        log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
+        state = State.PRE_RUNNING;
     }
 }

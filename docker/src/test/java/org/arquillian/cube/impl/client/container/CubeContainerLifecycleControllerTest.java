@@ -1,15 +1,21 @@
 package org.arquillian.cube.impl.client.container;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.arquillian.cube.impl.client.CubeConfiguration;
+import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.model.DockerCubeRegistry;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.CreateCube;
 import org.arquillian.cube.spi.event.DestroyCube;
+import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
 import org.jboss.arquillian.container.spi.Container;
@@ -36,6 +42,9 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
 
     public static final String CUBE_ID = "test";
     public static final String MISSING_CUBE_ID = "_MISSING_";
+
+    @Mock
+    private DockerClientExecutor executor;
 
     @Mock
     private Cube cube;
@@ -68,8 +77,24 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
 
         bind(ApplicationScoped.class, CubeRegistry.class, registry);
         bind(ApplicationScoped.class, ContainerRegistry.class, containerRegistry);
+        bind(ApplicationScoped.class, CubeConfiguration.class, new CubeConfiguration());
     }
 
+    @Test
+    public void shouldUsePreRunningContainer() {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("shouldAllowToConnectToRunningContainers", "true");
+        bind(ApplicationScoped.class, CubeConfiguration.class, CubeConfiguration.fromMap(data));
+
+        com.github.dockerjava.api.model.Container container = mock(com.github.dockerjava.api.model.Container.class);
+        when(container.getNames()).thenReturn(new String[]{CUBE_ID});
+        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
+
+        fire(new BeforeStart(deployableContainer));
+        assertEventFired(PreRunningCube.class, 1);
+    }
+    
     @Test
     public void shouldCreateAndStartCubeDuringBeforeStart() {
         fire(new BeforeStart(deployableContainer));
