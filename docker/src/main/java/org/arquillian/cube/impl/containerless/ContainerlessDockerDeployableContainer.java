@@ -7,13 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.arquillian.cube.impl.util.IOUtil;
+import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.event.CreateCube;
 import org.arquillian.cube.spi.event.CubeControlEvent;
+import org.arquillian.cube.spi.event.DestroyCube;
+import org.arquillian.cube.spi.event.StartCube;
+import org.arquillian.cube.spi.event.StopCube;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
+import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
@@ -66,55 +72,81 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
         Cube cube = cubeRegistry.getCube(containerlessDocker);
         if (cube == null) {
-            //Is there a way to ignore it? Or we should throw an exception?
-            throw new IllegalArgumentException("No Containerless Docker container configured in extension with id "+containerlessDocker);
+            // Is there a way to ignore it? Or we should throw an exception?
+            throw new IllegalArgumentException("No Containerless Docker container configured in extension with id "
+                    + containerlessDocker);
         }
         Map<String, Object> cubeConfiguration = cube.configuration();
-
-        if(cubeConfiguration.containsKey("buildImage")) {
+        //Only works with images using a Dockerfile.
+        if (cubeConfiguration.containsKey("buildImage")) {
             Map<String, Object> params = asMap(cubeConfiguration, "buildImage");
-            if(params.containsKey("dockerfileLocation")) {
+            if (params.containsKey("dockerfileLocation")) {
                 File location = new File((String) params.get("dockerfileLocation"));
-                if(location.isDirectory()) {
+                if (location.isDirectory()) {
+                    //Because ShrinkWrap may create different jar files depending on what we are testing in this acse
+                    //we need a template which is the responsible to copy the jar to desired location
                     File templateDockerfile = new File(location, DOCKERFILE_TEMPLATE);
                     try {
                         String deployableFilename = archive.getName();
                         Map<String, String> values = new HashMap<String, String>();
                         values.put("deployableFilename", deployableFilename);
                         String templateContent = IOUtil.asString(new FileInputStream(templateDockerfile));
+                        //But because deployable file is created by shrinkwrap we need to replace the deploy file name to the one created.
                         String dockerfileContent = IOUtil.replacePlaceholders(templateContent, values);
                         File dockerfile = new File(location, "Dockerfile");
-                        if(dockerfile.exists()) {
-                            //log that the file already exists and it is going to be renamed.
+                        if (dockerfile.exists()) {
+                            // log that the file already exists
+                            dockerfile.renameTo(new File(location, "Dockerfile.old"));
+                            dockerfile = new File(location, "Dockerfile");
                         }
                         dockerfile.deleteOnExit();
+                        //The content is written to real Dockerfile which will be used during built time.
                         IOUtil.toFile(dockerfileContent, dockerfile);
                         File deployableOutputFile = new File(location, deployableFilename);
                         deployableOutputFile.deleteOnExit();
-
+                        //file is saved to Dockerfile directory so can be copied inside image.
                         archive.as(ZipExporter.class).exportTo(deployableOutputFile, true);
 
-                        //fire events
-                        
+                        // fire events as usually.
+                        controlEvent.fire(new CreateCube(cube));
+                        controlEvent.fire(new StartCube(cube));
+                        return createProtocolMetadata(cube);
+
                     } catch (FileNotFoundException e) {
-                        throw new IllegalArgumentException("Containerless Docker container requires a file named "+ DOCKERFILE_TEMPLATE);
+                        throw new IllegalArgumentException("Containerless Docker container requires a file named "
+                                + DOCKERFILE_TEMPLATE);
                     }
                 } else {
-                    throw new IllegalArgumentException("Dockerfile Template of containerless Docker container must be in a directory.");
+                    throw new IllegalArgumentException(
+                            "Dockerfile Template of containerless Docker container must be in a directory.");
                 }
             } else {
-                throw new IllegalArgumentException("Containerless Docker container should be built in Dockerfile, and dockerfileLocation property not found.");
+                throw new IllegalArgumentException(
+                        "Containerless Docker container should be built in Dockerfile, and dockerfileLocation property not found.");
             }
         } else {
-            throw new IllegalArgumentException("Containerless Docker container should be built in Dockerfile, and buildImage property not found.");
+            throw new IllegalArgumentException(
+                    "Containerless Docker container should be built in Dockerfile, and buildImage property not found.");
         }
-        return null;
+    }
+
+    private ProtocolMetaData createProtocolMetadata(Cube cube) {
+        Binding bindings = cube.bindings();
+        //ProtocolMetadataUpdater will reajust the port to the exposed ones.
+        HTTPContext httpContext = new HTTPContext(bindings.getIP(), configuration.getEmbeddedPort());
+        return new ProtocolMetaData().addContext(httpContext);
     }
 
     @Override
     public void undeploy(Archive<?> archive) throws DeploymentException {
-        // TODO Auto-generated method stub
+        String containerlessDocker = this.configuration.getContainerlessDocker();
+        final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
 
+        Cube cube = cubeRegistry.getCube(containerlessDocker);
+        if (cube != null) {
+            controlEvent.fire(new StopCube(cube));
+            controlEvent.fire(new DestroyCube(cube));
+        }
     }
 
     @Override
