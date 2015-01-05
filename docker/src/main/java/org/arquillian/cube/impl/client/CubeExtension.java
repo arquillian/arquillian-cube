@@ -8,8 +8,6 @@ import org.arquillian.cube.impl.client.container.remote.CubeAuxiliaryArchiveAppe
 import org.arquillian.cube.impl.client.enricher.CubeControllerProvider;
 import org.arquillian.cube.impl.client.enricher.CubeIDResourceProvider;
 import org.arquillian.cube.impl.client.enricher.CubeResourceProvider;
-import org.arquillian.cube.impl.containerless.ContainerlessDockerDeployableContainer;
-import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -36,7 +34,6 @@ public class CubeExtension implements LoadableExtension {
 
         builder.service(AuxiliaryArchiveAppender.class, CubeAuxiliaryArchiveAppender.class);
         builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
-        builder.service(DeployableContainer.class, ContainerlessDockerDeployableContainer.class);
     }
 
 }

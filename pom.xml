@@ -27,6 +27,7 @@
         <module>spi</module>
         <module>docker</module>
         <module>ftest</module>
+        <module>containerless</module>
     </modules>
 
     <developers>
