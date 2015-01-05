@@ -375,9 +375,14 @@ public class DockerClientExecutor {
         // the image id to invoke it automatically.
         // Currently this is a bit clunky but REST API does not provide any other way.
         String fullLog = IOUtil.asString(response);
-        String imageId = IOUtil.substringBetween(fullLog, "Successfully built ", "\\n\"}").trim();
+        String imageId = IOUtil.substringBetween(fullLog, "Successfully built ", "\\n\"}");
 
-        return imageId;
+        if (imageId == null) {
+            throw new IllegalStateException(
+                    String.format("Docker server has not provided an imageId for image build from %s. Response from the server was:\n%s", location, fullLog));
+        }
+            
+        return imageId.trim();
     }
 
     private void configureBuildCommand(Map<String, Object> params, BuildImageCmd buildImageCmd) {
