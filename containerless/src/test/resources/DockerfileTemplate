@@ -1,0 +1,4 @@
+FROM java:7
+
+EXPOSE 8080
+CMD ["java", "-jar", "${deployableFilename}"]
