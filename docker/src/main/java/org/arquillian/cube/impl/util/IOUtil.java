@@ -3,6 +3,7 @@ package org.arquillian.cube.impl.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +19,8 @@ public class IOUtil {
         super();
     }
 
-    public static String replacePlaceholders(String templateContent, Map<String, String> values) {
+    public static String replacePlaceholders(String templateContent,
+            Map<String, String> values) {
         StrSubstitutor sub = new StrSubstitutor(values);
         return sub.replace(templateContent);
     }
@@ -54,11 +56,31 @@ public class IOUtil {
         StringWriter logwriter = new StringWriter();
 
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response));
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(response));
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
                 logwriter.write(line);
+            }
+
+            return logwriter.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String asStringPreservingNewLines(InputStream response) {
+        StringWriter logwriter = new StringWriter();
+
+        try {
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(response));
+
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                logwriter.write(line);
+                logwriter.write(System.lineSeparator());
             }
 
             return logwriter.toString();

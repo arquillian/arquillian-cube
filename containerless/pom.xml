@@ -13,6 +13,11 @@
             <groupId>org.arquillian.cube</groupId>
             <artifactId>arquillian-cube-docker</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

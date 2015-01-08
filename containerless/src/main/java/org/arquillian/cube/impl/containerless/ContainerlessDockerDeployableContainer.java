@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Binding;
@@ -31,7 +32,8 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 public class ContainerlessDockerDeployableContainer implements DeployableContainer<ContainerlessConfiguration> {
 
     private static final String DOCKERFILE_TEMPLATE = "DockerfileTemplate";
-
+    private static final Logger log = Logger.getLogger(ContainerlessDockerDeployableContainer.class.getName());
+    
     private ContainerlessConfiguration configuration;
 
     @Inject
@@ -83,35 +85,14 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
             if (params.containsKey("dockerfileLocation")) {
                 File location = new File((String) params.get("dockerfileLocation"));
                 if (location.isDirectory()) {
-                    //Because ShrinkWrap may create different jar files depending on what we are testing in this acse
+                    //Because ShrinkWrap may create different jar files depending on what we are testing in this case
                     //we need a template which is the responsible to copy the jar to desired location
-                    File templateDockerfile = new File(location, DOCKERFILE_TEMPLATE);
                     try {
-                        String deployableFilename = archive.getName();
-                        Map<String, String> values = new HashMap<String, String>();
-                        values.put("deployableFilename", deployableFilename);
-                        String templateContent = IOUtil.asString(new FileInputStream(templateDockerfile));
-                        //But because deployable file is created by shrinkwrap we need to replace the deploy file name to the one created.
-                        String dockerfileContent = IOUtil.replacePlaceholders(templateContent, values);
-                        File dockerfile = new File(location, "Dockerfile");
-                        if (dockerfile.exists()) {
-                            // log that the file already exists
-                            dockerfile.renameTo(new File(location, "Dockerfile.old"));
-                            dockerfile = new File(location, "Dockerfile");
-                        }
-                        dockerfile.deleteOnExit();
-                        //The content is written to real Dockerfile which will be used during built time.
-                        IOUtil.toFile(dockerfileContent, dockerfile);
-                        File deployableOutputFile = new File(location, deployableFilename);
-                        deployableOutputFile.deleteOnExit();
-                        //file is saved to Dockerfile directory so can be copied inside image.
-                        archive.as(ZipExporter.class).exportTo(deployableOutputFile, true);
-
+                        createDockerfileFromTemplate(archive, location);
                         // fire events as usually.
                         controlEvent.fire(new CreateCube(cube));
                         controlEvent.fire(new StartCube(cube));
                         return createProtocolMetadata(cube);
-
                     } catch (FileNotFoundException e) {
                         throw new IllegalArgumentException("Containerless Docker container requires a file named "
                                 + DOCKERFILE_TEMPLATE);
@@ -128,6 +109,30 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
             throw new IllegalArgumentException(
                     "Containerless Docker container should be built in Dockerfile, and buildImage property not found.");
         }
+    }
+
+    private void createDockerfileFromTemplate(Archive<?> archive, File location)
+            throws FileNotFoundException {
+        File templateDockerfile = new File(location, DOCKERFILE_TEMPLATE);
+        String deployableFilename = archive.getName();
+        Map<String, String> values = new HashMap<String, String>();
+        values.put("deployableFilename", deployableFilename);
+        String templateContent = IOUtil.asStringPreservingNewLines(new FileInputStream(templateDockerfile));
+        //But because deployable file is created by shrinkwrap we need to replace the deploy file name to the one created.
+        String dockerfileContent = IOUtil.replacePlaceholders(templateContent, values);
+        File dockerfile = new File(location, "Dockerfile");
+        if (dockerfile.exists()) {
+            log.fine("Dockerfile file is already found in current build directory and is going to be renamed to Dockerfile.old.");
+            dockerfile.renameTo(new File(location, "Dockerfile.old"));
+            dockerfile = new File(location, "Dockerfile");
+        }
+        dockerfile.deleteOnExit();
+        //The content is written to real Dockerfile which will be used during built time.
+        IOUtil.toFile(dockerfileContent, dockerfile);
+        File deployableOutputFile = new File(location, deployableFilename);
+        deployableOutputFile.deleteOnExit();
+        //file is saved to Dockerfile directory so can be copied inside image.
+        archive.as(ZipExporter.class).exportTo(deployableOutputFile, true);
     }
 
     private ProtocolMetaData createProtocolMetadata(Cube cube) {
