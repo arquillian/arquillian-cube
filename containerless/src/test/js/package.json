@@ -1,0 +1,11 @@
+{
+  "name": "helloworld-server",
+  "version": "0.0.1",
+  "description": "A NodeJS webserver to run inside a docker container",
+  "author": "asotobu@gmail.com",
+  "license": "APLv2",
+  "dependencies": {
+      "express": "*"
+  },
+  "scripts": {"start": "node index.js"}
+}

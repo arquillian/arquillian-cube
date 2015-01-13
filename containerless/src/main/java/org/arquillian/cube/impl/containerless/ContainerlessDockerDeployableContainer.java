@@ -26,8 +26,11 @@ import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.GenericArchive;
+import org.jboss.shrinkwrap.api.exporter.TarExporter;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
+import org.jboss.shrinkwrap.impl.base.io.tar.TarArchive;
 
 public class ContainerlessDockerDeployableContainer implements DeployableContainer<ContainerlessConfiguration> {
 
@@ -132,7 +135,12 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         File deployableOutputFile = new File(location, deployableFilename);
         deployableOutputFile.deleteOnExit();
         //file is saved to Dockerfile directory so can be copied inside image.
-        archive.as(ZipExporter.class).exportTo(deployableOutputFile, true);
+        if(archive instanceof GenericArchive) {
+            //In case of generic archives a tgz exporter should be used so Docker can uncompress it automatically.
+            archive.as(TarExporter.class).exportTo(deployableOutputFile, true);
+        } else {
+            archive.as(ZipExporter.class).exportTo(deployableOutputFile, true);
+        }
     }
 
     private ProtocolMetaData createProtocolMetadata(Cube cube) {

@@ -10,7 +10,15 @@
         <property name="dockerContainers">
             daytime:
               buildImage:
-                dockerfileLocation: src/test/resources
+                dockerfileLocation: src/test/resources/undertow
+                noCache: true
+                remove: true
+              await:
+                strategy: polling
+              portBindings: [8080/tcp]
+            node:
+              buildImage:
+                dockerfileLocation: src/test/resources/node
                 noCache: true
                 remove: true
               await:

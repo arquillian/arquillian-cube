@@ -1,13 +1,12 @@
 package org.arquillian.cube.impl.containerless;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.hamcrest.CoreMatchers.notNullValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 
@@ -17,6 +16,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,29 +28,34 @@ public class DaytimeTest {
 
     @Deployment(testable = false)
     public static JavaArchive createDeployment() {
-        return ShrinkWrap
+        JavaArchive[] undertow = Maven.resolver().resolve("io.undertow:undertow-core:1.1.1.Final").withTransitivity().as(JavaArchive.class);
+        JavaArchive jar = ShrinkWrap
                 .create(JavaArchive.class, "daytime.jar")
-                .addClass(DaytimeServer.class)
-                .addAsManifestResource(
-                        new StringAsset(
-                                "Main-Class: org.arquillian.cube.impl.containerless.DaytimeServer"
-                                        + LINE_SEPARATOR), "MANIFEST.MF");
+                .addClass(DaytimeServer.class);
+        
+        for (JavaArchive javaArchive : undertow) {
+            jar.merge(javaArchive);
+        }
+        
+        jar.addAsManifestResource(
+                new StringAsset(
+                        "Main-Class: org.arquillian.cube.impl.containerless.DaytimeServer"
+                                + LINE_SEPARATOR), "MANIFEST.MF");
+        return jar;
     }
 
     @Test
     public void shouldReturnDateFromDaytimeServer(@ArquillianResource URL base) {
-        String host = base.getHost();
-        int port = base.getPort();
 
-        try (Socket echoSocket = new Socket(host, port);
+        try (
                 BufferedReader in = new BufferedReader(new InputStreamReader(
-                        echoSocket.getInputStream()));) {
+                        base.openStream()));) {
             String userInput = in.readLine();
             assertThat(userInput, notNullValue());
         } catch (UnknownHostException e) {
-            fail("Don't know about host " + host);
+            fail("Don't know about host ");
         } catch (IOException e) {
-            fail("Couldn't get I/O for the connection to " + host);
+            fail("Couldn't get I/O for the connection to ");
         }
 
     }
