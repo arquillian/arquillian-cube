@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://jboss.org/schema/arquillian"
+    xsi:schemaLocation="http://jboss.org/schema/arquillian
+    http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+    <extension qualifier="docker">
+        <property name="serverVersion">1.12</property>
+        <property name="serverUri">http://localhost:2375</property>
+        <property name="dockerContainers">
+            daytime:
+              buildImage:
+                dockerfileLocation: src/test/resources/undertow
+                noCache: true
+                remove: true
+              await:
+                strategy: polling
+              portBindings: [8080/tcp]
+            node:
+              buildImage:
+                dockerfileLocation: src/test/resources/node
+                noCache: true
+                remove: true
+              await:
+                strategy: polling
+              portBindings: [8080/tcp]
+        </property>
+    </extension>
+
+    <container qualifier="containerless" default="true">
+        <configuration>
+            <property name="containerlessDocker">daytime</property>
+            <property name="embeddedPort">8080</property>
+        </configuration>
+    </container>
+    
+</arquillian>
