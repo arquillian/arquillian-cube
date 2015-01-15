@@ -29,7 +29,7 @@
 
     <container qualifier="containerless" default="true">
         <configuration>
-            <property name="containerlessDocker">daytime</property>
+            <property name="containerlessDocker">${arquillian.cube.containerless}</property>
             <property name="embeddedPort">8080</property>
         </configuration>
     </container>
