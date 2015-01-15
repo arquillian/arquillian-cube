@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -15,7 +16,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
+import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,8 +26,8 @@ public class NodeTest {
     @Deployment(testable = false)
     public static GenericArchive createDeployment() {
         return ShrinkWrap.create(GenericArchive.class, "app.tar")
-                .add(new ClassLoaderAsset("index.js"), "index.js")
-                .add(new ClassLoaderAsset("package.json"), "package.json");
+                .add(new FileAsset(new File("src/test/js/index.js")), "index.js")
+                .add(new FileAsset(new File("src/test/js/package.json")), "package.json");
     }
 
     @Test
