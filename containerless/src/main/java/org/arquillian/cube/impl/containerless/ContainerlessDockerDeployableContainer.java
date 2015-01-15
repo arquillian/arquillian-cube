@@ -30,7 +30,6 @@ import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.exporter.TarExporter;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
-import org.jboss.shrinkwrap.impl.base.io.tar.TarArchive;
 
 public class ContainerlessDockerDeployableContainer implements DeployableContainer<ContainerlessConfiguration> {
 
