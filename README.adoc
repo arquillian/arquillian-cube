@@ -322,6 +322,30 @@ tomcat:
     ports: [8080, 8089]
 ----
 
+=== Inferring exposedPorts from portBinding
+
+When you are using _Docker_ you can set two different parameters, +exposedPort+ and +portBinding+. 
++exposedPorts+ are ports that are available inside _Docker_ infrastructure and they are used for communication between _Docker_ containers but not from outside. 
+On the other side +portBindings+ are a way to instruct _Docker_ container to publish a port to be available from outside (for example from our test). 
+
+It seems reasonable that if you set a port binding this port should automatically be exposed port as well. 
+For this reason in *Arquillian Cube* you can use +portBinding+ and it will automatically set to exposed port.
+
+In next example we are only setting +portBinding+ and *Arquillian Cube* will instruct _Docker_ to expose port 8080 and of course bind the port 8080 so it can be accessible from outside.
+
+[source, xml]
+.arquillian.xml
+----
+daytime:
+  buildImage:
+    dockerfileLocation: src/test/resources/undertow
+    noCache: true
+    remove: true
+  await:
+    strategy: polling
+  portBindings: [8080/tcp]
+----
+
 == Building containers
 
 To build a container _Docker_ uses a file called +Dockerfile+ http://docs.docker.com/reference/builder/.
