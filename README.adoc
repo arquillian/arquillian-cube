@@ -352,7 +352,7 @@ daytime:
 === Allow connecting to a running container
 
 With the configuration option +shouldAllowToConnectToRunningContainers+ you can bypass
-the Create/Start Cube commands if the a_ Docke_r Container with the same name is already
+the Create/Start Cube commands if the a _Docker_ Container with the same name is already
 running on the target system. If so, *Arquillian Cube* will reuse that Container moving forward.
 
 This allow you to prestart the containers manually during development and just
