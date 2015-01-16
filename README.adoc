@@ -207,6 +207,9 @@ Let's see valid attributes:
 
 |autoStartContainers
 |Cube will normally only start a _Docker_ container when it has the same name as an active _Arquillian_ container. That works for things that are _DeployableContainer_'s. For any other service, e.g. a database, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _tomcat7, mysql_
+
+|shouldAllowToConnectToRunningContainers
+|Boolean to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system.
 |===
 
 In next example you can see a whole YAML document with configuration properties.
@@ -344,6 +347,32 @@ daytime:
   await:
     strategy: polling
   portBindings: [8080/tcp]
+----
+
+=== Allow connecting to a running container
+
+With the configuration option +shouldAllowToConnectToRunningContainers+ you can bypass
+the Create/Start Cube commands if the a_ Docke_r Container with the same name is already
+running on the target system. If so, *Arquillian Cube* will reuse that Container moving forward.
+
+This allow you to prestart the containers manually during development and just
+connect to them to avoid the extra cost of starting the _Docker_ Containers for each test
+run. This assumes you are not changing the actual definition of the _Docker_ Container itself.
+
+An example of this configuration could be:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+  <property name="serverVersion">1.12</property>
+  <property name="serverUri">http://localhost:2375</property>
+  <property name="shouldAllowToConnectToRunningContainers">true</property>
+  <property name="dockerContainers">
+      tomcat:
+        #more properties
+  </property>
+</extension>
 ----
 
 == Building containers
