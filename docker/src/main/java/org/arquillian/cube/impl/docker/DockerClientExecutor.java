@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
@@ -83,6 +85,8 @@ public class DockerClientExecutor {
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
 
+    private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
+
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
 
     private DockerClient dockerClient;
@@ -100,7 +104,7 @@ public class DockerClientExecutor {
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
     }
-    
+
     public String createContainer(String name, Map<String, Object> containerConfiguration) {
 
         // we check if Docker server is up and correctly configured.
@@ -116,7 +120,7 @@ public class DockerClientExecutor {
             int numberOfExposedPorts = allExposedPorts.size();
             createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
         }
-        
+
         if (containerConfiguration.containsKey(WORKING_DIR)) {
             createContainerCmd.withWorkingDir(asString(containerConfiguration, WORKING_DIR));
         }
@@ -375,14 +379,23 @@ public class DockerClientExecutor {
         // the image id to invoke it automatically.
         // Currently this is a bit clunky but REST API does not provide any other way.
         String fullLog = IOUtil.asString(response);
-        String imageId = IOUtil.substringBetween(fullLog, "Successfully built ", "\\n\"}");
+        String imageId = getImageId(fullLog);
 
         if (imageId == null) {
             throw new IllegalStateException(
                     String.format("Docker server has not provided an imageId for image build from %s. Response from the server was:\n%s", location, fullLog));
         }
-            
+
         return imageId.trim();
+    }
+
+    public static String getImageId(String fullLog) {
+        Matcher m = IMAGEID_PATTERN.matcher(fullLog);
+        String imageId = null;
+        if (m.find()) {
+            imageId = m.group(1);
+        }
+        return imageId;
     }
 
     private void configureBuildCommand(Map<String, Object> params, BuildImageCmd buildImageCmd) {
@@ -516,7 +529,7 @@ public class DockerClientExecutor {
         }
         return capabilities.toArray(new Capability[capabilities.size()]);
     }
-    
+
     private static final Bind[] toBinds(List<String> bindsList) {
 
         Bind[] binds = new Bind[bindsList.size()];
