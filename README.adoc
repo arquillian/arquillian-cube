@@ -288,6 +288,7 @@ Currently next await strategies are supported:
 native:: it uses *wait* command. In this case current thread is waiting until the _Docker_ server notifies that has started. In case of foreground services this is not the approach to be used.
 polling:: in this case a polling (with _ping_) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledge, the container is considered to be up. This approach is the one to be used in case of services started in foreground.
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
+sleeping:: sleeps current thread the specified amount of time. You can specifiy time in seconds or miliseconds.
 
 [source, yaml]
 .Example native
@@ -324,6 +325,18 @@ tomcat:
     ip: localhost
     ports: [8080, 8089]
 ----
+
+[source, yaml]
+.Example sleeping
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: sleeping
+    sleepTime: 200 s #1
+----
+<1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
 
 === Inferring exposedPorts from portBinding
 
