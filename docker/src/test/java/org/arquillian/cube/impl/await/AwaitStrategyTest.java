@@ -82,6 +82,14 @@ public class AwaitStrategyTest {
             "  await:\n" +
             "    strategy: native";
 
+
+    private static final String CONTENT_WITH_SLEEPING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: sleeping\n" +
+            "    sleepTime: 200 s\n";
+    
     @Mock
     private Cube cube;
 
@@ -185,6 +193,20 @@ public class AwaitStrategyTest {
         assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
     }
 
+    @Test
+    public void should_create_sleeping_await_strategy_with_specific_times() {
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> content = (Map<String, Object>) new Yaml().load(CONTENT_WITH_SLEEPING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tomcatConfig = (Map<String, Object>) content.get("tomcat");
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, tomcatConfig);
+
+        assertThat(strategy, instanceOf(SleepingAwaitStrategy.class));
+        assertThat(((SleepingAwaitStrategy)strategy).getSleepTime(), is(200));
+    }
+    
     @Test
     public void should_create_polling_await_strategy_with_specific_times_and_unit() {
 
