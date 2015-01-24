@@ -26,6 +26,10 @@ public class Binding {
         this.bindings.add(new PortBinding(exposedPort, bindingPort));
     }
 
+    public boolean arePortBindings() {
+        return !this.bindings.isEmpty();
+    }
+
     public PortBinding getBindingForExposedPort(Integer exposedPort) {
         for(PortBinding binding : this.bindings) {
             if(binding.getExposedPort().equals(exposedPort)) {

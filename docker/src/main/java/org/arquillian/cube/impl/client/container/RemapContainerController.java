@@ -42,29 +42,33 @@ public class RemapContainerController {
 
         Binding binding = BindingUtil.binding(cube.configuration());
 
-        ContainerDef containerConfiguration = container.getContainerConfiguration();
-        List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
+        if (binding.arePortBindings()) {
 
-        Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
-        List<PropertyDescriptor> configurationClassPortFields = filterConfigurationClassPropertiesByPortAttribute(configurationClass);
+            ContainerDef containerConfiguration = container.getContainerConfiguration();
+            List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
 
-        Object newConfigurationInstance = configurationClass.newInstance();
+            Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
+            List<PropertyDescriptor> configurationClassPortFields = filterConfigurationClassPropertiesByPortAttribute(configurationClass);
 
-        for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
-            if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName())) {
-                // This means that port has not configured in arquillian.xml and it will use default value.
-                // In this case is when remapping should be activated to adequate the situation according to Arquillian
-                // Cube exposed ports.
+            Object newConfigurationInstance = configurationClass.newInstance();
 
-                int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
-                        configurationClass, configurationClassPortField);
+            for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
+                if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName())) {
+                    // This means that port has not configured in arquillian.xml and it will use default value.
+                    // In this case is when remapping should be activated to adequate the situation according to
+                    // Arquillian
+                    // Cube exposed ports.
 
-                PortBinding bindingForExposedPort = null;
-                if ((bindingForExposedPort = binding.getBindingForExposedPort(containerPort)) != null) {
-                    containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                            Integer.toString(bindingForExposedPort.getBindingPort()));
+                    int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
+                            configurationClass, configurationClassPortField);
+
+                    PortBinding bindingForExposedPort = null;
+                    if ((bindingForExposedPort = binding.getBindingForExposedPort(containerPort)) != null) {
+                        containerConfiguration.overrideProperty(configurationClassPortField.getName(),
+                                Integer.toString(bindingForExposedPort.getBindingPort()));
+                    }
+
                 }
-
             }
         }
     }
