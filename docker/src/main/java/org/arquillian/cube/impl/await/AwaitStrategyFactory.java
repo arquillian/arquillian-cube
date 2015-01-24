@@ -31,6 +31,7 @@ public class AwaitStrategyFactory {
                     case PollingAwaitStrategy.TAG: return new PollingAwaitStrategy(cube, awaitOptions);
                     case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                     case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, awaitOptions);
+                    case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, awaitOptions);
                     default: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                 }
 
