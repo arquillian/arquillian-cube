@@ -28,6 +28,7 @@
         <module>docker</module>
         <module>ftest</module>
         <module>containerless</module>
+        <module>docker-server-stub</module>
     </modules>
 
     <developers>
