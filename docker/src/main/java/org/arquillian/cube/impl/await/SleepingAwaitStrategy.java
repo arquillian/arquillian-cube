@@ -19,11 +19,8 @@ public class SleepingAwaitStrategy implements AwaitStrategy {
 
     private int sleepTime = DEFAULT_SLEEP_TIME;
     private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
-    
-    private Cube cube;
 
     public SleepingAwaitStrategy(Cube cube, Map<String, Object> params) {
-        this.cube = cube;
         if (params.containsKey(SLEEPING_TIME)) {
             configureSleepingTime(params);
         }
@@ -59,11 +56,11 @@ public class SleepingAwaitStrategy implements AwaitStrategy {
 
     @Override
     public boolean await() {
-    	try {
-    		timeUnit.sleep(sleepTime);
-		} catch (final InterruptedException e) {
-			log.log(Level.WARNING, e.getMessage());
-		}
+        try {
+            timeUnit.sleep(sleepTime);
+        } catch (final InterruptedException e) {
+            log.log(Level.WARNING, e.getMessage());
+        }
         return true;
     }
 }
