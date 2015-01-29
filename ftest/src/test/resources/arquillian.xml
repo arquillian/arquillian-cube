@@ -4,6 +4,9 @@
     xsi:schemaLocation="http://jboss.org/schema/arquillian
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
+  <!-- See http://ptmccarthy.github.io/2014/07/24/remote-jmx-with-docker/ for why we have to bind the docker hostname
+  and port.  Mostly because RMI is the most idiotic protocol ever invented :(.    -->
+
     <extension qualifier="docker">
         <property name="serverVersion">${docker.api.version}</property>
         <property name="serverUri">${docker.api.url}</property>
@@ -14,15 +17,15 @@
               exposedPorts: [8089/tcp]
               await:
                 strategy: polling
-              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081->8080/tcp]
+              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Djava.rmi.server.hostname=${docker.tomcat.host}  -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+              portBindings: [8089/tcp, 8088/tcp, 8081->8080/tcp]
             tomcat:
               image: tutum/tomcat:7.0
               exposedPorts: [8089/tcp]
               await:
                 strategy: polling
-              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081->8080/tcp]
+              env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Djava.rmi.server.hostname=${docker.tomcat.host}  -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+              portBindings: [8089/tcp, 8088/tcp, 8081->8080/tcp]
             tomcat_dockerfile:
               buildImage:
                 dockerfileLocation: src/test/resources/tomcat
@@ -30,8 +33,8 @@
                 remove: true
               await:
                 strategy: polling
-              env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-              portBindings: [8089/tcp, 8081->8080/tcp]
+              env: [JAVA_OPTS=-Djava.rmi.server.hostname=${docker.tomcat.host}  -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+              portBindings: [8089/tcp, 8088/tcp, 8081->8080/tcp]
             wildfly:
               buildImage:
                 dockerfileLocation: src/test/resources/wildfly
@@ -62,7 +65,7 @@
 
     <container qualifier="tomcat_dockerfile">
         <configuration>
-            <property name="host">localhost</property>
+            <property name="host">${docker.tomcat.host}</property>
             <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
@@ -70,14 +73,14 @@
     </container>
     <container qualifier="tomcat_default">
         <configuration>
-            <property name="host">localhost</property>
+            <property name="host">${docker.tomcat.host}</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
     </container>
     <container qualifier="tomcat">
         <configuration>
-            <property name="host">localhost</property>
+            <property name="host">${docker.tomcat.host}</property>
             <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>

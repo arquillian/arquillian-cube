@@ -49,10 +49,13 @@ public class CubeControllerTest {
         assertNotNull( cubeController );
 
         cubeController.create( TOMCAT_CUBE );
+        cubeController.start( TOMCAT_CUBE );
         cubeController.stop( TOMCAT_CUBE );
 
         //re-create again, this should be an idempotent no op and simple log it
         cubeController.create( TOMCAT_CUBE );
+        cubeController.start( TOMCAT_CUBE );
+        cubeController.stop( TOMCAT_CUBE );
 
     }
 
