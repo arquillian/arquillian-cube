@@ -46,7 +46,7 @@ public class CubeControllerTest {
     @Test
     @RunAsClient
     public void containerReusable(){
-        assertNotNull( cubeController );
+        assertThat( cubeController, notNullValue() );
 
         cubeController.create( TOMCAT_CUBE );
         cubeController.start( TOMCAT_CUBE );
