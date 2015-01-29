@@ -1,5 +1,6 @@
 package org.arquillian.cube.impl.util;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Binding;
 
+import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
@@ -20,12 +22,21 @@ public final class BindingUtil {
     }
 
     public static Binding binding(DockerClientExecutor executor, String cubeId) {
-        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd(cubeId).exec();
+        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( cubeId ).exec();
 
         HostConfig hostConfig = inspectResponse.getHostConfig();
+
+        /**
+         * This isn't actually the gateway IP of the host, it's the ip of the gateway within the docker runtime,
+         * which may not be accessible to us.  We need the IP the client uses, that will be routable, and will
+         * allow us to validate the ports in later phases
         String gatewayIp = inspectResponse.getNetworkSettings().getGateway();
 
-        Binding binding = new Binding(gatewayIp);
+         **/
+
+        final String dockerIp = executor.getDockerUri().getHost();
+        Binding binding = new Binding(dockerIp);
+
         for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
                 .getBindings().entrySet()) {
             com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();

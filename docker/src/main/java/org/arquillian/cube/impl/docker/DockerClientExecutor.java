@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -93,11 +94,19 @@ public class DockerClientExecutor {
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
+    private final URI dockerUri;
 
     public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder();
-        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(
-                cubeConfiguration.getDockerServerUri());
+
+
+
+        //TODO, if this is already set from the client natively, do we want to override here?
+
+        dockerUri =  URI.create( cubeConfiguration.getDockerServerUri() );
+
+        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri( dockerUri.toString() );
+
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
@@ -249,7 +258,7 @@ public class DockerClientExecutor {
             }
         }
 
-        throw new NotFoundException("Could not find a docker image id with name");
+        throw new NotFoundException("Could not find a docker image id with name '" + name + "'");
     }
 
 
@@ -499,6 +508,15 @@ public class DockerClientExecutor {
         // To wait until image is pull we need to listen input stream until it is closed by the server
         // At this point we can be sure that image is already pulled.
         IOUtil.asString(exec);
+    }
+
+
+    /**
+     * Get the URI of the docker host
+     * @return
+     */
+    public URI getDockerUri(){
+        return dockerUri;
     }
 
     private static final Device[] toDevices(List<Map<String, Object>> devicesMap) {
