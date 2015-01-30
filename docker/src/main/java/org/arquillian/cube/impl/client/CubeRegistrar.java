@@ -21,6 +21,7 @@ public class CubeRegistrar {
     public void register(@Observes DockerClientExecutor executor, CubeConfiguration configuration, Injector injector) {
         DockerCubeRegistry registry = new DockerCubeRegistry();
 
+        //TODO, add key here generation here
         Map<String, Object> containerConfigurations = configuration.getDockerContainersContent();
         for(Map.Entry<String, Object> containerConfiguration : containerConfigurations.entrySet()) {
 
