@@ -123,9 +123,6 @@ public class DockerClientExecutor {
 
         String image = getImageName(containerConfiguration);
 
-
-
-
         CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
         createContainerCmd.withName(name);
 
@@ -221,46 +218,7 @@ public class DockerClientExecutor {
             this.pullImage(image);
             return createContainerCmd.exec().getId();
         }
-        //we may call create when it already exists.  If this is the case, we simply swallow it
-        catch(ConflictException ce){
-
-            final String message = ce.getMessage();
-
-            if(message.contains( name ) && message.contains("already assigned")) {
-                log.info( "The container " + name + " already exists, reusing" );
-                return getContainerId( name );
-            }
-
-            //not an exception we handle, re-throw
-            throw ce;
-        }
     }
-
-
-    /**
-     * Get the container ID for the name.  If it cannot be found, an exception will be thrown
-     * @param name The image name to search
-     * @return The id for the image
-     * @throws com.github.dockerjava.api.NotFoundException if the image cannot be found by name
-     */
-    private String getContainerId(final String name) throws NotFoundException{
-        final List<Container> results = this.dockerClient.listContainersCmd().withShowAll( true ).exec();
-
-        for(Container container: results ){
-
-            for(String containerName: container.getNames()) {
-                //we have to trim off the leading slash '/' char
-                final String trimmedName = containerName.substring( 1 );
-
-                if ( name.equals( trimmedName ) ) {
-                    return container.getId();
-                }
-            }
-        }
-
-        throw new NotFoundException("Could not find a docker image id with name '" + name + "'");
-    }
-
 
     private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration, CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
@@ -491,7 +449,7 @@ public class DockerClientExecutor {
 
     public void pullImage(String imageName) {
 
-        PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd( imageName );
+        PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(imageName);
 
         if (this.cubeConfiguration.getDockerRegistry() != null) {
             pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());

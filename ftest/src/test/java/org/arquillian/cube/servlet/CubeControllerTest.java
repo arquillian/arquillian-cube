@@ -1,7 +1,6 @@
 package org.arquillian.cube.servlet;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import org.arquillian.cube.CubeController;
@@ -19,8 +18,6 @@ import org.junit.runner.RunWith;
 public class CubeControllerTest {
 
     private static final String MANUAL_START_CUBE = "database_manual";
-
-    private static final String TOMCAT_CUBE = "tomcat_default";
 
     @Deployment
     public static WebArchive create() {
@@ -56,21 +53,4 @@ public class CubeControllerTest {
         cubeController.stop(MANUAL_START_CUBE);
         cubeController.destroy(MANUAL_START_CUBE);
     }
-
-//    @Test
-//    @RunAsClient
-//    public void containerReusable(){
-//        assertThat( cubeController, notNullValue() );
-//
-//        cubeController.create( TOMCAT_CUBE );
-//        cubeController.start( TOMCAT_CUBE );
-//        cubeController.stop( TOMCAT_CUBE );
-//
-//        //re-create again, this should be an idempotent no op and simple log it
-//        cubeController.create( TOMCAT_CUBE );
-//        cubeController.start( TOMCAT_CUBE );
-//        cubeController.stop( TOMCAT_CUBE );
-//
-//    }
-
 }

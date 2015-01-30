@@ -1,6 +1,5 @@
 package org.arquillian.cube.impl.util;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,7 +7,6 @@ import java.util.Map.Entry;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Binding;
 
-import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
