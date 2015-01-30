@@ -65,7 +65,7 @@
 
     <container qualifier="tomcat_dockerfile">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
+            <property name="host">localhost</property>
             <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
@@ -73,14 +73,14 @@
     </container>
     <container qualifier="tomcat_default">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
+            <property name="host">localhost</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
     </container>
     <container qualifier="tomcat">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
+            <property name="host">localhost</property>
             <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
