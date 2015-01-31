@@ -17,11 +17,11 @@ With this extension you can start a _Docker_ container with a server installed, 
 
 The key point here is that if _Docker_ is used as deployable platform in production, your tests are executed in a the same container as it will be in production, so your tests are even more real than before.
 
-But also let you start a container with every required service like database, mail server, ... and instead of stubbing or using fake objects your tests can use real servers.
+But it also lets you start a container with every required service like database, mail server, ... and instead of stubbing or using fake objects your tests can use real servers.
 
 [WARNING]
 ====
-This extension has been developed and tested in a Linux machine with _Docker_ server already installed.
+This extension has been developed and tested on a Linux machine with the _Docker_ server already installed.
 It should work with *Boot2Docker* as well in _Windows_ and _MacOS_ machines, but some parameters like _host ip_ must be the _Boot2Docker_ server instead of _localhost_ (in case you have _Docker_ server installed inside your own machine).
 
 One of the best resources to learn about why using _Boot2Docker_ is different from using _Docker_ in Linux can be read here http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide
@@ -33,7 +33,7 @@ One of the best resources to learn about why using _Boot2Docker_ is different fr
 
 To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it can be local or not), but probably it will be at local.
 
-By default _Docker_ server is using UNIX sockets for communication with the _Docker_ client, however _docker-java_ client uses TCP/IP to connect to the Docker server, so you will need to make sure that your _Docker_ server is listening on TCP port.
+By default the _Docker_ server uses UNIX sockets for communication with the _Docker_ client, however _docker-java_ client uses TCP/IP to connect to the Docker server, so you will need to make sure that your _Docker_ server is listening on TCP port.
 To allow _Docker_ server to use TCP add the following line to +/etc/default/docker+:
 
 +DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"+
@@ -52,12 +52,12 @@ Git commit (server): fa7b24f
 Go version (server): go1.3.1
 ----
 
-If you cannot see the client and server versions then means that something is wrong in _Docker_ installation.
+If you cannot see the client and server versions then it means that something is wrong with the _Docker_ installation.
 
 == Basic Example
 
 After having a _Docker_ server installed we can start using *Arquillian Cube*.
-In this case we are going to use a very simple example using a _Docker_ image with an _Apache Tomcat_ and we are going to test a _Servlet_ on it.
+In this case we are going to use a very simple example using a _Docker_ image with _Apache Tomcat_ and we are going to test a _Servlet_ on it.
 
 [source, java]
 .HelloWorldServlet.java
@@ -105,12 +105,12 @@ public class HelloWorldServletTest {
   }
 }
 ----
-<1> In this case we are running test as a client. So in fact this test is executed against the container instead of inside the container.
-<2> No changes in this part, we need to create a deployable file, and because it is a _Tomcat_, a _war_ file is created.
-<3> Because test is run as client, we can use +@ArquillianResource+ to get the URL where file is deployed. Note that this will be the URL to access to _TomcaT_ that is running inside _Docker_ container.
+<1> In this case we are running the test as a client. So in fact this test is executed against the container instead of inside the container.
+<2> No changes in this part, we need to create a deployable file, and because we are testing against _Tomcat_, a _war_ file is created.
+<3> Because the test is run as client, we can use +@ArquillianResource+ to get the URL where the file is deployed. Note that this will be the URL to access _Tomcat_ running inside the _Docker_ container.
 <4> Typical jUnit assertion of servlet response.
 
-Now this test could be run in any container, there is nothing that tights this to _Docker_.
+Now this test could be run in any container, there is nothing that ties this to _Docker_.
 Next step is adding some dependencies apart from the typical _Arquillian_ dependencies.
 
 [source, xml]
@@ -191,10 +191,10 @@ Let's see valid attributes:
 [cols="2*"]
 |===
 |serverVersion
-|Version of REST API provided by_Docker_ server. You should check on _Docker_ site which version of REST API is shipped inside installed _Docker_ service.
+|Version of REST API provided by_Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service.
 
 |serverUri
-|Uri of _Docker_ server. If _Docker_ server is run on a Linux and installed locally is _localhost_ but if you are using _Boot2Docker_ or remote _Docker_ server then the URI should be changed to point to _Docker_ remote _URI_.
+|Uri of _Docker_ server. If the _Docker_ server is running natively on Linux then this will be _localhost_ but if you are using _Boot2Docker_ or a remote _Docker_ server then the URI should be changed to point to the _Docker_ remote _URI_.
 
 |dockerRegistry
 |Sets the location of Docker registry. Default value is the official _Docker_ registry located at https://registry.hub.docker.com
@@ -212,7 +212,7 @@ Let's see valid attributes:
 |Boolean to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system.
 |===
 
-In next example you can see a whole YAML document with configuration properties.
+In the next example you can see a whole YAML document with configuration properties.
 Keep in mind that almost all of them are configuration parameters provided by _Docker_ remote API.
 In this example we are going to explain the attributes that are most used and special cases.
 Of course not all of them are mandatory:
@@ -266,12 +266,12 @@ tomcat: #1
   extends: container-id #9
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
-<2> Name of the image to be used. It is *mandatory*. If image is not already pulled in _Docker_ server, *Arquillian Cube* will pull it for you.
+<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you.
 <3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
 <4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
 <6> You can pass environment variables by using `env`.
-<7> After container is up, a list of commands can be executed within it.
+<7> After the container is up, a list of commands can be executed within it.
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
@@ -286,9 +286,9 @@ To avoid executing tests before the services are ready, you can set which await 
 Currently next await strategies are supported:
 
 native:: it uses *wait* command. In this case current thread is waiting until the _Docker_ server notifies that has started. In case of foreground services this is not the approach to be used.
-polling:: in this case a polling (with _ping_) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledge, the container is considered to be up. This approach is the one to be used in case of services started in foreground.
+polling:: in this case a polling (with _ping_) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground.
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
-sleeping:: sleeps current thread the specified amount of time. You can specifiy time in seconds or miliseconds.
+sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
 
 [source, yaml]
 .Example native
@@ -340,11 +340,11 @@ tomcat:
 
 === Inferring exposedPorts from portBinding
 
-When you are using _Docker_ you can set two different parameters, +exposedPort+ and +portBinding+. 
-+exposedPorts+ are ports that are available inside _Docker_ infrastructure and they are used for communication between _Docker_ containers but not from outside. 
-On the other side +portBindings+ are a way to instruct _Docker_ container to publish a port to be available from outside (for example from our test). 
+When you are using _Docker_ you can set two different parameters, +exposedPort+ and +portBinding+.
++exposedPorts+ are ports that are available inside _Docker_ infrastructure and they are used for communication between _Docker_ containers but not from outside.
+On the other side +portBindings+ are a way to instruct _Docker_ container to publish a port to be available from outside (for example from our test).
 
-It seems reasonable that if you set a port binding this port should automatically be exposed port as well. 
+It seems reasonable that if you set a port binding this port should automatically be exposed port as well.
 For this reason in *Arquillian Cube* you can use +portBinding+ and it will automatically set to exposed port.
 
 In next example we are only setting +portBinding+ and *Arquillian Cube* will instruct _Docker_ to expose port 8080 and of course bind the port 8080 so it can be accessible from outside.
@@ -368,7 +368,7 @@ With the configuration option +shouldAllowToConnectToRunningContainers+ you can 
 the Create/Start Cube commands if the a _Docker_ Container with the same name is already
 running on the target system. If so, *Arquillian Cube* will reuse that Container moving forward.
 
-This allow you to prestart the containers manually during development and just
+This allows you to prestart the containers manually during development and just
 connect to them to avoid the extra cost of starting the _Docker_ Containers for each test
 run. This assumes you are not changing the actual definition of the _Docker_ Container itself.
 
@@ -439,7 +439,7 @@ CMD ["/tomcat/bin/catalina.sh","run"]
 
 One for injecting the +CubeID+(_containerId_) of the current container created for executing the test, one that injects the +CubeController+ to call lifecycle methods on any cube and one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
 
-CubeID and DockerClient injections only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting testeable proprety to false +@Deployment(testable = false)+.
+CubeID and DockerClient injections only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting the testable property to false +@Deployment(testable = false)+.
 
 These can be injected using the +@ArquillianResource+ annotation.
 
@@ -468,9 +468,9 @@ CubeController cubeController;
 
 === Auto starting Cubes outside of Arquillian Containers
 
-Probably any application you may write will need an application/servlet container but also other servers like database server or mail server. 
-Each one will be placed on one _Docker Container_. 
-So for example a full application may contain one _Docker Container_ with an application server (for example _Wildfly_) and another container with a database (for example _H2_). 
+Probably any application you may write will need an application/servlet container but also other servers like database server or mail server.
+Each one will be placed on one _Docker Container_.
+So for example a full application may contain one _Docker Container_ with an application server (for example _Wildfly_) and another container with a database (for example _H2_).
 
 *Arquillian Cube* can orchestrate these containers as well.
 
@@ -531,7 +531,7 @@ public class UserRepository {
 }
 ----
 
-=== Auto-Remapping 
+=== Auto-Remapping
 
 *Arquillian Cube* can automatically configure default ports of container in case of port forwarding.
 
@@ -554,7 +554,7 @@ Suppose you have a _Docker Container_ configuration like:
 ----
 <1> Note that the exposed port is the 8081.
 
-Then in theory you should configure the remote _Tomcat_ adapter to port 8081 on your _arquillian.xml_ file. 
+Then in theory you should configure the remote _Tomcat_ adapter to port 8081 on your _arquillian.xml_ file.
 But let's say that you are using that remote adapter for a remote local machine _Tomcat_ (outside _Docker_) too, and is configured to use 8080 port.
 
 [source, xml]
@@ -569,27 +569,27 @@ But let's say that you are using that remote adapter for a remote local machine 
 </container>
 ----
 
-Which basically uses default port (8080) to connect to remote server. 
+Which basically uses default port (8080) to connect to remote server.
 
-In this case you don't need to create a new `container` tag, *Arquillian Cube* is smart enough to change the default port value automatically; in case of _Tomcat_ 8080 to 8081. 
+In this case you don't need to create a new `container` tag, *Arquillian Cube* is smart enough to change the default port value automatically; in case of _Tomcat_ 8080 to 8081.
 *Arquillan Cube* will apply autoremapping to all properties that contains `port` as a substring of the property, and will remap if it is necessary.
 
 NOTE: Automapping only works in case you want to change the default server port to a _Docker_ port forwarded port.
 
 == Containerless Server and Docker
 
-In all previous sections we have seen that the application is deployed inside a container. 
+In all previous sections we have seen that the application is deployed inside a container.
 For example in case of _Tomcat_ application, resources are deployed inside a _Servlet_ container or for example in case of _Apache TomEE_ you can deploy _EJBs_ inside an _EJB_ container.
 
 But nowadays there other kind of applications that contains the container (if they have one) embedded inside them.
-Typically these applications uses an embedded server and they are run as _CLI_ applications. 
-Some examples can be _Spring Boot_, _Netty_, _SparkJava_ or _Undertow_. 
+Typically these applications uses an embedded server and they are run as _CLI_ applications.
+Some examples can be _Spring Boot_, _Netty_, _SparkJava_ or _Undertow_.
 
 If you are using some of these technologies with _Docker_, you can still use *Arquillian Cube* to write your tests.
 
 === Java Embedded Servers
 
-Let's suppose we are writing a service which should return as text the current day and time. 
+Let's suppose we are writing a service which should return as text the current day and time.
 To serve this service to the world we decide to use _undertow_ embedded server.
 
 The code looks like:
@@ -626,10 +626,10 @@ public class DaytimeServer {
 <1> This class is a CLI application.
 <2> Returns a text with the day and time formatted with +SimpleDateFormat+.
 
-See that this application is a CLI application which is pretty different from previous examples. 
-Previously the packaged application was deployed inside an application server, which in fact means that *Arquillian* connects to the server and tells him to deploy that file.
+See that this application is a CLI application which is pretty different from previous examples.
+Previously the packaged application was deployed inside an application server, which in fact means that *Arquillian* connects to the server and tells it to deploy that file.
 
-In this example there is no application server nor servlet server waiting for *Arquillian* to deploy an archive but the application is self-contained, it contains everything. 
+In this example there is no application server nor servlet server waiting for *Arquillian* to deploy an archive but the application is self-contained, it contains everything.
 So in fact if you want to run the application probably you will end up by doing something like +java -jar daytime.jar+.
 
 So how to write a test for these classes if we are using _Docker_ as runtime container?
@@ -646,12 +646,12 @@ The first thing to do is add +arquillian-cube-containerless+ dependency.
 </dependency>
 ----
 
-Next step is creating a +Dockerfile+. 
-This is required because we need to set not only the container image to be used but how to run the application. 
-But see that there is a problem on creating a +Dockerfile+ in this case. 
-The +jar+ name is not static because it will depend on the name you give during the creation of the archive (using _Shrinkwrap_). 
-So in fact +Dockerfile+ should be templaterized. 
-And this is something that *Arquillian Cube* can do for you. 
+Next step is creating a +Dockerfile+.
+This is required because we need to set not only the container image to be used but how to run the application.
+But see that there is a problem on creating a +Dockerfile+ in this case.
+The +jar+ name is not static because it will depend on the name you give during the creation of the archive (using _Shrinkwrap_).
+So in fact +Dockerfile+ should be templaterized.
+And this is something that *Arquillian Cube* can do for you.
 The idea is creating a file called +DockerfileTemplate+.
 
 [source, terminal]
@@ -701,9 +701,9 @@ Then we need to touch +arquillian.xml+ file by setting an special container defi
 
 </arquillian>
 ----
-<1> Docker container is defined as usually.
+<1> The Docker container is defined as per usual.
 <2> buildImage attribute is used to define the dockerfile location.
-<3> This attribute sets the directory where +Dockerfile+ is stored. In fact in this case is the directory where +DockerfileTemplate+ file is stored.
+<3> This attribute sets the directory where the +Dockerfile+ is stored. In fact in this case it is the directory where +DockerfileTemplate+ file is stored.
 <4> A container provided by *Arquillian Cube* must be defined.
 <5> This property is used to set which container must be started.
 <6> This property sets the exposed port by the embedded server.
@@ -762,12 +762,12 @@ public class DaytimeTest {
 
 === Polyglot Applications
 
-In previous section we have seen that we can test any _java_ _CLI_ application that offers a socket connection. 
+In previous section we have seen that we can test any _java_ _CLI_ application that offers a socket connection.
 But if you think clearly there is nothing that avoid *Arquillian Cube* to deploy applications developed in other languages like _Node.js_, _Play_, _Ruby on Rails_, ...
 
 Let's see an example on how you can use *Arquillian Cube* to test a _Node.js_ _hello world_ application.
 
-First thing to do is create the _Node.js_ application. 
+First thing to do is create the _Node.js_ application.
 
 [source, json]
 .src/main/js/package.json
@@ -887,7 +887,7 @@ public class NodeTest {
 <2> +GenericArchive+ with +tar+ extension must be created using _Shrinkwrap_.
 <3> Simple test.
 
-NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *Arquillian Cube*. When you use +ADD+ in +Dockerfile+, _Docker_ will untar automatically the file to given location. 
+NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *Arquillian Cube*. When you use +ADD+ in +Dockerfile+, _Docker_ will untar automatically the file to given location.
 
 == Future work
 
