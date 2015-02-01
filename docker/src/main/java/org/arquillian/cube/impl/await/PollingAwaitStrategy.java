@@ -1,9 +1,12 @@
 package org.arquillian.cube.impl.await;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.impl.util.Ping;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
@@ -18,23 +21,32 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private static final int DEFAULT_POLL_ITERATIONS = 10;
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
+    private static final String DEFAULT_POLL_TYPE = "ping";
     private static final String POLLING_TIME = "sleepPollingTime";
     private static final String ITERATIONS = "iterations";
+    private static final String POLL_TYPE = "type";
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private int sleepPollTime = DEFAULT_SLEEP_POLL_TIME;
     private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
-    
+    private String type = DEFAULT_POLL_TYPE;
+
+    private DockerClientExecutor dockerClientExecutor;
     private Cube cube;
 
-    public PollingAwaitStrategy(Cube cube, Map<String, Object> params) {
+    public PollingAwaitStrategy(Cube cube, DockerClientExecutor dockerClientExecutor, Map<String, Object> params) {
         this.cube = cube;
+        this.dockerClientExecutor = dockerClientExecutor;
         if (params.containsKey(POLLING_TIME)) {
             configurePollingTime(params);
         }
 
         if (params.containsKey(ITERATIONS)) {
             this.pollIterations = (Integer) params.get(ITERATIONS);
+        }
+
+        if(params.containsKey(POLL_TYPE)) {
+            this.type = (String) params.get(POLL_TYPE);
         }
     }
 
@@ -70,18 +82,42 @@ public class PollingAwaitStrategy implements AwaitStrategy {
         return timeUnit;
     }
 
+    public String getType() {
+        return type;
+    }
+
     @Override
     public boolean await() {
         Binding bindings = cube.bindings();
 
         for (PortBinding ports : bindings.getPortBindings()) {
-            log.fine(String.format("Pinging host (gateway) %s and port %s", bindings.getIP(), ports.getBindingPort()));
-            if (!Ping.ping(bindings.getIP(), ports.getBindingPort(), this.pollIterations, this.sleepPollTime,
-                    this.timeUnit)) {
-                return false;
+            log.fine(String.format("Pinging host %s and port %s with type", bindings.getIP(), ports.getBindingPort(), this.type));
+
+            switch(this.type) {
+                case "ping": {
+                    if (!Ping.ping(bindings.getIP(), ports.getBindingPort(), this.pollIterations, this.sleepPollTime,
+                            this.timeUnit)) {
+                        return false;
+                    }
+                }
+
+                break;
+                case "sscommand": {
+                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", ports.getExposedPort()), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
+                        return false;
+                    }
+                }
             }
+
         }
 
         return true;
+    }
+
+    private String resolveCommand(String command, int port) {
+        Map<String, String> values = new HashMap<String, String>();
+        values.put("port", Integer.toString(port));
+        String templateContent = IOUtil.asStringPreservingNewLines(PollingAwaitStrategy.class.getResourceAsStream(command+".sh"));
+        return IOUtil.replacePlaceholders(templateContent, values);
     }
 }

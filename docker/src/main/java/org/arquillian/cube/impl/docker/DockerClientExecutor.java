@@ -468,6 +468,10 @@ public class DockerClientExecutor {
         IOUtil.asString(exec);
     }
 
+    public String execStart(String containerId, String...commands) {
+        //TODO implement when docker-java API is updated.
+        return "1";
+    }
 
     /**
      * Get the URI of the docker host
