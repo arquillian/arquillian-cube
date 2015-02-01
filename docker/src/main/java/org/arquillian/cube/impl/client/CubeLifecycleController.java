@@ -4,6 +4,7 @@ import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.CreateCube;
 import org.arquillian.cube.spi.event.DestroyCube;
+import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -24,6 +25,10 @@ public class CubeLifecycleController {
 
     public void destroy(@Observes DestroyCube event, CubeRegistry registry) {
         validateAndGet(registry, event.getCubeId()).destroy();
+    }
+
+    public void changeToPreRunning(@Observes PreRunningCube event, CubeRegistry registry) {
+        validateAndGet(registry, event.getCubeId()).changeToPreRunning();
     }
 
     private Cube validateAndGet(CubeRegistry registry, String cubeId) {
