@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 
+import com.github.dockerjava.api.ConflictException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
@@ -40,6 +42,7 @@ import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.RestartPolicy;
+import com.github.dockerjava.api.model.SearchItem;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -91,11 +94,19 @@ public class DockerClientExecutor {
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
+    private final URI dockerUri;
 
     public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder();
-        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(
-                cubeConfiguration.getDockerServerUri());
+
+
+
+        //TODO, if this is already set from the client natively, do we want to override here?
+
+        dockerUri =  URI.create( cubeConfiguration.getDockerServerUri() );
+
+        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri( dockerUri.toString() );
+
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
@@ -455,6 +466,15 @@ public class DockerClientExecutor {
         // To wait until image is pull we need to listen input stream until it is closed by the server
         // At this point we can be sure that image is already pulled.
         IOUtil.asString(exec);
+    }
+
+
+    /**
+     * Get the URI of the docker host
+     * @return
+     */
+    public URI getDockerUri(){
+        return dockerUri;
     }
 
     private static final Device[] toDevices(List<Map<String, Object>> devicesMap) {
