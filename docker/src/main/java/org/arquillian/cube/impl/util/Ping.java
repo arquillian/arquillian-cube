@@ -51,7 +51,7 @@ public final class Ping {
 
 
     private static boolean execContainerPing(DockerClientExecutor dockerClientExecutor, String containerId, String command) {
-        String result = dockerClientExecutor.execStart(containerId, command);
+        String result = dockerClientExecutor.execStart(containerId, new String[]{"sh", "-c", command});
         try {
             int numberOfListenConnectons = Integer.parseInt(result.trim());
             //This number is based in that a port will be opened only as tcp or as udp.
