@@ -62,7 +62,7 @@
     <properties>
         <version.arquillian_core>1.1.6.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
-        <version.docker-java>0.10.4</version.docker-java>
+        <version.docker-java>0.10.5</version.docker-java>
         <version.snakeyaml>1.14</version.snakeyaml>
         <version.mockito>1.10.8</version.mockito>
     </properties>
