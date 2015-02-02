@@ -230,7 +230,7 @@ public class AwaitStrategyTest {
         assertThat(((PollingAwaitStrategy)strategy).getPollIterations(), is(3));
         assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
         assertThat(((PollingAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
-        assertThat(((PollingAwaitStrategy)strategy).getType(), is("ping"));
+        assertThat(((PollingAwaitStrategy)strategy).getType(), is("sscommand"));
     }
 
     @Test
