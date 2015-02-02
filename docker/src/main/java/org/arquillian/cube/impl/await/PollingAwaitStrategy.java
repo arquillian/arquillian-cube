@@ -21,7 +21,7 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private static final int DEFAULT_POLL_ITERATIONS = 10;
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
-    private static final String DEFAULT_POLL_TYPE = "ping";
+    private static final String DEFAULT_POLL_TYPE = "sscommand";
     private static final String POLLING_TIME = "sleepPollingTime";
     private static final String ITERATIONS = "iterations";
     private static final String POLL_TYPE = "type";
