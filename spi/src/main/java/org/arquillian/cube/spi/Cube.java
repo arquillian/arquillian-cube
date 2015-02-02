@@ -18,7 +18,17 @@ public interface Cube {
 
     State state();
 
+    /**
+     * Return the user assigned Id of this cube instance
+     * @return
+     */
     String getId();
+
+    /**
+     * Get the id (name) used within docker for this runtime
+     * @return
+     */
+    String getDockerId();
 
     void create() throws CubeControlException;
 

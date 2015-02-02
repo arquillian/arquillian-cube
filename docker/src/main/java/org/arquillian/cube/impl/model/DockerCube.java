@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.arquillian.cube.impl.await.AwaitStrategyFactory;
+import org.arquillian.cube.impl.client.name.NameGenerator;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.spi.Binding;
@@ -26,7 +27,13 @@ public class DockerCube implements Cube {
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
 
     private State state = State.DESTROYED;
+
+    //the identifier the user has assigned to this cube instance
     private String id;
+
+    //The docker instance id.  The unique instance name within docker may or may not match
+    //the user's supplied id if a unique naming scheme is used.
+    private String dockerId;
     private Binding binding = null;
 
     private Map<String, Object> configuration;
@@ -36,8 +43,12 @@ public class DockerCube implements Cube {
 
     private DockerClientExecutor executor;
 
-    public DockerCube(String id, Map<String, Object> configuration, DockerClientExecutor executor) {
+
+
+    public DockerCube(String id, Map<String, Object> configuration, DockerClientExecutor executor, NameGenerator nameGenerator) {
         this.id = id;
+        this.dockerId = nameGenerator.getName(id);
+
         this.configuration = configuration;
         this.executor = executor;
     }
@@ -52,6 +63,13 @@ public class DockerCube implements Cube {
         return id;
     }
 
+
+    @Override
+    public String getDockerId() {
+        return dockerId;
+    }
+
+
     @Override
     public void create() throws CubeControlException {
         if(state != State.DESTROYED) {
@@ -60,8 +78,8 @@ public class DockerCube implements Cube {
         try {
             lifecycle.fire(new BeforeCreate(id));
             log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
-            executor.createContainer(id, configuration);
-            log.fine(String.format("Created container with id %s.", id));
+            executor.createContainer( dockerId, configuration);
+            log.fine(String.format("Created container with id %s.", dockerId ));
             state = State.CREATED;
             lifecycle.fire(new AfterCreate(id));
         } catch(Exception e) {
@@ -77,10 +95,10 @@ public class DockerCube implements Cube {
         }
         try {
             lifecycle.fire(new BeforeStart(id));
-            executor.startContainer(id, configuration);
+            executor.startContainer( dockerId, configuration);
             state = State.STARTED;
             if(!AwaitStrategyFactory.create(executor, this, configuration).await()) {
-                throw new IllegalArgumentException(String.format("Cannot connect to %s container", id));
+                throw new IllegalArgumentException(String.format("Cannot connect to %s container", dockerId ));
             }
             lifecycle.fire(new AfterStart(id));
         } catch(Exception e) {
@@ -96,7 +114,7 @@ public class DockerCube implements Cube {
         }
         try {
             lifecycle.fire(new BeforeStop(id));
-            executor.stopContainer(id);
+            executor.stopContainer( dockerId );
             state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
         } catch(Exception e) {
@@ -112,7 +130,7 @@ public class DockerCube implements Cube {
         }
         try {
             lifecycle.fire(new BeforeDestroy(id));
-            executor.removeContainer(id);
+            executor.removeContainer( dockerId );
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch(Exception e) {
@@ -129,7 +147,7 @@ public class DockerCube implements Cube {
         if(state != State.STARTED && state != State.PRE_RUNNING) {
             throw new IllegalStateException("Can't get binding for cube " + id + " when status not " + State.STARTED + " or " + State.PRE_RUNNING + ". Status is " + state);
         }
-        binding = BindingUtil.binding(executor, id);
+        binding = BindingUtil.binding(executor, dockerId);
         return binding;
     }
 
@@ -144,7 +162,7 @@ public class DockerCube implements Cube {
             return;
         }
 
-        log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
+        log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", dockerId, configuration));
         state = State.PRE_RUNNING;
     }
 }

@@ -2,6 +2,7 @@ package org.arquillian.cube.impl.model;
 
 import java.util.HashMap;
 
+import org.arquillian.cube.impl.client.name.StaticNameGenerator;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
@@ -34,7 +35,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
 
     @Before
     public void setup() {
-        cube = injectorInst.get().inject(new DockerCube("test", new HashMap<String, Object>(), executor));
+        cube = injectorInst.get().inject(new DockerCube("test", new HashMap<String, Object>(), executor, new StaticNameGenerator()) );
     }
 
     @Test

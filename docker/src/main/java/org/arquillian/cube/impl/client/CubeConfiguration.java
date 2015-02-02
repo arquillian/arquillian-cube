@@ -17,11 +17,16 @@ public class CubeConfiguration {
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS = "shouldAllowToConnectToRunningContainers";
 
+    private static final String NAME_GENERATOR = "nameGenerator";
+    private static final String NAME_GENERATOR_PREFIX = "nameGeneratorPrefix";
+
     private String dockerServerVersion;
     private String dockerServerUri;
     private String dockerRegistry;
     private boolean shouldAllowToConnectToRunningContainers = false;
     private String[] autoStartContainers = new String[0];
+    private String nameGenerator;
+    private String getNameGeneratorPrefix;
 
     private Map<String, Object> dockerContainersContent;
 
@@ -49,8 +54,22 @@ public class CubeConfiguration {
         return autoStartContainers;
     }
 
+
+    public String getNameGenerator() {
+        return nameGenerator;
+    }
+
+
+    public String getGetNameGeneratorPrefix() {
+        return getNameGeneratorPrefix;
+    }
+
+
     @SuppressWarnings("unchecked")
     public static CubeConfiguration fromMap(Map<String, String> map) {
+
+        //TODO add provider parsing here
+
         CubeConfiguration cubeConfiguration = new CubeConfiguration();
 
         if (map.containsKey(DOCKER_VERSION)) {
@@ -86,6 +105,15 @@ public class CubeConfiguration {
         if(map.containsKey(SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS)) {
             cubeConfiguration.shouldAllowToConnectToRunningContainers = Boolean.parseBoolean(map.get(SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS));
         }
+
+        if(map.containsKey( NAME_GENERATOR )){
+            cubeConfiguration.nameGenerator = map.get( NAME_GENERATOR ).trim();
+        }
+
+        if(map.containsKey( NAME_GENERATOR_PREFIX )){
+            cubeConfiguration.getNameGeneratorPrefix = map.get( NAME_GENERATOR_PREFIX ).trim();
+        }
+
         return cubeConfiguration;
     }
 }
