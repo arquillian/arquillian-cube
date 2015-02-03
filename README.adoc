@@ -54,6 +54,25 @@ Go version (server): go1.3.1
 
 If you cannot see the client and server versions then it means that something is wrong with the _Docker_ installation.
 
+== Using an external Docker server
+
+When using an external docker server, such as boot2docker, additional configuration on the client is required as of 1.0.0.Alpha3.  The following properties will need to be set within the user's maven profile.
+
+[source, xml]
+<docker.api.version>1.12</docker.api.version>
+<docker.host>[boot2docker or docker host]</docker.host>
+<docker.api.url>https://${docker.host}:2376</docker.api.url>
+
+
+
+When using tls, the file ~/.docker.io.properties will also need to be installed with these options.
+
+[source, properties]
+docker.io.url=https://[boot2docker or docker host]:2376
+docker.io.version=1.12
+docker.io.dockerCertPath=[path to docker certs provided on boot2docker start]
+
+
 == Basic Example
 
 After having a _Docker_ server installed we can start using *Arquillian Cube*.
