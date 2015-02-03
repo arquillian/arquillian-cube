@@ -68,14 +68,6 @@ public class AwaitStrategyTest {
             "    sleepPollingTime: 200\n" +
             "    iterations: 3";
 
-    private static final String CONTENT_WITH_POLLING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT = "tomcat:\n" +
-            "  image: tutum/tomcat:7.0\n" +
-            "  exposedPorts: [8089/tcp]\n" +
-            "  await:\n" +
-            "    strategy: polling\n" +
-            "    sleepPollingTime: 200 s\n" +
-            "    iterations: 3";
-
     private static final String CONTENT_WITH_NATIVE_STRATEGY = "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
@@ -89,7 +81,24 @@ public class AwaitStrategyTest {
             "  await:\n" +
             "    strategy: sleeping\n" +
             "    sleepTime: 200 s\n";
-    
+
+    private static final String CONTENT_WITH_POLLING_STRATEGY_WITHOUT_DEFAULTS_AND_UNIT = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: polling\n" +
+            "    sleepPollingTime: 200 s\n" +
+            "    iterations: 3";
+
+    private static final String CONTENT_WITH_SSCOMMAND_STRATEGY = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: polling\n" +
+            "    sleepPollingTime: 200 s\n" +
+            "    iterations: 3\n" +
+            "    type: sscommand";
+
     @Mock
     private Cube cube;
 
@@ -206,7 +215,7 @@ public class AwaitStrategyTest {
         assertThat(strategy, instanceOf(SleepingAwaitStrategy.class));
         assertThat(((SleepingAwaitStrategy)strategy).getSleepTime(), is(200));
     }
-    
+
     @Test
     public void should_create_polling_await_strategy_with_specific_times_and_unit() {
 
@@ -221,8 +230,23 @@ public class AwaitStrategyTest {
         assertThat(((PollingAwaitStrategy)strategy).getPollIterations(), is(3));
         assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
         assertThat(((PollingAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
+        assertThat(((PollingAwaitStrategy)strategy).getType(), is("sscommand"));
     }
-    
+
+    @Test
+    public void should_create_polling_await_strategy_with_specific_type() {
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> content = (Map<String, Object>) new Yaml().load(CONTENT_WITH_SSCOMMAND_STRATEGY);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tomcatConfig = (Map<String, Object>) content.get("tomcat");
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, tomcatConfig);
+
+        assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
+        assertThat(((PollingAwaitStrategy)strategy).getType(), is("sscommand"));
+    }
+
     @Test
     public void should_create_native_await_strategy() {
 
@@ -235,4 +259,5 @@ public class AwaitStrategyTest {
 
         assertThat(strategy, instanceOf(NativeAwaitStrategy.class));
     }
+
 }

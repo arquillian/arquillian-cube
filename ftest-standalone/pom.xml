@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-parent</artifactId>
+        <version>1.0.0.Final-SNAPSHOT</version>
+    </parent>
+    <name>Arquillian Cube Functional Test</name>
+    <artifactId>arquillian-cube-ftest-standalone</artifactId>
+
+    <properties>
+        <docker.api.version>1.12</docker.api.version>
+        <docker.api.url>http://localhost:2375</docker.api.url>
+    </properties>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-standalone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-docker</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

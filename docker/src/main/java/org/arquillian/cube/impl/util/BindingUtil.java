@@ -1,5 +1,6 @@
 package org.arquillian.cube.impl.util;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,8 @@ import com.github.dockerjava.api.model.HostConfig;
 
 public final class BindingUtil {
 
+    private static final String LOCALHOST = "localhost";
+    private static final String UNIX_SOCKET_SCHEME = "unix";
     public static final String PORTS_SEPARATOR = "->";
     private static final String NO_GATEWAY = null;
 
@@ -24,15 +27,7 @@ public final class BindingUtil {
 
         HostConfig hostConfig = inspectResponse.getHostConfig();
 
-        /**
-         * This isn't actually the gateway IP of the host, it's the ip of the gateway within the docker runtime,
-         * which may not be accessible to us.  We need the IP the client uses, that will be routable, and will
-         * allow us to validate the ports in later phases
-        String gatewayIp = inspectResponse.getNetworkSettings().getGateway();
-
-         **/
-
-        final String dockerIp = executor.getDockerUri().getHost();
+        String dockerIp = getDockerServerIp(executor);
         Binding binding = new Binding(dockerIp);
 
         for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
@@ -43,6 +38,12 @@ public final class BindingUtil {
             }
         }
         return binding;
+    }
+
+    private static String getDockerServerIp(DockerClientExecutor executor) {
+        URI dockerUri = executor.getDockerUri();
+        String dockerIp = UNIX_SOCKET_SCHEME.equalsIgnoreCase(dockerUri.getScheme()) ? LOCALHOST : dockerUri.getHost();
+        return dockerIp;
     }
 
     public static Binding binding(Map<String, Object> cubeConfiguration) {

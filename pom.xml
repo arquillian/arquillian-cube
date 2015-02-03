@@ -27,6 +27,7 @@
         <module>spi</module>
         <module>docker</module>
         <module>ftest</module>
+        <module>ftest-standalone</module>
         <module>containerless</module>
         <module>docker-server-stub</module>
     </modules>
@@ -60,11 +61,11 @@
     </issueManagement>
 
     <properties>
-        <version.arquillian_core>1.1.5.Final</version.arquillian_core>
+        <version.arquillian_core>1.1.6.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
-        <version.docker-java>0.10.4</version.docker-java>
+        <version.docker-java>0.10.5</version.docker-java>
         <version.snakeyaml>1.14</version.snakeyaml>
-        <version.mockito>1.10.8</version.mockito>
+        <version.mockito>1.10.19</version.mockito>
     </properties>
 
     <dependencyManagement>
@@ -113,9 +114,15 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
+                <artifactId>mockito-core</artifactId>
                 <version>${version.mockito}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>

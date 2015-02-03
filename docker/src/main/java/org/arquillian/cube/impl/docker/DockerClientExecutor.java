@@ -9,6 +9,7 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
@@ -99,14 +101,11 @@ public class DockerClientExecutor {
     public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder();
 
+        // TODO, if this is already set from the client natively, do we want to override here?
 
+        dockerUri = URI.create(cubeConfiguration.getDockerServerUri());
 
-        //TODO, if this is already set from the client natively, do we want to override here?
-
-        dockerUri =  URI.create( cubeConfiguration.getDockerServerUri() );
-
-        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri( dockerUri.toString() );
-
+        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
@@ -127,7 +126,7 @@ public class DockerClientExecutor {
         createContainerCmd.withName(name);
 
         Set<ExposedPort> allExposedPorts = resolveExposedPorts(containerConfiguration, createContainerCmd);
-        if(!allExposedPorts.isEmpty()) {
+        if (!allExposedPorts.isEmpty()) {
             int numberOfExposedPorts = allExposedPorts.size();
             createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
         }
@@ -220,7 +219,8 @@ public class DockerClientExecutor {
         }
     }
 
-    private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration, CreateContainerCmd createContainerCmd) {
+    private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration,
+            CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
         if (containerConfiguration.containsKey(PORT_BINDINGS)) {
             List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
@@ -394,7 +394,9 @@ public class DockerClientExecutor {
 
         if (imageId == null) {
             throw new IllegalStateException(
-                    String.format("Docker server has not provided an imageId for image build from %s. Response from the server was:\n%s", location, fullLog));
+                    String.format(
+                            "Docker server has not provided an imageId for image build from %s. Response from the server was:\n%s",
+                            location, fullLog));
         }
 
         return imageId.trim();
@@ -468,12 +470,51 @@ public class DockerClientExecutor {
         IOUtil.asString(exec);
     }
 
+    public String execStart(String containerId, String... commands) {
+        ExecCreateCmdResponse execCreateCmdResponse = this.dockerClient.execCreateCmd(containerId)
+                .withAttachStdout(true).withAttachStdin(false).withAttachStderr(false).withTty().withCmd(commands)
+                .exec();
+        InputStream consoleOutputStream = dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
+                .exec();
+        String output;
+        try {
+            output = readExecResult(consoleOutputStream);
+        } catch (IOException e) {
+            return "";
+        }
+        return output;
+    }
+
+    private String readExecResult(InputStream output) throws IOException {
+        StringBuilder content = new StringBuilder();
+        byte[] header = new byte[8];
+        while (output.read(header) > 0) {
+            ByteBuffer headerBuffer = ByteBuffer.wrap(header);
+
+            // Stream type
+            byte type = headerBuffer.get();
+            // SKip 3 bytes
+            headerBuffer.get();
+            headerBuffer.get();
+            headerBuffer.get();
+            // Payload frame size
+            int size = headerBuffer.getInt();
+
+            byte[] streamOutputBuffer = new byte[size];
+            output.read(streamOutputBuffer);
+            String streamOutput = new String(streamOutputBuffer);
+            content.append(streamOutput);
+        }
+
+        return content.toString();
+    }
 
     /**
      * Get the URI of the docker host
+     * 
      * @return
      */
-    public URI getDockerUri(){
+    public URI getDockerUri() {
         return dockerUri;
     }
 

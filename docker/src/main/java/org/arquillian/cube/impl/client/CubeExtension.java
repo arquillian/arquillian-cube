@@ -27,13 +27,18 @@ public class CubeExtension implements LoadableExtension {
         builder.service(ResourceProvider.class, CubeControllerProvider.class);
 
         // Arquillian Container integration
-        builder.observer(ProtocolMetadataUpdater.class)
-               .observer(CubeContainerLifecycleController.class)
-               .observer(RemapContainerController.class)
-               .observer(CubeRemoteCommandObserver.class);
-
-        builder.service(AuxiliaryArchiveAppender.class, CubeAuxiliaryArchiveAppender.class);
-        builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
+        // Only register if container-test-spi is on classpath
+        if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
+            builder.observer(ProtocolMetadataUpdater.class)
+                   .observer(CubeContainerLifecycleController.class)
+                   .observer(RemapContainerController.class)
+                   .observer(CubeRemoteCommandObserver.class);
+            builder.service(AuxiliaryArchiveAppender.class, CubeAuxiliaryArchiveAppender.class);
+        }
+        // Only register if container-test-impl is on classpath
+        if(Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.OperatesOnDeploymentAwareProvider")) {
+            builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
+        }
     }
 
 }
