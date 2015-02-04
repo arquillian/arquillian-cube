@@ -10,6 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,13 +28,13 @@ import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 
-import com.github.dockerjava.api.ConflictException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
@@ -44,7 +47,6 @@ import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.RestartPolicy;
-import com.github.dockerjava.api.model.SearchItem;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -89,6 +91,11 @@ public class DockerClientExecutor {
     private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
+    private static final String FOLLOW = "follow";
+    private static final String STDOUT = "stdout";
+    private static final String STDERR = "stderr";
+    private static final String TIMESTAMPS = "timestamps";
+    private static final String TAIL = "tail";
 
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
 
@@ -485,6 +492,48 @@ public class DockerClientExecutor {
         return output;
     }
 
+    public void copyFromContainer(String containerId, String from, String to) throws IOException {
+        InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
+        Path toPath = Paths.get(to);
+        Files.createDirectories(toPath);
+
+        IOUtil.untar(response, toPath.toFile());
+    }
+
+    public void copyLog(String containerId, String to, Map<String, Object> configurationParameters) throws IOException {
+        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId);
+
+        if(configurationParameters.containsKey(FOLLOW)) {
+            logContainerCmd.withFollowStream((boolean) configurationParameters.get(FOLLOW));
+        }
+
+        if(configurationParameters.containsKey(STDOUT)) {
+            logContainerCmd.withStdOut((boolean) configurationParameters.get(STDOUT));
+        }
+
+        if(configurationParameters.containsKey(STDERR)) {
+            logContainerCmd.withStdErr((boolean) configurationParameters.get(STDERR));
+        }
+
+        if(configurationParameters.containsKey(TIMESTAMPS)) {
+            logContainerCmd.withTimestamps((boolean) configurationParameters.get(TIMESTAMPS));
+        }
+
+        if(configurationParameters.containsKey(TAIL)) {
+            logContainerCmd.withTail((int) configurationParameters.get(TAIL));
+        }
+
+        InputStream log = logContainerCmd.exec();
+
+        Path toPath = Paths.get(to);
+        Path toDirectory = toPath.getParent();
+        Files.createDirectories(toDirectory);
+        
+        String logContent = readExecResult(log);
+        IOUtil.toFile(logContent, toPath.toFile());
+
+    }
+    
     private String readExecResult(InputStream output) throws IOException {
         StringBuilder content = new StringBuilder();
         byte[] header = new byte[8];
