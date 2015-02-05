@@ -458,16 +458,23 @@ public class DockerClientExecutor {
         }
 
         int tagSeparator = imageName.indexOf(TAG_SEPARATOR);
+
         if (tagSeparator > 0) {
-            pullImageCmd.withRepository(imageName.substring(0, tagSeparator));
-            pullImageCmd.withTag(imageName.substring(tagSeparator + 1));
+            final String repository = imageName.substring(0, tagSeparator);
+            final String tag = imageName.substring( tagSeparator + 1 );
+            pullImageCmd.withRepository(repository);
+            pullImageCmd.withTag(tag);
         }
 
         InputStream exec = pullImageCmd.exec();
 
         // To wait until image is pull we need to listen input stream until it is closed by the server
         // At this point we can be sure that image is already pulled.
-        IOUtil.asString(exec);
+        final String pullResults = IOUtil.asString(exec);
+
+        if(pullResults == null || pullResults.contains( "error" )){
+            throw new RuntimeException( "Unable to pull image. \n" + pullResults );
+        }
     }
 
     public String execStart(String containerId, String... commands) {

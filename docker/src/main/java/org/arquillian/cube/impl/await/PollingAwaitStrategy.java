@@ -103,7 +103,7 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
                 break;
                 case "sscommand": {
-                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", ports.getExposedPort()), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
+                    if(!Ping.ping(dockerClientExecutor, cube.getDockerId(), resolveCommand("ss", ports.getExposedPort()), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
                         return false;
                     }
                 }
