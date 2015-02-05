@@ -472,8 +472,10 @@ public class DockerClientExecutor {
         // At this point we can be sure that image is already pulled.
         final String pullResults = IOUtil.asString(exec);
 
-        if(pullResults == null || pullResults.contains( "error" )){
-            throw new RuntimeException( "Unable to pull image. \n" + pullResults );
+        final String expectedOutput = "Status: Downloaded newer image for " + imageName;
+
+        if(pullResults == null || !pullResults.contains( expectedOutput )){
+            throw new RuntimeException( "Unable to pull image. Expected output '" + expectedOutput + "' to be returned.  Instead this was returned \n" + pullResults );
         }
     }
 
