@@ -1,12 +1,13 @@
 package org.arquillian.cube.docker.stub;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.arquillian.cube.docker.stub.ContainerModel.Status;
 import org.junit.Before;
@@ -28,7 +29,7 @@ public class SparkTest {
 
     private DockerClient docker;
     private static final SparkServer sparkServer = new SparkServer();
-    
+
     @BeforeClass
     public static void startDockerStub() {
         sparkServer.start();
@@ -36,8 +37,7 @@ public class SparkTest {
 
     @Before
     public void startDockerClient() {
-        DockerClientConfig config = DockerClientConfig
-                .createDefaultConfigBuilder().withVersion("1.15")
+        DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder().withVersion("1.15")
                 .withUri("http://localhost:4567").build();
         docker = DockerClientBuilder.getInstance(config).build();
     }
@@ -50,16 +50,14 @@ public class SparkTest {
     @Test
     public void shouldCreateAContainer() {
         CreateContainerResponse exec = docker.createContainerCmd("tomcat").withName("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         assertThat(exec.getId(), notNullValue());
     }
 
     @Test
     public void shouldStartAContainer() {
         CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         Ports ports = new Ports();
         ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
         ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
@@ -70,8 +68,7 @@ public class SparkTest {
     @Test
     public void shouldStopAContainer() {
         CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         docker.stopContainerCmd(id.getId()).exec();
         assertThat(sparkServer.isContainerWithOneStatus(id.getId(), Status.STOPPED), is(true));
     }
@@ -79,8 +76,7 @@ public class SparkTest {
     @Test
     public void shouldRemoveAContainer() {
         CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         docker.stopContainerCmd(id.getId()).exec();
         docker.removeContainerCmd(id.getId()).exec();
         assertThat(sparkServer.isContainerWithOneStatus(id.getId(), Status.REMOVED), is(true));
@@ -89,8 +85,7 @@ public class SparkTest {
     @Test
     public void shouldWaitContainer() {
         CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         assertThat(docker.waitContainerCmd(id.getId()).exec(), is(0));
     }
 
@@ -102,15 +97,38 @@ public class SparkTest {
 
     @Test
     public void shouldBuildImage() throws IOException {
-        String created = IOUtils.toString(docker.buildImageCmd(new ByteArrayInputStream(new byte[]{})).exec());
+        String created = IOUtils.toString(docker.buildImageCmd(new ByteArrayInputStream(new byte[] {})).exec());
         assertThat(created, startsWith("{\"status\":\"Successfully built "));
+    }
+
+    @Test
+    public void shouldCopyFileFromAContainer() throws IOException {
+        CreateContainerResponse id = docker.createContainerCmd("tomcat")
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
+        Ports ports = new Ports();
+        ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
+        ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
+        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
+        InputStream file = docker.copyFileFromContainerCmd(id.getId(), "/test").exec();
+        assertThat(file.available() > 0, is(true));
+    }
+
+    @Test
+    public void shouldGetLogFromAContainer() throws IOException {
+        CreateContainerResponse id = docker.createContainerCmd("tomcat")
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
+        Ports ports = new Ports();
+        ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
+        ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
+        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
+        InputStream file = docker.logContainerCmd(id.getId()).withStdOut().exec();
+        assertThat(file.available() > 0, is(true));
     }
 
     @Test
     public void shouldInspectContainer() {
         CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
-                .exec();
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         Ports ports = new Ports();
         ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
         ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
