@@ -56,7 +56,7 @@ public class ContainerModel {
         }
     }
 
-    static enum Status {
+    public static enum Status {
         CREATED, STARTED, STOPPED, REMOVED;
     }
 }

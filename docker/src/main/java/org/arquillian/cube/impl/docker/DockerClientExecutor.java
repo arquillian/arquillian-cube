@@ -96,6 +96,8 @@ public class DockerClientExecutor {
     private static final String STDERR = "stderr";
     private static final String TIMESTAMPS = "timestamps";
     private static final String TAIL = "tail";
+    private static final String TO = "to";
+    private static final String FROM = "from";
 
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
 
@@ -492,7 +494,16 @@ public class DockerClientExecutor {
         return output;
     }
 
-    public void copyFromContainer(String containerId, String from, String to) throws IOException {
+    public void copyFromContainer(String containerId, Map<String, Object> configurationParameters) throws IOException {
+        String to = null;
+        String from = null;
+        if(configurationParameters.containsKey(TO) && configurationParameters.containsKey(FROM)) {
+            to = (String) configurationParameters.get(TO);
+            from = (String) configurationParameters.get(FROM);
+        } else {
+            throw new IllegalArgumentException(String.format("to and from property is mandatory when copying files from container %s.", containerId));
+        }
+
         InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
         Path toPath = Paths.get(to);
         Files.createDirectories(toPath);
@@ -500,8 +511,15 @@ public class DockerClientExecutor {
         IOUtil.untar(response, toPath.toFile());
     }
 
-    public void copyLog(String containerId, String to, Map<String, Object> configurationParameters) throws IOException {
-        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId);
+    public void copyLog(String containerId, Map<String, Object> configurationParameters) throws IOException {
+        String to = null;
+        if(configurationParameters.containsKey(TO)) {
+            to = (String) configurationParameters.get(TO);
+        } else {
+            throw new IllegalArgumentException(String.format("to property is mandatory when getting logs from container %s.", containerId));
+        }
+
+        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr().withStdOut();
 
         if(configurationParameters.containsKey(FOLLOW)) {
             logContainerCmd.withFollowStream((boolean) configurationParameters.get(FOLLOW));
