@@ -22,8 +22,8 @@ public final class BindingUtil {
     private BindingUtil() {
     }
 
-    public static Binding binding(DockerClientExecutor executor, String cubeId) {
-        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( cubeId ).exec();
+    public static Binding binding(DockerClientExecutor executor, String dockerId) {
+        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( dockerId ).exec();
 
         HostConfig hostConfig = inspectResponse.getHostConfig();
 
