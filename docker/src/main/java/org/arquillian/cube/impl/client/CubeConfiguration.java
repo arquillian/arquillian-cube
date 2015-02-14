@@ -16,11 +16,13 @@ public class CubeConfiguration {
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS = "shouldAllowToConnectToRunningContainers";
+    private static final String BOOT2DOCKER_PATH = "boot2dockerPath";
 
     private String dockerServerVersion;
     private String dockerServerUri;
     private String dockerRegistry;
     private boolean shouldAllowToConnectToRunningContainers = false;
+    private String boot2DockerPath;
     private String[] autoStartContainers = new String[0];
 
     private Map<String, Object> dockerContainersContent;
@@ -49,6 +51,10 @@ public class CubeConfiguration {
         return autoStartContainers;
     }
 
+    public String getBoot2DockerPath() {
+        return boot2DockerPath;
+    }
+
     @SuppressWarnings("unchecked")
     public static CubeConfiguration fromMap(Map<String, String> map) {
         CubeConfiguration cubeConfiguration = new CubeConfiguration();
@@ -59,6 +65,10 @@ public class CubeConfiguration {
 
         if (map.containsKey(DOCKER_URI)) {
             cubeConfiguration.dockerServerUri = map.get(DOCKER_URI);
+        }
+
+        if(map.containsKey(BOOT2DOCKER_PATH)) {
+            cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
         }
 
         if (map.containsKey(DOCKER_REGISTRY)) {

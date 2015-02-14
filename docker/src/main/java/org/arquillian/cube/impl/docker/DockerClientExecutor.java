@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ import javax.ws.rs.ProcessingException;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
+import org.arquillian.cube.impl.util.CommandLineExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
 
 import com.github.dockerjava.api.DockerClient;
@@ -54,6 +56,8 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
+    private static final String BOOT2DOCKER_EXEC = "boot2docker";
+    private static final String BOOT2DOCKER_TAG = BOOT2DOCKER_EXEC;
     private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
     private static final String TAG_SEPARATOR = ":";
     private static final String RESTART_POLICY = "restartPolicy";
@@ -100,19 +104,29 @@ public class DockerClientExecutor {
     private static final String FROM = "from";
 
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
+    private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
+    private CommandLineExecutor commandLineExecutor;
     private final URI dockerUri;
 
-    public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
-        DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder();
+    public DockerClientExecutor(CubeConfiguration cubeConfiguration, CommandLineExecutor commandLineExecutor) {
+        DockerClientConfigBuilder configBuilder =
+            DockerClientConfig.createDefaultConfigBuilder();
 
-        // TODO, if this is already set from the client natively, do we want to override here?
+        // TODO, if this is already set from the client natively, do we want to
+        // override here?
+        this.commandLineExecutor = commandLineExecutor;
+        String dockerServerUri = cubeConfiguration.getDockerServerUri();
 
-        dockerUri = URI.create(cubeConfiguration.getDockerServerUri());
+        if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
+            dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
+        }
+
+        dockerUri = URI.create(dockerServerUri);
 
         configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
 
@@ -120,6 +134,23 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
     }
 
+    private String resolveBoot2Docker(String dockerServerUri, CubeConfiguration cubeConfiguration) {
+        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration));
+        Matcher m = IP_PATTERN.matcher(output);
+        if(m.find()) {
+            String ip = m.group();
+            return dockerServerUri.replace(BOOT2DOCKER_TAG, ip);
+        } else {
+            String errorMessage = String.format("Boot2Docker command does not return a valid ip. It returned %s.", output);
+            log.log(Level.SEVERE, errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private String createBoot2DockerCommand(CubeConfiguration cubeConfiguration) {
+        return cubeConfiguration.getBoot2DockerPath() == null ? BOOT2DOCKER_EXEC : cubeConfiguration.getBoot2DockerPath();
+    }
+    
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
     }
