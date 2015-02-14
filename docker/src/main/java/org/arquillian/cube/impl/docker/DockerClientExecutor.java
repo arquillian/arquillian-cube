@@ -1,10 +1,13 @@
 package org.arquillian.cube.impl.docker;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -518,7 +521,7 @@ public class DockerClientExecutor {
                 .exec();
         String output;
         try {
-            output = readExecResult(consoleOutputStream);
+            output = readDockerRawStreamToString(consoleOutputStream);
         } catch (IOException e) {
             return "";
         }
@@ -577,16 +580,13 @@ public class DockerClientExecutor {
         Path toPath = Paths.get(to);
         Path toDirectory = toPath.getParent();
         Files.createDirectories(toDirectory);
-        
-        String logContent = readExecResult(log);
-        IOUtil.toFile(logContent, toPath.toFile());
+        readDockerRawStream(log, new FileOutputStream(toPath.toFile()));
 
     }
-    
-    private String readExecResult(InputStream output) throws IOException {
-        StringBuilder content = new StringBuilder();
+
+    private void readDockerRawStream(InputStream rawSteram, OutputStream outputStream) throws IOException {
         byte[] header = new byte[8];
-        while (output.read(header) > 0) {
+        while (rawSteram.read(header) > 0) {
             ByteBuffer headerBuffer = ByteBuffer.wrap(header);
 
             // Stream type
@@ -599,12 +599,15 @@ public class DockerClientExecutor {
             int size = headerBuffer.getInt();
 
             byte[] streamOutputBuffer = new byte[size];
-            output.read(streamOutputBuffer);
-            String streamOutput = new String(streamOutputBuffer);
-            content.append(streamOutput);
+            rawSteram.read(streamOutputBuffer);
+            outputStream.write(streamOutputBuffer);
         }
+    }
 
-        return content.toString();
+    private String readDockerRawStreamToString(InputStream rawStream) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        readDockerRawStream(rawStream, output);
+        return new String(output.toByteArray());
     }
 
     /**
