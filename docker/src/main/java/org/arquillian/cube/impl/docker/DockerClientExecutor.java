@@ -32,6 +32,7 @@ import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.CommandLineExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.OperatingSystemResolver;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
@@ -114,16 +115,18 @@ public class DockerClientExecutor {
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
     private CommandLineExecutor commandLineExecutor;
+    private OperatingSystemResolver operatingSystemResolver;
     private final URI dockerUri;
 
-    public DockerClientExecutor(CubeConfiguration cubeConfiguration, CommandLineExecutor commandLineExecutor) {
+    public DockerClientExecutor(CubeConfiguration cubeConfiguration, CommandLineExecutor commandLineExecutor, OperatingSystemResolver operatingSystemResolver) {
         DockerClientConfigBuilder configBuilder =
             DockerClientConfig.createDefaultConfigBuilder();
 
         // TODO, if this is already set from the client natively, do we want to
         // override here?
         this.commandLineExecutor = commandLineExecutor;
-        String dockerServerUri = cubeConfiguration.getDockerServerUri();
+        this.operatingSystemResolver = operatingSystemResolver;
+        String dockerServerUri = resolveServerUri(cubeConfiguration);
 
         if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
             dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
@@ -137,6 +140,14 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
     }
 
+    private String resolveServerUri(CubeConfiguration cubeConfiguration) {
+        if(cubeConfiguration.getDockerServerUri() == null) {
+            return this.operatingSystemResolver.currentOperatingSystem().getFamily().getServerUri();
+        } else {
+            return cubeConfiguration.getDockerServerUri();
+        }
+    }
+    
     private String resolveBoot2Docker(String dockerServerUri, CubeConfiguration cubeConfiguration) {
         String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration));
         Matcher m = IP_PATTERN.matcher(output);
