@@ -11,16 +11,26 @@ public class CubeConfiguration {
 
     private static final String DOCKER_VERSION = "serverVersion";
     private static final String DOCKER_URI = "serverUri";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD =  "password";
+    private static final String EMAIL = "email";
+    private static final String CERT_PATH = "certPath";
     private static final String DOCKER_CONTAINERS = "dockerContainers";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS = "shouldAllowToConnectToRunningContainers";
+    private static final String BOOT2DOCKER_PATH = "boot2dockerPath";
 
     private String dockerServerVersion;
     private String dockerServerUri;
     private String dockerRegistry;
     private boolean shouldAllowToConnectToRunningContainers = false;
+    private String boot2DockerPath;
+    private String username;
+    private String password;
+    private String email;
+    private String certPath;
     private String[] autoStartContainers = new String[0];
 
     private Map<String, Object> dockerContainersContent;
@@ -28,7 +38,7 @@ public class CubeConfiguration {
     public boolean shouldAllowToConnectToRunningContainers() {
         return shouldAllowToConnectToRunningContainers;
     }
-    
+
     public String getDockerServerUri() {
         return dockerServerUri;
     }
@@ -49,6 +59,26 @@ public class CubeConfiguration {
         return autoStartContainers;
     }
 
+    public String getBoot2DockerPath() {
+        return boot2DockerPath;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getCertPath() {
+        return certPath;
+    }
+
     @SuppressWarnings("unchecked")
     public static CubeConfiguration fromMap(Map<String, String> map) {
         CubeConfiguration cubeConfiguration = new CubeConfiguration();
@@ -59,6 +89,26 @@ public class CubeConfiguration {
 
         if (map.containsKey(DOCKER_URI)) {
             cubeConfiguration.dockerServerUri = map.get(DOCKER_URI);
+        }
+
+        if(map.containsKey(BOOT2DOCKER_PATH)) {
+            cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
+        }
+
+        if(map.containsKey(USERNAME)) {
+            cubeConfiguration.username = map.get(USERNAME);
+        }
+
+        if(map.containsKey(PASSWORD)) {
+            cubeConfiguration.password = map.get(PASSWORD);
+        }
+
+        if(map.containsKey(EMAIL)) {
+            cubeConfiguration.email = map.get(EMAIL);
+        }
+
+        if(map.containsKey(CERT_PATH)) {
+            cubeConfiguration.certPath = map.get(CERT_PATH);
         }
 
         if (map.containsKey(DOCKER_REGISTRY)) {

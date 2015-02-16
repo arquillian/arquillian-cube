@@ -1,10 +1,13 @@
 package org.arquillian.cube.impl.docker;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -18,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +30,9 @@ import javax.ws.rs.ProcessingException;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
+import org.arquillian.cube.impl.util.CommandLineExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.OperatingSystemResolver;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
@@ -54,6 +60,8 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
+    private static final String BOOT2DOCKER_EXEC = "boot2docker";
+    private static final String BOOT2DOCKER_TAG = BOOT2DOCKER_EXEC;
     private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
     private static final String TAG_SEPARATOR = ":";
     private static final String RESTART_POLICY = "restartPolicy";
@@ -100,26 +108,78 @@ public class DockerClientExecutor {
     private static final String FROM = "from";
 
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
+    private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
+    private CommandLineExecutor commandLineExecutor;
+    private OperatingSystemResolver operatingSystemResolver;
     private final URI dockerUri;
 
-    public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
-        DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder();
+    public DockerClientExecutor(CubeConfiguration cubeConfiguration, CommandLineExecutor commandLineExecutor, OperatingSystemResolver operatingSystemResolver) {
+        DockerClientConfigBuilder configBuilder =
+            DockerClientConfig.createDefaultConfigBuilder();
 
-        // TODO, if this is already set from the client natively, do we want to override here?
+        // TODO, if this is already set from the client natively, do we want to
+        // override here?
+        this.commandLineExecutor = commandLineExecutor;
+        this.operatingSystemResolver = operatingSystemResolver;
+        String dockerServerUri = resolveServerUri(cubeConfiguration);
 
-        dockerUri = URI.create(cubeConfiguration.getDockerServerUri());
+        if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
+            dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
+        }
+
+        dockerUri = URI.create(dockerServerUri);
 
         configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
+        if(cubeConfiguration.getUsername() != null) {
+            configBuilder.withUsername(cubeConfiguration.getUsername());
+        }
+
+        if(cubeConfiguration.getPassword() != null) {
+            configBuilder.withPassword(cubeConfiguration.getPassword());
+        }
+
+        if(cubeConfiguration.getEmail() != null) {
+            configBuilder.withEmail(cubeConfiguration.getEmail());
+        }
+
+        if(cubeConfiguration.getCertPath() != null) {
+            configBuilder.withDockerCertPath(cubeConfiguration.getCertPath());
+        }
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
     }
 
+    private String resolveServerUri(CubeConfiguration cubeConfiguration) {
+        if(cubeConfiguration.getDockerServerUri() == null) {
+            return this.operatingSystemResolver.currentOperatingSystem().getFamily().getServerUri();
+        } else {
+            return cubeConfiguration.getDockerServerUri();
+        }
+    }
+    
+    private String resolveBoot2Docker(String dockerServerUri, CubeConfiguration cubeConfiguration) {
+        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration));
+        Matcher m = IP_PATTERN.matcher(output);
+        if(m.find()) {
+            String ip = m.group();
+            return dockerServerUri.replace(BOOT2DOCKER_TAG, ip);
+        } else {
+            String errorMessage = String.format("Boot2Docker command does not return a valid ip. It returned %s.", output);
+            log.log(Level.SEVERE, errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private String createBoot2DockerCommand(CubeConfiguration cubeConfiguration) {
+        return cubeConfiguration.getBoot2DockerPath() == null ? BOOT2DOCKER_EXEC : cubeConfiguration.getBoot2DockerPath();
+    }
+    
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
     }
@@ -487,7 +547,7 @@ public class DockerClientExecutor {
                 .exec();
         String output;
         try {
-            output = readExecResult(consoleOutputStream);
+            output = readDockerRawStreamToString(consoleOutputStream);
         } catch (IOException e) {
             return "";
         }
@@ -546,16 +606,13 @@ public class DockerClientExecutor {
         Path toPath = Paths.get(to);
         Path toDirectory = toPath.getParent();
         Files.createDirectories(toDirectory);
-        
-        String logContent = readExecResult(log);
-        IOUtil.toFile(logContent, toPath.toFile());
+        readDockerRawStream(log, new FileOutputStream(toPath.toFile()));
 
     }
-    
-    private String readExecResult(InputStream output) throws IOException {
-        StringBuilder content = new StringBuilder();
+
+    private void readDockerRawStream(InputStream rawSteram, OutputStream outputStream) throws IOException {
         byte[] header = new byte[8];
-        while (output.read(header) > 0) {
+        while (rawSteram.read(header) > 0) {
             ByteBuffer headerBuffer = ByteBuffer.wrap(header);
 
             // Stream type
@@ -568,12 +625,15 @@ public class DockerClientExecutor {
             int size = headerBuffer.getInt();
 
             byte[] streamOutputBuffer = new byte[size];
-            output.read(streamOutputBuffer);
-            String streamOutput = new String(streamOutputBuffer);
-            content.append(streamOutput);
+            rawSteram.read(streamOutputBuffer);
+            outputStream.write(streamOutputBuffer);
         }
+    }
 
-        return content.toString();
+    private String readDockerRawStreamToString(InputStream rawStream) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        readDockerRawStream(rawStream, output);
+        return new String(output.toByteArray());
     }
 
     /**
