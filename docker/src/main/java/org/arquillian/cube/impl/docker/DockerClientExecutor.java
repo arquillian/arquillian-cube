@@ -135,6 +135,21 @@ public class DockerClientExecutor {
         dockerUri = URI.create(dockerServerUri);
 
         configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
+        if(cubeConfiguration.getUsername() != null) {
+            configBuilder.withUsername(cubeConfiguration.getUsername());
+        }
+
+        if(cubeConfiguration.getPassword() != null) {
+            configBuilder.withPassword(cubeConfiguration.getPassword());
+        }
+
+        if(cubeConfiguration.getEmail() != null) {
+            configBuilder.withEmail(cubeConfiguration.getEmail());
+        }
+
+        if(cubeConfiguration.getCertPath() != null) {
+            configBuilder.withDockerCertPath(cubeConfiguration.getCertPath());
+        }
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
