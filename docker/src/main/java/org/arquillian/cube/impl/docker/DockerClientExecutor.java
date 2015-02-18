@@ -130,6 +130,9 @@ public class DockerClientExecutor {
 
         if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
             dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
+            if(cubeConfiguration.getCertPath() == null) {
+                configBuilder.withDockerCertPath(getDefaultTlsDirectory());
+            }
         }
 
         dockerUri = URI.create(dockerServerUri);
@@ -153,6 +156,10 @@ public class DockerClientExecutor {
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
         this.cubeConfiguration = cubeConfiguration;
+    }
+
+    private String getDefaultTlsDirectory() {
+        return System.getProperty("user.home") + File.separator + ".boot2docker" + File.separator + "certs";
     }
 
     private String resolveServerUri(CubeConfiguration cubeConfiguration) {
