@@ -19,13 +19,13 @@ public class CubeConfiguration {
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
-    private static final String SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS = "shouldAllowToConnectToRunningContainers";
+    private static final String CONNECTION_MODE = "connectionMode";
     private static final String BOOT2DOCKER_PATH = "boot2dockerPath";
 
     private String dockerServerVersion;
     private String dockerServerUri;
     private String dockerRegistry;
-    private boolean shouldAllowToConnectToRunningContainers = false;
+    private ConnectionMode connectionMode = ConnectionMode.STARTANDSTOP;
     private String boot2DockerPath;
     private String username;
     private String password;
@@ -35,8 +35,8 @@ public class CubeConfiguration {
 
     private Map<String, Object> dockerContainersContent;
 
-    public boolean shouldAllowToConnectToRunningContainers() {
-        return shouldAllowToConnectToRunningContainers;
+    public ConnectionMode getConnectionMode() {
+        return connectionMode;
     }
 
     public String getDockerServerUri() {
@@ -133,8 +133,8 @@ public class CubeConfiguration {
             cubeConfiguration.autoStartContainers = ConfigUtil.trim(map.get(AUTO_START_CONTAINERS).split(","));
         }
 
-        if(map.containsKey(SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS)) {
-            cubeConfiguration.shouldAllowToConnectToRunningContainers = Boolean.parseBoolean(map.get(SHOULD_ALLOW_TO_CONNECT_TO_RUNNING_CONTAINERS));
+        if(map.containsKey(CONNECTION_MODE)) {
+            cubeConfiguration.connectionMode = ConnectionMode.valueOf(ConnectionMode.class, map.get(CONNECTION_MODE));
         }
         return cubeConfiguration;
     }

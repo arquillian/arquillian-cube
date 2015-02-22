@@ -2,6 +2,7 @@ package org.arquillian.cube.impl.client.container;
 
 import java.util.List;
 
+import org.arquillian.cube.impl.client.ConnectionMode;
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.util.ContainerUtil;
@@ -29,7 +30,7 @@ public class CubeContainerLifecycleController {
 
     @Inject
     private Instance<DockerClientExecutor> dockerClientExecutor;
-    
+
     public void startCubeMappedContainer(@Observes BeforeStart event, CubeRegistry cubeRegistry,
             ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) {
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
@@ -42,14 +43,22 @@ public class CubeContainerLifecycleController {
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
+        ConnectionMode connectionMode = cubeConfiguration.getConnectionMode();
 
-        if(cubeConfiguration.shouldAllowToConnectToRunningContainers() && isCubeRunning(cube)) {
+        if (connectionMode.isAllowReconnect() && isCubeRunning(cube)) {
             controlEvent.fire(new PreRunningCube(cube));
-            return; //Container is already running and user has configured to reuse it.
+            return;
         }
-        
+
         controlEvent.fire(new CreateCube(cube));
         controlEvent.fire(new StartCube(cube));
+
+        if (connectionMode.isAllowReconnect() && !connectionMode.isStoppable()) {
+            // If we allow reconnections and containers are none stoppable which means that they will be able to be
+            // reused in next executions then at this point we can assume that the container is a prerunning container.
+
+            controlEvent.fire(new PreRunningCube(cube));
+        }
     }
 
     public void stopCubeMappedContainer(@Observes AfterStop event, CubeRegistry cubeRegistry,
@@ -68,19 +77,22 @@ public class CubeContainerLifecycleController {
         controlEvent.fire(new StopCube(cube));
         controlEvent.fire(new DestroyCube(cube));
     }
-    
+
     private boolean isCubeRunning(Cube cube) {
-      //TODO should we create an adapter class so we don't expose client classes in this part?
-        List<com.github.dockerjava.api.model.Container> runningContainers = dockerClientExecutor.get().listRunningContainers();
+        // TODO should we create an adapter class so we don't expose client classes in this part?
+        List<com.github.dockerjava.api.model.Container> runningContainers = dockerClientExecutor.get()
+                .listRunningContainers();
         for (com.github.dockerjava.api.model.Container container : runningContainers) {
             for (String name : container.getNames()) {
-                if(name.startsWith("/")) name = name.substring(1); //Names array adds an slash to the docker name container.
-                if(name.equals(cube.getId())) { //cube id is the container name in docker0 Id in docker is the hash that identifies it.
+                if (name.startsWith("/"))
+                    name = name.substring(1); // Names array adds an slash to the docker name container.
+                if (name.equals(cube.getId())) { // cube id is the container name in docker0 Id in docker is the hash
+                                                 // that identifies it.
                     return true;
                 }
             }
         }
-        
+
         return false;
     }
 }
