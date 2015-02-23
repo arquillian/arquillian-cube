@@ -31,6 +31,7 @@ import javax.ws.rs.ProcessingException;
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.CommandLineExecutor;
+import org.arquillian.cube.impl.util.HomeResolverUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.impl.util.OperatingSystemResolver;
 
@@ -132,7 +133,7 @@ public class DockerClientExecutor {
         if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
             dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
             if(cubeConfiguration.getCertPath() == null) {
-                configBuilder.withDockerCertPath(getDefaultTlsDirectory());
+                configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory()));
             }
         }
 
@@ -152,7 +153,7 @@ public class DockerClientExecutor {
         }
 
         if(cubeConfiguration.getCertPath() != null) {
-            configBuilder.withDockerCertPath(cubeConfiguration.getCertPath());
+            configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(cubeConfiguration.getCertPath()));
         }
 
         this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
@@ -160,7 +161,7 @@ public class DockerClientExecutor {
     }
 
     private String getDefaultTlsDirectory() {
-        return System.getProperty("user.home") + File.separator + ".boot2docker" + File.separator + "certs";
+        return "~" + File.separator + ".boot2docker" + File.separator + "certs";
     }
 
     private String resolveServerUri(CubeConfiguration cubeConfiguration) {
