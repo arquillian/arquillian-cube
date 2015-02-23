@@ -77,7 +77,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
     public void shouldUsePreRunningContainers() {
         Map<String, String> data = new HashMap<String, String>();
         data.put("autoStartContainers", "a,b");
-        data.put("shouldAllowToConnectToRunningContainers", "true");
+        data.put("connectionMode", ConnectionMode.STARTORCONNECT.name());
         data.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
         
         CubeConfiguration configuration = CubeConfiguration.fromMap(data);
@@ -92,6 +92,53 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         assertEventFired(CreateCube.class, 1);
         assertEventFired(StartCube.class, 1);
         assertEventFired(PreRunningCube.class, 1);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
+        assertEventFiredOnOtherThread(PreRunningCube.class);
+    }
+
+    @Test
+    public void shouldStartAContainerInStartOrConnectModeAndStopIt() {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("autoStartContainers", "a,b");
+        data.put("connectionMode", ConnectionMode.STARTORCONNECT.name());
+        data.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+        
+        CubeConfiguration configuration = CubeConfiguration.fromMap(data);
+        bind(ApplicationScoped.class, CubeConfiguration.class, configuration);
+        Container container = mock(Container.class);
+        when(container.getNames()).thenReturn(new String[]{"alreadyrun"});
+        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFired(PreRunningCube.class, 0);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
+    }
+
+    @Test
+    public void shouldStartAContainerInStartOrConnectAndLeaveModeAndNotStopIt() {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("autoStartContainers", "a,b");
+        data.put("connectionMode", ConnectionMode.STARTORCONNECTANDLEAVE.name());
+        data.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+        
+        CubeConfiguration configuration = CubeConfiguration.fromMap(data);
+        bind(ApplicationScoped.class, CubeConfiguration.class, configuration);
+        Container container = mock(Container.class);
+        when(container.getNames()).thenReturn(new String[]{"alreadyrun"});
+        when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
+        bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFired(PreRunningCube.class, 2);
         assertEventFiredOnOtherThread(CreateCube.class);
         assertEventFiredOnOtherThread(StartCube.class);
         assertEventFiredOnOtherThread(PreRunningCube.class);

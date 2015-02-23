@@ -35,7 +35,7 @@ public class CubeSuiteLifecycleController {
 
     public void startAutoContainers(@Observes(precedence = 100) BeforeSuite event, final CubeConfiguration configuration) {
         List<String[]> autoStartSteps = AutoStartOrderUtil.getAutoStartOrder(configuration);
-        startAllSteps(autoStartSteps, configuration.shouldAllowToConnectToRunningContainers());
+        startAllSteps(autoStartSteps, configuration.getConnectionMode());
     }
 
     public void stopAutoContainers(@Observes(precedence = -100) AfterSuite event, CubeConfiguration configuration) {
@@ -43,13 +43,13 @@ public class CubeSuiteLifecycleController {
         stopAllSteps(autoStopSteps);
     }
 
-    private void startAllSteps(List<String[]> autoStartSteps, boolean allowToConnectToRunningContainers) {
+    private void startAllSteps(List<String[]> autoStartSteps, ConnectionMode connectionMode) {
         for(final String[] cubeIds : autoStartSteps) {
             Map<String, Future<RuntimeException>> stepStatus = new HashMap<>();
 
             // Start
             for(final String cubeId : cubeIds) {
-                Future<RuntimeException> result = executorServiceInst.get().submit(new StartCubes(cubeId, allowToConnectToRunningContainers));
+                Future<RuntimeException> result = executorServiceInst.get().submit(new StartCubes(cubeId, connectionMode));
                 stepStatus.put(cubeId, result);
             }
 
@@ -100,22 +100,28 @@ public class CubeSuiteLifecycleController {
     }
 
     private final class StartCubes implements Callable<RuntimeException> {
-        private final boolean allowToConnectToRunningContainers;
+        private final ConnectionMode connectionMode;
         private final String cubeId;
 
-        private StartCubes(String cubeId, boolean shouldAllowToConnectToRunningContainers) {
+        private StartCubes(String cubeId, ConnectionMode connectionMode) {
             this.cubeId = cubeId;
-            this.allowToConnectToRunningContainers = shouldAllowToConnectToRunningContainers;
+            this.connectionMode = connectionMode;
         }
 
         @Override
         public RuntimeException call() throws Exception {
             try {
-                if(allowToConnectToRunningContainers && isCubeRunning(cubeId)) {
+                if(connectionMode.isAllowReconnect() && isCubeRunning(cubeId)) {
                     controlEvent.fire(new PreRunningCube(cubeId));
-                } else {
-                    controlEvent.fire(new CreateCube(cubeId));
-                    controlEvent.fire(new StartCube(cubeId));
+                    return null;
+                }
+                controlEvent.fire(new CreateCube(cubeId));
+                controlEvent.fire(new StartCube(cubeId));
+
+                if(connectionMode.isAllowReconnect() && !connectionMode.isStoppable()) {
+                 // If we allow reconnections and containers are none stoppable which means that they will be able to be
+                 // reused in next executions then at this point we can assume that the container is a prerunning container.
+                 controlEvent.fire(new PreRunningCube(cubeId));
                 }
             } catch(RuntimeException e) {
                 return e;

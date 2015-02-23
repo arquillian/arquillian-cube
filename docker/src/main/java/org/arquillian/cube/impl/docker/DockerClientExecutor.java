@@ -54,6 +54,7 @@ import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
+import com.github.dockerjava.api.model.VolumesFrom;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
@@ -282,7 +283,7 @@ public class DockerClientExecutor {
 
         if (containerConfiguration.containsKey(VOLUMES_FROM)) {
             List<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
-            createContainerCmd.withVolumesFrom(volumesFrom.toArray(new String[volumesFrom.size()]));
+            createContainerCmd.withVolumesFrom(toVolumesFrom(volumesFrom));
         }
 
         try {
@@ -755,6 +756,15 @@ public class DockerClientExecutor {
         return volumes;
     }
 
+    private static final VolumesFrom[] toVolumesFrom(List<String> volumesFromList) {
+        VolumesFrom[] volumesFrom = new VolumesFrom[volumesFromList.size()];
+
+        for(int i = 0; i < volumesFromList.size(); i++) {
+            volumesFrom[i] = VolumesFrom.parse(volumesFromList.get(i));
+        }
+        return volumesFrom;
+    }
+    
     @SuppressWarnings("unchecked")
     private static final List<Map<String, Object>> asListOfMap(Map<String, Object> map, String property) {
         return (List<Map<String, Object>>) map.get(property);
