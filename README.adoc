@@ -421,7 +421,7 @@ tomcat_default:
 ----
 <1> +beforeStop+ goes into the container section and may contain a list of +copy+ and +log+ elements.
 <2> +copy+ is used to notify that we want to copy some directories or files form +from+ container location to +to+ local location.
-<3> +log + is used to notify that we want to copy container log to +to+ local location.
+<3> +log+ is used to notify that we want to copy container log to +to+ local location.
 
 In case of +log+ command the standard output and the error output are returned. 
 +log+ _Docker_ command can receive some configuration paramters and you can set them too in configuration file.
