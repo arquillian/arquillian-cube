@@ -161,7 +161,7 @@ public class DockerClientExecutor {
     }
 
     private String getDefaultTlsDirectory() {
-        return "~" + File.separator + ".boot2docker" + File.separator + "certs";
+        return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
     }
 
     private String resolveServerUri(CubeConfiguration cubeConfiguration) {
@@ -173,7 +173,7 @@ public class DockerClientExecutor {
     }
     
     private String resolveBoot2Docker(String dockerServerUri, CubeConfiguration cubeConfiguration) {
-        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration));
+        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration), "ip");
         Matcher m = IP_PATTERN.matcher(output);
         if(m.find()) {
             String ip = m.group();
