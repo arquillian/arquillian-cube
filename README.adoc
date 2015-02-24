@@ -476,8 +476,8 @@ Note that by default _Arquillian Cube_ assumes that +boot2docker+ command is on 
 For example +/opt/boot2dockerhome/boot2docker+.
 
 _boot2docker_ runs in _https_ and you need to set the certificates path. 
-These certificates are copied by _boot2docker_ by default at +~/.boot2docker/certs+. 
-If this propery is not set and the +serverUri+ contains +boot2docker+, then this property is automatically configured to +~/.boot2docker/certs+ so you don't need to worry to set for each environment.
+These certificates are copied by _boot2docker_ by default at +<HOME>/.boot2docker/certs+. 
+If this propery is not set and the +serverUri+ contains +boot2docker+, then this property is automatically configured to +<HOME>/.boot2docker/certs+ so you don't need to worry to set for each environment.
 
 == Building containers
 
