@@ -32,7 +32,6 @@ import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.HomeResolverUtil;
 import org.arquillian.cube.impl.util.IOUtil;
-import org.arquillian.cube.impl.util.OperatingSystemResolver;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
@@ -61,7 +60,6 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
-    private static final String BOOT2DOCKER_TAG = Boot2Docker.BOOT2DOCKER_TAG;
     private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
     private static final String TAG_SEPARATOR = ":";
     private static final String RESTART_POLICY = "restartPolicy";
@@ -112,26 +110,17 @@ public class DockerClientExecutor {
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
-    private OperatingSystemResolver operatingSystemResolver;
-    private Boot2Docker boot2Docker;
     private final URI dockerUri;
+    private final String dockerServerIp;
 
-    public DockerClientExecutor(CubeConfiguration cubeConfiguration, Boot2Docker boot2Docker, OperatingSystemResolver operatingSystemResolver) {
+    public DockerClientExecutor(CubeConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder =
             DockerClientConfig.createDefaultConfigBuilder();
 
-        this.boot2Docker = boot2Docker;
-        this.operatingSystemResolver = operatingSystemResolver;
-        String dockerServerUri = resolveServerUri(cubeConfiguration);
-
-        if(dockerServerUri.contains(BOOT2DOCKER_TAG)) {
-            dockerServerUri = resolveBoot2Docker(dockerServerUri, cubeConfiguration);
-            if(cubeConfiguration.getCertPath() == null) {
-                configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory()));
-            }
-        }
+        String dockerServerUri = cubeConfiguration.getDockerServerUri();
 
         dockerUri = URI.create(dockerServerUri);
+        dockerServerIp = cubeConfiguration.getDockerServerIp();
 
         configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
         if(cubeConfiguration.getUsername() != null) {
@@ -154,17 +143,6 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
     }
 
-    private String getDefaultTlsDirectory() {
-        return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
-    }
-
-    private String resolveServerUri(CubeConfiguration cubeConfiguration) {
-        if(cubeConfiguration.getDockerServerUri() == null) {
-            return this.operatingSystemResolver.currentOperatingSystem().getFamily().getServerUri();
-        } else {
-            return cubeConfiguration.getDockerServerUri();
-        }
-    }
 
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
@@ -241,7 +219,7 @@ public class DockerClientExecutor {
 
         if (containerConfiguration.containsKey(ENV)) {
             List<String> env = asListOfString(containerConfiguration, ENV);
-            env = resolveBoot2DockerInList(env);
+            env = resolveDockerServerIpInList(env);
             createContainerCmd.withEnv(env.toArray(new String[env.size()]));
         }
 
@@ -275,11 +253,11 @@ public class DockerClientExecutor {
         }
     }
 
-    private List<String> resolveBoot2DockerInList(List<String> envs) {
+    private List<String> resolveDockerServerIpInList(List<String> envs) {
         List<String> resolvedEnv = new ArrayList<String>();
         for (String env : envs) {
-            if(env.contains(BOOT2DOCKER_TAG)) {
-                resolvedEnv.add(resolveBoot2Docker(env, cubeConfiguration));
+            if(env.contains(CubeConfiguration.DOCKER_SERVER_IP)) {
+                resolvedEnv.add(env.replaceAll(CubeConfiguration.DOCKER_SERVER_IP, cubeConfiguration.getDockerServerIp()));
             } else {
                 resolvedEnv.add(env);
             }
@@ -392,11 +370,6 @@ public class DockerClientExecutor {
         }
 
         startContainerCmd.exec();
-    }
-
-    private String resolveBoot2Docker(String tag,
-            CubeConfiguration cubeConfiguration) {
-        return tag.replaceAll(BOOT2DOCKER_TAG, boot2Docker.ip(cubeConfiguration, false));
     }
 
     private Ports assignPorts(List<String> portBindings) {
@@ -782,6 +755,10 @@ public class DockerClientExecutor {
 
     public DockerClient getDockerClient() {
         return this.dockerClient;
+    }
+
+    public String getDockerServerIp() {
+        return dockerServerIp;
     }
 
 }

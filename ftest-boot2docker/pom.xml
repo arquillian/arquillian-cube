@@ -17,7 +17,7 @@
         <docker.api.version>1.12</docker.api.version>
         <docker.api.url>http://localhost:2375</docker.api.url>
         <!-- We can set tomcat host as boot2docker and Cube will resolve to boot2docker ip -->
-        <docker.tomcat.host>boot2docker</docker.tomcat.host>
+        <docker.tomcat.host>dockerServerIp</docker.tomcat.host>
     </properties>
 
     <dependencyManagement>
