@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
+import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.CommandLineExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.impl.util.OperatingSystem;
@@ -20,8 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.kenai.jnr.x86asm.OP;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -75,10 +74,10 @@ public class DockerClientExecutorTest {
         CubeConfiguration cubeConfiguration =
             CubeConfiguration.fromMap(map);
 
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
+        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
 
         DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, commandLineExecutor, operatingSystemResolver);
+                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
         assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
     }
 
@@ -92,7 +91,7 @@ public class DockerClientExecutorTest {
         when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.LINUX_OS);
 
         DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, commandLineExecutor, operatingSystemResolver);
+                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
         assertThat(dockerClientExecutor.getDockerUri(), is(URI.create("unix:///var/run/docker.sock")));
     }
 
@@ -104,11 +103,11 @@ public class DockerClientExecutorTest {
         CubeConfiguration cubeConfiguration =
             CubeConfiguration.fromMap(map);
 
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
+        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
         when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.WINDOWS_7);
 
         DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, commandLineExecutor, operatingSystemResolver);
+                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
         assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
     }
 
@@ -120,11 +119,11 @@ public class DockerClientExecutorTest {
         CubeConfiguration cubeConfiguration =
             CubeConfiguration.fromMap(map);
 
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
+        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
         when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.MAC_OSX);
 
         DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, commandLineExecutor, operatingSystemResolver);
+                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
         assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
     }
 

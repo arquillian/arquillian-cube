@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RemapContainerControllerTest extends AbstractManagerTestBase {
+public class ContainerConfigurationControllerTest extends AbstractManagerTestBase {
 
     public static final String CUBE_ID = "test";
     private static final String CONTENT = "" + "image: tutum/tomcat:7.0\n" + "exposedPorts: [8089/tcp]\n"
@@ -53,7 +53,7 @@ public class RemapContainerControllerTest extends AbstractManagerTestBase {
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
-        extensions.add(RemapContainerController.class);
+        extensions.add(ContainerConfigurationController.class);
         super.addExtensions(extensions);
     }
 

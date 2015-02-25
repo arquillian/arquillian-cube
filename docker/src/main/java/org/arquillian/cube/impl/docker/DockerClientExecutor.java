@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +29,7 @@ import javax.ws.rs.ProcessingException;
 
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
-import org.arquillian.cube.impl.util.CommandLineExecutor;
+import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.HomeResolverUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.impl.util.OperatingSystemResolver;
@@ -62,8 +61,7 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
-    private static final String BOOT2DOCKER_EXEC = "boot2docker";
-    private static final String BOOT2DOCKER_TAG = BOOT2DOCKER_EXEC;
+    private static final String BOOT2DOCKER_TAG = Boot2Docker.BOOT2DOCKER_TAG;
     private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
     private static final String TAG_SEPARATOR = ":";
     private static final String RESTART_POLICY = "restartPolicy";
@@ -109,24 +107,20 @@ public class DockerClientExecutor {
     private static final String TO = "to";
     private static final String FROM = "from";
 
-    private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
-    private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
-
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
+    private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
 
     private DockerClient dockerClient;
     private CubeConfiguration cubeConfiguration;
-    private CommandLineExecutor commandLineExecutor;
     private OperatingSystemResolver operatingSystemResolver;
+    private Boot2Docker boot2Docker;
     private final URI dockerUri;
 
-    public DockerClientExecutor(CubeConfiguration cubeConfiguration, CommandLineExecutor commandLineExecutor, OperatingSystemResolver operatingSystemResolver) {
+    public DockerClientExecutor(CubeConfiguration cubeConfiguration, Boot2Docker boot2Docker, OperatingSystemResolver operatingSystemResolver) {
         DockerClientConfigBuilder configBuilder =
             DockerClientConfig.createDefaultConfigBuilder();
 
-        // TODO, if this is already set from the client natively, do we want to
-        // override here?
-        this.commandLineExecutor = commandLineExecutor;
+        this.boot2Docker = boot2Docker;
         this.operatingSystemResolver = operatingSystemResolver;
         String dockerServerUri = resolveServerUri(cubeConfiguration);
 
@@ -171,24 +165,7 @@ public class DockerClientExecutor {
             return cubeConfiguration.getDockerServerUri();
         }
     }
-    
-    private String resolveBoot2Docker(String dockerServerUri, CubeConfiguration cubeConfiguration) {
-        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration), "ip");
-        Matcher m = IP_PATTERN.matcher(output);
-        if(m.find()) {
-            String ip = m.group();
-            return dockerServerUri.replace(BOOT2DOCKER_TAG, ip);
-        } else {
-            String errorMessage = String.format("Boot2Docker command does not return a valid ip. It returned %s.", output);
-            log.log(Level.SEVERE, errorMessage);
-            throw new IllegalArgumentException(errorMessage);
-        }
-    }
 
-    private String createBoot2DockerCommand(CubeConfiguration cubeConfiguration) {
-        return cubeConfiguration.getBoot2DockerPath() == null ? BOOT2DOCKER_EXEC : cubeConfiguration.getBoot2DockerPath();
-    }
-    
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
     }
@@ -264,6 +241,7 @@ public class DockerClientExecutor {
 
         if (containerConfiguration.containsKey(ENV)) {
             List<String> env = asListOfString(containerConfiguration, ENV);
+            env = resolveBoot2DockerInList(env);
             createContainerCmd.withEnv(env.toArray(new String[env.size()]));
         }
 
@@ -297,6 +275,18 @@ public class DockerClientExecutor {
         }
     }
 
+    private List<String> resolveBoot2DockerInList(List<String> envs) {
+        List<String> resolvedEnv = new ArrayList<String>();
+        for (String env : envs) {
+            if(env.contains(BOOT2DOCKER_TAG)) {
+                resolvedEnv.add(resolveBoot2Docker(env, cubeConfiguration));
+            } else {
+                resolvedEnv.add(env);
+            }
+        }
+        return resolvedEnv;
+    }
+    
     private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration,
             CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
@@ -402,6 +392,11 @@ public class DockerClientExecutor {
         }
 
         startContainerCmd.exec();
+    }
+
+    private String resolveBoot2Docker(String tag,
+            CubeConfiguration cubeConfiguration) {
+        return tag.replaceAll(BOOT2DOCKER_TAG, boot2Docker.ip(cubeConfiguration, false));
     }
 
     private Ports assignPorts(List<String> portBindings) {
