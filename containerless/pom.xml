@@ -5,6 +5,7 @@
         <artifactId>arquillian-cube-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
+    <name>Arquillian Cube Containerless Container</name>
     <artifactId>arquillian-cube-containerless</artifactId>
 
     <dependencies>

@@ -5,7 +5,7 @@
         <artifactId>arquillian-cube-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <name>Arquillian Cube Functional Test For Boot2Docker</name>
+    <name>Arquillian Cube Functional Test Boot2Docker</name>
     <artifactId>arquillian-cube-ftest-boot2docker</artifactId>
 
     <properties>

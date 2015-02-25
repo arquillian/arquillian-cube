@@ -28,9 +28,9 @@
         <module>docker</module>
         <module>ftest</module>
         <module>ftest-standalone</module>
-        <module>containerless</module>
         <module>docker-server-stub</module>
         <module>ftest-boot2docker</module>
+        <module>containerless</module>
     </modules>
 
     <developers>

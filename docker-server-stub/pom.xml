@@ -6,6 +6,7 @@
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    <name>Arquillian Cube Docker Server Stubs</name>
     <artifactId>docker-server-stub</artifactId>
 
     <properties>

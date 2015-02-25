@@ -5,7 +5,7 @@
         <artifactId>arquillian-cube-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <name>Arquillian Cube Functional Test</name>
+    <name>Arquillian Cube Functional Test Standalone</name>
     <artifactId>arquillian-cube-ftest-standalone</artifactId>
 
     <properties>
