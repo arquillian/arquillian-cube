@@ -281,7 +281,7 @@ tomcat: #1
 <3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
 <4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
-<6> You can pass environment variables by using `env`.
+<6> You can pass environment variables by using `env`. In this section you can set special `dockerServerIp` string which at runtime will be replaced by _Cube_ to current docker server ip.
 <7> After the container is up, a list of commands can be executed within it.
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
@@ -444,6 +444,7 @@ beforeStop:
     tail: 10
 ----
 
+[[automatic-resolution]]
 === Automatic serverUri resolution
 
 +serverUri+ parameter is where you configure the Uri of _Docker_ server. 
@@ -461,6 +462,7 @@ This parameter is not mandatory and in case you don't set it, _Arquillian Cube_ 
 |https://boot2docker:2376
 |===
 
+[[boot2docker]]
 == Boot2Docker
 
 If you are using _boot2docker_ there are some parameters that depends on the installation of the _boot2docker_. 
@@ -666,6 +668,39 @@ In this case you don't need to create a new `container` tag, *Arquillian Cube* i
 *Arquillan Cube* will apply autoremapping to all properties that contains `port` as a substring of the property, and will remap if it is necessary.
 
 NOTE: Automapping only works in case you want to change the default server port to a _Docker_ port forwarded port.
+
+=== DockerServerIp and Containers
+
+If you are using a remote docker server (not on _localhost_) or for example _boot2docker_ you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test. 
+In these cases you can hardcode this ip to arquillian container adapter configuration or you can use the special tag +dockerServerIp+. 
+At runtime these tag will be replaced by _Arquillian Cube_ to docker server ip configured in +serverUri+ parameter. 
+This replacement only works in properties that contains the string +host+ or +address+ in property name.
+
+So for example:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+        <property name="serverUri">http://192.168.0.2:2756</property> <!--1-->
+  ...
+</extension>
+<container qualifier="tomcat_default">
+  configuration>
+    <property name="host">dockerServerIp</property> <!--2-->
+    <property name="user">admin</property>
+    <property name="pass">mypass</property>
+  </configuration>
+</container>
+----
+<1> We set the +serverUri+ as usually.
+<2> +dockerServerIp+ is replaced at runtime.
+
+The +host+ property will be replaced automatically to +192.168.0.2+.
+
+NOTE: This also works in case you set +serverUri+ using +boot2docker+ special word or by using the defaults. Read more about it <<boot2docker, Boot2Docker section>> and <<automatic-resolution, Automatic serverUri resolution section>>. 
+
+In case of using _unix_ socket +dockerServerUri+ is replaced to _localhost_.
 
 == Containerless Server and Docker
 
