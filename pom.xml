@@ -30,6 +30,7 @@
         <module>ftest-standalone</module>
         <module>containerless</module>
         <module>docker-server-stub</module>
+        <module>ftest-boot2docker</module>
     </modules>
 
     <developers>
