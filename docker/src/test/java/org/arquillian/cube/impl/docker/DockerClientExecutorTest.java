@@ -6,27 +6,17 @@ package org.arquillian.cube.impl.docker;
  * Time: 5:33 PM
  */
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.when;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.arquillian.cube.impl.client.CubeConfiguration;
-import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.CommandLineExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
-import org.arquillian.cube.impl.util.OperatingSystem;
 import org.arquillian.cube.impl.util.OperatingSystemResolver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DockerClientExecutorTest {
@@ -63,68 +53,6 @@ public class DockerClientExecutorTest {
         Matcher m = HEXA_PATTERN.matcher(imageId);
         Assert.assertTrue("imageId is not an hexadecimal digit string", m.matches());
 
-    }
-
-    @Test
-    public void shouldExecuteBoot2Docker() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("serverVersion", "1.12");
-        map.put("serverUri", "http://boot2docker:2376");
-        map.put("boot2dockerPath", "/opt/boot2docker/boot2docker");
-        CubeConfiguration cubeConfiguration =
-            CubeConfiguration.fromMap(map);
-
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
-
-        DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
-        assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
-    }
-
-    @Test
-    public void shouldGetDefaultUnixSocketIfNoServerUriUnderLinux() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("serverVersion", "1.12");
-        CubeConfiguration cubeConfiguration =
-            CubeConfiguration.fromMap(map);
-
-        when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.LINUX_OS);
-
-        DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
-        assertThat(dockerClientExecutor.getDockerUri(), is(URI.create("unix:///var/run/docker.sock")));
-    }
-
-    @Test
-    public void shouldGetDefaultBoot2DockerIfNoServerUriUnderWindows() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("serverVersion", "1.12");
-        map.put("boot2dockerPath", "/opt/boot2docker/boot2docker");
-        CubeConfiguration cubeConfiguration =
-            CubeConfiguration.fromMap(map);
-
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
-        when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.WINDOWS_7);
-
-        DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
-        assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
-    }
-
-    @Test
-    public void shouldGetDefaultBoot2DockerIfNoServerUriUnderMacOS() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("serverVersion", "1.12");
-        map.put("boot2dockerPath", "/opt/boot2docker/boot2docker");
-        CubeConfiguration cubeConfiguration =
-            CubeConfiguration.fromMap(map);
-
-        when(commandLineExecutor.execCommand("/opt/boot2docker/boot2docker", "ip")).thenReturn("The VM's Host only interface IP address is: 192.168.59.103");
-        when(operatingSystemResolver.currentOperatingSystem()).thenReturn(OperatingSystem.MAC_OSX);
-
-        DockerClientExecutor dockerClientExecutor =
-                new DockerClientExecutor(cubeConfiguration, new Boot2Docker(commandLineExecutor), operatingSystemResolver);
-        assertThat(dockerClientExecutor.getDockerUri().getHost(), is("192.168.59.103"));
     }
 
 }

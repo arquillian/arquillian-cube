@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.arquillian.cube.impl.client.CubeConfiguration;
-
 public class Boot2Docker {
 
     public static final String BOOT2DOCKER_TAG = "boot2docker";
@@ -22,15 +20,15 @@ public class Boot2Docker {
         this.commandLineExecutor = commandLineExecutor;
     }
 
-    public String ip(CubeConfiguration cubeConfiguration, boolean force) {
+    public String ip(String boot2DockerPath, boolean force) {
         if(cachedIp == null || force) {
-            cachedIp = getIp(cubeConfiguration);
+            cachedIp = getIp(boot2DockerPath);
         }
         return cachedIp;
     }
 
-    private String getIp(CubeConfiguration cubeConfiguration) {
-        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(cubeConfiguration), "ip");
+    private String getIp(String boot2DockerPath) {
+        String output = commandLineExecutor.execCommand(createBoot2DockerCommand(boot2DockerPath), "ip");
         Matcher m = IP_PATTERN.matcher(output);
         if(m.find()) {
             String ip = m.group();
@@ -42,8 +40,8 @@ public class Boot2Docker {
         }
     }
 
-    private String createBoot2DockerCommand(CubeConfiguration cubeConfiguration) {
-        return cubeConfiguration.getBoot2DockerPath() == null ? BOOT2DOCKER_EXEC : cubeConfiguration.getBoot2DockerPath();
+    private String createBoot2DockerCommand(String boot2DockerPath) {
+        return boot2DockerPath == null ? BOOT2DOCKER_EXEC : boot2DockerPath;
     }
 
 }

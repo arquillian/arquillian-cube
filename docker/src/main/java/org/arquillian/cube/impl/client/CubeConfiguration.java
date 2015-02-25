@@ -10,17 +10,18 @@ import org.yaml.snakeyaml.Yaml;
 public class CubeConfiguration {
 
     private static final String DOCKER_VERSION = "serverVersion";
-    private static final String DOCKER_URI = "serverUri";
+    public static final String DOCKER_URI = "serverUri";
+    public static final String DOCKER_SERVER_IP = "dockerServerIp";
     private static final String USERNAME = "username";
     private static final String PASSWORD =  "password";
     private static final String EMAIL = "email";
-    private static final String CERT_PATH = "certPath";
+    public static final String CERT_PATH = "certPath";
     private static final String DOCKER_CONTAINERS = "dockerContainers";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String CONNECTION_MODE = "connectionMode";
-    private static final String BOOT2DOCKER_PATH = "boot2dockerPath";
+    public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -32,6 +33,7 @@ public class CubeConfiguration {
     private String email;
     private String certPath;
     private String[] autoStartContainers = new String[0];
+    private String dockerServerIp;
 
     private Map<String, Object> dockerContainersContent;
 
@@ -79,9 +81,17 @@ public class CubeConfiguration {
         return certPath;
     }
 
+    public String getDockerServerIp() {
+        return dockerServerIp;
+    }
+
     @SuppressWarnings("unchecked")
     public static CubeConfiguration fromMap(Map<String, String> map) {
         CubeConfiguration cubeConfiguration = new CubeConfiguration();
+
+        if(map.containsKey(DOCKER_SERVER_IP)) {
+            cubeConfiguration.dockerServerIp = map.get(DOCKER_SERVER_IP);
+        }
 
         if (map.containsKey(DOCKER_VERSION)) {
             cubeConfiguration.dockerServerVersion = map.get(DOCKER_VERSION);
