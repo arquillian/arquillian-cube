@@ -1017,7 +1017,7 @@ NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *
 
 == Future work
 
-API will continuously evolve to fit requirements of an enterprise application as well as providing better integration with _Boot2Docker_.
+API will continuously evolve to fit requirements of an enterprise application as well as providing integration with _Kubernates_ and other Docker related tools.
 Also some configuration parameters will be modified to fix any possible requirements.
 Although we are going to try to not break compatibility with previous versions, we cannot guarantee until _beta_ stage.
 
