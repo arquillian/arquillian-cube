@@ -418,11 +418,11 @@ tomcat_default:
   image: tutum/tomcat:7.0
   beforeStop: # <1>
     - copy: # <2>
-      from: /test
-      to: /tmp
+        from: /test
+        to: /tmp
 
     - log: # <3>
-      to: /tmp/container.log
+        to: /tmp/container.log
 ----
 <1> +beforeStop+ goes into the container section and may contain a list of +copy+ and +log+ elements.
 <2> +copy+ is used to notify that we want to copy some directories or files form +from+ container location to +to+ local location.
