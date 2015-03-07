@@ -1,6 +1,6 @@
 package org.arquillian.cube.impl.client.container.remote.command;
 
-public abstract class AbstractCubeCommand extends AbstractCommand<String> {
+public abstract class AbstractCubeCommand<T> extends AbstractCommand<T> {
 
     private static final long serialVersionUID = 1L;
 

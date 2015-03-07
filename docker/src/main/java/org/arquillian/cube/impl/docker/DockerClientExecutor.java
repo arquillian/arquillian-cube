@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,9 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +23,9 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
+import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
-import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.HomeResolverUtil;
 import org.arquillian.cube.impl.util.IOUtil;
 
@@ -43,8 +39,10 @@ import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.command.TopContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Capability;
+import com.github.dockerjava.api.model.ChangeLog;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Device;
 import com.github.dockerjava.api.model.ExposedPort;
@@ -97,13 +95,6 @@ public class DockerClientExecutor {
     private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
-    private static final String FOLLOW = "follow";
-    private static final String STDOUT = "stdout";
-    private static final String STDERR = "stderr";
-    private static final String TIMESTAMPS = "timestamps";
-    private static final String TAIL = "tail";
-    private static final String TO = "to";
-    private static final String FROM = "from";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -531,71 +522,41 @@ public class DockerClientExecutor {
         return output;
     }
 
-    public void copyFromContainer(String containerId, Map<String, Object> configurationParameters) throws IOException {
-        String to = null;
-        String from = null;
-        if(configurationParameters.containsKey(TO) && configurationParameters.containsKey(FROM)) {
-            to = (String) configurationParameters.get(TO);
-            from = (String) configurationParameters.get(FROM);
-        } else {
-            throw new IllegalArgumentException(String.format("to and from property is mandatory when copying files from container %s.", containerId));
+    public List<org.arquillian.cube.ChangeLog> inspectChangesOnContainerFilesystem(String containerId) {
+        List<ChangeLog> changeLogs = dockerClient.containerDiffCmd(containerId).exec();
+        List<org.arquillian.cube.ChangeLog> changes = new ArrayList<>();
+        for (ChangeLog changeLog : changeLogs) {
+            changes.add(new org.arquillian.cube.ChangeLog(changeLog.getPath(), changeLog.getKind()));
         }
-
-        InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
-        Path toPath = Paths.get(to);
-        File toPathFile = toPath.toFile();
-
-        if(toPathFile.exists() && toPathFile.isFile()) {
-            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", TO, toPath.normalize().toString()));
-        }
-
-        Files.createDirectories(toPath);
-
-        IOUtil.untar(response, toPathFile);
+        return changes;
     }
 
-    public void copyLog(String containerId, Map<String, Object> configurationParameters) throws IOException {
-        String to = null;
-        if(configurationParameters.containsKey(TO)) {
-            to = (String) configurationParameters.get(TO);
-        } else {
-            throw new IllegalArgumentException(String.format("to property is mandatory when getting logs from container %s.", containerId));
-        }
+    public TopContainer top(String containerId) {
+        TopContainerResponse topContainer = dockerClient.topContainerCmd(containerId).exec();
+        return new TopContainer(topContainer.getTitles(), topContainer.getProcesses());
+    }
 
+    public InputStream getFileOrDirectoryFromContainerAsTar(String containerId, String from) {
+        InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
+        return response;
+    }
+
+    public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
         LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr().withStdOut();
 
-        if(configurationParameters.containsKey(FOLLOW)) {
-            logContainerCmd.withFollowStream((boolean) configurationParameters.get(FOLLOW));
-        }
+        logContainerCmd.withFollowStream(follow);
+        logContainerCmd.withStdOut(stdout);
+        logContainerCmd.withStdErr(stderr);
+        logContainerCmd.withTimestamps(timestamps);
 
-        if(configurationParameters.containsKey(STDOUT)) {
-            logContainerCmd.withStdOut((boolean) configurationParameters.get(STDOUT));
-        }
-
-        if(configurationParameters.containsKey(STDERR)) {
-            logContainerCmd.withStdErr((boolean) configurationParameters.get(STDERR));
-        }
-
-        if(configurationParameters.containsKey(TIMESTAMPS)) {
-            logContainerCmd.withTimestamps((boolean) configurationParameters.get(TIMESTAMPS));
-        }
-
-        if(configurationParameters.containsKey(TAIL)) {
-            logContainerCmd.withTail((int) configurationParameters.get(TAIL));
+        if(tail < 0) {
+            logContainerCmd.withTailAll();
+        } else {
+            logContainerCmd.withTail(tail);
         }
 
         InputStream log = logContainerCmd.exec();
-
-        Path toPath = Paths.get(to);
-        File toPathFile = toPath.toFile();
-        if(toPathFile.exists() && toPathFile.isDirectory()) {
-            throw new IllegalArgumentException(String.format("%s parameter should be a file in log operation but you set an already existing directory not a file.", TO));
-        }
-
-        Path toDirectory = toPath.getParent();
-        Files.createDirectories(toDirectory);
-        readDockerRawStream(log, new FileOutputStream(toPathFile));
-
+        readDockerRawStream(log, outputStream);
     }
 
     private void readDockerRawStream(InputStream rawSteram, OutputStream outputStream) throws IOException {
