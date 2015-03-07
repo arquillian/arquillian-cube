@@ -543,9 +543,15 @@ public class DockerClientExecutor {
 
         InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
         Path toPath = Paths.get(to);
+        File toPathFile = toPath.toFile();
+
+        if(toPathFile.exists() && toPathFile.isFile()) {
+            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", TO, toPath.normalize().toString()));
+        }
+
         Files.createDirectories(toPath);
 
-        IOUtil.untar(response, toPath.toFile());
+        IOUtil.untar(response, toPathFile);
     }
 
     public void copyLog(String containerId, Map<String, Object> configurationParameters) throws IOException {
@@ -581,9 +587,14 @@ public class DockerClientExecutor {
         InputStream log = logContainerCmd.exec();
 
         Path toPath = Paths.get(to);
+        File toPathFile = toPath.toFile();
+        if(toPathFile.exists() && toPathFile.isDirectory()) {
+            throw new IllegalArgumentException(String.format("%s parameter should be a file in log operation but you set an already existing directory not a file.", TO));
+        }
+
         Path toDirectory = toPath.getParent();
         Files.createDirectories(toDirectory);
-        readDockerRawStream(log, new FileOutputStream(toPath.toFile()));
+        readDockerRawStream(log, new FileOutputStream(toPathFile));
 
     }
 
