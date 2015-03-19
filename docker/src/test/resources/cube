@@ -1,0 +1,7 @@
+tomcat:
+  image: tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: polling
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+  portBindings: [8089/tcp, 8080/tcp]

@@ -31,6 +31,24 @@ public class CubeConfigurationTest {
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
+    public void should_load_cube_configuration_from_cube_file_if_no_file_is_provided() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(parameters);
+
+        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        assertThat(actualTomcat, is(notNullValue()));
+
+        String image = (String) actualTomcat.get("image");
+        assertThat(image, is("tomcat:7.0"));
+    }
+
+    @Test
     public void should_parse_and_load_configuration_file() {
 
         Map<String, String> parameters = new HashMap<String, String>();
