@@ -80,7 +80,7 @@ public class CubeConfiguration {
     public String getCertPath() {
         return certPath;
     }
-
+    //this property is resolved in CubeConfigurator class.
     public String getDockerServerIp() {
         return dockerServerIp;
     }
