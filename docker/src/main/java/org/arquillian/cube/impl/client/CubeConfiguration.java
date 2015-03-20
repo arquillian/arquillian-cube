@@ -2,6 +2,7 @@ package org.arquillian.cube.impl.client;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.arquillian.cube.impl.util.ConfigUtil;
@@ -22,6 +23,7 @@ public class CubeConfiguration {
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String CONNECTION_MODE = "connectionMode";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
+    private static final String DEFAULT_CUBE_DEFINITION_FILE = "cube";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -139,6 +141,13 @@ public class CubeConfiguration {
                 throw new IllegalArgumentException(e);
             }
         }
+
+        if(!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE)) {
+            //we check if exists on root of classpath a file called cube
+            final InputStream configurationResource = CubeConfiguration.class.getResourceAsStream("/"+DEFAULT_CUBE_DEFINITION_FILE);
+            cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(configurationResource));
+        }
+
         if(map.containsKey(AUTO_START_CONTAINERS)) {
             cubeConfiguration.autoStartContainers = ConfigUtil.trim(map.get(AUTO_START_CONTAINERS).split(","));
         }
