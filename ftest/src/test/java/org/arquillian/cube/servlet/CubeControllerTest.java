@@ -1,9 +1,18 @@
 package org.arquillian.cube.servlet;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.CubeController;
+import org.arquillian.cube.CubeID;
+import org.arquillian.cube.TopContainer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -11,13 +20,18 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class CubeControllerTest {
 
     private static final String MANUAL_START_CUBE = "database_manual";
+
+    @Rule
+    public TemporaryFolder folder= new TemporaryFolder(new File("/tmp"));
 
     @Deployment
     public static WebArchive create() {
@@ -52,5 +66,33 @@ public class CubeControllerTest {
         assertThat(cubeController, notNullValue());
         cubeController.stop(MANUAL_START_CUBE);
         cubeController.destroy(MANUAL_START_CUBE);
+    }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void should_get_an_exception_when_getting_logs(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
+        cubeController.copyLog(cubeID, false, true, true, false, -1, new ByteArrayOutputStream());
+    }
+
+    @Test
+    public void should_execute_top(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
+        TopContainer top = cubeController.top(cubeID);
+        assertThat(top, notNullValue());
+        assertThat(top.getProcesses(), notNullValue());
+        assertThat(top.getTitles(), notNullValue());
+        assertThat(top.getTitles().length > 0, is(true));
+    }
+
+    @Test
+    public void should_get_changes_on_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
+        List<ChangeLog> changesOnFilesystem = cubeController.changesOnFilesystem(cubeID);
+        assertThat(changesOnFilesystem, notNullValue());
+        assertThat(changesOnFilesystem.size() > 0, is(true));
+    }
+
+    @Test
+    public void should_copy_files_from_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) throws IOException {
+        File newFolder = folder.newFolder();
+        cubeController.copyFileDirectoryFromContainer(cubeID, "/tomcat/logs", newFolder.getAbsolutePath());
+        //needs manual inspection on /tmp/.... because this test is executed on server side but the files are copied in client side. 
     }
 }

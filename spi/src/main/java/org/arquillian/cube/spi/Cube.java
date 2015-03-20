@@ -1,6 +1,11 @@
 package org.arquillian.cube.spi;
 
+import java.io.OutputStream;
+import java.util.List;
 import java.util.Map;
+
+import org.arquillian.cube.ChangeLog;
+import org.arquillian.cube.TopContainer;
 
 public interface Cube {
 
@@ -33,4 +38,12 @@ public interface Cube {
     Binding bindings();
 
     Map<String, Object> configuration();
+
+    List<ChangeLog> changesOnFilesystem(String cubeId);
+
+    void copyFileDirectoryFromContainer(String cubeId, String from, String to);
+
+    void copyLog(String cubeId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream);
+    
+    TopContainer top(String cubeId);
 }

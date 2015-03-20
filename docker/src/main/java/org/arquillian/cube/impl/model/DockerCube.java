@@ -1,11 +1,22 @@
 package org.arquillian.cube.impl.model;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.ChangeLog;
+import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.util.BindingUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
@@ -146,5 +157,47 @@ public class DockerCube implements Cube {
 
         log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
         state = State.PRE_RUNNING;
+    }
+
+    @Override
+    public List<ChangeLog> changesOnFilesystem(String cubeId) {
+        return executor.inspectChangesOnContainerFilesystem(cubeId);
+    }
+
+    @Override
+    public void copyFileDirectoryFromContainer(String cubeId, String from,
+            String to) {
+
+        InputStream response = executor.getFileOrDirectoryFromContainerAsTar(cubeId, from);
+
+        Path toPath = Paths.get(to);
+        File toPathFile = toPath.toFile();
+
+        if(toPathFile.exists() && toPathFile.isFile()) {
+            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", "to", toPath.normalize().toString()));
+        }
+
+        try {
+            Files.createDirectories(toPath);
+            IOUtil.untar(response, toPathFile);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public void copyLog(String containerId, boolean follow,
+            boolean stdout, boolean stderr, boolean timestamps, int tail,
+            OutputStream outputStream) {
+        try {
+            executor.copyLog(containerId, follow, stdout, stderr, timestamps, tail, outputStream);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public TopContainer top(String cubeId) {
+        return executor.top(cubeId);
     }
 }

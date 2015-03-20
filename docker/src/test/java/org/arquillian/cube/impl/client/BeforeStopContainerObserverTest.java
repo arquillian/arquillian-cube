@@ -1,11 +1,16 @@
 package org.arquillian.cube.impl.client;
 
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -87,8 +92,10 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         Map<String, Object> config =
             (Map<String, Object>) configuration.get("tomcat_default");
         Mockito.when(cube.configuration()).thenReturn(config);
+        Mockito.when(dockerClientExecutor.getFileOrDirectoryFromContainerAsTar(eq(CUBE_CONTAINER_NAME), anyString())).thenReturn(BeforeStopContainerObserverTest.class.getResourceAsStream("/hello.tar"));
         fire(new BeforeStop(CUBE_CONTAINER_NAME));
-        verify(dockerClientExecutor).copyFromContainer(eq(CUBE_CONTAINER_NAME), anyMapOf(String.class, Object.class));
+        verify(dockerClientExecutor).getFileOrDirectoryFromContainerAsTar(eq(CUBE_CONTAINER_NAME), eq("/test"));
+        assertThat(new File(newFolder, "hello.txt").exists(), is(true));
     }
 
     @SuppressWarnings("unchecked")
@@ -97,6 +104,7 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         File newFolder = temporaryFolder.newFolder();
         String content = CONTAINER_LOG_CONFIGURATION;
         content += newFolder.getAbsolutePath();
+        content += "mylog.log";
 
         Map<String, Object> configuration =
             (Map<String, Object>) new Yaml().load(content);
@@ -104,6 +112,6 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
             (Map<String, Object>) configuration.get("tomcat_default");
         Mockito.when(cube.configuration()).thenReturn(config);
         fire(new BeforeStop(CUBE_CONTAINER_NAME));
-        verify(dockerClientExecutor, times(1)).copyLog(eq(CUBE_CONTAINER_NAME), anyMapOf(String.class, Object.class));
+        verify(dockerClientExecutor, times(1)).copyLog(eq(CUBE_CONTAINER_NAME), eq(false), eq(false), eq(false), eq(false), eq(-1), any(OutputStream.class));
     }
 }
