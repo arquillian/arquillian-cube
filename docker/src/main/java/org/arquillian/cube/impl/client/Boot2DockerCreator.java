@@ -17,5 +17,4 @@ public class Boot2DockerCreator {
     public void configure(@Observes(precedence = 100) ManagerStarted managerStarted) {
         boot2DockerInstanceProducer.set(new Boot2Docker(new CommandLineExecutor()));
     }
-    
 }

@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.model.DockerCubeRegistry;
+import org.arquillian.cube.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
@@ -37,6 +39,9 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
     private Cube cube;
 
     @Mock
+    private CubeConfiguration cubeConfiguration;
+
+    @Mock
     private Container container;
 
     @SuppressWarnings("rawtypes")
@@ -59,13 +64,18 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
 
     public static class ContainerConfiguration {
         private int port = 8089;
-        
+        private String myHost = "localhost";
         public int getPort() {
             return port;
         }
-        
         public void setPort(int port) {
             this.port = port;
+        }
+        public String getMyHost() {
+            return myHost;
+        }
+        public void setMyHost(String myHost) {
+            this.myHost = myHost;
         }
     }
     
@@ -92,6 +102,41 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
     }
 
     @Test
+    public void shouldRemapContainerAddressToBootToDocker() {
+        Map<String, String> containerConfig = new HashMap<String, String>();
+        when(containerDef.getContainerProperties()).thenReturn(containerConfig);
+        when(cubeConfiguration.getDockerServerIp()).thenReturn("192.168.0.1");
+        bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+        fire(new BeforeSetup(deployableContainer));
+        verify(containerDef).overrideProperty("myHost", "192.168.0.1");
+    }
+
+    @Test
+    public void shouldSubstituteDockerServerIpContainerAddressToBootToDockerIp() {
+        Map<String, String> containerConfig = new HashMap<String, String>();
+        containerConfig.put("myHost", CubeConfiguration.DOCKER_SERVER_IP);
+        when(containerDef.getContainerProperties()).thenReturn(containerConfig);
+        when(cubeConfiguration.getDockerServerIp()).thenReturn("192.168.0.1");
+        bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+        fire(new BeforeSetup(deployableContainer));
+        verify(containerDef).overrideProperty("myHost", "192.168.0.1");
+    }
+
+    @Test
+    public void shouldNotRemapContainerAddressToBootToDocker() {
+        Map<String, String> containerConfig = new HashMap<String, String>();
+        containerConfig.put("myHost", "10.0.10.1");
+        when(containerDef.getContainerProperties()).thenReturn(containerConfig);
+        when(cubeConfiguration.getDockerServerIp()).thenReturn("192.168.0.1");
+        bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+        fire(new BeforeSetup(deployableContainer));
+        verify(containerDef, times(0)).overrideProperty("myHost", "192.168.0.1");
+    }
+
+    @Test
     public void shouldRemapContainerPortIfItIsEqualToExposedOne() {
 
         Map<String, String> containerConfig = new HashMap<String, String>();
@@ -101,7 +146,7 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
         verify(containerDef).overrideProperty("port", "8090");
 
     }
-    
+
     @Test
     public void shouldNotRemapContainerPortIfItIsNotEqualToExposedOne() {
 

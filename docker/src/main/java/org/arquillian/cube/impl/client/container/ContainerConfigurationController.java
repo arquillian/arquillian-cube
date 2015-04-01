@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 import org.arquillian.cube.impl.client.CubeConfiguration;
 import org.arquillian.cube.impl.util.BindingUtil;
 import org.arquillian.cube.impl.util.ContainerUtil;
+import org.arquillian.cube.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;
@@ -21,6 +23,8 @@ import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.event.container.BeforeSetup;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class ContainerConfigurationController {
@@ -28,19 +32,34 @@ public class ContainerConfigurationController {
     private static final Pattern portPattern = Pattern.compile("(?i:.*port.*)");
     private static final Pattern hostPattern = Pattern.compile("(?i:.*host.*)");
     private static final Pattern addressPattern = Pattern.compile("(?i:.*address.*)");
+    private static final Pattern jmxPattern = Pattern.compile("(?i:.*jmx.*)");
 
-    
+    @Inject
+    private Instance<OperatingSystemFamily> familyInstance;
+
     public void applyDockerServerIpChange(@Observes BeforeSetup event, CubeRegistry cubeRegistry,
-            ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) {
+            ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) throws InstantiationException, IllegalAccessException, MalformedURLException {
 
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
                 event.getDeployableContainer());
         if (container == null) {
             return;
         }
-        
+
         ContainerDef containerConfiguration = container.getContainerConfiguration();
-        resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, cubeConfiguration);
+        boolean foundAttribute = resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, cubeConfiguration);
+
+        //if user doesn't not configured in arquillian.xml the host then we can override the default value.
+        if(!foundAttribute) {
+            if(familyInstance.get().isBoot2Docker()) {
+                Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
+                List<PropertyDescriptor> configurationClassHostOrAddressFields = filterConfigurationClassPropertiesByHostOrAddressAttribute(configurationClass);
+                for (PropertyDescriptor propertyDescriptor : configurationClassHostOrAddressFields) {
+                    //we get default address value and we replace to boot2docker ip
+                    containerConfiguration.overrideProperty(propertyDescriptor.getName(), cubeConfiguration.getDockerServerIp());
+                }
+            }
+        }
 
     }
 
@@ -109,15 +128,19 @@ public class ContainerConfigurationController {
 
     }
 
-    private void resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, CubeConfiguration cubeConfiguration) {
+    private boolean resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, CubeConfiguration cubeConfiguration) {
 
+        boolean foundAttribute = false;
         for (Entry<String, String> entry : containerDef.getContainerProperties().entrySet()) {
-            if (hostPattern.matcher(entry.getKey()).matches() || addressPattern.matcher(entry.getKey()).matches()) {
+            if ((hostPattern.matcher(entry.getKey()).matches() || addressPattern.matcher(entry.getKey()).matches())) {
+                //if property is already configured, doesn't matter if it is a boot2docker or not we can say that we have matched a defined property.
+                foundAttribute = true;
                 if(entry.getValue().contains(CubeConfiguration.DOCKER_SERVER_IP)) {
                     containerDef.overrideProperty(entry.getKey(), entry.getValue().replaceAll(CubeConfiguration.DOCKER_SERVER_IP, cubeConfiguration.getDockerServerIp()));
                 }
             }
         }
+        return foundAttribute;
     }
 
     private List<String> filterArquillianConfigurationPropertiesByPortAttribute(ContainerDef containerDef) {
@@ -127,6 +150,29 @@ public class ContainerConfigurationController {
             if (portPattern.matcher(entry.getKey()).matches()) {
                 fields.add(entry.getKey());
             }
+        }
+
+        return fields;
+    }
+
+    private List<PropertyDescriptor> filterConfigurationClassPropertiesByHostOrAddressAttribute(Class<?> configurationClass) {
+
+        List<PropertyDescriptor> fields = new ArrayList<PropertyDescriptor>();
+
+        try {
+            PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(configurationClass, Object.class)
+                    .getPropertyDescriptors();
+
+            for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+                String propertyName = propertyDescriptor.getName();
+
+                if ((hostPattern.matcher(propertyName).matches() || addressPattern.matcher(propertyName).matches()) && (!jmxPattern.matcher(propertyName).matches())) {
+                    fields.add(propertyDescriptor);
+                }
+            }
+
+        } catch (IntrospectionException e) {
+            throw new IllegalArgumentException(e);
         }
 
         return fields;

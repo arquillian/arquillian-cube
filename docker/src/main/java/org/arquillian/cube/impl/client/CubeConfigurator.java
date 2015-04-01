@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.arquillian.cube.impl.util.Boot2Docker;
 import org.arquillian.cube.impl.util.HomeResolverUtil;
+import org.arquillian.cube.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.impl.util.OperatingSystemResolver;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Instance;
@@ -26,7 +27,12 @@ public class CubeConfigurator {
     @Inject
     private Instance<Boot2Docker> boot2DockerInstance;
 
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
+
     public void configure(@Observes ArquillianDescriptor arquillianDescriptor) {
+        operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerIp(config);
@@ -61,7 +67,7 @@ public class CubeConfigurator {
 
     private Map<String, String> resolveServerUriByOperativeSystem(Map<String, String> cubeConfiguration) {
         if(!cubeConfiguration.containsKey(CubeConfiguration.DOCKER_URI)) {
-            String serverUri = new OperatingSystemResolver().currentOperatingSystem().getFamily().getServerUri();
+            String serverUri = operatingSystemFamilyInstanceProducer.get().getServerUri();
             cubeConfiguration.put(CubeConfiguration.DOCKER_URI, serverUri);
         }
         return cubeConfiguration;
