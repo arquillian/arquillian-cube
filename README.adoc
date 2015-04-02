@@ -286,6 +286,22 @@ tomcat: #1
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
+As we seen in basic example the definition Arquillian Cube scenarios are described in `dockerContainers` property. 
+But if you want you can avoid using this property by simply creating a file called  `cube` at root of the classpath with same content. 
+_Arquillian Cube_ will read it as it was defined in `arquilllian.xml` file.
+
+[source, yaml]
+.src/test/resources/cube
+----
+tomcat:
+  image: tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: polling
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+  portBindings: [8089/tcp, 8080/tcp]
+----
+
 === Await
 
 After a container is started, it starts booting up the defined services/commands.
@@ -300,6 +316,8 @@ native:: it uses *wait* command. In this case current thread is waiting until th
 polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default _polling_ executes _ss_ command inside the running container to know if the server is already running. You can use a _ping_ from client by setting +type+ attribute to +ping+; Note that _ping_ only works if you are running _Docker_ daemon on +localhost+. In almost all cases the default behaviour matches all scenarios.
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
 sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
+
+By default in case you don't specify any _await_ strategy, polling with _ss_ command is used.
 
 [source, yaml]
 .Example native
@@ -532,7 +550,7 @@ CMD ["/tomcat/bin/catalina.sh","run"]
 
 One for injecting the +CubeID+(_containerId_) of the current container created for executing the test, one that injects the +CubeController+ to call lifecycle methods on any cube and one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server.
 
-CubeID and DockerClient injections only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting the testable property to false +@Deployment(testable = false)+.
+DockerClient injection only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting the testable property to false +@Deployment(testable = false)+.
 
 These can be injected using the +@ArquillianResource+ annotation.
 
@@ -701,6 +719,25 @@ The +host+ property will be replaced automatically to +192.168.0.2+.
 NOTE: This also works in case you set +serverUri+ using +boot2docker+ special word or by using the defaults. Read more about it <<boot2docker, Boot2Docker section>> and <<automatic-resolution, Automatic serverUri resolution section>>. 
 
 In case of using _unix_ socket +dockerServerUri+ is replaced to _localhost_.
+
+Also _Arquillian Cube_ can help you in another way inferring +boot2docker+ ip. 
+In case you are running in _MACOS_ or _Windows_ with +boot2docker+, you may not need to set host property at all nor using +dockerServerIp+. 
+_Arquillian Cube_ will inspect any property in configuration class that contains the word _address_ or _host_ that it is not overriden in `arquillian.xml` and it will set the +boot2docker+ server automatically. 
+
+So previous example could be modified to:
+
+[source.xml]
+.arquillian.xml
+----
+<container qualifier="tomcat_default">
+  configuration>
+    <property name="user">admin</property>
+    <property name="pass">mypass</property>
+  </configuration>
+</container>
+----
+
+And in case you are running on _Windows_ or _MacOS_, `host`property will be automatically set to the +boot2docker +_ip_.
 
 == Containerless Server and Docker
 
