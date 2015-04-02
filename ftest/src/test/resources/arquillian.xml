@@ -15,8 +15,6 @@
             tomcat_default:
               image: tutum/tomcat:7.0
               exposedPorts: [8089/tcp]
-              await:
-                strategy: polling
               env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Djava.rmi.server.hostname=${docker.tomcat.host}  -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
               portBindings: [8089/tcp, 8088/tcp, 8081->8080/tcp]
             tomcat:
