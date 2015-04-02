@@ -1,5 +1,6 @@
 package org.arquillian.cube.impl.await;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -36,13 +37,13 @@ public class AwaitStrategyFactory {
                 }
 
             } else {
-                log.warning("No await strategy is set and Native one is going to be used.");
-                return new NativeAwaitStrategy(cube, dockerClientExecutor);
+                log.fine("No await strategy is set and Native one is going to be used.");
+                return new PollingAwaitStrategy(cube, dockerClientExecutor, new HashMap<String, Object>());
             }
 
         } else {
-            log.warning("No await strategy is set and Native one is going to be used.");
-            return new NativeAwaitStrategy(cube, dockerClientExecutor);
+            log.fine("No await strategy is set and Polling strategy is going to be used.");
+            return new PollingAwaitStrategy(cube, dockerClientExecutor, new HashMap<String, Object>());
         }
     }
 }

@@ -171,7 +171,7 @@ public class AwaitStrategyTest {
 
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, tomcatConfig);
 
-        assertThat(strategy, instanceOf(NativeAwaitStrategy.class));
+        assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
     }
 
     @Test
