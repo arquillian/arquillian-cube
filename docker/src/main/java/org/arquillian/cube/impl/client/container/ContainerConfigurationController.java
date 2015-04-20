@@ -115,7 +115,8 @@ public class ContainerConfigurationController {
 
         try {
             Method method = fieldName.getReadMethod();
-            return (int) method.invoke(configurationInstance);
+            final Object o = method.invoke(configurationInstance);
+            return Integer.class.isInstance(o) ? (int)o : -1;
         } catch (SecurityException e) {
             throw new IllegalArgumentException(e);
         } catch (IllegalAccessException e) {
