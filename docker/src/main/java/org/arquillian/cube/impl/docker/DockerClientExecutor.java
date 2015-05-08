@@ -95,6 +95,7 @@ public class DockerClientExecutor {
     private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
+    private static final String ALWAYS_PULL = "alwaysPull";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -234,13 +235,29 @@ public class DockerClientExecutor {
             createContainerCmd.withVolumesFrom(toVolumesFrom(volumesFrom));
         }
 
+        boolean alwaysPull = false;
+
+        if (containerConfiguration.containsKey(ALWAYS_PULL)) {
+            alwaysPull = asBoolean(containerConfiguration, ALWAYS_PULL);
+        }
+
+        if ( alwaysPull ) {
+            log.info(String.format(
+                        "Pulling latest Docker Image %s.", image));
+            this.pullImage(image);
+        }
+
         try {
             return createContainerCmd.exec().getId();
         } catch (NotFoundException e) {
-            log.warning(String.format(
-                    "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
-            this.pullImage(image);
-            return createContainerCmd.exec().getId();
+            if ( !alwaysPull ) {
+                log.warning(String.format(
+                        "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
+                this.pullImage(image);
+                return createContainerCmd.exec().getId();
+            } else {
+                throw e;
+            }
         }
     }
 
