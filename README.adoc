@@ -238,6 +238,7 @@ tomcat: #1
   await: #4
     strategy: polling #5
   workingDir: .
+  alwaysPull: false
   disableNetwork: true
   hostName: host
   portSpecs: [80,81]
@@ -277,7 +278,7 @@ tomcat: #1
   extends: container-id #9
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
-<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you.
+<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you. If you want to always pull latest image before container is created, you can configure *alwaysPull: true*.
 <3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
 <4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
