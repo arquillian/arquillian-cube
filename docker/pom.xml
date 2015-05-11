@@ -19,11 +19,6 @@
             <artifactId>arquillian-cube-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.arquillian.cube</groupId>
-            <artifactId>docker-server-stub</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.arquillian.core</groupId>
             <artifactId>arquillian-core-spi</artifactId>
         </dependency>
@@ -45,6 +40,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>docker-server-stub</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
