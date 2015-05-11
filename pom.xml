@@ -26,10 +26,6 @@
         <module>api</module>
         <module>spi</module>
         <module>docker</module>
-        <module>ftest</module>
-        <module>ftest-standalone</module>
-        <module>docker-server-stub</module>
-        <module>ftest-boot2docker</module>
         <module>containerless</module>
     </modules>
 

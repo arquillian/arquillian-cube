@@ -2,11 +2,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-parent</artifactId>
+        <artifactId>arquillian-cube-docker-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <name>Arquillian Cube Functional Test Standalone</name>
-    <artifactId>arquillian-cube-ftest-standalone</artifactId>
+    <name>Arquillian Cube Docker Functional Test Standalone</name>
+    <artifactId>arquillian-cube-docker-ftest-standalone</artifactId>
 
     <properties>
         <docker.api.version>1.12</docker.api.version>
