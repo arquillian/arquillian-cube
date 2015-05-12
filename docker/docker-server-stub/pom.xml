@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-parent</artifactId>
+        <artifactId>arquillian-cube-docker-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
