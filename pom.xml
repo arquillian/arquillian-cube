@@ -25,6 +25,7 @@
     <modules>
         <module>api</module>
         <module>spi</module>
+        <module>core</module>
         <module>docker</module>
         <module>containerless</module>
     </modules>
@@ -75,6 +76,11 @@
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

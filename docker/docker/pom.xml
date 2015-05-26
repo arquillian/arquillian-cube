@@ -19,6 +19,10 @@
             <artifactId>arquillian-cube-spi</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.arquillian.core</groupId>
             <artifactId>arquillian-core-spi</artifactId>
         </dependency>
