@@ -125,6 +125,27 @@
                 </dependency>
             </dependencies>
         </profile>
+        
+        <profile>
+            <id>tomee-dockerfile</id>
+            <properties>
+                <arquillian.launch>tomee_dockerfile</arquillian.launch>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.openejb</groupId>
+                    <artifactId>arquillian-tomee-remote</artifactId>
+                    <version>1.7.1</version>
+                    <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <artifactId>slf4j-jdk14</artifactId>
+                            <groupId>org.slf4j</groupId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
 
         <profile>
             <id>tomcat-7-dockerfile</id>
