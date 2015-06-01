@@ -55,7 +55,7 @@ public class ContainerConfigurationController {
             Object newConfigurationInstance = configurationClass.newInstance();
 
             for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
-                if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName())) {
+                if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (configurationClassPortField.getPropertyType().equals(Integer.class) || configurationClassPortField.getPropertyType().equals(int.class)) ) {
                     // This means that port has not configured in arquillian.xml and it will use default value.
                     // In this case is when remapping should be activated to adequate the situation according to
                     // Arquillian
