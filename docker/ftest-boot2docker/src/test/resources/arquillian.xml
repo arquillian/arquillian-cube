@@ -84,6 +84,11 @@
             <property name="httpPort">8080</property>
             <property name="user">tomee</property>
             <property name="pass">unsecured</property>
+            <property name="deployerProperties">
+                java.naming.security.principal=tomee
+                java.naming.security.credentials=unsecured
+                openejb.deployer.binaries.use=true
+            </property>
         </configuration>
     </container>
     <container qualifier="tomcat_dockerfile">
