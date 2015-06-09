@@ -161,7 +161,7 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(DISABLE_NETWORK)) {
-            createContainerCmd.withDisableNetwork(asBoolean(containerConfiguration, DISABLE_NETWORK));
+            createContainerCmd.withNetworkDisabled(asBoolean(containerConfiguration, DISABLE_NETWORK));
         }
 
         if (containerConfiguration.containsKey(HOST_NAME)) {
@@ -233,6 +233,60 @@ public class DockerClientExecutor {
         if (containerConfiguration.containsKey(VOLUMES_FROM)) {
             List<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
             createContainerCmd.withVolumesFrom(toVolumesFrom(volumesFrom));
+        }
+
+        if (containerConfiguration.containsKey(BINDS)) {
+            List<String> binds = asListOfString(containerConfiguration, BINDS);
+            createContainerCmd.withBinds(toBinds(binds));
+        }
+
+        if (containerConfiguration.containsKey(LINKS)) {
+        	createContainerCmd.withLinks(toLinks(asListOfString(containerConfiguration, LINKS)));
+        }
+
+        if (containerConfiguration.containsKey(PORT_BINDINGS)) {
+            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
+
+            Ports ports = assignPorts(portBindings);
+            createContainerCmd.withPortBindings(ports);
+        }
+
+        if (containerConfiguration.containsKey(PRIVILEGED)) {
+        	createContainerCmd.withPrivileged(asBoolean(containerConfiguration, PRIVILEGED));
+        }
+
+        if (containerConfiguration.containsKey(PUBLISH_ALL_PORTS)) {
+        	createContainerCmd.withPublishAllPorts(asBoolean(containerConfiguration, PUBLISH_ALL_PORTS));
+        }
+
+        if (containerConfiguration.containsKey(NETWORK_MODE)) {
+        	createContainerCmd.withNetworkMode(asString(containerConfiguration, NETWORK_MODE));
+        }
+
+        if (containerConfiguration.containsKey(DNS_SEARCH)) {
+            List<String> dnsSearch = asListOfString(containerConfiguration, DNS_SEARCH);
+            createContainerCmd.withDnsSearch(dnsSearch.toArray(new String[dnsSearch.size()]));
+        }
+
+        if (containerConfiguration.containsKey(DEVICES)) {
+
+            List<Map<String, Object>> devices = asListOfMap(containerConfiguration, DEVICES);
+            createContainerCmd.withDevices(toDevices(devices));
+        }
+
+        if (containerConfiguration.containsKey(RESTART_POLICY)) {
+            Map<String, Object> restart = asMap(containerConfiguration, RESTART_POLICY);
+            createContainerCmd.withRestartPolicy(toRestatPolicy(restart));
+        }
+
+        if (containerConfiguration.containsKey(CAP_ADD)) {
+            List<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
+            createContainerCmd.withCapAdd(toCapability(capAdds));
+        }
+
+        if (containerConfiguration.containsKey(CAP_DROP)) {
+            List<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
+            createContainerCmd.withCapDrop(toCapability(capDrop));
         }
 
         boolean alwaysPull = false;
@@ -322,60 +376,6 @@ public class DockerClientExecutor {
 
     public void startContainer(String id, Map<String, Object> containerConfiguration) {
         StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(id);
-
-        if (containerConfiguration.containsKey(BINDS)) {
-            List<String> binds = asListOfString(containerConfiguration, BINDS);
-            startContainerCmd.withBinds(toBinds(binds));
-        }
-
-        if (containerConfiguration.containsKey(LINKS)) {
-            startContainerCmd.withLinks(toLinks(asListOfString(containerConfiguration, LINKS)));
-        }
-
-        if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
-
-            Ports ports = assignPorts(portBindings);
-            startContainerCmd.withPortBindings(ports);
-        }
-
-        if (containerConfiguration.containsKey(PRIVILEGED)) {
-            startContainerCmd.withPrivileged(asBoolean(containerConfiguration, PRIVILEGED));
-        }
-
-        if (containerConfiguration.containsKey(PUBLISH_ALL_PORTS)) {
-            startContainerCmd.withPublishAllPorts(asBoolean(containerConfiguration, PUBLISH_ALL_PORTS));
-        }
-
-        if (containerConfiguration.containsKey(NETWORK_MODE)) {
-            startContainerCmd.withNetworkMode(asString(containerConfiguration, NETWORK_MODE));
-        }
-
-        if (containerConfiguration.containsKey(DNS_SEARCH)) {
-            List<String> dnsSearch = asListOfString(containerConfiguration, DNS_SEARCH);
-            startContainerCmd.withDnsSearch(dnsSearch.toArray(new String[dnsSearch.size()]));
-        }
-
-        if (containerConfiguration.containsKey(DEVICES)) {
-
-            List<Map<String, Object>> devices = asListOfMap(containerConfiguration, DEVICES);
-            startContainerCmd.withDevices(toDevices(devices));
-        }
-
-        if (containerConfiguration.containsKey(RESTART_POLICY)) {
-            Map<String, Object> restart = asMap(containerConfiguration, RESTART_POLICY);
-            startContainerCmd.withRestartPolicy(toRestatPolicy(restart));
-        }
-
-        if (containerConfiguration.containsKey(CAP_ADD)) {
-            List<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
-            startContainerCmd.withCapAdd(toCapability(capAdds));
-        }
-
-        if (containerConfiguration.containsKey(CAP_DROP)) {
-            List<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
-            startContainerCmd.withCapDrop(toCapability(capDrop));
-        }
 
         startContainerCmd.exec();
     }
