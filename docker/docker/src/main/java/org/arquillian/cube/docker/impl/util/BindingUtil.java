@@ -54,7 +54,7 @@ public final class BindingUtil {
                 String[] elements = cubePortBinding.split(PORTS_SEPARATOR);
 
                 if (elements.length == 1) {
-                	int positionOfProtocolSeparator = elements[0].indexOf("/");
+                    int positionOfProtocolSeparator = elements[0].indexOf("/");
                     String bindingPortValue = elements[0];
                     if(positionOfProtocolSeparator > -1) {
                         //means that the protocol part is also set. 
