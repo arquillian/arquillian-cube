@@ -96,6 +96,7 @@ public class DockerClientExecutor {
     private static final String NO_CACHE = "noCache";
     private static final String REMOVE = "remove";
     private static final String ALWAYS_PULL = "alwaysPull";
+    private static final String ENTRYPOINT = "entryPoint";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -287,6 +288,11 @@ public class DockerClientExecutor {
         if (containerConfiguration.containsKey(CAP_DROP)) {
             List<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
             createContainerCmd.withCapDrop(toCapability(capDrop));
+        }
+
+        if(containerConfiguration.containsKey(ENTRYPOINT)) {
+            List<String> entrypoints = asListOfString(containerConfiguration, ENTRYPOINT);
+            createContainerCmd.withEntrypoint(entrypoints.toArray(new String[entrypoints.size()]));
         }
 
         boolean alwaysPull = false;
