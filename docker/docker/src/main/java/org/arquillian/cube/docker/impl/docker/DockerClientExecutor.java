@@ -390,8 +390,13 @@ public class DockerClientExecutor {
                 log.info("Only exposed port is set and it will be used as port binding as well. " + elements[0]);
 
                 // exposed port is only set and same port will be used as port binding.
-                String exposedPortValue = elements[0].substring(0, elements[0].indexOf("/"));
-                ports.bind(ExposedPort.parse(elements[0]), toBinding(exposedPortValue));
+                int positionOfProtocolSeparator = elements[0].indexOf("/");
+                String bindingPortValue = elements[0];
+                if(positionOfProtocolSeparator > -1) {
+                    //means that the protocol part is also set. 
+                    bindingPortValue = elements[0].substring(0, positionOfProtocolSeparator);
+                }
+                ports.bind(ExposedPort.parse(elements[0]), toBinding(bindingPortValue));
             } else {
                 if (elements.length == 2) {
                     // port and exposed port are set
