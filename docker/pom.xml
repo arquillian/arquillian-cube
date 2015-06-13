@@ -24,6 +24,7 @@
         <module>ftest-standalone</module>
         <module>docker-server-stub</module>
         <module>ftest-boot2docker</module>
+        <module>ftest-docker-compose</module>
     </modules>
 
 </project>

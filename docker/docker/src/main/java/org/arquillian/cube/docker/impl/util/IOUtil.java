@@ -90,8 +90,7 @@ public class IOUtil {
 
         StringWriter logwriter = new StringWriter();
 
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response));
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -107,8 +106,7 @@ public class IOUtil {
     public static String asStringPreservingNewLines(InputStream response) {
         StringWriter logwriter = new StringWriter();
 
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response));
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {

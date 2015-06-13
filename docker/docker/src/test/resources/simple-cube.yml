@@ -1,0 +1,19 @@
+webapp:
+  buildImage:
+    dockerfileLocation: .
+    noCache: true
+    remove: true
+  portBindings: [8000->8000]
+  volumes: [/data]
+  devices:
+    - pathOnHost: /dev/ttyUSB0
+      pathInContainer: /dev/ttyUSB0
+    - cGroupPermissions: rm
+      pathOnHost: /dev/ttyUSB0
+      pathInContainer: /dev/ttyUSB0
+webapp2:
+  image: ubuntu
+  portBindings: [8080->8080]
+  links:
+    - webapp:webapp
+  env: [RACK_ENV=development]

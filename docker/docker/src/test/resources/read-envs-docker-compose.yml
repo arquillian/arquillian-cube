@@ -1,0 +1,4 @@
+webapp:
+  image: ubuntu
+  env_file:
+    - ./envs
