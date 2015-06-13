@@ -1,6 +1,6 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,7 +47,7 @@ public final class BindingUtil {
 
         if (cubeConfiguration.containsKey("portBindings")) {
             @SuppressWarnings("unchecked")
-            List<String> cubePortBindings = (List<String>) cubeConfiguration.get("portBindings");
+            Collection<String> cubePortBindings = (Collection<String>) cubeConfiguration.get("portBindings");
 
             for (String cubePortBinding : cubePortBindings) {
 
@@ -64,7 +64,12 @@ public final class BindingUtil {
                     binding.addPortBinding(exposedPort, exposedPort);
                 } else {
                     if (elements.length == 2) {
-                        int exposedPort = Integer.parseInt(elements[1].substring(0, elements[1].indexOf("/")));
+                        int exposedPort;
+                        if(elements[1].indexOf("/") > -1) {
+                            exposedPort = Integer.parseInt(elements[1].substring(0, elements[1].indexOf("/")));
+                        } else {
+                            exposedPort = Integer.parseInt(elements[1]);
+                        }
                         int port = Integer.parseInt(elements[0]);
 
                         binding.addPortBinding(exposedPort, port);

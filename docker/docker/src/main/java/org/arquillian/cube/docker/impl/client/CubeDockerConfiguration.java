@@ -2,7 +2,10 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -21,8 +24,8 @@ public class CubeDockerConfiguration {
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
-    private static final String DEFAULT_CUBE_DEFINITION_FILE = "cube";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
+    private static final String DEFINITION_FORMAT = "definitionFormat";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -33,6 +36,7 @@ public class CubeDockerConfiguration {
     private String email;
     private String certPath;
     private String dockerServerIp;
+    private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
     private String[] autoStartContainers = new String[0];
 
     private Map<String, Object> dockerContainersContent;
@@ -81,6 +85,10 @@ public class CubeDockerConfiguration {
        return autoStartContainers;
     }
 
+    public DefinitionFormat getDefinitionFormat() {
+        return definitionFormat;
+    }
+
     @SuppressWarnings("unchecked")
     public static CubeDockerConfiguration fromMap(Map<String, String> map) {
         CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
@@ -121,25 +129,31 @@ public class CubeDockerConfiguration {
             cubeConfiguration.dockerRegistry = map.get(DOCKER_REGISTRY);
         }
 
+        if(map.containsKey(DEFINITION_FORMAT)) {
+            String definitionContent = map.get(DEFINITION_FORMAT);
+            cubeConfiguration.definitionFormat = DefinitionFormat.valueOf(DefinitionFormat.class, definitionContent);
+        }
+
         if (map.containsKey(DOCKER_CONTAINERS)) {
             String content = map.get(DOCKER_CONTAINERS);
-            cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(content));
+            cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(content, cubeConfiguration.definitionFormat);
         }
 
         if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
             String location = map.get(DOCKER_CONTAINERS_FILE);
             try {
-                cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(new FileInputStream(
-                        location)));
-            } catch (FileNotFoundException e) {
+                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(URI.create(location), cubeConfiguration.definitionFormat);
+            } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
         }
 
         if(!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE)) {
-            //we check if exists on root of classpath a file called cube
-            final InputStream configurationResource = CubeDockerConfiguration.class.getResourceAsStream("/"+DEFAULT_CUBE_DEFINITION_FILE);
-            cubeConfiguration.dockerContainersContent = ConfigUtil.applyExtendsRules((Map<String, Object>) new Yaml().load(configurationResource));
+            try {
+                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
 
         if(map.containsKey(AUTO_START_CONTAINERS)) {

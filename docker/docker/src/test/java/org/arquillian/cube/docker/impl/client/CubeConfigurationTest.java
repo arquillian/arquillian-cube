@@ -2,6 +2,8 @@ package org.arquillian.cube.docker.impl.client;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -12,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +29,42 @@ public class CubeConfigurationTest {
             "    ip: localhost\n" +
             "    ports: [8080, 8089]";
 
+    private static final String DOCKER_COMPOSE_CONTENT = "web:\n" +
+            "  build: .\n" +
+            "  ports:\n" +
+            "   - \"5000:5000\"\n" +
+            "  volumes:\n" +
+            "   - .:/code\n" +
+            "  links:\n" +
+            "   - redis\n" +
+            "redis:\n" +
+            "  image: redis";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_load_docker_compose_format() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", DOCKER_COMPOSE_CONTENT);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> actualWeb = (Map<String, Object>) dockerContainersContent.get("web");
+        assertThat(actualWeb, hasKey("buildImage"));
+        assertThat(actualWeb, hasKey("portBindings"));
+        assertThat(actualWeb, hasKey("volumes"));
+        assertThat(actualWeb, hasKey("links"));
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> actualRedis = (Map<String, Object>) dockerContainersContent.get("redis");
+        assertThat(actualRedis, hasKey("image"));
+    }
 
     @Test
     public void should_load_cube_configuration_from_cube_file_if_no_file_is_provided() {
