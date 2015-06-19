@@ -1,159 +1,177 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <!-- Parent -->
-    <parent>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-parent</artifactId>
-        <version>14</version>
-        <relativePath />
-    </parent>
+	<!-- Parent -->
+	<parent>
+		<groupId>org.jboss</groupId>
+		<artifactId>jboss-parent</artifactId>
+		<version>14</version>
+		<relativePath />
+	</parent>
 
-    <!-- Model Version -->
-    <modelVersion>4.0.0</modelVersion>
+	<!-- Model Version -->
+	<modelVersion>4.0.0</modelVersion>
 
-    <!-- Artifact Configuration -->
-    <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
-    <packaging>pom</packaging>
+	<!-- Artifact Configuration -->
+	<groupId>org.arquillian.cube</groupId>
+	<artifactId>arquillian-cube-parent</artifactId>
+	<version>1.0.0.Final-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-    <name>Arquillian Cube Extension</name>
-    <url>http://arquillian.org</url>
-    <description>Arquillian Cube Extension to integrate Arquillian to Docker</description>
+	<name>Arquillian Cube Extension</name>
+	<url>http://arquillian.org</url>
+	<description>Arquillian Cube Extension to integrate Arquillian to Docker</description>
 
-    <modules>
-        <module>api</module>
-        <module>spi</module>
-        <module>core</module>
-        <module>docker</module>
-        <module>containerless</module>
-    </modules>
+	<modules>
+		<module>api</module>
+		<module>spi</module>
+		<module>core</module>
+		<module>containerless</module>
+		<module>docker</module>
+		<module>openshift</module>
+	</modules>
 
-    <developers>
-        <developer>
-            <id>arquillian.org</id>
-            <name>Arquillian Community</name>
-            <organization>arquillian.org</organization>
-            <organizationUrl>http://arquillian.org</organizationUrl>
-        </developer>
-    </developers>
+	<developers>
+		<developer>
+			<id>arquillian.org</id>
+			<name>Arquillian Community</name>
+			<organization>arquillian.org</organization>
+			<organizationUrl>http://arquillian.org</organizationUrl>
+		</developer>
+	</developers>
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 
-    <scm>
-        <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
-        <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
-        <url>git://github.com/arquillian/arquillian-cube.git</url>
-      <tag>HEAD</tag>
-  </scm>
+	<scm>
+		<connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
+		<developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
+		<url>git://github.com/arquillian/arquillian-cube.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/arquillian/arquillian-cube/issues</url>
-    </issueManagement>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/arquillian/arquillian-cube/issues</url>
+	</issueManagement>
 
     <properties>
-        <version.arquillian_core>1.1.7.Final</version.arquillian_core>
+		<version.arquillian_core>1.1.8.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
         <version.docker-java>1.3.0</version.docker-java>
-        <version.snakeyaml>1.14</version.snakeyaml>
+		<version.fabric8_kubernetes>2.2.0</version.fabric8_kubernetes>        
+		<version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-spi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-docker</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-containerless</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-docker</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.arquillian.cube</groupId>
+				<artifactId>arquillian-cube-openshift</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${version.arquillian_core}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.container</groupId>
-                <artifactId>arquillian-container-impl-base</artifactId>
-                <version>${version.arquillian_core}</version>
-                <classifier>tests</classifier>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.core</groupId>
-                <artifactId>arquillian-core-impl-base</artifactId>
-                <version>${version.arquillian_core}</version>
-                <classifier>tests</classifier>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.docker-java</groupId>
-                <artifactId>docker-java</artifactId>
-                <version>${version.docker-java}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${version.mockito}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.hamcrest</groupId>
-                        <artifactId>hamcrest-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${version.snakeyaml}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>${version.arquillian_core}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian.container</groupId>
+				<artifactId>arquillian-container-impl-base</artifactId>
+				<version>${version.arquillian_core}</version>
+				<classifier>tests</classifier>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian.core</groupId>
+				<artifactId>arquillian-core-impl-base</artifactId>
+				<version>${version.arquillian_core}</version>
+				<classifier>tests</classifier>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.docker-java</groupId>
+				<artifactId>docker-java</artifactId>
+				<version>${version.docker-java}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${version.mockito}</version>
+				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.hamcrest</groupId>
+						<artifactId>hamcrest-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>${version.snakeyaml}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.fabric8</groupId>
+				<artifactId>kubernetes-api</artifactId>
+				<version>${version.fabric8_kubernetes}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${version.junit}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <pushChanges>false</pushChanges>
-                    <localCheckout>true</localCheckout>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<pushChanges>false</pushChanges>
+					<localCheckout>true</localCheckout>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
