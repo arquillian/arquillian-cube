@@ -1,0 +1,3 @@
+webapp:
+  image: ubuntu
+  env: [RACK_ENV=development]

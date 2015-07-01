@@ -1,5 +1,12 @@
 package org.arquillian.cube.docker.impl.docker;
 
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,16 +19,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
+
+import com.github.dockerjava.api.model.*;
 
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -40,63 +45,60 @@ import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Capability;
-import com.github.dockerjava.api.model.ChangeLog;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.Device;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Link;
-import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
-import com.github.dockerjava.api.model.RestartPolicy;
-import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.api.model.VolumesFrom;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 
 public class DockerClientExecutor {
 
-    private static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
-    private static final String TAG_SEPARATOR = ":";
-    private static final String RESTART_POLICY = "restartPolicy";
-    private static final String CAP_DROP = "capDrop";
-    private static final String CAP_ADD = "capAdd";
-    private static final String DEVICES = "devices";
-    private static final String DNS_SEARCH = "dnsSearch";
-    private static final String NETWORK_MODE = "networkMode";
-    private static final String PUBLISH_ALL_PORTS = "publishAllPorts";
-    private static final String PRIVILEGED = "privileged";
-    private static final String PORT_BINDINGS = "portBindings";
-    private static final String LINKS = "links";
-    private static final String BINDS = "binds";
-    private static final String VOLUMES_FROM = "volumesFrom";
-    private static final String VOLUMES = "volumes";
-    private static final String DNS = "dns";
-    private static final String CMD = "cmd";
-    private static final String ENV = "env";
-    private static final String EXPOSED_PORTS = "exposedPorts";
-    private static final String ATTACH_STDERR = "attachStderr";
-    private static final String ATTACH_STDIN = "attachStdin";
-    private static final String CPU_SHARES = "cpuShares";
-    private static final String MEMORY_SWAP = "memorySwap";
-    private static final String MEMORY_LIMIT = "memoryLimit";
-    private static final String STDIN_ONCE = "stdinOnce";
-    private static final String STDIN_OPEN = "stdinOpen";
-    private static final String TTY = "tty";
-    private static final String USER = "user";
-    private static final String PORT_SPECS = "portSpecs";
-    private static final String HOST_NAME = "hostName";
-    private static final String DISABLE_NETWORK = "disableNetwork";
-    private static final String WORKING_DIR = "workingDir";
-    private static final String IMAGE = "image";
-    private static final String BUILD_IMAGE = "buildImage";
-    private static final String DOCKERFILE_LOCATION = "dockerfileLocation";
-    private static final String NO_CACHE = "noCache";
-    private static final String REMOVE = "remove";
-    private static final String ALWAYS_PULL = "alwaysPull";
-    private static final String ENTRYPOINT = "entryPoint";
+    private static final String DEFAULT_C_GROUPS_PERMISSION = "rwm";
+    public static final String PATH_IN_CONTAINER = "pathInContainer";
+    public static final String PATH_ON_HOST = "pathOnHost";
+    public static final String C_GROUP_PERMISSIONS = "cGroupPermissions";
+    public static final String PORTS_SEPARATOR = BindingUtil.PORTS_SEPARATOR;
+    public static final String TAG_SEPARATOR = ":";
+    public static final String RESTART_POLICY = "restartPolicy";
+    public static final String CAP_DROP = "capDrop";
+    public static final String CAP_ADD = "capAdd";
+    public static final String DEVICES = "devices";
+    public static final String DNS_SEARCH = "dnsSearch";
+    public static final String NETWORK_MODE = "networkMode";
+    public static final String PUBLISH_ALL_PORTS = "publishAllPorts";
+    public static final String PRIVILEGED = "privileged";
+    public static final String PORT_BINDINGS = "portBindings";
+    public static final String LINKS = "links";
+    public static final String BINDS = "binds";
+    public static final String VOLUMES_FROM = "volumesFrom";
+    public static final String VOLUMES = "volumes";
+    public static final String DNS = "dns";
+    public static final String CMD = "cmd";
+    public static final String ENV = "env";
+    public static final String EXPOSED_PORTS = "exposedPorts";
+    public static final String ATTACH_STDERR = "attachStderr";
+    public static final String ATTACH_STDIN = "attachStdin";
+    public static final String CPU_SHARES = "cpuShares";
+    public static final String MEMORY_SWAP = "memorySwap";
+    public static final String MEMORY_LIMIT = "memoryLimit";
+    public static final String STDIN_ONCE = "stdinOnce";
+    public static final String STDIN_OPEN = "stdinOpen";
+    public static final String TTY = "tty";
+    public static final String USER = "user";
+    public static final String PORT_SPECS = "portSpecs";
+    public static final String HOST_NAME = "hostName";
+    public static final String DISABLE_NETWORK = "disableNetwork";
+    public static final String WORKING_DIR = "workingDir";
+    public static final String IMAGE = "image";
+    public static final String BUILD_IMAGE = "buildImage";
+    public static final String DOCKERFILE_LOCATION = "dockerfileLocation";
+    public static final String NO_CACHE = "noCache";
+    public static final String REMOVE = "remove";
+    public static final String ALWAYS_PULL = "alwaysPull";
+    public static final String ENTRYPOINT = "entryPoint";
+    public static final String CPU_SET = "cpuSet";
+    public static final String DOCKERFILE_NAME = "dockerfileName";
+    public static final String EXTRA_HOSTS = "extraHosts";
+    public static final String READ_ONLY_ROOT_FS = "ReadonlyRootfs";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -157,6 +159,11 @@ public class DockerClientExecutor {
             createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
         }
 
+        if(containerConfiguration.containsKey(READ_ONLY_ROOT_FS)) {
+            HostConfig hostConfig = new HostConfig();
+
+        }
+
         if (containerConfiguration.containsKey(WORKING_DIR)) {
             createContainerCmd.withWorkingDir(asString(containerConfiguration, WORKING_DIR));
         }
@@ -170,7 +177,7 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(PORT_SPECS)) {
-            List<String> portSpecs = asListOfString(containerConfiguration, PORT_SPECS);
+            Collection<String> portSpecs = asListOfString(containerConfiguration, PORT_SPECS);
             createContainerCmd.withPortSpecs(portSpecs.toArray(new String[portSpecs.size()]));
         }
 
@@ -202,6 +209,10 @@ public class DockerClientExecutor {
             createContainerCmd.withCpuShares(asInt(containerConfiguration, CPU_SHARES));
         }
 
+        if(containerConfiguration.containsKey(CPU_SET)) {
+            createContainerCmd.withCpuset(asString(containerConfiguration, CPU_SET));
+        }
+
         if (containerConfiguration.containsKey(ATTACH_STDIN)) {
             createContainerCmd.withAttachStdin(asBoolean(containerConfiguration, ATTACH_STDIN));
         }
@@ -211,33 +222,33 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(ENV)) {
-            List<String> env = asListOfString(containerConfiguration, ENV);
+            Collection<String> env = asListOfString(containerConfiguration, ENV);
             env = resolveDockerServerIpInList(env);
             createContainerCmd.withEnv(env.toArray(new String[env.size()]));
         }
 
         if (containerConfiguration.containsKey(CMD)) {
-            List<String> cmd = asListOfString(containerConfiguration, CMD);
+            Collection<String> cmd = asListOfString(containerConfiguration, CMD);
             createContainerCmd.withCmd(cmd.toArray(new String[cmd.size()]));
         }
 
         if (containerConfiguration.containsKey(DNS)) {
-            List<String> dns = asListOfString(containerConfiguration, DNS);
+            Collection<String> dns = asListOfString(containerConfiguration, DNS);
             createContainerCmd.withDns(dns.toArray(new String[dns.size()]));
         }
 
         if (containerConfiguration.containsKey(VOLUMES)) {
-            List<String> volumes = asListOfString(containerConfiguration, VOLUMES);
+            Collection<String> volumes = asListOfString(containerConfiguration, VOLUMES);
             createContainerCmd.withVolumes(toVolumes(volumes));
         }
 
         if (containerConfiguration.containsKey(VOLUMES_FROM)) {
-            List<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
+            Collection<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
             createContainerCmd.withVolumesFrom(toVolumesFrom(volumesFrom));
         }
 
         if (containerConfiguration.containsKey(BINDS)) {
-            List<String> binds = asListOfString(containerConfiguration, BINDS);
+            Collection<String> binds = asListOfString(containerConfiguration, BINDS);
             createContainerCmd.withBinds(toBinds(binds));
         }
 
@@ -246,7 +257,7 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
+            Collection<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
 
             Ports ports = assignPorts(portBindings);
             createContainerCmd.withPortBindings(ports);
@@ -265,13 +276,13 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(DNS_SEARCH)) {
-            List<String> dnsSearch = asListOfString(containerConfiguration, DNS_SEARCH);
+            Collection<String> dnsSearch = asListOfString(containerConfiguration, DNS_SEARCH);
             createContainerCmd.withDnsSearch(dnsSearch.toArray(new String[dnsSearch.size()]));
         }
 
         if (containerConfiguration.containsKey(DEVICES)) {
 
-            List<Map<String, Object>> devices = asListOfMap(containerConfiguration, DEVICES);
+            Collection<Map<String, Object>> devices = asListOfMap(containerConfiguration, DEVICES);
             createContainerCmd.withDevices(toDevices(devices));
         }
 
@@ -281,17 +292,21 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(CAP_ADD)) {
-            List<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
+            Collection<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
             createContainerCmd.withCapAdd(toCapability(capAdds));
         }
 
         if (containerConfiguration.containsKey(CAP_DROP)) {
-            List<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
+            Collection<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
             createContainerCmd.withCapDrop(toCapability(capDrop));
         }
 
+        if(containerConfiguration.containsKey(EXTRA_HOSTS)) {
+            Collection<String> extraHosts = asListOfString(containerConfiguration, EXTRA_HOSTS);
+            createContainerCmd.withExtraHosts(extraHosts.toArray(new String[extraHosts.size()]));
+        }
         if(containerConfiguration.containsKey(ENTRYPOINT)) {
-            List<String> entrypoints = asListOfString(containerConfiguration, ENTRYPOINT);
+            Collection<String> entrypoints = asListOfString(containerConfiguration, ENTRYPOINT);
             createContainerCmd.withEntrypoint(entrypoints.toArray(new String[entrypoints.size()]));
         }
 
@@ -321,7 +336,7 @@ public class DockerClientExecutor {
         }
     }
 
-    private List<String> resolveDockerServerIpInList(List<String> envs) {
+    private List<String> resolveDockerServerIpInList(Collection<String> envs) {
         List<String> resolvedEnv = new ArrayList<String>();
         for (String env : envs) {
             if(env.contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
@@ -337,7 +352,7 @@ public class DockerClientExecutor {
             CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
         if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            List<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
+            Collection<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
 
             Ports assignPorts = assignPorts(portBindings);
             Map<ExposedPort, Binding[]> bindings = assignPorts.getBindings();
@@ -352,7 +367,7 @@ public class DockerClientExecutor {
     }
 
     private String getImageName(Map<String, Object> containerConfiguration) {
-        String image = null;
+        String image;
 
         if (containerConfiguration.containsKey(IMAGE)) {
             image = asString(containerConfiguration, IMAGE);
@@ -386,7 +401,7 @@ public class DockerClientExecutor {
         startContainerCmd.exec();
     }
 
-    private Ports assignPorts(List<String> portBindings) {
+    private Ports assignPorts(Collection<String> portBindings) {
         Ports ports = new Ports();
         for (String portBinding : portBindings) {
             String[] elements = portBinding.split(PORTS_SEPARATOR);
@@ -483,6 +498,10 @@ public class DockerClientExecutor {
 
         if (params.containsKey(REMOVE)) {
             buildImageCmd.withRemove((boolean) params.get(REMOVE));
+        }
+
+        if(params.containsKey(DOCKERFILE_NAME)) {
+            buildImageCmd.withDockerfile(new File((String) params.get(DOCKERFILE_NAME)));
         }
     }
 
@@ -622,19 +641,26 @@ public class DockerClientExecutor {
         return dockerUri;
     }
 
-    private static final Device[] toDevices(List<Map<String, Object>> devicesMap) {
+    private static final Device[] toDevices(Collection<Map<String, Object>> devicesMap) {
         Device[] devices = new Device[devicesMap.size()];
 
-        for (int i = 0; i < devices.length; i++) {
-            Map<String, Object> device = devicesMap.get(i);
-            if (device.containsKey("cGroupPermissions") && device.containsKey("pathOnHost")
-                    && device.containsKey("pathInContainer")) {
-                String cGroupPermissions = asString(device, "cGroupPermissions");
-                String pathOnHost = asString(device, "pathOnHost");
-                String pathInContainer = asString(device, "pathInContainer");
+        int i = 0;
+        for (Map<String, Object> device : devicesMap) {
+            if (device.containsKey(PATH_ON_HOST)
+                    && device.containsKey(PATH_IN_CONTAINER)) {
+
+                String cGroupPermissions;
+                if (device.containsKey(C_GROUP_PERMISSIONS)) {
+                    cGroupPermissions = asString(device, C_GROUP_PERMISSIONS);
+                } else {
+                    cGroupPermissions = DEFAULT_C_GROUPS_PERMISSION;
+                }
+
+                String pathOnHost = asString(device, PATH_ON_HOST);
+                String pathInContainer = asString(device, PATH_IN_CONTAINER);
 
                 devices[i] = new Device(cGroupPermissions, pathInContainer, pathOnHost);
-
+                i++;
             }
         }
 
@@ -670,24 +696,18 @@ public class DockerClientExecutor {
         }
     }
 
-    private static final boolean asBoolean(Map<String, Object> map, String property) {
-        return (boolean) map.get(property);
-    }
-
-    private static final int asInt(Map<String, Object> map, String property) {
-        return (int) map.get(property);
-    }
-
-    private static final Link[] toLinks(List<String> linkList) {
+    private static final Link[] toLinks(Collection<String> linkList) {
         Link[] links = new Link[linkList.size()];
-        for (int i = 0; i < links.length; i++) {
-            links[i] = Link.parse(linkList.get(i));
+        int i=0;
+        for (String link : linkList) {
+            links[i] = Link.parse(link);
+            i++;
         }
 
         return links;
     }
 
-    private static final Capability[] toCapability(List<String> configuredCapabilities) {
+    private static final Capability[] toCapability(Collection<String> configuredCapabilities) {
         List<Capability> capabilities = new ArrayList<Capability>();
         for (String capability : configuredCapabilities) {
             capabilities.add(Capability.valueOf(capability));
@@ -695,17 +715,19 @@ public class DockerClientExecutor {
         return capabilities.toArray(new Capability[capabilities.size()]);
     }
 
-    private static final Bind[] toBinds(List<String> bindsList) {
+    private static final Bind[] toBinds(Collection<String> bindsList) {
 
         Bind[] binds = new Bind[bindsList.size()];
-        for (int i = 0; i < binds.length; i++) {
-            binds[i] = Bind.parse(bindsList.get(i));
+        int i = 0;
+        for (String bind: bindsList) {
+            binds[i] = Bind.parse(bind);
+            i++;
         }
 
         return binds;
     }
 
-    private static final Set<ExposedPort> toExposedPorts(List<String> exposedPortsList) {
+    private static final Set<ExposedPort> toExposedPorts(Collection<String> exposedPortsList) {
         Set<ExposedPort> exposedPorts = new HashSet<>();
 
         for (String exposedPort : exposedPortsList) {
@@ -715,42 +737,27 @@ public class DockerClientExecutor {
         return exposedPorts;
     }
 
-    private static final Volume[] toVolumes(List<String> volumesList) {
+    private static final Volume[] toVolumes(Collection<String> volumesList) {
         Volume[] volumes = new Volume[volumesList.size()];
 
-        for (int i = 0; i < volumesList.size(); i++) {
-            volumes[i] = new Volume(volumesList.get(i));
+        int i = 0;
+        for (String volume : volumesList) {
+            volumes[i] = new Volume(volume);
+            i++;
         }
 
         return volumes;
     }
 
-    private static final VolumesFrom[] toVolumesFrom(List<String> volumesFromList) {
+    private static final VolumesFrom[] toVolumesFrom(Collection<String> volumesFromList) {
         VolumesFrom[] volumesFrom = new VolumesFrom[volumesFromList.size()];
 
-        for(int i = 0; i < volumesFromList.size(); i++) {
-            volumesFrom[i] = VolumesFrom.parse(volumesFromList.get(i));
+        int i = 0;
+        for(String volumesFromm : volumesFromList) {
+            volumesFrom[i] = VolumesFrom.parse(volumesFromm);
+            i++;
         }
         return volumesFrom;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static final List<Map<String, Object>> asListOfMap(Map<String, Object> map, String property) {
-        return (List<Map<String, Object>>) map.get(property);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static final List<String> asListOfString(Map<String, Object> map, String property) {
-        return (List<String>) map.get(property);
-    }
-
-    private static final String asString(Map<String, Object> map, String property) {
-        return (String) map.get(property);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static final Map<String, Object> asMap(Map<String, Object> map, String property) {
-        return (Map<String, Object>) map.get(property);
     }
 
     public DockerClient getDockerClient() {
