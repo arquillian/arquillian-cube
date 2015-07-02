@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Instance;
@@ -20,6 +21,7 @@ public class CubeDockerConfigurator {
 
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
+    public static final String DOCKER_HOST = "DOCKER_HOST";
 
     @Inject
     @ApplicationScoped
@@ -44,7 +46,13 @@ public class CubeDockerConfigurator {
     private Map<String, String> resolveServerIp(Map<String, String> config) {
         String dockerServerUri = config.get(CubeDockerConfiguration.DOCKER_URI);
         if(dockerServerUri.contains(Boot2Docker.BOOT2DOCKER_TAG)) {
-            dockerServerUri = resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
+
+            if(isDockerHostSet()) {
+                dockerServerUri = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST);
+            } else {
+                dockerServerUri = resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
+            }
+
             config.put(CubeDockerConfiguration.DOCKER_URI, dockerServerUri);
             if(!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
                 config.put(CubeDockerConfiguration.CERT_PATH, HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory()));
@@ -57,6 +65,9 @@ public class CubeDockerConfigurator {
         return config;
     }
 
+    private boolean isDockerHostSet() {
+        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST) != null;
+    }
     private String resolveBoot2Docker(String tag,
             String boot2DockerPath) {
         return tag.replaceAll(Boot2Docker.BOOT2DOCKER_TAG, boot2DockerInstance.get().ip(boot2DockerPath, false));
