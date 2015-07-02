@@ -500,7 +500,7 @@ Also every time you start _boot2docker_ copies required certificates to home dir
 _Arquillian Cube_ offers some automatic mechanisms to use _boot2docker_ in _Cube_.
 
 The first one is that +serverUri+ parameter can contain the word +boot2docker+ like for example +https://boot2docker:2376+. 
-When _Cube_ is started it will check if the +serverUri+ contains the _boot2docker_ word, and if it is the case it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command. 
+When _Cube_ is started it will check if the +serverUri+ contains the _boot2docker_ word, and if it is the case it will check if you have set system environment or java property called `DOCKER_HOST`. In case it is set then it will substitute _boot2docker_ with given value. If property is not set then it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command. 
 
 Note that by default _Arquillian Cube_ assumes that +boot2docker+ command is on +PATH+, but you can configure its location by using +boot2dockerPath+ which is the full location (and program name) of _boot2docker_. 
 For example +/opt/boot2dockerhome/boot2docker+.
