@@ -208,7 +208,7 @@ Let's see valid attributes:
 |Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
 
 |dockerContainersFile
-|Instead of embedding YAML string, you can set YAML file location in this attribute.
+|Instead of embedding YAML string, you can set YAML file location in this attribute. This location can be a relative location from root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites. 
 
 |autoStartContainers
 |Cube will normally only start a _Docker_ container when it has the same name as an active _Arquillian_ container. That works for things that are _DeployableContainer_'s. For any other service, e.g. a database, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _tomcat7, mysql_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers.
