@@ -15,7 +15,8 @@ public class CubeDockerExtension implements LoadableExtension {
                .observer(CubeSuiteLifecycleController.class)
                //.observer(ClientCubeControllerCreator.class)
                .observer(BeforeStopContainerObserver.class)
-               .observer(Boot2DockerCreator.class);
+               .observer(Boot2DockerCreator.class)
+               .observer(DockerMachineCreator.class);
 
         builder.service(ResourceProvider.class, CubeResourceProvider.class);
 

@@ -10,8 +10,10 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfigurator;
 import org.arquillian.cube.docker.impl.util.ContainerUtil;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
@@ -43,9 +45,10 @@ public class DockerServerIPConfigurator {
         ContainerDef containerConfiguration = container.getContainerConfiguration();
         boolean foundAttribute = resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, cubeConfiguration);
 
-        //if user doesn't not configured in arquillian.xml the host then we can override the default value.
+        //if user doesn't configured in arquillian.xml the host then we can override the default value.
         if(!foundAttribute) {
-            if(familyInstance.get().isBoot2Docker()) {
+            //if it is a boot2docker host (that is a Windows or MacOSX) or docker-machine is being used (can be Linux, Windows or MacOSX) or user set DOCKER_HOST
+            if(familyInstance.get().isBoot2Docker() || cubeConfiguration.isDockerMachineName() || isDockerHostEnvironmentVarSet()) {
                 Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
                 List<PropertyDescriptor> configurationClassHostOrAddressFields = filterConfigurationClassPropertiesByHostOrAddressAttribute(configurationClass);
                 for (PropertyDescriptor propertyDescriptor : configurationClassHostOrAddressFields) {
@@ -55,6 +58,10 @@ public class DockerServerIPConfigurator {
             }
         }
 
+    }
+
+    private boolean isDockerHostEnvironmentVarSet() {
+        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(CubeDockerConfigurator.DOCKER_HOST) != null;
     }
 
     private boolean resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, CubeDockerConfiguration cubeConfiguration) {
