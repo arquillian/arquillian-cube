@@ -73,7 +73,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
-        when(commandLineExecutor.execCommand("dockerMachine", "ip", "dev")).thenReturn("192.168.0.2");
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));

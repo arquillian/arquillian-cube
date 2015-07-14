@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class DockerMachine extends AbstractCliInternetAddressResolver {
 
-    private static final String DOCKER_MACHINE_EXEC = "dockerMachine";
+    private static final String DOCKER_MACHINE_EXEC = "docker-machine";
 
     private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
 
