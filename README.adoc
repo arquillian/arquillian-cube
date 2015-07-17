@@ -533,7 +533,12 @@ When _Cube_ is started it will check if the +serverUri+ contains the _dockerHost
 . if docker machine name is provided by using +machineName+ property then Docker Machine command is run to get the ip to be replaced in `dockerHost`.
 . if previous conditions are not met, then _boot2docker_ command is run to get the ip to be replaced in `dockerHost`.
 
+<<<<<<< HEAD
 === Boot2Docker
+=======
+The first one is that +serverUri+ parameter can contain the word +boot2docker+ like for example +https://boot2docker:2376+. 
+When _Cube_ is started it will check if the +serverUri+ contains the _boot2docker_ word, and if it is the case it will check if you have set system environment or java property called `DOCKER_HOST`. In case it is set then it will substitute _boot2docker_ with given value. If property is not set then it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command. 
+>>>>>>> a0efe23e43ec051af73390bc9fb55ce72e5a6ce1
 
 In case of _boot2docker_ it will run the command +boot2docker ip+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
 
