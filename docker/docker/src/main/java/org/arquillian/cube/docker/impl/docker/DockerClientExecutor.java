@@ -253,7 +253,7 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(LINKS)) {
-        	createContainerCmd.withLinks(toLinks(asListOfString(containerConfiguration, LINKS)));
+            createContainerCmd.withLinks(toLinks(asListOfString(containerConfiguration, LINKS)));
         }
 
         if (containerConfiguration.containsKey(PORT_BINDINGS)) {
@@ -264,15 +264,15 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.containsKey(PRIVILEGED)) {
-        	createContainerCmd.withPrivileged(asBoolean(containerConfiguration, PRIVILEGED));
+            createContainerCmd.withPrivileged(asBoolean(containerConfiguration, PRIVILEGED));
         }
 
         if (containerConfiguration.containsKey(PUBLISH_ALL_PORTS)) {
-        	createContainerCmd.withPublishAllPorts(asBoolean(containerConfiguration, PUBLISH_ALL_PORTS));
+            createContainerCmd.withPublishAllPorts(asBoolean(containerConfiguration, PUBLISH_ALL_PORTS));
         }
 
         if (containerConfiguration.containsKey(NETWORK_MODE)) {
-        	createContainerCmd.withNetworkMode(asString(containerConfiguration, NETWORK_MODE));
+            createContainerCmd.withNetworkMode(asString(containerConfiguration, NETWORK_MODE));
         }
 
         if (containerConfiguration.containsKey(DNS_SEARCH)) {

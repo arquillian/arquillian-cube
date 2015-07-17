@@ -1,15 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.Map;
-
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
-import org.yaml.snakeyaml.Yaml;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
 
 public class CubeDockerConfiguration {
 
@@ -24,6 +19,8 @@ public class CubeDockerConfiguration {
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
+    public static final String DOCKER_MACHINE_PATH = "dockerMachinePath";
+    public static final String DOCKER_MACHINE_NAME = "machineName";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
 
@@ -31,6 +28,8 @@ public class CubeDockerConfiguration {
     private String dockerServerUri;
     private String dockerRegistry;
     private String boot2DockerPath;
+    private String dockerMachinePath;
+    private String machineName;
     private String username;
     private String password;
     private String email;
@@ -59,6 +58,18 @@ public class CubeDockerConfiguration {
 
     public String getBoot2DockerPath() {
         return boot2DockerPath;
+    }
+
+    public String getDockerMachinePath() {
+        return dockerMachinePath;
+    }
+
+    public String getMachineName() {
+        return machineName;
+    }
+
+    public boolean isDockerMachineName() {
+        return this.getMachineName() != null;
     }
 
     public String getUsername() {
@@ -107,6 +118,14 @@ public class CubeDockerConfiguration {
 
         if(map.containsKey(BOOT2DOCKER_PATH)) {
             cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
+        }
+
+        if(map.containsKey(DOCKER_MACHINE_PATH)) {
+            cubeConfiguration.dockerMachinePath = map.get(DOCKER_MACHINE_PATH);
+        }
+
+        if(map.containsKey(DOCKER_MACHINE_NAME)) {
+            cubeConfiguration.machineName = map.get(DOCKER_MACHINE_NAME);
         }
 
         if(map.containsKey(USERNAME)) {
