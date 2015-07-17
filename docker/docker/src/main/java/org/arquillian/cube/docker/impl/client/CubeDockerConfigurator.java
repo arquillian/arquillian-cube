@@ -19,6 +19,8 @@ public class CubeDockerConfigurator {
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
     public static final String DOCKER_HOST = "DOCKER_HOST";
+    private static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
+    private static final String DOCKER_MACHINE_NAME = "DOCKER_MACHINE_NAME";
 
     @Inject
     @ApplicationScoped
@@ -48,6 +50,14 @@ public class CubeDockerConfigurator {
         if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && isDockerHostSet()) {
             String dockerHostUri = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST);
             config.put(CubeDockerConfiguration.DOCKER_URI, dockerHostUri);
+        }
+        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH) && isDockerCertPathSet()) {
+            String dockerCertPath = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH);
+            config.put(CubeDockerConfiguration.CERT_PATH, dockerCertPath);
+        }
+        if (!config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME) && isDockerMachineNameSet()) {
+            String dockerMachineName = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME);
+            config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, dockerMachineName);
         }
         return config;
     }
@@ -80,6 +90,12 @@ public class CubeDockerConfigurator {
 
     private boolean isDockerHostSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST) != null;
+    }
+    private boolean isDockerCertPathSet() {
+        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH) != null;
+    }
+    private boolean isDockerMachineNameSet() {
+        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME) != null;
     }
 
     private boolean isDockerMachineSet(Map<String, String> config) {
