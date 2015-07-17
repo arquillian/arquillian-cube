@@ -7,6 +7,8 @@ Documentation for version Alpha2 can be found here: https://github.com/arquillia
 Documentation for version Alpha1 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha1/README.adoc
 
 
+WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some cases. The major difference is that instead of using _boot2docker_ keyword to refer to the boot2docker ip in _serverUri_ parameter, now should be used _dockerHost_.
+
 == What is this?
 
 *Arquillian Cube* is an _Arquillian_ extension that can be used to manager _Docker_ containers from _Arquillian_.
@@ -36,7 +38,7 @@ One of the best resources to learn about why using _Boot2Docker_ is different fr
 
 To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it can be local or not), but probably it will be at local.
 
-By default the _Docker_ server uses UNIX sockets for communicating with the _Docker_ client. *Arquillian Cube* will attempt to detect the operating system it is running on and either set the _docker-java_ to use UNIX socket on _Linux_ or to <<Boot2Docker>> on _Windows_/_Mac_ as the default URI. 
+By default the _Docker_ server uses UNIX sockets for communicating with the _Docker_ client. *Arquillian Cube* will attempt to detect the operating system it is running on and either set the _docker-java_ to use UNIX socket on _Linux_ or to <<Boot2Docker>> on _Windows_/_Mac_ as the default URI.
 
 If you want to use TCP/IP to connect to the Docker server, you'll need to make sure that your _Docker_ server is listening on TCP port.
 To allow _Docker_ server to use TCP add the following line to +/etc/default/docker+:
@@ -196,7 +198,7 @@ Let's see valid attributes:
 [cols="2*"]
 |===
 |serverVersion
-|Version of REST API provided by_Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service.
+|Version of REST API provided by_Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service. This field is not mandatory and if it is not provided default one provided by _docker-java_ is used.
 
 |serverUri
 |Uri of _Docker_ server. If the _Docker_ server is running natively on Linux then this will be an URI pointing to _localhost_ docker host but if you are using _Boot2Docker_ or a remote _Docker_ server then the URI should be changed to point to the _Docker_ remote _URI_. It can be a unix socket URI as well in case you are running _Docker_ in Linux (+unix:///var/run/docker.sock+). Also you can read at <<automatic-resolution, this section>> about automatic resolution of serverUri parameter. Also you can use `DOCKER_HOST` java property or system environment to set this parameter.
@@ -208,7 +210,7 @@ Let's see valid attributes:
 |Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
 
 |dockerContainersFile
-|Instead of embedding YAML string, you can set YAML file location in this attribute. This location can be a relative location from root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites. 
+|Instead of embedding YAML string, you can set YAML file location in this attribute. This location can be a relative location from root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites.
 
 |definitionFormat
 |Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ (default one in case of not set) to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
@@ -222,8 +224,29 @@ Let's see valid attributes:
 |boot2dockerPath
 |Sets the full location (and program name) of _boot2docker_. For example +/opt/boot2dockerhome/boot2docker+.
 
+|dockerMachinePath
+|Sets the full location (and program name) of _docker-machine_. For example +/opt/dockermachinehome/docker-machine+.
+
+|machineName
+|Sets the machine name in case you are using docker-machine to manage your docker host. This parameter is mandatory when using docker-machine.
+
 |connectionMode
 |Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. _STARTANDSTOP_ which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. _STARTORCONNECT_ mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is _STARTORCONNECTANDLEAVE_ which is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions.
+|===
+
+Some of these properties can be provided by using standard Docker system environment variables so you can set once and use them in your tests too.
+Moreover you can set as Java system properties (-D...) as well.
+
+[cols="2*"]
+|===
+|serverUri
+|DOCKER_HOST
+
+|certPath
+|DOCKER_CERT_PATH
+
+|machineName
+|DOCKER_MACHINE_NAME
 |===
 
 In the next example you can see a whole YAML document with configuration properties.
@@ -253,6 +276,8 @@ tomcat: #1
   memoryLimit: 1
   memorySwap: 1
   cpuShares: 1
+  cpuSet: a
+  extraHosts: a
   attachStdin: true
   attachStderr: true
   env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] #6
@@ -292,8 +317,8 @@ tomcat: #1
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 
-As we seen in basic example the definition Arquillian Cube scenarios are described in `dockerContainers` property. 
-But if you want you can avoid using this property by simply creating a file called  `cube` at root of the classpath with same content. 
+As we seen in basic example the definition Arquillian Cube scenarios are described in `dockerContainers` property.
+But if you want you can avoid using this property by simply creating a file called  `cube` at root of the classpath with same content.
 _Arquillian Cube_ will read it as it was defined in `arquilllian.xml` file.
 
 [source, yaml]
@@ -397,8 +422,8 @@ daytime:
   portBindings: [8080/tcp]
 ----
 
-Also it is not necessary to set network protocol (tcp or udp). 
-In case it is not specified `portBindings: ["8080"]` then _tcp_ is used by default. 
+Also it is not necessary to set network protocol (tcp or udp).
+In case it is not specified `portBindings: ["8080"]` then _tcp_ is used by default.
 Notice that you need to add double-quotes to stringify the value.
 
 === Allow connecting to a running container
@@ -429,20 +454,20 @@ An example of this configuration could be:
 
 +connectionMode+ is an attribute that can receive three parameters:
 
-STARTANDSTOP:: it is the default one if not set any and simply creates and stops all _Docker_ Containers. If a container is already running, an exception is thrown. 
-STARTORCONNECT:: it tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. 
+STARTANDSTOP:: it is the default one if not set any and simply creates and stops all _Docker_ Containers. If a container is already running, an exception is thrown.
+STARTORCONNECT:: it tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution.
 STARTORCONNECTANDLEAVE:: it is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions.
 
 === Before Stop Events
 
-Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting. 
+Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
 In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.
 
 Next snippet shows how to copy a directory from container to local disk:
 
 [source, yaml]
 ----
-tomcat_default: 
+tomcat_default:
   image: tutum/tomcat:7.0
   beforeStop: # <1>
     - copy: # <2>
@@ -456,7 +481,7 @@ tomcat_default:
 <2> +copy+ is used to notify that we want to copy some directories or files form +from+ container location to +to+ local location.
 <3> +log+ is used to notify that we want to copy container log to +to+ local location.
 
-In case of +log+ command the standard output and the error output are returned. 
+In case of +log+ command the standard output and the error output are returned.
 +log+ _Docker_ command can receive some configuration paramters and you can set them too in configuration file.
 
 [source, yaml]
@@ -475,7 +500,7 @@ beforeStop:
 [[automatic-resolution]]
 === Automatic serverUri resolution
 
-+serverUri+ parameter is where you configure the Uri of _Docker_ server. 
++serverUri+ parameter is where you configure the Uri of _Docker_ server.
 This parameter is not mandatory and in case you don't set it, _Arquillian Cube_ will use next values:
 
 [cols="2*"]
@@ -497,7 +522,7 @@ This parameter is not mandatory and in case you don't set it, _Arquillian Cube_ 
 == Boot2Docker and Docker Machine
 
 If you are using _boot2docker_ or _docker machine_ there are some parameters that depends on the installation of the them.
-For example _boot2docker_ ip is not _localhost_ and may change every time you start a new _boot2docker_ instance. 
+For example _boot2docker_ ip is not _localhost_ and may change every time you start a new _boot2docker_ instance.
 Also every time you start _boot2docker_ copies required certificates to home directory of local machine.
 
 _Arquillian Cube_ offers some automatic mechanisms to use _boot2docker_ or _docker machine_ in _Cube_.
@@ -510,16 +535,42 @@ When _Cube_ is started it will check if the +serverUri+ contains the _dockerHost
 
 === Boot2Docker
 
-In case of _boot2docker_ it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command.
+In case of _boot2docker_ it will run the command +boot2docker ip+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
 
 Note that by default _Arquillian Cube_ assumes that +boot2docker+ command is on +PATH+, but you can configure its location by using +boot2dockerPath+ property which is the full location (and program name) of _boot2docker_.
 For example +/opt/boot2dockerhome/boot2docker+.
 
-_boot2docker_ runs in _https_ and you need to set the certificates path. 
-These certificates are copied by _boot2docker_ by default at +<HOME>/.boot2docker/certs/boot2docker-vm+. 
+_boot2docker_ runs in _https_ and you need to set the certificates path.
+These certificates are copied by _boot2docker_ by default at +<HOME>/.boot2docker/certs/boot2docker-vm+.
 If this property is not set and the +serverUri+ contains +dockerHost+, then this property is automatically configured to +<HOME>/.boot2docker/certs/boot2docker-vm+ so you don't need to worry to set for each environment.
 
 === Docker Machine
+
+In case of _docker-machine_ it will run the command +docker-machine ip <machineName>+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
+
+Note that by default _Arquillian Cube_ assumes that +docker-machine+ command is on +PATH+, but you can configure its location by using +dockerMachinePath+ proeprty which is the full location (and program name too) of _docker-machine_.
+For example +/usr/bin/docker-machine+..
+
+_docker-machine_ can run with _boot2docker_ together.
+And this docker host instance runs in _https_ so you need to set the certificates path.
+These certificates are copied by _docker-machine_ by default at +<HOME>/.docker/machine/machines+.
+If this property is not set and _docker-machine_ is run, then this property is automatically configured to default location, so you don't need to worry to set for each environment.
+
+For example you can configure +arquillian.xml+ file to use _docker-machine_ as:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+    <property name="serverVersion">${docker.api.version}</property>
+    <property name="definitionFormat">COMPOSE</property>
+    <property name="machineName">dev</property> <!-- 1 -->
+    <property name="dockerContainersFile">docker-compose.yml</property>
+</extension>
+----
+<1> Sets docker machine to _dev_.
+
+Notice that you only need to add _machineName_ property, everything else it is exactly the same as previous examples.
 
 == Building containers
 
@@ -539,6 +590,7 @@ Let's see previous example but instead of creating a container from a predefined
       dockerfileLocation: src/test/resources-tomcat-7-dockerfile/tomcat #2
       noCache: true #3
       remove: true #4
+      dockerfileName: my-dockerfile #5
     await:
       strategy: polling
     env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
@@ -549,8 +601,9 @@ Let's see previous example but instead of creating a container from a predefined
 <2> +dockerfileLocation+ contains the location of +Dockerfile+ and all files required to build the container.
 <3> Property to enable or disable the no cache attribute.
 <4> Property to enable or disable the remove attribute.
+<5> Property to set the dockerfile name to be used instead of the default ones.
 
-TIP: +dockerfileLocation+ can be a directory that must contains +Dockerfile+ in root directory, also a +tar.gz+ file or a _URL_ pointing to a +tar.gz+ file.
+TIP: +dockerfileLocation+ can be a directory that must contains +Dockerfile+ in root directory (in case you don't set _dockerfileName_ property), also a +tar.gz+ file or a _URL_ pointing to a +tar.gz+ file.
 
 An example of +Dockerfile+ is:
 
@@ -626,7 +679,7 @@ and finally you can configure in `arquillian.xml` file that you want to use dock
 </container>
 ----
 
-And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too. 
+And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too.
 You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-docker-compose
 
 == Enrichers
@@ -774,9 +827,9 @@ NOTE: Automapping only works in case you want to change the default server port 
 
 === DockerServerIp and Containers
 
-If you are using a remote docker server (not on _localhost_) or for example _boot2docker_ you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test. 
+If you are using a remote docker server (not on _localhost_) or for example _boot2docker_ you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test.
 In these cases you can hardcode this ip to Arquillian container adapter configuration or you can use the special tag +dockerServerIp+.
-At runtime these tag will be replaced by _Arquillian Cube_ to docker server ip configured in +serverUri+ parameter. 
+At runtime these tag will be replaced by _Arquillian Cube_ to docker server ip configured in +serverUri+ parameter.
 This replacement only works in properties that contains the string +host+ or +address+ in property name.
 
 So for example:
@@ -801,13 +854,13 @@ So for example:
 
 The +host+ property will be replaced automatically to +192.168.0.2+.
 
-NOTE: This also works in case you set +serverUri+ using +boot2docker+ special word or by using the defaults. Read more about it <<boot2docker, Boot2Docker section>> and <<automatic-resolution, Automatic serverUri resolution section>>. 
+NOTE: This also works in case you set +serverUri+ using +boot2docker+ special word or by using the defaults. Read more about it <<boot2docker, Boot2Docker section>> and <<automatic-resolution, Automatic serverUri resolution section>>.
 
 In case of using _unix_ socket +dockerServerUri+ is replaced to _localhost_.
 
-Also _Arquillian Cube_ can help you in another way inferring +boot2docker+ ip. 
-In case you are running in _MACOS_ or _Windows_ with +boot2docker+, you may not need to set host property at all nor using +dockerServerIp+. 
-_Arquillian Cube_ will inspect any property in configuration class that contains the word _address_ or _host_ that it is not overriden in `arquillian.xml` and it will set the +boot2docker+ server automatically. 
+Also _Arquillian Cube_ can help you in another way inferring +boot2docker+ ip.
+In case you are running in _MACOS_ or _Windows_ with +boot2docker+, you may not need to set host property at all nor using +dockerServerIp+.
+_Arquillian Cube_ will inspect any property in configuration class that contains the word _address_ or _host_ that it is not overriden in `arquillian.xml` and it will set the +boot2docker+ server automatically.
 
 So previous example could be modified to:
 
