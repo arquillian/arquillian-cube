@@ -1,10 +1,10 @@
 = Arquillian Cube
 
-Documentation for version Alpha3 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha3/README.adoc
+Documentation for version Alpha6 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha6/README.adoc
 
-Documentation for version Alpha2 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha2/README.adoc
+Documentation for version Alpha5 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha5/README.adoc
 
-Documentation for version Alpha1 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha1/README.adoc
+Documentation for version Alpha4 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha4/README.adoc
 
 
 WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some cases. The major difference is that instead of using the _boot2docker_ keyword to refer to the auto resolved boot2docker ip in the _serverUri_ parameter, you should now used _dockerHost_.
