@@ -5,7 +5,7 @@
         <artifactId>arquillian-cube-docker-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <name>Arquillian Cube Docker Compose Functional Test</name>
+    <name>Arquillian Cube Docker Functional Test Machine</name>
     <artifactId>ftest-docker-machine</artifactId>
 
     <properties>
