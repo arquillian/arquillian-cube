@@ -22,6 +22,18 @@ public class Binding {
         return bindings;
     }
 
+    public int getNumberOfPortBindings() {
+        return this.bindings.size();
+    }
+
+    public PortBinding getFirstPortBinding() {
+        for(PortBinding binding : this.bindings) {
+            return binding;
+        }
+
+        return null;
+    }
+
     public Binding addPortBinding(Integer exposedPort, Integer bindingPort) {
         this.bindings.add(new PortBinding(exposedPort, bindingPort));
         return this;
