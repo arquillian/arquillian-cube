@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 
@@ -56,9 +58,23 @@ public class AutoStartOrderUtil {
         String[] autoStartContainers = config.getAutoStartContainers();
         Map<String, Object> containerDefinitions = config.getDockerContainersContent();
 
-        for(String autoStart : autoStartContainers) {
-            if(containerDefinitions.containsKey(autoStart)) {
-                nodes.put(autoStart, Node.from(autoStart));
+        if(isCommaSeparatedBased(autoStartContainers)) {
+            for (String autoStart : autoStartContainers) {
+                if (containerDefinitions.containsKey(autoStart)) {
+                    nodes.put(autoStart, Node.from(autoStart));
+                }
+            }
+        } else {
+            if(isRegularExpressionBased(autoStartContainers)) {
+                String regularExpression = autoStartContainers[0];
+                Pattern pattern = Pattern.compile(regularExpression);
+                Set<String> definedContainers = containerDefinitions.keySet();
+                for(String containerName : definedContainers) {
+                    Matcher matcher = pattern.matcher(containerName);
+                    if(matcher.matches()) {
+                        nodes.put(containerName, Node.from(containerName));
+                    }
+                }
             }
         }
 
@@ -68,6 +84,14 @@ public class AutoStartOrderUtil {
         }
 
         return new HashSet<>(nodes.values());
+    }
+
+    private static boolean isRegularExpressionBased(String[] autoStartContainers) {
+        return autoStartContainers.length == 1;
+    }
+
+    private static boolean isCommaSeparatedBased(String[] autoStartContainers) {
+        return autoStartContainers.length > 1;
     }
 
     private static boolean nodesInStep(List<Step> steps, Set<Node> nodes) {
