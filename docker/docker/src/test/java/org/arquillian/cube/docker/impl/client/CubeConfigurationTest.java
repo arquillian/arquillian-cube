@@ -131,38 +131,6 @@ public class CubeConfigurationTest {
         assertThat(image, is("tutum/tomcat:7.0"));
     }
 
-    @Test
-    public void should_parse_empty_autostart() throws Exception {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("autoStartContainers", "");
-
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
-        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
-        Assert.assertEquals(0, cubeConfiguration.getAutoStartContainers().length);
-    }
-
-    @Test
-    public void should_parse_empty_values_autostart() throws Exception {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("autoStartContainers", "  ,   ");
-
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
-        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
-        Assert.assertEquals(0, cubeConfiguration.getAutoStartContainers().length);
-    }
-
-    @Test
-    public void should_parse_trim_autostart() throws Exception {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("autoStartContainers", "a , b ");
-
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
-        Assert.assertNotNull(cubeConfiguration.getAutoStartContainers());
-        Assert.assertEquals(2, cubeConfiguration.getAutoStartContainers().length);
-        Assert.assertEquals("a", cubeConfiguration.getAutoStartContainers()[0]);
-        Assert.assertEquals("b", cubeConfiguration.getAutoStartContainers()[1]);
-    }
-
     @SuppressWarnings("unchecked")
     @Test
     public void should_be_able_to_extend_and_override_toplevel() throws Exception {

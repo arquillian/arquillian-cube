@@ -10,9 +10,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.arquillian.cube.docker.impl.client.AutoStartParser;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 
 public class AutoStartOrderUtil {
+
+    public static final String REGEXP = "regexp:";
 
     public static List<String[]> getAutoStopOrder(CubeDockerConfiguration config) {
         List<String[]> autoStartOrder = getAutoStartOrder(config);
@@ -55,27 +58,10 @@ public class AutoStartOrderUtil {
 
     static Set<Node> from(CubeDockerConfiguration config) {
         Map<String, Node> nodes = new HashMap<>();
-        String[] autoStartContainers = config.getAutoStartContainers();
-        Map<String, Object> containerDefinitions = config.getDockerContainersContent();
 
-        if(isCommaSeparatedBased(autoStartContainers)) {
-            for (String autoStart : autoStartContainers) {
-                if (containerDefinitions.containsKey(autoStart)) {
-                    nodes.put(autoStart, Node.from(autoStart));
-                }
-            }
-        } else {
-            if(isRegularExpressionBased(autoStartContainers)) {
-                String regularExpression = autoStartContainers[0];
-                Pattern pattern = Pattern.compile(regularExpression);
-                Set<String> definedContainers = containerDefinitions.keySet();
-                for(String containerName : definedContainers) {
-                    Matcher matcher = pattern.matcher(containerName);
-                    if(matcher.matches()) {
-                        nodes.put(containerName, Node.from(containerName));
-                    }
-                }
-            }
+        AutoStartParser autoStartParser = config.getAutoStartContainers();
+        if(autoStartParser != null) {
+            nodes.putAll(autoStartParser.parse());
         }
 
         Map<String, Node> autoStartNodes = new HashMap<>(nodes);
@@ -84,14 +70,6 @@ public class AutoStartOrderUtil {
         }
 
         return new HashSet<>(nodes.values());
-    }
-
-    private static boolean isRegularExpressionBased(String[] autoStartContainers) {
-        return autoStartContainers.length == 1;
-    }
-
-    private static boolean isCommaSeparatedBased(String[] autoStartContainers) {
-        return autoStartContainers.length > 1;
     }
 
     private static boolean nodesInStep(List<Step> steps, Set<Node> nodes) {
