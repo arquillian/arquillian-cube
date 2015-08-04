@@ -36,7 +36,7 @@ public class CubeDockerConfiguration {
     private String certPath;
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
-    private String[] autoStartContainers = new String[0];
+    private AutoStartParser autoStartContainers = null;
 
     private Map<String, Object> dockerContainersContent;
 
@@ -92,7 +92,7 @@ public class CubeDockerConfiguration {
         return dockerServerIp;
     }
 
-    public String[] getAutoStartContainers() {
+    public AutoStartParser getAutoStartContainers() {
        return autoStartContainers;
     }
 
@@ -176,7 +176,10 @@ public class CubeDockerConfiguration {
         }
 
         if(map.containsKey(AUTO_START_CONTAINERS)) {
-           cubeConfiguration.autoStartContainers = ConfigUtil.trim(map.get(AUTO_START_CONTAINERS).split(","));
+            String expression = map.get(AUTO_START_CONTAINERS);
+            Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
+            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
+            cubeConfiguration.autoStartContainers = autoStartParser;
         }
 
         return cubeConfiguration;

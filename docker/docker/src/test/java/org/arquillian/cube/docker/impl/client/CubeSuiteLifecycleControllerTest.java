@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeSuiteLifecycleController;
@@ -39,6 +40,83 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeSuiteLifecycleController.class);
         super.addExtensions(extensions);
+    }
+
+    @Test
+    public void shouldParseEmptyAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 0);
+        assertEventFired(StartCube.class, 0);
+    }
+
+    @Test
+    public void shouldParseEmptyValuesAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", " ,  ");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 0);
+        assertEventFired(StartCube.class, 0);
+    }
+
+    @Test
+    public void shouldParseTrimAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "a , b ");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
+    }
+
+    @Test
+    public void shouldCreateAndStartAutoContainersDefiningRegularExpressions() {
+        Map<String, String> dockerData = new HashMap<String, String>();
+        dockerData.put("autoStartContainers", "regexp:a(.*)");
+        dockerData.put("dockerContainers", "a:\n  image: a\nab:\n  image: a\nx:\n" +
+                "  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
     }
 
     @Test
