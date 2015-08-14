@@ -101,6 +101,59 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     @Test
+     public void dockerUriTcpShouldBeReplacedToHttpsInCaseOfDockerMachine() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
+        config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+    }
+
+    @Test
+    public void dockerUriTcpShouldBeReplacedToHttpInCaseOfSingleHost() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://192.168.0.2:22222"));
+    }
+
+    @Test
+    public void dockerUriTcpShouldBeReplacedToHttpsInCaseOfDockerHostTagPresent() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.2");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+    }
+
+    @Test
+    public void dockerUriTcpShouldBeReplacedToHttpsInCaseOfCertPathPresent() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
+        config.put(CubeDockerConfiguration.CERT_PATH, "~/.ssh");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.2");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+    }
+
+    @Test
     public void dockerUriConfigurationParameterShouldTakePrecedenceOverSystemEnv() {
         String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
         System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");

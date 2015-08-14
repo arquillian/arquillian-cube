@@ -41,6 +41,7 @@ public class CubeDockerConfigurator {
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);
         config = resolveServerUriByOperativeSystem(config);
+        config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
         configurationProducer.set(cubeConfiguration);
@@ -65,7 +66,7 @@ public class CubeDockerConfigurator {
     private Map<String, String> resolveServerIp(Map<String, String> config) {
         String dockerServerUri = config.get(CubeDockerConfiguration.DOCKER_URI);
 
-        if (dockerServerUri.contains(AbstractCliInternetAddressResolver.DOCKERHOST_TAG)) {
+        if (containsDockerHostTag(dockerServerUri)) {
             if (isDockerMachineSet(config)) {
                 dockerServerUri = resolveDockerMachine(dockerServerUri, config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH));
             } else {
@@ -81,6 +82,10 @@ public class CubeDockerConfigurator {
 
     return config;
 }
+
+    private boolean containsDockerHostTag(String dockerServerUri) {
+        return dockerServerUri.contains(AbstractCliInternetAddressResolver.DOCKERHOST_TAG);
+    }
 
     private void resolveDockerServerIp(Map<String, String> config, String dockerServerUri) {
         URI serverUri = URI.create(dockerServerUri);
@@ -118,6 +123,25 @@ public class CubeDockerConfigurator {
         } else {
             return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
         }
+    }
+
+    private Map<String, String> resolveServerUriTcpProtocol(Map<String, String> cubeConfiguration) {
+
+        if(cubeConfiguration.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
+            String dockerUri = cubeConfiguration.get(CubeDockerConfiguration.DOCKER_URI);
+            if (dockerUri != null && dockerUri.startsWith("tcp://")) {
+                if(containsCertPath(cubeConfiguration) || isDockerMachineNameSet() || containsDockerHostTag(dockerUri) ) {
+                    cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, dockerUri.replace("tcp://", "https://"));
+                } else {
+                    cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, dockerUri.replace("tcp://", "http://"));
+                }
+            }
+        }
+        return cubeConfiguration;
+    }
+
+    private boolean containsCertPath(Map<String, String> cubeConfiguration) {
+        return cubeConfiguration.containsKey(CubeDockerConfiguration.CERT_PATH);
     }
 
     private Map<String, String> resolveServerUriByOperativeSystem(Map<String, String> cubeConfiguration) {
