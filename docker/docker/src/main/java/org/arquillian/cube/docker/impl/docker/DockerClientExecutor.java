@@ -1,12 +1,5 @@
 package org.arquillian.cube.docker.impl.docker;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfMap;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,8 +19,13 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.model.*;
 
+import com.github.dockerjava.core.async.ResultCallbackTemplate;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
@@ -49,6 +47,8 @@ import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
+
+import static org.arquillian.cube.docker.impl.util.YamlUtil.*;
 
 public class DockerClientExecutor {
 
@@ -99,6 +99,8 @@ public class DockerClientExecutor {
     public static final String DOCKERFILE_NAME = "dockerfileName";
     public static final String EXTRA_HOSTS = "extraHosts";
     public static final String READ_ONLY_ROOT_FS = "ReadonlyRootfs";
+    public static final String LABELS = "labels";
+    public static final String DOMAINNAME= "domainName";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -160,8 +162,12 @@ public class DockerClientExecutor {
         }
 
         if(containerConfiguration.containsKey(READ_ONLY_ROOT_FS)) {
-            HostConfig hostConfig = new HostConfig();
+            createContainerCmd.withReadonlyRootfs(asBoolean(containerConfiguration, READ_ONLY_ROOT_FS));
+        }
 
+        if(containerConfiguration.containsKey(LABELS)) {
+            Map<String, String> labels = asMapOfStrings(containerConfiguration, LABELS);
+            createContainerCmd.withLabels(labels);
         }
 
         if (containerConfiguration.containsKey(WORKING_DIR)) {
@@ -308,6 +314,11 @@ public class DockerClientExecutor {
         if(containerConfiguration.containsKey(ENTRYPOINT)) {
             Collection<String> entrypoints = asListOfString(containerConfiguration, ENTRYPOINT);
             createContainerCmd.withEntrypoint(entrypoints.toArray(new String[entrypoints.size()]));
+        }
+
+        if(containerConfiguration.containsKey(DOMAINNAME)) {
+            String domainName = asString(containerConfiguration, DOMAINNAME);
+            createContainerCmd.withDomainName(domainName);
         }
 
         boolean alwaysPull = false;
@@ -464,19 +475,13 @@ public class DockerClientExecutor {
         BuildImageCmd buildImageCmd = createBuildCommand(location);
         configureBuildCommand(params, buildImageCmd);
 
-        InputStream response = buildImageCmd.exec();
-
-        // We must wait until InputStream is closed to know that image is build. Moreover we need the log to retrieve
-        // the image id to invoke it automatically.
-        // Currently this is a bit clunky but REST API does not provide any other way.
-        String fullLog = IOUtil.asString(response);
-        String imageId = getImageId(fullLog);
+        String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
 
         if (imageId == null) {
             throw new IllegalStateException(
                     String.format(
-                            "Docker server has not provided an imageId for image build from %s. Response from the server was:\n%s",
-                            location, fullLog));
+                            "Docker server has not provided an imageId for image build from %s.",
+                            location));
         }
 
         return imageId.trim();
@@ -547,11 +552,8 @@ public class DockerClientExecutor {
             pullImageCmd.withTag(imageName.substring(tagSeparator + 1));
         }
 
-        InputStream exec = pullImageCmd.exec();
+        pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
 
-        // To wait until image is pull we need to listen input stream until it is closed by the server
-        // At this point we can be sure that image is already pulled.
-        IOUtil.asString(exec);
     }
 
     public String execStart(String containerId, String... commands) {
@@ -602,8 +604,13 @@ public class DockerClientExecutor {
             logContainerCmd.withTail(tail);
         }
 
-        InputStream log = logContainerCmd.exec();
-        readDockerRawStream(log, outputStream);
+        OutputStreamLogsResultCallback outputStreamLogsResultCallback = new OutputStreamLogsResultCallback(outputStream);
+        logContainerCmd.exec(outputStreamLogsResultCallback);
+        try {
+            outputStreamLogsResultCallback.awaitCompletion();
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
     }
 
     private void readDockerRawStream(InputStream rawSteram, OutputStream outputStream) throws IOException {
@@ -768,4 +775,22 @@ public class DockerClientExecutor {
         return dockerServerIp;
     }
 
+    private static class OutputStreamLogsResultCallback extends ResultCallbackTemplate<LogContainerResultCallback, Frame> {
+
+        private OutputStream outputStream;
+
+        public OutputStreamLogsResultCallback(OutputStream outputStream) {
+            this.outputStream = outputStream;
+        }
+
+        @Override
+        public void onNext(Frame object) {
+            try {
+                this.outputStream.write(object.getPayload());
+                this.outputStream.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
