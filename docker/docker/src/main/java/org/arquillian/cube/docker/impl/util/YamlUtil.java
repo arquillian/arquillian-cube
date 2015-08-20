@@ -33,6 +33,11 @@ public class YamlUtil {
         return (Map<String, Object>) map.get(property);
     }
 
+    @SuppressWarnings("unchecked")
+    public static final Map<String, String> asMapOfStrings(Map<String, Object> map, String property) {
+        return (Map<String, String>) map.get(property);
+    }
+
     public static final int asInt(Map<String, Object> map, String property) {
         return (int) map.get(property);
     }

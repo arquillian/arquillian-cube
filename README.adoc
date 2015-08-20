@@ -628,7 +628,7 @@ It is important to note that this is not a docker-compose implementation but onl
 
 In case of some specific Arquillian Cube attributes like await strategy cannot be configured and the default values are going to be used.
 
-Moreover there are some docker-compose commands that are not implemented yet due to restrictions on docker-java library. These commands are _label_, _pid_, _domainname_, _log_driver_, _security_opt_ and _read_only_. But they will be implemented as soon as docker-java library adds their support.
+Moreover there are some docker-compose commands that are not implemented yet due to restrictions on docker-java library. These commands are  _pid_, _log_driver_ and _security_opt_. But they will be implemented as soon as docker-java library adds their support.
 
 Last thing, in case you define a command that is not implemented in Arquillian Cube, this command will be ignored (no exception will be thrown), but a log line will be printed notifying this situation. Please it is really important that if this happens you open a bug so we can add support for them. Althought this warning we will try to maintain aligned with the latest docker-compose format.
 
