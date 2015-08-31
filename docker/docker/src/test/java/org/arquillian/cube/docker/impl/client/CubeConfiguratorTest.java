@@ -1,10 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.endsWith;
-
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -16,7 +11,6 @@ import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -25,6 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
