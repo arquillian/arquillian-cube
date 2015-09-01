@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
+import org.arquillian.cube.HostUriContext;
 import org.arquillian.cube.docker.impl.util.*;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -27,6 +28,10 @@ public class CubeDockerConfigurator {
     private InstanceProducer<CubeDockerConfiguration> configurationProducer;
 
     @Inject
+    @ApplicationScoped
+    private InstanceProducer<HostUriContext> hostUriContextInstanceProducer;
+
+    @Inject
     private Instance<Boot2Docker> boot2DockerInstance;
 
     @Inject
@@ -44,6 +49,7 @@ public class CubeDockerConfigurator {
         config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
+        hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
     }
 

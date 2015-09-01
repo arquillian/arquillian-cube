@@ -13,10 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.CubeController;
-import org.arquillian.cube.CubeID;
-import org.arquillian.cube.TopContainer;
+import org.arquillian.cube.*;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -37,6 +34,9 @@ public class HelloWorldServletTest {
         return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class);
     }
 
+    @HostIp
+    String hostIp;
+    
     @Rule
     public TemporaryFolder folder= new TemporaryFolder();
 
@@ -106,5 +106,15 @@ public class HelloWorldServletTest {
     @Test
     public void should_enrich_test_with_cube_id(@ArquillianResource CubeID cubeId) {
         assertThat(cubeId, notNullValue());
+    }
+
+    @Test
+    public void should_enrich_test_with_host_ip() {
+        assertThat(hostIp, notNullValue());
+    }
+
+    @Test
+    public void should_enrich_test_method_with_host_ip(@HostIp String methodHostIp) {
+        assertThat(methodHostIp, notNullValue());
     }
 }
