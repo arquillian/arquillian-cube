@@ -64,6 +64,7 @@ public class AutoStartOrderUtil {
             nodes.putAll(autoStartParser.parse());
         }
 
+        // add all children links
         Map<String, Node> autoStartNodes = new HashMap<>(nodes);
         for(Map.Entry<String, Node> node : autoStartNodes.entrySet()) {
             addAll(nodes, config, node.getKey());
