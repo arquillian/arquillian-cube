@@ -44,15 +44,8 @@ public class CubeDockerConfigurator {
     @ApplicationScoped
     private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
 
-    public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor, ContainerRegistry containerRegistry) {
-        configure(arquillianDescriptor, containerRegistry);
-    }
-
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
-        // if does not contain AuxiliaryArchiveAppender means we are at standalone
-        if(!LoadableExtension.Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
-            configure(arquillianDescriptor, null);
-        }
+        configure(arquillianDescriptor, null);
     }
 
     private void configure(ArquillianDescriptor arquillianDescriptor, ContainerRegistry containerRegistry) {
@@ -62,7 +55,7 @@ public class CubeDockerConfigurator {
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, containerRegistry);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
     }

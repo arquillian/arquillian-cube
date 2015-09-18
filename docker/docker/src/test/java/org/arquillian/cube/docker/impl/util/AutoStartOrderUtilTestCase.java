@@ -171,7 +171,7 @@ public class AutoStartOrderUtilTestCase {
             config.put("autoStartContainers", join(autoStart));
         }
         config.put("dockerContainers", setup);
-        return CubeDockerConfiguration.fromMap(config, mock(ContainerRegistry.class));
+        return CubeDockerConfiguration.fromMap(config);
     }
 
     private String join(Collection<String> strings) {

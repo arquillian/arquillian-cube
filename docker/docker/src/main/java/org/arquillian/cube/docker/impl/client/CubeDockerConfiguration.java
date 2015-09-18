@@ -1,8 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.jboss.arquillian.container.spi.Container;
-import org.jboss.arquillian.container.spi.ContainerRegistry;
 
 import java.io.IOException;
 import java.net.URI;
@@ -100,12 +98,16 @@ public class CubeDockerConfiguration {
        return autoStartContainers;
     }
 
+    void setAutoStartContainers(AutoStartParser autoStartParser) {
+        this.autoStartContainers = autoStartParser;
+    }
+
     public DefinitionFormat getDefinitionFormat() {
         return definitionFormat;
     }
 
     @SuppressWarnings("unchecked")
-    public static CubeDockerConfiguration fromMap(Map<String, String> map, ContainerRegistry containerRegistry) {
+    public static CubeDockerConfiguration fromMap(Map<String, String> map) {
         CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
 
         if(map.containsKey(DOCKER_SERVER_IP)) {
@@ -179,45 +181,15 @@ public class CubeDockerConfiguration {
             }
         }
 
-        AutoStartParser autoStartParser = null;
+
         if(map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
             Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
-            autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
+            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
 
-            //if autostart property is set but it is with white space or invalid format, default strategy is used.
-            if(autoStartParser == null) {
-                autoStartParser = resolveNotSetAutoStart(containerRegistry, containerDefinitions);
-            }
-
-        } else {
-            //case of not setting autostart, it starts all the dependencies of deployable containers.
-            autoStartParser = resolveNotSetAutoStart(containerRegistry, cubeConfiguration.getDockerContainersContent());
+            cubeConfiguration.autoStartContainers = autoStartParser;
         }
 
-        cubeConfiguration.autoStartContainers = autoStartParser;
         return cubeConfiguration;
-    }
-
-    private static AutoStartParser resolveNotSetAutoStart(ContainerRegistry containerRegistry, Map<String, Object> containerDefinition) {
-        if(containerRegistry != null) {
-            //we want to use the automatic autoconfiguration
-            List<String> containersName = toContainersName(containerRegistry.getContainers());
-            return new AutomaticResolutionAutoStartParser(containersName, containerDefinition);
-        } else {
-            //being null means Arquillian in standalone mode.
-            //everything goes inside and we use the regular expression with .*
-            return new RegularExpressionAutoStartParser(".*", containerDefinition);
-        }
-    }
-
-    private static List<String> toContainersName(List<Container> containers) {
-        List<String> containerNames = new ArrayList<>();
-
-        for(Container container : containers) {
-            containerNames.add(container.getName());
-        }
-
-        return containerNames;
     }
 }

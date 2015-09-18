@@ -55,7 +55,7 @@ public class CubeConfigurationTest {
         parameters.put("dockerContainers", DOCKER_COMPOSE_CONTENT);
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, mock(ContainerRegistry.class));
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
         @SuppressWarnings("unchecked")
         Map<String, Object> actualWeb = (Map<String, Object>) dockerContainersContent.get("web");
@@ -76,7 +76,7 @@ public class CubeConfigurationTest {
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, mock(ContainerRegistry.class));
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
 
         Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
         @SuppressWarnings("unchecked")
@@ -96,7 +96,7 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainers", CONTENT);
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, mock(ContainerRegistry.class));
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
@@ -121,7 +121,7 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainersFile", newFile.getAbsolutePath());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, mock(ContainerRegistry.class));
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
@@ -151,7 +151,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, mock(ContainerRegistry.class));
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
 
         Map<String, Object> tomcat7 = (Map<String, Object>)cubeConfiguration.getDockerContainersContent().get("tomcat7");
         Assert.assertEquals("tutum/tomcat:7.0", tomcat7.get("image").toString());
