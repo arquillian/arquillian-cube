@@ -57,7 +57,7 @@ public class HelloWorldServletTest {
         }
         in.close();
  
-        assertThat(response.toString(), is("Hello World"));
+        assertThat(response.toString(), is("{  \"status\": \"OK\"}"));
         
     }
 

@@ -10,3 +10,5 @@ tomcat:
 
 pingpong:
   image: jonmorehouse/ping-pong
+  ports:
+      - "8080:8080"
