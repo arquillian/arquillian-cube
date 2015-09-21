@@ -1,9 +1,11 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.jboss.arquillian.container.spi.Container;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CubeDockerConfiguration {
@@ -96,6 +98,10 @@ public class CubeDockerConfiguration {
        return autoStartContainers;
     }
 
+    void setAutoStartContainers(AutoStartParser autoStartParser) {
+        this.autoStartContainers = autoStartParser;
+    }
+
     public DefinitionFormat getDefinitionFormat() {
         return definitionFormat;
     }
@@ -175,10 +181,12 @@ public class CubeDockerConfiguration {
             }
         }
 
+
         if(map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
             Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
             AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
+
             cubeConfiguration.autoStartContainers = autoStartParser;
         }
 

@@ -24,6 +24,7 @@ public class CubeDockerExtension implements LoadableExtension {
         // Only register if container-test-spi is on classpath
         if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
             builder.observer(DockerServerIPConfigurator.class);
+            builder.observer(CubeDockerAutoStartConfigurator.class);
         }
     }
 

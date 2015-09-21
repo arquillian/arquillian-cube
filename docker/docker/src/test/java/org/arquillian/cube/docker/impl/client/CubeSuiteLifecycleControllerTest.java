@@ -3,10 +3,7 @@ package org.arquillian.cube.docker.impl.client;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -19,6 +16,7 @@ import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
@@ -96,6 +94,32 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         assertEventFired(StartCube.class, 2);
         assertEventFiredOnOtherThread(CreateCube.class);
         assertEventFiredOnOtherThread(StartCube.class);
+    }
+
+    @Test
+    public void shouldCreateAndStartAutoContainersWhenNoAutoStartIsProvided() {
+        Map<String, String> dockerData = new HashMap<String, String>();
+        dockerData.put("dockerContainers", "a:\n  image: a\n  links:\n    - b:b\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        ContainerRegistry containerRegistry = mock(ContainerRegistry.class);
+        List<org.jboss.arquillian.container.spi.Container> containers = new ArrayList<>();
+        org.jboss.arquillian.container.spi.Container container = mock(org.jboss.arquillian.container.spi.Container.class);
+        when(container.getName()).thenReturn("a");
+        containers.add(container);
+        when(containerRegistry.getContainers()).thenReturn(containers);
+
+        bind(ApplicationScoped.class, ContainerRegistry.class, containerRegistry);
+
+        fire(new BeforeSuite());
+        assertEventFired(CreateCube.class, 1);
+        assertEventFired(StartCube.class, 1);
     }
 
     @Test

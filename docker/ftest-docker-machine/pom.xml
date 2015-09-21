@@ -14,6 +14,7 @@
         <version.tomcat>1.0.0.CR7</version.tomcat>
         <docker.api.version>1.12</docker.api.version>
         <docker.tomcat.host>localhost</docker.tomcat.host>
+        <arquillian.debug>true</arquillian.debug>
     </properties>
 
     <dependencyManagement>

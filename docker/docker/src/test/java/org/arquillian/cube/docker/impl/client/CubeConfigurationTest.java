@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
+import static org.mockito.Mockito.mock;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -14,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
