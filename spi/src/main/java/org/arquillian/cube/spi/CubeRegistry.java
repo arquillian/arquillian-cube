@@ -8,5 +8,9 @@ public interface CubeRegistry {
 
     Cube getCube(String id);
 
+    void removeCube(String id);
+
+    List<Cube> getByMetadata(Class<?> metadata);
+
     List<Cube> getCubes();
 }

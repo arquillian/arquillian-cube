@@ -67,6 +67,7 @@
         <version.fabric8_kubernetes>2.2.0</version.fabric8_kubernetes>
         <version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
+        <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
     </properties>
 
     <dependencyManagement>
@@ -149,6 +150,20 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
                 <version>${version.fabric8_kubernetes}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-api-docker</artifactId>
+                <version>${version.descriptor.docker}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Docker Descriptors Implementation -->
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-impl-docker</artifactId>
+                <version>${version.descriptor.docker}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

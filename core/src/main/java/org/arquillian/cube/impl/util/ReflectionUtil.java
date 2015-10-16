@@ -174,6 +174,24 @@ public final class ReflectionUtil {
         return declaredAccessableFields;
     }
 
+    public static boolean isClassWithAnnotation(final Class<?> source,
+            final Class<? extends Annotation> annotationClass) {
+        return AccessController.doPrivileged( new PrivilegedAction<Boolean>() {
+            @Override
+            public Boolean run() {
+                boolean annotationPresent = false;
+                Class<?> nextSource = source;
+                while (nextSource != Object.class) {
+                    if (nextSource.isAnnotationPresent(annotationClass)) {
+                        return true;
+                    }
+                    nextSource = source.getSuperclass();
+                }
+                return annotationPresent;
+            }
+        });
+    }
+
     public static List<Method> getMethodsWithAnnotation(final Class<?> source,
             final Class<? extends Annotation> annotationClass) {
         List<Method> declaredAccessableMethods = AccessController

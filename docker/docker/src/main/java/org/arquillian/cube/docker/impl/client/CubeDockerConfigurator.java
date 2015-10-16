@@ -5,18 +5,20 @@ import java.net.URI;
 import java.util.Map;
 
 import org.arquillian.cube.HostUriContext;
-import org.arquillian.cube.docker.impl.client.container.DockerServerIPConfigurator;
-import org.arquillian.cube.docker.impl.util.*;
+import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
+import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
-import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.core.spi.LoadableExtension;
 
 public class CubeDockerConfigurator {
 
@@ -45,10 +47,10 @@ public class CubeDockerConfigurator {
     private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
 
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
-        configure(arquillianDescriptor, null);
+        configure(arquillianDescriptor);
     }
 
-    private void configure(ArquillianDescriptor arquillianDescriptor, ContainerRegistry containerRegistry) {
+    private void configure(ArquillianDescriptor arquillianDescriptor) {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);

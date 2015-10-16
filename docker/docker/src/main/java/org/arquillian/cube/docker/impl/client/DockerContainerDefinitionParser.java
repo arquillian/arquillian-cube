@@ -9,12 +9,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class DockerContainerDefinitionParser {
+
+    private static final Logger logger = Logger.getLogger(DockerContainerDefinitionParser.class.getName());
 
     private static final String DEFAULT_CUBE_DEFINITION_FILE = "cube";
     private static final String DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE = "docker-compose.yml";
@@ -87,23 +92,32 @@ public class DockerContainerDefinitionParser {
         try {
             switch (definitionFormat) {
                 case COMPOSE: {
-                    defaultUri = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE).toURI();
+                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
+                    if (resource != null) {
+                        defaultUri = resource.toURI();
+                    }
                     break;
                 }
                 case CUBE: {
-                    defaultUri = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE).toURI();
+                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE);
+                    if (resource != null) {
+                        defaultUri = resource.toURI();
+                    }
                     break;
                 }
                 default: {
-                    defaultUri = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE).toURI();
+                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE);
+                    if (resource != null) {
+                        defaultUri = resource.toURI();
+                    }
                 }
             }
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
         if (defaultUri == null) {
-            throw new IllegalArgumentException(String.format("No location was specified and no default definition was found in root of classpath for %s. CUBE [%s] COMPOSE [%s].",
-                    definitionFormat, DEFAULT_CUBE_DEFINITION_FILE, DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE));
+            logger.fine("No Docker container definitions has been found. Probably you have defined some Containers using Container Object pattern and @Cube annotation");
+            return new HashMap<>();
         }
         return convert(Paths.get(defaultUri), definitionFormat);
     }
