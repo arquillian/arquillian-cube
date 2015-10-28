@@ -56,6 +56,7 @@ public class CubeDockerConfigurator {
         config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
+        System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
     }
