@@ -192,4 +192,24 @@ public class CubeDockerConfiguration {
 
         return cubeConfiguration;
     }
+
+    @Override public String toString() {
+        String SEP = System.getProperty("line.separator");
+        return "CubeDockerConfiguration{" + SEP +
+                "dockerServerVersion='" + dockerServerVersion + '\'' + SEP +
+                ", dockerServerUri='" + dockerServerUri + '\'' + SEP +
+                ", dockerRegistry='" + dockerRegistry + '\'' + SEP +
+                ", boot2DockerPath='" + boot2DockerPath + '\'' + SEP +
+                ", dockerMachinePath='" + dockerMachinePath + '\'' + SEP +
+                ", machineName='" + machineName + '\'' + SEP +
+                ", username='" + username + '\'' + SEP +
+                ", password='" + password + '\'' + SEP +
+                ", email='" + email + '\'' + SEP +
+                ", certPath='" + certPath + '\'' + SEP +
+                ", dockerServerIp='" + dockerServerIp + '\'' + SEP +
+                ", definitionFormat=" + definitionFormat + SEP +
+                ", autoStartContainers=" + autoStartContainers + SEP +
+                ", dockerContainersContent=" + dockerContainersContent + SEP +
+                '}';
+    }
 }

@@ -14,11 +14,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -176,4 +179,25 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         }
     }
 
+    @Test
+    public void shouldDumpCubeConfiguration() throws Exception {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+
+        PrintStream old = System.out;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        CubeConfiguration cubeConfiguration = new CubeConfiguration();
+        fire(cubeConfiguration);
+        System.out.flush();
+        System.setOut(old);
+        assertThat(baos.toString(), containsString("CubeDockerConfiguration{"));
+    }
 }
