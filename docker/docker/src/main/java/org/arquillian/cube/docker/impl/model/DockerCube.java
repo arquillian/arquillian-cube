@@ -17,6 +17,7 @@ import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
@@ -32,7 +33,7 @@ import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-public class DockerCube implements Cube {
+public class DockerCube extends BaseCube {
 
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
 

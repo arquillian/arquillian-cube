@@ -1,11 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.jboss.arquillian.container.spi.Container;
-
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class CubeDockerConfiguration {

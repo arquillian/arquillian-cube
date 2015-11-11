@@ -21,6 +21,27 @@ public class LocalCubeRegistry implements CubeRegistry {
     }
 
     @Override
+    public void removeCube(String id) {
+        for (int i = 0 ; i < this.cubes.size(); i++) {
+            if (this.cubes.get(i).getId().equals(id)) {
+                this.cubes.remove(i);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public List<Cube> getByMetadata(Class<?> metadata) {
+        List<Cube> cubes = new ArrayList<>();
+        for (Cube cube : this.cubes) {
+            if (cube.hasMetadata(metadata)) {
+                cubes.add(cube);
+            }
+        }
+        return cubes;
+    }
+
+    @Override
     public Cube getCube(String id) {
         for(Cube cube : this.cubes) {
             if(cube.getId().equals(id)) {

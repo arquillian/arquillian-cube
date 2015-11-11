@@ -47,6 +47,12 @@ public interface Cube {
 
     Map<String, Object> configuration();
 
+    boolean hasMetadata(Class<?> type);
+
+    void addMetadata(Object type);
+
+    <T> T getMetadata(Class<T> type);
+
     List<ChangeLog> changesOnFilesystem(String cubeId);
 
     void copyFileDirectoryFromContainer(String cubeId, String from, String to);
