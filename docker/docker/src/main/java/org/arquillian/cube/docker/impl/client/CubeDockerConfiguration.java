@@ -191,21 +191,52 @@ public class CubeDockerConfiguration {
 
     @Override public String toString() {
         String SEP = System.getProperty("line.separator");
-        return "CubeDockerConfiguration{" + SEP +
-                "dockerServerVersion='" + dockerServerVersion + '\'' + SEP +
-                ", dockerServerUri='" + dockerServerUri + '\'' + SEP +
-                ", dockerRegistry='" + dockerRegistry + '\'' + SEP +
-                ", boot2DockerPath='" + boot2DockerPath + '\'' + SEP +
-                ", dockerMachinePath='" + dockerMachinePath + '\'' + SEP +
-                ", machineName='" + machineName + '\'' + SEP +
-                ", username='" + username + '\'' + SEP +
-                ", password='" + password + '\'' + SEP +
-                ", email='" + email + '\'' + SEP +
-                ", certPath='" + certPath + '\'' + SEP +
-                ", dockerServerIp='" + dockerServerIp + '\'' + SEP +
-                ", definitionFormat=" + definitionFormat + SEP +
-                ", autoStartContainers=" + autoStartContainers + SEP +
-                ", dockerContainersContent=" + dockerContainersContent + SEP +
-                '}';
+        StringBuilder content = new StringBuilder();
+
+        content.append("CubeDockerConfiguration: ").append(SEP);
+        if (dockerServerVersion != null) {
+            content.append("  dockerServerVersion = ").append(dockerServerVersion).append(SEP);
+        }
+        if (dockerServerUri != null) {
+            content.append("  dockerServerUri = ").append(dockerServerUri).append(SEP);
+        }
+        if (dockerRegistry != null) {
+            content.append("  dockerRegistry = ").append(dockerRegistry).append(SEP);
+        }
+        if (boot2DockerPath != null) {
+            content.append("  boot2DockerPath = ").append(boot2DockerPath).append(SEP);
+        }
+        if (dockerMachinePath != null) {
+            content.append("  dockerMachinePath = ").append(dockerMachinePath).append(SEP);
+        }
+        if (machineName != null) {
+            content.append("  machineName = ").append(machineName).append(SEP);
+        }
+        if (username != null) {
+            content.append("  username = ").append(username).append(SEP);
+        }
+        if (password != null) {
+            content.append("  password = ").append(password).append(SEP);
+        }
+        if (email != null) {
+            content.append("  email = ").append(email).append(SEP);
+        }
+        if (certPath != null) {
+            content.append("  certPath = ").append(certPath).append(SEP);
+        }
+        if (dockerServerIp != null) {
+            content.append("  dockerServerIp = ").append(dockerServerIp).append(SEP);
+        }
+        if (definitionFormat != null) {
+            content.append("  definitionFormat = ").append(definitionFormat).append(SEP);
+        }
+        if (autoStartContainers != null) {
+            content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
+        }
+        if (dockerContainersContent != null) {
+            content.append("  dockerContainersContent = ").append(dockerContainersContent).append(SEP);
+        }
+
+        return content.toString();
     }
 }
