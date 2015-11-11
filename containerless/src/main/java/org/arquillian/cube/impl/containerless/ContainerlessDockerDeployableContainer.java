@@ -198,10 +198,10 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
     @Override
     public void undeploy(Archive<?> archive) throws DeploymentException {
-        String containerlessDocker = this.configuration.getContainerlessDocker();
-        final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
 
-        Cube cube = cubeRegistry.getCube(containerlessDocker);
+        final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
+        Cube cube = resolveMainCube(cubeRegistry);
+
         if (cube != null) {
             controlEvent.fire(new StopCube(cube));
             controlEvent.fire(new DestroyCube(cube));
