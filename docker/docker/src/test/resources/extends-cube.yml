@@ -1,0 +1,4 @@
+web:
+  image: ubuntu
+  portBindings: [8080->8080]
+  env: [REDIS_HOST=redis-production.example.com]

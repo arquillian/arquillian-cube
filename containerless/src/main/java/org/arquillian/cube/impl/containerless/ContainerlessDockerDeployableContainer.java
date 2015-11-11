@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
@@ -22,10 +21,12 @@ import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
+import org.jboss.arquillian.container.spi.client.protocol.metadata.Servlet;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.Filters;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.exporter.TarExporter;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
@@ -94,7 +95,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
                         // fire events as usually.
                         controlEvent.fire(new CreateCube(cube));
                         controlEvent.fire(new StartCube(cube));
-                        return createProtocolMetadata(cube);
+                        return createProtocolMetadata(cube, archive);
                     } catch (FileNotFoundException e) {
                         throw new IllegalArgumentException("Containerless Docker container requires a file named "
                                 + DOCKERFILE_TEMPLATE);
@@ -142,12 +143,31 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         }
     }
 
-    private ProtocolMetaData createProtocolMetadata(Cube cube) {
+    private ProtocolMetaData createProtocolMetadata(Cube cube, Archive<?> deployment) {
         Binding bindings = cube.bindings();
         //ProtocolMetadataUpdater will reajust the port to the exposed ones.
         HTTPContext httpContext = new HTTPContext(bindings.getIP(), configuration.getEmbeddedPort());
+
+        // TEMP HACK to allow in-container testing without communicating with the Server mgm api
+        if(containsArquillianServletProtocol(deployment)) {
+            addArquillianTestServlet(deployment, httpContext);
+        }
         return new ProtocolMetaData().addContext(httpContext);
     }
+
+    private boolean containsArquillianServletProtocol(Archive<?> deployment) {
+        return deployment.getContent(Filters.include(".*arquillian-protocol.jar")).size() > 0;
+	}
+
+	private void addArquillianTestServlet(Archive<?> deployment, HTTPContext httpContext) {
+        httpContext.add(new Servlet("ArquillianServletRunner", extractContextName(deployment)));
+	}
+
+	private String extractContextName(Archive<?> deployment) {
+        String name = deployment.getName();
+        name = name.substring(0, name.lastIndexOf("."));
+        return name;
+	}
 
     @Override
     public void undeploy(Archive<?> archive) throws DeploymentException {

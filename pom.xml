@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <!-- Parent -->
     <parent>
@@ -25,12 +26,10 @@
     <modules>
         <module>api</module>
         <module>spi</module>
-        <module>docker</module>
-        <module>ftest</module>
-        <module>ftest-standalone</module>
-        <module>docker-server-stub</module>
-        <module>ftest-boot2docker</module>
+        <module>core</module>
         <module>containerless</module>
+        <module>docker</module>
+        <module>openshift</module>
     </modules>
 
     <developers>
@@ -53,8 +52,8 @@
         <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
         <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
         <url>git://github.com/arquillian/arquillian-cube.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <issueManagement>
         <system>GitHub</system>
@@ -62,10 +61,12 @@
     </issueManagement>
 
     <properties>
-        <version.arquillian_core>1.1.7.Final</version.arquillian_core>
+        <version.arquillian_core>1.1.8.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
-        <version.docker-java>1.0.0</version.docker-java>
-        <version.snakeyaml>1.14</version.snakeyaml>
+        <version.hamcrest>1.3</version.hamcrest>
+        <version.docker-java>1.3.0</version.docker-java>
+        <version.fabric8_kubernetes>2.2.0</version.fabric8_kubernetes>
+        <version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
     </properties>
 
@@ -83,7 +84,22 @@
             </dependency>
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-containerless</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-docker</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-openshift</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -130,14 +146,24 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${version.snakeyaml}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-api</artifactId>
+                <version>${version.fabric8_kubernetes}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${version.hamcrest}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

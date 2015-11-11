@@ -33,9 +33,17 @@ public interface Cube {
 
     void destroy() throws CubeControlException;
 
+    /**
+    * Check the state of the Cube controller container on the remote server.
+    * This should check the remote state of the Cube regardless of the current Cube.State.
+    */
+    boolean isRunningOnRemote();
+
     void changeToPreRunning();
 
     Binding bindings();
+
+    Binding configuredBindings();
 
     Map<String, Object> configuration();
 

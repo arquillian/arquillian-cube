@@ -208,7 +208,10 @@ Let's see valid attributes:
 |Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
 
 |dockerContainersFile
-|Instead of embedding YAML string, you can set YAML file location in this attribute.
+|Instead of embedding YAML string, you can set YAML file location in this attribute. This location can be a relative location from root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites. 
+
+|definitionFormat
+|Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ (default one in case of not set) to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
 
 |autoStartContainers
 |Cube will normally only start a _Docker_ container when it has the same name as an active _Arquillian_ container. That works for things that are _DeployableContainer_'s. For any other service, e.g. a database, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _tomcat7, mysql_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers.
@@ -230,6 +233,7 @@ Of course not all of them are mandatory:
 
 NOTE: In YAML adding brackets ("[" "]") is for setting a list.
 
+[[cube-format]]
 [source, yaml]
 ----
 tomcat: #1
@@ -238,6 +242,7 @@ tomcat: #1
   await: #4
     strategy: polling #5
   workingDir: .
+  alwaysPull: false
   disableNetwork: true
   hostName: host
   portSpecs: [80,81]
@@ -265,6 +270,7 @@ tomcat: #1
   publishAllPorts: true
   networkMode: host
   dnsSearch: [127.0.0.1]
+  entryPoint: [sh]
   devices:
     cGroupPermissions: a
     pathOnHost: b
@@ -277,9 +283,9 @@ tomcat: #1
   extends: container-id #9
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
-<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you.
+<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you. If you want to always pull latest image before container is created, you can configure *alwaysPull: true*.
 <3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
-<4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default native strategy is used.
+<4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default polling with _ss_ command strategy is used.
 <5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
 <6> You can pass environment variables by using `env`. In this section you can set special `dockerServerIp` string which at runtime will be replaced by _Cube_ to current docker server ip.
 <7> After the container is up, a list of commands can be executed within it.
@@ -313,7 +319,7 @@ To avoid executing tests before the services are ready, you can set which await 
 Currently next await strategies are supported:
 
 native:: it uses *wait* command. In this case current thread is waiting until the _Docker_ server notifies that has started. In case of foreground services this is not the approach to be used.
-polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default _polling_ executes _ss_ command inside the running container to know if the server is already running. You can use a _ping_ from client by setting +type+ attribute to +ping+; Note that _ping_ only works if you are running _Docker_ daemon on +localhost+. In almost all cases the default behaviour matches all scenarios.
+polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default _polling_ executes _ss_ command inside the running container to know if the server is already running. You can use a _ping_ from client by setting +type+ attribute to +ping+; Note that _ping_ only works if you are running _Docker_ daemon on +localhost+. In almost all cases the default behaviour matches all scenarios. If it is not specified, this is the default strategy.
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
 sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
 
@@ -390,6 +396,10 @@ daytime:
     strategy: polling
   portBindings: [8080/tcp]
 ----
+
+Also it is not necessary to set network protocol (tcp or udp). 
+In case it is not specified `portBindings: ["8080"]` then _tcp_ is used by default. 
+Notice that you need to add double-quotes to stringify the value.
 
 === Allow connecting to a running container
 
@@ -490,7 +500,7 @@ Also every time you start _boot2docker_ copies required certificates to home dir
 _Arquillian Cube_ offers some automatic mechanisms to use _boot2docker_ in _Cube_.
 
 The first one is that +serverUri+ parameter can contain the word +boot2docker+ like for example +https://boot2docker:2376+. 
-When _Cube_ is started it will check if the +serverUri+ contains the _boot2docker_ word, and if it is the case it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command. 
+When _Cube_ is started it will check if the +serverUri+ contains the _boot2docker_ word, and if it is the case it will check if you have set system environment or java property called `DOCKER_HOST`. In case it is set then it will substitute _boot2docker_ with given value. If property is not set then it will run the command +boot2docker ip+ to get the ip and substitute the _boot2docker_ sentence to the ip returned by that command. 
 
 Note that by default _Arquillian Cube_ assumes that +boot2docker+ command is on +PATH+, but you can configure its location by using +boot2dockerPath+ which is the full location (and program name) of _boot2docker_. 
 For example +/opt/boot2dockerhome/boot2docker+.
@@ -543,6 +553,69 @@ EXPOSE 8089
 CMD ["/tomcat/bin/catalina.sh","run"]
 ----
 <1> +tomcat-users.xml+ file is located at same directory as +Dockerfile+.
+
+[[docker-compose-format]]
+== Docker-Compose Format
+
+Instead of using Arquillian Cube format, you can use Docker Compose format to define containers layout. This means that you can use the same Docker Compose file for running your tests with Arquillian Cube and without any change run `docker-compose up` command from terminal and get the same result.
+
+It is important to note that this is not a docker-compose implementation but only the docker-compose format. This means that for example you cannot execute some CLI commands of _docker-compose_ like start several instances of same service.
+
+In case of some specific Arquillian Cube attributes like await strategy cannot be configured and the default values are going to be used.
+
+Moreover there are some docker-compose commands that are not implemented yet due to restrictions on docker-java library. These commands are _label_, _pid_, _domainname_, _log_driver_, _security_opt_ and _read_only_. But they will be implemented as soon as docker-java library adds their support.
+
+Last thing, in case you define a command that is not implemented in Arquillian Cube, this command will be ignored (no exception will be thrown), but a log line will be printed notifying this situation. Please it is really important that if this happens you open a bug so we can add support for them. Althought this warning we will try to maintain aligned with the latest docker-compose format.
+
+Let's see how you can rewrite previous HelloWorld example with Tomcat to be used using docker-compose format.
+
+First let's create a file called `envs` on root of the project which configures environment variables:
+
+[source]
+.envs
+----
+TOMCAT_PASS=mypass
+JAVA_OPTS=-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+----
+
+Then you can create a file called `docker-compose.yml` following docker-compose commands on root of the project:
+
+[source, yml]
+.docker-compose.yml
+----
+tomcat:
+  env_file: envs
+  image: tutum/tomcat:7.0
+  ports:
+      - "8089:8089"
+      - "8088:8088"
+      - "8081:8080"
+----
+
+and finally you can configure in `arquillian.xml` file that you want to use docker-compose format.
+
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="docker">
+  <property name="serverVersion">1.13</property>
+  <property name="serverUri">localhost</property>
+  <property name="definitionFormat">COMPOSE</property>
+  <property name="dockerContainersFile">docker-compose.yml</property>
+</extension>
+
+<container qualifier="tomcat">
+  <configuration>
+    <property name="host">${docker.tomcat.host}</property>
+    <property name="httpPort">8081</property>
+    <property name="user">admin</property>
+    <property name="pass">mypass</property>
+  </configuration>
+</container>
+----
+
+And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too. 
+You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-docker-compose
 
 == Enrichers
 

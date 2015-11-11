@@ -22,8 +22,9 @@ public class Binding {
         return bindings;
     }
 
-    public void addPortBinding(Integer exposedPort, Integer bindingPort) {
+    public Binding addPortBinding(Integer exposedPort, Integer bindingPort) {
         this.bindings.add(new PortBinding(exposedPort, bindingPort));
+        return this;
     }
 
     public boolean arePortBindings() {
