@@ -80,8 +80,7 @@ public class ContainerConfigurationController {
 
         try {
             Method method = fieldName.getReadMethod();
-            final Object o = method.invoke(configurationInstance);
-            return Integer.class.isInstance(o) ? (int)o : -1;
+            return (int) method.invoke(configurationInstance);
         } catch (SecurityException e) {
             throw new IllegalArgumentException(e);
         } catch (IllegalAccessException e) {
