@@ -1,0 +1,3 @@
+TOMCAT_PASS=mypass
+CATALINA_OPTS=-Djava.security.egd=file:/dev/./urandom
+JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -72,15 +73,10 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
     @Override
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
-        String containerlessDocker = this.configuration.getContainerlessDocker();
         final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
 
-        Cube cube = cubeRegistry.getCube(containerlessDocker);
-        if (cube == null) {
-            // Is there a way to ignore it? Or we should throw an exception?
-            throw new IllegalArgumentException("No Containerless Docker container configured in extension with id "
-                    + containerlessDocker);
-        }
+        Cube cube = resolveMainCube(cubeRegistry);
+
         Map<String, Object> cubeConfiguration = cube.configuration();
         //Only works with images using a Dockerfile.
         if (cubeConfiguration.containsKey("buildImage")) {
@@ -112,6 +108,27 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
             throw new IllegalArgumentException(
                     "Containerless Docker container should be built in Dockerfile, and buildImage property not found.");
         }
+    }
+
+    private Cube resolveMainCube(CubeRegistry cubeRegistry) {
+        Cube cube = null;
+        if(this.configuration.isContainerlessDockerSet()) {
+            String containerlessDocker = this.configuration.getContainerlessDocker();
+            cube = cubeRegistry.getCube(containerlessDocker);
+            if (cube == null) {
+                // Is there a way to ignore it? Or we should throw an exception?
+                throw new IllegalArgumentException("No Containerless Docker container configured in extension with id "
+                        + containerlessDocker);
+            }
+        } else {
+            List<Cube> cubes = cubeRegistry.getCubes();
+            if(cubes.size() == 1) {
+                cube = cubes.get(0);
+            } else {
+                throw new IllegalArgumentException("More than one container eligible for being the main instance. Use containerlessDocker property to set one.");
+            }
+        }
+        return cube;
     }
 
     private void createDockerfileFromTemplate(Archive<?> archive, File location)
@@ -146,7 +163,17 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
     private ProtocolMetaData createProtocolMetadata(Cube cube, Archive<?> deployment) {
         Binding bindings = cube.bindings();
         //ProtocolMetadataUpdater will reajust the port to the exposed ones.
-        HTTPContext httpContext = new HTTPContext(bindings.getIP(), configuration.getEmbeddedPort());
+
+        HTTPContext httpContext = null;
+        if(this.configuration.isEmbeddedPortSet()) {
+            httpContext = new HTTPContext(bindings.getIP(), this.configuration.getEmbeddedPort());
+        } else {
+            if(bindings.getNumberOfPortBindings() == 1) {
+                httpContext = new HTTPContext(bindings.getIP(), bindings.getFirstPortBinding().getBindingPort());
+            } else {
+                throw new IllegalArgumentException("More than one port binding eligible. Set one using embeddedPort property");
+            }
+        }
 
         // TEMP HACK to allow in-container testing without communicating with the Server mgm api
         if(containsArquillianServletProtocol(deployment)) {
@@ -171,10 +198,10 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
     @Override
     public void undeploy(Archive<?> archive) throws DeploymentException {
-        String containerlessDocker = this.configuration.getContainerlessDocker();
-        final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
 
-        Cube cube = cubeRegistry.getCube(containerlessDocker);
+        final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
+        Cube cube = resolveMainCube(cubeRegistry);
+
         if (cube != null) {
             controlEvent.fire(new StopCube(cube));
             controlEvent.fire(new DestroyCube(cube));

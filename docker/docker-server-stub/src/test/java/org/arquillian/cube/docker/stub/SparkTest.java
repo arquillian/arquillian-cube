@@ -56,12 +56,14 @@ public class SparkTest {
 
     @Test
     public void shouldStartAContainer() {
-        CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         Ports ports = new Ports();
         ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
         ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
-        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
+        CreateContainerResponse id = docker.createContainerCmd("tomcat")
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
+                .withPortBindings().exec();
+
+        docker.startContainerCmd(id.getId()).exec();
         assertThat(sparkServer.isContainerWithOneStatus(id.getId(), Status.STARTED), is(true));
     }
 
@@ -90,49 +92,28 @@ public class SparkTest {
     }
 
     @Test
-    public void shouldPullImage() throws IOException {
-        String created = IOUtils.toString(docker.pullImageCmd("tomcat/7.0").exec());
-        assertThat(created, is("{\"status\":\"Pulling...tomcat/7.0\"}"));
-    }
-
-    @Test
-    public void shouldBuildImage() throws IOException {
-        String created = IOUtils.toString(docker.buildImageCmd(new ByteArrayInputStream(new byte[] {})).exec());
-        assertThat(created, startsWith("{\"status\":\"Successfully built "));
-    }
-
-    @Test
     public void shouldCopyFileFromAContainer() throws IOException {
-        CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         Ports ports = new Ports();
         ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
         ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
-        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
+        CreateContainerResponse id = docker.createContainerCmd("tomcat")
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
+                .withPortBindings(ports).exec();
+
+        docker.startContainerCmd(id.getId()).exec();
         InputStream file = docker.copyFileFromContainerCmd(id.getId(), "/test").exec();
         assertThat(file.available() > 0, is(true));
     }
 
     @Test
-    public void shouldGetLogFromAContainer() throws IOException {
-        CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
-        Ports ports = new Ports();
-        ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
-        ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
-        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
-        InputStream file = docker.logContainerCmd(id.getId()).withStdOut().exec();
-        assertThat(file.available() > 0, is(true));
-    }
-
-    @Test
     public void shouldInspectContainer() {
-        CreateContainerResponse id = docker.createContainerCmd("tomcat")
-                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081)).exec();
         Ports ports = new Ports();
         ports.bind(ExposedPort.tcp(8080), Binding.parse("8081"));
         ports.bind(ExposedPort.tcp(8082), Binding.parse("8083"));
-        docker.startContainerCmd(id.getId()).withPortBindings(ports).exec();
+        CreateContainerResponse id = docker.createContainerCmd("tomcat")
+                .withExposedPorts(ExposedPort.tcp(8080), ExposedPort.tcp(8081))
+                .withPortBindings(ports).exec();
+        docker.startContainerCmd(id.getId()).exec();
         InspectContainerResponse exec = docker.inspectContainerCmd(id.getId()).exec();
         System.out.println(exec.getHostConfig().getPortBindings());
         System.out.println(exec.getId());

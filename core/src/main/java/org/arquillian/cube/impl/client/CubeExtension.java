@@ -7,8 +7,10 @@ import org.arquillian.cube.impl.client.container.ProtocolMetadataUpdater;
 import org.arquillian.cube.impl.client.container.remote.CubeAuxiliaryArchiveAppender;
 import org.arquillian.cube.impl.client.enricher.CubeControllerProvider;
 import org.arquillian.cube.impl.client.enricher.CubeIDResourceProvider;
+import org.arquillian.cube.impl.client.enricher.HostIpTestEnricher;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
 import org.jboss.arquillian.core.spi.LoadableExtension;
+import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 public class CubeExtension implements LoadableExtension {
@@ -21,7 +23,8 @@ public class CubeExtension implements LoadableExtension {
                //.observer(CubeSuiteLifecycleController.class)
                .observer(ClientCubeControllerCreator.class);
 
-        builder.service(ResourceProvider.class, CubeControllerProvider.class);
+        builder.service(ResourceProvider.class, CubeControllerProvider.class)
+        	   .service(TestEnricher.class, HostIpTestEnricher.class);
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath

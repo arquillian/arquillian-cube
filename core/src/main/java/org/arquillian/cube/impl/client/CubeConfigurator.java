@@ -17,7 +17,8 @@ public class CubeConfigurator {
     @ApplicationScoped
     private InstanceProducer<CubeConfiguration> configurationProducer;
 
-    public void configure(@Observes ArquillianDescriptor arquillianDescriptor) {
+    //Add precedence -10 because we need that ContainerRegistry is available in the Arquillian scope.
+    public void configure(@Observes(precedence = -10) ArquillianDescriptor arquillianDescriptor) {
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(config);
         configurationProducer.set(cubeConfiguration);

@@ -1,11 +1,5 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +20,8 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.yaml.snakeyaml.Yaml;
+
+import static org.arquillian.cube.docker.impl.util.YamlUtil.*;
 
 
 public class ContainerBuilder {
@@ -120,6 +116,9 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(VOLUMES)) {
             this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
         }
+        if(dockerComposeContainerDefinition.containsKey(LABELS)) {
+            this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
+        }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES_FROM)) {
             this.addVolumesFrom(asListOfString(dockerComposeContainerDefinition, VOLUMES_FROM));
         }
@@ -191,12 +190,20 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(CPU_SHARES)) {
             this.addCpuShares(asInt(dockerComposeContainerDefinition, CPU_SHARES));
         }
-        if(dockerComposeContainerDefinition.containsKey(CPU_SET)) {
+        if (dockerComposeContainerDefinition.containsKey(CPU_SET)) {
             this.addCpuSet(asString(dockerComposeContainerDefinition, CPU_SET));
         }
-        if(dockerComposeContainerDefinition.containsKey(DEVICES)) {
+        if (dockerComposeContainerDefinition.containsKey(DEVICES)) {
             this.addDevices(asListOfString(dockerComposeContainerDefinition, DEVICES));
         }
+        if (dockerComposeContainerDefinition.containsKey(DOMAINNAME)) {
+           this.addDomainName(asString(dockerComposeContainerDefinition, DOMAINNAME));
+        }
+        if (dockerComposeContainerDefinition.containsKey(READ_ONLY)) {
+            this.addReadOnly(asBoolean(dockerComposeContainerDefinition, READ_ONLY));
+        }
+
+
         this.logUsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
     }
@@ -239,6 +246,11 @@ public class ContainerBuilder {
 
     public ContainerBuilder addImage(String image) {
         configuration.put(DockerClientExecutor.IMAGE, image);
+        return this;
+    }
+
+    public ContainerBuilder addReadOnly(boolean b) {
+        configuration.put(DockerClientExecutor.READ_ONLY_ROOT_FS, b);
         return this;
     }
 
@@ -342,6 +354,17 @@ public class ContainerBuilder {
             oldVolumes.addAll(volumesFrom);
         } else {
             configuration.put(DockerClientExecutor.VOLUMES_FROM, new HashSet<>(volumesFrom));
+        }
+        return this;
+    }
+
+    public ContainerBuilder addLabels(Map<String, String> labels) {
+        //TODO now only support for array approach and not dictionary
+        if (configuration.containsKey(DockerClientExecutor.LABELS)) {
+            Map<String, String> oldLabels = (Map<String, String>) configuration.get(DockerClientExecutor.LABELS);
+            oldLabels.putAll(labels);
+        } else {
+            configuration.put(DockerClientExecutor.LABELS, labels);
         }
         return this;
     }
@@ -503,8 +526,8 @@ public class ContainerBuilder {
         return this;
     }
 
-    //TODO domainname
     public ContainerBuilder addDomainName(String domainName) {
+        configuration.put(DockerClientExecutor.DOMAINNAME, domainName);
         return this;
     }
 

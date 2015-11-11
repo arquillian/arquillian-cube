@@ -7,10 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.arquillian.cube.docker.impl.client.AutoStartParser;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 
 public class AutoStartOrderUtil {
+
+    public static final String REGEXP = "regexp:";
 
     public static List<String[]> getAutoStopOrder(CubeDockerConfiguration config) {
         List<String[]> autoStartOrder = getAutoStartOrder(config);
@@ -53,15 +58,13 @@ public class AutoStartOrderUtil {
 
     static Set<Node> from(CubeDockerConfiguration config) {
         Map<String, Node> nodes = new HashMap<>();
-        String[] autoStartContainers = config.getAutoStartContainers();
-        Map<String, Object> containerDefinitions = config.getDockerContainersContent();
 
-        for(String autoStart : autoStartContainers) {
-            if(containerDefinitions.containsKey(autoStart)) {
-                nodes.put(autoStart, Node.from(autoStart));
-            }
+        AutoStartParser autoStartParser = config.getAutoStartContainers();
+        if(autoStartParser != null) {
+            nodes.putAll(autoStartParser.parse());
         }
 
+        // add all children links
         Map<String, Node> autoStartNodes = new HashMap<>(nodes);
         for(Map.Entry<String, Node> node : autoStartNodes.entrySet()) {
             addAll(nodes, config, node.getKey());

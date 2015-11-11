@@ -3,10 +3,8 @@ package org.arquillian.cube.docker.impl.client;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeSuiteLifecycleController;
@@ -18,6 +16,7 @@ import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
@@ -39,6 +38,109 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeSuiteLifecycleController.class);
         super.addExtensions(extensions);
+    }
+
+    @Test
+    public void shouldParseEmptyAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 0);
+        assertEventFired(StartCube.class, 0);
+    }
+
+    @Test
+    public void shouldParseEmptyValuesAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", " ,  ");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 0);
+        assertEventFired(StartCube.class, 0);
+    }
+
+    @Test
+    public void shouldParseTrimAutostart() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("autoStartContainers", "a , b ");
+        parameters.put("dockerContainers", "a:\n  image: a\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
+    }
+
+    @Test
+    public void shouldCreateAndStartAutoContainersWhenNoAutoStartIsProvided() {
+        Map<String, String> dockerData = new HashMap<String, String>();
+        dockerData.put("dockerContainers", "a:\n  image: a\n  links:\n    - b:b\nb:\n  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        ContainerRegistry containerRegistry = mock(ContainerRegistry.class);
+        List<org.jboss.arquillian.container.spi.Container> containers = new ArrayList<>();
+        org.jboss.arquillian.container.spi.Container container = mock(org.jboss.arquillian.container.spi.Container.class);
+        when(container.getName()).thenReturn("a");
+        containers.add(container);
+        when(containerRegistry.getContainers()).thenReturn(containers);
+
+        bind(ApplicationScoped.class, ContainerRegistry.class, containerRegistry);
+
+        fire(new BeforeSuite());
+        assertEventFired(CreateCube.class, 1);
+        assertEventFired(StartCube.class, 1);
+    }
+
+    @Test
+    public void shouldCreateAndStartAutoContainersDefiningRegularExpressions() {
+        Map<String, String> dockerData = new HashMap<String, String>();
+        dockerData.put("autoStartContainers", "regexp:a(.*)");
+        dockerData.put("dockerContainers", "a:\n  image: a\nab:\n  image: a\nx:\n" +
+                "  image: a\n");
+
+        CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
+        bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
+
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
+
+        fire(new BeforeSuite());
+
+        assertEventFired(CreateCube.class, 2);
+        assertEventFired(StartCube.class, 2);
+        assertEventFiredOnOtherThread(CreateCube.class);
+        assertEventFiredOnOtherThread(StartCube.class);
     }
 
     @Test

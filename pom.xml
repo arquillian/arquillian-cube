@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <!-- Parent -->
     <parent>
@@ -61,13 +60,14 @@
     </issueManagement>
 
     <properties>
-        <version.arquillian_core>1.1.8.Final</version.arquillian_core>
+        <version.arquillian_core>1.1.10.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
         <version.hamcrest>1.3</version.hamcrest>
-        <version.docker-java>1.3.0</version.docker-java>
+        <version.docker-java>2.1.1</version.docker-java>
         <version.fabric8_kubernetes>2.2.0</version.fabric8_kubernetes>
         <version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
+        <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
     </properties>
 
     <dependencyManagement>
@@ -150,6 +150,20 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
                 <version>${version.fabric8_kubernetes}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-api-docker</artifactId>
+                <version>${version.descriptor.docker}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Docker Descriptors Implementation -->
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+                <artifactId>shrinkwrap-descriptors-impl-docker</artifactId>
+                <version>${version.descriptor.docker}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

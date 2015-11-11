@@ -5,15 +5,23 @@ import org.jboss.arquillian.container.spi.client.container.ContainerConfiguratio
 
 public class ContainerlessConfiguration implements ContainerConfiguration {
 
-    private String containerlessDocker = "";
-    private int embeddedPort = 8080;
+    private String containerlessDocker = null;
+    private int embeddedPort = 0;
 
     public void setContainerlessDocker(String containerlessDocker) {
         this.containerlessDocker = containerlessDocker;
     }
 
+    public boolean isContainerlessDockerSet() {
+        return this.containerlessDocker != null;
+    }
+
     public void setEmbeddedPort(int embeddedPort) {
         this.embeddedPort = embeddedPort;
+    }
+
+    public boolean isEmbeddedPortSet() {
+        return this.embeddedPort > 0;
     }
 
     public int getEmbeddedPort() {

@@ -12,13 +12,14 @@ import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
+import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
 
 import io.fabric8.kubernetes.api.model.Service;
 
-public class ServiceCube implements Cube {
+public class ServiceCube extends BaseCube {
 
     private String id;
     private Service resource;

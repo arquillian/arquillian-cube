@@ -1,15 +1,8 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Paths;
 import java.util.Map;
-
-import org.arquillian.cube.docker.impl.util.ConfigUtil;
-import org.yaml.snakeyaml.Yaml;
 
 public class CubeDockerConfiguration {
 
@@ -24,6 +17,8 @@ public class CubeDockerConfiguration {
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
+    public static final String DOCKER_MACHINE_PATH = "dockerMachinePath";
+    public static final String DOCKER_MACHINE_NAME = "machineName";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
 
@@ -31,13 +26,15 @@ public class CubeDockerConfiguration {
     private String dockerServerUri;
     private String dockerRegistry;
     private String boot2DockerPath;
+    private String dockerMachinePath;
+    private String machineName;
     private String username;
     private String password;
     private String email;
     private String certPath;
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
-    private String[] autoStartContainers = new String[0];
+    private AutoStartParser autoStartContainers = null;
 
     private Map<String, Object> dockerContainersContent;
 
@@ -61,6 +58,18 @@ public class CubeDockerConfiguration {
         return boot2DockerPath;
     }
 
+    public String getDockerMachinePath() {
+        return dockerMachinePath;
+    }
+
+    public String getMachineName() {
+        return machineName;
+    }
+
+    public boolean isDockerMachineName() {
+        return this.getMachineName() != null;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -81,8 +90,12 @@ public class CubeDockerConfiguration {
         return dockerServerIp;
     }
 
-    public String[] getAutoStartContainers() {
+    public AutoStartParser getAutoStartContainers() {
        return autoStartContainers;
+    }
+
+    void setAutoStartContainers(AutoStartParser autoStartParser) {
+        this.autoStartContainers = autoStartParser;
     }
 
     public DefinitionFormat getDefinitionFormat() {
@@ -107,6 +120,14 @@ public class CubeDockerConfiguration {
 
         if(map.containsKey(BOOT2DOCKER_PATH)) {
             cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
+        }
+
+        if(map.containsKey(DOCKER_MACHINE_PATH)) {
+            cubeConfiguration.dockerMachinePath = map.get(DOCKER_MACHINE_PATH);
+        }
+
+        if(map.containsKey(DOCKER_MACHINE_NAME)) {
+            cubeConfiguration.machineName = map.get(DOCKER_MACHINE_NAME);
         }
 
         if(map.containsKey(USERNAME)) {
@@ -156,10 +177,66 @@ public class CubeDockerConfiguration {
             }
         }
 
+
         if(map.containsKey(AUTO_START_CONTAINERS)) {
-           cubeConfiguration.autoStartContainers = ConfigUtil.trim(map.get(AUTO_START_CONTAINERS).split(","));
+            String expression = map.get(AUTO_START_CONTAINERS);
+            Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
+            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
+
+            cubeConfiguration.autoStartContainers = autoStartParser;
         }
 
         return cubeConfiguration;
+    }
+
+    @Override public String toString() {
+        String SEP = System.getProperty("line.separator");
+        StringBuilder content = new StringBuilder();
+
+        content.append("CubeDockerConfiguration: ").append(SEP);
+        if (dockerServerVersion != null) {
+            content.append("  dockerServerVersion = ").append(dockerServerVersion).append(SEP);
+        }
+        if (dockerServerUri != null) {
+            content.append("  dockerServerUri = ").append(dockerServerUri).append(SEP);
+        }
+        if (dockerRegistry != null) {
+            content.append("  dockerRegistry = ").append(dockerRegistry).append(SEP);
+        }
+        if (boot2DockerPath != null) {
+            content.append("  boot2DockerPath = ").append(boot2DockerPath).append(SEP);
+        }
+        if (dockerMachinePath != null) {
+            content.append("  dockerMachinePath = ").append(dockerMachinePath).append(SEP);
+        }
+        if (machineName != null) {
+            content.append("  machineName = ").append(machineName).append(SEP);
+        }
+        if (username != null) {
+            content.append("  username = ").append(username).append(SEP);
+        }
+        if (password != null) {
+            content.append("  password = ").append(password).append(SEP);
+        }
+        if (email != null) {
+            content.append("  email = ").append(email).append(SEP);
+        }
+        if (certPath != null) {
+            content.append("  certPath = ").append(certPath).append(SEP);
+        }
+        if (dockerServerIp != null) {
+            content.append("  dockerServerIp = ").append(dockerServerIp).append(SEP);
+        }
+        if (definitionFormat != null) {
+            content.append("  definitionFormat = ").append(definitionFormat).append(SEP);
+        }
+        if (autoStartContainers != null) {
+            content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
+        }
+        if (dockerContainersContent != null) {
+            content.append("  dockerContainersContent = ").append(dockerContainersContent).append(SEP);
+        }
+
+        return content.toString();
     }
 }
