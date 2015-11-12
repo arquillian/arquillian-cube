@@ -318,7 +318,7 @@ public class CubeContainerObjectTestEnricherTest {
     }
 
     private static class InjectableTest {
-        @Cube("mycontainer")
+        @Cube(value = "mycontainer")
         TestContainerObject testContainerObject;
     }
 
