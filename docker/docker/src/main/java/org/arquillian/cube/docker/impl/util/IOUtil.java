@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 public class IOUtil {
@@ -59,6 +60,24 @@ public class IOUtil {
 
     public static String replacePlaceholders(String templateContent, Map<String, String> values) {
         StrSubstitutor sub = new StrSubstitutor(values);
+        return sub.replace(templateContent);
+    }
+
+    public static String replacePlaceholdersWithWhiteSpace(final String templateContent, final Map<String, String> values) {
+        StrSubstitutor sub = new StrSubstitutor(values);
+        sub.setVariableResolver(new StrLookup() {
+            @Override
+            public String lookup(String key) {
+                if (values == null) {
+                    return "";
+                }
+                Object obj = values.get(key);
+                if (obj == null) {
+                    return "";
+                }
+                return obj.toString();
+            }
+        });
         return sub.replace(templateContent);
     }
 
@@ -108,6 +127,19 @@ public class IOUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Map<String, Object> deepMerge(Map<String, Object> original, Map<String, Object> newMap) {
+        for (String key : newMap.keySet()) {
+            if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
+                Map<String, Object> originalChild = (Map<String, Object>) original.get(key);
+                Map<String, Object> newChild = (Map) newMap.get(key);
+                original.put(key, deepMerge(originalChild, newChild));
+            } else {
+                original.put(key, newMap.get(key));
+            }
+        }
+        return original;
     }
 
 }

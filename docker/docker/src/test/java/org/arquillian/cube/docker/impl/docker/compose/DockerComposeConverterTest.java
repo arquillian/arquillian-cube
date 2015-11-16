@@ -1,5 +1,8 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
@@ -11,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class DockerComposeConverterTest {
@@ -53,6 +57,19 @@ public class DockerComposeConverterTest {
     assertThat(webapp, hasKey("env"));
     Collection<String> env = (Collection<String>) webapp.get("env");
     assertThat(env, containsInAnyOrder("RACK_ENV=development"));
+  }
+
+  @Test
+  public void shouldResolveEnvironmentVars() throws URISyntaxException, IOException {
+    URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/simple-cube-var.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
+
+    Map<String, Object> convert = dockerComposeConverter.convert();
+    Map<String, Object> webapp = (Map<String, Object>) convert.get("webapp2");
+    assertThat(webapp, hasKey("image"));
+    final String image = (String)webapp.get("image");
+    assertThat(image, is(notNullValue()));
+    assertThat(image, is(System.getenv("USER")));
   }
 
   @Test

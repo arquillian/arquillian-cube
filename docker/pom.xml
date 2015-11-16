@@ -18,6 +18,14 @@
 
     <name>Arquillian Cube Docker Parent</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>docker</module>
         <module>ftest</module>
