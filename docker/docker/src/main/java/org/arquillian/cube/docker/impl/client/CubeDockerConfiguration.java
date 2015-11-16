@@ -1,7 +1,11 @@
 package org.arquillian.cube.docker.impl.client;
 
+import org.apache.commons.collections.MapUtils;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -289,7 +293,10 @@ public class CubeDockerConfiguration {
             content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
         }
         if (dockerContainersContent != null) {
-            content.append("  dockerContainersContent = ").append(dockerContainersContent).append(SEP);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos);
+            MapUtils.verbosePrint(ps, null, dockerContainersContent);
+            content.append("  dockerContainersContent = ").append(baos.toString()).append(SEP);
         }
 
         return content.toString();
