@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
@@ -163,7 +164,7 @@ public class CubeDockerConfiguration {
         if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
             String location = map.get(DOCKER_CONTAINERS_FILE);
             try {
-                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(URI.create(location), cubeConfiguration.definitionFormat);
+                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(new File(location).toURI(), cubeConfiguration.definitionFormat);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }

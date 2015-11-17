@@ -93,7 +93,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://127.0.0.1:22222"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://127.0.0.1:22222"));
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "127.0.0.1"));
 
         if(originalVar != null) {
@@ -198,6 +198,6 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         fire(cubeConfiguration);
         System.out.flush();
         System.setOut(old);
-        assertThat(baos.toString(), containsString("CubeDockerConfiguration{"));
+        assertThat(baos.toString(), containsString("CubeDockerConfiguration: "));
     }
 }
