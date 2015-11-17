@@ -63,7 +63,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
-        parameters.put("dockerContainersFiles", newFile.getAbsolutePath() + ", " + newFile2.getAbsolutePath());
+        parameters.put("dockerContainersFiles", newFile.toURI().toString() + ", " + newFile2.toURI().toString());
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
@@ -149,7 +149,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
-        parameters.put("dockerContainersFile", newFile.getAbsolutePath());
+        parameters.put("dockerContainersFile", newFile.toURI().toString());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
@@ -175,7 +175,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
-        parameters.put("dockerContainersFile", newFile.getAbsolutePath());
+        parameters.put("dockerContainersFile", newFile.toURI().toString());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
