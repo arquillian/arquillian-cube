@@ -206,6 +206,12 @@ Let's see valid attributes:
 |dockerRegistry
 |Sets the location of Docker registry. Default value is the official _Docker_ registry located at https://registry.hub.docker.com
 
+|username
+|Sets the username to connect to Docker registry.
+
+|password
+|Sets the password to connect to Docker registry.
+
 |dockerContainers
 |Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
 

@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.docker.compose;
 
 import org.arquillian.cube.docker.impl.client.Converter;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
@@ -24,13 +25,21 @@ public class DockerComposeConverter implements Converter {
     private Path dockerComposeRootDirectory;
 
     private DockerComposeConverter(Path location) throws IOException {
-        FileInputStream inputStream = new FileInputStream(location.toFile());
-        this.dockerComposeDefinitionMap = (Map<String, Object>)new Yaml().load(inputStream);
-        this.dockerComposeRootDirectory = location.getParent();
-        inputStream.close();
+        try (FileInputStream inputStream = new FileInputStream(location.toFile())) {
+            String content = IOUtil.asStringPreservingNewLines(inputStream);
+            content = resolvePlaceholders(content);
+            this.dockerComposeDefinitionMap = (Map<String, Object>) new Yaml().load(content);
+            this.dockerComposeRootDirectory = location.getParent();
+        }
+    }
+
+    private String resolvePlaceholders(String content) {
+        final Map<String, String> env = System.getenv();
+        return IOUtil.replacePlaceholdersWithWhiteSpace(content, env);
     }
 
     private DockerComposeConverter(String content) {
+        String resolvePlaceholders = resolvePlaceholders(content);
         this.dockerComposeDefinitionMap = (Map<String, Object>) new Yaml().load(content);
         this.dockerComposeRootDirectory = Paths.get(".");
     }

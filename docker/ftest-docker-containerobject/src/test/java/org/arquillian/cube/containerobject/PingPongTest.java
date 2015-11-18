@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(Arquillian.class)
@@ -25,6 +26,7 @@ public class PingPongTest {
     public void shouldReturnOkAsPong() throws IOException {
         String pong = ping();
         assertThat(pong, containsString("OK"));
+        assertThat(pingPongContainer.getConnectionPort(), is(5000));
     }
 
 

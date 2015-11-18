@@ -45,7 +45,17 @@ public class DockerContainerDefinitionParser {
         }
     }
 
-    public static Map<String, Object> convert(URI uri, DefinitionFormat definitionFormat) throws IOException {
+    public static Map<String, Object> convert(DefinitionFormat definitionFormat, URI... uris) throws IOException {
+        Map<String, Object> finalDefinition = new HashMap<>();
+        for (URI uri : uris) {
+            Map<String, Object> convertedDocument = convert(uri, definitionFormat);
+            merge(finalDefinition, convertedDocument);
+        }
+
+        return finalDefinition;
+    }
+
+    private static Map<String, Object> convert(URI uri, DefinitionFormat definitionFormat) throws IOException {
         try {
             Path definitionFilePath = Paths.get(uri);
             return convert(definitionFilePath, definitionFormat);
@@ -68,6 +78,11 @@ public class DockerContainerDefinitionParser {
             }
             return convert(content, definitionFormat);
         }
+    }
+
+
+    private static void merge(Map<String, Object> finalDefinition, Map<String, Object> convertedDocument) {
+        IOUtil.deepMerge(finalDefinition, convertedDocument);
     }
 
     public static Map<String, Object> convert(String content, DefinitionFormat definitionFormat) {

@@ -1,8 +1,16 @@
 package org.arquillian.cube.docker.impl.client;
 
+import org.apache.commons.collections.MapUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class CubeDockerConfiguration {
 
@@ -15,12 +23,14 @@ public class CubeDockerConfiguration {
     public static final String CERT_PATH = "certPath";
     private static final String DOCKER_CONTAINERS = "dockerContainers";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
+    private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
     public static final String DOCKER_MACHINE_PATH = "dockerMachinePath";
     public static final String DOCKER_MACHINE_NAME = "machineName";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
+    private static final String CUBE_ENVIRONMENT = "cube.environment";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -161,15 +171,36 @@ public class CubeDockerConfiguration {
         }
 
         if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
-            String location = map.get(DOCKER_CONTAINERS_FILE);
+            final String location = map.get(DOCKER_CONTAINERS_FILE);
+            final List<URI> resolveUri = new ArrayList<>();
             try {
-                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(URI.create(location), cubeConfiguration.definitionFormat);
+                final URI uri = URI.create(location);
+                resolveUri.add(uri);
+
+                if (System.getProperty(CUBE_ENVIRONMENT) != null) {
+                    final String resolveFilename = resolveFilename(uri);
+                    final String environmentUri = uri.toString().replace(resolveFilename, resolveFilename + "." + System.getProperty(CUBE_ENVIRONMENT));
+                    resolveUri.add(URI.create(environmentUri));
+                }
+
+                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat, resolveUri.toArray(new URI[resolveUri.size()]));
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
         }
 
-        if(!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE)) {
+        if (map.containsKey(DOCKER_CONTAINERS_FILES)) {
+
+            String locations = map.get(DOCKER_CONTAINERS_FILES);
+            List<URI> realLocations = getUris(locations);
+            try {
+                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat, realLocations.toArray(new URI[realLocations.size()]));
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        if (!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(DOCKER_CONTAINERS_FILES)) {
             try {
                 cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);
             } catch (IOException e) {
@@ -178,7 +209,7 @@ public class CubeDockerConfiguration {
         }
 
 
-        if(map.containsKey(AUTO_START_CONTAINERS)) {
+        if (map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
             Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
             AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
@@ -187,6 +218,34 @@ public class CubeDockerConfiguration {
         }
 
         return cubeConfiguration;
+    }
+
+    private static String resolveFilename(URI uri) {
+        if (uri.getScheme() == null || "file".equals(uri.getScheme())) {
+            //it is a local path
+            final String fullPath = uri.toString();
+            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
+            if (lastSeparatorChar > -1) {
+                return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
+            } else {
+                return fullPath.substring(0, fullPath.lastIndexOf('.'));
+            }
+        } else {
+            //means it is a remote uri (http, ftp, ...
+            final String fullPath = uri.toString();
+            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
+            return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
+        }
+    }
+
+    private static List<URI> getUris(String locations) {
+        // Transform comma-separated values to an array of URIs
+        List<URI> realLocations = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(locations, ",");
+        while (tokenizer.hasMoreTokens()) {
+            realLocations.add(URI.create(tokenizer.nextToken().trim()));
+        }
+        return realLocations;
     }
 
     @Override public String toString() {
@@ -234,7 +293,10 @@ public class CubeDockerConfiguration {
             content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
         }
         if (dockerContainersContent != null) {
-            content.append("  dockerContainersContent = ").append(dockerContainersContent).append(SEP);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos);
+            MapUtils.verbosePrint(ps, null, dockerContainersContent);
+            content.append("  dockerContainersContent = ").append(baos.toString()).append(SEP);
         }
 
         return content.toString();

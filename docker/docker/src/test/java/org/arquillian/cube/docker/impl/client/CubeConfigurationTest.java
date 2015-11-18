@@ -1,12 +1,9 @@
 package org.arquillian.cube.docker.impl.client;
 
-import static org.mockito.Mockito.mock;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.hamcrest.collection.IsMapContaining.hasKey;
-import static org.junit.Assert.assertThat;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,15 +13,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.arquillian.container.spi.ContainerRegistry;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
+import static org.junit.Assert.assertThat;
 
 public class CubeConfigurationTest {
 
     private static final String CONTENT = "tomcat:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  await:\n" +
+            "    strategy: static\n" +
+            "    ip: localhost\n" +
+            "    ports: [8080, 8089]";
+
+    private static final String CONTENT2 = "tomcat2:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -45,6 +49,29 @@ public class CubeConfigurationTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_merge_more_than_one_file_into_one() throws IOException {
+
+        File newFile = testFolder.newFile("config.yaml");
+        Files.write(Paths.get(newFile.toURI()), CONTENT.getBytes());
+
+        File newFile2 = testFolder.newFile("config2.yaml");
+        Files.write(Paths.get(newFile2.toURI()), CONTENT2.getBytes());
+
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainersFiles", newFile.toURI().toString() + ", " + newFile2.toURI().toString());
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        final Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        assertThat(dockerContainersContent.containsKey("tomcat"), is(true));
+        assertThat(dockerContainersContent.containsKey("tomcat2"), is(true));
+    }
 
     @Test
     public void should_load_docker_compose_format() {
@@ -110,6 +137,35 @@ public class CubeConfigurationTest {
     }
 
     @Test
+    public void should_parse_and_load_configuration_file_from_container_configuration_file_and_property_set_file() throws IOException {
+
+        File newFile = testFolder.newFile("config.yml");
+        Files.write(Paths.get(newFile.toURI()), CONTENT.getBytes());
+
+        File newFile2 = testFolder.newFile("config.demo.yml");
+        Files.write(Paths.get(newFile2.toURI()), CONTENT2.getBytes());
+        System.setProperty("cube.environment", "demo");
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainersFile", newFile.toURI().toString());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
+        assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
+
+        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        assertThat(actualTomcat, is(notNullValue()));
+
+        String image = (String) actualTomcat.get("image");
+        assertThat(image, is("tutum/tomcat:7.0"));
+        assertThat(dockerContainersContent.containsKey("tomcat2"), is(true));
+    }
+
+    @Test
     public void should_parse_and_load_configuration_file_from_container_configuration_file() throws IOException {
 
         File newFile = testFolder.newFile("config.yaml");
@@ -119,7 +175,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
-        parameters.put("dockerContainersFile", newFile.getAbsolutePath());
+        parameters.put("dockerContainersFile", newFile.toURI().toString());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
