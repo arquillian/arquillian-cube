@@ -178,7 +178,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
             if (hostPortValue > 0) {
                 final Binding.PortBinding bindingForExposedPort = cube.bindings().getBindingForExposedPort(hostPortValue);
 
-                if (bindingForExposedPort != null) {
+                if (bindingForExposedPort != null && bindingForExposedPort.getBindingPort() != -1) {
                     field.set(containerObjectInstance, bindingForExposedPort.getBindingPort());
                 } else {
                     throw new IllegalArgumentException(String.format("Container Object %s contains field %s annotated with %s but exposed port %s is not exposed on container object.", containerObjectInstance.getClass().getSimpleName(), field.getName(), HostPort.class.getSimpleName(), hostPortValue));

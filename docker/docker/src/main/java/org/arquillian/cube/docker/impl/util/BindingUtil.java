@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Binding;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 
@@ -22,16 +23,22 @@ public final class BindingUtil {
     public static Binding binding(DockerClientExecutor executor, String cubeId) {
         InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( cubeId ).exec();
 
-        HostConfig hostConfig = inspectResponse.getHostConfig();
-
         String dockerIp = getDockerServerIp(executor);
         Binding binding = new Binding(dockerIp);
 
-        for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
-                .getBindings().entrySet()) {
-            com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
-            for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
-                binding.addPortBinding(bind.getKey().getPort(), bindings.getHostPort());
+        HostConfig hostConfig = inspectResponse.getHostConfig();
+        if(hostConfig.getPortBindings() != null) {
+            for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
+                    .getBindings().entrySet()) {
+                com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
+                for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
+                    binding.addPortBinding(bind.getKey().getPort(), bindings.getHostPort());
+                }
+            }
+        } else {
+            ContainerConfig connectionConfig = inspectResponse.getConfig();
+            for(ExposedPort port : connectionConfig.getExposedPorts()) {
+                binding.addPortBinding(port.getPort(), -1);
             }
         }
         return binding;

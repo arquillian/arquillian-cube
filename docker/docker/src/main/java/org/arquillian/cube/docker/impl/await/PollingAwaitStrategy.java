@@ -95,6 +95,9 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
             switch(this.type) {
                 case "ping": {
+                    if(ports.getBindingPort() == -1) {
+                        throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + ports.getExposedPort());
+                    }
                     if (!Ping.ping(bindings.getIP(), ports.getBindingPort(), this.pollIterations, this.sleepPollTime,
                             this.timeUnit)) {
                         return false;
