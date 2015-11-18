@@ -1,10 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
-import org.arquillian.cube.docker.impl.util.ConfigUtil;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+import org.arquillian.cube.docker.impl.util.ConfigUtil;
 
 public class CommaSeparatedAutoStartParser implements AutoStartParser {
 
@@ -27,5 +27,10 @@ public class CommaSeparatedAutoStartParser implements AutoStartParser {
             }
         }
         return nodes;
+    }
+
+    @Override
+    public String toString() {
+        return AutoStartOrderUtil.toString(parse());
     }
 }

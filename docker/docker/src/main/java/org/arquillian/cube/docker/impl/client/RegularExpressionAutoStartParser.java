@@ -42,4 +42,9 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
     private String getRegularExpression(String autoStartContainer) {
         return autoStartContainer.substring(autoStartContainer.indexOf(':') + 1).trim();
     }
+
+    @Override
+    public String toString() {
+        return AutoStartOrderUtil.toString(parse());
+    }
 }

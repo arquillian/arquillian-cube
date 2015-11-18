@@ -250,4 +250,8 @@ public class AutoStartOrderUtil {
         }
         return sb.toString();
     }
+
+    public static String toString(Map<String, Node> nodeMap) {
+        return nodeList(new HashSet<Node>(nodeMap.values()));
+    }
 }

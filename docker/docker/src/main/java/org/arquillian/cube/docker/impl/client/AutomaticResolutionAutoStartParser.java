@@ -46,4 +46,8 @@ public class AutomaticResolutionAutoStartParser implements AutoStartParser {
         return nodes;
     }
 
+    @Override
+    public String toString() {
+        return AutoStartOrderUtil.toString(parse());
+    }
 }
