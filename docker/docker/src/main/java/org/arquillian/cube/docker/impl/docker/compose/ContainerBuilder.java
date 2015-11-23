@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -204,7 +203,7 @@ public class ContainerBuilder {
         }
 
 
-        this.logUsupportedOperations(dockerComposeContainerDefinition.keySet());
+        this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
     }
 
@@ -573,7 +572,7 @@ public class ContainerBuilder {
         return allProperties;
     }
 
-    private void logUsupportedOperations(Set<String> keys) {
+    private void logUnsupportedOperations(Set<String> keys) {
         for (String key : keys) {
             if(!AVAILABLE_COMMANDS.contains(key)) {
                 log.info(String.format("Key: %s is not implemented in Cube.", keys));

@@ -68,8 +68,7 @@ public class DockerComposeConverterTest {
     Map<String, Object> webapp = (Map<String, Object>) convert.get("webapp2");
     assertThat(webapp, hasKey("image"));
     final String image = (String)webapp.get("image");
-    assertThat(image, is(notNullValue()));
-    assertThat(image, is(System.getenv("USER")));
+    assertThat(image, is("MyImageName"));
   }
 
   @Test
