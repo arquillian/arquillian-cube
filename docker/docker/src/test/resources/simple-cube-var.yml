@@ -1,5 +1,5 @@
 webapp2:
-  image: ${USER}
+  image: ${TESTIMAGENAME}
   portBindings: [8080->8080]
   links:
     - webapp:webapp
