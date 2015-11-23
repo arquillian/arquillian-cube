@@ -1,6 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.apache.commons.collections.MapUtils;
+import org.arquillian.cube.docker.impl.util.IOUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -295,7 +295,7 @@ public class CubeDockerConfiguration {
         if (dockerContainersContent != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
-            MapUtils.verbosePrint(ps, null, dockerContainersContent);
+            IOUtil.asString(dockerContainersContent);
             content.append("  dockerContainersContent = ").append(baos.toString()).append(SEP);
         }
 
