@@ -293,10 +293,8 @@ public class CubeDockerConfiguration {
             content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
         }
         if (dockerContainersContent != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos);
-            IOUtil.asString(dockerContainersContent);
-            content.append("  dockerContainersContent = ").append(baos.toString()).append(SEP);
+            String output = IOUtil.asString(dockerContainersContent);
+            content.append("  dockerContainersContent = ").append(output).append(SEP);
         }
 
         return content.toString();
