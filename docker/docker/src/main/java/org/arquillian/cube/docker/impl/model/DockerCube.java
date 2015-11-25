@@ -175,7 +175,7 @@ public class DockerCube extends BaseCube {
 
     @Override
     public void changeToPreRunning() {
-        if(state != State.DESTROYED) {
+        if(state != State.DESTROYED && state != State.STARTED) {
             return;
         }
 

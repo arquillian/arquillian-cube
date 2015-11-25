@@ -1,12 +1,6 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,7 +93,7 @@ public class AutoStartOrderUtil {
         }
         Node parent = nodes.get(id);
         if(content.containsKey("links")) {
-            List<String> links = (List<String>)content.get("links");
+            Collection<String> links = (Collection<String>)content.get("links");
             for(String link : links) {
                 String[] parsed = link.split(":");
                 String name = parsed[0];

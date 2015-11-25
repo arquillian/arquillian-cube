@@ -3,10 +3,7 @@ package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AutomaticResolutionAutoStartParser implements AutoStartParser {
 
@@ -30,7 +27,7 @@ public class AutomaticResolutionAutoStartParser implements AutoStartParser {
             }
 
             if (content.containsKey("links")) {
-                Set<String> links = (Set<String>) content.get("links");
+                Collection<String> links = (Collection<String>) content.get("links");
                 for (String link : links) {
                     String[] parsed = link.split(":");
                     String name = parsed[0];

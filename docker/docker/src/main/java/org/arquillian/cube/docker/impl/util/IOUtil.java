@@ -1,18 +1,11 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -23,6 +16,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 public class IOUtil {
 
     private static final int BUFFER = 2048;
+    private static final String INDENT_STRING = "    ";
 
     private IOUtil() {
         super();
@@ -95,6 +89,83 @@ public class IOUtil {
         return null;
     }
 
+    public static final String asString(final Map map) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        verbosePrintInternal(ps, null, map, new Stack(), false);
+        return baos.toString();
+    }
+
+    private static void verbosePrintInternal(final PrintStream out, final Object label, final Map map, final Stack lineage, final boolean debug) {
+
+        printIndent(out, lineage.size());
+
+        if (map == null) {
+            if (label != null) {
+                out.print(label);
+                out.print(" = ");
+            }
+            out.println("null");
+            return;
+        }
+        if (label != null) {
+            out.print(label);
+            out.println(" = ");
+        }
+
+        printIndent(out, lineage.size());
+        out.println("{");
+
+        lineage.push(map);
+
+        for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Object childKey = entry.getKey();
+            Object childValue = entry.getValue();
+            if (childValue instanceof Map && !lineage.contains(childValue)) {
+                verbosePrintInternal(
+                        out,
+                        (childKey == null ? "null" : childKey),
+                        (Map) childValue,
+                        lineage,
+                        debug);
+            } else {
+                printIndent(out, lineage.size());
+                out.print(childKey);
+                out.print(" = ");
+
+                final int lineageIndex = lineage.indexOf(childValue);
+                if (lineageIndex == -1) {
+                    out.print(childValue);
+                } else if (lineage.size() - 1 == lineageIndex) {
+                    out.print("(this Map)");
+                } else {
+                    out.print(
+                            "(ancestor["
+                                    + (lineage.size() - 1 - lineageIndex - 1)
+                                    + "] Map)");
+                }
+
+                if (debug && childValue != null) {
+                    out.print(' ');
+                    out.println(childValue.getClass().getName());
+                } else {
+                    out.println();
+                }
+            }
+        }
+
+        lineage.pop();
+
+        printIndent(out, lineage.size());
+        out.println(debug ? "} " + map.getClass().getName() : "}");
+    }
+
+    private static void printIndent(final PrintStream out, final int indent) {
+        for (int i = 0; i < indent; i++) {
+            out.print(INDENT_STRING);
+        }
+    }
     public static final String asString(InputStream response) {
 
         StringWriter logwriter = new StringWriter();
