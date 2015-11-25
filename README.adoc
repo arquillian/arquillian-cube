@@ -1015,6 +1015,8 @@ Then we need to touch +arquillian.xml+ file by setting an special container defi
 <5> This property is used to set which container must be started.
 <6> This property sets the exposed port by the embedded server.
 
+IMPORTANT: If containerless definition only contains only one image, it is not necessary to use _containerlessDocker_ property. At the same time if the image only exposes one port, it is not necessary to use _embeddedPort_ proeprty to set the port. So in previous example you could avoid using _containerlessDocker_ and _embeddedPort_.
+
 And finally the test:
 
 [source, java]
@@ -1160,6 +1162,8 @@ Finally the +arquillian.xml+ configuration file.
 </arquillian>
 ----
 <1> This property is used to set which container must be started. In this case +node+.
+
+IMPORTANT: If containerless definition only contains only one image, it is not necessary to use _containerlessDocker_ property. At the same time if the image only exposes one port, it is not necessary to use _embeddedPort_ proeprty to set the port. So in previous example you could avoid using _containerlessDocker_ and _embeddedPort_.
 
 And finally the *Arquillian* test.
 
