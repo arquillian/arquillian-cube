@@ -93,18 +93,14 @@
     </container>
     <container qualifier="tomcat_dockerfile">
         <configuration>
-          <!-- This must match the docker host ip.  Otherwise it is not replaced before TomcatRemoteContainer.deploy is invoked as of Arquillian 1.1.6. Final
-           ProtocolMetadataUpdater is not currently invoked until after the initial deployment to tomcat has occurred -->
             <property name="host">${docker.tomcat.host}</property>
-            <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
     </container>
     <container qualifier="tomcat_default">
         <configuration>
-            <!-- It is not necessary to set host because in case of not setting and running on boot2docker environment, the host is set -->
-            <!-- <property name="host">${docker.tomcat.host}</property> -->
+            <property name="host">${docker.tomcat.host}</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
@@ -112,7 +108,6 @@
     <container qualifier="tomcat">
         <configuration>
             <property name="host">${docker.tomcat.host}</property>
-            <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>

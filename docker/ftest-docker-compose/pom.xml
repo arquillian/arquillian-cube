@@ -14,7 +14,7 @@
         <version.tomcat>1.0.0.CR7</version.tomcat>
         <docker.api.version>1.12</docker.api.version>
         <docker.api.url>http://localhost:2375</docker.api.url>
-        <docker.tomcat.host>localhost</docker.tomcat.host>
+        <docker.tomcat.host>dockerServerIp</docker.tomcat.host>
     </properties>
 
     <dependencyManagement>
