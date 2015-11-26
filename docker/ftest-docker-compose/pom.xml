@@ -6,7 +6,7 @@
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
     <name>Arquillian Cube Docker Functional Test Compose</name>
-    <artifactId>ftest-docker-compose</artifactId>
+    <artifactId>arquillian-cube-docker-ftest-compose</artifactId>
 
     <properties>
         <arquillian.cube.autostart />

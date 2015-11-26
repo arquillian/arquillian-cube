@@ -6,7 +6,7 @@
         <artifactId>arquillian-cube-docker-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <artifactId>ftest-docker-containerobject</artifactId>
+    <artifactId>arquillian-cube-docker-ftest-containerobject</artifactId>
     <name>Arquillian Cube Docker Functional Test Container Object</name>
 
     <dependencies>
