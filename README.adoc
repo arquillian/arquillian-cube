@@ -791,6 +791,23 @@ public class UserRepository {
 }
 ----
 
+Cube will normally start a Docker container when it has the same name as an active Arquillian container and *all* the _links_ from this container to another containers as we have seen in previous example. Basically Cube resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. 
+
+That works for things that are DeployableContainer's. For any other container services that might not have a link to the DeployableContainer, e.g. a monitor, you can use the `autoStartContainers` option to define which Docker containers to automatically start up. 
+The option takes a comma separated list of Docker container ids. e.g. monitor. 
+Arquillian Cube will attempt to start the containers in parallel if possible as well as start any linked containers. 
+Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with a.
+
+For example: 
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+    <property name="autoStartContainers">regexp:a(.*)</property>
+</extension>
+----
+
 === Auto-Remapping
 
 *Arquillian Cube* can automatically configure default ports of container in case of port forwarding.
