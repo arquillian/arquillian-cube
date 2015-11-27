@@ -646,8 +646,10 @@ First let's create a file called `envs` on root of the project which configures 
 .envs
 ----
 TOMCAT_PASS=mypass
-JAVA_OPTS=-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
 ----
+
+IMPORTANT: You can use `dockerServerIp` as special tag for identify the docker host IP. Before injecting the environement variables, Cube will change it to real host IP.
 
 Then you can create a file called `docker-compose.yml` following docker-compose commands on root of the project:
 
@@ -677,8 +679,6 @@ and finally you can configure in `arquillian.xml` file that you want to use dock
 
 <container qualifier="tomcat">
   <configuration>
-    <property name="host">${docker.tomcat.host}</property>
-    <property name="httpPort">8081</property>
     <property name="user">admin</property>
     <property name="pass">mypass</property>
   </configuration>
