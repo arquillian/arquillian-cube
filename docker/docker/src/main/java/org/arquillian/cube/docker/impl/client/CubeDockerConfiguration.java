@@ -1,16 +1,14 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.IOUtil;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import org.arquillian.cube.docker.impl.util.IOUtil;
 
 public class CubeDockerConfiguration {
 
@@ -254,47 +252,47 @@ public class CubeDockerConfiguration {
 
         content.append("CubeDockerConfiguration: ").append(SEP);
         if (dockerServerVersion != null) {
-            content.append("  dockerServerVersion = ").append(dockerServerVersion).append(SEP);
+            content.append("  ").append(DOCKER_VERSION).append(" = ").append(dockerServerVersion).append(SEP);
         }
         if (dockerServerUri != null) {
-            content.append("  dockerServerUri = ").append(dockerServerUri).append(SEP);
+            content.append("  ").append(DOCKER_URI).append(" = ").append(dockerServerUri).append(SEP);
         }
         if (dockerRegistry != null) {
-            content.append("  dockerRegistry = ").append(dockerRegistry).append(SEP);
+            content.append("  ").append(DOCKER_REGISTRY).append(" = ").append(dockerRegistry).append(SEP);
         }
         if (boot2DockerPath != null) {
-            content.append("  boot2DockerPath = ").append(boot2DockerPath).append(SEP);
+            content.append("  ").append(BOOT2DOCKER_PATH).append(" = ").append(boot2DockerPath).append(SEP);
         }
         if (dockerMachinePath != null) {
-            content.append("  dockerMachinePath = ").append(dockerMachinePath).append(SEP);
+            content.append("  ").append(DOCKER_MACHINE_PATH).append(" = ").append(dockerMachinePath).append(SEP);
         }
         if (machineName != null) {
-            content.append("  machineName = ").append(machineName).append(SEP);
+            content.append("  ").append(DOCKER_MACHINE_NAME).append(" = ").append(machineName).append(SEP);
         }
         if (username != null) {
-            content.append("  username = ").append(username).append(SEP);
+            content.append("  ").append(USERNAME).append(" = ").append(username).append(SEP);
         }
         if (password != null) {
-            content.append("  password = ").append(password).append(SEP);
+            content.append("  ").append(PASSWORD).append(" = ").append(password).append(SEP);
         }
         if (email != null) {
-            content.append("  email = ").append(email).append(SEP);
+            content.append("  ").append(EMAIL).append(" = ").append(email).append(SEP);
         }
         if (certPath != null) {
-            content.append("  certPath = ").append(certPath).append(SEP);
+            content.append("  ").append(CERT_PATH).append(" = ").append(certPath).append(SEP);
         }
         if (dockerServerIp != null) {
-            content.append("  dockerServerIp = ").append(dockerServerIp).append(SEP);
+            content.append("  ").append(DOCKER_SERVER_IP).append(" = ").append(dockerServerIp).append(SEP);
         }
         if (definitionFormat != null) {
-            content.append("  definitionFormat = ").append(definitionFormat).append(SEP);
+            content.append("  ").append(DEFINITION_FORMAT).append(" = ").append(definitionFormat).append(SEP);
         }
         if (autoStartContainers != null) {
-            content.append("  autoStartContainers = ").append(autoStartContainers).append(SEP);
+            content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
         }
         if (dockerContainersContent != null) {
             String output = IOUtil.asString(dockerContainersContent);
-            content.append("  dockerContainersContent = ").append(output).append(SEP);
+            content.append("  ").append(DOCKER_CONTAINERS).append(" = ").append(output).append(SEP);
         }
 
         return content.toString();
