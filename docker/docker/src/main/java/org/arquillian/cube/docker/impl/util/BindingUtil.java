@@ -48,9 +48,9 @@ public final class BindingUtil {
         return executor.getDockerServerIp();
     }
 
-    public static Binding binding(Map<String, Object> cubeConfiguration) {
+    public static Binding binding(Map<String, Object> cubeConfiguration, DockerClientExecutor executor) {
 
-        Binding binding = new Binding(NO_GATEWAY);
+        Binding binding = new Binding(executor.getDockerServerIp());
 
         if (cubeConfiguration.containsKey("portBindings")) {
             @SuppressWarnings("unchecked")

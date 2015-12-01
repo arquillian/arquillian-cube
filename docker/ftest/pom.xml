@@ -16,7 +16,6 @@
         <version.arquillian_tck>1.0.0.Alpha1</version.arquillian_tck>
         <docker.api.version>1.12</docker.api.version>
         <docker.api.url>http://localhost:2375</docker.api.url>
-        <docker.tomcat.host>dockerServerIp</docker.tomcat.host>
     </properties>
 
     <dependencyManagement>

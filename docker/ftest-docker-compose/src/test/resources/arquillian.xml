@@ -16,8 +16,6 @@
 
     <container qualifier="tomcat">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
-            <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
