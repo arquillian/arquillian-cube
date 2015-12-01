@@ -81,7 +81,6 @@
 
     <container qualifier="tomee_dockerfile" default="true">
         <configuration>
-            <property name="httpPort">8080</property>
             <property name="user">tomee</property>
             <property name="pass">unsecured</property>
             <property name="deployerProperties">
@@ -93,21 +92,18 @@
     </container>
     <container qualifier="tomcat_dockerfile">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
     </container>
     <container qualifier="tomcat_default">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
     </container>
     <container qualifier="tomcat">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>
@@ -115,7 +111,6 @@
     <container qualifier="wildfly">
         <configuration>
             <property name="target">wildfly:8.1.0.Final:remote</property>
-            <property name="managementPort">9991</property>
             <property name="username">admin</property>
             <property name="password">Admin#70365</property>
         </configuration>
@@ -123,7 +118,6 @@
     <container qualifier="wildfly_database">
         <configuration>
             <property name="target">wildfly:8.1.0.Final:remote</property>
-            <property name="managementPort">9991</property>
             <property name="username">admin</property>
             <property name="password">Admin#70365</property>
         </configuration>
@@ -132,7 +126,6 @@
         <container qualifier="wildfly">
             <configuration>
                 <property name="target">wildfly:8.1.0.Final:remote</property>
-                <property name="managementPort">9991</property>
                 <property name="username">admin</property>
                 <property name="password">Admin#70365</property>
             </configuration>
@@ -140,7 +133,6 @@
         <container qualifier="wildfly2" default="true">
             <configuration>
                 <property name="target">wildfly:8.1.0.Final:remote</property>
-                <property name="managementPort">9992</property>
                 <property name="username">admin</property>
                 <property name="password">Admin#70365</property>
             </configuration>

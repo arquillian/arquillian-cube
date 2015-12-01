@@ -147,7 +147,7 @@ public class DockerCube extends BaseCube {
 
     @Override
     public Binding configuredBindings() {
-        return BindingUtil.binding(configuration);
+        return BindingUtil.binding(configuration, executor);
     }
 
     @Override
