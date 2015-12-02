@@ -728,6 +728,37 @@ CubeController cubeController;
 String ip;
 ----
 
+=== CubeController
+
+`CubeController` is facade class that let's you interact with any cube container.
+ It offers some operations like creating and destroying _Cubes_ (in case of Docker, it is Docker containers), copy a directory to local directory, get a log with all the changes that happened to Cube filesystem, execute a `Top` command or copy the logs to local file.
+
+Suppose you have next Docker Container definition in `dockerContainers` property:
+
+[source, xml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+    manual_database:
+        image: zhilvis/h2-db
+        portBindings: [1521/tcp, 8181->81/tcp]
+</property>
+----
+
+If you enrich your test with `CubeController` then you will be able to:
+
+* call `cubeController.create("manual_database")` to create the Cube defined in `dockerContainers` with name _manual_database_.
+* call `cubeController.start("manual_database")` to start the given Cube.
+* call `cubeController.stop("manual_database")` to stop the given Cube.
+* call `cubeController.destroy("manual_database")` to destroy the given Cube.
+
+But also it offers some extra operations not related with the lifecycle of a Cube.
+
+* `cubeController.copyFileDirectoryFromContainer("manual_database", "/db", newFolder.getAbsolutePath())` to copy content from container folder `/db` to `newFolder` local location.
+* `List<ChangeLog> changesOnFilesystem = cubeController.changesOnFilesystem("manual_database")` to returns a log with all changes that has occurred inside given Cube.
+* `TopContainer top = cubeController.top("manual_testing")` to get the result of executing `top` command inside Cube.
+* `cubeController.copyLog("manual_testing", follow, stdout, stderr, timestamp, tail, byteArrayOutputStream)` to copy Cube log to given `outputStream`. This operation only works in Client mode.
+
 === Auto starting Cubes outside of Arquillian Containers
 
 Probably any application you may write will need an application/servlet container but also other servers like database server or mail server.
