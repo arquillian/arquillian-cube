@@ -26,6 +26,7 @@ import com.github.dockerjava.core.async.ResultCallbackTemplate;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
@@ -341,6 +342,18 @@ public class DockerClientExecutor {
                         "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
                 this.pullImage(image);
                 return createContainerCmd.exec().getId();
+            } else {
+                throw e;
+            }
+        } catch (ProcessingException e) {
+            if (e.getCause() instanceof UnsupportedSchemeException) {
+                if (e.getCause().getMessage().contains("https")) {
+                    throw new IllegalStateException("You have configured serverUri with https protocol but " +
+                            "certPath property is missing or points out to an invalid certificate to handle the SSL.",
+                            e.getCause());
+                } else {
+                    throw e;
+                }
             } else {
                 throw e;
             }
