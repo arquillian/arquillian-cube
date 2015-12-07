@@ -1089,6 +1089,11 @@ public class PingPongContainer {
 <2> Method must be `public` and `static`.
 <3> Returns a `GenericArchive` with all elements required for building the Docker container instance.
 
+
+In Arquillian Cube we are providing a `org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset` asset.
+This asset is like `org.jboss.shrinkwrap.api.asset.UrlAsset` but it caches to disk for an amount of time the content that has been downloaded from the URL.
+By default this expiration time is 1 hour but it is configurable by using proper constructor.
+
 ==== Links
 
 A Container Object can contain more Container Objects inside. 
