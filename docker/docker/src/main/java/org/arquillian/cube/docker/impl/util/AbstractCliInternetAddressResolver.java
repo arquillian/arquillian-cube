@@ -11,7 +11,7 @@ public abstract class AbstractCliInternetAddressResolver {
     public static final String DOCKERHOST_TAG = "dockerHost";
     private static final Logger log = Logger.getLogger(AbstractCliInternetAddressResolver.class.getName());
 
-    private CommandLineExecutor commandLineExecutor;
+    protected CommandLineExecutor commandLineExecutor;
     private String cachedIp = null;
 
     public AbstractCliInternetAddressResolver(final CommandLineExecutor commandLineExecutor) {

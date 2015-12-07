@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
@@ -79,6 +80,45 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
         assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME))));
+
+    }
+
+    @Test
+    public void shouldUseDockerMachineIfDockerHostIsNotSetAndOnlyOneMachineIsRunning() {
+        Map<String, String> config = new HashMap<>();
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
+        Mockito.when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     "
+        });
+
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.99.100:2376"));
+        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME))));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev"));
+
+    }
+
+    @Test
+    public void shouldNotUseDockerMachineIfDockerHostIsNotSetNotDockerMachineAndTwoMachineIsRunning() {
+        Map<String, String> config = new HashMap<>();
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
+        Mockito.when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
+                "dev2    *        virtualbox   Running   tcp://192.168.99.100:2376     "
+        });
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:2376"));
 
     }
 

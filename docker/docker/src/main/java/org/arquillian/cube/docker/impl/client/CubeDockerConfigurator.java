@@ -3,12 +3,14 @@ package org.arquillian.cube.docker.impl.client;
 import java.io.File;
 import java.net.URI;
 import java.util.Map;
+import java.util.Set;
 
 import org.arquillian.cube.HostUriContext;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -54,6 +56,7 @@ public class CubeDockerConfigurator {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);
+        config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
@@ -61,6 +64,27 @@ public class CubeDockerConfigurator {
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
+    }
+
+    private Map<String,String> resolveDefaultDockerMachine(Map<String, String> config) {
+
+        // if user has not specified Docker URI host not a docker machine
+        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
+            // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
+            Set<Machine> machines = this.dockerMachineInstance.get().list("state", "Running");
+
+            // if there is only one machine running we can use that one.
+            // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
+            if (machines.size() == 1) {
+                config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, getFirstMachine(machines).getName());
+            }
+        }
+
+        return config;
+    }
+
+    private Machine getFirstMachine(Set<Machine> machines) {
+        return machines.iterator().next();
     }
 
     private Map<String, String> resolveSystemEnvironmentVariables(Map<String, String> config) {
