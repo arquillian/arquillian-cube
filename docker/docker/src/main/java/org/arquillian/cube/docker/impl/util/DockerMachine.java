@@ -35,6 +35,19 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         this.machineName = machineName;
     }
 
+    public boolean isDockerMachineInstalled(String cliPathExec) {
+        try {
+            commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec));
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean isDockerMachineInstalled() {
+        return isDockerMachineInstalled(null);
+    }
+
     /**
      * Executes docker-machine ls command
      * @param cliPathExec location of docker-machine or null if it is on PATH.

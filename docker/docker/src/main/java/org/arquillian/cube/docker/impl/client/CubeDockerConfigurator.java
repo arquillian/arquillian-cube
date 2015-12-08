@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.arquillian.cube.HostUriContext;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
@@ -24,6 +25,7 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class CubeDockerConfigurator {
 
+    private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
     public static final String DOCKER_HOST = "DOCKER_HOST";
@@ -70,13 +72,17 @@ public class CubeDockerConfigurator {
 
         // if user has not specified Docker URI host not a docker machine
         if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-            // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
-            Set<Machine> machines = this.dockerMachineInstance.get().list("state", "Running");
+            log.fine("No DockerUri or DockerMachine has been set, let's see if there is only one Docker Machine Running.");
+            if (dockerMachineInstance.get().isDockerMachineInstalled()) {
+                // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
+                Set<Machine> machines = this.dockerMachineInstance.get().list("state", "Running");
 
-            // if there is only one machine running we can use that one.
-            // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
-            if (machines.size() == 1) {
-                config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, getFirstMachine(machines).getName());
+                // if there is only one machine running we can use that one.
+                // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
+                if (machines.size() == 1) {
+                    log.fine(String.format("One Docker Machine is running (%s) and it is going to be used for tests", machines.iterator().next().getName()));
+                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, getFirstMachine(machines).getName());
+                }
             }
         }
 

@@ -14,6 +14,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DockerMachineTest {
@@ -24,14 +25,14 @@ public class DockerMachineTest {
 
     @Test
     public void shouldListDockerMachines() {
-        Mockito.when(executor.execCommandAsArray("docker-machine", "ls")).thenReturn(new String[]{
+        when(executor.execCommandAsArray("docker-machine", "ls")).thenReturn(new String[]{
                 "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                 "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
                 "qa    *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
         });
 
         DockerMachine dockerMachine = new DockerMachine(executor);
-        final Set<Machine> list = dockerMachine.list(null);
+        final Set<Machine> list = dockerMachine.list();
         assertThat(list, hasSize(2));
         final Machine[] machines = list.toArray(new Machine[2]);
         assertThat(machines[0].getName(), is("qa"));
@@ -46,14 +47,14 @@ public class DockerMachineTest {
 
     @Test
     public void shouldListWithFilterDockerMachines() {
-        Mockito.when(executor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
+        when(executor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
                 "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                 "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
                 "qa    *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
         });
 
         DockerMachine dockerMachine = new DockerMachine(executor);
-        final Set<Machine> list = dockerMachine.list(null, "state", "Running");
+        final Set<Machine> list = dockerMachine.list("state", "Running");
         assertThat(list, hasSize(2));
         final Machine[] machines = list.toArray(new Machine[2]);
         assertThat(machines[0].getName(), is("qa"));
