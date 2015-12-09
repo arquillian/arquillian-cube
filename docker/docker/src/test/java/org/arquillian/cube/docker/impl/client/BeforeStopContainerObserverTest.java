@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.BeforeStopContainerObserver;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.stub.SparkServer;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
@@ -36,7 +35,6 @@ import org.yaml.snakeyaml.Yaml;
 @RunWith(MockitoJUnitRunner.class)
 public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
 
-    private static final SparkServer sparkServer = new SparkServer();
 
     private static final String CUBE_CONTAINER_NAME = "test";
 
