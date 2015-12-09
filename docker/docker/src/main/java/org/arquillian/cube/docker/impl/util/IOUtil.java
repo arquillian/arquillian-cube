@@ -3,7 +3,9 @@ package org.arquillian.cube.docker.impl.util;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -195,6 +197,21 @@ public class IOUtil {
             }
 
             return logwriter.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String[] asArrayString(InputStream response) {
+        List<String> lines = new ArrayList<>();
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
+
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+            return lines.toArray(new String[lines.size()]);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

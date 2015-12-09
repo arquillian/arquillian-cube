@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
@@ -83,21 +84,82 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     @Test
-    public void shouldUseHostEnvIfDockerHostIsSetOnServerURIAndSystemEnvironmentVarIsSet() {
-        String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
-        System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");
+    public void shouldUseDockerMachineIfDockerHostIsNotSetAndOnlyOneMachineIsRunning() {
+        Map<String, String> config = new HashMap<>();
 
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
+        when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     "
+        });
+        // Docker Machine is installed
+        when(commandLineExecutor.execCommand("docker-machine")).thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.99.100:2376"));
+        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME))));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev"));
+
+    }
+
+    @Test
+    public void shouldNotUseDockerMachineIfDockerHostIsNotSetNotDockerMachineAndTwoMachineIsRunning() {
+        Map<String, String> config = new HashMap<>();
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
+        when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
+                "dev2    *        virtualbox   Running   tcp://192.168.99.100:2376     "
+        });
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+        // Docker-Machine is installed
+        when(commandLineExecutor.execCommand("docker-machine")).thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:2376"));
+
+    }
+
+    // Only works in case of running in MACOS or Windows since by default in these systems boot2docker is the default
+    @Test
+    public void shouldUseDefaultsInCaseOfNotHavingDockerMachineInstalledAndNoDockerUriNorMachineName() {
         Map<String, String> config = new HashMap<>();
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
 
-        fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://127.0.0.1:22222"));
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "127.0.0.1"));
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+        when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new IllegalArgumentException());
 
-        if(originalVar != null) {
-            System.setProperty(CubeDockerConfigurator.DOCKER_HOST, originalVar);
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:2376"));
+    }
+
+    @Test
+    public void shouldUseHostEnvIfDockerHostIsSetOnServerURIAndSystemEnvironmentVarIsSet() {
+        String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
+        try {
+            System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");
+
+            Map<String, String> config = new HashMap<>();
+
+            when(extensionDef.getExtensionProperties()).thenReturn(config);
+            when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+
+            fire(new CubeConfiguration());
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://127.0.0.1:22222"));
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "127.0.0.1"));
+        } finally {
+            if (originalVar != null) {
+                System.setProperty(CubeDockerConfigurator.DOCKER_HOST, originalVar);
+            } else {
+                System.clearProperty(CubeDockerConfigurator.DOCKER_HOST);
+            }
         }
     }
 
@@ -157,25 +219,29 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void dockerUriConfigurationParameterShouldTakePrecedenceOverSystemEnv() {
         String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
-        System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");
+        try {
+            System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");
 
-        Map<String, String> config = new HashMap<>();
-        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+            Map<String, String> config = new HashMap<>();
+            config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
 
-        when(extensionDef.getExtensionProperties()).thenReturn(config);
-        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+            when(extensionDef.getExtensionProperties()).thenReturn(config);
+            when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
 
-        when(extensionDef.getExtensionProperties()).thenReturn(config);
-        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
-        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+            when(extensionDef.getExtensionProperties()).thenReturn(config);
+            when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+            when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
 
-        fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:22222"));
-        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm")));
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "192.168.0.1"));
-
-        if(originalVar != null) {
-            System.setProperty(CubeDockerConfigurator.DOCKER_HOST, originalVar);
+            fire(new CubeConfiguration());
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:22222"));
+            assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm")));
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "192.168.0.1"));
+        } finally {
+            if (originalVar != null) {
+                System.setProperty(CubeDockerConfigurator.DOCKER_HOST, originalVar);
+            } else {
+                System.clearProperty(CubeDockerConfigurator.DOCKER_HOST);
+            }
         }
     }
 
