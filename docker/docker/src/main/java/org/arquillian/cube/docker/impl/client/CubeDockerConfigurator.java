@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.arquillian.cube.HostUriContext;
@@ -58,6 +59,7 @@ public class CubeDockerConfigurator {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);
+        config = resolveAutoStartDockerMachine(config);
         config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerUriTcpProtocol(config);
@@ -68,14 +70,39 @@ public class CubeDockerConfigurator {
         configurationProducer.set(cubeConfiguration);
     }
 
+    private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {
+
+        if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
+            final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
+            if (dockerMachineInstance.get().isDockerMachineInstalled(cliPathExec)) {
+                String machineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
+                final Set<Machine> machines = dockerMachineInstance.get().list(cliPathExec, "name", machineName);
+
+                if (machines.size() == 1) {
+                    Machine machine = getFirstMachine(machines);
+                    if (machine.getState().equalsIgnoreCase("Stopped")) {
+                        dockerMachineInstance.get().startDockerMachine(cliPathExec, machineName);
+                    }
+                } else {
+                    log.log(Level.SEVERE, String.format("You are trying to run containers in Docker Machine %s but %s Docker Machines instances are installed.", config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), machines));
+                }
+
+            } else {
+                log.log(Level.SEVERE, String.format("You are trying to run containers in Docker Machine %s but no docker-machine installed.", config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME)));
+            }
+        }
+        return config;
+    }
+
     private Map<String,String> resolveDefaultDockerMachine(Map<String, String> config) {
 
         // if user has not specified Docker URI host not a docker machine
+        // setting DOCKER_URI to avoid using docker machine although it is installed
         if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
             log.fine("No DockerUri or DockerMachine has been set, let's see if there is only one Docker Machine Running.");
-            if (dockerMachineInstance.get().isDockerMachineInstalled()) {
+            if (dockerMachineInstance.get().isDockerMachineInstalled(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH))) {
                 // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
-                Set<Machine> machines = this.dockerMachineInstance.get().list("state", "Running");
+                Set<Machine> machines = this.dockerMachineInstance.get().list(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH), "state", "Running");
 
                 // if there is only one machine running we can use that one.
                 // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
