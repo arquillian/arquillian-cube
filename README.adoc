@@ -218,6 +218,9 @@ Let's see valid attributes:
 |dockerContainersFile
 |Instead of embedding YAML as a string, you can set the location of a YAML file with this attribute. The location can be a relative from the root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites.
 
+|dockerContainersFiles
+|You can set a list of locations separated by comma. These locations follow the same rules as `dockerContainersFile` so it can be a file or an URI. This property can be used to append the definitions from several files.
+
 |definitionFormat
 |Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ (default one in case of not set) to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
 
@@ -338,6 +341,14 @@ tomcat:
   env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
   portBindings: [8089/tcp, 8080/tcp]
 ----
+
+=== cube.environment
+
+In case you use the `dockerContainersFile` to configure a YAML file (Cube format or Compose format) for loading the definition of your containers, you can use `cube.environment` system property to append a prefix to the file you want to load.
+
+For example, in case you set `dockerContainersFile` to `docker-compose.yml` and `cube.environment` not set, Cube loads a file named `docker-compose.yml`. But if `cube.environment` is set to *qa* (`-Dcube.environment=qa`), the Cube loads a file called `docker-compose.qa.yml`.
+
+This property is useful for loading different configurations depending on the environment you are running the tests.
 
 === Await
 
