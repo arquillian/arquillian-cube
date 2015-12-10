@@ -12,6 +12,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
 
     private String machineName;
+    private boolean manuallyStarted = false;
 
     public DockerMachine(CommandLineExecutor commandLineExecutor) {
         super(commandLineExecutor);
@@ -35,6 +36,42 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         this.machineName = machineName;
     }
 
+    public boolean isManuallyStarted() {
+        return manuallyStarted;
+    }
+
+    /**
+     * Starts given docker machine.
+     * @param cliPathExec location of docker-machine or null if it is on PATH.
+     * @param machineName to be started.
+     */
+    public void startDockerMachine(String cliPathExec, String machineName) {
+        commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec), "start", machineName);
+        this.manuallyStarted = true;
+    }
+
+    /**
+     * Starts given docker machine.
+     * @param machineName to be started.
+     */
+    public void startDockerMachine(String machineName) {
+        startDockerMachine(null, machineName);
+    }
+
+    public void stopDockerMachine(String cliPathExec, String machineName) {
+        commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec), "stop", machineName);
+        this.manuallyStarted = false;
+    }
+
+    public void stopDockerMachine(String machineName) {
+        stopDockerMachine(null, machineName);
+    }
+
+    /**
+     * Checks if Docker Machine is installed by running docker-machine and inspect the result.
+     * @param cliPathExec location of docker-machine or null if it is on PATH.
+     * @return true if it is installed, false otherwise.
+     */
     public boolean isDockerMachineInstalled(String cliPathExec) {
         try {
             commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec));
@@ -44,6 +81,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         }
     }
 
+    /**
+     * Checks if Docker Machine is installed by running docker-machine and inspect the result.
+     * @return true if it is installed, false otherwise.
+     */
     public boolean isDockerMachineInstalled() {
         return isDockerMachineInstalled(null);
     }

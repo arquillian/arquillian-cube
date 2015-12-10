@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.util;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class CommandLineExecutor {
 
@@ -12,6 +13,12 @@ public class CommandLineExecutor {
 
             pwd.waitFor();
             String output = IOUtil.asString(pwd.getInputStream());
+
+            // Means an internal error of the application we are launching
+            if (pwd.exitValue() > 0) {
+                throw new IllegalArgumentException(String.format("Executing command %s has returned error value %s with message \"%s\".", Arrays.toString(arguments), pwd.exitValue(), output));
+            }
+
             return output;
         } catch (InterruptedException | IOException e) {
             throw new IllegalArgumentException(e);

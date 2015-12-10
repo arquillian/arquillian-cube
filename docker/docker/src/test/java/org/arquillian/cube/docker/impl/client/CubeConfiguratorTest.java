@@ -27,6 +27,8 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -75,12 +77,36 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     "
+        });
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
         assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME))));
 
+    }
+
+    @Test
+    public void shouldStartDockerMachineIfItIsStoppedAndMachineNameIsSet() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+        config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Stopped   tcp://192.168.0.2:222222     "
+        });
+        when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME))));
+        verify(commandLineExecutor, times(1)).execCommand("docker-machine", "start", "dev");
     }
 
     @Test
@@ -172,6 +198,10 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
+        when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     "
+        });
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
