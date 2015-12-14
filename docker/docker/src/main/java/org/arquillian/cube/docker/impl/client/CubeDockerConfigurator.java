@@ -15,6 +15,7 @@ import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
@@ -48,6 +49,9 @@ public class CubeDockerConfigurator {
     private Instance<DockerMachine> dockerMachineInstance;
 
     @Inject
+    private Instance<Top> topInstance;
+
+    @Inject
     @ApplicationScoped
     private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
 
@@ -59,6 +63,7 @@ public class CubeDockerConfigurator {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);
+        config = resolveDockerInsideDocker(config);
         config = resolveAutoStartDockerMachine(config);
         config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
@@ -68,6 +73,15 @@ public class CubeDockerConfigurator {
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
+    }
+
+    private Map<String,String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
+        if (topInstance.get().isSpinning()) {
+            log.fine(String.format("Your Cube tests are going to run inside a running Docker container. %s property is replaced to %s", CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
+            String serverUri = OperatingSystemFamily.DIND.getServerUri();
+            cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
+        }
+        return cubeConfiguration;
     }
 
     private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {
