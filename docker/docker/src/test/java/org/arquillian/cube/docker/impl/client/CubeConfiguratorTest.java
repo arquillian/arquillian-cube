@@ -140,7 +140,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
                 "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                 "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
-                "dev2    *        virtualbox   Running   tcp://192.168.99.100:2376     "
+                "dev2   *        virtualbox   Running   tcp://192.168.99.100:2376     "
         });
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         // Docker-Machine is installed

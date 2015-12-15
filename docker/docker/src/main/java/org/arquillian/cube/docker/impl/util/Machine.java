@@ -16,7 +16,7 @@ public class Machine {
     private String url;
     private String swarm;
 
-    private Machine(String name, String active, String driver, String state, String url, String swarm) {
+    public Machine(String name, String active, String driver, String state, String url, String swarm) {
         super();
 
         this.name = name;
@@ -25,15 +25,6 @@ public class Machine {
         this.state = state;
         this.url = url;
         this.swarm = swarm;
-    }
-
-    public static final Machine toMachine(String[] result) {
-        String swarm = "";
-        if (result.length >= SWARM_INDEX + 1) {
-            swarm = result[SWARM_INDEX];
-        }
-
-        return new Machine(result[NAME_INDEX], result[ACTIVE_INDEX], result[DRIVER_INDEX], result[STATE_INDEX], result[URL_INDEX], swarm);
     }
 
     public String getName() {
