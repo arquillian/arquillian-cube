@@ -3,6 +3,8 @@ package org.arquillian.cube.docker.impl.client;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
@@ -47,12 +49,47 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     ArquillianDescriptor arquillianDescriptor;
     @Mock
     ExtensionDef extensionDef;
+    @Mock
+    Top top;
 
     @Before
     public void setup() {
         bind(ApplicationScoped.class, Boot2Docker.class, new Boot2Docker(commandLineExecutor));
         bind(ApplicationScoped.class, DockerMachine.class, new DockerMachine(commandLineExecutor));
         bind(ApplicationScoped.class, ArquillianDescriptor.class, arquillianDescriptor);
+        bind(ApplicationScoped.class, Top.class, top);
+        when(top.isSpinning()).thenReturn(false);
+    }
+
+    @Test
+    public void shouldChangeServerUriInCaseOfRunningDockerInsideDocker() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+
+        when(top.isSpinning()).thenReturn(true);
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
+    }
+
+    @Test
+    public void shouldNotChangeServerUriInCaseODockerInsideDockerIfItIsDisabled() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+        config.put(CubeDockerConfiguration.DIND_RESOLUTION, "false");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+
+        when(top.isSpinning()).thenReturn(true);
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:22222"));
     }
 
     @Test

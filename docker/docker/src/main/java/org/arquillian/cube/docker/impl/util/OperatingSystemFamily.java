@@ -4,6 +4,7 @@ public enum OperatingSystemFamily {
     LINUX("unix:///var/run/docker.sock", false),
     WINDOWS("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
     UNIX("unix:///var/run/docker.sock", false),
+    DIND("unix:///var/run/docker.sock", false),
     DEC_OS("unix:///var/run/docker.sock", false),
     MAC("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
     MACHINE("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),

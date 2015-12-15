@@ -28,6 +28,7 @@ public class CubeDockerConfiguration {
     public static final String DOCKER_MACHINE_NAME = "machineName";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
+    static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
     private static final String CUBE_ENVIRONMENT = "cube.environment";
 
     private String dockerServerVersion;
@@ -42,6 +43,7 @@ public class CubeDockerConfiguration {
     private String certPath;
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
+    private boolean dockerInsideDockerResolution = true;
     private AutoStartParser autoStartContainers = null;
 
     private Map<String, Object> dockerContainersContent;
@@ -110,6 +112,10 @@ public class CubeDockerConfiguration {
         return definitionFormat;
     }
 
+    public boolean isDockerInsideDockerResolution() {
+        return dockerInsideDockerResolution;
+    }
+
     @SuppressWarnings("unchecked")
     public static CubeDockerConfiguration fromMap(Map<String, String> map) {
         CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
@@ -124,6 +130,10 @@ public class CubeDockerConfiguration {
 
         if (map.containsKey(DOCKER_URI)) {
             cubeConfiguration.dockerServerUri = map.get(DOCKER_URI);
+        }
+
+        if (map.containsKey(DIND_RESOLUTION)) {
+            cubeConfiguration.dockerInsideDockerResolution = Boolean.parseBoolean(map.get(DIND_RESOLUTION));
         }
 
         if(map.containsKey(BOOT2DOCKER_PATH)) {

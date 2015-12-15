@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.arquillian.cube.docker.impl.client.BeforeStopContainerObserver;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
