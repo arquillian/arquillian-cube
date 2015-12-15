@@ -1,7 +1,9 @@
 package org.arquillian.cube.docker.impl.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -99,20 +101,12 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         Set<Machine> machines = new HashSet<>();
         String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls");
 
-        // skips header
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
         for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
-            machines.add(parse(fields));
+            machines.add(parse(headerIndex, fields));
         }
 
         return machines;
-    }
-
-    /**
-     * Executes docker-machine ls command
-     * @return set of machines
-     */
-    public Set<Machine> list() {
-        return this.list(null);
     }
 
     /**
@@ -126,13 +120,35 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         Set<Machine> machines = new HashSet<>();
         String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
 
-        // skips header
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
         for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
-            machines.add(parse(fields));
+            machines.add(parse(headerIndex, fields));
         }
 
         return machines;
     }
+
+    private Map<String, Index> calculateStartingFieldsIndex(String header) {
+        Map<String, Index> headersIndex = new HashMap<>();
+        String[] headers = header.split("\\s+");
+        for (int i = 0; i < headers.length; i++) {
+            String currentHeader = headers[i];
+            int firstIndex = header.indexOf(currentHeader);
+            int lastIndex = (i+1 < headers.length) ? header.indexOf(headers[i+1]) - 1 : -1;
+
+            headersIndex.put(currentHeader, new Index(firstIndex, lastIndex));
+        }
+        return headersIndex;
+    }
+
+    /**
+     * Executes docker-machine ls command
+     * @return set of machines
+     */
+    public Set<Machine> list() {
+        return this.list(null);
+    }
+
 
     /**
      * Executes docker-machine ls --filter field=value command
@@ -144,12 +160,47 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         return this.list(null, field, value);
     }
 
-    private Machine parse(String output) {
-        String[] fields = output.split("\\s+");
-        return Machine.toMachine(fields);
+    private Machine parse(Map<String, Index> headersIndex, String output) {
+        String name = resolveField(headersIndex.get("NAME"), output);
+        String active = resolveField(headersIndex.get("ACTIVE"), output);
+        String driver = resolveField(headersIndex.get("DRIVER"), output);
+        String state = resolveField(headersIndex.get("STATE"), output);
+        String url = resolveField(headersIndex.get("URL"), output);
+        String swarm = resolveField(headersIndex.get("SWARM"), output);
+
+        return new Machine(name, active, driver, state, url, swarm);
+    }
+
+    private String resolveField(Index index, String output) {
+        if (index.getEndIndex() < 0) {
+            if (index.getStartIndex() < 0) {
+                return "";
+            }
+            return output.substring(index.getStartIndex(), output.length()).trim();
+        } else {
+            return output.substring(index.getStartIndex(), index.getEndIndex() + 1).trim();
+        }
     }
 
     private String createDockerMachineCommand(String dockerMachinePath) {
         return dockerMachinePath == null ? DOCKER_MACHINE_EXEC : dockerMachinePath;
+    }
+
+    private class Index {
+        private int startIndex = -1;
+        private int endIndex = -1;
+
+        public Index(int startIndex, int endIndex) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+        }
+
+        public int getStartIndex() {
+            return startIndex;
+        }
+
+        public int getEndIndex() {
+            return endIndex;
+        }
     }
 }

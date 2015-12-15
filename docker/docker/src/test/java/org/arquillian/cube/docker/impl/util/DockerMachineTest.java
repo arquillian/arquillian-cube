@@ -24,11 +24,28 @@ public class DockerMachineTest {
     private CommandLineExecutor executor;
 
     @Test
+    public void shouldParseStoppedMachines() {
+        when(executor.execCommandAsArray("docker-machine", "ls")).thenReturn(new String[]{
+                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                "dev    -        virtualbox   Stopped                                     "
+        });
+
+        DockerMachine dockerMachine = new DockerMachine(executor);
+        final Set<Machine> list = dockerMachine.list();
+        assertThat(list, hasSize(1));
+        final Machine[] machines = list.toArray(new Machine[1]);
+        assertThat(machines[0].getName(), is("dev"));
+        assertThat(machines[0].getState(), is("Stopped"));
+        assertThat(machines[0].getUrl(), is(""));
+
+    }
+
+    @Test
     public void shouldListDockerMachines() {
         when(executor.execCommandAsArray("docker-machine", "ls")).thenReturn(new String[]{
                 "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                 "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
-                "qa    *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
+                "qa     *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
         });
 
         DockerMachine dockerMachine = new DockerMachine(executor);
@@ -50,7 +67,7 @@ public class DockerMachineTest {
         when(executor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running")).thenReturn(new String[]{
                 "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                 "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
-                "qa    *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
+                "qa     *        virtualbox   Running   tcp://192.168.99.101:2376     swarm-master"
         });
 
         DockerMachine dockerMachine = new DockerMachine(executor);
