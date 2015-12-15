@@ -76,10 +76,13 @@ public class CubeDockerConfigurator {
     }
 
     private Map<String,String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
-        if (topInstance.get().isSpinning()) {
-            log.fine(String.format("Your Cube tests are going to run inside a running Docker container. %s property is replaced to %s", CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
-            String serverUri = OperatingSystemFamily.DIND.getServerUri();
-            cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
+        // if DIND_RESOLUTION property is not set, since by default is enabled, we need to go inside code.
+        if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
+            if (topInstance.get().isSpinning()) {
+                log.fine(String.format("Your Cube tests are going to run inside a running Docker container. %s property is replaced to %s", CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
+                String serverUri = OperatingSystemFamily.DIND.getServerUri();
+                cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
+            }
         }
         return cubeConfiguration;
     }

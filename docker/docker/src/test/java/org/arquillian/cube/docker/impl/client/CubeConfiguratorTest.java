@@ -77,6 +77,22 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     @Test
+    public void shouldNotChangeServerUriInCaseODockerInsideDockerIfItIsDisabled() {
+        Map<String, String> config = new HashMap<>();
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
+        config.put(CubeDockerConfiguration.DIND_RESOLUTION, "false");
+
+        when(extensionDef.getExtensionProperties()).thenReturn(config);
+        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+
+        when(top.isSpinning()).thenReturn(true);
+
+        fire(new CubeConfiguration());
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:22222"));
+    }
+
+    @Test
     public void shouldUseBoot2DockerIfDockerHostIsSetOnServerURIByDefault() {
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
