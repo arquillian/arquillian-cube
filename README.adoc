@@ -239,6 +239,9 @@ Let's see valid attributes:
 |machineName
 |Sets the machine name in case you are using docker-machine to manage your docker host. This parameter is mandatory when using docker-machine with more than one running machine. In case of having only one docker machine running, it is not necessary to set it since it is auto resolved by cube.
 
+|dockerInsideDockerResolution
+|Boolean to set if Cube should detect that tests are run inside an already started Docker container, so Docker containers started by Cube could be run using DinD (Docker Inside Docker) or DoD (docker On Docker). Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`. By default its value is true. If you want to use an external dockerhost, then you need to set this property to false.
+
 |connectionMode
 |Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. _STARTANDSTOP_ which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. _STARTORCONNECT_ mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is _STARTORCONNECTANDLEAVE_ which is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions.
 |===
@@ -740,6 +743,32 @@ CubeController cubeController;
 @HostIp
 String ip;
 ----
+
+=== Docker Inside Docker / Docker On Docker
+
+If you are running your tests inside your continuous integration/delivery server (for example in Jenkins) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
+So you effectively face the Docker inside Docker problem.
+
+From Arquillian Cube perspective we cannot do a lot of things, more then adapting to this situation by changing the `serverUri`.
+Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`.
+
+You can avoid this behaviour by setting `dockerInsideDockerResolution` to false.
+
+INFO: In this case almost all work should be done in infrastructure level by configuring correctly Docker instances. For this reason it is important that before running Cube tests, you test manually your infrastructure to be sure that everything is connected as expected.
+
+In next sections, some minor information is provided on how to run Docker inside/on Docker. Keep in mind that you need to configure continuous integration/delivery correctly.
+
+==== Docker Inside Docker
+
+You can find more information about Docker Inside Docker at: https://github.com/jpetazzo/dind
+
+Also if you are using Jenkins you can use next Jenkins Slave. `kmadel/dind-jenkins-slave:1.4` running with `privileged` flag.
+
+==== Docker On Docker
+
+If instead of running Docker inside Docker, you want to use the Docker instance/host of the "parent" Docker, you can map as volume the Docker CLI, Docker socket and `apparmor` library from parent to child container.
+
+`-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v /usr/lib/x86_64-linux-gnu/libapparmor.so.1.1.0:/usr/lib/x86_64-linux-gnu/libapparmor.so.1`
 
 === CubeController
 
