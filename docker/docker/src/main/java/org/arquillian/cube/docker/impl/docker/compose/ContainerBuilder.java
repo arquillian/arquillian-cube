@@ -1,26 +1,37 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Device;
+import org.arquillian.cube.docker.impl.client.config.ExposedPort;
+import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
 import org.yaml.snakeyaml.Yaml;
-
-import static org.arquillian.cube.docker.impl.util.YamlUtil.*;
 
 
 public class ContainerBuilder {
@@ -72,20 +83,20 @@ public class ContainerBuilder {
 
     private Random random = new Random();
 
-    private Map<String, Object> configuration;
+    private CubeContainer configuration;
     private Path dockerComposeRootLocation;
 
     public ContainerBuilder(Path dockerComposeRootLocation) {
-        this(dockerComposeRootLocation, new HashMap<String, Object>());
+        this(dockerComposeRootLocation, new CubeContainer());
     }
 
-    protected ContainerBuilder(Path dockerComposeRootLocation, Map<String, Object> configuration) {
+    protected ContainerBuilder(Path dockerComposeRootLocation, CubeContainer configuration) {
         this.dockerComposeRootLocation = dockerComposeRootLocation;
         this.configuration = configuration;
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> build(Map<String, Object> dockerComposeContainerDefinition) {
+    public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition) {
         if(dockerComposeContainerDefinition.containsKey(EXTENDS)) {
             Map<String, Object> extendsDefinition = asMap(dockerComposeContainerDefinition, EXTENDS);
             this.extend(Paths.get(asString(extendsDefinition, "file")), asString(extendsDefinition, "service"));
@@ -208,19 +219,19 @@ public class ContainerBuilder {
     }
 
     private ContainerBuilder addDevices(Collection<String> devices) {
-        Set<Map<String, Object>> devicesDefinition = new HashSet<>();
+        Collection<Device> devicesDefinition = new HashSet<Device>();
         for (String device : devices) {
             String[] deviceSplitted = device.split(":");
-            Map<String, Object> def = new HashMap<>();
+            Device def = new Device();
             switch(deviceSplitted.length) {
                 case 3: {
                     ///dev/ttyUSB0:/dev/ttyUSB0:rw
-                    def.put(DockerClientExecutor.C_GROUP_PERMISSIONS, deviceSplitted[2]);
+                    def.setcGroupPermissions(deviceSplitted[2]);
                 }
                 case 2: {
                     ///dev/ttyUSB0:/dev/ttyUSB0
-                    def.put(DockerClientExecutor.PATH_ON_HOST, deviceSplitted[0]);
-                    def.put(DockerClientExecutor.PATH_IN_CONTAINER, deviceSplitted[1]);
+                    def.setPathOnHost(deviceSplitted[0]);
+                    def.setPathInContainer(deviceSplitted[1]);
                     break;
                 }
                 default: {
@@ -229,141 +240,135 @@ public class ContainerBuilder {
             }
             devicesDefinition.add(def);
         }
-        configuration.put(DockerClientExecutor.DEVICES, devicesDefinition);
+        configuration.setDevices(devicesDefinition);
         return this;
     }
 
     public ContainerBuilder addExtraHosts(Collection<String> extraHosts) {
-        if (configuration.containsKey(DockerClientExecutor.EXTRA_HOSTS)) {
-            Set<String> oldExtraHosts = (Set<String>) configuration.get(DockerClientExecutor.EXTRA_HOSTS);
+        if (configuration.getExtraHosts() != null) {
+            Collection<String> oldExtraHosts = configuration.getExtraHosts();
             oldExtraHosts.addAll(extraHosts);
         } else {
-            configuration.put(DockerClientExecutor.EXPOSED_PORTS, new HashSet<>(extraHosts));
+            configuration.setExtraHosts(new HashSet<String>(extraHosts));
         }
         return this;
     }
 
     public ContainerBuilder addImage(String image) {
-        configuration.put(DockerClientExecutor.IMAGE, image);
+        configuration.setImage(Image.valueOf(image));
         return this;
     }
 
     public ContainerBuilder addReadOnly(boolean b) {
-        configuration.put(DockerClientExecutor.READ_ONLY_ROOT_FS, b);
+        configuration.setReadonlyRootfs(b);
         return this;
     }
 
     public ContainerBuilder addBuild(String buildPath, String dockerfile) {
-        Map<String, Object> buildImage = new HashMap<>();
         //. directory is the root of the project, but docker-compose . means relative to docker-compose file, so we resolve the full path
         //and to no add full path we relativize to docker-compose
 
         Path fullDirectory = this.dockerComposeRootLocation.resolve(buildPath);
         Path relativize = this.dockerComposeRootLocation.relativize(fullDirectory);
-        buildImage.put(DockerClientExecutor.DOCKERFILE_LOCATION, relativize.toString());
-        buildImage.put(DockerClientExecutor.NO_CACHE, true);
-        buildImage.put(DockerClientExecutor.REMOVE, true);
-        if(dockerfile != null) {
-            buildImage.put(DockerClientExecutor.DOCKERFILE_NAME, dockerfile);
-        }
 
-        configuration.put(DockerClientExecutor.BUILD_IMAGE, buildImage);
+        BuildImage buildImage = new BuildImage(relativize.toString(), dockerfile, true, true);
+        configuration.setBuildImage(buildImage);
         return this;
     }
 
     public ContainerBuilder addCommand(String command) {
-        configuration.put(DockerClientExecutor.CMD, Arrays.asList(command));
+        configuration.setCmd(Arrays.asList(command));
         return this;
     }
 
     public ContainerBuilder addLinks(Collection<String> links) {
-        List<String> listOfLinks = new ArrayList<String>();
+        Collection<Link> listOfLinks = new HashSet<Link>();
         for (String link : links) {
-            if (link.indexOf(':') == -1) {
-                listOfLinks.add(link + ":" + link);
-            } else {
-                listOfLinks.add(link);
-            }
+            listOfLinks.add(Link.valueOf(link));
         }
 
-        if (configuration.containsKey(DockerClientExecutor.LINKS)) {
-            Set<String> oldLinks = (Set) configuration.get(DockerClientExecutor.LINKS);
+        if (configuration.getLinks() != null) {
+            Collection<Link> oldLinks = configuration.getLinks();
             oldLinks.addAll(listOfLinks);
         } else {
-            configuration.put(DockerClientExecutor.LINKS, new HashSet<>(listOfLinks));
+            configuration.setLinks(listOfLinks);
         }
         return this;
     }
 
     public ContainerBuilder addPorts(Collection<String> ports) {
-        List<String> listOfPorts = new ArrayList<>();
+        Collection<PortBinding> listOfPorts = new HashSet<>();
         for (String port : ports) {
             String[] elements = port.split(":");
             switch (elements.length) {
                 case 1: {
                     //random host port
-                    listOfPorts.add(getRandomPort() + "->" + elements[0]);
+                    listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
                     break;
                 }
                 case 2: {
                     //hostport:containerport
-                    listOfPorts.add(port.replaceAll(":", "->"));
+                    listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
                     break;
                 }
                 case 3: {
                     //host:hostport:containerport
-                    listOfPorts.add(elements[0] + ":" + elements[1] + "->" + elements[2]);
+                    listOfPorts.add(PortBinding.valueOf(elements[0] + ":" + elements[1] + "->" + elements[2]));
                     break;
                 }
             }
         }
 
-        if (configuration.containsKey(DockerClientExecutor.PORT_BINDINGS)) {
-            Set<String> oldPortBindings = (Set) configuration.get(DockerClientExecutor.PORT_BINDINGS);
+        if (configuration.getPortBindings() != null) {
+            Collection<PortBinding> oldPortBindings = configuration.getPortBindings();
             oldPortBindings.addAll(listOfPorts);
         } else {
-            configuration.put(DockerClientExecutor.PORT_BINDINGS, new HashSet<>(listOfPorts));
+            configuration.setPortBindings(listOfPorts);
         }
         return this;
     }
 
     public ContainerBuilder addExpose(Collection<String> exposes) {
-        if (configuration.containsKey(DockerClientExecutor.EXPOSED_PORTS)) {
-            Set<String> oldExposedPorts = (Set) configuration.get(DockerClientExecutor.EXPOSED_PORTS);
-            oldExposedPorts.addAll(exposes);
+        Collection<ExposedPort> ports = new HashSet<ExposedPort>();
+        for(String exposed : exposes) {
+            ports.add(ExposedPort.valueOf(exposed));
+        }
+        if (configuration.getExposedPorts() != null) {
+            Collection<ExposedPort> oldExposedPorts = configuration.getExposedPorts();
+            oldExposedPorts.addAll(ports);
         } else {
-            configuration.put(DockerClientExecutor.EXPOSED_PORTS, new HashSet<>(exposes));
+            configuration.setExposedPorts(ports);
         }
         return this;
     }
 
     public ContainerBuilder addVolumes(Collection<String> volumes) {
-        if (configuration.containsKey(DockerClientExecutor.VOLUMES)) {
-            Set<String> oldVolumes = (Set) configuration.get(DockerClientExecutor.VOLUMES);
+        if (configuration.getVolumes() != null) {
+            Collection<String> oldVolumes = configuration.getVolumes();
             oldVolumes.addAll(volumes);
         } else {
-            configuration.put(DockerClientExecutor.VOLUMES, new HashSet<>(volumes));
+            configuration.setVolumes(new HashSet<String>(volumes));
         }
         return this;
     }
 
     public ContainerBuilder addVolumesFrom(Collection<String> volumesFrom) {
-        if (configuration.containsKey(DockerClientExecutor.VOLUMES_FROM)) {
-            Set<String> oldVolumes = (Set) configuration.get(DockerClientExecutor.VOLUMES_FROM);
+        if (configuration.getVolumesFrom() != null) {
+            Collection<String> oldVolumes = configuration.getVolumesFrom();
             oldVolumes.addAll(volumesFrom);
         } else {
-            configuration.put(DockerClientExecutor.VOLUMES_FROM, new HashSet<>(volumesFrom));
+            configuration.setVolumesFrom(new HashSet<String>(volumesFrom));
         }
         return this;
     }
 
     public ContainerBuilder addLabels(Map<String, String> labels) {
         //TODO now only support for array approach and not dictionary
-        if (configuration.containsKey(DockerClientExecutor.LABELS)) {
-            Map<String, String> oldLabels = (Map<String, String>) configuration.get(DockerClientExecutor.LABELS);
+        if (configuration.getLabels() != null) {
+            Map<String, String> oldLabels = configuration.getLabels();
             oldLabels.putAll(labels);
         } else {
-            configuration.put(DockerClientExecutor.LABELS, labels);
+            configuration.setLabels(labels);
         }
         return this;
     }
@@ -375,11 +380,12 @@ public class ContainerBuilder {
     }
 
     private void addEnvironment(Properties properties) {
-        if (configuration.containsKey(DockerClientExecutor.ENV)) {
-            Properties oldProperties = (Properties) configuration.get(DockerClientExecutor.ENV);
+        if (configuration.getEnv() != null) {
+            Properties oldProperties = getProperties(configuration.getEnv());
             oldProperties.putAll(properties);
+            configuration.setEnv(toEnvironment(oldProperties));
         } else {
-            configuration.put(DockerClientExecutor.ENV, properties);
+            configuration.setEnv(toEnvironment(properties));
         }
     }
 
@@ -401,77 +407,77 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder addNet(String net) {
-        configuration.put(DockerClientExecutor.NETWORK_MODE, net);
+        configuration.setNetworkMode(net);
         return this;
     }
 
     public ContainerBuilder addDns(String dns) {
-        configuration.put(DockerClientExecutor.DNS, Arrays.asList(dns));
+        configuration.setDns(Arrays.asList(dns));
         return this;
     }
 
     public ContainerBuilder addDns(Collection<String> dns) {
-        if (configuration.containsKey(DockerClientExecutor.DNS)) {
-            Set<String> oldDns = (Set) configuration.get(DockerClientExecutor.DNS);
+        if (configuration.getDns() != null) {
+            Collection<String> oldDns = configuration.getDns();
             oldDns.addAll(dns);
         } else {
-            configuration.put(DockerClientExecutor.DNS, new HashSet<>(dns));
+            configuration.setDns(new HashSet<String>(dns));
         }
         return this;
     }
 
     public ContainerBuilder addCapAdd(Collection<String> capAdds) {
-        if (configuration.containsKey(DockerClientExecutor.CAP_ADD)) {
-            Set<String> oldCapAdd = (Set) configuration.get(DockerClientExecutor.CAP_ADD);
+        if (configuration.getCapAdd() != null) {
+            Collection<String> oldCapAdd = configuration.getCapAdd();
             oldCapAdd.addAll(capAdds);
         } else {
-            configuration.put(DockerClientExecutor.CAP_ADD, new HashSet<>(capAdds));
+            configuration.setCapAdd(new HashSet<String>(capAdds));
         }
         return this;
     }
 
     public ContainerBuilder addCapDrop(Collection<String> capDrops) {
-        if (configuration.containsKey(DockerClientExecutor.CAP_DROP)) {
-            Set<String> oldCapDrops = (Set) configuration.get(DockerClientExecutor.CAP_DROP);
+        if (configuration.getCapDrop() != null) {
+            Collection<String> oldCapDrops = configuration.getCapDrop();
             oldCapDrops.addAll(capDrops);
         } else {
-            configuration.put(DockerClientExecutor.CAP_DROP, new HashSet<>(capDrops));
+            configuration.setCapDrop(new HashSet<String>(capDrops));
         }
         return this;
     }
 
     public ContainerBuilder addDnsSearch(String dnsSearch) {
-        configuration.put(DockerClientExecutor.DNS_SEARCH, Arrays.asList(dnsSearch));
+        configuration.setDnsSearch(Arrays.asList(dnsSearch));
         return this;
     }
 
     public ContainerBuilder addDnsSearch(Collection<String> dnsSearch) {
-        if (configuration.containsKey(DockerClientExecutor.DNS_SEARCH)) {
-            Set<String> oldDnsSearch = (Set) configuration.get(DockerClientExecutor.DNS_SEARCH);
+        if (configuration.getDnsSearch() != null) {
+            Collection<String> oldDnsSearch = configuration.getDnsSearch();
             oldDnsSearch.addAll(dnsSearch);
         } else {
-            configuration.put(DockerClientExecutor.DNS_SEARCH, new HashSet<>(dnsSearch));
+            configuration.setDnsSearch(new HashSet<String>(dnsSearch));
         }
         return this;
     }
 
     public ContainerBuilder addCpuShares(int cpuShares) {
-        configuration.put(DockerClientExecutor.CPU_SHARES, cpuShares);
+        configuration.setCpuShares(cpuShares);
         return this;
     }
 
     private ContainerBuilder addCpuSet(String cpuSet) {
-        configuration.put(DockerClientExecutor.CPU_SET, cpuSet);
+        configuration.setCpuSet(cpuSet);
         return this;
     }
 
     public ContainerBuilder addTty(boolean tty) {
-        configuration.put(DockerClientExecutor.TTY, tty);
+        configuration.setTty(tty);
         return this;
     }
 
     public ContainerBuilder addStdinOpen(boolean stdinOpen) {
-        configuration.put(DockerClientExecutor.STDIN_OPEN, stdinOpen);
+        configuration.setStdinOpen(stdinOpen);
         return this;
     }
 
@@ -494,67 +500,67 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder addRestart(String restart) {
-        Map<String, Object> restartPolicy = new HashMap<>();
+        RestartPolicy restartPolicy = new RestartPolicy();
         if (restart.startsWith("on-failure")) {
             String[] element = restart.split(":");
             if (element.length == 1) {
-                restartPolicy.put("name", restart);
-                restartPolicy.put("maximumRetryCount", 0);
+                restartPolicy.setName(restart);
+                restartPolicy.setMaximumRetryCount(0);
             } else {
                 if (element.length == 2) {
-                    restartPolicy.put("name", element[0]);
-                    restartPolicy.put("maximumRetryCount", Integer.parseInt(element[1]));
+                    restartPolicy.setName(element[0]);
+                    restartPolicy.setMaximumRetryCount(Integer.parseInt(element[1]));
                 } else {
                     throw new IllegalArgumentException("on-failure restart should be on-failure or with optional retries on-failure:retries");
                 }
             }
         } else {
-            restartPolicy.put("name", restart);
+            restartPolicy.setName(restart);
         }
-        configuration.put(DockerClientExecutor.RESTART_POLICY, restartPolicy);
+        configuration.setRestartPolicy(restartPolicy);
         return this;
     }
 
     public ContainerBuilder addPrivileged(boolean privileged) {
-        configuration.put(DockerClientExecutor.PRIVILEGED, privileged);
+        configuration.setPrivileged(privileged);
         return this;
     }
 
     public ContainerBuilder addMemLimit(int memLimit) {
-        configuration.put(DockerClientExecutor.MEMORY_LIMIT, memLimit);
+        configuration.setMemoryLimit(memLimit);
         return this;
     }
 
     public ContainerBuilder addDomainName(String domainName) {
-        configuration.put(DockerClientExecutor.DOMAINNAME, domainName);
+        configuration.setDomainName(domainName);
         return this;
     }
 
     public ContainerBuilder addHostname(String hostname) {
-        configuration.put(DockerClientExecutor.HOST_NAME, hostname);
+        configuration.setHostName(hostname);
         return this;
     }
 
     public ContainerBuilder addUser(String user) {
-        configuration.put(DockerClientExecutor.USER, user);
+        configuration.setUser(user);
         return this;
     }
 
     public ContainerBuilder addEntrypoint(String entrypoint) {
-        configuration.put(DockerClientExecutor.ENTRYPOINT, Arrays.asList(entrypoint));
+        configuration.setEntryPoint(Arrays.asList(entrypoint));
         return this;
     }
 
     public ContainerBuilder addWorkingDir(String workingDir) {
-        configuration.put(DockerClientExecutor.WORKING_DIR, workingDir);
+        configuration.setWorkingDir(workingDir);
         return this;
     }
 
-    public Map<String, Object> buildFromExtension() {
+    public CubeContainer buildFromExtension() {
         return this.configuration;
     }
 
-    public Map<String, Object> build() {
+    public CubeContainer build() {
         return configuration;
     }
 
@@ -570,6 +576,15 @@ public class ContainerBuilder {
             allProperties.put(property.substring(0, keySeparator), property.substring(keySeparator + 1, property.length()));
         }
         return allProperties;
+    }
+
+    private Collection<String> toEnvironment(Properties properties) {
+        Collection<String> listOfEnvironment = new HashSet<String>();
+        Set<Entry<Object, Object>> entrySet = properties.entrySet();
+        for (Entry<Object, Object> entry : entrySet) {
+            listOfEnvironment.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return listOfEnvironment;
     }
 
     private void logUnsupportedOperations(Set<String> keys) {

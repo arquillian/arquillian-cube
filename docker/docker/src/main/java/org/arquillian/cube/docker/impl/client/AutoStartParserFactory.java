@@ -1,10 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.Map;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 
 public class AutoStartParserFactory {
 
-    public static AutoStartParser create(String expression, Map<String, Object> containersDefinition) {
+    public static AutoStartParser create(String expression, CubeContainers containersDefinition) {
         if(isRegularExpressionBased(expression)) {
             return new RegularExpressionAutoStartParser(expression, containersDefinition);
         } else {

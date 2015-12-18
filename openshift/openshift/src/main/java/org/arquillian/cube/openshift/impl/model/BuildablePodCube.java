@@ -4,9 +4,7 @@ import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.TopContainer;
@@ -17,10 +15,11 @@ import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
+import org.arquillian.cube.spi.metadata.IsBuildable;
 
 import io.fabric8.kubernetes.api.model.Pod;
 
-public class BuildablePodCube extends BaseCube {
+public class BuildablePodCube extends BaseCube<Void> {
 
     private String id;
     private Pod resource;
@@ -37,6 +36,13 @@ public class BuildablePodCube extends BaseCube {
         this.template = new Template.PodTemplate(resource);
         this.client = client;
         this.configuration = configuration;
+        addDefaultMetadata();
+    }
+
+    private void addDefaultMetadata() {
+        if(template.getRefs() != null && template.getRefs().size() > 0) {
+            addMetadata(new IsBuildable(template.getRefs().get(0).getPath()));
+        }
     }
 
     @Override
@@ -126,14 +132,8 @@ public class BuildablePodCube extends BaseCube {
     }
 
     @Override
-    public Map<String, Object> configuration() {
-        Map<String, Object> config = new HashMap<String, Object>();
-        Map<String, Object> buildImage = new HashMap<String, Object>();
-        if(template.getRefs().size() == 1) {
-            buildImage.put("dockerfileLocation", template.getRefs().get(0).getPath());
-        }
-        config.put("buildImage", buildImage);
-        return config;
+    public Void configuration() {
+        return null;
     }
 
     @Override

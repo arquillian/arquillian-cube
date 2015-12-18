@@ -1,7 +1,5 @@
 package org.arquillian.cube.docker.impl.util;
 
-import static org.mockito.Mockito.mock;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
-import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 

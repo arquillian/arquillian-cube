@@ -1,9 +1,6 @@
 package org.arquillian.cube.docker.impl.util;
 
-import org.arquillian.cube.containerobject.Cube;
-
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -54,6 +51,7 @@ public class ContainerObjectUtil {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> T getValue(final Annotation annotation, Method field) {
         try {
             return (T)field.invoke(annotation);

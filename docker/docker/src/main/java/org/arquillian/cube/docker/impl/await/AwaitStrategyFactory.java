@@ -1,9 +1,9 @@
 package org.arquillian.cube.docker.impl.await;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 
@@ -11,39 +11,34 @@ public class AwaitStrategyFactory {
 
     private static final Logger log = Logger.getLogger(AwaitStrategyFactory.class.getName());
 
-    private static final String AWAIT = "await";
-    private static final String STRATEGY = "strategy";
-
     private AwaitStrategyFactory() {
         super();
     }
 
-    public static final AwaitStrategy create(DockerClientExecutor dockerClientExecutor, Cube cube, Map<String, Object> options) {
+    public static final AwaitStrategy create(DockerClientExecutor dockerClientExecutor, Cube cube, CubeContainer options) {
 
-        if(options.containsKey(AWAIT)) {
+        if(options.getAwait() != null) {
+            Await await = options.getAwait();
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> awaitOptions = (Map<String, Object>) options.get(AWAIT);
+            if (await.getStrategy() != null) {
 
-            if (awaitOptions.containsKey(STRATEGY)) {
-
-                String strategy = ((String) awaitOptions.get(STRATEGY)).toLowerCase();
+                String strategy = ((String) await.getStrategy()).toLowerCase();
                 switch(strategy) {
-                    case PollingAwaitStrategy.TAG: return new PollingAwaitStrategy(cube, dockerClientExecutor, awaitOptions);
+                    case PollingAwaitStrategy.TAG: return new PollingAwaitStrategy(cube, dockerClientExecutor, await);
                     case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
-                    case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, awaitOptions);
-                    case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, awaitOptions);
+                    case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, await);
+                    case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, await);
                     default: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                 }
 
             } else {
                 log.fine("No await strategy is set and Native one is going to be used.");
-                return new PollingAwaitStrategy(cube, dockerClientExecutor, new HashMap<String, Object>());
+                return new PollingAwaitStrategy(cube, dockerClientExecutor, new Await());
             }
 
         } else {
             log.fine("No await strategy is set and Polling strategy is going to be used.");
-            return new PollingAwaitStrategy(cube, dockerClientExecutor, new HashMap<String, Object>());
+            return new PollingAwaitStrategy(cube, dockerClientExecutor, new Await());
         }
     }
 }

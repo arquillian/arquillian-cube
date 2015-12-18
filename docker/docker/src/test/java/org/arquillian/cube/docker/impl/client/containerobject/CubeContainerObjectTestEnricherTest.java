@@ -1,18 +1,34 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.arquillian.cube.CubeController;
-import org.arquillian.cube.containerobject.*;
+import org.arquillian.cube.containerobject.Cube;
+import org.arquillian.cube.containerobject.CubeDockerFile;
+import org.arquillian.cube.containerobject.Image;
+import org.arquillian.cube.containerobject.IsContainerObject;
+import org.arquillian.cube.containerobject.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeRegistry;
-import org.jboss.arquillian.core.spi.ServiceLoader;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.Is;
-import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -20,22 +36,8 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Mockito.*;
 
 public class CubeContainerObjectTestEnricherTest {
 
@@ -99,7 +101,7 @@ public class CubeContainerObjectTestEnricherTest {
         InjectableTest injectableTest = new InjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
 
-        final org.arquillian.cube.spi.Cube mycontainer = cubeRegistry.getCube("mycontainer");
+        final org.arquillian.cube.spi.Cube<?> mycontainer = cubeRegistry.getCube("mycontainer");
         assertThat(mycontainer, is(notNullValue()));
         assertThat(mycontainer.hasMetadata(IsContainerObject.class), is(true));
         assertThat(mycontainer.getMetadata(IsContainerObject.class).getTestClass().getName(), is(InjectableTest.class.getName()));
@@ -146,7 +148,7 @@ public class CubeContainerObjectTestEnricherTest {
         SecondInjectableTest secondInjectableTest = new SecondInjectableTest();
         cubeContainerObjectTestEnricher.enrich(secondInjectableTest);
 
-        final org.arquillian.cube.spi.Cube mycontainer = cubeRegistry.getCube("mycontainer2");
+        final org.arquillian.cube.spi.Cube<?> mycontainer = cubeRegistry.getCube("mycontainer2");
         assertThat(mycontainer, is(notNullValue()));
 
         verify(cubeController, times(1)).start("mycontainer2");
@@ -194,15 +196,15 @@ public class CubeContainerObjectTestEnricherTest {
         ThirdInjetableTest thirdInjetableTest = new ThirdInjetableTest();
         cubeContainerObjectTestEnricher.enrich(thirdInjetableTest);
 
-        final org.arquillian.cube.spi.Cube outterContainer = cubeRegistry.getCube("outter");
+        final org.arquillian.cube.spi.Cube<?> outterContainer = cubeRegistry.getCube("outter");
         assertThat(outterContainer, is(notNullValue()));
 
         DockerCube dockerCube = (DockerCube) outterContainer;
-        final Set<String> links = (Set<String>) dockerCube.configuration().get(DockerClientExecutor.LINKS);
+        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links = dockerCube.configuration().getLinks();
         assertThat(links.size(), is(1));
-        assertThat(links, hasItem("db:db"));
+        assertThat(links, hasItem(org.arquillian.cube.docker.impl.client.config.Link.valueOf("db:db")));
 
-        final org.arquillian.cube.spi.Cube innerContainer = cubeRegistry.getCube("inner");
+        final org.arquillian.cube.spi.Cube<?> innerContainer = cubeRegistry.getCube("inner");
         assertThat(innerContainer, is(notNullValue()));
 
         verify(cubeController, times(1)).start("outter");
@@ -249,15 +251,15 @@ public class CubeContainerObjectTestEnricherTest {
         FifthInjetableTest fifthInjetableTest = new FifthInjetableTest();
         cubeContainerObjectTestEnricher.enrich(fifthInjetableTest);
 
-        final org.arquillian.cube.spi.Cube outterContainer = cubeRegistry.getCube("outter");
+        final org.arquillian.cube.spi.Cube<?> outterContainer = cubeRegistry.getCube("outter");
         assertThat(outterContainer, is(notNullValue()));
 
         DockerCube dockerCube = (DockerCube) outterContainer;
-        final Set<String> links = (Set<String>) dockerCube.configuration().get(DockerClientExecutor.LINKS);
+        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links = dockerCube.configuration().getLinks();
         assertThat(links.size(), is(1));
-        assertThat(links, hasItem("inner:inner"));
+        assertThat(links, hasItem(org.arquillian.cube.docker.impl.client.config.Link.valueOf("inner:inner")));
 
-        final org.arquillian.cube.spi.Cube innerContainer = cubeRegistry.getCube("inner");
+        final org.arquillian.cube.spi.Cube<?> innerContainer = cubeRegistry.getCube("inner");
         assertThat(innerContainer, is(notNullValue()));
 
         verify(cubeController, times(1)).start("outter");
@@ -304,7 +306,7 @@ public class CubeContainerObjectTestEnricherTest {
         FourthInjectableTest injectableTest = new FourthInjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
 
-        final org.arquillian.cube.spi.Cube image = cubeRegistry.getCube("image");
+        final org.arquillian.cube.spi.Cube<?> image = cubeRegistry.getCube("image");
         assertThat(image, is(notNullValue()));
         assertThat(image.hasMetadata(IsContainerObject.class), is(true));
         assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(), is(FourthInjectableTest.class.getName()));
@@ -313,7 +315,7 @@ public class CubeContainerObjectTestEnricherTest {
         verify(cubeController, times(1)).create("image");
 
         DockerCube dockerCube = (DockerCube) image;
-        assertThat((String)dockerCube.configuration().get(DockerClientExecutor.IMAGE), is("tomee:8-jre-1.7.2-webprofile"));
+        assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
 
     }
 

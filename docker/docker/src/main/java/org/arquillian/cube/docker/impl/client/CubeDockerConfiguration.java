@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.util.ConfigUtil;
 
 public class CubeDockerConfiguration {
 
@@ -46,7 +47,7 @@ public class CubeDockerConfiguration {
     private boolean dockerInsideDockerResolution = true;
     private AutoStartParser autoStartContainers = null;
 
-    private Map<String, Object> dockerContainersContent;
+    private CubeContainers dockerContainersContent;
 
     public String getDockerServerUri() {
         return dockerServerUri;
@@ -56,7 +57,7 @@ public class CubeDockerConfiguration {
         return dockerServerVersion;
     }
 
-    public Map<String, Object> getDockerContainersContent() {
+    public CubeContainers getDockerContainersContent() {
         return dockerContainersContent;
     }
 
@@ -116,7 +117,6 @@ public class CubeDockerConfiguration {
         return dockerInsideDockerResolution;
     }
 
-    @SuppressWarnings("unchecked")
     public static CubeDockerConfiguration fromMap(Map<String, String> map) {
         CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
 
@@ -219,7 +219,7 @@ public class CubeDockerConfiguration {
 
         if (map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
-            Map<String, Object> containerDefinitions = cubeConfiguration.getDockerContainersContent();
+            CubeContainers containerDefinitions = cubeConfiguration.getDockerContainersContent();
             AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
 
             cubeConfiguration.autoStartContainers = autoStartParser;
@@ -301,7 +301,7 @@ public class CubeDockerConfiguration {
             content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
         }
         if (dockerContainersContent != null) {
-            String output = IOUtil.asString(dockerContainersContent);
+            String output = ConfigUtil.dump(dockerContainersContent);
             content.append("  ").append(DOCKER_CONTAINERS).append(" = ").append(output).append(SEP);
         }
 

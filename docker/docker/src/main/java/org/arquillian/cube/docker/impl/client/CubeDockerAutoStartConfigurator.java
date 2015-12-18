@@ -1,14 +1,14 @@
 package org.arquillian.cube.docker.impl.client;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class CubeDockerAutoStartConfigurator {
 
@@ -22,10 +22,10 @@ public class CubeDockerAutoStartConfigurator {
     }
 
 
-    private AutoStartParser resolveNotSetAutoStart(ContainerRegistry containerRegistry, Map<String, Object> containerDefinition) {
+    private AutoStartParser resolveNotSetAutoStart(ContainerRegistry containerRegistry, CubeContainers containers) {
         //we want to use the automatic autoconfiguration
         List<String> containersName = toContainersName(containerRegistry.getContainers());
-        return new AutomaticResolutionAutoStartParser(containersName, containerDefinition);
+        return new AutomaticResolutionAutoStartParser(containersName, containers);
     }
 
 

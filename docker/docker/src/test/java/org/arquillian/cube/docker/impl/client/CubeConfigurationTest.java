@@ -1,26 +1,27 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsMapContaining.hasKey;
-import static org.junit.Assert.assertThat;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class CubeConfigurationTest {
 
-    private static final String CONTENT = "tomcat:\n" +
+    private static final String CONTENT = 
+            "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -28,7 +29,8 @@ public class CubeConfigurationTest {
             "    ip: localhost\n" +
             "    ports: [8080, 8089]";
 
-    private static final String CONTENT2 = "tomcat2:\n" +
+    private static final String CONTENT2 = 
+            "tomcat2:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -36,7 +38,8 @@ public class CubeConfigurationTest {
             "    ip: localhost\n" +
             "    ports: [8080, 8089]";
 
-    private static final String DOCKER_COMPOSE_CONTENT = "web:\n" +
+    private static final String DOCKER_COMPOSE_CONTENT = 
+            "web:\n" +
             "  build: .\n" +
             "  ports:\n" +
             "   - \"5000:5000\"\n" +
@@ -67,10 +70,10 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
-        final Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        final CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
-        assertThat(dockerContainersContent.containsKey("tomcat"), is(true));
-        assertThat(dockerContainersContent.containsKey("tomcat2"), is(true));
+        assertThat(dockerContainersContent.get("tomcat"), is(notNullValue()));
+        assertThat(dockerContainersContent.get("tomcat2"), is(notNullValue()));
     }
 
     @Test
@@ -83,17 +86,16 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
-        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualWeb = (Map<String, Object>) dockerContainersContent.get("web");
-        assertThat(actualWeb, hasKey("buildImage"));
-        assertThat(actualWeb, hasKey("portBindings"));
-        assertThat(actualWeb, hasKey("volumes"));
-        assertThat(actualWeb, hasKey("links"));
+        final CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualRedis = (Map<String, Object>) dockerContainersContent.get("redis");
-        assertThat(actualRedis, hasKey("image"));
+        CubeContainer actualWeb = dockerContainersContent.get("web");
+        assertThat(actualWeb.getBuildImage(), is(notNullValue()));
+        assertThat(actualWeb.getPortBindings(), is(notNullValue()));
+        assertThat(actualWeb.getVolumes(), is(notNullValue()));
+        assertThat(actualWeb.getLinks(), is(notNullValue()));
+
+        CubeContainer actualRedis = dockerContainersContent.get("redis");
+        assertThat(actualRedis.getImage(), is(notNullValue()));
     }
 
     @Test
@@ -105,12 +107,11 @@ public class CubeConfigurationTest {
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
 
-        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.get("image");
+        String image = (String) actualTomcat.getImage().toImageRef();
         assertThat(image, is("tomcat:7.0"));
     }
 
@@ -127,12 +128,11 @@ public class CubeConfigurationTest {
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
-        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.get("image");
+        String image = actualTomcat.getImage().toImageRef();
         assertThat(image, is("tutum/tomcat:7.0"));
     }
 
@@ -155,14 +155,13 @@ public class CubeConfigurationTest {
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
-        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.get("image");
+        String image = (String) actualTomcat.getImage().toImageRef();
         assertThat(image, is("tutum/tomcat:7.0"));
-        assertThat(dockerContainersContent.containsKey("tomcat2"), is(true));
+        assertThat(dockerContainersContent.get("tomcat2"), is(notNullValue()));
     }
 
     @Test
@@ -181,16 +180,14 @@ public class CubeConfigurationTest {
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
-        Map<String, Object> dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> actualTomcat = (Map<String, Object>) dockerContainersContent.get("tomcat");
+        CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.get("image");
+        String image = actualTomcat.getImage().toImageRef();
         assertThat(image, is("tutum/tomcat:7.0"));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void should_be_able_to_extend_and_override_toplevel() throws Exception {
         String config =
@@ -209,9 +206,9 @@ public class CubeConfigurationTest {
         parameters.put("dockerContainers", config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
 
-        Map<String, Object> tomcat7 = (Map<String, Object>)cubeConfiguration.getDockerContainersContent().get("tomcat7");
-        Assert.assertEquals("tutum/tomcat:7.0", tomcat7.get("image").toString());
-        Assert.assertTrue(tomcat7.containsKey("await"));
-        Assert.assertEquals("8089/tcp", ((List<Object>)tomcat7.get("exposedPorts")).get(0).toString());
+        CubeContainer tomcat7 = cubeConfiguration.getDockerContainersContent().get("tomcat7");
+        Assert.assertEquals("tutum/tomcat:7.0", tomcat7.getImage().toImageRef());
+        Assert.assertTrue(tomcat7.getAwait() != null);
+        Assert.assertEquals("8089/tcp", tomcat7.getExposedPorts().iterator().next().toString());
     }
 }

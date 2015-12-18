@@ -1,23 +1,20 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import org.arquillian.cube.docker.impl.client.Converter;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
-import org.yaml.snakeyaml.Yaml;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import org.arquillian.cube.docker.impl.client.Converter;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.yaml.snakeyaml.Yaml;
 
 public class DockerComposeConverter implements Converter {
 
@@ -28,7 +25,7 @@ public class DockerComposeConverter implements Converter {
         try (FileInputStream inputStream = new FileInputStream(location.toFile())) {
             String content = IOUtil.asStringPreservingNewLines(inputStream);
             content = resolvePlaceholders(content);
-            this.dockerComposeDefinitionMap = (Map<String, Object>) new Yaml().load(content);
+            this.dockerComposeDefinitionMap = loadConfig(content);
             this.dockerComposeRootDirectory = location.getParent();
         }
     }
@@ -45,7 +42,7 @@ public class DockerComposeConverter implements Converter {
 
     private DockerComposeConverter(String content) {
         String resolvePlaceholders = resolvePlaceholders(content);
-        this.dockerComposeDefinitionMap = (Map<String, Object>) new Yaml().load(content);
+        this.dockerComposeDefinitionMap = loadConfig(resolvePlaceholders);
         this.dockerComposeRootDirectory = Paths.get(".");
     }
 
@@ -61,33 +58,25 @@ public class DockerComposeConverter implements Converter {
         return new DockerComposeConverter(content);
     }
 
-    public Map<String, Object> convert() {
-        Map<String, Object> dockerCubeDefinitionMap = new HashMap<>();
+    public CubeContainers convert() {
+        CubeContainers cubeContainers = new CubeContainers();
 
         Set<String> names = dockerComposeDefinitionMap.keySet();
 
         for(String name : names) {
-            Map<String, Object> containerCubeDefinition = convertContainer(asMap(dockerComposeDefinitionMap, name));
-            dockerCubeDefinitionMap.put(name, containerCubeDefinition);
+            CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
+            cubeContainers.add(name, cubeContainer);
         }
-        return dockerCubeDefinitionMap;
+        return cubeContainers;
     }
 
-    private Map<String, Object> convertContainer(Map<String, Object> dockerComposeContainerDefinition) {
+    private CubeContainer convertContainer(Map<String, Object> dockerComposeContainerDefinition) {
         ContainerBuilder containerBuilder = new ContainerBuilder(this.dockerComposeRootDirectory);
-        Map<String, Object> conf = containerBuilder.build(dockerComposeContainerDefinition);
-        if (conf.containsKey(DockerClientExecutor.ENV)) {
-            conf.put(DockerClientExecutor.ENV, toEnvironment((Properties) conf.get(DockerClientExecutor.ENV)));
-        }
-        return conf;
-    }
-    private Collection<String> toEnvironment(Properties properties) {
-        Set<String> listOfEnvironment = new HashSet<>();
-        Set<Entry<Object, Object>> entrySet = properties.entrySet();
-        for (Entry<Object, Object> entry : entrySet) {
-            listOfEnvironment.add(entry.getKey() + "=" + entry.getValue());
-        }
-        return listOfEnvironment;
+        return containerBuilder.build(dockerComposeContainerDefinition);
     }
 
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> loadConfig(String content) {
+        return (Map<String, Object>) new Yaml().load(content);
+    }
 }

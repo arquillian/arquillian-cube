@@ -3,9 +3,7 @@ package org.arquillian.cube.openshift.impl.model;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.TopContainer;
@@ -14,12 +12,11 @@ import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
 
 import io.fabric8.kubernetes.api.model.Service;
 
-public class ServiceCube extends BaseCube {
+public class ServiceCube extends BaseCube<Void> {
 
     private String id;
     private Service resource;
@@ -103,8 +100,8 @@ public class ServiceCube extends BaseCube {
     }
 
     @Override
-    public Map<String, Object> configuration() {
-        return new HashMap<String, Object>();
+    public Void configuration() {
+        return null;
     }
 
     @Override

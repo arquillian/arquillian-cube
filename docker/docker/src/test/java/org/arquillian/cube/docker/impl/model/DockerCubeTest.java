@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyString;
 
 import java.util.HashMap;
 
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
@@ -59,7 +60,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
         when(executor.getDockerClient()).thenReturn(dockerClient);
-        cube = injectorInst.get().inject(new DockerCube("test", new HashMap<String, Object>(), executor));
+        cube = injectorInst.get().inject(new DockerCube("test", new CubeContainer(), executor));
     }
 
     @Test
