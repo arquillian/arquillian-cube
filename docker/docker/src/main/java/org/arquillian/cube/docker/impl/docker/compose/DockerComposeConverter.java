@@ -34,8 +34,13 @@ public class DockerComposeConverter implements Converter {
     }
 
     private String resolvePlaceholders(String content) {
+        content = resolveSystemProperties(content);
         final Map<String, String> env = System.getenv();
         return IOUtil.replacePlaceholdersWithWhiteSpace(content, env);
+    }
+
+    private String resolveSystemProperties(String content) {
+        return IOUtil.replacePlaceholdersWithWhiteSpace(content);
     }
 
     private DockerComposeConverter(String content) {

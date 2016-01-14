@@ -125,6 +125,9 @@
                     <environmentVariables>
                         <TESTIMAGENAME>MyImageName</TESTIMAGENAME>
                     </environmentVariables>
+                    <systemPropertyVariables>
+                        <SYSTEMTESTIMAGENAME>TestImageName</SYSTEMTESTIMAGENAME>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

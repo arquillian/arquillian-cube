@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class DockerComposeConverterTest {
@@ -61,14 +60,23 @@ public class DockerComposeConverterTest {
 
   @Test
   public void shouldResolveEnvironmentVars() throws URISyntaxException, IOException {
-    URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/simple-cube-var.yml").toURI();
+    testResolvePlaceholders("/simple-cube-var.yml", "MyImageName");
+  }
+
+  @Test
+  public void shouldResolveSystemEnvironmentVars() throws URISyntaxException, IOException {
+    testResolvePlaceholders("/simple-cube-system-var.yml", "TestImageName");
+  }
+
+  private void testResolvePlaceholders(String dockerComposeFile, String expectedImageName) throws URISyntaxException, IOException {
+    URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource(dockerComposeFile).toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
 
     Map<String, Object> convert = dockerComposeConverter.convert();
     Map<String, Object> webapp = (Map<String, Object>) convert.get("webapp2");
     assertThat(webapp, hasKey("image"));
     final String image = (String)webapp.get("image");
-    assertThat(image, is("MyImageName"));
+    assertThat(image, is(expectedImageName));
   }
 
   @Test

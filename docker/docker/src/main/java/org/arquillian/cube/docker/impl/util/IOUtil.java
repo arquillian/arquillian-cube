@@ -77,6 +77,10 @@ public class IOUtil {
         return sub.replace(templateContent);
     }
 
+    public static String replacePlaceholdersWithWhiteSpace(final String templateContent) {
+        return StrSubstitutor.replaceSystemProperties(templateContent);
+    }
+
     public static String substringBetween(String str, String open, String close) {
         if (str == null || open == null || close == null) {
             return null;
