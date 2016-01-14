@@ -12,7 +12,8 @@ public class CubeDockerExtension implements LoadableExtension {
 
     @Override
     public void register(ExtensionBuilder builder) {
-        builder.observer(CubeDockerConfigurator.class)
+        builder.observer(TopCreator.class)
+               .observer(CubeDockerConfigurator.class)
                .observer(DockerClientCreator.class)
                .observer(CubeDockerRegistrar.class)
                .observer(CubeSuiteLifecycleController.class)
