@@ -3,11 +3,12 @@ package org.arquillian.cube.docker.impl.client;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.client.CubeSuiteLifecycleController;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.ConnectionMode;
 import org.arquillian.cube.spi.CubeConfiguration;

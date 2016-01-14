@@ -9,14 +9,14 @@ import org.arquillian.cube.spi.CubeRegistry;
 
 public class LocalCubeRegistry implements CubeRegistry {
 
-    private List<Cube> cubes;
+    private List<Cube<?>> cubes;
 
     public LocalCubeRegistry() {
-        this.cubes = new ArrayList<Cube>();
+        this.cubes = new ArrayList<Cube<?>>();
     }
 
     @Override
-    public void addCube(Cube cube) {
+    public void addCube(Cube<?> cube) {
         this.cubes.add(cube);
     }
 
@@ -31,9 +31,9 @@ public class LocalCubeRegistry implements CubeRegistry {
     }
 
     @Override
-    public List<Cube> getByMetadata(Class<?> metadata) {
-        List<Cube> cubes = new ArrayList<>();
-        for (Cube cube : this.cubes) {
+    public List<Cube<?>> getByMetadata(Class<?> metadata) {
+        List<Cube<?>> cubes = new ArrayList<>();
+        for (Cube<?> cube : this.cubes) {
             if (cube.hasMetadata(metadata)) {
                 cubes.add(cube);
             }
@@ -42,8 +42,8 @@ public class LocalCubeRegistry implements CubeRegistry {
     }
 
     @Override
-    public Cube getCube(String id) {
-        for(Cube cube : this.cubes) {
+    public Cube<?> getCube(String id) {
+        for(Cube<?> cube : this.cubes) {
             if(cube.getId().equals(id)) {
                 return cube;
             }
@@ -52,7 +52,12 @@ public class LocalCubeRegistry implements CubeRegistry {
     }
 
     @Override
-    public List<Cube> getCubes() {
+    public <T extends Cube<?>> T getCube(String id, Class<T> type) {
+        return type.cast(getCube(id));
+    }
+
+    @Override
+    public List<Cube<?>> getCubes() {
         return Collections.unmodifiableList(cubes);
     }
 }

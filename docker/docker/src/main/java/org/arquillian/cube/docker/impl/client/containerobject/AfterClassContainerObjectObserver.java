@@ -22,8 +22,8 @@ public class AfterClassContainerObjectObserver {
     public void stopContainerObjects(@Observes AfterClass afterClass) {
 
         final CubeController cubeController = cubeControllerInstance.get();
-        final List<Cube> byMetadata = cubeRegistryInstance.get().getByMetadata(IsContainerObject.class);
-        for (Cube cube : byMetadata) {
+        final List<Cube<?>> byMetadata = cubeRegistryInstance.get().getByMetadata(IsContainerObject.class);
+        for (Cube<?> cube : byMetadata) {
             // To support fork tests
             final Class<?> testJavaClass = afterClass.getTestClass().getJavaClass();
             if (testJavaClass.equals(cube.getMetadata(IsContainerObject.class).getTestClass())) {

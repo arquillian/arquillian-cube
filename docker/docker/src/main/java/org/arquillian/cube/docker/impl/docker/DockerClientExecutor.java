@@ -12,26 +12,27 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.model.*;
-
-import com.github.dockerjava.core.async.ResultCallbackTemplate;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
-import com.github.dockerjava.core.command.LogContainerResultCallback;
-import com.github.dockerjava.core.command.PullImageResultCallback;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.NotFoundException;
@@ -44,12 +45,27 @@ import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Capability;
+import com.github.dockerjava.api.model.ChangeLog;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.Device;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.InternetProtocol;
+import com.github.dockerjava.api.model.Link;
+import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
+import com.github.dockerjava.api.model.RestartPolicy;
+import com.github.dockerjava.api.model.Volume;
+import com.github.dockerjava.api.model.VolumesFrom;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
-
-import static org.arquillian.cube.docker.impl.util.YamlUtil.*;
+import com.github.dockerjava.core.async.ResultCallbackTemplate;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 
 public class DockerClientExecutor {
 
@@ -146,7 +162,7 @@ public class DockerClientExecutor {
         return this.dockerClient.listContainersCmd().exec();
     }
 
-    public String createContainer(String name, Map<String, Object> containerConfiguration) {
+    public String createContainer(String name, CubeContainer containerConfiguration) {
 
         // we check if Docker server is up and correctly configured.
         this.pingDockerServer();
@@ -162,170 +178,148 @@ public class DockerClientExecutor {
             createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
         }
 
-        if(containerConfiguration.containsKey(READ_ONLY_ROOT_FS)) {
-            createContainerCmd.withReadonlyRootfs(asBoolean(containerConfiguration, READ_ONLY_ROOT_FS));
+        if(containerConfiguration.getReadonlyRootfs() != null) {
+            createContainerCmd.withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
         }
 
-        if(containerConfiguration.containsKey(LABELS)) {
-            Map<String, String> labels = asMapOfStrings(containerConfiguration, LABELS);
-            createContainerCmd.withLabels(labels);
+        if(containerConfiguration.getLabels() != null) {
+            createContainerCmd.withLabels(containerConfiguration.getLabels());
         }
 
-        if (containerConfiguration.containsKey(WORKING_DIR)) {
-            createContainerCmd.withWorkingDir(asString(containerConfiguration, WORKING_DIR));
+        if (containerConfiguration.getWorkingDir() != null) {
+            createContainerCmd.withWorkingDir(containerConfiguration.getWorkingDir());
         }
 
-        if (containerConfiguration.containsKey(DISABLE_NETWORK)) {
-            createContainerCmd.withNetworkDisabled(asBoolean(containerConfiguration, DISABLE_NETWORK));
+        if (containerConfiguration.getDisableNetwork() != null) {
+            createContainerCmd.withNetworkDisabled(containerConfiguration.getDisableNetwork());
         }
 
-        if (containerConfiguration.containsKey(HOST_NAME)) {
-            createContainerCmd.withHostName(asString(containerConfiguration, HOST_NAME));
+        if (containerConfiguration.getHostName() != null) {
+            createContainerCmd.withHostName(containerConfiguration.getHostName());
         }
 
-        if (containerConfiguration.containsKey(PORT_SPECS)) {
-            Collection<String> portSpecs = asListOfString(containerConfiguration, PORT_SPECS);
-            createContainerCmd.withPortSpecs(portSpecs.toArray(new String[portSpecs.size()]));
+        if (containerConfiguration.getPortSpecs() != null) {
+            createContainerCmd.withPortSpecs(containerConfiguration.getPortSpecs().toArray(new String[0]));
         }
 
-        if (containerConfiguration.containsKey(USER)) {
-            createContainerCmd.withUser(asString(containerConfiguration, USER));
+        if (containerConfiguration.getUser() != null) {
+            createContainerCmd.withUser(containerConfiguration.getUser());
         }
 
-        if (containerConfiguration.containsKey(TTY)) {
-            createContainerCmd.withTty(asBoolean(containerConfiguration, TTY));
+        if(containerConfiguration.getTty() != null) {
+            createContainerCmd.withTty(containerConfiguration.getTty());
+        }
+        if(containerConfiguration.getStdinOpen() != null) {
+            createContainerCmd.withStdinOpen(containerConfiguration.getStdinOpen());
         }
 
-        if (containerConfiguration.containsKey(STDIN_OPEN)) {
-            createContainerCmd.withStdinOpen(asBoolean(containerConfiguration, STDIN_OPEN));
+        if (containerConfiguration.getStdinOnce() != null) {
+            createContainerCmd.withStdInOnce(containerConfiguration.getStdinOnce());
         }
 
-        if (containerConfiguration.containsKey(STDIN_ONCE)) {
-            createContainerCmd.withStdInOnce(asBoolean(containerConfiguration, STDIN_ONCE));
+        if (containerConfiguration.getMemoryLimit() != null) {
+            createContainerCmd.withMemoryLimit(containerConfiguration.getMemoryLimit());
         }
 
-        if (containerConfiguration.containsKey(MEMORY_LIMIT)) {
-            createContainerCmd.withMemoryLimit(asInt(containerConfiguration, MEMORY_LIMIT));
+        if (containerConfiguration.getMemorySwap() != null) {
+            createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
         }
 
-        if (containerConfiguration.containsKey(MEMORY_SWAP)) {
-            createContainerCmd.withMemorySwap(asInt(containerConfiguration, MEMORY_SWAP));
+        if (containerConfiguration.getCpuShares() != null) {
+            createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
         }
 
-        if (containerConfiguration.containsKey(CPU_SHARES)) {
-            createContainerCmd.withCpuShares(asInt(containerConfiguration, CPU_SHARES));
+        if(containerConfiguration.getCpuSet() != null) {
+            createContainerCmd.withCpuset(containerConfiguration.getCpuSet());
         }
 
-        if(containerConfiguration.containsKey(CPU_SET)) {
-            createContainerCmd.withCpuset(asString(containerConfiguration, CPU_SET));
+        if (containerConfiguration.getAttachStdin() != null) {
+            createContainerCmd.withAttachStdin(containerConfiguration.getAttachStdin());
         }
 
-        if (containerConfiguration.containsKey(ATTACH_STDIN)) {
-            createContainerCmd.withAttachStdin(asBoolean(containerConfiguration, ATTACH_STDIN));
+        if (containerConfiguration.getAttachSterr() != null) {
+            createContainerCmd.withAttachStderr(containerConfiguration.getAttachSterr());
         }
 
-        if (containerConfiguration.containsKey(ATTACH_STDERR)) {
-            createContainerCmd.withAttachStderr(asBoolean(containerConfiguration, ATTACH_STDERR));
+        if (containerConfiguration.getEnv() != null) {
+            createContainerCmd.withEnv(resolveDockerServerIpInList(containerConfiguration.getEnv()).toArray(new String[0]));
         }
 
-        if (containerConfiguration.containsKey(ENV)) {
-            Collection<String> env = asListOfString(containerConfiguration, ENV);
-            env = resolveDockerServerIpInList(env);
-            createContainerCmd.withEnv(env.toArray(new String[env.size()]));
+        if (containerConfiguration.getCmd() != null) {
+            createContainerCmd.withCmd(containerConfiguration.getCmd().toArray(new String[0]));
         }
 
-        if (containerConfiguration.containsKey(CMD)) {
-            Collection<String> cmd = asListOfString(containerConfiguration, CMD);
-            createContainerCmd.withCmd(cmd.toArray(new String[cmd.size()]));
+        if (containerConfiguration.getDns() != null) {
+            createContainerCmd.withDns(containerConfiguration.getDns().toArray(new String[0]));
         }
 
-        if (containerConfiguration.containsKey(DNS)) {
-            Collection<String> dns = asListOfString(containerConfiguration, DNS);
-            createContainerCmd.withDns(dns.toArray(new String[dns.size()]));
+        if (containerConfiguration.getVolumes() != null) {
+            createContainerCmd.withVolumes(toVolumes(containerConfiguration.getVolumes()));
         }
 
-        if (containerConfiguration.containsKey(VOLUMES)) {
-            Collection<String> volumes = asListOfString(containerConfiguration, VOLUMES);
-            createContainerCmd.withVolumes(toVolumes(volumes));
+        if (containerConfiguration.getVolumesFrom() != null) {
+            createContainerCmd.withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
         }
 
-        if (containerConfiguration.containsKey(VOLUMES_FROM)) {
-            Collection<String> volumesFrom = asListOfString(containerConfiguration, VOLUMES_FROM);
-            createContainerCmd.withVolumesFrom(toVolumesFrom(volumesFrom));
+        if (containerConfiguration.getBinds() != null) {
+            createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
         }
 
-        if (containerConfiguration.containsKey(BINDS)) {
-            Collection<String> binds = asListOfString(containerConfiguration, BINDS);
-            createContainerCmd.withBinds(toBinds(binds));
+        if (containerConfiguration.getLinks() != null) {
+            createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
         }
 
-        if (containerConfiguration.containsKey(LINKS)) {
-            createContainerCmd.withLinks(toLinks(asListOfString(containerConfiguration, LINKS)));
+        if (containerConfiguration.getPortBindings() != null) {
+            createContainerCmd.withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
         }
 
-        if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            Collection<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
-
-            Ports ports = assignPorts(portBindings);
-            createContainerCmd.withPortBindings(ports);
+        if (containerConfiguration.getPrivileged() != null) {
+            createContainerCmd.withPrivileged(containerConfiguration.getPrivileged());
         }
 
-        if (containerConfiguration.containsKey(PRIVILEGED)) {
-            createContainerCmd.withPrivileged(asBoolean(containerConfiguration, PRIVILEGED));
+        if (containerConfiguration.getPublishAllPorts() != null) {
+            createContainerCmd.withPublishAllPorts(containerConfiguration.getPublishAllPorts());
         }
 
-        if (containerConfiguration.containsKey(PUBLISH_ALL_PORTS)) {
-            createContainerCmd.withPublishAllPorts(asBoolean(containerConfiguration, PUBLISH_ALL_PORTS));
+        if (containerConfiguration.getNetworkMode() != null) {
+            createContainerCmd.withNetworkMode(containerConfiguration.getNetworkMode());
         }
 
-        if (containerConfiguration.containsKey(NETWORK_MODE)) {
-            createContainerCmd.withNetworkMode(asString(containerConfiguration, NETWORK_MODE));
+        if (containerConfiguration.getDnsSearch() != null) {
+            createContainerCmd.withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
         }
 
-        if (containerConfiguration.containsKey(DNS_SEARCH)) {
-            Collection<String> dnsSearch = asListOfString(containerConfiguration, DNS_SEARCH);
-            createContainerCmd.withDnsSearch(dnsSearch.toArray(new String[dnsSearch.size()]));
+        if (containerConfiguration.getDevices() != null) {
+            createContainerCmd.withDevices(toDevices(containerConfiguration.getDevices()));
         }
 
-        if (containerConfiguration.containsKey(DEVICES)) {
-
-            Collection<Map<String, Object>> devices = asListOfMap(containerConfiguration, DEVICES);
-            createContainerCmd.withDevices(toDevices(devices));
+        if (containerConfiguration.getRestartPolicy() != null) {
+            createContainerCmd.withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
         }
 
-        if (containerConfiguration.containsKey(RESTART_POLICY)) {
-            Map<String, Object> restart = asMap(containerConfiguration, RESTART_POLICY);
-            createContainerCmd.withRestartPolicy(toRestatPolicy(restart));
+        if (containerConfiguration.getCapAdd() != null) {
+            createContainerCmd.withCapAdd(toCapability(containerConfiguration.getCapAdd()));
         }
 
-        if (containerConfiguration.containsKey(CAP_ADD)) {
-            Collection<String> capAdds = asListOfString(containerConfiguration, CAP_ADD);
-            createContainerCmd.withCapAdd(toCapability(capAdds));
+        if (containerConfiguration.getCapDrop() != null) {
+            createContainerCmd.withCapDrop(toCapability(containerConfiguration.getCapDrop()));
         }
 
-        if (containerConfiguration.containsKey(CAP_DROP)) {
-            Collection<String> capDrop = asListOfString(containerConfiguration, CAP_DROP);
-            createContainerCmd.withCapDrop(toCapability(capDrop));
+        if(containerConfiguration.getExtraHosts() != null) {
+            createContainerCmd.withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
+        }
+        if(containerConfiguration.getEntryPoint() != null) {
+            createContainerCmd.withEntrypoint(containerConfiguration.getEntryPoint().toArray(new String[0]));
         }
 
-        if(containerConfiguration.containsKey(EXTRA_HOSTS)) {
-            Collection<String> extraHosts = asListOfString(containerConfiguration, EXTRA_HOSTS);
-            createContainerCmd.withExtraHosts(extraHosts.toArray(new String[extraHosts.size()]));
-        }
-        if(containerConfiguration.containsKey(ENTRYPOINT)) {
-            Collection<String> entrypoints = asListOfString(containerConfiguration, ENTRYPOINT);
-            createContainerCmd.withEntrypoint(entrypoints.toArray(new String[entrypoints.size()]));
-        }
-
-        if(containerConfiguration.containsKey(DOMAINNAME)) {
-            String domainName = asString(containerConfiguration, DOMAINNAME);
-            createContainerCmd.withDomainName(domainName);
+        if(containerConfiguration.getDomainName() != null) {
+            createContainerCmd.withDomainName(containerConfiguration.getDomainName());
         }
 
         boolean alwaysPull = false;
 
-        if (containerConfiguration.containsKey(ALWAYS_PULL)) {
-            alwaysPull = asBoolean(containerConfiguration, ALWAYS_PULL);
+        if (containerConfiguration.getAlwaysPull() != null) {
+            alwaysPull = containerConfiguration.getAlwaysPull();
         }
 
         if ( alwaysPull ) {
@@ -372,38 +366,41 @@ public class DockerClientExecutor {
         return resolvedEnv;
     }
 
-    private Set<ExposedPort> resolveExposedPorts(Map<String, Object> containerConfiguration,
+    private Set<ExposedPort> resolveExposedPorts(CubeContainer containerConfiguration,
             CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
-        if (containerConfiguration.containsKey(PORT_BINDINGS)) {
-            Collection<String> portBindings = asListOfString(containerConfiguration, PORT_BINDINGS);
-
-            Ports assignPorts = assignPorts(portBindings);
-            Map<ExposedPort, Binding[]> bindings = assignPorts.getBindings();
-            Set<ExposedPort> exposedPorts = bindings.keySet();
-            allExposedPorts.addAll(exposedPorts);
+        if (containerConfiguration.getPortBindings() != null) {
+            for(PortBinding binding : containerConfiguration.getPortBindings()) {
+                allExposedPorts.add(new ExposedPort(binding.getExposedPort().getExposed(), InternetProtocol.parse(binding.getExposedPort().getType())));
+            }
         }
-        if (containerConfiguration.containsKey(EXPOSED_PORTS)) {
-            Set<ExposedPort> exposedPorts = toExposedPorts(asListOfString(containerConfiguration, EXPOSED_PORTS));
-            allExposedPorts.addAll(exposedPorts);
+        if (containerConfiguration.getExposedPorts() != null) {
+            for(org.arquillian.cube.docker.impl.client.config.ExposedPort port : containerConfiguration.getExposedPorts()) {
+                allExposedPorts.add(new ExposedPort(port.getExposed(), InternetProtocol.parse(port.getType())));
+            }
         }
         return allExposedPorts;
     }
 
-    private String getImageName(Map<String, Object> containerConfiguration) {
+    private String getImageName(CubeContainer containerConfiguration) {
         String image;
 
-        if (containerConfiguration.containsKey(IMAGE)) {
-            image = asString(containerConfiguration, IMAGE);
+        if (containerConfiguration.getImage() != null) {
+            image = containerConfiguration.getImage().toImageRef();
         } else {
 
-            if (containerConfiguration.containsKey(BUILD_IMAGE)) {
+            if (containerConfiguration.getBuildImage() != null) {
 
-                Map<String, Object> params = asMap(containerConfiguration, BUILD_IMAGE);
+                BuildImage buildImage = containerConfiguration.getBuildImage();
 
-                if (params.containsKey(DOCKERFILE_LOCATION)) {
-                    String dockerfileLocation = asString(params, DOCKERFILE_LOCATION);
-                    image = this.buildImage(dockerfileLocation, params);
+                if (buildImage.getDockerfileLocation() != null) {
+                    Map<String, Object> params = new HashMap<String, Object>(); //(containerConfiguration, BUILD_IMAGE);
+                    params.put("noCache", buildImage.isNoCache());
+                    params.put("remove", buildImage.isRemove());
+                    params.put("dockerFileLocation", buildImage.getDockerfileLocation());
+                    params.put("dockerFileName", buildImage.getDockerfileName());
+
+                    image = this.buildImage(buildImage.getDockerfileLocation(), params);
                 } else {
                     throw new IllegalArgumentException(
                             "A tar file with Dockerfile on root or a directory with a Dockerfile should be provided.");
@@ -419,36 +416,20 @@ public class DockerClientExecutor {
         return image;
     }
 
-    public void startContainer(String id, Map<String, Object> containerConfiguration) {
+    public void startContainer(String id, CubeContainer containerConfiguration) {
         StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(id);
 
         startContainerCmd.exec();
     }
 
-    private Ports assignPorts(Collection<String> portBindings) {
+    private Ports toPortBindings(Collection<PortBinding> portBindings) {
         Ports ports = new Ports();
-        for (String portBinding : portBindings) {
-            String[] elements = portBinding.split(PORTS_SEPARATOR);
-
-            if (elements.length == 1) {
-
-                log.info("Only exposed port is set and it will be used as port binding as well. " + elements[0]);
-
-                // exposed port is only set and same port will be used as port binding.
-                int positionOfProtocolSeparator = elements[0].indexOf("/");
-                String bindingPortValue = elements[0];
-                if(positionOfProtocolSeparator > -1) {
-                    //means that the protocol part is also set. 
-                    bindingPortValue = elements[0].substring(0, positionOfProtocolSeparator);
-                }
-                ports.bind(ExposedPort.parse(elements[0]), toBinding(bindingPortValue));
-            } else {
-                if (elements.length == 2) {
-                    // port and exposed port are set
-                    ports.bind(ExposedPort.parse(elements[1]), toBinding(elements[0]));
-                }
-            }
-
+        for (PortBinding portBinding : portBindings) {
+            ports.bind(
+                    new ExposedPort(
+                            portBinding.getExposedPort().getExposed(),
+                            InternetProtocol.parse(portBinding.getExposedPort().getType())),
+                    new Binding(portBinding.getHost(), portBinding.getBound()));
         }
         return ports;
     }
@@ -661,23 +642,23 @@ public class DockerClientExecutor {
         return dockerUri;
     }
 
-    private static final Device[] toDevices(Collection<Map<String, Object>> devicesMap) {
-        Device[] devices = new Device[devicesMap.size()];
+    private static final Device[] toDevices(Collection<org.arquillian.cube.docker.impl.client.config.Device> deviceList) {
+        Device[] devices = new Device[deviceList.size()];
 
         int i = 0;
-        for (Map<String, Object> device : devicesMap) {
-            if (device.containsKey(PATH_ON_HOST)
-                    && device.containsKey(PATH_IN_CONTAINER)) {
+        for (org.arquillian.cube.docker.impl.client.config.Device device : deviceList) {
+            if (device.getPathOnHost() != null
+                    && device.getPathInContainer() != null) {
 
                 String cGroupPermissions;
-                if (device.containsKey(C_GROUP_PERMISSIONS)) {
-                    cGroupPermissions = asString(device, C_GROUP_PERMISSIONS);
+                if (device.getcGroupPermissions() != null) {
+                    cGroupPermissions = device.getcGroupPermissions();
                 } else {
                     cGroupPermissions = DEFAULT_C_GROUPS_PERMISSION;
                 }
 
-                String pathOnHost = asString(device, PATH_ON_HOST);
-                String pathInContainer = asString(device, PATH_IN_CONTAINER);
+                String pathOnHost = device.getPathOnHost();
+                String pathInContainer = device.getPathInContainer();
 
                 devices[i] = new Device(cGroupPermissions, pathInContainer, pathOnHost);
                 i++;
@@ -687,12 +668,12 @@ public class DockerClientExecutor {
         return devices;
     }
 
-    private static final RestartPolicy toRestatPolicy(Map<String, Object> restart) {
-        if (restart.containsKey("name")) {
-            String name = asString(restart, "name");
+    private static final RestartPolicy toRestartPolicy(org.arquillian.cube.docker.impl.client.config.RestartPolicy restart) {
+        if (restart.getName() != null) {
+            String name = restart.getName();
 
             if ("failure".equals(name)) {
-                return RestartPolicy.onFailureRestart(asInt(restart, "maximumRetryCount"));
+                return RestartPolicy.onFailureRestart(restart.getMaximumRetryCount());
             } else {
                 if ("restart".equals(name)) {
                     return RestartPolicy.alwaysRestart();
@@ -706,21 +687,11 @@ public class DockerClientExecutor {
         }
     }
 
-    private static final Binding toBinding(String port) {
-        if (port.contains(TAG_SEPARATOR)) {
-            String host = port.substring(0, port.lastIndexOf(TAG_SEPARATOR));
-            int extractedPort = Integer.parseInt(port.substring(port.lastIndexOf(TAG_SEPARATOR) + 1, port.length()));
-            return Ports.Binding(host, extractedPort);
-        } else {
-            return Ports.Binding(Integer.parseInt(port));
-        }
-    }
-
-    private static final Link[] toLinks(Collection<String> linkList) {
+    private static final Link[] toLinks(Collection<org.arquillian.cube.docker.impl.client.config.Link> linkList) {
         Link[] links = new Link[linkList.size()];
         int i=0;
-        for (String link : linkList) {
-            links[i] = Link.parse(link);
+        for (org.arquillian.cube.docker.impl.client.config.Link link : linkList) {
+            links[i] = new Link(link.getName(), link.getAlias());
             i++;
         }
 
@@ -745,16 +716,6 @@ public class DockerClientExecutor {
         }
 
         return binds;
-    }
-
-    private static final Set<ExposedPort> toExposedPorts(Collection<String> exposedPortsList) {
-        Set<ExposedPort> exposedPorts = new HashSet<>();
-
-        for (String exposedPort : exposedPortsList) {
-            exposedPorts.add(ExposedPort.parse(exposedPort));
-        }
-
-        return exposedPorts;
     }
 
     private static final Volume[] toVolumes(Collection<String> volumesList) {

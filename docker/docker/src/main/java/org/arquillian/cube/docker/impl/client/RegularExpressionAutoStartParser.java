@@ -1,21 +1,22 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+
 public class RegularExpressionAutoStartParser implements AutoStartParser {
 
     public static final String REGULAR_EXPRESSION_PREFIX = "regexp:";
 
     private String expression;
-    private Map<String, Object> containerDefinitions;
+    private CubeContainers containerDefinitions;
 
-    public RegularExpressionAutoStartParser(String expression, Map<String, Object> containerDefinitions) {
+    public RegularExpressionAutoStartParser(String expression, CubeContainers containerDefinitions) {
         if(!expression.startsWith(REGULAR_EXPRESSION_PREFIX)) {
             throw new IllegalArgumentException("Regular Expression AutoStartParser should begin with "+REGULAR_EXPRESSION_PREFIX);
         }
@@ -29,7 +30,7 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
 
         String regularExpression = getRegularExpression(expression);
         Pattern pattern = Pattern.compile(regularExpression);
-        Set<String> definedContainers = containerDefinitions.keySet();
+        Set<String> definedContainers = containerDefinitions.getContainerIds();
         for(String containerName : definedContainers) {
             Matcher matcher = pattern.matcher(containerName);
             if(matcher.matches()) {

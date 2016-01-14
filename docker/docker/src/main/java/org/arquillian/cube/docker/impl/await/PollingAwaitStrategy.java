@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
@@ -22,9 +23,6 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
     private static final String DEFAULT_POLL_TYPE = "sscommand";
-    private static final String POLLING_TIME = "sleepPollingTime";
-    private static final String ITERATIONS = "iterations";
-    private static final String POLL_TYPE = "type";
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private int sleepPollTime = DEFAULT_SLEEP_POLL_TIME;
@@ -34,24 +32,23 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private DockerClientExecutor dockerClientExecutor;
     private Cube cube;
 
-    public PollingAwaitStrategy(Cube cube, DockerClientExecutor dockerClientExecutor, Map<String, Object> params) {
+    public PollingAwaitStrategy(Cube cube, DockerClientExecutor dockerClientExecutor, Await params) {
         this.cube = cube;
         this.dockerClientExecutor = dockerClientExecutor;
-        if (params.containsKey(POLLING_TIME)) {
-            configurePollingTime(params);
+        if (params.getSleepPollingTime() != null) {
+            configurePollingTime(params.getSleepPollingTime());
         }
 
-        if (params.containsKey(ITERATIONS)) {
-            this.pollIterations = (Integer) params.get(ITERATIONS);
+        if (params.getIterations() != null) {
+            this.pollIterations = params.getIterations();
         }
 
-        if(params.containsKey(POLL_TYPE)) {
-            this.type = (String) params.get(POLL_TYPE);
+        if(params.getType() != null) {
+            this.type = params.getType();
         }
     }
 
-    private void configurePollingTime(Map<String, Object> params) {
-        Object sleepTime = params.get(POLLING_TIME);
+    private void configurePollingTime(Object sleepTime) {
         if(sleepTime instanceof Integer) {
             this.sleepPollTime = (Integer) sleepTime;
         } else {

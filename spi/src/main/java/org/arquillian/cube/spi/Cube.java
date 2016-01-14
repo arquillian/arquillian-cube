@@ -2,12 +2,11 @@ package org.arquillian.cube.spi;
 
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.TopContainer;
 
-public interface Cube {
+public interface Cube<T> {
 
     public enum State {
         CREATED,
@@ -45,7 +44,7 @@ public interface Cube {
 
     Binding configuredBindings();
 
-    Map<String, Object> configuration();
+    T configuration();
 
     boolean hasMetadata(Class<?> type);
 

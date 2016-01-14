@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.IOUtil;
@@ -30,10 +31,11 @@ import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-public class DockerCube extends BaseCube {
+public class DockerCube extends BaseCube<CubeContainer> {
 
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
 
@@ -41,17 +43,27 @@ public class DockerCube extends BaseCube {
     private String id;
     private Binding binding = null;
 
-    private Map<String, Object> configuration;
+    private CubeContainer configuration;
 
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
 
     private DockerClientExecutor executor;
 
-    public DockerCube(String id, Map<String, Object> configuration, DockerClientExecutor executor) {
+    public DockerCube(String id, CubeContainer configuration, DockerClientExecutor executor) {
         this.id = id;
         this.configuration = configuration;
         this.executor = executor;
+        addDefaultMetadata();
+    }
+
+    private void addDefaultMetadata() {
+        if(configuration.getBuildImage() !=null) {
+            String path = configuration.getBuildImage().getDockerfileLocation();
+            if(path != null) {
+                addMetadata(new IsBuildable(path));
+            }
+        }
     }
 
     @Override
@@ -169,7 +181,7 @@ public class DockerCube extends BaseCube {
     }
 
     @Override
-    public Map<String, Object> configuration() {
+    public CubeContainer configuration() {
         return configuration;
     }
 

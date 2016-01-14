@@ -1,11 +1,18 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.arquillian.cube.docker.impl.client.AutoStartParser;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Link;
 
 public class AutoStartOrderUtil {
 
@@ -85,20 +92,18 @@ public class AutoStartOrderUtil {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     private static void addAll(Map<String, Node> nodes, CubeDockerConfiguration config, String id) {
-        Map<String, Object> content = (Map<String, Object>)config.getDockerContainersContent().get(id);
+        CubeContainer content = config.getDockerContainersContent().get(id);
         if(content == null) {
             return;
         }
         Node parent = nodes.get(id);
-        if(content.containsKey("links")) {
-            Collection<String> links = (Collection<String>)content.get("links");
-            for(String link : links) {
-                String[] parsed = link.split(":");
-                String name = parsed[0];
+        if(content.getLinks() != null) {
+            Collection<Link> links = content.getLinks();
+            for(Link link : links) {
+                String name = link.getName();
 
-                if(config.getDockerContainersContent().containsKey(name)) {
+                if(config.getDockerContainersContent().get(name) != null) {
                     Node child = nodes.get(name);
                     if(child == null) {
                         child = Node.from(name);

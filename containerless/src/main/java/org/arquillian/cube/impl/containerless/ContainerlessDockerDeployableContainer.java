@@ -16,6 +16,7 @@ import org.arquillian.cube.spi.event.CubeControlEvent;
 import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
@@ -75,43 +76,35 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
     public ProtocolMetaData deploy(Archive<?> archive) throws DeploymentException {
         final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
 
-        Cube cube = resolveMainCube(cubeRegistry);
+        Cube<?> cube = resolveMainCube(cubeRegistry);
 
-        Map<String, Object> cubeConfiguration = cube.configuration();
-        //Only works with images using a Dockerfile.
-        if (cubeConfiguration.containsKey("buildImage")) {
-            Map<String, Object> params = asMap(cubeConfiguration, "buildImage");
-            if (params.containsKey("dockerfileLocation")) {
-                File location = new File((String) params.get("dockerfileLocation"));
-                if (location.isDirectory()) {
-                    //Because ShrinkWrap may create different jar files depending on what we are testing in this case
-                    //we need a template which is the responsible to copy the jar to desired location
-                    try {
-                        createDockerfileFromTemplate(archive, location);
-                        // fire events as usually.
-                        controlEvent.fire(new CreateCube(cube));
-                        controlEvent.fire(new StartCube(cube));
-                        return createProtocolMetadata(cube, archive);
-                    } catch (FileNotFoundException e) {
-                        throw new IllegalArgumentException("Containerless Docker container requires a file named "
-                                + DOCKERFILE_TEMPLATE);
-                    }
-                } else {
-                    throw new IllegalArgumentException(
-                            "Dockerfile Template of containerless Docker container must be in a directory.");
+        if(cube.hasMetadata(IsBuildable.class)) {
+            File location = new File(cube.getMetadata(IsBuildable.class).getTemplatePath());
+            if (location.isDirectory()) {
+                //Because ShrinkWrap may create different jar files depending on what we are testing in this case
+                //we need a template which is the responsible to copy the jar to desired location
+                try {
+                    createDockerfileFromTemplate(archive, location);
+                    // fire events as usually.
+                    controlEvent.fire(new CreateCube(cube));
+                    controlEvent.fire(new StartCube(cube));
+                    return createProtocolMetadata(cube, archive);
+                } catch (FileNotFoundException e) {
+                    throw new IllegalArgumentException("Containerless Docker container requires a file named "
+                            + DOCKERFILE_TEMPLATE);
                 }
             } else {
                 throw new IllegalArgumentException(
-                        "Containerless Docker container should be built in Dockerfile, and dockerfileLocation property not found.");
+                        "Dockerfile Template of containerless Docker container must be in a directory.");
             }
         } else {
             throw new IllegalArgumentException(
-                    "Containerless Docker container should be built in Dockerfile, and buildImage property not found.");
+                    "Containerless container should be built using a Dockerfile, and no templatePath property found for container.");
         }
     }
 
-    private Cube resolveMainCube(CubeRegistry cubeRegistry) {
-        Cube cube = null;
+    private Cube<?> resolveMainCube(CubeRegistry cubeRegistry) {
+        Cube<?> cube = null;
         if(this.configuration.isContainerlessDockerSet()) {
             String containerlessDocker = this.configuration.getContainerlessDocker();
             cube = cubeRegistry.getCube(containerlessDocker);
@@ -121,7 +114,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
                         + containerlessDocker);
             }
         } else {
-            List<Cube> cubes = cubeRegistry.getCubes();
+            List<Cube<?>> cubes = cubeRegistry.getCubes();
             if(cubes.size() == 1) {
                 cube = cubes.get(0);
             } else {
@@ -160,7 +153,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         }
     }
 
-    private ProtocolMetaData createProtocolMetadata(Cube cube, Archive<?> deployment) {
+    private ProtocolMetaData createProtocolMetadata(Cube<?> cube, Archive<?> deployment) {
         Binding bindings = cube.bindings();
         //ProtocolMetadataUpdater will reajust the port to the exposed ones.
 
@@ -200,7 +193,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
     public void undeploy(Archive<?> archive) throws DeploymentException {
 
         final CubeRegistry cubeRegistry = cubeRegistryInstance.get();
-        Cube cube = resolveMainCube(cubeRegistry);
+        Cube<?> cube = resolveMainCube(cubeRegistry);
 
         if (cube != null) {
             controlEvent.fire(new StopCube(cube));
@@ -216,10 +209,5 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
     @Override
     public void undeploy(Descriptor descriptor) throws DeploymentException {
         throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static final Map<String, Object> asMap(Map<String, Object> map, String property) {
-        return (Map<String, Object>) map.get(property);
     }
 }

@@ -1,10 +1,6 @@
 package org.arquillian.cube.docker.impl.util;
 
 
-import org.apache.commons.io.FileUtils;
-import org.arquillian.cube.containerobject.CubeDockerFile;
-import org.arquillian.cube.impl.util.Which;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +11,10 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import org.apache.commons.io.FileUtils;
+import org.arquillian.cube.containerobject.CubeDockerFile;
+import org.arquillian.cube.impl.util.Which;
 
 public class DockerFileUtil {
 
