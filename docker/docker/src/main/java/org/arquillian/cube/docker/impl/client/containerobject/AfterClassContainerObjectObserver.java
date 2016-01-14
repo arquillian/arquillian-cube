@@ -1,9 +1,9 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
 import org.arquillian.cube.CubeController;
-import org.arquillian.cube.containerobject.IsContainerObject;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
