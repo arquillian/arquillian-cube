@@ -1,6 +1,6 @@
 package org.arquillian.cube.spi.metadata;
 
-public class IsBuildable {
+public class IsBuildable implements CubeMetadata {
 
     private String templatePath;
 

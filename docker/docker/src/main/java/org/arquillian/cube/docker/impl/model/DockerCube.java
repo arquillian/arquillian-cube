@@ -1,26 +1,17 @@
 package org.arquillian.cube.docker.impl.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
+import org.arquillian.cube.docker.impl.client.metadata.CopyFromContainer;
+import org.arquillian.cube.docker.impl.client.metadata.GetTop;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
@@ -31,6 +22,9 @@ import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
+import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
+import org.arquillian.cube.spi.metadata.CanSeeTop;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -58,10 +52,13 @@ public class DockerCube extends BaseCube<CubeContainer> {
     }
 
     private void addDefaultMetadata() {
+        addMetadata(CanCopyFromContainer.class, new CopyFromContainer(getId(), executor));
+        addMetadata(CanSeeChangesOnFilesystem.class, new ChangesOnFilesystem(getId(), executor));
+        addMetadata(CanSeeTop.class, new GetTop(getId(), executor));
         if(configuration.getBuildImage() !=null) {
             String path = configuration.getBuildImage().getDockerfileLocation();
             if(path != null) {
-                addMetadata(new IsBuildable(path));
+                addMetadata(IsBuildable.class, new IsBuildable(path));
             }
         }
     }
@@ -193,47 +190,5 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
         log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
         state = State.PRE_RUNNING;
-    }
-
-    @Override
-    public List<ChangeLog> changesOnFilesystem(String cubeId) {
-        return executor.inspectChangesOnContainerFilesystem(cubeId);
-    }
-
-    @Override
-    public void copyFileDirectoryFromContainer(String cubeId, String from,
-            String to) {
-
-        InputStream response = executor.getFileOrDirectoryFromContainerAsTar(cubeId, from);
-
-        Path toPath = Paths.get(to);
-        File toPathFile = toPath.toFile();
-
-        if(toPathFile.exists() && toPathFile.isFile()) {
-            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", "to", toPath.normalize().toString()));
-        }
-
-        try {
-            Files.createDirectories(toPath);
-            IOUtil.untar(response, toPathFile);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Override
-    public void copyLog(String containerId, boolean follow,
-            boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
-        try {
-            executor.copyLog(containerId, follow, stdout, stderr, timestamps, tail, outputStream);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Override
-    public TopContainer top(String cubeId) {
-        return executor.top(cubeId);
     }
 }

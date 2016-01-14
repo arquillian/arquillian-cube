@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.CubeMetadata;
 
 public class LocalCubeRegistry implements CubeRegistry {
 
@@ -31,7 +32,7 @@ public class LocalCubeRegistry implements CubeRegistry {
     }
 
     @Override
-    public List<Cube<?>> getByMetadata(Class<?> metadata) {
+    public List<Cube<?>> getByMetadata(Class<? extends CubeMetadata> metadata) {
         List<Cube<?>> cubes = new ArrayList<>();
         for (Cube<?> cube : this.cubes) {
             if (cube.hasMetadata(metadata)) {

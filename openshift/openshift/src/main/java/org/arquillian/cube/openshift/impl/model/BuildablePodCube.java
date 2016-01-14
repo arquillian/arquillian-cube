@@ -3,11 +3,8 @@ package org.arquillian.cube.openshift.impl.model;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 
-import java.io.OutputStream;
 import java.util.List;
 
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
@@ -41,7 +38,7 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     private void addDefaultMetadata() {
         if(template.getRefs() != null && template.getRefs().size() > 0) {
-            addMetadata(new IsBuildable(template.getRefs().get(0).getPath()));
+            addMetadata(IsBuildable.class, new IsBuildable(template.getRefs().get(0).getPath()));
         }
     }
 
@@ -133,31 +130,6 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public Void configuration() {
-        return null;
-    }
-
-    @Override
-    public List<ChangeLog> changesOnFilesystem(String cubeId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void copyFileDirectoryFromContainer(String cubeId, String from, String to) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void copyLog(String cubeId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public TopContainer top(String cubeId) {
-        // TODO Auto-generated method stub
         return null;
     }
 }

@@ -103,29 +103,4 @@ public class ServiceCube extends BaseCube<Void> {
     public Void configuration() {
         return null;
     }
-
-    @Override
-    public List<ChangeLog> changesOnFilesystem(String cubeId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void copyFileDirectoryFromContainer(String cubeId, String from, String to) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void copyLog(String cubeId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public TopContainer top(String cubeId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

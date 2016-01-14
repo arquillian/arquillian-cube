@@ -1,6 +1,6 @@
 package org.arquillian.cube.spi.metadata;
 
-public class IsContainerObject {
+public class IsContainerObject implements CubeMetadata {
 
     private Class<?> testClass;
 
