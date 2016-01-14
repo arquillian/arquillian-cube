@@ -1,4 +1,4 @@
-package org.arquillian.cube.containerobject;
+package org.arquillian.cube.spi.metadata;
 
 public class IsContainerObject {
 
