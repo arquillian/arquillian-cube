@@ -35,7 +35,7 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
             + "portBindings: [8090->8089/tcp]";
 
     @Mock
-    private Cube cube;
+    private Cube<Map<String, Object>> cube;
 
     @Mock
     private Container container;

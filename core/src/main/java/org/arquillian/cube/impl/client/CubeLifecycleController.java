@@ -31,8 +31,8 @@ public class CubeLifecycleController {
         validateAndGet(registry, event.getCubeId()).changeToPreRunning();
     }
 
-    private Cube validateAndGet(CubeRegistry registry, String cubeId) {
-        Cube cube = registry.getCube(cubeId);
+    private Cube<?> validateAndGet(CubeRegistry registry, String cubeId) {
+        Cube<?> cube = registry.getCube(cubeId);
         if(cube == null) {
             throw new IllegalArgumentException("No cube with id " + cubeId + " found in registry");
         }

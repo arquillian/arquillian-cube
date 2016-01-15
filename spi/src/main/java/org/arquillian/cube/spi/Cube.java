@@ -1,10 +1,5 @@
 package org.arquillian.cube.spi;
 
-import java.io.OutputStream;
-import java.util.List;
-
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.spi.metadata.CubeMetadata;
 
 public interface Cube<T> {

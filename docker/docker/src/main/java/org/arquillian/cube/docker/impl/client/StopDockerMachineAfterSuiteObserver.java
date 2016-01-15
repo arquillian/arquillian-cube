@@ -2,17 +2,13 @@ package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.InstanceProducer;
-import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 
-import java.util.logging.Logger;
-
 public class StopDockerMachineAfterSuiteObserver {
 
-    private static final Logger log = Logger.getLogger(StopDockerMachineAfterSuiteObserver.class.getName());
+    //private static final Logger log = Logger.getLogger(StopDockerMachineAfterSuiteObserver.class.getName());
 
     @Inject
     private Instance<DockerMachine> dockerMachineInstance;

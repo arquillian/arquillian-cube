@@ -1,15 +1,13 @@
 package org.arquillian.cube.impl.client.enricher;
 
 
-import org.arquillian.cube.HostIp;
-import org.arquillian.cube.HostUriContext;
-import org.hamcrest.core.Is;
-import org.jboss.arquillian.core.api.Instance;
-import org.junit.Assert;
-import org.junit.Test;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
+import org.arquillian.cube.HostIp;
+import org.arquillian.cube.HostUriContext;
+import org.jboss.arquillian.core.api.Instance;
+import org.junit.Test;
 
 public class HostIpTestEnricherTest {
 

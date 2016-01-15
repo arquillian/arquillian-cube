@@ -23,7 +23,7 @@ public class StaticAwaitStrategy implements AwaitStrategy {
     private String ip;
     private List<Integer> ports = new ArrayList<Integer>();
 
-    public StaticAwaitStrategy(Cube cube, Await params) {
+    public StaticAwaitStrategy(Cube<?> cube, Await params) {
         this.ip = params.getIp();
         this.ports.addAll(params.getPorts());
 

@@ -19,7 +19,7 @@ public class SleepingAwaitStrategy implements AwaitStrategy {
     private int sleepTime = DEFAULT_SLEEP_TIME;
     private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
 
-    public SleepingAwaitStrategy(Cube cube, Await params) {
+    public SleepingAwaitStrategy(Cube<?> cube, Await params) {
         if (params.getSleepTime() != null) {
             configureSleepingTime(params.getSleepTime());
         }

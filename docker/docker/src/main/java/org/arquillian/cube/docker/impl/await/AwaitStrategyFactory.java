@@ -15,7 +15,7 @@ public class AwaitStrategyFactory {
         super();
     }
 
-    public static final AwaitStrategy create(DockerClientExecutor dockerClientExecutor, Cube cube, CubeContainer options) {
+    public static final AwaitStrategy create(DockerClientExecutor dockerClientExecutor, Cube<?> cube, CubeContainer options) {
 
         if(options.getAwait() != null) {
             Await await = options.getAwait();

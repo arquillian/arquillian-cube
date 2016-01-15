@@ -41,7 +41,7 @@ public class ClientCubeControllerTest extends AbstractManagerTestBase {
     private Instance<CubeController> controllerInst;
 
     @Mock
-    private Cube cube;
+    private Cube<?> cube;
 
     @Before
     public void setup() {

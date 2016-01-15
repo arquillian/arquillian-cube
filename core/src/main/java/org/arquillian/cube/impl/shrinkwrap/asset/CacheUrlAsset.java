@@ -1,19 +1,18 @@
 package org.arquillian.cube.impl.shrinkwrap.asset;
 
 
-import org.jboss.shrinkwrap.api.asset.UrlAsset;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
+
+import org.jboss.shrinkwrap.api.asset.UrlAsset;
 
 /**
  * Class that extends from UrlAsset which basically stores the URL content in temp directory.

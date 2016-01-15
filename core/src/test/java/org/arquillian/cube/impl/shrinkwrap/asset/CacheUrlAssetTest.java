@@ -1,14 +1,8 @@
 package org.arquillian.cube.impl.shrinkwrap.asset;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import org.hamcrest.Matchers;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class CacheUrlAssetTest {
 
@@ -31,7 +27,7 @@ public class CacheUrlAssetTest {
     public void shouldCacheFirstTime() throws IOException {
         final File newFolder = temporaryFolder.newFolder();
         CacheUrlAsset cacheUrlAsset = new CacheUrlAsset(new URL("http://arquillian.org/images/arquillian_crown_icon_glossy_256.png"));
-        cacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
+        CacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
         cacheUrlAsset.openStream();
 
         assertThat(new File(newFolder, "arquillian_crown_icon_glossy_256.png").exists(), is(true));
@@ -42,7 +38,7 @@ public class CacheUrlAssetTest {
         final File newFolder = temporaryFolder.newFolder();
         // Notice that arq.txt does not exists
         CacheUrlAsset cacheUrlAsset = new CacheUrlAsset(new URL("http://arquillian.org/images/arq.txt"));
-        cacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
+        CacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
         final Path path = Paths.get(newFolder.getAbsolutePath(), "arq.txt");
         Files.write(path, "Hello".getBytes("UTF-8"));
         InputStream is = cacheUrlAsset.openStream();
@@ -58,7 +54,7 @@ public class CacheUrlAssetTest {
         Files.write(path, "invalidchunk".getBytes("UTF-8"));
         Thread.sleep(3000);
         CacheUrlAsset cacheUrlAsset = new CacheUrlAsset(new URL("http://arquillian.org/images/arquillian_crown_icon_glossy_256.png"), 2, TimeUnit.SECONDS);
-        cacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
+        CacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
         cacheUrlAsset.openStream();
         File newFile = new File(newFolder, "arquillian_crown_icon_glossy_256.png");
         assertThat(newFile.length(), is(Matchers.greaterThan(500L)));

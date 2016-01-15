@@ -50,7 +50,7 @@ public class Which {
      * @throws IllegalArgumentException if failed to determine.
      * @since 2.24
      */
-    public static URL classFileUrl(Class clazz) throws IOException {
+    public static URL classFileUrl(Class<?> clazz) throws IOException {
         ClassLoader cl = clazz.getClassLoader();
         if (cl == null)
             cl = ClassLoader.getSystemClassLoader();
@@ -64,7 +64,7 @@ public class Which {
      * @deprecated Use {@link #classFileUrl(Class)}
      */
     @Deprecated
-    public static URL jarURL(Class clazz) throws IOException {
+    public static URL jarURL(Class<?> clazz) throws IOException {
         return classFileUrl(clazz);
     }
 
@@ -77,7 +77,7 @@ public class Which {
      *
      * @throws IllegalArgumentException if failed to determine.
      */
-    public static File jarFile(Class clazz) throws IOException {
+    public static File jarFile(Class<?> clazz) throws IOException {
         return jarFile(classFileUrl(clazz), clazz.getName().replace('.', '/') + ".class");
     }
 

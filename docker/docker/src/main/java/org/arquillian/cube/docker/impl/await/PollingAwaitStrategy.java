@@ -30,9 +30,9 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private String type = DEFAULT_POLL_TYPE;
 
     private DockerClientExecutor dockerClientExecutor;
-    private Cube cube;
+    private Cube<?> cube;
 
-    public PollingAwaitStrategy(Cube cube, DockerClientExecutor dockerClientExecutor, Await params) {
+    public PollingAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor, Await params) {
         this.cube = cube;
         this.dockerClientExecutor = dockerClientExecutor;
         if (params.getSleepPollingTime() != null) {

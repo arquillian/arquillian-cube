@@ -5,8 +5,7 @@
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
     <extension qualifier="docker">
-        <property name="serverVersion">${docker.api.version}</property>
-        <property name="serverUri">${docker.api.url}</property>
+        <property name="machineName">dev</property>
         <property name="dockerContainers">
             database:
               image: zhilvis/h2-db

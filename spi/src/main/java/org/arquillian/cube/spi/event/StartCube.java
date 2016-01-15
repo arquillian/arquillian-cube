@@ -4,7 +4,7 @@ import org.arquillian.cube.spi.Cube;
 
 public class StartCube extends CubeControlEvent {
 
-    public StartCube(Cube cube) {
+    public StartCube(Cube<?> cube) {
         this(cube.getId());
     }
 

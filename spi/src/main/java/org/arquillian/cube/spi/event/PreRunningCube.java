@@ -8,7 +8,7 @@ public class PreRunningCube extends CubeControlEvent {
         super(cubeId);
     }
 
-    public PreRunningCube(Cube cube) {
+    public PreRunningCube(Cube<?> cube) {
         this(cube.getId());
     }
 }

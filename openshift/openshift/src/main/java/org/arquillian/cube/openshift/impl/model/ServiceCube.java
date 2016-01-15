@@ -2,11 +2,6 @@ package org.arquillian.cube.openshift.impl.model;
 
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 
-import java.io.OutputStream;
-import java.util.List;
-
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;

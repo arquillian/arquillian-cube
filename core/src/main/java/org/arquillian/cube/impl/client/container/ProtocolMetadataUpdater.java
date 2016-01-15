@@ -25,7 +25,7 @@ public class ProtocolMetadataUpdater {
         ProtocolMetaData updatedMetaData = new ProtocolMetaData();
         boolean updated = false;
 
-        Cube cube = registry.getCube(container.getName());
+        Cube<?> cube = registry.getCube(container.getName());
         if(cube != null) {
             Binding binding = cube.bindings();
             String gatewayIp = cube.bindings().getIP();
