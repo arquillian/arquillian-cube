@@ -3,21 +3,24 @@ package org.arquillian.cube.spi;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseCube<X> implements Cube<X> {
-    private Map<Class<?>, Object> metadata = new HashMap<>();
+import org.arquillian.cube.spi.metadata.CubeMetadata;
+
+public abstract class BaseCube<T> implements Cube<T> {
+    private Map<Class<? extends CubeMetadata>, Object> metadata = new HashMap<>();
 
     @Override
-    public boolean hasMetadata(Class<?> type) {
+    public <X extends CubeMetadata> boolean hasMetadata(Class<X> type) {
         return metadata.containsKey(type);
     }
 
     @Override
-    public void addMetadata(Object type) {
-        metadata.put(type.getClass(), type);
+    public <X extends CubeMetadata> void addMetadata(Class<X> type, X impl) {
+        metadata.put(type, impl);
     }
 
     @Override
-    public <T> T getMetadata(Class<T> type) {
-        return (T) metadata.get(type);
+    @SuppressWarnings("unchecked")
+    public <X extends CubeMetadata> X getMetadata(Class<X> type) {
+        return (X) metadata.get(type);
     }
 }

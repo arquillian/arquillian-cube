@@ -258,7 +258,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
     private org.arquillian.cube.spi.Cube<?> createCubeFromDockerfile(String cubeName, String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation, Class<?> testClass) {
         CubeContainer configuration = createConfigurationFromDockerfie(portBinding, links, cubeContainerClazzAnnotation, dockerfileLocation);
         DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
-        newCube.addMetadata(new IsContainerObject(testClass));
+        newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
         injectorInstance.get().inject(newCube);
         return newCube;
     }
@@ -266,7 +266,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
     private org.arquillian.cube.spi.Cube<?> createCubeFromImage(String cubeName, String[] portBinding, Set<String> links, Image image, File dockerfileLocation, Class<?> testClass) {
         final CubeContainer configuration = createConfigurationFromImage(portBinding, links, image, dockerfileLocation);
         DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
-        newCube.addMetadata(new IsContainerObject(testClass));
+        newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
         injectorInstance.get().inject(newCube);
         return newCube;
     }
