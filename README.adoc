@@ -225,7 +225,7 @@ Let's see valid attributes:
 |Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ (default one in case of not set) to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
 
 |autoStartContainers
-|Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_. 
+|Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_.
 
 |certPath
 |Path where certificates are stored. If you are not using _https_ protocol this parameter is not required. This parameter accepts starting with ~ as home directory
@@ -1179,6 +1179,38 @@ public static class ImageContainerObject {
 ----
 
 So in this case Arquillian Cube starts and stops the image defined in the annotation.
+
+== Arquillian Standalone and Cube
+
+You can use Arquillian Standalone with Arquillian Cube too.
+Arquillian Standalone is a mode of Arquillian which allows you to use Arquillian but without deploying any application.
+Basically it means no `@Deployment` static method and tests runs as client implicitly.
+
+Running Arquillian Cube in Standalone mode means that Arquillian Cube starts all defined containers in the correct order.
+Internally Arquillian Cube registers a `autostartContainers`property (in case you have not registered any) with `regexp:.*` expression.
+
+Dependencies you need to set for Standalone mode are:
+
+[source, xml]
+.pom.xml
+----
+<dependencies>
+    <dependency>
+        <groupId>org.jboss.arquillian.junit</groupId>
+        <artifactId>arquillian-junit-standalone</artifactId> <!-- 1 -->
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+         <groupId>org.arquillian.cube</groupId>
+         <artifactId>arquillian-cube-docker</artifactId>
+         <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+<1> You need to change `arquillian-junit-container` to `standalone`.
+
+Notice that in case of Standalone mode, Arquillian Cube registers automatically `autostartContainers` property to `regexp:.*`.
+If you want to avoid this, you can set yourself this property to `[none]`. Then Arquilian Cube will not touch anything and you will be the responsible of starting manually each instance using for example CubeController class by your own.
 
 == Containerless Server and Docker
 

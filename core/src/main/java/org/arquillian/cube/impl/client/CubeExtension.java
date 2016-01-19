@@ -24,7 +24,7 @@ public class CubeExtension implements LoadableExtension {
                .observer(ClientCubeControllerCreator.class);
 
         builder.service(ResourceProvider.class, CubeControllerProvider.class)
-        	   .service(TestEnricher.class, HostIpTestEnricher.class);
+                .service(TestEnricher.class, HostIpTestEnricher.class);
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath

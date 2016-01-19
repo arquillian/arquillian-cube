@@ -6,14 +6,11 @@
 
     <extension qualifier="docker">
         <property name="machineName">dev</property>
-        <property name="autoStartContainers">[none]</property>
         <property name="dockerContainers">
-            database:
-              image: zhilvis/h2-db
-              exposedPorts: [81/tcp, 1521/tcp]
-              await:
-                strategy: polling
-              portBindings: [1521/tcp, 8181->81/tcp]
+            pingpong:
+              image: jonmorehouse/ping-pong
+              exposedPorts: [8080/tcp]
+              portBindings: [8080->8080/tcp]
         </property>
     </extension>
 
