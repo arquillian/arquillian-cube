@@ -34,6 +34,7 @@
         <module>ftest-docker-compose</module>
         <module>ftest-docker-machine</module>
         <module>ftest-docker-containerobject</module>
+        <module>ftest-standalone-autostart</module>
     </modules>
 
 </project>

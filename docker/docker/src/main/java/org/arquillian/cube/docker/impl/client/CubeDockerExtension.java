@@ -32,6 +32,9 @@ public class CubeDockerExtension implements LoadableExtension {
         if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
             builder.observer(DockerServerIPConfigurator.class);
             builder.observer(CubeDockerAutoStartConfigurator.class);
+        } else {
+            // Arquillian in Standalone mode
+            builder.observer(StandaloneAutoStartConfigurator.class);
         }
     }
 
