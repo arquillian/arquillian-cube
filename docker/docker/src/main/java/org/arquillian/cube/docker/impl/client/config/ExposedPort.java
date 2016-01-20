@@ -1,5 +1,9 @@
 package org.arquillian.cube.docker.impl.client.config;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class ExposedPort {
     private int exposed;
     private String type = "tcp";
@@ -69,5 +73,16 @@ public class ExposedPort {
             type = parts[1];
         }
         return new ExposedPort(exposed, type);
+    }
+
+    public static Collection<ExposedPort> valuesOf(Collection<String> ports) {
+        if (ports == null) {
+            return null;
+        }
+        List<ExposedPort> result = new ArrayList<ExposedPort>();
+        for (String port : ports) {
+            result.add(valueOf(port));
+        }
+        return result;
     }
 }

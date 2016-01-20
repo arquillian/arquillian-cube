@@ -1,5 +1,9 @@
 package org.arquillian.cube.docker.impl.client.config;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class PortBinding {
     private String host;
     private int bound;
@@ -117,5 +121,16 @@ public class PortBinding {
             throw new IllegalArgumentException("Could not create PortBinding from " + portBinding);
         }
         return new PortBinding(host, bound, exposed);
+    }
+
+    public static Collection<PortBinding> valuesOf(Collection<String> bindings) {
+        if (bindings == null) {
+            return null;
+        }
+        List<PortBinding> result = new ArrayList<PortBinding>();
+        for (String binding : bindings) {
+            result.add(valueOf(binding));
+        }
+        return result;
     }
 }
