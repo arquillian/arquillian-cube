@@ -4,6 +4,7 @@ import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.CanForwardPorts;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
@@ -27,30 +28,35 @@ public class ProtocolMetadataUpdater {
 
         Cube<?> cube = registry.getCube(container.getName());
         if(cube != null) {
-            Binding binding = cube.bindings();
-            String gatewayIp = cube.bindings().getIP();
+            CanForwardPorts forwardPorts = cube.getMetadata(CanForwardPorts.class);
+            Binding binding = cube.configuredBindings();
+            String gatewayIp = binding.getIP();
             for(Object contextObj : originalMetaData.getContexts()) {
                 if(contextObj instanceof HTTPContext) {
                     HTTPContext context = (HTTPContext)contextObj;
-                    PortBinding mapped = binding.getBindingForExposedPort(context.getPort());
-                    String ip = context.getHost();
-                    int port = context.getPort();
-                    if(mapped != null && port != mapped.getBindingPort()) {
-                        updated = true;
-                        port = mapped.getBindingPort();
-                    }
-                    if(!gatewayIp.equals(ip)) {
-                        updated = true;
-                        ip = gatewayIp;
-                    }
-                    if(updated) {
-                        HTTPContext newContext = new HTTPContext(ip, port);
-                        for(Servlet servlet : context.getServlets()) {
-                            newContext.add(servlet);
+                    PortBinding mapped = binding.getBindingForContainerPort(context.getPort());
+                    if (mapped != null) {
+                        Integer forwardedPort = forwardPorts == null ? null : forwardPorts.getForwardedPort(mapped);
+                        String bindingIp = forwardedPort == null ? gatewayIp : "localhost";
+                        Integer bindingPort = forwardedPort == null ? mapped.getExposedPort() : forwardedPort;
+                        String ip = context.getHost();
+                        int port = context.getPort();
+                        if(bindingPort != null && port != bindingPort) {
+                            updated = true;
+                            port = bindingPort;
                         }
-                        updatedMetaData.addContext(newContext);
+                        if(!bindingIp.equals(ip)) {
+                            updated = true;
+                            ip = bindingIp;
+                        }
+                        if(updated) {
+                            HTTPContext newContext = new HTTPContext(ip, port);
+                            for(Servlet servlet : context.getServlets()) {
+                                newContext.add(servlet);
+                            }
+                            updatedMetaData.addContext(newContext);
+                        }
                     }
-
                 } else {
                     updatedMetaData.addContext(contextObj);
                 }

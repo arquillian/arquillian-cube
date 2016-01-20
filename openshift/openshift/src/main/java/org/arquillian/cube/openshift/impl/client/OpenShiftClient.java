@@ -1,7 +1,22 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.waitForStart;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.openshift.api.model.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.BuildRequest;
+import io.fabric8.openshift.api.model.BuildRequestBuilder;
+import io.fabric8.openshift.api.model.ImageStream;
+import io.fabric8.openshift.api.model.ImageStreamBuilder;
+import io.fabric8.openshift.client.OpenShiftConfig;
 
 import java.io.File;
 import java.net.URI;
@@ -15,61 +30,33 @@ import java.util.Set;
 import org.arquillian.cube.openshift.impl.model.Template;
 import org.arquillian.cube.openshift.impl.model.Template.TemplateImageRef;
 
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesExtensions;
-import io.fabric8.kubernetes.api.KubernetesFactory;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildRequest;
-import io.fabric8.openshift.api.model.BuildRequestBuilder;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.openshift.api.model.ImageStreamBuilder;
-
 public class OpenShiftClient {
 
-    private KubernetesFactory factory;
     private String namespace;
 
-    private Kubernetes kubernetes;
-    private KubernetesExtensions kubernetesExtensions;
+    private KubernetesClient kubernetes;
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
-    public OpenShiftClient(KubernetesFactory factory, String namespace, boolean keepAliveGitServer) {
-        this.factory = factory;
+    public OpenShiftClient(OpenShiftConfig config, String namespace, boolean keepAliveGitServer) {
+        this.kubernetes = new DefaultKubernetesClient(config);
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
         this.gitserver = new GitServer(this.getClient(), namespace);
     }
 
     public List<Exception> clean(ResourceHolder holder) {
-
         List<Exception> exceptions = new ArrayList<Exception>();
-
+        List<HasMetadata> resourcesToDelete = new ArrayList<HasMetadata>();
         for (KubernetesResource resource : holder.getResources()) {
-            try {
-                if (resource instanceof Pod) {
-                    Pod m = (Pod) resource;
-                    getClient().deletePod(m.getMetadata().getName(), namespace);
-                } else if (resource instanceof ImageStream) {
-                    ImageStream m = (ImageStream) resource;
-                    getClientExt().deleteImageStream(m.getMetadata().getName(), namespace);
-                } else if (resource instanceof BuildConfig) {
-                    BuildConfig m = (BuildConfig) resource;
-                    getClientExt().deleteBuildConfig(m.getMetadata().getName(), namespace);
-                } else if (resource instanceof Build) {
-                    Build build = (Build) resource;
-                    getClientExt().deleteBuild(build.getMetadata().getName(), namespace);
-                }
-            } catch (Exception e) {
-                exceptions.add(e);
+            if (resource instanceof HasMetadata) {
+                resourcesToDelete.add((HasMetadata) resource);
             }
+        }
+        try {
+            getClient().lists().delete(new KubernetesListBuilder().withItems(resourcesToDelete).build());
+        } catch (Exception e) {
+            exceptions.add(e);
         }
         return exceptions;
     }
@@ -93,20 +80,22 @@ public class OpenShiftClient {
 	            ImageStream is = new ImageStreamBuilder()
 	                    .withNewMetadata()
 	                        .withName(runID)
+	                        .withNamespace(namespace)
 	                        .withLabels(defaultLabels)
 	                        .endMetadata()
 	                    .build();
-	            is = (ImageStream)KubernetesHelper.loadJson(getClientExt().createImageStream(is, namespace));
+	            is = getClientExt().imageStreams().create(is);
 	            holder.addResource(is);
 
 	            BuildConfig config = new BuildConfigBuilder()
 	                    .withNewMetadata()
 	                        .withName(runID)
+	                        .withNamespace(namespace)
 	                        .withLabels(defaultLabels)
 	                        .endMetadata()
 	                    .withNewSpec()
 	                        .withNewSource()
-	                            .withNewGit("master", repoUri.toString())
+	                            .withNewGit(null, null, "master", repoUri.toString())
 	                            .withType("Git")
 	                            .endSource()
 	                        .withNewStrategy()
@@ -124,9 +113,10 @@ public class OpenShiftClient {
 	                        .endSpec()
 	                    .build();
 
-	            config = (BuildConfig)KubernetesHelper.loadJson(getClientExt().createBuildConfig(config, namespace));
+	            config = getClientExt().buildConfigs().create(config);
 	            holder.addResource(config);
 
+	            final Integer lastBuildVersion = config.getStatus().getLastVersion();
 	            BuildRequest br = new BuildRequestBuilder()
 	                    .withNewMetadata()
 	                        .withName(config.getMetadata().getName())
@@ -134,15 +124,16 @@ public class OpenShiftClient {
 	                        .endMetadata()
 	                    .build();
 
-	            Build build = ResourceUtil.waitForComplete(
-	                    getClientExt(),
-	                    (Build)KubernetesHelper.loadJson(
-	                            getClientExt().instantiateBuild(
-	                                    config.getMetadata().getName(), br, namespace)));
+                getClientExt().buildConfigs().inNamespace(namespace).withName(runID).instantiate(br);
+                Build build = ResourceUtil.waitForComplete(
+                        getClientExt(),
+                        getClientExt().builds().inNamespace(namespace)
+                                .withName(String.format("%s-%d", config.getMetadata().getName(), (lastBuildVersion + 1)))
+                                .get());
 
 	            holder.addResource(build);
 
-	            is = getClientExt().getImageStream(is.getMetadata().getName(), namespace);
+	            is = getClientExt().imageStreams().inNamespace(namespace).withName(is.getMetadata().getName()).get();
 
 	            String imageRef = is.getStatus().getTags().get(0).getItems().get(0).getDockerImageReference();
 	            template.resolve(ref,  imageRef);
@@ -173,24 +164,23 @@ public class OpenShiftClient {
     public Pod createAndWait(Pod resource) throws Exception {
 		return waitForStart(
 				getClient(),
-				(Pod)loadJson(
-						getClient().createPod(resource, namespace)));
+				getClient().pods().inNamespace(namespace).create(resource));
 	}
 
     public Service create(Service resource) throws Exception {
-        return (Service)loadJson(getClient().createService(resource, namespace));
+        return (Service)getClient().services().inNamespace(namespace).create(resource);
     }
 
     public void destroy(Pod resource) throws Exception {
-		getClient().deletePod(resource.getMetadata().getName(), namespace);
+		getClient().pods().inNamespace(namespace).withName(resource.getMetadata().getName()).delete();
 	}
 
     public void destroy(Service resource) throws Exception {
-        getClient().deleteService(resource.getMetadata().getName(), namespace);
+        getClient().services().inNamespace(namespace).withName(resource.getMetadata().getName()).delete();
     }
 
     public Pod update(Pod resource) throws Exception {
-		return getClient().getPod(resource.getMetadata().getName(), namespace);
+		return getClient().pods().replace(resource);
 	}
 
 	public void shutdown() throws Exception {
@@ -199,18 +189,12 @@ public class OpenShiftClient {
 		}
 	}
 
-	public Kubernetes getClient() {
-		if(kubernetes == null) {
-			kubernetes = factory.createKubernetes();
-		}
+	public KubernetesClient getClient() {
 		return kubernetes;
 	}
 
-	public KubernetesExtensions getClientExt() {
-		if(kubernetesExtensions == null) {
-			kubernetesExtensions = factory.createKubernetesExtensions();
-		}
-		return kubernetesExtensions;
+	public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
+		return kubernetes.adapt(io.fabric8.openshift.client.OpenShiftClient.class);
 	}
 
 	private Map<String, String> getDefaultLabels() {

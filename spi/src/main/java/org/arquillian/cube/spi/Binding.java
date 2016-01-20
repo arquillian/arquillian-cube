@@ -19,7 +19,7 @@ public class Binding {
     }
 
     public Set<PortBinding> getPortBindings() {
-        return bindings;
+        return new HashSet<PortBinding>(bindings);
     }
 
     public int getNumberOfPortBindings() {
@@ -45,14 +45,23 @@ public class Binding {
 
     public PortBinding getBindingForExposedPort(Integer exposedPort) {
         for(PortBinding binding : this.bindings) {
-            if(binding.getExposedPort().equals(exposedPort)) {
+            if(exposedPort.equals(binding.getExposedPort())) {
                 return binding;
             }
         }
         return null;
     }
 
-    public static class PortBinding {
+    public PortBinding getBindingForContainerPort(Integer containerPort) {
+        for(PortBinding binding : this.bindings) {
+            if(containerPort.equals(binding.getBindingPort())) {
+                return binding;
+            }
+        }
+        return null;
+    }
+
+    public class PortBinding {
         private Integer exposedPort;
         private Integer bindingPort;
 
@@ -67,6 +76,10 @@ public class Binding {
 
         public Integer getBindingPort() {
             return bindingPort;
+        }
+
+        public Binding getParent() {
+            return Binding.this;
         }
 
         @Override
@@ -101,5 +114,6 @@ public class Binding {
                 return false;
             return true;
         }
+
     }
 }

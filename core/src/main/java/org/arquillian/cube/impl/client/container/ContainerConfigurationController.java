@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
+import org.arquillian.cube.spi.metadata.CanForwardPorts;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
@@ -45,6 +46,8 @@ public class ContainerConfigurationController {
         Binding binding = cube.configuredBindings();
 
         if (binding.arePortBindings()) {
+            
+            CanForwardPorts forwardPorts = cube.getMetadata(CanForwardPorts.class);
 
             ContainerDef containerConfiguration = container.getContainerConfiguration();
             List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
@@ -64,10 +67,15 @@ public class ContainerConfigurationController {
                     int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
                             configurationClass, configurationClassPortField);
 
-                    PortBinding bindingForExposedPort = null;
-                    if ((bindingForExposedPort = binding.getBindingForExposedPort(containerPort)) != null) {
-                        containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                                Integer.toString(bindingForExposedPort.getBindingPort()));
+                    PortBinding bindingForPort = null;
+                    if ((bindingForPort = binding.getBindingForContainerPort(containerPort)) != null) {
+                        if (forwardPorts != null && forwardPorts.getForwardedPort(bindingForPort) != null) {
+                            containerConfiguration.overrideProperty(configurationClassPortField.getName(),
+                                    Integer.toString(forwardPorts.getForwardedPort(bindingForPort)));
+                        } else if (bindingForPort.getExposedPort() != null) {
+                            containerConfiguration.overrideProperty(configurationClassPortField.getName(),
+                                    Integer.toString(bindingForPort.getExposedPort()));
+                        }
                     }
 
                 }

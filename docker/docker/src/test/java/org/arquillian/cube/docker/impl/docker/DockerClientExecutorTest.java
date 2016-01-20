@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

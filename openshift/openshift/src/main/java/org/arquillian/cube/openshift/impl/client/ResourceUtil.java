@@ -1,9 +1,5 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import org.arquillian.cube.spi.Binding;
-
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesExtensions;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -11,20 +7,54 @@ import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.arquillian.cube.spi.Binding;
 
 public final class ResourceUtil {
 
-    public static Pod waitForStart(Kubernetes kubernetes, Pod resource) throws Exception {
-        Pod pod = resource;
-        System.out.print("waiting for pod " + pod.getMetadata().getName() + " ");
-        while (!isRunning(pod) || !isReady(pod.getStatus())) {
-            System.out.print(".");
-            Thread.sleep(200);
-            pod = kubernetes.getPod(resource.getMetadata().getName(), resource.getMetadata().getNamespace());
-        }
+    public static Pod waitForStart(KubernetesClient kubernetes, Pod resource) throws Exception {
+        final AtomicReference<Pod> holder = new AtomicReference<Pod>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Watcher<Pod> watcher = new Watcher<Pod>() {
+            @Override
+            public void eventReceived(Action action, Pod pod) {
+                switch (action) {
+                case ADDED:
+                case MODIFIED:
+                    if (pod.getStatus() != null && isRunning(pod.getStatus().getPhase()) && isReady(pod.getStatus())) {
+                        holder.compareAndSet(null, pod);
+                        latch.countDown();
+                    }
+                    break;
+                case DELETED:
+                case ERROR:
+                    System.err.println("Unexpected action waiting for pod to start: " + action);
+                    holder.compareAndSet(null, pod);
+                    latch.countDown();
+                }
+            }
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+            
+        };
+
+        System.out.print("waiting for pod " + resource.getMetadata().getName() + " ");
+        Watch watch = kubernetes.pods().inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).watch(watcher);
+        //TODO: use timeout
+        latch.await();
+        watch.close();
         System.out.println(" done!");
-        return pod;
+        return holder.get();
     }
 
     private static boolean isReady(PodStatus status) {
@@ -36,17 +66,45 @@ public final class ResourceUtil {
         return true;
     }
 
-    public static Build waitForComplete(KubernetesExtensions kubernetes, Build resource) throws Exception {
-        Build build = resource;
-        System.out.print("waiting for build " + build.getMetadata().getName() + " ");
-        while (!isComplete(build)) {
-            if(isFailed(build)) {
-                System.out.println(" failed!");
-                throw new RuntimeException("Build " + build.getMetadata().getName() + " failed. See log");
+    public static Build waitForComplete(io.fabric8.openshift.client.OpenShiftClient kubernetes, Build resource) throws Exception {
+        final AtomicReference<Build> holder = new AtomicReference<Build>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Watcher<Build> watcher = new Watcher<Build>() {
+            @Override
+            public void eventReceived(Action action, Build build) {
+                switch (action) {
+                case ADDED:
+                case MODIFIED:
+                    if (!("New".equals(build.getStatus().getPhase()) || "Pending".equals(build.getStatus().getPhase()) || "Running"
+                            .equals(build.getStatus().getPhase()))) {
+                        holder.compareAndSet(null, build);
+                        latch.countDown();
+                    }
+                    break;
+                case DELETED:
+                case ERROR:
+                    System.err.println("Unexpected action waiting for pod to start: " + action);
+                    holder.compareAndSet(null, build);
+                    latch.countDown();
+                }
             }
-            System.out.print(".");
-            Thread.sleep(200);
-            build = kubernetes.getBuild(resource.getMetadata().getName(), resource.getMetadata().getNamespace());
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+            
+        };
+
+        System.out.print("waiting for build " + resource.getMetadata().getName() + " ");
+        Watch watch = kubernetes.builds().inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).watch(watcher);
+        //TODO: use timeout
+        latch.await();
+        watch.close();
+
+        Build build = holder.get();
+        if(isFailed(build) || !isComplete(build)) {
+            System.out.println(" failed!");
+            throw new RuntimeException("Build " + build.getMetadata().getName() + " failed. See log");
         }
         System.out.println(" done!");
         return build;

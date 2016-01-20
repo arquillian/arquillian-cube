@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;

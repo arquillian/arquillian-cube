@@ -14,7 +14,7 @@ import org.arquillian.cube.spi.event.StopCube;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.event.container.AfterStop;
-import org.jboss.arquillian.container.spi.event.container.BeforeStart;
+import org.jboss.arquillian.container.spi.event.container.BeforeSetup;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -24,7 +24,8 @@ public class CubeContainerLifecycleController {
     @Inject
     private Event<CubeControlEvent> controlEvent;
 
-    public void startCubeMappedContainer(@Observes BeforeStart event, CubeRegistry cubeRegistry,
+    // Must be started before ContainerConfigurationController
+    public void startCubeMappedContainer(@Observes(precedence=100) BeforeSetup event, CubeRegistry cubeRegistry,
             ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) {
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
                 event.getDeployableContainer());
