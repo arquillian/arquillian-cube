@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.ContainerUtil;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
-import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -46,10 +46,13 @@ public class DockerServerIPConfigurator {
             return; // No Cube found matching Container name, not managed by Cube
         }
 
-        Binding binding = cube.configuredBindings();
+        HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            return;
+        }
 
         ContainerDef containerConfiguration = container.getContainerConfiguration();
-        boolean foundAttribute = resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, binding);
+        boolean foundAttribute = resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, portBindings.getContainerIP());
 
         //if user doesn't configured in arquillian.xml the host then we can override the default value.
         if(!foundAttribute) {
@@ -57,13 +60,13 @@ public class DockerServerIPConfigurator {
             List<PropertyDescriptor> configurationClassHostOrAddressFields = filterConfigurationClassPropertiesByHostOrAddressAttribute(configurationClass);
             for (PropertyDescriptor propertyDescriptor : configurationClassHostOrAddressFields) {
                 //we get default address value and we replace to boot2docker ip
-                containerConfiguration.overrideProperty(propertyDescriptor.getName(), binding.getIP());
+                containerConfiguration.overrideProperty(propertyDescriptor.getName(), portBindings.getContainerIP());
             }
         }
 
     }
 
-    private boolean resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, Binding binding) {
+    private boolean resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, String containerIP) {
 
         boolean foundAttribute = false;
         for (Entry<String, String> entry : containerDef.getContainerProperties().entrySet()) {
@@ -71,7 +74,7 @@ public class DockerServerIPConfigurator {
                 //if property is already configured, doesn't matter if it is a boot2docker or not we can say that we have matched a defined property.
                 foundAttribute = true;
                 if(entry.getValue().contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
-                    containerDef.overrideProperty(entry.getKey(), entry.getValue().replaceAll(CubeDockerConfiguration.DOCKER_SERVER_IP, binding.getIP()));
+                    containerDef.overrideProperty(entry.getKey(), entry.getValue().replaceAll(CubeDockerConfiguration.DOCKER_SERVER_IP, containerIP));
                 }
             }
         }

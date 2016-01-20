@@ -12,9 +12,11 @@ import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.impl.util.TestPortBindings;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -103,7 +105,7 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
     public void shouldRemapContainerAddressToBootToDocker() {
         Map<String, String> containerConfig = new HashMap<String, String>();
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
-        when(cube.configuredBindings()).thenReturn(new Binding("192.168.0.1"));
+        when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(new Binding("192.168.0.1")));
         bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
         fire(new BeforeSetup(deployableContainer));
         verify(containerDef).overrideProperty("myHost", "192.168.0.1");
@@ -114,7 +116,7 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
         Map<String, String> containerConfig = new HashMap<String, String>();
         containerConfig.put("myHost", CubeDockerConfiguration.DOCKER_SERVER_IP);
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
-        when(cube.configuredBindings()).thenReturn(new Binding("192.168.0.1"));
+        when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(new Binding("192.168.0.1")));
         bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
         fire(new BeforeSetup(deployableContainer));
         verify(containerDef).overrideProperty("myHost", "192.168.0.1");
@@ -125,7 +127,7 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
         Map<String, String> containerConfig = new HashMap<String, String>();
         containerConfig.put("myHost", "10.0.10.1");
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
-        when(cube.configuredBindings()).thenReturn(new Binding("192.168.0.1"));
+        when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(new Binding("192.168.0.1")));
         bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
         fire(new BeforeSetup(deployableContainer));
         verify(containerDef, times(0)).overrideProperty("myHost", "192.168.0.1");

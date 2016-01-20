@@ -15,7 +15,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Log;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;

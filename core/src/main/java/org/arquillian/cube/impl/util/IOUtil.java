@@ -1,4 +1,4 @@
-package org.arquillian.cube.docker.impl.util;
+package org.arquillian.cube.impl.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

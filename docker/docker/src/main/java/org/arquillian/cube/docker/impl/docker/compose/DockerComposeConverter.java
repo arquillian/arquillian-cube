@@ -13,7 +13,7 @@ import java.util.Set;
 import org.arquillian.cube.docker.impl.client.Converter;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.CubeContainers;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.yaml.snakeyaml.Yaml;
 
 public class DockerComposeConverter implements Converter {

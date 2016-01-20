@@ -7,11 +7,11 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
-import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Binding.PortBinding;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 
 public class PollingAwaitStrategy implements AwaitStrategy {
 
@@ -85,17 +85,21 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
     @Override
     public boolean await() {
-        Binding bindings = cube.bindings();
+        HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            log.fine("Cube does not have any ports to ping.");
+            return true;
+        }
 
-        for (PortBinding ports : bindings.getPortBindings()) {
-            log.fine(String.format("Pinging host %s and port %s with type", bindings.getIP(), ports.getBindingPort(), this.type));
-
+        for (Integer port : portBindings.getBoundPorts()) {
             switch(this.type) {
                 case "ping": {
-                    if(ports.getBindingPort() == -1) {
-                        throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + ports.getExposedPort());
+                    PortAddress mapping = portBindings.getMappedAddress(port);
+                    if(mapping == null) {
+                        throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + port);
                     }
-                    if (!Ping.ping(bindings.getIP(), ports.getBindingPort(), this.pollIterations, this.sleepPollTime,
+                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(), this.type));
+                    if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.sleepPollTime,
                             this.timeUnit)) {
                         return false;
                     }
@@ -103,7 +107,7 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
                 break;
                 case "sscommand": {
-                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", ports.getExposedPort()), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
+                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", port), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
                         return false;
                     }
                 }

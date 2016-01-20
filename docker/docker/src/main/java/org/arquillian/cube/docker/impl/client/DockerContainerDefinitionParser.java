@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 import org.arquillian.cube.docker.impl.docker.compose.DockerComposeConverter;
 import org.arquillian.cube.docker.impl.docker.cube.CubeConverter;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 
 public class DockerContainerDefinitionParser {
 

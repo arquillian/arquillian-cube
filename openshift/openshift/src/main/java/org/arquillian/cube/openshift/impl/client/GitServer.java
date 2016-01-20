@@ -1,30 +1,27 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.WebApplicationException;
-
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
-
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
 
 public class GitServer {
 
     private static int PORT = 6768;
 
-    private Kubernetes client;
+    private KubernetesClient client;
     private String namespace;
     private Pod server;
 
-    public GitServer(Kubernetes client, String namespace) {
+    public GitServer(KubernetesClient client, String namespace) {
         this.client = client;
         this.namespace = namespace;
     }
@@ -56,8 +53,8 @@ public class GitServer {
 
     public void shutdown() throws Exception {
         if (server != null) {
-            client.deletePod(server.getMetadata().getName(), namespace);
-            client.deleteSecret("gitserver-config", namespace);
+            client.pods().inNamespace(namespace).withName(server.getMetadata().getName()).delete();
+            client.secrets().inNamespace(namespace).withName("gitserver-config").delete();
         }
     }
 
@@ -65,15 +62,9 @@ public class GitServer {
         if (server == null) {
             server = getSpec();
 
-            try {
-                server = client.getPod(server.getMetadata().getName(), namespace);
-            } catch (WebApplicationException e) { // probably 404
-                Object response = KubernetesHelper.loadJson(client.createPod(server, namespace));
-                if (response instanceof Pod) {
-                    server = (Pod) response;
-                } else {
-                    throw new RuntimeException("Unknown response on gitserver deploy: " + server);
-                }
+            server = client.pods().inNamespace(namespace).withName(server.getMetadata().getName()).get();
+            if (server == null) {
+                server = client.pods().inNamespace(namespace).create(getSpec());
             }
             server = ResourceUtil.waitForStart(client, server);
         }

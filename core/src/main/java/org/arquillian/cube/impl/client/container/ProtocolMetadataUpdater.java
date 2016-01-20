@@ -1,9 +1,9 @@
 package org.arquillian.cube.impl.client.container;
 
-import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.HTTPContext;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
@@ -25,23 +25,36 @@ public class ProtocolMetadataUpdater {
         ProtocolMetaData updatedMetaData = new ProtocolMetaData();
         boolean updated = false;
 
-        Cube<?> cube = registry.getCube(container.getName());
-        if(cube != null) {
-            Binding binding = cube.bindings();
-            String gatewayIp = cube.bindings().getIP();
+        try {
+            Cube<?> cube = registry.getCube(container.getName());
+            if(cube == null) {
+                return;
+            }
+            HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+            if (portBindings == null) {
+                return;
+            }
             for(Object contextObj : originalMetaData.getContexts()) {
                 if(contextObj instanceof HTTPContext) {
                     HTTPContext context = (HTTPContext)contextObj;
-                    PortBinding mapped = binding.getBindingForExposedPort(context.getPort());
                     String ip = context.getHost();
                     int port = context.getPort();
-                    if(mapped != null && port != mapped.getBindingPort()) {
-                        updated = true;
-                        port = mapped.getBindingPort();
+                    final PortAddress mappedPort = portBindings.getMappedAddress(port);
+                    final String bindingIp;
+                    final Integer bindingPort;
+                    if (mappedPort != null) {
+                        bindingIp = mappedPort.getIP();
+                        bindingPort = mappedPort.getPort();
+                    } else {
+                        continue;
                     }
-                    if(!gatewayIp.equals(ip)) {
+                    if(bindingPort != null && port != bindingPort) {
                         updated = true;
-                        ip = gatewayIp;
+                        port = bindingPort;
+                    }
+                    if(bindingIp != null && !bindingIp.equals(ip)) {
+                        updated = true;
+                        ip = bindingIp;
                     }
                     if(updated) {
                         HTTPContext newContext = new HTTPContext(ip, port);
@@ -50,17 +63,17 @@ public class ProtocolMetadataUpdater {
                         }
                         updatedMetaData.addContext(newContext);
                     }
-
                 } else {
                     updatedMetaData.addContext(contextObj);
                 }
             }
+        } finally {
+            if(updated) {
+                protocolMetaDataProducer.set(updatedMetaData);
+            } else {
+                eventContext.proceed();
+            }
         }
 
-        if(updated) {
-            protocolMetaDataProducer.set(updatedMetaData);
-        } else {
-            eventContext.proceed();
-        }
     }
 }

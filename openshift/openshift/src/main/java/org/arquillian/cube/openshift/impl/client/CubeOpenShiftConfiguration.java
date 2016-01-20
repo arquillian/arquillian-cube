@@ -1,11 +1,15 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
-
-import io.fabric8.kubernetes.api.KubernetesHelper;
+import java.util.Set;
 
 public class CubeOpenShiftConfiguration {
 
@@ -15,6 +19,7 @@ public class CubeOpenShiftConfiguration {
     private static final String DEFINITIONS_FILE = "definitionsFile";
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
+    private static final String PROXIED_COTNAINER_PORTS = "proxiedContainerPorts";
 
     private String originServer;
     private String namespace;
@@ -22,6 +27,7 @@ public class CubeOpenShiftConfiguration {
     private String definitions;
     private String definitionsFile;
     private String[] autoStartContainers;
+    private Set<String> proxiedContainerPorts;
 
     public String getOriginServer() {
         return originServer;
@@ -40,6 +46,13 @@ public class CubeOpenShiftConfiguration {
             return new String[0];
         }
         return autoStartContainers;
+    }
+
+    public Set<String> getProxiedContainerPorts() {
+        if(proxiedContainerPorts == null) {
+            return Collections.emptySet();
+        }
+        return proxiedContainerPorts;
     }
 
     public static CubeOpenShiftConfiguration fromMap(Map<String, String> config) {
@@ -63,6 +76,9 @@ public class CubeOpenShiftConfiguration {
             if (!new File(conf.definitionsFile).exists()) {
                 throw new IllegalArgumentException("No " + DEFINITIONS_FILE + " file found at " + conf.definitionsFile);
             }
+        }
+        if (config.containsKey(PROXIED_COTNAINER_PORTS)) {
+            conf.proxiedContainerPorts = new HashSet<String>(Arrays.asList(config.get(PROXIED_COTNAINER_PORTS).split(",")));
         }
         return conf;
     }

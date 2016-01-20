@@ -3,6 +3,8 @@ package org.arquillian.cube.docker.impl.util;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.arquillian.cube.impl.util.IOUtil;
+
 public class CommandLineExecutor {
 
     public String execCommand(String... arguments) {

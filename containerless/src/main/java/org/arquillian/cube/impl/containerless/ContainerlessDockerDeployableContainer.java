@@ -6,9 +6,9 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.CreateCube;
@@ -16,7 +16,9 @@ import org.arquillian.cube.spi.event.CubeControlEvent;
 import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
@@ -154,15 +156,24 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
     }
 
     private ProtocolMetaData createProtocolMetadata(Cube<?> cube, Archive<?> deployment) {
-        Binding bindings = cube.bindings();
-        //ProtocolMetadataUpdater will reajust the port to the exposed ones.
+        final HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            throw new IllegalArgumentException("Container has no port bindings");
+        }
+        //ProtocolMetadataUpdater will adjust the port to the exposed ones.
 
         HTTPContext httpContext = null;
         if(this.configuration.isEmbeddedPortSet()) {
-            httpContext = new HTTPContext(bindings.getIP(), this.configuration.getEmbeddedPort());
+            httpContext = new HTTPContext(portBindings.getContainerIP(), this.configuration.getEmbeddedPort());
         } else {
-            if(bindings.getNumberOfPortBindings() == 1) {
-                httpContext = new HTTPContext(bindings.getIP(), bindings.getFirstPortBinding().getBindingPort());
+            final Set<Integer> boundPorts = portBindings.getBoundPorts();
+            if(boundPorts.size() == 1) {
+                final int port = boundPorts.iterator().next();
+                final PortAddress portMapping = portBindings.getMappedAddress(port);
+                if (portMapping == null) {
+                    throw new IllegalArgumentException(String.format("No port mapping found for port %s", port));
+                }
+                httpContext = new HTTPContext(portMapping.getIP(), portMapping.getPort());
             } else {
                 throw new IllegalArgumentException("More than one port binding eligible. Set one using embeddedPort property");
             }
