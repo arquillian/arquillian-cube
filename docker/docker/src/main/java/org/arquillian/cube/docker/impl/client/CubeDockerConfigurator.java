@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -11,6 +12,7 @@ import org.arquillian.cube.HostUriContext;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.GitHubUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
@@ -18,6 +20,12 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
+import org.arquillian.spacelift.Spacelift;
+import org.arquillian.spacelift.process.Command;
+import org.arquillian.spacelift.process.CommandBuilder;
+import org.arquillian.spacelift.process.ProcessResult;
+import org.arquillian.spacelift.task.net.DownloadTool;
+import org.arquillian.spacelift.task.os.CommandTool;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -64,6 +72,7 @@ public class CubeDockerConfigurator {
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         config = resolveSystemEnvironmentVariables(config);
         config = resolveDockerInsideDocker(config);
+        config = resolveDownloadDockerMachine(config);
         config = resolveAutoStartDockerMachine(config);
         config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
@@ -85,6 +94,60 @@ public class CubeDockerConfigurator {
             }
         }
         return cubeConfiguration;
+    }
+
+    private Map<String, String> resolveDownloadDockerMachine(Map<String, String> config) {
+        if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
+            final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
+            if (!dockerMachineInstance.get().isDockerMachineInstalled(cliPathExec)) {
+                String machineVersion = GitHubUtil.getDockerMachineLatestVersion();
+                String machineCustomPath = config.get(CubeDockerConfiguration.DOCKER_MACHINE_CUSTOM_PATH);
+                String machineArquillianPath = CubeDockerConfiguration.resolveMachinePath(machineCustomPath, machineVersion);
+                File dockerMachineFile = new File(machineArquillianPath);
+
+                boolean dockerMachineFileExist = dockerMachineFile != null && dockerMachineFile.exists();
+
+                String machineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
+                String machineUrl = CubeDockerConfiguration.resolveUrl(machineVersion);
+
+                if (!dockerMachineFileExist) {
+                    Spacelift.task(DownloadTool.class)
+                                .from(machineUrl)
+                                .to(dockerMachineFile)
+                                .execute()
+                                .await();
+                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
+
+                    Command allowExecCmd = new CommandBuilder("chmod", "+x", machineArquillianPath).build();
+                    ProcessResult processAllowResult = Spacelift.task(CommandTool.class)
+                                                                    .command(allowExecCmd)
+                                                                    .execute()
+                                                                    .await();
+                    printOutput(processAllowResult);
+
+                    String machineDriver = config.get(CubeDockerConfiguration.DOCKER_MACHINE_DRIVER);
+                    Command machineCreateCmd = new CommandBuilder(machineArquillianPath, "create", "--driver", machineDriver, machineName).build();
+                    ProcessResult processCreateResult = Spacelift.task(CommandTool.class)
+                                                                    .command(machineCreateCmd)
+                                                                    .execute()
+                                                                    .await();
+                    printOutput(processCreateResult);
+                } else {
+                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
+                }
+            }
+        }
+        return config;
+    }
+
+    private void printOutput(ProcessResult processResult) {
+        List<String> lines = processResult.output();
+        StringBuilder output = new StringBuilder();
+        for (String line: lines) {
+            output.append(line);
+            output.append(System.lineSeparator());
+        }
+        log.info(output.toString());
     }
 
     private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {
