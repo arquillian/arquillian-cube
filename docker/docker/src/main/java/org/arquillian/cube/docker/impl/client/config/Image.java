@@ -61,11 +61,36 @@ public class Image {
         String name = null;
         String tag = null;
 
-        String[] parts = image.split(":");
-        name = parts[0];
-        if (parts.length > 1) {
-            tag = parts[1];
+        // <repositoryurl>:<port>/<organization_namespace>/<image_name>:<tag>
+        String[] parts = image.split("/");
+
+        switch(parts.length) {
+            case 1: // <image_name>[:<tag>]
+            case 2: // <organization_namespace>/<image_name>[:tag]
+            {
+                String imageName = image;
+                final int colonIndex = imageName.indexOf(':');
+                if (colonIndex > -1) {
+                    name = imageName.substring(0, colonIndex);
+                    tag = imageName.substring(colonIndex + 1);
+                } else {
+                    name = imageName;
+                }
+                break;
+            }
+            case 3:  // <repositoryurl>[:<port>]/<organization_namespace>/<image_name>[:<tag>]
+            {
+                String imageName = parts[2];
+                final int colonIndex = imageName.indexOf(':');
+                if (colonIndex > -1) {
+                    name = parts[0] + "/" + parts[1] + "/" + imageName.substring(0, colonIndex);
+                    tag = imageName.substring(colonIndex + 1);
+                } else {
+                    name = image;
+                }
+            }
         }
+
         return new Image(name, tag);
     }
 }
