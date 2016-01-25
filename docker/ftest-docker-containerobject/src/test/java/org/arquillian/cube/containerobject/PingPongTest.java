@@ -1,8 +1,6 @@
 package org.arquillian.cube.containerobject;
 
-import org.hamcrest.CoreMatchers;
 import org.jboss.arquillian.junit.Arquillian;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

@@ -30,6 +30,7 @@ import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
@@ -534,16 +535,17 @@ public class DockerClientExecutor {
 
     public void pullImage(String imageName) {
 
-        PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(imageName);
+        final Image image = Image.valueOf(imageName);
+
+        PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(image.getName());
 
         if (this.cubeConfiguration.getDockerRegistry() != null) {
             pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
         }
 
-        int tagSeparator = imageName.indexOf(TAG_SEPARATOR);
-        if (tagSeparator > 0) {
-            pullImageCmd.withRepository(imageName.substring(0, tagSeparator));
-            pullImageCmd.withTag(imageName.substring(tagSeparator + 1));
+        String tag = image.getTag();
+        if (tag != null && !"".equals(tag)) {
+            pullImageCmd.withTag(tag);
         }
 
         pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
