@@ -10,7 +10,7 @@ import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
 import org.arquillian.cube.openshift.impl.client.metadata.CopyFromContainer;
-import org.arquillian.cube.openshift.impl.client.metadata.ForwardPorts;
+import org.arquillian.cube.openshift.impl.client.metadata.MappedPorts;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
@@ -25,8 +25,7 @@ import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
-import org.arquillian.cube.spi.metadata.CanForwardPorts;
-import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
+import org.arquillian.cube.spi.metadata.HasMappedPorts;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -58,7 +57,7 @@ public class BuildablePodCube extends BaseCube<Void> {
         if(template.getRefs() != null && template.getRefs().size() > 0) {
             addMetadata(IsBuildable.class, new IsBuildable(template.getRefs().get(0).getPath()));
         }
-        addMetadata(CanForwardPorts.class, new ForwardPorts(getId(), client));
+        addMetadata(HasMappedPorts.class, new MappedPorts(this, client, configuration));
         addMetadata(CanCopyFromContainer.class, new CopyFromContainer(getId(), client));
     }
 

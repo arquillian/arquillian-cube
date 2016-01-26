@@ -18,7 +18,7 @@ public class ContainerCubeControllerCreator {
     @Inject
     private Instance<Injector> injector;
 
-    public void createClientCubeController(@Observes(precedence=200) BeforeSuite event) {
+    public void createClientCubeController(@Observes BeforeSuite event) {
         cubeController.set(injector.get().inject(new ContainerCubeController()));
     }
 }

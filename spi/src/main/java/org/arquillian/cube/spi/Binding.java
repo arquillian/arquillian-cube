@@ -34,6 +34,11 @@ public class Binding {
         return null;
     }
 
+    /**
+     * @param exposedPort the port exposed by the container (e.g. EXPOSE or Pod.Spec.Container[].Ports[])
+     * @param bindingPort the port to which the container port is bound on this IP (e.g. docker run -p ip:hostPort:exposedPort or Pod.Spec.Container[].Ports[].HostPort)
+     * @return
+     */
     public Binding addPortBinding(Integer exposedPort, Integer bindingPort) {
         this.bindings.add(new PortBinding(exposedPort, bindingPort));
         return this;
@@ -46,15 +51,6 @@ public class Binding {
     public PortBinding getBindingForExposedPort(Integer exposedPort) {
         for(PortBinding binding : this.bindings) {
             if(exposedPort.equals(binding.getExposedPort())) {
-                return binding;
-            }
-        }
-        return null;
-    }
-
-    public PortBinding getBindingForContainerPort(Integer containerPort) {
-        for(PortBinding binding : this.bindings) {
-            if(containerPort.equals(binding.getBindingPort())) {
                 return binding;
             }
         }

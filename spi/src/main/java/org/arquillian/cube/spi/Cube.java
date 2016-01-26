@@ -36,8 +36,14 @@ public interface Cube<T> {
 
     void changeToPreRunning();
 
+    /**
+     * @return actual binding of running container
+     */
     Binding bindings();
 
+    /**
+     * @return binding as configured by meta-data, e.g. EXPOSE or pod.json
+     */
     Binding configuredBindings();
 
     T configuration();

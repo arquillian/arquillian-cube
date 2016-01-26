@@ -1,14 +1,10 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import java.util.Set;
-
-import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
-import org.arquillian.cube.spi.metadata.CanForwardPorts;
+import org.arquillian.cube.spi.metadata.HasMappedPorts;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
@@ -29,21 +25,11 @@ public class OpenShiftPortProxyController {
             return; // No Cube found matching Container name, not managed by
                     // Cube
         }
-        CanForwardPorts forwardPorts = cube.getMetadata(CanForwardPorts.class);
-        if (forwardPorts == null) {
+        HasMappedPorts mappedPorts = cube.getMetadata(HasMappedPorts.class);
+        if (mappedPorts == null) {
             return;
         }
-
-        Set<String> proxiedPorts = openshiftConfiguration.getProxiedContainerPorts();
-        Binding binding = cube.configuredBindings();
-        if (binding.arePortBindings()) {
-            for (PortBinding portBinding : binding.getPortBindings()) {
-                if (proxiedPorts
-                        .contains(String.format("%s:%d", cube.getId(), portBinding.getBindingPort()))) {
-                    forwardPorts.createProxy(portBinding);
-                }
-            }
-        }
+        mappedPorts.createProxies();
     }
 
     public void destroyProxies(@Observes BeforeStop event, CubeRegistry cubeRegistry) {
@@ -52,10 +38,10 @@ public class OpenShiftPortProxyController {
             return; // No Cube found matching Container name, not managed by
                     // Cube
         }
-        CanForwardPorts forwardPorts = cube.getMetadata(CanForwardPorts.class);
-        if (forwardPorts == null) {
+        HasMappedPorts mappedPorts = cube.getMetadata(HasMappedPorts.class);
+        if (mappedPorts == null) {
             return;
         }
-        forwardPorts.destroyProxies();
+        mappedPorts.destroyProxies();
     }
 }

@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
-import org.arquillian.cube.spi.metadata.CanForwardPorts;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasMappedPorts;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -47,7 +47,7 @@ public class ContainerConfigurationController {
 
         if (binding.arePortBindings()) {
             
-            CanForwardPorts forwardPorts = cube.getMetadata(CanForwardPorts.class);
+            HasMappedPorts mappedPorts = cube.getMetadata(HasMappedPorts.class);
 
             ContainerDef containerConfiguration = container.getContainerConfiguration();
             List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
@@ -68,16 +68,19 @@ public class ContainerConfigurationController {
                             configurationClass, configurationClassPortField);
 
                     PortBinding bindingForPort = null;
-                    if ((bindingForPort = binding.getBindingForContainerPort(containerPort)) != null) {
-                        if (forwardPorts != null && forwardPorts.getForwardedPort(bindingForPort) != null) {
+                    if ((bindingForPort = binding.getBindingForExposedPort(containerPort)) != null) {
+                        if (mappedPorts != null && mappedPorts.forTargetPort(containerPort) != null) {
                             containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                                    Integer.toString(forwardPorts.getForwardedPort(bindingForPort)));
-                        } else if (bindingForPort.getExposedPort() != null) {
+                                    Integer.toString(mappedPorts.forTargetPort(containerPort)));
+                        } else if (bindingForPort.getBindingPort() != null) {
                             containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                                    Integer.toString(bindingForPort.getExposedPort()));
+                                    Integer.toString(bindingForPort.getBindingPort()));
                         }
+                    } else if (mappedPorts != null && mappedPorts.forTargetPort(containerPort) != null) {
+                        // port may not be exposed on container, but might be manually mapped
+                        containerConfiguration.overrideProperty(configurationClassPortField.getName(),
+                                Integer.toString(mappedPorts.forTargetPort(containerPort)));
                     }
-
                 }
             }
         }

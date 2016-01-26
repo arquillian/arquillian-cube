@@ -140,7 +140,7 @@ public final class ResourceUtil {
         }
         for (Container container : pod.getSpec().getContainers()) {
             for (ContainerPort port : container.getPorts()) {
-                binding.addPortBinding(port.getHostPort(), port.getContainerPort());
+                binding.addPortBinding(port.getContainerPort(), port.getHostPort());
             }
         }
         return binding;
@@ -155,7 +155,8 @@ public final class ResourceUtil {
             binding = new Binding(null);
         }
         for (ServicePort port : pod.getSpec().getPorts()) {
-            binding.addPortBinding(port.getNodePort(), port.getTargetPort().getIntVal());
+            // nodePort is service equivalent of pod's hostPort
+            binding.addPortBinding(port.getPort(), port.getNodePort());
         }
         return binding;
     }
