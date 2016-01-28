@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
 
 public class CopyFromContainer implements CanCopyFromContainer {

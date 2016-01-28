@@ -2,9 +2,10 @@ package org.arquillian.cube.containerobject;
 
 import com.jcabi.ssh.SSH;
 import com.jcabi.ssh.Shell;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Rule;
 import org.junit.Test;

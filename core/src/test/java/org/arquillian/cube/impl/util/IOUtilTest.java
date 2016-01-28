@@ -1,4 +1,4 @@
-package org.arquillian.cube.docker.impl.util;
+package org.arquillian.cube.impl.util;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.arquillian.cube.impl.util.IOUtil;
 import org.junit.Test;
 
 public class IOUtilTest {
