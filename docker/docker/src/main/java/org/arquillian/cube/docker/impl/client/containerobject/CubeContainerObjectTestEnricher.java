@@ -28,8 +28,9 @@ import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.util.ContainerObjectUtil;
 import org.arquillian.cube.docker.impl.util.DockerFileUtil;
 import org.arquillian.cube.impl.util.ReflectionUtil;
-import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
@@ -184,15 +185,22 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
     private void enrichHostPort(Object containerObjectInstance, org.arquillian.cube.spi.Cube<?> cube) throws IllegalAccessException {
         final List<Field> fieldsWithHostPort = ReflectionUtil.getFieldsWithAnnotation(containerObjectInstance.getClass(), HostPort.class);
+        if (fieldsWithHostPort.isEmpty()) {
+            return;
+        }
+
+        final HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            throw new IllegalArgumentException(String.format("Container Object %s contains fields annotated with %s but no ports are exposed by the container", containerObjectInstance.getClass().getSimpleName(), HostPort.class.getSimpleName()));
+        }
 
         for ( Field field : fieldsWithHostPort) {
             final HostPort hostPort = field.getAnnotation(HostPort.class);
             int hostPortValue = hostPort.value();
             if (hostPortValue > 0) {
-                final Binding.PortBinding bindingForExposedPort = cube.bindings().getBindingForExposedPort(hostPortValue);
-
-                if (bindingForExposedPort != null && bindingForExposedPort.getBindingPort() != -1) {
-                    field.set(containerObjectInstance, bindingForExposedPort.getBindingPort());
+                final PortAddress bindingForExposedPort = portBindings.getMappedAddress(hostPortValue);
+                if (bindingForExposedPort != null) {
+                    field.set(containerObjectInstance, bindingForExposedPort.getPort());
                 } else {
                     throw new IllegalArgumentException(String.format("Container Object %s contains field %s annotated with %s but exposed port %s is not exposed on container object.", containerObjectInstance.getClass().getSimpleName(), field.getName(), HostPort.class.getSimpleName(), hostPortValue));
                 }

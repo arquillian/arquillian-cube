@@ -1,6 +1,7 @@
 package org.arquillian.cube.spi;
 
 import org.arquillian.cube.spi.metadata.CubeMetadata;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 
 public interface Cube<T> {
 
@@ -38,11 +39,13 @@ public interface Cube<T> {
 
     /**
      * @return actual binding of running container
+     * @deprecated See {@link HasPortBindings}
      */
     Binding bindings();
 
     /**
      * @return binding as configured by meta-data, e.g. EXPOSE or pod.json
+     * @deprecated See {@link HasPortBindings}
      */
     Binding configuredBindings();
 
