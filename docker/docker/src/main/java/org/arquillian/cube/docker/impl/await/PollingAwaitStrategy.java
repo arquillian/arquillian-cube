@@ -1,6 +1,8 @@
 package org.arquillian.cube.docker.impl.await;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -31,6 +33,7 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
     private DockerClientExecutor dockerClientExecutor;
     private Cube<?> cube;
+    private List<Integer> ports = null;
 
     public PollingAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor, Await params) {
         this.cube = cube;
@@ -45,6 +48,10 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
         if(params.getType() != null) {
             this.type = params.getType();
+        }
+
+        if(params.getPorts() != null) {
+            this.ports = params.getPorts();
         }
     }
 
@@ -83,6 +90,10 @@ public class PollingAwaitStrategy implements AwaitStrategy {
         return type;
     }
 
+    public List<Integer> getPorts() {
+        return ports;
+    }
+
     @Override
     public boolean await() {
         HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
@@ -91,7 +102,11 @@ public class PollingAwaitStrategy implements AwaitStrategy {
             return true;
         }
 
-        for (Integer port : portBindings.getBoundPorts()) {
+        Collection<Integer> pingPorts = this.ports;
+        if(ports == null) {
+            pingPorts = portBindings.getBoundPorts();
+        }
+        for (Integer port : pingPorts) {
             switch(this.type) {
                 case "ping": {
                     PortAddress mapping = portBindings.getMappedAddress(port);
