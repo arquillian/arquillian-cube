@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.await;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -115,6 +116,21 @@ public class AwaitStrategyTest {
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
+    }
+
+    @Test
+    public void should_create_polling_await_strategy_with_specific_port() {
+
+        Await await = new Await();
+        await.setStrategy("polling");
+        await.setPorts(Arrays.asList(80));
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setAwait(await);
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+
+        assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
+        assertThat(((PollingAwaitStrategy)strategy).getPorts(), hasItems(80));
     }
 
     @Test
