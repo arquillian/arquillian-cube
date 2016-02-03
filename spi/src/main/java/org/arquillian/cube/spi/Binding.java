@@ -9,8 +9,15 @@ public class Binding {
 
     public Set<PortBinding> bindings;
 
+    private String internalIp;
+
     public Binding(String ip) {
+        this(ip, null);
+    }
+
+    public Binding(String ip, String internalIp) {
         this.ip = ip;
+        this.internalIp = internalIp;
         this.bindings = new HashSet<PortBinding>();
     }
 
@@ -32,6 +39,10 @@ public class Binding {
         }
 
         return null;
+    }
+
+    public String getInternalIP() {
+        return internalIp;
     }
 
     /**
