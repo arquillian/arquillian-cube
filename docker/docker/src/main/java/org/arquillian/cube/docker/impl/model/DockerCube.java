@@ -211,6 +211,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
         private final Set<Integer> containerPorts;
         private final Set<Integer> boundPorts;
         private String containerIP;
+        private String internalIP;
 
         private PortBindings() {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
@@ -239,6 +240,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
         }
 
         @Override
+        public String getInternalIP() {
+            return internalIP;
+        }
+
+        @Override
         public Set<Integer> getContainerPorts() {
             return Collections.unmodifiableSet(containerPorts);
         }
@@ -262,6 +268,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
         private synchronized void containerStarted() {
             final Binding bindings = bindings();
             containerIP = bindings.getIP();
+            internalIP = bindings.getInternalIP();
             for (PortBinding portBinding : bindings.getPortBindings()) {
                 final int exposedPort = portBinding.getExposedPort();
                 final Integer boundPort = portBinding.getBindingPort();

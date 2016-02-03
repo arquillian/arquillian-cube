@@ -248,6 +248,11 @@ public class BuildablePodCube extends BaseCube<Void> {
         }
 
         @Override
+        public String getInternalIP() {
+            return null;
+        }
+
+        @Override
         public Set<Integer> getContainerPorts() {
             return Collections.unmodifiableSet(containerPorts);
         }

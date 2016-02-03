@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Binding;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse.NetworkSettings;
 import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
@@ -23,7 +24,13 @@ public final class BindingUtil {
         InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( cubeId ).exec();
 
         String dockerIp = getDockerServerIp(executor);
-        Binding binding = new Binding(dockerIp);
+        String inernalIp = null;
+        NetworkSettings networkSettings = inspectResponse.getNetworkSettings();
+        if(networkSettings != null) {
+            inernalIp = networkSettings.getIpAddress();
+        }
+
+        Binding binding = new Binding(dockerIp, inernalIp);
 
         HostConfig hostConfig = inspectResponse.getHostConfig();
         if(hostConfig.getPortBindings() != null) {

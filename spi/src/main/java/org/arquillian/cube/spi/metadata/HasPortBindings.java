@@ -28,6 +28,12 @@ public interface HasPortBindings extends CubeMetadata {
     String getContainerIP();
 
     /**
+     * @return the container's internal IP address, may be null if the container has not
+     *         been bound to an IP. The internal ip is as seen by the Host or other containers.
+     */
+    String getInternalIP();
+
+    /**
      * @return list of configured container ports.
      */
     Set<Integer> getContainerPorts();
