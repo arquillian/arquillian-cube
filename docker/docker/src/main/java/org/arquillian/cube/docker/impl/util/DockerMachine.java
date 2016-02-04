@@ -5,9 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class DockerMachine extends AbstractCliInternetAddressResolver {
+
+    private static Logger log = Logger.getLogger(DockerMachine.class.getName());
 
     public static final String DOCKER_MACHINE_EXEC = "docker-machine";
 
@@ -158,6 +161,25 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
      */
     public Set<Machine> list(String field, String value) {
         return this.list(null, field, value);
+    }
+
+    public void grantPermissionToDockerMachine(String machinePath) {
+        List<String> chmod = commandLineExecutor.execCommandAsArray("chmod", "+x", machinePath);
+        printOutput(chmod);
+    }
+
+    public void createMachine(String machinePath, String machineDriver, String machineName) {
+        List<String> create = commandLineExecutor.execCommandAsArray(machinePath, "create", "--driver", machineDriver, machineName);
+        printOutput(create);
+    }
+
+    private void printOutput(List<String> lines) {
+        StringBuilder output = new StringBuilder();
+        for (String line: lines) {
+            output.append(line);
+            output.append(System.lineSeparator());
+        }
+        log.info(output.toString());
     }
 
     private Machine parse(Map<String, Index> headersIndex, String output) {
