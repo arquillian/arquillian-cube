@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 
 public class CubeDockerConfiguration {
 
@@ -27,10 +31,13 @@ public class CubeDockerConfiguration {
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
     public static final String DOCKER_MACHINE_PATH = "dockerMachinePath";
     public static final String DOCKER_MACHINE_NAME = "machineName";
+    public static final String DOCKER_MACHINE_DRIVER = "machineDriver";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
     static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
     private static final String CUBE_ENVIRONMENT = "cube.environment";
+    public static final String DOCKER_MACHINE_CUSTOM_PATH = "dockerMachineCustomPath";
+    public static final String DOCKER_MACHINE_ARQUILLIAN_PATH = "~/.arquillian/machine";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -307,4 +314,16 @@ public class CubeDockerConfiguration {
 
         return content.toString();
     }
+
+    public static String resolveUrl(String machineVersion) {
+        return "https://github.com/docker/machine/releases/download/" + machineVersion + "/" + DockerMachineDistro.resolveDistro();
+    }
+
+    public static String resolveMachinePath(String machineCustomPath, String machineVersion) {
+        if (StringUtils.isBlank(machineCustomPath)) {
+            machineCustomPath = DOCKER_MACHINE_ARQUILLIAN_PATH;
+        }
+        return HomeResolverUtil.resolveHomeDirectoryChar(machineCustomPath + "/" + machineVersion + "/" + DockerMachine.DOCKER_MACHINE_EXEC);
+    }
+
 }

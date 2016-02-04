@@ -239,6 +239,12 @@ Let's see valid attributes:
 |machineName
 |Sets the machine name in case you are using docker-machine to manage your docker host. This parameter is mandatory when using docker-machine with more than one running machine. In case of having only one docker machine running, it is not necessary to set it since it is auto resolved by cube.
 
+|machineDriver
+|Sets the machine driver in case you are using _docker-machine_, _Cube_ will create a machine using this driver. This parameter is mandatory when docker-machine is not installed.
+
+|dockerMachineCustomPath
+|Sets the custom location where _docker-machine_ will be downloaded. Default value: ~/.arquillian/machine.
+
 |dockerInsideDockerResolution
 |Boolean to set if Cube should detect that tests are run inside an already started Docker container, so Docker containers started by Cube could be run using DinD (Docker Inside Docker) or DoD (docker On Docker). Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`. By default its value is true. If you want to use an external dockerhost, then you need to set this property to false.
 
@@ -550,6 +556,7 @@ _Arquillian Cube_ offers some automatic mechanisms to use _boot2docker_ or _dock
 The first one is that +serverUri+ parameter can contain the word +dockerHost+ like for example +https://dockerHost:2376+.
 When _Cube_ is started it will check if the +serverUri+ contains the _dockerHost_ word, and if it is the case it will do next things:
 
+. if docker machine name is provided by using +machineName+ property then _Cube_ resolves if Docker Machine is installed, otherwise +machineDriver+ property must be provided to create the machine.
 . if docker machine name is provided by using +machineName+ property then Docker Machine command is run to get the ip to be replaced in `dockerHost`.
 . if previous conditions are not met, then _boot2docker_ command is run to get the ip to be replaced in `dockerHost`.
 
@@ -570,8 +577,8 @@ If this property is not set and the +serverUri+ contains +dockerHost+, then this
 
 In case of _docker-machine_ it will run the command +docker-machine ip <machineName>+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
 
-Note that by default _Arquillian Cube_ assumes that +docker-machine+ command is on +PATH+, but you can configure its location by using the +dockerMachinePath+ proeprty which is the full location (and program name too) of _docker-machine_.
-For example +/usr/bin/docker-machine+..
+Note that by default _Arquillian Cube_ assumes that +docker-machine+ command is on +PATH+, but you can configure its location by using the +dockerMachinePath+ property which is the full location (and program name too) of _docker-machine_.
+For example +/usr/bin/docker-machine+. But, if +docker-machine+ command is not on +PATH+, _Cube_ will download the latest version. In this case, +machineDriver+ must be provided to create the machine.
 
 _docker-machine_ can run with _boot2docker_ together.
 And this docker host instance runs in _https_ so you need to set the certificates path.

@@ -69,6 +69,7 @@
         <version.mockito>1.10.19</version.mockito>
         <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
         <version.undertow>1.2.12.Final</version.undertow>
+        <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
     </properties>
 
     <dependencyManagement>
@@ -116,6 +117,11 @@
                 <version>${version.arquillian_core}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.spacelift</groupId>
+                <artifactId>arquillian-spacelift</artifactId>
+                <version>${version.arquillian_spacelift}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
