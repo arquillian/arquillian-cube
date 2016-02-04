@@ -1,8 +1,8 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -99,10 +99,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     public Set<Machine> list(String cliPathExec) {
 
         Set<Machine> machines = new HashSet<>();
-        String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls");
+        List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls");
 
-        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
-        for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
+        for (String fields : output.subList(1, output.size())) {
             machines.add(parse(headerIndex, fields));
         }
 
@@ -118,10 +118,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
      */
     public Set<Machine> list(String cliPathExec, String field, String value) {
         Set<Machine> machines = new HashSet<>();
-        String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
+        List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
 
-        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
-        for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
+        for (String fields : output.subList(1, output.size())) {
             machines.add(parse(headerIndex, fields));
         }
 
