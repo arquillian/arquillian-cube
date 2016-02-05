@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,9 +116,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-                .thenReturn(new String[] {
+                .thenReturn(Arrays.asList(
                         "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " });
+                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " ));
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
@@ -138,9 +139,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-                .thenReturn(new String[] {
+                .thenReturn(Arrays.asList(
                         "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                        "dev    *        virtualbox   Stopped   tcp://192.168.0.2:222222     " });
+                        "dev    *        virtualbox   Stopped   tcp://192.168.0.2:222222     " ));
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
@@ -160,9 +161,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running"))
-                .thenReturn(new String[] {
+                .thenReturn(Arrays.asList(
                         "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                        "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     " });
+                        "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     " ));
         // Docker Machine is installed
         when(commandLineExecutor.execCommand("docker-machine"))
                 .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
@@ -185,10 +186,10 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running"))
-                .thenReturn(new String[] {
+                .thenReturn(Arrays.asList(
                         "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
                         "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
-                        "dev2   *        virtualbox   Running   tcp://192.168.99.100:2376     " });
+                        "dev2   *        virtualbox   Running   tcp://192.168.99.100:2376     " ));
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         // Docker-Machine is installed
         when(commandLineExecutor.execCommand("docker-machine"))
@@ -248,9 +249,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-                .thenReturn(new String[] {
+                .thenReturn(Arrays.asList(
                         "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " });
+                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " ));
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));

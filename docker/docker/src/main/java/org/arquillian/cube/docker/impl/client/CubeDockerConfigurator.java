@@ -2,7 +2,6 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.io.File;
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -21,11 +20,7 @@ import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.arquillian.spacelift.Spacelift;
-import org.arquillian.spacelift.process.Command;
-import org.arquillian.spacelift.process.CommandBuilder;
-import org.arquillian.spacelift.process.ProcessResult;
 import org.arquillian.spacelift.task.net.DownloadTool;
-import org.arquillian.spacelift.task.os.CommandTool;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -118,36 +113,16 @@ public class CubeDockerConfigurator {
                                 .await();
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
 
-                    Command allowExecCmd = new CommandBuilder("chmod", "+x", machineArquillianPath).build();
-                    ProcessResult processAllowResult = Spacelift.task(CommandTool.class)
-                                                                    .command(allowExecCmd)
-                                                                    .execute()
-                                                                    .await();
-                    printOutput(processAllowResult);
+                    dockerMachineInstance.get().grantPermissionToDockerMachine(machineArquillianPath);
 
                     String machineDriver = config.get(CubeDockerConfiguration.DOCKER_MACHINE_DRIVER);
-                    Command machineCreateCmd = new CommandBuilder(machineArquillianPath, "create", "--driver", machineDriver, machineName).build();
-                    ProcessResult processCreateResult = Spacelift.task(CommandTool.class)
-                                                                    .command(machineCreateCmd)
-                                                                    .execute()
-                                                                    .await();
-                    printOutput(processCreateResult);
+                    dockerMachineInstance.get().createMachine(machineArquillianPath, machineDriver, machineName);
                 } else {
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
                 }
             }
         }
         return config;
-    }
-
-    private void printOutput(ProcessResult processResult) {
-        List<String> lines = processResult.output();
-        StringBuilder output = new StringBuilder();
-        for (String line: lines) {
-            output.append(line);
-            output.append(System.lineSeparator());
-        }
-        log.info(output.toString());
     }
 
     private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {

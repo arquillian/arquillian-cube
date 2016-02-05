@@ -1,13 +1,16 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class DockerMachine extends AbstractCliInternetAddressResolver {
+
+    private static Logger log = Logger.getLogger(DockerMachine.class.getName());
 
     public static final String DOCKER_MACHINE_EXEC = "docker-machine";
 
@@ -99,10 +102,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     public Set<Machine> list(String cliPathExec) {
 
         Set<Machine> machines = new HashSet<>();
-        String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls");
+        List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls");
 
-        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
-        for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
+        for (String fields : output.subList(1, output.size())) {
             machines.add(parse(headerIndex, fields));
         }
 
@@ -118,10 +121,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
      */
     public Set<Machine> list(String cliPathExec, String field, String value) {
         Set<Machine> machines = new HashSet<>();
-        String[] output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
+        List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
 
-        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output[0]);
-        for (String fields : Arrays.copyOfRange(output, 1, output.length)) {
+        Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
+        for (String fields : output.subList(1, output.size())) {
             machines.add(parse(headerIndex, fields));
         }
 
@@ -158,6 +161,25 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
      */
     public Set<Machine> list(String field, String value) {
         return this.list(null, field, value);
+    }
+
+    public void grantPermissionToDockerMachine(String machinePath) {
+        List<String> chmod = commandLineExecutor.execCommandAsArray("chmod", "+x", machinePath);
+        printOutput(chmod);
+    }
+
+    public void createMachine(String machinePath, String machineDriver, String machineName) {
+        List<String> create = commandLineExecutor.execCommandAsArray(machinePath, "create", "--driver", machineDriver, machineName);
+        printOutput(create);
+    }
+
+    private void printOutput(List<String> lines) {
+        StringBuilder output = new StringBuilder();
+        for (String line: lines) {
+            output.append(line);
+            output.append(System.lineSeparator());
+        }
+        log.info(output.toString());
     }
 
     private Machine parse(Map<String, Index> headersIndex, String output) {
