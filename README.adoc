@@ -446,7 +446,7 @@ Also it is not necessary to set the network protocol (tcp or udp).
 If protocol is not specified `portBindings: ["8080"]` then _tcp_ is used by default.
 Notice that you need to add double-quotes to stringify the value.
 
-=== Allow connecting to a running container
+### Allow connecting to a running container
 
 With the configuration option +connectionMode+ you can bypass
 the Create/Start Cube commands if the a _Docker_ Container with the same name is already
