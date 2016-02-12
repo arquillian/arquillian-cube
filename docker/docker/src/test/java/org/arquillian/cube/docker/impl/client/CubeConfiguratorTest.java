@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.SystemUtils;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -25,11 +26,13 @@ import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -178,8 +181,13 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     }
 
+    // Only works in case of running in MACOS or Windows since by default in
+    // these systems boot2docker is the default
     @Test
     public void shouldNotUseDockerMachineIfDockerHostIsNotSetNotDockerMachineAndTwoMachineIsRunning() {
+        
+        Assume.assumeTrue(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_WINDOWS);
+        
         Map<String, String> config = new HashMap<>();
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
@@ -204,6 +212,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     // these systems boot2docker is the default
     @Test
     public void shouldUseDefaultsInCaseOfNotHavingDockerMachineInstalledAndNoDockerUriNorMachineName() {
+        
+        Assume.assumeTrue(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_WINDOWS);
+        
         Map<String, String> config = new HashMap<>();
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
