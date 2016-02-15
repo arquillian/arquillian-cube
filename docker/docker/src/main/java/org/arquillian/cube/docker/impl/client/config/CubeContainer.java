@@ -373,6 +373,10 @@ public class CubeContainer {
         this.await = await;
     }
 
+    public boolean hasAwait() {
+        return this.await != null;
+    }
+
     public String getExtends() {
         return extendsImage;
     }
@@ -387,6 +391,10 @@ public class CubeContainer {
 
     public void setBeforeStop(Collection<BeforeStop> beforeStop) {
         this.beforeStop = beforeStop;
+    }
+
+    public boolean hasBeforeStop() {
+        return this.beforeStop != null && !this.beforeStop.isEmpty();
     }
 
     public void merge(CubeContainer container) {

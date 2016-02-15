@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class CubeContainers {
+
+    private static final Logger logger = Logger.getLogger(CubeContainers.class.getName());
 
     private Map<String, CubeContainer> containers;
 
@@ -47,4 +50,31 @@ public class CubeContainers {
         }
         containers.putAll(addAll);
     }
+
+    /**
+     * This method only overrides properties that are specific from Cube like await strategy or before stop events.
+     * @param overrideCubeContainers that contains information to override.
+     */
+    public void overrideCubeProperties(CubeContainers overrideCubeContainers) {
+        final Set<String> containerIds = overrideCubeContainers.getContainerIds();
+        for (String containerId : containerIds) {
+
+            // main definition of containers contains a container that must be overrode
+            if (containers.containsKey(containerId)) {
+                final CubeContainer cubeContainer = containers.get(containerId);
+                final CubeContainer overrideCubeContainer = overrideCubeContainers.get(containerId);
+
+                if (overrideCubeContainer.hasAwait()) {
+                    cubeContainer.setAwait(overrideCubeContainer.getAwait());
+                }
+
+                if (overrideCubeContainer.hasBeforeStop()) {
+                    cubeContainer.setBeforeStop(overrideCubeContainer.getBeforeStop());
+                }
+            } else {
+                logger.warning(String.format("Overriding Container %s are not defined in main definition of containers."));
+            }
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.arquillian.cube.docker.impl.await.PollingAwaitStrategy;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 import org.junit.Assert;
@@ -50,8 +52,42 @@ public class CubeConfigurationTest {
             "redis:\n" +
             "  image: redis";
 
+    private static final String OVERRIDE_CUSTOM =
+            "tomcat:\n" +
+            "  image: tutum/tomcat:8.0\n" +
+            "  await:\n" +
+            "    strategy: polling\n" +
+            "  beforeStop: \n"+
+            "    - copy:\n"+
+            "        from: /test\n"+
+            "        to: /tmp";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_override_custom_cube_properties() throws IOException {
+        File newFile = testFolder.newFile("config.yaml");
+        Files.write(Paths.get(newFile.toURI()), CONTENT.getBytes());
+
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainersFiles", newFile.toURI().toString());
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
+        parameters.put("cubeSpecificProperties", OVERRIDE_CUSTOM);
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        final CubeContainers dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer tomcat = dockerContainersContent.get("tomcat");
+        assertThat(tomcat, is(notNullValue()));
+        assertThat(tomcat.getImage().getTag(), is("7.0"));
+        assertThat(tomcat.getAwait().getStrategy(), is("polling"));
+        assertThat(tomcat.getBeforeStop().size(), is(1));
+
+    }
 
     @Test
     public void should_merge_more_than_one_file_into_one() throws IOException {
