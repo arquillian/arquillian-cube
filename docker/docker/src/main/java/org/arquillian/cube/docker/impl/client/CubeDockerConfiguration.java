@@ -38,6 +38,7 @@ public class CubeDockerConfiguration {
     private static final String CUBE_ENVIRONMENT = "cube.environment";
     public static final String DOCKER_MACHINE_CUSTOM_PATH = "dockerMachineCustomPath";
     public static final String DOCKER_MACHINE_ARQUILLIAN_PATH = "~/.arquillian/machine";
+    public static final String CUBE_SPECIFIC_PROPERTIES = "cubeSpecificProperties";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -223,6 +224,11 @@ public class CubeDockerConfiguration {
             }
         }
 
+        if (map.containsKey(CUBE_SPECIFIC_PROPERTIES)) {
+            String content = map.get(CUBE_SPECIFIC_PROPERTIES);
+            final CubeContainers overrideInformation = DockerContainerDefinitionParser.convert(content, DefinitionFormat.CUBE);
+            cubeConfiguration.dockerContainersContent.overrideCubeProperties(overrideInformation);
+        }
 
         if (map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
