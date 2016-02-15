@@ -542,7 +542,6 @@ NOTE: This property only overrides custom properties defined by CUBE format.
 ----
 <property name="cubeSpecificProperties">
     tomcat:
-      image: tutum/tomcat:8.0
       await:
         strategy: polling
       beforeStop:
@@ -553,7 +552,6 @@ NOTE: This property only overrides custom properties defined by CUBE format.
 ----
 
 Previous snippet would override `await` strategy to polling and set a `beforeStop` event in cube container named `tomcat` defined in a previous docker-compose definition.
-Also notice that the `image` property here does nothing, since ony CUBE custom properties are overriden.
 
 [[automatic-resolution]]
 === Automatic serverUri resolution
