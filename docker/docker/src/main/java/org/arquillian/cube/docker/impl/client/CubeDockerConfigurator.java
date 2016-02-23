@@ -71,7 +71,6 @@ public class CubeDockerConfigurator {
         config = resolveAutoStartDockerMachine(config);
         config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
-        config = resolveServerUriTcpProtocol(config);
         config = resolveServerIp(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
         System.out.println(cubeConfiguration);
@@ -251,21 +250,6 @@ public class CubeDockerConfigurator {
         } else {
             return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
         }
-    }
-
-    private Map<String, String> resolveServerUriTcpProtocol(Map<String, String> cubeConfiguration) {
-
-        if(cubeConfiguration.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
-            String dockerUri = cubeConfiguration.get(CubeDockerConfiguration.DOCKER_URI);
-            if (dockerUri != null && dockerUri.startsWith("tcp://")) {
-                if(containsCertPath(cubeConfiguration) || isDockerMachineNameSet() || containsDockerHostTag(dockerUri) ) {
-                    cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, dockerUri.replace("tcp://", "https://"));
-                } else {
-                    cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, dockerUri.replace("tcp://", "http://"));
-                }
-            }
-        }
-        return cubeConfiguration;
     }
 
     private boolean containsCertPath(Map<String, String> cubeConfiguration) {

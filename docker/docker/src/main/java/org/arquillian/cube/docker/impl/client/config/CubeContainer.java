@@ -14,8 +14,8 @@ public class CubeContainer {
     private Boolean tty;
     private Boolean stdinOpen;
     private Boolean stdinOnce;
-    private Integer memoryLimit;
-    private Integer memorySwap;
+    private Long memoryLimit;
+    private Long memorySwap;
     private Integer cpuShares;
     private String cpuSet;
     private Boolean attachStdin;
@@ -165,19 +165,19 @@ public class CubeContainer {
         this.stdinOnce = stdinOnce;
     }
 
-    public Integer getMemoryLimit() {
+    public Long getMemoryLimit() {
         return memoryLimit;
     }
 
-    public void setMemoryLimit(Integer memoryLimit) {
+    public void setMemoryLimit(Long memoryLimit) {
         this.memoryLimit = memoryLimit;
     }
 
-    public Integer getMemorySwap() {
+    public Long getMemorySwap() {
         return memorySwap;
     }
 
-    public void setMemorySwap(Integer memorySwap) {
+    public void setMemorySwap(Long memorySwap) {
         this.memorySwap = memorySwap;
     }
 

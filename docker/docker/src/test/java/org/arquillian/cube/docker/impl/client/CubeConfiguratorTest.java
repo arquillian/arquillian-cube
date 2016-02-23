@@ -185,9 +185,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     // these systems boot2docker is the default
     @Test
     public void shouldNotUseDockerMachineIfDockerHostIsNotSetNotDockerMachineAndTwoMachineIsRunning() {
-        
+
         Assume.assumeTrue(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_WINDOWS);
-        
+
         Map<String, String> config = new HashMap<>();
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
@@ -212,9 +212,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     // these systems boot2docker is the default
     @Test
     public void shouldUseDefaultsInCaseOfNotHavingDockerMachineInstalledAndNoDockerUriNorMachineName() {
-        
+
         Assume.assumeTrue(SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_WINDOWS);
-        
+
         Map<String, String> config = new HashMap<>();
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
@@ -239,7 +239,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
             when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
 
             fire(new CubeConfiguration());
-            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://127.0.0.1:22222"));
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://127.0.0.1:22222"));
             assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "127.0.0.1"));
         } finally {
             if (originalVar != null) {
@@ -265,7 +265,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
                         "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " ));
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
     }
 
     @Test
@@ -277,7 +277,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "http://192.168.0.2:22222"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
     }
 
     @Test
@@ -290,7 +290,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
     }
 
     @Test
@@ -304,7 +304,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.2:22222"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
     }
 
     @Test
