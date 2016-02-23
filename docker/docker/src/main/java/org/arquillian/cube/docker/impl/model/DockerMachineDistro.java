@@ -5,10 +5,9 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
 public enum DockerMachineDistro {
 
-    LINUX(new OperatingSystemFamily[] {OperatingSystemFamily.LINUX}, "docker-machine_linux-amd64"),
-    OSX(new OperatingSystemFamily[] {OperatingSystemFamily.MAC}, "docker-machine_darwin-amd64"),
-    //WIN_32(new OperatingSystemFamily[] {OperatingSystemFamily.WINDOWS}, "docker-machine_windows-386.exe"),
-    WIN_64(new OperatingSystemFamily[] {OperatingSystemFamily.WINDOWS}, "docker-machine_windows-amd64.exe");
+    LINUX(new OperatingSystemFamily[] {OperatingSystemFamily.LINUX}, "docker-machine-Linux-x86_64"),
+    OSX(new OperatingSystemFamily[] {OperatingSystemFamily.MAC}, "docker-machine-Darwin-x86_64"),
+    WIN_64(new OperatingSystemFamily[] {OperatingSystemFamily.WINDOWS}, "docker-machine-Windows-x86_64.exe");
 
     private OperatingSystemFamily[] osFamily;
 
