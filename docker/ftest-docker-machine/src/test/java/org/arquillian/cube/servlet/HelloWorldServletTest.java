@@ -36,7 +36,11 @@ public class HelloWorldServletTest {
 
     @HostIp
     String hostIp;
-    
+
+    @HostPort(containerName = "tomcat", value = 8080)
+    int tomcatPort;
+
+
     @Rule
     public TemporaryFolder folder= new TemporaryFolder();
 
@@ -106,6 +110,11 @@ public class HelloWorldServletTest {
     @Test
     public void should_enrich_test_with_cube_id(@ArquillianResource CubeID cubeId) {
         assertThat(cubeId, notNullValue());
+    }
+
+    @Test
+    public void should_enrich_test_with_ports() {
+        assertThat(tomcatPort, is(8081));
     }
 
     @Test

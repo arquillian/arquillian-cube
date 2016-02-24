@@ -61,4 +61,5 @@ public class LocalCubeRegistry implements CubeRegistry {
     public List<Cube<?>> getCubes() {
         return Collections.unmodifiableList(cubes);
     }
+
 }

@@ -1,20 +1,13 @@
 package org.arquillian.cube.containerobject;
 
 import org.arquillian.cube.HostIp;
-import org.jboss.arquillian.test.api.ArquillianResource;
+import org.arquillian.cube.HostPort;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 
 @Cube(value = "pingpong", portBinding = "5000->8080/tcp")
 public class PingPongContainer {

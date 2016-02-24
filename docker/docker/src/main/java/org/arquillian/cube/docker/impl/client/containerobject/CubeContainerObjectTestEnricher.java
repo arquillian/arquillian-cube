@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.CubeDockerFile;
-import org.arquillian.cube.containerobject.HostPort;
+import org.arquillian.cube.HostPort;
 import org.arquillian.cube.containerobject.Image;
 import org.arquillian.cube.containerobject.Link;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
@@ -27,6 +27,7 @@ import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.util.ContainerObjectUtil;
 import org.arquillian.cube.docker.impl.util.DockerFileUtil;
+import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -256,7 +257,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
         final Collection<TestEnricher> testEnrichers = serviceLoader.get().all(TestEnricher.class);
         for (TestEnricher testEnricher : testEnrichers) {
             //To avoid recursive.
-            if (testEnricher != this) {
+            if (testEnricher != this && ! (testEnricher instanceof HostPortTestEnricher)) {
                 testEnricher.enrich(containerObjectInstance);
             }
         }

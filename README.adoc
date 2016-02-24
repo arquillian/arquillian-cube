@@ -747,7 +747,7 @@ You can see the full example at: https://github.com/arquillian/arquillian-cube/t
 
 One for injecting the +CubeID+(_containerId_) of the current container created for executing the test, one that injects the +CubeController+ to call lifecycle methods on any cube and one that injects +com.github.dockerjava.api.DockerClient+ instance used to communicate with _Docker_ server. Also you can inject in your tests the _Docker Host IP_ used for running containers by using +@HostIp+ annotation.
 
-DockerClient and Docker Host IP injection only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting the testable property to false +@Deployment(testable = false)+.
+DockerClient, Docker Host IP and Docker Host Port injection only work if the tests are run in client mode, that is by using +@RunAsClient+ or by setting the testable property to false +@Deployment(testable = false)+.
 
 These can be injected using the +@ArquillianResource+ annotation.
 
@@ -779,6 +779,13 @@ CubeController cubeController;
 ----
 @HostIp
 String ip;
+----
+
+[source, java]
+.DockerHostPortProvider.java
+----
+@HostPort(containerName = "tomcat", value = 8080)
+int tomcatPort; // gets the binding port for exposed port 8080 of container tomcat.
 ----
 
 === Docker Inside Docker / Docker On Docker
