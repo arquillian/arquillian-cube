@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.openshift.client.OpenShiftConfig;
 
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -19,9 +20,9 @@ public class OpenShiftClientCreator {
         // System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY,
         // "./src/test/resources/config.yaml");
         System.setProperty("KUBERNETES_TRUST_CERT", "true");
-        final Config config = new Config();
-        config.configFromSysPropsOrEnvVars(Config.builder().withMasterUrl(cubeConfiguration.getOriginServer())
-                .withNamespace(cubeConfiguration.getNamespace()).withTrustCerts(true).build());
+        // override defaults for master and namespace
+        final Config config = new ConfigBuilder(new Config()).withMasterUrl(cubeConfiguration.getOriginServer())
+                .withNamespace(cubeConfiguration.getNamespace()).withTrustCerts(true).build();
         if (config.getNoProxy() == null) {
             config.setNoProxy(new String[0]);
         }
