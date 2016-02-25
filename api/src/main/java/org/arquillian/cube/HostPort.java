@@ -1,6 +1,7 @@
-package org.arquillian.cube.containerobject;
+package org.arquillian.cube;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -20,9 +21,15 @@ import java.lang.annotation.Target;
  * Port value will be 2222.
  *
  */
-@Target({FIELD})
+@Target({FIELD, PARAMETER})
 @Retention(RUNTIME)
 @Documented
 public @interface HostPort {
+
+    /**
+     * Sets the cube name where you want to get the exposed port. Only useful in case of not using Container Object pattern.
+     * @return Cube Name
+     */
+    String containerName() default "";
     int value() default 0;
 }
