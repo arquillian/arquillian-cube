@@ -21,7 +21,8 @@ public class CubeExtension implements LoadableExtension {
                .observer(CubeRegistrar.class)
                .observer(CubeLifecycleController.class)
                //.observer(CubeSuiteLifecycleController.class)
-               .observer(ClientCubeControllerCreator.class);
+               .observer(ClientCubeControllerCreator.class)
+               .observer(ForceStopDockerContainersShutdownHook.class);
 
         builder.service(ResourceProvider.class, CubeControllerProvider.class)
                 .service(TestEnricher.class, HostIpTestEnricher.class);

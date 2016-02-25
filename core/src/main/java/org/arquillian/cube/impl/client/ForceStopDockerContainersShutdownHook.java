@@ -1,6 +1,5 @@
-package org.arquillian.cube.docker.impl.client;
+package org.arquillian.cube.impl.client;
 
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -10,7 +9,7 @@ import java.util.List;
 
 public class ForceStopDockerContainersShutdownHook {
 
-    public void attachShutDownHookForceStopDcokerContainers(@Observes BeforeClass event, final DockerClientExecutor dockerClientExecutor, final CubeRegistry cubeRegistry) {
+    public void attachShutDownHookForceStopDcokerContainers(@Observes BeforeClass event, final CubeRegistry cubeRegistry) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -20,8 +19,8 @@ public class ForceStopDockerContainersShutdownHook {
                     // Notice that in case of STARTORCONNECT and STARTORCONNECTANDLEAVE the state is PRE_RUNNING
                     // so they are not going to be stopped
                     if (Cube.State.STARTED.equals(cube.state())) {
-                        dockerClientExecutor.stopContainer(cube.getId());
-                        dockerClientExecutor.removeContainer(cube.getId());
+                        cube.stop();
+                        cube.destroy();
                     }
                 }
 
