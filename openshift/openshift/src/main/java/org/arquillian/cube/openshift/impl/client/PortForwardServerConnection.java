@@ -5,6 +5,7 @@ import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;
 import io.undertow.client.ClientRequest;
+import io.undertow.protocols.spdy.SpdyStreamStreamSinkChannel;
 import io.undertow.server.AbstractServerConnection;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.HttpUpgradeListener;
@@ -15,8 +16,11 @@ import io.undertow.util.StringReadChannelListener;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
+import org.xnio.ChainedChannelListener;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
@@ -222,8 +226,11 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 .put(new HttpString("requestID"), requestId);
         final CountDownLatch latch = new CountDownLatch(1);
         final IOException[] holder = new IOException[1];
+        final Timer timer = new Timer("SPDY Keep Alive", true);
         
-        getChannel().getCloseSetter().set(new LatchReleaseChannelListener(requestComplete));
+        getChannel().getCloseSetter().set(
+                new ChainedChannelListener<CloseableChannel>(new CancelTimerChannelListener(timer),
+                        new LatchReleaseChannelListener(requestComplete)));
 
         clientConnection.sendRequest(request, new ClientCallback<ClientExchange>() {
             @Override
@@ -248,7 +255,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     @Override
                     public void completed(final ClientExchange result) {
                         result.getResponseChannel().getCloseSetter().set(new LatchReleaseChannelListener(requestComplete));
-
+                        
                         getWorker().execute( new Runnable() {
                             @Override
                             public void run() {
@@ -276,6 +283,10 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 //                        pipe.getRightSide().getSourceChannel(),
                         result.getRequestChannel(),
                         getBufferPool());
+
+                // keep alive
+                timer.scheduleAtFixedRate(new PingSpdyStream((SpdyStreamStreamSinkChannel) result.getRequestChannel()),
+                        15000, 15000); // OSE times out after 30s
 
                 // need to wait for the client to close the request channel
                 try {
@@ -336,7 +347,44 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         this.error = error;
         errorComplete.countDown();
     }
-    
+
+    private final class PingSpdyStream extends TimerTask {
+
+        private final SpdyStreamStreamSinkChannel stream;
+
+        private PingSpdyStream(SpdyStreamStreamSinkChannel stream) {
+            super();
+            this.stream = stream;
+        }
+
+        @Override
+        public void run() {
+            getWorker().execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (stream.isOpen()) {
+                        stream.getChannel().sendPing(stream.getStreamId());
+                    }
+                }
+            });
+        }
+    }
+
+    private static final class CancelTimerChannelListener implements ChannelListener<CloseableChannel> {
+
+        private final Timer timer;
+        
+        private CancelTimerChannelListener(Timer timer) {
+            this.timer = timer;
+        }
+
+        @Override
+        public void handleEvent(CloseableChannel channel) {
+            timer.cancel();
+        }
+        
+    }
+
     private static final class LatchReleaseChannelListener implements ChannelListener<CloseableChannel> {
 
         private final CountDownLatch latch;
