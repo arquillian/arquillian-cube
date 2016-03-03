@@ -1,43 +1,41 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 public class Top {
 
     static final String DOCKER_SOCK = "docker.sock";
-    static final String DOCKERINIT = ".dockerinit";
-    static final String DOCKERENV = ".dockerenv";
+    static final String DOCKERINIT  = ".dockerinit";
+    static final String DOCKERENV   = ".dockerenv";
 
     public Top() {
         super();
-        this.dockerEnvPath = Paths.get(rootDockerFile, DOCKERENV);
-        this.dockerInitPath = Paths.get(rootDockerFile, DOCKERINIT);
-        this.dockerSocketFile = Paths.get(rootDockerSocket, DOCKER_SOCK);
+        this.dockerEnvPath = new File(rootDockerFile, DOCKERENV);
+        this.dockerInitPath = new File(rootDockerFile, DOCKERINIT);
+        this.dockerSocketFile = new File(rootDockerSocket, DOCKER_SOCK);
     }
-
     public Top(String rootDockerFile, String rootDockerSocket) {
         super();
         this.rootDockerFile = rootDockerFile;
         this.rootDockerSocket = rootDockerSocket;
-        this.dockerEnvPath = Paths.get(rootDockerFile, DOCKERENV);
-        this.dockerInitPath = Paths.get(rootDockerFile, DOCKERINIT);
-        this.dockerSocketFile = Paths.get(rootDockerSocket, DOCKER_SOCK);
+        this.dockerEnvPath = new File(rootDockerFile, DOCKERENV);
+        this.dockerInitPath = new File(rootDockerFile, DOCKERINIT);
+        this.dockerSocketFile = new File(rootDockerSocket, DOCKER_SOCK);
     }
 
-    private String rootDockerFile = "/";
+
+    private String rootDockerFile   = "/";
     private String rootDockerSocket = "/var/run/";
 
-    private final Path dockerEnvPath;
-    private final Path dockerInitPath;
-    private final Path dockerSocketFile;
+    private final File dockerEnvPath;
+    private final File dockerInitPath;
+    private final File dockerSocketFile;
 
     /**
      * Checks if current code is being executed inside Docker or not.
      * @return True if code is being executed inside Docker, false otherwise.
      */
     public boolean isSpinning() {
-        return Files.exists(dockerEnvPath) && Files.exists(dockerInitPath) && Files.exists(dockerSocketFile);
+        return dockerEnvPath.exists() && dockerInitPath.exists() && dockerSocketFile.exists();
     }
 }
