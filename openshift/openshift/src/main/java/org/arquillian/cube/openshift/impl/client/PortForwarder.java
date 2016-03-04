@@ -74,7 +74,7 @@ public final class PortForwarder implements Closeable {
                     .set(Options.TCP_NODELAY, true)
                     .set(Options.KEEP_ALIVE, true)
                     .set(Options.SSL_PROTOCOL, "TLS")
-                    .set(UndertowOptions.IDLE_TIMEOUT, 60000)
+                    .set(UndertowOptions.IDLE_TIMEOUT, 1200000)
                     //.set(Options.CORK, true)
                     .getMap();
             // XXX: hard-coding trust all certs
