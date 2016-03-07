@@ -165,9 +165,6 @@ public class DockerClientExecutor {
 
     public String createContainer(String name, CubeContainer containerConfiguration) {
 
-        // we check if Docker server is up and correctly configured.
-        this.pingDockerServer();
-
         String image = getImageName(containerConfiguration);
 
         CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
