@@ -20,8 +20,8 @@ import java.util.Stack;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.text.StrLookup;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.text.StrLookup;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 public class IOUtil {
 
@@ -69,7 +69,7 @@ public class IOUtil {
 
     public static String replacePlaceholdersWithWhiteSpace(final String templateContent, final Map<String, String> values) {
         StrSubstitutor sub = new StrSubstitutor(values);
-        sub.setVariableResolver(new StrLookup() {
+        sub.setVariableResolver(new StrLookup<Object>() {
             @Override
             public String lookup(String key) {
                 if (values == null) {

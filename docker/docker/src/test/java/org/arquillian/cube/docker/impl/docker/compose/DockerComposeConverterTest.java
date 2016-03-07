@@ -94,4 +94,29 @@ public class DockerComposeConverterTest {
     Collection<PortBinding> ports = webapp.getPortBindings();
     assertThat(ports, containsInAnyOrder(PortBinding.valueOf("8080->8080")));
   }
+
+  @Test
+  public void shouldExtendDockerComposeWithEnvResolution() throws URISyntaxException, IOException {
+
+    String oldValue = System.getProperty("ports");
+    System.setProperty("ports", "9090:8080");
+
+    try {
+      URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/extends-docker-compose-env.yml").toURI();
+      DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
+
+      CubeContainers convert = dockerComposeConverter.convert();
+      CubeContainer webapp = convert.get("web");
+      assertThat(webapp.getEnv(), is(notNullValue()));
+      Collection<String> env = webapp.getEnv();
+      assertThat(env, containsInAnyOrder("REDIS_HOST=redis-production.example.com"));
+      assertThat(webapp.getPortBindings(), is(notNullValue()));
+      Collection<PortBinding> ports = webapp.getPortBindings();
+      assertThat(ports, containsInAnyOrder(PortBinding.valueOf("9090->8080")));
+    } finally {
+      System.clearProperty("ports");
+      if (oldValue != null)
+        System.setProperty("ports", oldValue);
+    }
+  }
 }

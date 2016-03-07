@@ -484,7 +484,9 @@ public class ContainerBuilder {
     public ContainerBuilder extend(Path location, String service) {
         File extendLocation = this.dockerComposeRootLocation.resolve(location).toFile();
         try(FileInputStream inputStream = new FileInputStream(extendLocation)) {
-            Map<String, Object> extendedDockerComposeFile = (Map<String, Object>) new Yaml().load(inputStream);
+            // resolve parameters
+            String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
+            Map<String, Object> extendedDockerComposeFile = (Map<String, Object>) new Yaml().load(content);
             Map<String, Object> serviceDockerComposeConfiguration = asMap(extendedDockerComposeFile, service);
             ContainerBuilder containerBuilder = new ContainerBuilder(dockerComposeRootLocation, configuration);
             configuration = containerBuilder.build(serviceDockerComposeConfiguration);

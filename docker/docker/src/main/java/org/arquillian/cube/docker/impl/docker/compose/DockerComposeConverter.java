@@ -23,8 +23,7 @@ public class DockerComposeConverter implements Converter {
 
     private DockerComposeConverter(Path location) throws IOException {
         try (FileInputStream inputStream = new FileInputStream(location.toFile())) {
-            String content = IOUtil.asStringPreservingNewLines(inputStream);
-            content = resolvePlaceholders(content);
+            String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
             this.dockerComposeDefinitionMap = loadConfig(content);
             this.dockerComposeRootDirectory = location.getParent();
         }
