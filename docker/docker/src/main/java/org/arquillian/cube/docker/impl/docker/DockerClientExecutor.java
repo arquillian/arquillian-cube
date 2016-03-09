@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
+import com.github.dockerjava.api.ConflictException;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -332,10 +333,20 @@ public class DockerClientExecutor {
         try {
             return createContainerCmd.exec().getId();
         } catch (NotFoundException e) {
-            if ( !alwaysPull ) {
+            if (!alwaysPull) {
                 log.warning(String.format(
                         "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
                 this.pullImage(image);
+                return createContainerCmd.exec().getId();
+            } else {
+                throw e;
+            }
+        } catch (ConflictException e) {
+            if (cubeConfiguration.isClean()) {
+                log.warning(String.format("Container name %s is already use. Since clean mode is enabled, " +
+                        "container is going to be self removed.", name));
+                this.stopContainer(name);
+                this.removeContainer(name);
                 return createContainerCmd.exec().getId();
             } else {
                 throw e;

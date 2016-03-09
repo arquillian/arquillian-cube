@@ -39,6 +39,7 @@ public class CubeDockerConfiguration {
     public static final String DOCKER_MACHINE_CUSTOM_PATH = "dockerMachineCustomPath";
     public static final String DOCKER_MACHINE_ARQUILLIAN_PATH = "~/.arquillian/machine";
     public static final String CUBE_SPECIFIC_PROPERTIES = "cubeSpecificProperties";
+    public static final String CLEAN = "clean";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -53,6 +54,7 @@ public class CubeDockerConfiguration {
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
     private boolean dockerInsideDockerResolution = true;
+    private boolean clean = false;
     private AutoStartParser autoStartContainers = null;
 
     private CubeContainers dockerContainersContent;
@@ -111,6 +113,10 @@ public class CubeDockerConfiguration {
 
     public AutoStartParser getAutoStartContainers() {
        return autoStartContainers;
+    }
+
+    public boolean isClean() {
+        return clean;
     }
 
     void setAutoStartContainers(AutoStartParser autoStartParser) {
@@ -312,6 +318,9 @@ public class CubeDockerConfiguration {
         }
         if (autoStartContainers != null) {
             content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
+        }
+        if (clean) {
+            content.append(" ").append(CLEAN).append(" = ").append(clean);
         }
         if (dockerContainersContent != null) {
             String output = ConfigUtil.dump(dockerContainersContent);
