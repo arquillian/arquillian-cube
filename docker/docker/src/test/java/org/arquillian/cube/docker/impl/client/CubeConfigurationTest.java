@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -12,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.arquillian.cube.docker.impl.await.PollingAwaitStrategy;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 import org.junit.Assert;
