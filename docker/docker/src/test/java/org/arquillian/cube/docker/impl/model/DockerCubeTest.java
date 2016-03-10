@@ -55,7 +55,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Before
     public void setup() {
         HostConfig hostConfig = new HostConfig();
-        hostConfig.setPortBindings(new Ports());
+        hostConfig.withPortBindings(new Ports());
         when(inspectContainerResponse.getHostConfig()).thenReturn(hostConfig);
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
