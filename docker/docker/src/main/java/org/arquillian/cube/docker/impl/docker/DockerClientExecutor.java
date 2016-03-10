@@ -25,7 +25,9 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.ConflictException;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -37,7 +39,7 @@ import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.NotFoundException;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
@@ -138,17 +140,17 @@ public class DockerClientExecutor {
         dockerUri = URI.create(dockerServerUri);
         dockerServerIp = cubeConfiguration.getDockerServerIp();
 
-        configBuilder.withVersion(cubeConfiguration.getDockerServerVersion()).withUri(dockerUri.toString());
+        configBuilder.withApiVersion(cubeConfiguration.getDockerServerVersion()).withDockerHost(dockerUri.toString());
         if(cubeConfiguration.getUsername() != null) {
-            configBuilder.withUsername(cubeConfiguration.getUsername());
+            configBuilder.withRegistryUsername(cubeConfiguration.getUsername());
         }
 
         if(cubeConfiguration.getPassword() != null) {
-            configBuilder.withPassword(cubeConfiguration.getPassword());
+            configBuilder.withRegistryPassword(cubeConfiguration.getPassword());
         }
 
         if(cubeConfiguration.getEmail() != null) {
-            configBuilder.withEmail(cubeConfiguration.getEmail());
+            configBuilder.withRegistryEmail(cubeConfiguration.getEmail());
         }
 
         if(cubeConfiguration.getCertPath() != null) {
@@ -217,7 +219,7 @@ public class DockerClientExecutor {
         }
 
         if (containerConfiguration.getMemoryLimit() != null) {
-            createContainerCmd.withMemoryLimit(containerConfiguration.getMemoryLimit());
+            createContainerCmd.withMemory(containerConfiguration.getMemoryLimit());
         }
 
         if (containerConfiguration.getMemorySwap() != null) {
@@ -229,7 +231,7 @@ public class DockerClientExecutor {
         }
 
         if(containerConfiguration.getCpuSet() != null) {
-            createContainerCmd.withCpuset(containerConfiguration.getCpuSet());
+            createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
         }
 
         if (containerConfiguration.getAttachStdin() != null) {
@@ -456,7 +458,7 @@ public class DockerClientExecutor {
     }
 
     public int waitContainer(String containerId) {
-        return this.dockerClient.waitContainerCmd(containerId).exec();
+        return this.dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback()).awaitStatusCode();
     }
 
     public void pingDockerServer() {
@@ -562,17 +564,18 @@ public class DockerClientExecutor {
 
     public String execStart(String containerId, String... commands) {
         ExecCreateCmdResponse execCreateCmdResponse = this.dockerClient.execCreateCmd(containerId)
-                .withAttachStdout(true).withAttachStdin(false).withAttachStderr(false).withTty().withCmd(commands)
+                .withAttachStdout(true).withAttachStdin(true).withAttachStderr(false).withTty(false).withCmd(commands)
                 .exec();
-        InputStream consoleOutputStream = dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
-                .exec();
-        String output;
+
+        OutputStream outputStream = new ByteArrayOutputStream();
         try {
-            output = readDockerRawStreamToString(consoleOutputStream);
-        } catch (IOException e) {
+            dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
+                    .exec(new ExecStartResultCallback(outputStream, System.err)).awaitCompletion();
+        } catch (InterruptedException e) {
             return "";
         }
-        return output;
+
+        return outputStream.toString();
     }
 
     public List<org.arquillian.cube.ChangeLog> inspectChangesOnContainerFilesystem(String containerId) {
@@ -595,7 +598,7 @@ public class DockerClientExecutor {
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
-        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr().withStdOut();
+        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr(false).withStdOut(false);
 
         logContainerCmd.withFollowStream(follow);
         logContainerCmd.withStdOut(stdout);

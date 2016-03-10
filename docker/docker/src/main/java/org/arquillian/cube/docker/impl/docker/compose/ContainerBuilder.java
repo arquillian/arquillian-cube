@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.docker.compose;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
@@ -72,7 +73,7 @@ public class ContainerBuilder {
     private static final String CPU_SHARES = "cpu_shares";
     private static final String CPU_SET = "cpuset";
     private static final String EXTRA_HOSTS = "extra_hosts";
-    private static final String DEVICES = "devices"; 
+    private static final String DEVICES = "devices";
 
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
@@ -183,7 +184,7 @@ public class ContainerBuilder {
             this.addHostname(asString(dockerComposeContainerDefinition, HOSTNAME));
         }
         if (dockerComposeContainerDefinition.containsKey(MEM_LIMIT)) {
-            this.addMemLimit(asInt(dockerComposeContainerDefinition, MEM_LIMIT));
+            this.addMemLimit(asLong(dockerComposeContainerDefinition, MEM_LIMIT));
         }
         if (dockerComposeContainerDefinition.containsKey(PRIVILEGED)) {
             this.addPrivileged(asBoolean(dockerComposeContainerDefinition, PRIVILEGED));
@@ -528,7 +529,7 @@ public class ContainerBuilder {
         return this;
     }
 
-    public ContainerBuilder addMemLimit(int memLimit) {
+    public ContainerBuilder addMemLimit(Long memLimit) {
         configuration.setMemoryLimit(memLimit);
         return this;
     }
