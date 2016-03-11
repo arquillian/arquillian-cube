@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.github.dockerjava.api.NotFoundException;
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
@@ -107,7 +108,9 @@ public class DockerCube implements Cube {
         }
         try {
             lifecycle.fire(new BeforeStop(id));
-            executor.stopContainer(id);
+            try {
+                executor.stopContainer(id);
+            } catch (NotFoundException e) {}
             state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
         } catch(Exception e) {
@@ -123,7 +126,9 @@ public class DockerCube implements Cube {
         }
         try {
             lifecycle.fire(new BeforeDestroy(id));
-            executor.removeContainer(id);
+            try {
+                executor.removeContainer(id);
+            } catch (NotFoundException e) {}
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch(Exception e) {
