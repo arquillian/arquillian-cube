@@ -4,11 +4,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.anyString;
 
-import java.util.HashMap;
-
-import com.github.dockerjava.api.NotFoundException;
+import com.github.dockerjava.api.exception.NotFoundException;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
@@ -58,12 +56,12 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Before
     public void setup() {
         HostConfig hostConfig = new HostConfig();
-        hostConfig.setPortBindings(new Ports());
+        hostConfig.withPortBindings(new Ports());
         when(inspectContainerResponse.getHostConfig()).thenReturn(hostConfig);
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
         when(executor.getDockerClient()).thenReturn(dockerClient);
-        cube = injectorInst.get().inject(new DockerCube(ID, new HashMap<String, Object>(), executor));
+        cube = injectorInst.get().inject(new DockerCube(ID, new CubeContainer(), executor));
     }
 
     @Test

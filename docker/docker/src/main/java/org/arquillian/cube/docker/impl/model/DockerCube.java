@@ -1,25 +1,25 @@
 package org.arquillian.cube.docker.impl.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import com.github.dockerjava.api.NotFoundException;
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
+import com.github.dockerjava.api.exception.NotFoundException;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
+import org.arquillian.cube.docker.impl.client.metadata.CopyFromContainer;
+import org.arquillian.cube.docker.impl.client.metadata.GetTop;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
-import org.arquillian.cube.docker.impl.util.IOUtil;
+import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
@@ -30,10 +30,15 @@ import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
+import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
+import org.arquillian.cube.spi.metadata.CanSeeTop;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-public class DockerCube implements Cube {
+public class DockerCube extends BaseCube<CubeContainer> {
 
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
 
@@ -41,17 +46,34 @@ public class DockerCube implements Cube {
     private String id;
     private Binding binding = null;
 
-    private Map<String, Object> configuration;
+    private CubeContainer configuration;
+
+    private final PortBindings portBindings;
 
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
 
     private DockerClientExecutor executor;
 
-    public DockerCube(String id, Map<String, Object> configuration, DockerClientExecutor executor) {
+    public DockerCube(String id, CubeContainer configuration, DockerClientExecutor executor) {
         this.id = id;
         this.configuration = configuration;
         this.executor = executor;
+        this.portBindings = new PortBindings();
+        addDefaultMetadata();
+    }
+
+    private void addDefaultMetadata() {
+        addMetadata(CanCopyFromContainer.class, new CopyFromContainer(getId(), executor));
+        addMetadata(CanSeeChangesOnFilesystem.class, new ChangesOnFilesystem(getId(), executor));
+        addMetadata(CanSeeTop.class, new GetTop(getId(), executor));
+        addMetadata(HasPortBindings.class, portBindings);
+        if(configuration.getBuildImage() !=null) {
+            String path = configuration.getBuildImage().getDockerfileLocation();
+            if(path != null) {
+                addMetadata(IsBuildable.class, new IsBuildable(path));
+            }
+        }
     }
 
     @Override
@@ -91,6 +113,7 @@ public class DockerCube implements Cube {
             lifecycle.fire(new BeforeStart(id));
             executor.startContainer(id, configuration);
             state = State.STARTED;
+            portBindings.containerStarted();
             if(!AwaitStrategyFactory.create(executor, this, configuration).await()) {
                 throw new IllegalArgumentException(String.format("Cannot connect to %s container", id));
             }
@@ -151,7 +174,7 @@ public class DockerCube implements Cube {
 
     @Override
     public Binding configuredBindings() {
-        return BindingUtil.binding(configuration);
+        return BindingUtil.binding(configuration, executor);
     }
 
     @Override
@@ -173,59 +196,93 @@ public class DockerCube implements Cube {
     }
 
     @Override
-    public Map<String, Object> configuration() {
+    public CubeContainer configuration() {
         return configuration;
     }
 
     @Override
     public void changeToPreRunning() {
-        if(state != State.DESTROYED) {
+        if(state != State.DESTROYED && state != State.STARTED) {
             return;
         }
 
         log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
         state = State.PRE_RUNNING;
     }
+    
+    private class PortBindings implements HasPortBindings {
 
-    @Override
-    public List<ChangeLog> changesOnFilesystem(String cubeId) {
-        return executor.inspectChangesOnContainerFilesystem(cubeId);
-    }
+        private final Map<Integer, PortAddress> mappedPorts;
+        private final Set<Integer> containerPorts;
+        private final Set<Integer> boundPorts;
+        private String containerIP;
+        private String internalIP;
 
-    @Override
-    public void copyFileDirectoryFromContainer(String cubeId, String from,
-            String to) {
-
-        InputStream response = executor.getFileOrDirectoryFromContainerAsTar(cubeId, from);
-
-        Path toPath = Paths.get(to);
-        File toPathFile = toPath.toFile();
-
-        if(toPathFile.exists() && toPathFile.isFile()) {
-            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", "to", toPath.normalize().toString()));
+        private PortBindings() {
+            this.mappedPorts = new HashMap<Integer, PortAddress>();
+            this.containerPorts = new LinkedHashSet<Integer>();
+            final Binding configuredBindings = configuredBindings();
+            containerIP = configuredBindings.getIP();
+            for (PortBinding portBinding : configuredBindings.getPortBindings()) {
+                final int exposedPort = portBinding.getExposedPort();
+                final Integer boundPort = portBinding.getBindingPort();
+                containerPorts.add(exposedPort);
+                if (boundPort != null && containerIP != null) {
+                    mappedPorts.put(exposedPort, new PortAddressImpl(containerIP, boundPort));
+                }
+            }
+            this.boundPorts = new LinkedHashSet<Integer>(containerPorts.size());
         }
 
-        try {
-            Files.createDirectories(toPath);
-            IOUtil.untar(response, toPathFile);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        @Override
+        public boolean isBound() {
+            return EnumSet.of(State.PRE_RUNNING, State.STARTED).contains(state);
         }
-    }
 
-    @Override
-    public void copyLog(String containerId, boolean follow,
-            boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
-        try {
-            executor.copyLog(containerId, follow, stdout, stderr, timestamps, tail, outputStream);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        @Override
+        public synchronized String getContainerIP() {
+            return containerIP;
         }
-    }
 
-    @Override
-    public TopContainer top(String cubeId) {
-        return executor.top(cubeId);
+        @Override
+        public String getInternalIP() {
+            return internalIP;
+        }
+
+        @Override
+        public Set<Integer> getContainerPorts() {
+            return Collections.unmodifiableSet(containerPorts);
+        }
+
+        @Override
+        public synchronized Set<Integer> getBoundPorts() {
+            return isBound() ? Collections.unmodifiableSet(boundPorts) : getContainerPorts();
+        }
+
+        @Override
+        public synchronized PortAddress getMappedAddress(int targetPort) {
+            if (mappedPorts.containsKey(targetPort)) {
+                return mappedPorts.get(targetPort);
+            }
+            return null;
+        }
+        
+        /*
+         * Initialize bound ports and regenerate port mappings
+         */
+        private synchronized void containerStarted() {
+            final Binding bindings = bindings();
+            containerIP = bindings.getIP();
+            internalIP = bindings.getInternalIP();
+            for (PortBinding portBinding : bindings.getPortBindings()) {
+                final int exposedPort = portBinding.getExposedPort();
+                final Integer boundPort = portBinding.getBindingPort();
+                boundPorts.add(exposedPort);
+                if (boundPort != null && containerIP != null) {
+                    // just overwrite existing entries
+                    mappedPorts.put(exposedPort, new PortAddressImpl(containerIP, boundPort));
+                }
+            }
+        }
     }
 }
