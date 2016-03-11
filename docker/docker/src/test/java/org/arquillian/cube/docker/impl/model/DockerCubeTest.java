@@ -1,10 +1,12 @@
 package org.arquillian.cube.docker.impl.model;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.anyString;
 
 import java.util.HashMap;
 
+import com.github.dockerjava.api.exception.NotFoundException;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
@@ -35,6 +37,8 @@ import com.github.dockerjava.api.model.Ports;
 @RunWith(MockitoJUnitRunner.class)
 public class DockerCubeTest extends AbstractManagerTestBase {
 
+    private static final String ID = "test";
+
     @Mock
     private DockerClientExecutor executor;
 
@@ -60,7 +64,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
         when(executor.getDockerClient()).thenReturn(dockerClient);
-        cube = injectorInst.get().inject(new DockerCube("test", new CubeContainer(), executor));
+        cube = injectorInst.get().inject(new DockerCube(ID, new CubeContainer(), executor));
     }
 
     @Test
@@ -85,8 +89,27 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     }
 
     @Test
+    public void shouldFireLifecycleEventsDuringStopWhenContainerNotFound() {
+        doThrow(new NotFoundException("container not found"))
+            .when(executor).stopContainer(ID);
+        cube.stop();
+        assertEventFired(BeforeStop.class, 1);
+        assertEventFired(AfterStop.class, 1);
+    }
+
+    @Test
     public void shouldFireLifecycleEventsDuringDestroy() {
         cube.stop(); // require a stopped Cube to destroy it.
+        cube.destroy();
+        assertEventFired(BeforeDestroy.class, 1);
+        assertEventFired(AfterDestroy.class, 1);
+    }
+
+    @Test
+    public void shouldFireLifecycleEventsDuringDestroyWhenContainerNotFound() {
+        doThrow(new NotFoundException("container not found"))
+            .when(executor).removeContainer(ID);
+        cube.stop();
         cube.destroy();
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
