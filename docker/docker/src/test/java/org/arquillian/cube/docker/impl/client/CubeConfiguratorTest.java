@@ -172,7 +172,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
                 .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.99.100:2376"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
         assertThat(config,
                 hasEntry(is(CubeDockerConfiguration.CERT_PATH),
                         endsWith(File.separator + ".docker" + File.separator + "machine" + File.separator + "machines"
@@ -204,7 +204,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
                 .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:2376"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
 
     }
 
@@ -224,7 +224,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new IllegalArgumentException());
 
         fire(new CubeConfiguration());
-        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "https://192.168.0.1:2376"));
+        assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
     }
 
     @Test
