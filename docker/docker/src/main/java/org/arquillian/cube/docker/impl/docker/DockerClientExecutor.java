@@ -495,7 +495,11 @@ public class DockerClientExecutor {
                             location));
         }
 
+        // TODO this should be removed in the future it is only a hack to avoid some errors with Hijack is incompatible with use of CloseNotifier.
+        // It seems to be a problem with go and should be fixed in go 1.6 (and maybe in Docker 1.11.0).
+        // To test in future versions we only need to comment the close + recreation.
         // following lines fixes #310 by closing and rebuilding dockerClient
+        // https://github.com/arquillian/arquillian-cube/issues/322
         try {
             this.dockerClient.close();
         } catch (IOException ioe) {
