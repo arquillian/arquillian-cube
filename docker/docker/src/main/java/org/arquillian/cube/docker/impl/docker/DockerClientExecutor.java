@@ -130,6 +130,7 @@ public class DockerClientExecutor {
     private CubeDockerConfiguration cubeConfiguration;
     private final URI dockerUri;
     private final String dockerServerIp;
+    private DockerClientConfig dockerClientConfig;
 
     public DockerClientExecutor(CubeDockerConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder =
@@ -157,10 +158,15 @@ public class DockerClientExecutor {
             configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(cubeConfiguration.getCertPath()));
         }
 
-        this.dockerClient = DockerClientBuilder.getInstance(configBuilder.build()).build();
+        this.dockerClientConfig = configBuilder.build();
         this.cubeConfiguration = cubeConfiguration;
+
+        this.dockerClient = buildDockerClient();
     }
 
+    public DockerClient buildDockerClient() {
+        return DockerClientBuilder.getInstance(dockerClientConfig).build();
+    }
 
     public List<Container> listRunningContainers() {
         return this.dockerClient.listContainersCmd().exec();
@@ -488,6 +494,14 @@ public class DockerClientExecutor {
                             "Docker server has not provided an imageId for image build from %s.",
                             location));
         }
+
+        // following lines fixes #310 by closing and rebuilding dockerClient
+        try {
+            this.dockerClient.close();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        this.dockerClient = buildDockerClient();
 
         return imageId.trim();
     }
