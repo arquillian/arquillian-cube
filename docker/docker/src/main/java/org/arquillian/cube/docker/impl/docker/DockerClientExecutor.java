@@ -158,6 +158,8 @@ public class DockerClientExecutor {
             configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(cubeConfiguration.getCertPath()));
         }
 
+        configBuilder.withDockerTlsVerify(cubeConfiguration.getTlsVerify());
+
         this.dockerClientConfig = configBuilder.build();
         this.cubeConfiguration = cubeConfiguration;
 
