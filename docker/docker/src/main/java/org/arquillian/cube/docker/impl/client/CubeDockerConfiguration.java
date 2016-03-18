@@ -24,6 +24,7 @@ public class CubeDockerConfiguration {
     private static final String PASSWORD =  "password";
     private static final String EMAIL = "email";
     public static final String CERT_PATH = "certPath";
+    public static final String TLS_VERIFY = "tlsVerify";
     private static final String DOCKER_CONTAINERS = "dockerContainers";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
@@ -51,6 +52,7 @@ public class CubeDockerConfiguration {
     private String password;
     private String email;
     private String certPath;
+    private boolean tlsVerify;
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
     private boolean dockerInsideDockerResolution = true;
@@ -106,6 +108,11 @@ public class CubeDockerConfiguration {
     public String getCertPath() {
         return certPath;
     }
+
+    public boolean getTlsVerify() {
+        return tlsVerify;
+    }
+
     //this property is resolved in CubeConfigurator class.
     public String getDockerServerIp() {
         return dockerServerIp;
@@ -176,6 +183,10 @@ public class CubeDockerConfiguration {
 
         if(map.containsKey(CERT_PATH)) {
             cubeConfiguration.certPath = map.get(CERT_PATH);
+        }
+
+        if (map.containsKey(TLS_VERIFY)) {
+            cubeConfiguration.tlsVerify = Boolean.parseBoolean(map.get(TLS_VERIFY));
         }
 
         if (map.containsKey(DOCKER_REGISTRY)) {
@@ -310,6 +321,9 @@ public class CubeDockerConfiguration {
         if (certPath != null) {
             content.append("  ").append(CERT_PATH).append(" = ").append(certPath).append(SEP);
         }
+
+        content.append("  ").append(TLS_VERIFY).append(" = ").append(tlsVerify).append(SEP);
+
         if (dockerServerIp != null) {
             content.append("  ").append(DOCKER_SERVER_IP).append(" = ").append(dockerServerIp).append(SEP);
         }

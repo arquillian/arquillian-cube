@@ -72,6 +72,7 @@ public class CubeDockerConfigurator {
         config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerIp(config);
+        config = resolveTlsVerification(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
@@ -205,10 +206,35 @@ public class CubeDockerConfigurator {
         if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
             config.put(CubeDockerConfiguration.CERT_PATH, HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
         }
-    resolveDockerServerIp(config, dockerServerUri);
 
-    return config;
-}
+        resolveDockerServerIp(config, dockerServerUri);
+
+        return config;
+    }
+
+    private Map<String, String> resolveTlsVerification(Map<String, String> config) {
+
+        config.put(CubeDockerConfiguration.TLS_VERIFY, "true");
+
+        if (new OperatingSystemResolver().currentOperatingSystem().getFamily() == OperatingSystemFamily.LINUX) {
+
+            String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
+
+            if (isDockerMachineSet(config)) {
+                if (dockerServerIp.equals("127.0.0.1") || dockerServerIp.equals("localhost")) {
+                    config.put(CubeDockerConfiguration.TLS_VERIFY, "false");
+                } else {
+                    config.put(CubeDockerConfiguration.TLS_VERIFY, "true");
+                }
+
+                return config;
+            }
+
+            config.put(CubeDockerConfiguration.TLS_VERIFY, "false");
+        }
+
+        return config;
+    }
 
     private boolean containsDockerHostTag(String dockerServerUri) {
         return dockerServerUri.contains(AbstractCliInternetAddressResolver.DOCKERHOST_TAG);
