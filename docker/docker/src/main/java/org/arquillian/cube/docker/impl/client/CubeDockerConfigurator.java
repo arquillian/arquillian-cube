@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
@@ -214,23 +215,25 @@ public class CubeDockerConfigurator {
 
     private Map<String, String> resolveTlsVerification(Map<String, String> config) {
 
-        config.put(CubeDockerConfiguration.TLS_VERIFY, "true");
+        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
 
-        if (new OperatingSystemResolver().currentOperatingSystem().getFamily() == OperatingSystemFamily.LINUX) {
+        if (this.operatingSystemFamilyInstanceProducer.get() == OperatingSystemFamily.LINUX) {
 
             String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
 
             if (isDockerMachineSet(config)) {
-                if (dockerServerIp.equals("127.0.0.1") || dockerServerIp.equals("localhost")) {
-                    config.put(CubeDockerConfiguration.TLS_VERIFY, "false");
+
+                if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
+                        || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
+                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                 } else {
-                    config.put(CubeDockerConfiguration.TLS_VERIFY, "true");
+                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
                 }
 
                 return config;
             }
 
-            config.put(CubeDockerConfiguration.TLS_VERIFY, "false");
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
         }
 
         return config;
