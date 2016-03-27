@@ -25,9 +25,6 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.exception.ConflictException;
-import com.github.dockerjava.core.command.ExecStartResultCallback;
-import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -39,7 +36,6 @@ import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
@@ -49,6 +45,9 @@ import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Capability;
 import com.github.dockerjava.api.model.ChangeLog;
@@ -68,8 +67,10 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 public class DockerClientExecutor {
 
@@ -352,7 +353,11 @@ public class DockerClientExecutor {
             if (cubeConfiguration.isClean()) {
                 log.warning(String.format("Container name %s is already use. Since clean mode is enabled, " +
                         "container is going to be self removed.", name));
-                this.stopContainer(name);
+                try {
+                    this.stopContainer(name);
+                } catch (NotModifiedException e1) {
+                    // Container was already stopped
+                }
                 this.removeContainer(name);
                 return createContainerCmd.exec().getId();
             } else {
