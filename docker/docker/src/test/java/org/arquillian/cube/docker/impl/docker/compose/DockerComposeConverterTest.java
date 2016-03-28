@@ -10,10 +10,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.junit.Test;
 
@@ -119,4 +121,92 @@ public class DockerComposeConverterTest {
         System.setProperty("ports", oldValue);
     }
   }
+
+  @Test
+  public void shouldTransformSimpleDockerComposeV2FormatWithNetworksByDefaultDriver() throws URISyntaxException, IOException {
+
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-networks-v2.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.getContainers().get("webapp");
+    assertThat(webapp.getBuildImage(), is(notNullValue()));
+    assertThat(webapp.getPortBindings(), is(notNullValue()));
+    Collection<PortBinding> ports = webapp.getPortBindings();
+    assertThat(ports, containsInAnyOrder(PortBinding.valueOf("8000->8000")));
+    assertThat(webapp.getDevices(), is(notNullValue()));
+    assertThat(webapp.getVolumes(), is(notNullValue()));
+    Collection<String> webappVolumes = (Collection<String>) webapp.getVolumes();
+    assertThat(webappVolumes, containsInAnyOrder("/data"));
+
+    CubeContainer webapp2 = convert.getContainers().get("webapp2");
+    assertThat(webapp2.getImage(), is(notNullValue()));
+    assertThat(webapp2.getPortBindings(), is(notNullValue()));
+    assertThat(webapp2.getLinks(), is(notNullValue()));
+    Collection<Link> links = webapp2.getLinks();
+    assertThat(links, containsInAnyOrder(Link.valueOf("webapp:webapp")));
+    assertThat(webapp2.getEnv(), is(notNullValue()));
+    Collection<String> env = webapp2.getEnv();
+    assertThat(env, containsInAnyOrder("RACK_ENV=development"));
+
+    Map<String, Network> networks = convert.getNetworks();
+    Network network = networks.get("front-tier");
+    assertThat(network.getDriver(), is("bridge"));
+
+    Network network2 = networks.get("back-tier");
+    assertThat(network2.getDriver(), is("bridge"));
+  }
+
+  @Test
+  public void shouldTransformSimpleDockerComposeV2FormatWithNetworks() throws URISyntaxException, IOException {
+
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-v2.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.getContainers().get("webapp");
+    assertThat(webapp.getBuildImage(), is(notNullValue()));
+    assertThat(webapp.getPortBindings(), is(notNullValue()));
+    Collection<PortBinding> ports = webapp.getPortBindings();
+    assertThat(ports, containsInAnyOrder(PortBinding.valueOf("8000->8000")));
+    assertThat(webapp.getDevices(), is(notNullValue()));
+    assertThat(webapp.getVolumes(), is(notNullValue()));
+    Collection<String> webappVolumes = (Collection<String>) webapp.getVolumes();
+    assertThat(webappVolumes, containsInAnyOrder("/data"));
+
+    CubeContainer webapp2 = convert.getContainers().get("webapp2");
+    assertThat(webapp2.getImage(), is(notNullValue()));
+    assertThat(webapp2.getPortBindings(), is(notNullValue()));
+    assertThat(webapp2.getLinks(), is(notNullValue()));
+    Collection<Link> links = webapp2.getLinks();
+    assertThat(links, containsInAnyOrder(Link.valueOf("webapp:webapp")));
+    assertThat(webapp2.getEnv(), is(notNullValue()));
+    Collection<String> env = webapp2.getEnv();
+    assertThat(env, containsInAnyOrder("RACK_ENV=development"));
+
+    Map<String, Network> networks = convert.getNetworks();
+    Network network = networks.get("front-tier");
+    assertThat(network.getDriver(), is("bridge"));
+
+    Network network2 = networks.get("back-tier");
+    assertThat(network2.getDriver(), is("bridge"));
+  }
+
+  @Test
+  public void shouldTransformSimpleDockerComposeV2FormatNetworkByDefault() throws URISyntaxException {
+
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/myapp/simple-docker-compose-v2.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.getContainers().get("webapp");
+    assertThat(webapp, is(notNullValue()));
+    assertThat(webapp.getNetworkMode(), is("myapp_default"));
+
+    Map<String, Network> networks = convert.getNetworks();
+    Network network = networks.get("myapp_default");
+    assertThat(network, is(notNullValue()));
+    assertThat(network.getDriver(), is("bridge"));
+  }
+
 }
