@@ -81,7 +81,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         try {
             commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec));
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
     }
