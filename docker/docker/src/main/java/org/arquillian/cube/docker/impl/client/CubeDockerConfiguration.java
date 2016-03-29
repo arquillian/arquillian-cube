@@ -255,6 +255,10 @@ public class CubeDockerConfiguration {
             cubeConfiguration.autoStartContainers = autoStartParser;
         }
 
+        if (map.containsKey(CLEAN)) {
+            cubeConfiguration.clean = Boolean.parseBoolean(map.get(CLEAN));
+        }
+        
         return cubeConfiguration;
     }
 
@@ -334,7 +338,7 @@ public class CubeDockerConfiguration {
             content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
         }
         if (clean) {
-            content.append(" ").append(CLEAN).append(" = ").append(clean);
+            content.append("  ").append(CLEAN).append(" = ").append(clean).append(SEP);
         }
         if (dockerContainersContent != null) {
             String output = ConfigUtil.dump(dockerContainersContent);
