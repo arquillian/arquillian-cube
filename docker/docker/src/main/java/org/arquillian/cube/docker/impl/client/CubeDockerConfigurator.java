@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.client;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -34,6 +35,9 @@ public class CubeDockerConfigurator {
     private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
+    private static final String TCP_SCHEME = "tcp";
+    private static final String HTTP_SCHEME = "http";
+    private static final String HTTPS_SCHEME = "https";
     public static final String DOCKER_HOST = "DOCKER_HOST";
     private static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
     private static final String DOCKER_MACHINE_NAME = "DOCKER_MACHINE_NAME";
@@ -215,25 +219,45 @@ public class CubeDockerConfigurator {
 
     private Map<String, String> resolveTlsVerification(Map<String, String> config) {
 
-        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
-
-        if (this.operatingSystemFamilyInstanceProducer.get() == OperatingSystemFamily.LINUX) {
-
-            String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
-
-            if (isDockerMachineSet(config)) {
-
-                if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
-                        || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
-                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
-                } else {
-                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
-                }
-
-                return config;
+        URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
+        String scheme = serverUri.getScheme();
+        
+        if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME)) {
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
+            
+            try {
+                // docker-java supports only tcp and unix schemes
+                serverUri = new URI(TCP_SCHEME, serverUri.getSchemeSpecificPart(), serverUri.getFragment());
+                config.put(CubeDockerConfiguration.DOCKER_URI, serverUri.toString());
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException(e);
             }
-
-            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
+        }
+        
+        if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
+            
+            if (this.operatingSystemFamilyInstanceProducer.get() == OperatingSystemFamily.LINUX) {
+    
+                String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
+    
+                if (isDockerMachineSet(config)) {
+    
+                    if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
+                            || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
+                        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
+                    } else {
+                        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
+                    }
+                    
+                } else {
+                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
+                }
+            }
+        }
+        
+        if (Boolean.FALSE.toString().equals(config.get(CubeDockerConfiguration.TLS_VERIFY))) {
+            config.remove(CubeDockerConfiguration.CERT_PATH);
         }
 
         return config;
