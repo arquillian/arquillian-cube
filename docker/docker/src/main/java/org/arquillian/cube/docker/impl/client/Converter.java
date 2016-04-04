@@ -1,7 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.Map;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 
 public interface Converter {
-    Map<String, Object> convert();
+    CubeContainers convert();
 }

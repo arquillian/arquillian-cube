@@ -3,11 +3,14 @@ package org.arquillian.cube.docker.impl.util;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 
 public final class Ping {
+
+    public static final String COMMAND_NOT_FOUND = "command not found";
 
     private Ping() {
         super();
@@ -51,7 +54,20 @@ public final class Ping {
 
 
     private static boolean execContainerPing(DockerClientExecutor dockerClientExecutor, String containerId, String command) {
-        String result = dockerClientExecutor.execStart(containerId, new String[]{"sh", "-c", command});
+
+        final String[] commands = {"sh", "-c", command};
+        String result = dockerClientExecutor.execStart(containerId, commands);
+
+        if (result == null) {
+            throw new IllegalArgumentException(
+                    String.format("Command %s in container %s has returned no value.", Arrays.toString(commands), containerId));
+        }
+
+        if (result != null && result.contains(COMMAND_NOT_FOUND)) {
+            throw new UnsupportedOperationException(
+                    String.format("Command %s is not available in container %s.", Arrays.toString(commands), containerId));
+        }
+
         try {
             int numberOfListenConnectons = Integer.parseInt(result.trim());
             //This number is based in that a port will be opened only as tcp or as udp.

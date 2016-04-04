@@ -9,15 +9,12 @@
 
     <extension qualifier="docker">
         <property name="serverVersion">${docker.api.version}</property>
-        <property name="serverUri">${docker.api.url}</property>
         <property name="definitionFormat">COMPOSE</property>
         <property name="dockerContainersFile">docker-compose.yml</property>
     </extension>
 
     <container qualifier="tomcat">
         <configuration>
-            <property name="host">${docker.tomcat.host}</property>
-            <property name="httpPort">8081</property>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
         </configuration>

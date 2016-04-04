@@ -1,16 +1,19 @@
 package org.arquillian.cube.docker.impl.await;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.IOUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
-import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Binding.PortBinding;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 
 public class PollingAwaitStrategy implements AwaitStrategy {
 
@@ -22,9 +25,6 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private static final int DEFAULT_SLEEP_POLL_TIME = 500;
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
     private static final String DEFAULT_POLL_TYPE = "sscommand";
-    private static final String POLLING_TIME = "sleepPollingTime";
-    private static final String ITERATIONS = "iterations";
-    private static final String POLL_TYPE = "type";
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private int sleepPollTime = DEFAULT_SLEEP_POLL_TIME;
@@ -32,26 +32,30 @@ public class PollingAwaitStrategy implements AwaitStrategy {
     private String type = DEFAULT_POLL_TYPE;
 
     private DockerClientExecutor dockerClientExecutor;
-    private Cube cube;
+    private Cube<?> cube;
+    private List<Integer> ports = null;
 
-    public PollingAwaitStrategy(Cube cube, DockerClientExecutor dockerClientExecutor, Map<String, Object> params) {
+    public PollingAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor, Await params) {
         this.cube = cube;
         this.dockerClientExecutor = dockerClientExecutor;
-        if (params.containsKey(POLLING_TIME)) {
-            configurePollingTime(params);
+        if (params.getSleepPollingTime() != null) {
+            configurePollingTime(params.getSleepPollingTime());
         }
 
-        if (params.containsKey(ITERATIONS)) {
-            this.pollIterations = (Integer) params.get(ITERATIONS);
+        if (params.getIterations() != null) {
+            this.pollIterations = params.getIterations();
         }
 
-        if(params.containsKey(POLL_TYPE)) {
-            this.type = (String) params.get(POLL_TYPE);
+        if(params.getType() != null) {
+            this.type = params.getType();
+        }
+
+        if(params.getPorts() != null) {
+            this.ports = params.getPorts();
         }
     }
 
-    private void configurePollingTime(Map<String, Object> params) {
-        Object sleepTime = params.get(POLLING_TIME);
+    private void configurePollingTime(Object sleepTime) {
         if(sleepTime instanceof Integer) {
             this.sleepPollTime = (Integer) sleepTime;
         } else {
@@ -86,16 +90,31 @@ public class PollingAwaitStrategy implements AwaitStrategy {
         return type;
     }
 
+    public List<Integer> getPorts() {
+        return ports;
+    }
+
     @Override
     public boolean await() {
-        Binding bindings = cube.bindings();
+        HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            log.fine("Cube does not have any ports to ping.");
+            return true;
+        }
 
-        for (PortBinding ports : bindings.getPortBindings()) {
-            log.fine(String.format("Pinging host %s and port %s with type", bindings.getIP(), ports.getBindingPort(), this.type));
-
+        Collection<Integer> pingPorts = this.ports;
+        if(ports == null) {
+            pingPorts = portBindings.getBoundPorts();
+        }
+        for (Integer port : pingPorts) {
             switch(this.type) {
                 case "ping": {
-                    if (!Ping.ping(bindings.getIP(), ports.getBindingPort(), this.pollIterations, this.sleepPollTime,
+                    PortAddress mapping = portBindings.getMappedAddress(port);
+                    if(mapping == null) {
+                        throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + port);
+                    }
+                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(), this.type));
+                    if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.sleepPollTime,
                             this.timeUnit)) {
                         return false;
                     }
@@ -103,7 +122,7 @@ public class PollingAwaitStrategy implements AwaitStrategy {
 
                 break;
                 case "sscommand": {
-                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", ports.getExposedPort()), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
+                    if(!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", port), this.pollIterations, this.sleepPollTime, this.timeUnit)) {
                         return false;
                     }
                 }

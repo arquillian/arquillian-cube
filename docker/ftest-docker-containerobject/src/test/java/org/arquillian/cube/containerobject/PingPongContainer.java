@@ -1,7 +1,7 @@
 package org.arquillian.cube.containerobject;
 
 import org.arquillian.cube.HostIp;
-import org.jboss.arquillian.test.api.ArquillianResource;
+import org.arquillian.cube.HostPort;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -9,35 +9,14 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-
 @Cube(value = "pingpong", portBinding = "5000->8080/tcp")
 public class PingPongContainer {
 
-    /**
-     * DockerDescriptor descriptor =
-     Descriptors.create(DockerDescriptor.class)
-     .from("jbossforge")
-     .user("George");
-     */
-    // docker pull jonmorehouse/ping-pong
-    /**
-     * docker run -p 5000:8080 -d jonmorehouse/ping-pong
-
-     $ curl localhost:5000
-
-     {
-     "status": "ok"
-     }
-     */
-
     @HostIp
     String dockerHost;
+
+    @HostPort(8080)
+    private int port;
 
     @CubeDockerFile
     public static Archive<?> createContainer() {
@@ -47,7 +26,7 @@ public class PingPongContainer {
     }
 
     public int getConnectionPort() {
-        return 5000;
+        return port;
     }
 
     public String getDockerHost() {

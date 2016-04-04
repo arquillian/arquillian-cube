@@ -2,6 +2,7 @@
 .project
 .classpath
 .settings/
+.factorypath
 
 # IntelliJ
 *.iml

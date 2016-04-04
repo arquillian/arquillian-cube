@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.impl.util.TestPortBindings;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -35,7 +37,7 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
             + "portBindings: [8090->8089/tcp]";
 
     @Mock
-    private Cube cube;
+    private Cube<Map<String, Object>> cube;
 
     @Mock
     private Container container;
@@ -84,7 +86,7 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
 
         when(cube.getId()).thenReturn(CUBE_ID);
         when(cube.configuration()).thenReturn(content);
-        when(cube.configuredBindings()).thenReturn(new Binding("localhost").addPortBinding(8089, 8090));
+        when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(new Binding("localhost").addPortBinding(8089, 8090)));
         when(container.getName()).thenReturn(CUBE_ID);
         when(container.getDeployableContainer()).thenReturn(deployableContainer);
         when(deployableContainer.getConfigurationClass()).thenReturn(ContainerConfiguration.class);

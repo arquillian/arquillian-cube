@@ -1,10 +1,10 @@
 package org.arquillian.cube.docker.impl.await;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.spi.Cube;
 
 public class SleepingAwaitStrategy implements AwaitStrategy {
@@ -15,19 +15,17 @@ public class SleepingAwaitStrategy implements AwaitStrategy {
 
     private static final int DEFAULT_SLEEP_TIME = 500;
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
-    private static final String SLEEPING_TIME = "sleepTime";
 
     private int sleepTime = DEFAULT_SLEEP_TIME;
     private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
 
-    public SleepingAwaitStrategy(Cube cube, Map<String, Object> params) {
-        if (params.containsKey(SLEEPING_TIME)) {
-            configureSleepingTime(params);
+    public SleepingAwaitStrategy(Cube<?> cube, Await params) {
+        if (params.getSleepTime() != null) {
+            configureSleepingTime(params.getSleepTime());
         }
     }
 
-    private void configureSleepingTime(Map<String, Object> params) {
-        Object sleepTime = params.get(SLEEPING_TIME);
+    private void configureSleepingTime(Object sleepTime) {
         if(sleepTime instanceof Integer) {
             this.sleepTime = (Integer) sleepTime;
         } else {

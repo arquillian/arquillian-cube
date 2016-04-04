@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.arquillian.cube.impl.util.ContainerUtil;
-import org.arquillian.cube.spi.Binding;
-import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -37,39 +37,38 @@ public class ContainerConfigurationController {
             return;
         }
 
-        Cube cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(container.getName());
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
 
-        Binding binding = cube.configuredBindings();
+        HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            return;
+        }
 
-        if (binding.arePortBindings()) {
+        ContainerDef containerConfiguration = container.getContainerConfiguration();
+        List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
 
-            ContainerDef containerConfiguration = container.getContainerConfiguration();
-            List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
+        Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
+        List<PropertyDescriptor> configurationClassPortFields = filterConfigurationClassPropertiesByPortAttribute(configurationClass);
 
-            Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
-            List<PropertyDescriptor> configurationClassPortFields = filterConfigurationClassPropertiesByPortAttribute(configurationClass);
+        Object newConfigurationInstance = configurationClass.newInstance();
 
-            Object newConfigurationInstance = configurationClass.newInstance();
+        for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
+            if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (configurationClassPortField.getPropertyType().equals(Integer.class) || configurationClassPortField.getPropertyType().equals(int.class)) ) {
+                // This means that port has not configured in arquillian.xml and it will use default value.
+                // In this case is when remapping should be activated to adequate the situation according to
+                // Arquillian
+                // Cube exposed ports.
 
-            for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
-                if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (configurationClassPortField.getPropertyType().equals(Integer.class) || configurationClassPortField.getPropertyType().equals(int.class)) ) {
-                    // This means that port has not configured in arquillian.xml and it will use default value.
-                    // In this case is when remapping should be activated to adequate the situation according to
-                    // Arquillian
-                    // Cube exposed ports.
+                int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
+                        configurationClass, configurationClassPortField);
 
-                    int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
-                            configurationClass, configurationClassPortField);
-
-                    PortBinding bindingForExposedPort = null;
-                    if ((bindingForExposedPort = binding.getBindingForExposedPort(containerPort)) != null) {
+                PortAddress mappingForPort = null;
+                if ((mappingForPort = portBindings.getMappedAddress(containerPort)) != null) {
                         containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                                Integer.toString(bindingForExposedPort.getBindingPort()));
-                    }
-
+                                Integer.toString(mappingForPort.getPort()));
                 }
             }
         }

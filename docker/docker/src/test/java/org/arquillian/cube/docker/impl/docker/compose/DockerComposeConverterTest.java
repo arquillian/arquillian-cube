@@ -1,7 +1,8 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -9,8 +10,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Map;
 
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.junit.Test;
 
 public class DockerComposeConverterTest {
@@ -21,25 +25,25 @@ public class DockerComposeConverterTest {
     URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose.yml").toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
-    Map<String, Object> convert = dockerComposeConverter.convert();
-    Map<String, Object> webapp = (Map<String, Object>) convert.get("webapp");
-    assertThat(webapp, hasKey("buildImage"));
-    assertThat(webapp, hasKey("portBindings"));
-    Collection<String> ports = (Collection<String>) webapp.get("portBindings");
-    assertThat(ports, containsInAnyOrder("8000->8000"));
-    assertThat(webapp, hasKey("devices"));
-    assertThat(webapp, hasKey("volumes"));
-    Collection<String> volumes = (Collection<String>) webapp.get("volumes");
+    CubeContainers convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp");
+    assertThat(webapp.getBuildImage(), is(notNullValue()));
+    assertThat(webapp.getPortBindings(), is(notNullValue()));
+    Collection<PortBinding> ports = webapp.getPortBindings();
+    assertThat(ports, containsInAnyOrder(PortBinding.valueOf("8000->8000")));
+    assertThat(webapp.getDevices(), is(notNullValue()));
+    assertThat(webapp.getVolumes(), is(notNullValue()));
+    Collection<String> volumes = (Collection<String>) webapp.getVolumes();
     assertThat(volumes, containsInAnyOrder("/data"));
 
-    Map<String, Object> webapp2 = (Map<String, Object>) convert.get("webapp2");
-    assertThat(webapp2, hasKey("image"));
-    assertThat(webapp2, hasKey("portBindings"));
-    assertThat(webapp2, hasKey("links"));
-    Collection<String> links = (Collection<String>) webapp2.get("links");
-    assertThat(links, containsInAnyOrder("webapp:webapp"));
-    assertThat(webapp2, hasKey("env"));
-    Collection<String> env = (Collection<String>) webapp2.get("env");
+    CubeContainer webapp2 = convert.get("webapp2");
+    assertThat(webapp2.getImage(), is(notNullValue()));
+    assertThat(webapp2.getPortBindings(), is(notNullValue()));
+    assertThat(webapp2.getLinks(), is(notNullValue()));
+    Collection<Link> links = webapp2.getLinks();
+    assertThat(links, containsInAnyOrder(Link.valueOf("webapp:webapp")));
+    assertThat(webapp2.getEnv(), is(notNullValue()));
+    Collection<String> env = webapp2.getEnv();
     assertThat(env, containsInAnyOrder("RACK_ENV=development"));
   }
 
@@ -48,11 +52,32 @@ public class DockerComposeConverterTest {
     URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/read-envs-docker-compose.yml").toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
 
-    Map<String, Object> convert = dockerComposeConverter.convert();
-    Map<String, Object> webapp = (Map<String, Object>) convert.get("webapp");
-    assertThat(webapp, hasKey("env"));
-    Collection<String> env = (Collection<String>) webapp.get("env");
+    CubeContainers convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp");
+    assertThat(webapp.getEnv(), is(notNullValue()));
+    Collection<String> env = webapp.getEnv();
     assertThat(env, containsInAnyOrder("RACK_ENV=development"));
+  }
+
+  @Test
+  public void shouldResolveEnvironmentVars() throws URISyntaxException, IOException {
+    testResolvePlaceholders("/simple-cube-var.yml", "MyImageName");
+  }
+
+  @Test
+  public void shouldResolveSystemEnvironmentVars() throws URISyntaxException, IOException {
+    testResolvePlaceholders("/simple-cube-system-var.yml", "TestImageName");
+  }
+
+  private void testResolvePlaceholders(String dockerComposeFile, String expectedImageName) throws URISyntaxException, IOException {
+    URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource(dockerComposeFile).toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
+
+    CubeContainers convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp2");
+    assertThat(webapp.getImage(), is(notNullValue()));
+    final String image = webapp.getImage().toImageRef();
+    assertThat(image, is(expectedImageName));
   }
 
   @Test
@@ -60,13 +85,38 @@ public class DockerComposeConverterTest {
     URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/extends-docker-compose.yml").toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
 
-    Map<String, Object> convert = dockerComposeConverter.convert();
-    Map<String, Object> webapp = (Map<String, Object>) convert.get("web");
-    assertThat(webapp, hasKey("env"));
-    Collection<String> env = (Collection<String>) webapp.get("env");
+    CubeContainers convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("web");
+    assertThat(webapp.getEnv(), is(notNullValue()));
+    Collection<String> env = webapp.getEnv();
     assertThat(env, containsInAnyOrder("REDIS_HOST=redis-production.example.com"));
-    assertThat(webapp, hasKey("portBindings"));
-    Collection<String> ports = (Collection<String>) webapp.get("portBindings");
-    assertThat(ports, containsInAnyOrder("8080->8080"));
+    assertThat(webapp.getPortBindings(), is(notNullValue()));
+    Collection<PortBinding> ports = webapp.getPortBindings();
+    assertThat(ports, containsInAnyOrder(PortBinding.valueOf("8080->8080")));
+  }
+
+  @Test
+  public void shouldExtendDockerComposeWithEnvResolution() throws URISyntaxException, IOException {
+
+    String oldValue = System.getProperty("ports");
+    System.setProperty("ports", "9090:8080");
+
+    try {
+      URI readEnvsDockerCompose = DockerComposeConverterTest.class.getResource("/extends-docker-compose-env.yml").toURI();
+      DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(readEnvsDockerCompose));
+
+      CubeContainers convert = dockerComposeConverter.convert();
+      CubeContainer webapp = convert.get("web");
+      assertThat(webapp.getEnv(), is(notNullValue()));
+      Collection<String> env = webapp.getEnv();
+      assertThat(env, containsInAnyOrder("REDIS_HOST=redis-production.example.com"));
+      assertThat(webapp.getPortBindings(), is(notNullValue()));
+      Collection<PortBinding> ports = webapp.getPortBindings();
+      assertThat(ports, containsInAnyOrder(PortBinding.valueOf("9090->8080")));
+    } finally {
+      System.clearProperty("ports");
+      if (oldValue != null)
+        System.setProperty("ports", oldValue);
+    }
   }
 }

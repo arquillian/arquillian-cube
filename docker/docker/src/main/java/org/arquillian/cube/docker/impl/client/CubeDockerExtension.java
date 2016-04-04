@@ -12,7 +12,8 @@ public class CubeDockerExtension implements LoadableExtension {
 
     @Override
     public void register(ExtensionBuilder builder) {
-        builder.observer(CubeDockerConfigurator.class)
+        builder.observer(TopCreator.class)
+               .observer(CubeDockerConfigurator.class)
                .observer(DockerClientCreator.class)
                .observer(CubeDockerRegistrar.class)
                .observer(CubeSuiteLifecycleController.class)
@@ -20,7 +21,8 @@ public class CubeDockerExtension implements LoadableExtension {
                .observer(BeforeStopContainerObserver.class)
                .observer(Boot2DockerCreator.class)
                .observer(DockerMachineCreator.class)
-               .observer(AfterClassContainerObjectObserver.class);
+               .observer(AfterClassContainerObjectObserver.class)
+               .observer(StopDockerMachineAfterSuiteObserver.class);
 
         builder.service(ResourceProvider.class, CubeResourceProvider.class);
         builder.service(TestEnricher.class, CubeContainerObjectTestEnricher.class);
@@ -30,6 +32,9 @@ public class CubeDockerExtension implements LoadableExtension {
         if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
             builder.observer(DockerServerIPConfigurator.class);
             builder.observer(CubeDockerAutoStartConfigurator.class);
+        } else {
+            // Arquillian in Standalone mode
+            builder.observer(StandaloneAutoStartConfigurator.class);
         }
     }
 

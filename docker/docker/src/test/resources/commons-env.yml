@@ -1,0 +1,6 @@
+web:
+  image: ubuntu
+  ports:
+    - ${ports}
+  environment:
+    - REDIS_HOST=redis-demo.example.com

@@ -2,9 +2,11 @@ package org.arquillian.cube.impl.client.container;
 
 import java.util.List;
 
+import org.arquillian.cube.impl.util.TestPortBindings;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.config.descriptor.impl.ContainerDefImpl;
 import org.jboss.arquillian.container.impl.ContainerImpl;
 import org.jboss.arquillian.container.spi.Container;
@@ -73,7 +75,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
 
         Binding binding = new Binding(LOCALHOST);
         binding.addPortBinding(EXPOSED_PORT, BOUND_PORT);
-        Mockito.when(cube.bindings()).thenReturn(binding);
+        Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
              Container.class,
@@ -98,7 +100,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
 
         Binding binding = new Binding(GATEWAY_IP);
         binding.addPortBinding(EXPOSED_PORT, EXPOSED_PORT);
-        Mockito.when(cube.bindings()).thenReturn(binding);
+        Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
              Container.class,
@@ -122,7 +124,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
     public void shouldNotUpdateIfContainerNotMapped() throws Exception {
         Binding binding = new Binding(GATEWAY_IP);
         binding.addPortBinding(EXPOSED_PORT, EXPOSED_PORT);
-        Mockito.when(cube.bindings()).thenReturn(binding);
+        Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
              Container.class,
@@ -140,4 +142,5 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         Assert.assertEquals(metadata.getContexts(HTTPContext.class).iterator().next(), updated.getContexts(HTTPContext.class).iterator().next());
         assertEventFired(ProtocolMetaData.class, 1);
     }
+
 }

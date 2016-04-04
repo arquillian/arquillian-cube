@@ -6,7 +6,6 @@
 
     <extension qualifier="docker">
         <property name="serverVersion">${docker.api.version}</property>
-        <property name="serverUri">${docker.api.url}</property>
         <property name="dockerContainers">
             daytime:
               buildImage:

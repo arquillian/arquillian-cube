@@ -1,5 +1,10 @@
 package org.arquillian.cube.docker.impl.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import org.arquillian.cube.containerobject.CubeDockerFile;
 import org.hamcrest.core.Is;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -10,11 +15,6 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 public class DockerFileUtilTest {
 

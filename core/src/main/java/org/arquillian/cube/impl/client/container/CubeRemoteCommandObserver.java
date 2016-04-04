@@ -74,7 +74,7 @@ public class CubeRemoteCommandObserver {
         if(cubeRegistry == null) {
             throw new IllegalStateException("No CubeRegistry found in context, can't perform CubeID injection");
         }
-        Cube cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(container.getName());
         if(cube == null) {
             throw new IllegalStateException("No Cube found mapped to current Container: " + container.getName());
         }

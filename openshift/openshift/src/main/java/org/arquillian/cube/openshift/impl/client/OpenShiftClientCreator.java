@@ -1,12 +1,14 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.openshift.client.OpenShiftConfig;
+
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
-
-import io.fabric8.kubernetes.api.KubernetesFactory;
 
 public class OpenShiftClientCreator {
 
@@ -15,23 +17,24 @@ public class OpenShiftClientCreator {
     private InstanceProducer<OpenShiftClient> openShiftClientProducer;
 
     public void createClient(@Observes CubeOpenShiftConfiguration cubeConfiguration) {
-        openShiftClientProducer.set(
-                createClient(
-                        cubeConfiguration.getOriginServer(),
-                        cubeConfiguration.getNamespace(),
-                        cubeConfiguration.shouldKeepAliveGitServer()));
+        // System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY,
+        // "./src/test/resources/config.yaml");
+        System.setProperty("KUBERNETES_TRUST_CERT", "true");
+        // override defaults for master and namespace
+        final Config config = new ConfigBuilder(new Config()).withMasterUrl(cubeConfiguration.getOriginServer())
+                .withNamespace(cubeConfiguration.getNamespace()).withTrustCerts(true).build();
+        if (config.getNoProxy() == null) {
+            config.setNoProxy(new String[0]);
+        }
+        openShiftClientProducer.set(createClient(OpenShiftConfig.wrap(config), cubeConfiguration.getNamespace(),
+                cubeConfiguration.shouldKeepAliveGitServer()));
     }
 
     public void clean(@Observes AfterSuite event, OpenShiftClient client) throws Exception {
         client.shutdown();
     }
 
-    public OpenShiftClient createClient(String originServer, String namespace, boolean keepAliveGitServer) {
-        //System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY, "./src/test/resources/config.yaml");
-        System.setProperty("KUBERNETES_TRUST_CERT", "true");
-
-        KubernetesFactory factory = new KubernetesFactory(originServer);
-
-        return new OpenShiftClient(factory, namespace, keepAliveGitServer);
+    public OpenShiftClient createClient(OpenShiftConfig openShiftConfig, String namespace, boolean keepAliveGitServer) {
+        return new OpenShiftClient(openShiftConfig, namespace, keepAliveGitServer);
     }
 }

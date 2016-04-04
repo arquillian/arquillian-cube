@@ -43,7 +43,7 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
     public static final String MISSING_CUBE_ID = "_MISSING_";
 
     @Mock
-    private Cube cube;
+    private Cube<?> cube;
 
     @Mock
     private Container container;

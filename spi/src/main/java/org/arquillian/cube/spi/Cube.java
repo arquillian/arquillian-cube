@@ -1,13 +1,9 @@
 package org.arquillian.cube.spi;
 
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
+import org.arquillian.cube.spi.metadata.CubeMetadata;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 
-import org.arquillian.cube.ChangeLog;
-import org.arquillian.cube.TopContainer;
-
-public interface Cube {
+public interface Cube<T> {
 
     public enum State {
         CREATED,
@@ -41,23 +37,23 @@ public interface Cube {
 
     void changeToPreRunning();
 
+    /**
+     * @return actual binding of running container
+     * @deprecated See {@link HasPortBindings}
+     */
     Binding bindings();
 
+    /**
+     * @return binding as configured by meta-data, e.g. EXPOSE or pod.json
+     * @deprecated See {@link HasPortBindings}
+     */
     Binding configuredBindings();
 
-    Map<String, Object> configuration();
+    T configuration();
 
-    boolean hasMetadata(Class<?> type);
+    <X extends CubeMetadata> boolean hasMetadata(Class<X> type);
 
-    void addMetadata(Object type);
+    <X extends CubeMetadata> void addMetadata(Class<X> type, X impl);
 
-    <T> T getMetadata(Class<T> type);
-
-    List<ChangeLog> changesOnFilesystem(String cubeId);
-
-    void copyFileDirectoryFromContainer(String cubeId, String from, String to);
-
-    void copyLog(String cubeId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream);
-    
-    TopContainer top(String cubeId);
+    <X extends CubeMetadata> X getMetadata(Class<X> type);
 }

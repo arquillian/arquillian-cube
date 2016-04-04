@@ -1,10 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
 
-import org.arquillian.cube.docker.impl.docker.cube.CubeConverter;
-import org.arquillian.cube.docker.impl.docker.compose.DockerComposeConverter;
-import org.arquillian.cube.docker.impl.util.IOUtil;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -13,9 +9,12 @@ import java.net.URL;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
+
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.docker.compose.DockerComposeConverter;
+import org.arquillian.cube.docker.impl.docker.cube.CubeConverter;
+import org.arquillian.cube.impl.util.IOUtil;
 
 public class DockerContainerDefinitionParser {
 
@@ -28,7 +27,7 @@ public class DockerContainerDefinitionParser {
         super();
     }
 
-    public static Map<String, Object> convert(Path definitionFilePath, DefinitionFormat definitionFormat) throws IOException {
+    public static CubeContainers convert(Path definitionFilePath, DefinitionFormat definitionFormat) throws IOException {
         switch (definitionFormat) {
             case COMPOSE: {
                 DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(definitionFilePath);
@@ -45,7 +44,17 @@ public class DockerContainerDefinitionParser {
         }
     }
 
-    public static Map<String, Object> convert(URI uri, DefinitionFormat definitionFormat) throws IOException {
+    public static CubeContainers convert(DefinitionFormat definitionFormat, URI... uris) throws IOException {
+        CubeContainers finalDefinition = new CubeContainers();
+        for (URI uri : uris) {
+            CubeContainers convertedDocument = convert(uri, definitionFormat);
+            finalDefinition.merge(convertedDocument);
+        }
+
+        return finalDefinition;
+    }
+
+    private static CubeContainers convert(URI uri, DefinitionFormat definitionFormat) throws IOException {
         try {
             Path definitionFilePath = Paths.get(uri);
             return convert(definitionFilePath, definitionFormat);
@@ -70,7 +79,7 @@ public class DockerContainerDefinitionParser {
         }
     }
 
-    public static Map<String, Object> convert(String content, DefinitionFormat definitionFormat) {
+    public static CubeContainers convert(String content, DefinitionFormat definitionFormat) {
         switch (definitionFormat) {
             case COMPOSE: {
                 DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(content);
@@ -87,7 +96,7 @@ public class DockerContainerDefinitionParser {
         }
     }
 
-    public static Map<String, Object> convertDefault(DefinitionFormat definitionFormat) throws IOException {
+    public static CubeContainers convertDefault(DefinitionFormat definitionFormat) throws IOException {
         URI defaultUri = null;
         try {
             switch (definitionFormat) {
@@ -117,7 +126,7 @@ public class DockerContainerDefinitionParser {
         }
         if (defaultUri == null) {
             logger.fine("No Docker container definitions has been found. Probably you have defined some Containers using Container Object pattern and @Cube annotation");
-            return new HashMap<>();
+            return new CubeContainers();
         }
         return convert(Paths.get(defaultUri), definitionFormat);
     }

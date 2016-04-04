@@ -14,6 +14,9 @@ import org.arquillian.cube.spi.event.CubeControlEvent;
 import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
+import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
+import org.arquillian.cube.spi.metadata.CanSeeTop;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -55,7 +58,7 @@ public class ClientCubeController implements CubeController {
 
     @Override
     public void create(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to create does not exist.");
 
@@ -64,7 +67,7 @@ public class ClientCubeController implements CubeController {
 
     @Override
     public void start(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to start does not exist.");
 
@@ -73,7 +76,7 @@ public class ClientCubeController implements CubeController {
 
     @Override
     public void stop(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to stop does not exist.");
 
@@ -83,7 +86,7 @@ public class ClientCubeController implements CubeController {
 
     @Override
     public void destroy(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to destroy does not exist.");
 
@@ -93,26 +96,35 @@ public class ClientCubeController implements CubeController {
     @Override
     public void copyFileDirectoryFromContainer(String cubeId, String from,
             String to) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to execute copy file command does not exist.");
 
-        cube.copyFileDirectoryFromContainer(cubeId, from, to);
+        if(cube.hasMetadata(CanCopyFromContainer.class)) {
+            cube.getMetadata(CanCopyFromContainer.class).copyDirectory(from, to);
+        }
+        else {
+            throw new IllegalArgumentException("Cube " + cubeId + " does not provide the " + CanCopyFromContainer.class.getSimpleName() + " metadata");
+        }
     }
 
     @Override
-    public void copyFileDirectoryFromContainer(CubeID cubeId, String from,
-            String to) {
+    public void copyFileDirectoryFromContainer(CubeID cubeId, String from, String to) {
         copyFileDirectoryFromContainer(cubeId.get(), from, to);
     }
 
     @Override
     public List<ChangeLog> changesOnFilesystem(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to get changes command does not exist.");
 
-        return cube.changesOnFilesystem(cubeId);
+        if(cube.hasMetadata(CanSeeChangesOnFilesystem.class)) {
+            return cube.getMetadata(CanSeeChangesOnFilesystem.class).changes();
+        } else {
+            throw new IllegalArgumentException("Cube " + cubeId + " does not provide the " + CanSeeChangesOnFilesystem.class.getSimpleName() + " metadata");
+        }
+
     }
 
     @Override
@@ -121,30 +133,33 @@ public class ClientCubeController implements CubeController {
     }
 
     @Override
-    public void copyLog(String cubeId, boolean follow,
-            boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+    public void copyLog(String cubeId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) {
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to get logs command does not exist.");
 
-        cube.copyLog(cubeId, follow, stdout, stderr, timestamps, tail, outputStream);
+        if(cube.hasMetadata(CanCopyFromContainer.class)) {
+            cube.getMetadata(CanCopyFromContainer.class).copyLog(follow, stdout, stderr, timestamps, tail, outputStream);
+        } else {
+            throw new IllegalArgumentException("Cube " + cubeId + " does not provide the " + CanCopyFromContainer.class.getSimpleName() + " metadata");
+        }
     }
 
     @Override
-    public void copyLog(CubeID containerId, boolean follow,
-            boolean stdout, boolean stderr, boolean timestamps, int tail,
-            OutputStream outputStream) {
+    public void copyLog(CubeID containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) {
         copyLog(containerId.get(), follow, stdout, stderr, timestamps, tail, outputStream);
     }
 
     @Override
     public TopContainer top(String cubeId) {
-        Cube cube = cubeRegistry.get().getCube(cubeId);
+        Cube<?> cube = cubeRegistry.get().getCube(cubeId);
 
         Validate.notNull(cube, "Cube with id '" + cubeId + "' to get top command does not exist.");
-
-        return cube.top(cubeId);
+        if(cube.hasMetadata(CanSeeTop.class)) {
+            return cube.getMetadata(CanSeeTop.class).top();
+        } else {
+            throw new IllegalArgumentException("Cube " + cubeId + " does not provide the " + CanSeeTop.class.getSimpleName() + " metadata");
+        }
     }
 
     @Override

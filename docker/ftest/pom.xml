@@ -15,8 +15,7 @@
         <version.wildfly>8.2.0.Final</version.wildfly>
         <version.arquillian_tck>1.0.0.Alpha1</version.arquillian_tck>
         <docker.api.version>1.12</docker.api.version>
-        <docker.api.url>http://localhost:2375</docker.api.url>
-        <docker.tomcat.host>localhost</docker.tomcat.host>
+        <docker.api.url>tcp://localhost:2375</docker.api.url>
     </properties>
 
     <dependencyManagement>

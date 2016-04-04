@@ -1,20 +1,21 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Map.Entry;
 
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Binding;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.NetworkSettings;
+import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 
 public final class BindingUtil {
 
     public static final String PORTS_SEPARATOR = "->";
-    private static final String NO_GATEWAY = null;
 
     private BindingUtil() {
     }
@@ -22,16 +23,28 @@ public final class BindingUtil {
     public static Binding binding(DockerClientExecutor executor, String cubeId) {
         InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd( cubeId ).exec();
 
-        HostConfig hostConfig = inspectResponse.getHostConfig();
-
         String dockerIp = getDockerServerIp(executor);
-        Binding binding = new Binding(dockerIp);
+        String inernalIp = null;
+        NetworkSettings networkSettings = inspectResponse.getNetworkSettings();
+        if(networkSettings != null) {
+            inernalIp = networkSettings.getIpAddress();
+        }
 
-        for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
-                .getBindings().entrySet()) {
-            com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
-            for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
-                binding.addPortBinding(bind.getKey().getPort(), bindings.getHostPort());
+        Binding binding = new Binding(dockerIp, inernalIp);
+
+        HostConfig hostConfig = inspectResponse.getHostConfig();
+        if(hostConfig.getPortBindings() != null) {
+            for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
+                    .getBindings().entrySet()) {
+                com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
+                for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
+                    binding.addPortBinding(bind.getKey().getPort(), bindings.getHostPort());
+                }
+            }
+        } else {
+            ContainerConfig connectionConfig = inspectResponse.getConfig();
+            for(ExposedPort port : connectionConfig.getExposedPorts()) {
+                binding.addPortBinding(port.getPort(), -1);
             }
         }
         return binding;
@@ -41,46 +54,15 @@ public final class BindingUtil {
         return executor.getDockerServerIp();
     }
 
-    public static Binding binding(Map<String, Object> cubeConfiguration) {
+    public static Binding binding(CubeContainer cubeConfiguration, DockerClientExecutor executor) {
 
-        Binding binding = new Binding(NO_GATEWAY);
+        Binding binding = new Binding(executor.getDockerServerIp());
 
-        if (cubeConfiguration.containsKey("portBindings")) {
-            @SuppressWarnings("unchecked")
-            Collection<String> cubePortBindings = (Collection<String>) cubeConfiguration.get("portBindings");
-
-            for (String cubePortBinding : cubePortBindings) {
-
-                String[] elements = cubePortBinding.split(PORTS_SEPARATOR);
-
-                if (elements.length == 1) {
-                    int positionOfProtocolSeparator = elements[0].indexOf("/");
-                    String bindingPortValue = elements[0];
-                    if(positionOfProtocolSeparator > -1) {
-                        //means that the protocol part is also set. 
-                        bindingPortValue = elements[0].substring(0, positionOfProtocolSeparator);
-                    }
-                    int exposedPort = Integer.parseInt(bindingPortValue);
-                    binding.addPortBinding(exposedPort, exposedPort);
-                } else {
-                    if (elements.length == 2) {
-                        int exposedPort;
-                        if(elements[1].indexOf("/") > -1) {
-                            exposedPort = Integer.parseInt(elements[1].substring(0, elements[1].indexOf("/")));
-                        } else {
-                            exposedPort = Integer.parseInt(elements[1]);
-                        }
-                        int port = Integer.parseInt(elements[0]);
-
-                        binding.addPortBinding(exposedPort, port);
-                    }
-                }
-
+        if (cubeConfiguration.getPortBindings() != null) {
+            for (PortBinding cubePortBinding : cubeConfiguration.getPortBindings()) {
+                binding.addPortBinding(cubePortBinding.getExposedPort().getExposed(), cubePortBinding.getBound());
             }
-
         }
-
         return binding;
-
     }
 }

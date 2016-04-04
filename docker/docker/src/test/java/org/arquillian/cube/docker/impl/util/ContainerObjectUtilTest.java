@@ -1,13 +1,11 @@
 package org.arquillian.cube.docker.impl.util;
 
-import org.arquillian.cube.containerobject.Cube;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+
+import org.arquillian.cube.containerobject.Cube;
+import org.junit.Test;
 
 public class ContainerObjectUtilTest {
 

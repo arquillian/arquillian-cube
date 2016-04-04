@@ -1,19 +1,22 @@
 
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
-
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 
 public class AutomaticResolutionAutoStartParser implements AutoStartParser {
 
     private List<String> deployableContainers;
-    private Map<String, Object> containerDefinition;
+    private CubeContainers containerDefinition;
 
-    public AutomaticResolutionAutoStartParser(List<String> deployableContainers, Map<String, Object> containerDefinitions) {
+    public AutomaticResolutionAutoStartParser(List<String> deployableContainers, CubeContainers containerDefinitions) {
         this.deployableContainers = deployableContainers;
         this.containerDefinition = containerDefinitions;
     }
@@ -24,18 +27,17 @@ public class AutomaticResolutionAutoStartParser implements AutoStartParser {
         Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
 
         for(String deployableContainer : this.deployableContainers) {
-            Map<String, Object> content = (Map<String, Object>) containerDefinition.get(deployableContainer);
+            CubeContainer content = containerDefinition.get(deployableContainer);
             if (content == null) {
                 return nodes;
             }
 
-            if (content.containsKey("links")) {
-                Set<String> links = (Set<String>) content.get("links");
-                for (String link : links) {
-                    String[] parsed = link.split(":");
-                    String name = parsed[0];
+            if (content.getLinks() != null) {
+                Collection<Link> links = content.getLinks();
+                for (Link link : links) {
+                    String name = link.getName();
 
-                    if (containerDefinition.containsKey(name)) {
+                    if (containerDefinition.get(name) != null) {
                         AutoStartOrderUtil.Node child = AutoStartOrderUtil.Node.from(name);
                         nodes.put(name, child);
                     }
@@ -46,4 +48,8 @@ public class AutomaticResolutionAutoStartParser implements AutoStartParser {
         return nodes;
     }
 
+    @Override
+    public String toString() {
+        return AutoStartOrderUtil.toString(parse());
+    }
 }

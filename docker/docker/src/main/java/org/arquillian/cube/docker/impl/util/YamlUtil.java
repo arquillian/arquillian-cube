@@ -1,7 +1,6 @@
 package org.arquillian.cube.docker.impl.util;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class YamlUtil {
@@ -41,5 +40,9 @@ public class YamlUtil {
     public static final int asInt(Map<String, Object> map, String property) {
         return (int) map.get(property);
     }
-    
+
+    public static final long asLong(Map<String, Object> map, String property) {
+        return (long) map.get(property);
+    }
+
 }

@@ -35,7 +35,7 @@ public class CubeLifecycleControllerTest extends AbstractManagerTestBase {
     public CubeRegistry cubeRegistry;
 
     @Mock
-    public Cube cube;
+    public Cube<?> cube;
 
     @Before
     public void setup() {

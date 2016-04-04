@@ -1,19 +1,27 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.Map;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 
 public class AutoStartParserFactory {
 
-    public static AutoStartParser create(String expression, Map<String, Object> containersDefinition) {
-        if(isRegularExpressionBased(expression)) {
-            return new RegularExpressionAutoStartParser(expression, containersDefinition);
+    public static AutoStartParser create(String expression, CubeContainers containersDefinition) {
+        if (isNone(expression)) {
+            return new NoneAutoStartParser();
         } else {
-            if(isCommaSeparated(expression)) {
-                return new CommaSeparatedAutoStartParser(expression, containersDefinition);
+            if (isRegularExpressionBased(expression)) {
+                return new RegularExpressionAutoStartParser(expression, containersDefinition);
             } else {
-                return null;
+                if (isCommaSeparated(expression)) {
+                    return new CommaSeparatedAutoStartParser(expression, containersDefinition);
+                } else {
+                    return null;
+                }
             }
         }
+    }
+
+    private static boolean isNone(String expression) {
+        return expression != null && "[none]".equals(expression.trim());
     }
 
     private static boolean isCommaSeparated(String expression) {
