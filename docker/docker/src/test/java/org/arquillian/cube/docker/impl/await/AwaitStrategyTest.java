@@ -1,8 +1,8 @@
 package org.arquillian.cube.docker.impl.await;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public class AwaitStrategyTest {
         assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
         assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
         assertThat(staticAwaitStrategy.getPollIterations(), is(3));
-        assertThat(staticAwaitStrategy.getSleepPollTime(), is(200));
+        assertThat(staticAwaitStrategy.getSleepTime(), is(200));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class AwaitStrategyTest {
         assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
         assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
         assertThat(staticAwaitStrategy.getPollIterations(), is(3));
-        assertThat(staticAwaitStrategy.getSleepPollTime(), is(200));
+        assertThat(staticAwaitStrategy.getSleepTime(), is(200));
         assertThat(staticAwaitStrategy.getTimeUnit(), is(TimeUnit.SECONDS));
     }
 
@@ -148,7 +148,7 @@ public class AwaitStrategyTest {
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy)strategy).getPollIterations(), is(3));
-        assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
+        assertThat(((PollingAwaitStrategy)strategy).getSleepTime(), is(200));
     }
 
     @Test
@@ -182,7 +182,7 @@ public class AwaitStrategyTest {
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy)strategy).getPollIterations(), is(3));
-        assertThat(((PollingAwaitStrategy)strategy).getSleepPollTime(), is(200));
+        assertThat(((PollingAwaitStrategy)strategy).getSleepTime(), is(200));
         assertThat(((PollingAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
         assertThat(((PollingAwaitStrategy)strategy).getType(), is("sscommand"));
     }
@@ -219,4 +219,48 @@ public class AwaitStrategyTest {
         assertThat(strategy, instanceOf(NativeAwaitStrategy.class));
     }
 
+    @Test
+    public void should_create_log_scanning_await_strategy() {
+
+        Await await = new Await();
+        await.setStrategy("log");
+        await.setMatch("STARTED");
+
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setAwait(await);
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+
+        assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
+        assertThat(((LogScanningAwaitStrategy)strategy).getSleepTime(), is(500));
+        assertThat(((LogScanningAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.MILLISECONDS));
+        assertThat(((LogScanningAwaitStrategy)strategy).getPollIterations(), is(10));
+        assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(true));
+        assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(false));
+    }
+
+    @Test
+    public void should_create_log_scanning_await_strategy_without_defaults() {
+        
+        Await await = new Await();
+        await.setStrategy("log");
+        await.setMatch("regexp:.*STARTED.*");
+        await.setStdOut(false);
+        await.setStdErr(true);
+        await.setIterations(30);
+        await.setSleepPollingTime("2s");
+
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setAwait(await);
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+
+        assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
+        assertThat(((LogScanningAwaitStrategy)strategy).getSleepTime(), is(2));
+        assertThat(((LogScanningAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
+        assertThat(((LogScanningAwaitStrategy)strategy).getPollIterations(), is(30));
+        assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(false));
+        assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(true));
+    }
+    
 }
