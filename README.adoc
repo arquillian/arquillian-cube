@@ -198,7 +198,7 @@ Let's see valid attributes:
 [cols="2*"]
 |===
 |serverVersion
-|Version of REST API provided by_Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service. This field is not mandatory and if it's not set the default provided version from _docker-java_ will be used.
+|Version of REST API provided by _Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service. This field is not mandatory and if it's not set the default provided version from _docker-java_ will be used.
 
 |serverUri
 |Uri of _Docker_ server. If the _Docker_ server is running natively on Linux then this will be an URI pointing to _localhost_ docker host but if you are using _Boot2Docker_ or a remote _Docker_ server then the URI should be changed to point to the _Docker_ remote _URI_. It can be a unix socket URI as well in case you are running _Docker_ on Linux (+unix:///var/run/docker.sock+). If the URI has `http://` or `https://` scheme, the `tlsVerify` attribute will be set by Cube to `false` or `true` respectively. Also you can read at <<automatic-resolution, this section>> about automatic resolution of serverUri parameter. Also you can use `DOCKER_HOST` java property or system environment to set this parameter.
@@ -382,6 +382,7 @@ native:: it uses *wait* command. In this case current thread is waiting until th
 polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default _polling_ executes _ss_ command inside the running container to know if the server is already running. You can use a _ping_ from client by setting +type+ attribute to +ping+; Note that _ping_ only works if you are running _Docker_ daemon on +localhost+. In almost all cases the default behaviour matches all scenarios. If it is not specified, this is the default strategy.
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
 sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
+log:: it looking for a specified pattern in container log to detect service startup. This can be used when there is no port to connect or connecting to the port successfully doesn't mean the service is fully initialized.
 
 By default in case you don't specify any _await_ strategy, polling with _ss_ command is used.
 
@@ -432,6 +433,26 @@ tomcat:
     sleepTime: 200 s #1
 ----
 <1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+
+[source, yaml]
+.Example log
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: log
+    match: 'Server startup' #1
+    stdOut: true #2
+    stdErr: true #3
+    sleepPollingTime: 200 s #4
+    iterations: 3 #5
+----
+<1> Mandatory parameter to configure the pattern that signals the service started. To use regular expression just prefix the pattern with `regexp:`.
+<2> Optional parameter to enable scanning of _standard output_ log. Default is true.
+<3> Optional parameter to enable scanning of _standard error_ log. Default is false.
+<4> Optional parameter to configure sleeping time between log downloading. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+<5> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
 
 === Inferring exposedPorts from portBinding
 

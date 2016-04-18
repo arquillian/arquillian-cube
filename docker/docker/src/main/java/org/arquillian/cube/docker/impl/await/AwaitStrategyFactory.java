@@ -22,9 +22,10 @@ public class AwaitStrategyFactory {
 
             if (await.getStrategy() != null) {
 
-                String strategy = ((String) await.getStrategy()).toLowerCase();
+                String strategy = await.getStrategy().toLowerCase();
                 switch(strategy) {
                     case PollingAwaitStrategy.TAG: return new PollingAwaitStrategy(cube, dockerClientExecutor, await);
+                    case LogScanningAwaitStrategy.TAG: return new LogScanningAwaitStrategy(cube, dockerClientExecutor, await);
                     case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                     case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, await);
                     case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, await);

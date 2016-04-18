@@ -16,12 +16,12 @@ public final class Ping {
         super();
     }
 
-    public static boolean ping(DockerClientExecutor dockerClientExecutor, String containerId, String command, int totalIterations, long sleep, TimeUnit timeUnit) {
+    public static boolean ping(int totalIterations, long sleep, TimeUnit timeUnit, PingCommand command) {
         boolean result = false;
         int iteration = 0;
 
         do {
-            result = execContainerPing(dockerClientExecutor, containerId, command);
+            result = command.call();
             if(!result) {
                 iteration++;
                 try {
@@ -33,23 +33,25 @@ public final class Ping {
 
         return result;
     }
-
-    public static boolean ping(String host, int port, int totalIterations, long sleep, TimeUnit timeUnit) {
-        boolean result = false;
-        int iteration = 0;
-
-        do {
-            result = ping(host, port);
-            if(!result) {
-                iteration++;
-                try {
-                    timeUnit.sleep(sleep);
-                } catch (InterruptedException e) {
-                }
+    
+    public static boolean ping(final DockerClientExecutor dockerClientExecutor, final String containerId,
+            final String command, int totalIterations, long sleep, TimeUnit timeUnit) {
+        
+        return ping(totalIterations, sleep, timeUnit, new PingCommand() {
+            @Override
+            public boolean call() {
+                return execContainerPing(dockerClientExecutor, containerId, command);
             }
-        } while(!result && iteration < totalIterations);
+        });
+    }
 
-        return result;
+    public static boolean ping(final String host, final int port, int totalIterations, long sleep, TimeUnit timeUnit) {
+        return ping(totalIterations, sleep, timeUnit, new PingCommand() {
+            @Override
+            public boolean call() {
+                return ping(host, port);
+            }
+        });
     }
 
 
@@ -63,7 +65,7 @@ public final class Ping {
                     String.format("Command %s in container %s has returned no value.", Arrays.toString(commands), containerId));
         }
 
-        if (result != null && result.contains(COMMAND_NOT_FOUND)) {
+        if (result.contains(COMMAND_NOT_FOUND)) {
             throw new UnsupportedOperationException(
                     String.format("Command %s is not available in container %s.", Arrays.toString(commands), containerId));
         }

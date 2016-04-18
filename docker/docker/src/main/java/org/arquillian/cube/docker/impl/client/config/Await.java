@@ -17,6 +17,11 @@ public class Await {
 
     // sleeping
     private Object sleepTime;
+    
+    // log
+    private String match;
+    private boolean stdOut = true;
+    private boolean stdErr;
 
     public Await() {
     }
@@ -76,4 +81,29 @@ public class Await {
     public void setSleepTime(Object sleepTime) {
         this.sleepTime = sleepTime;
     }
+
+    public String getMatch() {
+        return match;
+    }
+
+    public void setMatch(String match) {
+        this.match = match;
+    }
+
+    public boolean isStdOut() {
+        return stdOut;
+    }
+
+    public void setStdOut(boolean stdOut) {
+        this.stdOut = stdOut;
+    }
+
+    public boolean isStdErr() {
+        return stdErr;
+    }
+
+    public void setStdErr(boolean stdErr) {
+        this.stdErr = stdErr;
+    }
+    
 }
