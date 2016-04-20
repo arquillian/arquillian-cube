@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.await;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public class NativeAwaitStrategy implements AwaitStrategy {
 

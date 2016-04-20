@@ -17,7 +17,10 @@ public class Await {
 
     // sleeping
     private Object sleepTime;
-    
+
+    // custom
+    private Object customProperties; // Anything provided by the user
+
     // log
     private String match;
     private boolean stdOut = true;
@@ -56,6 +59,14 @@ public class Await {
 
     public void setSleepPollingTime(Object sleepPollingTime) {
         this.sleepPollingTime = sleepPollingTime;
+    }
+
+    public void setCustomProperties(Object customProperties) {
+        this.customProperties = customProperties;
+    }
+
+    public Object getCustomProperties() {
+        return customProperties;
     }
 
     public Integer getIterations() {

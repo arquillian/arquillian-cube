@@ -10,7 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -21,6 +23,25 @@ public class AwaitStrategyTest {
 
     @Mock
     private Cube<?> cube;
+    @Mock
+    private DockerClientExecutor dockerClientExecutor;
+
+    @Test
+    public void should_be_able_to_create_custom_await_strategies() {
+
+        Await await = new Await();
+        await.setStrategy("org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl");
+
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setAwait(await);
+
+        AwaitStrategy strategy = AwaitStrategyFactory.create(dockerClientExecutor, cube, cubeContainer);
+
+        assertThat(strategy, instanceOf(CustomAwaitStrategyInstantiator.class));
+        CustomAwaitStrategyInstantiator customAwaitStrategyInstantiator = (CustomAwaitStrategyInstantiator) strategy;
+
+        assertThat(customAwaitStrategyInstantiator.await(), is(true));
+    }
 
     @Test
     public void should_create_static_await_strategy() {
@@ -95,7 +116,7 @@ public class AwaitStrategyTest {
     }
 
     @Test
-    public void should_create_native_await_strategy_if_no_strategy_is_provided() {
+    public void should_create_polling_await_strategy_if_no_strategy_is_provided() {
 
         CubeContainer cubeContainer = new CubeContainer();
 
@@ -262,5 +283,5 @@ public class AwaitStrategyTest {
         assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(false));
         assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(true));
     }
-    
+
 }

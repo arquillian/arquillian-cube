@@ -1,4 +1,4 @@
-package org.arquillian.cube.docker.impl.await;
+package org.arquillian.cube.spi.await;
 
 
 public interface AwaitStrategy {
