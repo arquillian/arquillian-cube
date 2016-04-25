@@ -19,10 +19,6 @@ public class CustomAwaitStrategyImpl implements AwaitStrategy {
         this.dockerClientExecutor = dockerClientExecutor;
     }
 
-    public void setParams(Await params) {
-        this.params = params;
-    }
-
     @Override
     public boolean await() {
         return this.params != null && this.dockerClientExecutor != null && this.cube != null;

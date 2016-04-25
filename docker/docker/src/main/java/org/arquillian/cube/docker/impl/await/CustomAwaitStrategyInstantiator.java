@@ -8,6 +8,7 @@ import org.arquillian.cube.spi.await.AwaitStrategy;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -30,6 +31,25 @@ public class CustomAwaitStrategyInstantiator implements AwaitStrategy {
         try {
             Class<? extends AwaitStrategy> customStrategy = (Class<? extends AwaitStrategy>) Class.forName(className);
             AwaitStrategy customStrategyInstance = customStrategy.newInstance();
+
+            // Inject if there is a field of type Cuube, DockerClientExecutor or Await.
+            final Field[] fields = customStrategyInstance.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                if (field.getType().isAssignableFrom(Cube.class)) {
+                    field.setAccessible(true);
+                    field.set(customStrategyInstance, this.cube);
+                } else {
+                    if (field.getType().isAssignableFrom(DockerClientExecutor.class)) {
+                        field.setAccessible(true);
+                        field.set(customStrategyInstance, this.dockerClientExecutor);
+                    } else {
+                        if (field.getType().isAssignableFrom(Await.class)) {
+                            field.setAccessible(true);
+                            field.set(customStrategyInstance, this.params);
+                        }
+                    }
+                }
+            }
 
             // Inject if there is a setter for Cube, DockerClientExecutor or Await
             for(PropertyDescriptor propertyDescriptor :
