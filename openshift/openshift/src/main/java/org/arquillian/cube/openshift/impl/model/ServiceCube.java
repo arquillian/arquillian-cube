@@ -70,7 +70,11 @@ public class ServiceCube extends BaseCube<Void> {
     @Override
     public void stop() throws CubeControlException {
         try {
-            client.destroy(resource);
+            if (configuration.shouldIgnoreCleanup()) {
+                System.out.println("Not deleting any service upon request");
+            } else {
+                client.destroy(resource);
+            }
             this.state = State.STOPPED;
         } catch (Exception e) {
             this.state = State.STOP_FAILED;

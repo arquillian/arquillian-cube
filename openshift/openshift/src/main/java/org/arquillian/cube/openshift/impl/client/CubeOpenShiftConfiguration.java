@@ -20,6 +20,7 @@ public class CubeOpenShiftConfiguration {
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String PROXIED_COTNAINER_PORTS = "proxiedContainerPorts";
+    private static final String IGNORE_CLEANUP = "ignoreCleanup";
 
     private String originServer;
     private String namespace;
@@ -28,6 +29,7 @@ public class CubeOpenShiftConfiguration {
     private String definitionsFile;
     private String[] autoStartContainers;
     private Set<String> proxiedContainerPorts;
+    private boolean ignoreCleanup = false;
 
     public String getOriginServer() {
         return originServer;
@@ -39,6 +41,10 @@ public class CubeOpenShiftConfiguration {
 
     public boolean shouldKeepAliveGitServer() {
         return keepAliveGitServer;
+    }
+
+    public boolean shouldIgnoreCleanup() {
+        return ignoreCleanup;
     }
 
     public String[] getAutoStartContainers() {
@@ -64,6 +70,9 @@ public class CubeOpenShiftConfiguration {
         conf.definitionsFile = config.get(DEFINITIONS_FILE);
         if (config.containsKey(KEEP_ALIVE_GIT_SERVER)) {
             conf.keepAliveGitServer = Boolean.parseBoolean(config.get(KEEP_ALIVE_GIT_SERVER));
+        }
+        if (config.containsKey(IGNORE_CLEANUP)) {
+            conf.ignoreCleanup = Boolean.parseBoolean(config.get(IGNORE_CLEANUP));
         }
         if (config.containsKey(AUTO_START_CONTAINERS)) {
             conf.autoStartContainers = config.get(AUTO_START_CONTAINERS).split(",");

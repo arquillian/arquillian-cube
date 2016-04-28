@@ -125,7 +125,11 @@ public class BuildablePodCube extends BaseCube<Void> {
     public void stop() throws CubeControlException {
         try {
             lifecycle.fire(new BeforeStop(id));
-            client.destroy(holder.getPod());
+            if (configuration.shouldIgnoreCleanup()) {
+                System.out.println("Not deleting any pod upon request");
+            } else {
+                client.destroy(holder.getPod());
+            }
             try {
                 portBindings.podStopped();
             } catch (Exception e) {
