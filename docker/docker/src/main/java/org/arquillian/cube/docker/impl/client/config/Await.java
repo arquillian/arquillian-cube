@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.client.config;
 
 import java.util.List;
+import java.util.Map;
 
 public class Await {
 
@@ -25,6 +26,11 @@ public class Await {
     private String match;
     private boolean stdOut = true;
     private boolean stdErr;
+
+    //http
+    private Integer responseCode;
+    private Map<String, Object> headers;
+    private String url;
 
     public Await() {
     }
@@ -116,5 +122,28 @@ public class Await {
     public void setStdErr(boolean stdErr) {
         this.stdErr = stdErr;
     }
-    
+
+    public void setHeaders(Map<String, Object> headers) {
+        this.headers = headers;
+    }
+
+    public Map<String, Object> getHeaders() {
+        return headers;
+    }
+
+    public void setResponseCode(Integer responseCode) {
+        this.responseCode = responseCode;
+    }
+
+    public Integer getResponseCode() {
+        return responseCode;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }
