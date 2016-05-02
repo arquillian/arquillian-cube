@@ -30,6 +30,7 @@ public class AwaitStrategyFactory {
                     case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                     case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, await);
                     case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, await);
+                    case HttpAwaitStrategy.TAG: return new HttpAwaitStrategy(cube, dockerClientExecutor, await);
                     default: return new CustomAwaitStrategyInstantiator(cube, dockerClientExecutor, await);
                 }
 

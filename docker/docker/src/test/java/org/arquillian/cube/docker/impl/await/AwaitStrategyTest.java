@@ -5,12 +5,15 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CubeContainers;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.await.AwaitStrategy;
 import org.junit.Test;
@@ -25,6 +28,33 @@ public class AwaitStrategyTest {
     private Cube<?> cube;
     @Mock
     private DockerClientExecutor dockerClientExecutor;
+
+    @Test
+    public void should_be_able_to_create_http_await_strategy() {
+        String containerDefinition = "tomcat:\n" +
+                "            image: tutum/tomcat:7.0\n" +
+                "            exposedPorts: [8089/tcp]\n" +
+                "            await:\n" +
+                "              strategy: http\n" +
+                "              iterations: 10\n" +
+                "              sleepPollingTime: 200 s\n" +
+                "              url: http://localhost:8080/ping\n" +
+                "              responseCode: 201\n" +
+                "              match: 'Server startup'\n" +
+                "              headers: \n" +
+                "                   X-Cube: Docker\n";
+
+        final CubeContainers load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
+        final CubeContainer tomcat = load.getContainers().get("tomcat");
+
+        HttpAwaitStrategy awaitStrategy = new HttpAwaitStrategy(cube, dockerClientExecutor, tomcat.getAwait());
+        assertThat(awaitStrategy.getPollIterations(), is(10));
+        assertThat(awaitStrategy.getUrl(), is("http://localhost:8080/ping"));
+        assertThat(awaitStrategy.getResponseCode(), is(201));
+        assertThat(awaitStrategy.getMatcher(), is("Server startup"));
+
+        assertThat((String)awaitStrategy.getHeaders().get("X-Cube"), is("Docker"));
+    }
 
     @Test
     public void should_be_able_to_create_custom_await_strategies() {
