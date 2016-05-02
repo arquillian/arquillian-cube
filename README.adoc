@@ -383,6 +383,7 @@ polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5
 static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
 sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
 log:: it looking for a specified pattern in container log to detect service startup. This can be used when there is no port to connect or connecting to the port successfully doesn't mean the service is fully initialized.
+<fullyqualifiedclassname>:: if you specify a fully qualified class name, Arquillian Cube will instantiate the given class. In this way you can implement your own await strategies. There are two rules to follow, the first one is that class must implement `AwaitStrategy` and the second one is that one default constructor must be provided. Optionally you can add fields/setters for types `Cube`, `DockerClientExecutor` or `Await` to inject them into the await strategy.
 
 By default in case you don't specify any _await_ strategy, polling with _ss_ command is used.
 
@@ -453,6 +454,48 @@ tomcat:
 <3> Optional parameter to enable scanning of _standard error_ log. Default is false.
 <4> Optional parameter to configure sleeping time between log downloading. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
 <5> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
+
+Custom Await strategy:
+
+[source, java]
+.org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
+----
+public class CustomAwaitStrategyImpl implements AwaitStrategy {
+
+  Await params;
+  DockerClientExecutor dockerClientExecutor;
+  Cube<?> cube;
+
+  public void setCube(Cube<?> cube) {
+    this.cube = cube;
+  }
+
+  public void setDockerClientExecutor(DockerClientExecutor dockerClientExecutor) {
+    this.dockerClientExecutor = dockerClientExecutor;
+  }
+
+  public void setParams(Await params) {
+     this.params = params;
+  }
+
+  @Override
+  public boolean await() {
+    return this.params != null && this.dockerClientExecutor != null && this.cube != null;
+  }
+}
+----
+
+and the configuration comes as:
+
+[source, yaml]
+.Example.yml
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
+----
 
 === Inferring exposedPorts from portBinding
 

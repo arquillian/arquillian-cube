@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.await;
 
+import org.arquillian.cube.spi.await.AwaitStrategy;
+
 import java.util.concurrent.TimeUnit;
 
 public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {

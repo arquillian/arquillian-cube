@@ -6,6 +6,7 @@ import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public class AwaitStrategyFactory {
 
@@ -29,11 +30,11 @@ public class AwaitStrategyFactory {
                     case NativeAwaitStrategy.TAG: return new NativeAwaitStrategy(cube, dockerClientExecutor);
                     case StaticAwaitStrategy.TAG: return new StaticAwaitStrategy(cube, await);
                     case SleepingAwaitStrategy.TAG: return new SleepingAwaitStrategy(cube, await);
-                    default: return new NativeAwaitStrategy(cube, dockerClientExecutor);
+                    default: return new CustomAwaitStrategyInstantiator(cube, dockerClientExecutor, await);
                 }
 
             } else {
-                log.fine("No await strategy is set and Native one is going to be used.");
+                log.fine("No await strategy is set and Polling one is going to be used.");
                 return new PollingAwaitStrategy(cube, dockerClientExecutor, new Await());
             }
 
