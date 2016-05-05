@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.spi.Cube;
@@ -44,7 +44,7 @@ public class AwaitStrategyTest {
                 "              headers: \n" +
                 "                   X-Cube: Docker\n";
 
-        final CubeContainers load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
+        final DockerCompositions load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
         final CubeContainer tomcat = load.getContainers().get("tomcat");
 
         HttpAwaitStrategy awaitStrategy = new HttpAwaitStrategy(cube, dockerClientExecutor, tomcat.getAwait());
