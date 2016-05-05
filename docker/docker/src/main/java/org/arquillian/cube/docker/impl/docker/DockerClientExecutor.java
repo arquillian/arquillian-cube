@@ -25,12 +25,15 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
+import com.github.dockerjava.api.command.CreateNetworkCmd;
+import com.github.dockerjava.api.command.CreateNetworkResponse;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
@@ -669,6 +672,23 @@ public class DockerClientExecutor {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         readDockerRawStream(rawStream, output);
         return new String(output.toByteArray());
+    }
+
+    public String createNetwork(String id, Network network) {
+        final CreateNetworkCmd createNetworkCmd = this.dockerClient.createNetworkCmd().withName(id);
+
+        if (network.getDriver() != null) {
+            createNetworkCmd.withDriver(network.getDriver());
+        }
+
+        //TODO IPAM cannot be set at the time of writing this.
+
+        final CreateNetworkResponse exec = createNetworkCmd.exec();
+        return exec.getId();
+    }
+
+    public void removeNetwork(String id) {
+        this.dockerClient.removeNetworkCmd(id).exec();
     }
 
     /**
