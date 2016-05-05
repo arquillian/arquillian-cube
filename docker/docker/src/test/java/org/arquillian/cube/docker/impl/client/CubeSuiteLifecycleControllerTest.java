@@ -106,7 +106,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
         CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
-        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
+        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionLinksAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         ContainerRegistry containerRegistry = mock(ContainerRegistry.class);

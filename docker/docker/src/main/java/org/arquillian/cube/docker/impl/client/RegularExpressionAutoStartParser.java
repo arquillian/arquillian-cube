@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 
 public class RegularExpressionAutoStartParser implements AutoStartParser {
@@ -14,9 +14,9 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
     public static final String REGULAR_EXPRESSION_PREFIX = "regexp:";
 
     private String expression;
-    private CubeContainers containerDefinitions;
+    private DockerCompositions containerDefinitions;
 
-    public RegularExpressionAutoStartParser(String expression, CubeContainers containerDefinitions) {
+    public RegularExpressionAutoStartParser(String expression, DockerCompositions containerDefinitions) {
         if(!expression.startsWith(REGULAR_EXPRESSION_PREFIX)) {
             throw new IllegalArgumentException("Regular Expression AutoStartParser should begin with "+REGULAR_EXPRESSION_PREFIX);
         }
