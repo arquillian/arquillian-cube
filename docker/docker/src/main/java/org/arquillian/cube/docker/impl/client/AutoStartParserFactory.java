@@ -1,10 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 
 public class AutoStartParserFactory {
 
-    public static AutoStartParser create(String expression, CubeContainers containersDefinition) {
+    public static AutoStartParser create(String expression, DockerCompositions containersDefinition) {
         if (isNone(expression)) {
             return new NoneAutoStartParser();
         } else {

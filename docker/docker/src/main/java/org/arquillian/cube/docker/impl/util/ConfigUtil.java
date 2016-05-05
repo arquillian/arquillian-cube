@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.ExposedPort;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -24,6 +25,8 @@ import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
 public final class ConfigUtil {
+
+    private static final String NETWORKS = "networks";
 
     private ConfigUtil() {}
 
@@ -47,7 +50,7 @@ public final class ConfigUtil {
         return result;
     }
 
-    public static String dump(CubeContainers containers) {
+    public static String dump(DockerCompositions containers) {
         Yaml yaml = new Yaml(new CubeRepresenter());
         return yaml.dump(containers);
     }
@@ -58,7 +61,7 @@ public final class ConfigUtil {
             this.representers.put(ExposedPort.class, new ToStringRepresent());
             this.representers.put(Image.class, new ToStringRepresent());
             this.representers.put(Link.class, new ToStringRepresent());
-            addClassTag(CubeContainers.class, Tag.MAP);
+            addClassTag(DockerCompositions.class, Tag.MAP);
         }
 
         public class ToStringRepresent implements Represent {
@@ -77,21 +80,29 @@ public final class ConfigUtil {
         }
     }
 
-    public static CubeContainers load(String content) {
+    public static DockerCompositions load(String content) {
         return load(new ByteArrayInputStream(content.getBytes()));
     }
 
     @SuppressWarnings("unchecked")
-    public static CubeContainers load(InputStream inputStream) {
+    public static DockerCompositions load(InputStream inputStream) {
         // TODO: Figure out how to map root Map<String, Type> objects. Workaround by mapping it to Map structure then dumping it into individual objects
         Yaml yaml = new Yaml(new CubeConstructor());
         Map<String, Object> rawContainers = (Map<String, Object>) yaml.load(inputStream);
 
-        CubeContainers containers = new CubeContainers();
+        DockerCompositions containers = new DockerCompositions();
 
-        for(Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
-            CubeContainer container = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
-            containers.add(rawContainerEntry.getKey(), container);
+        for (Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
+            if (NETWORKS.equals(rawContainerEntry.getKey())) {
+                Map<String, Object> rawNetworks = (Map<String, Object>) rawContainerEntry.getValue();
+                for (Map.Entry<String, Object> rawNetworkEntry : rawNetworks.entrySet()) {
+                    Network network = yaml.loadAs(yaml.dump(rawNetworkEntry.getValue()), Network.class);
+                    containers.add(rawNetworkEntry.getKey(), network);
+                }
+            } else {
+                CubeContainer container = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
+                containers.add(rawContainerEntry.getKey(), container);
+            }
         }
         return applyExtendsRules(containers);
     }
@@ -123,19 +134,19 @@ public final class ConfigUtil {
         }
     }
 
-    private static CubeContainers applyExtendsRules(CubeContainers cubeContainers) {
+    private static DockerCompositions applyExtendsRules(DockerCompositions dockerCompositions) {
 
-        for(Map.Entry<String, CubeContainer> containerEntry : cubeContainers.getContainers().entrySet()) {
+        for(Map.Entry<String, CubeContainer> containerEntry : dockerCompositions.getContainers().entrySet()) {
             CubeContainer container = containerEntry.getValue();
             if(container.getExtends() != null) {
                 String extendsContainer = container.getExtends();
-                if(cubeContainers.get(extendsContainer) == null) {
+                if(dockerCompositions.get(extendsContainer) == null) {
                     throw new IllegalArgumentException(containerEntry.getKey() + " extends a non existing container definition " + extendsContainer);
                 }
-                CubeContainer extendedContainer = cubeContainers.get(extendsContainer);
+                CubeContainer extendedContainer = dockerCompositions.get(extendsContainer);
                 container.merge(extendedContainer);
             }
         }
-        return cubeContainers;
+        return dockerCompositions;
     }
 }
