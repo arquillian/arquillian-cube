@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class CubeContainer {
 
+    private String containerName;
     private String workingDir;
     private Boolean disableNetwork;
     private String hostName;
@@ -395,6 +396,14 @@ public class CubeContainer {
 
     public boolean hasBeforeStop() {
         return this.beforeStop != null && !this.beforeStop.isEmpty();
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
     }
 
     public void merge(CubeContainer container) {
