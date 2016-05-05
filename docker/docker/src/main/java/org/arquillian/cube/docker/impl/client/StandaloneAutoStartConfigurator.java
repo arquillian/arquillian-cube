@@ -1,6 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class StandaloneAutoStartConfigurator {
@@ -12,8 +12,8 @@ public class StandaloneAutoStartConfigurator {
         }
     }
 
-    private AutoStartParser resolveNotSetAutoStart(CubeContainers cubeContainers) {
-        return new RegularExpressionAutoStartParser(RegularExpressionAutoStartParser.REGULAR_EXPRESSION_PREFIX + ".*", cubeContainers);
+    private AutoStartParser resolveNotSetAutoStart(DockerCompositions dockerCompositions) {
+        return new RegularExpressionAutoStartParser(RegularExpressionAutoStartParser.REGULAR_EXPRESSION_PREFIX + ".*", dockerCompositions);
     }
 
 }

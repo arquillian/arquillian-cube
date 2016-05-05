@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 
-public class AutomaticResolutionAutoStartParser implements AutoStartParser {
+public class AutomaticResolutionLinksAutoStartParser implements AutoStartParser {
 
     private List<String> deployableContainers;
-    private CubeContainers containerDefinition;
+    private DockerCompositions containerDefinition;
 
-    public AutomaticResolutionAutoStartParser(List<String> deployableContainers, CubeContainers containerDefinitions) {
+    public AutomaticResolutionLinksAutoStartParser(List<String> deployableContainers, DockerCompositions containerDefinitions) {
         this.deployableContainers = deployableContainers;
         this.containerDefinition = containerDefinitions;
     }

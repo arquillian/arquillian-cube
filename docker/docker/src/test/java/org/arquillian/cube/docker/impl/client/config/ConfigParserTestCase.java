@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 public class ConfigParserTestCase {
 
@@ -24,7 +23,7 @@ public class ConfigParserTestCase {
     @Test
     public void shouldBeAbleToLoadStrategy() throws Exception {
 
-        CubeContainers containers = ConfigUtil.load(CONTENT);
+        DockerCompositions containers = ConfigUtil.load(CONTENT);
         CubeContainer container = containers.get("tomcat");
 
         Assert.assertEquals("tutum/tomcat", container.getImage().getName());

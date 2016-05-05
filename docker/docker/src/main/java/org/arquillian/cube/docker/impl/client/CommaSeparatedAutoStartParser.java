@@ -3,16 +3,16 @@ package org.arquillian.cube.docker.impl.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 
 public class CommaSeparatedAutoStartParser implements AutoStartParser {
 
     private String expression;
-    private CubeContainers containerDefinitions;
+    private DockerCompositions containerDefinitions;
 
-    public CommaSeparatedAutoStartParser(String expression, CubeContainers containerDefinitions) {
+    public CommaSeparatedAutoStartParser(String expression, DockerCompositions containerDefinitions) {
         this.expression = expression;
         this.containerDefinitions = containerDefinitions;
     }
