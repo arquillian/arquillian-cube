@@ -64,7 +64,11 @@ public class DockerComposeConverter implements Converter {
 
         for(String name : names) {
             CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
-            cubeContainers.add(name, cubeContainer);
+            if (cubeContainer.getContainerName() != null) {
+                cubeContainers.add(cubeContainer.getContainerName(), cubeContainer);
+            } else {
+                cubeContainers.add(name, cubeContainer);
+            }
         }
         return cubeContainers;
     }
