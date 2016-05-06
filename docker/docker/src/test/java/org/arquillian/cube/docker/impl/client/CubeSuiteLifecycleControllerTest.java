@@ -50,7 +50,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new BeforeSuite());
@@ -68,7 +68,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new BeforeSuite());
@@ -86,7 +86,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new BeforeSuite());
@@ -105,7 +105,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         dockerConfiguration.setAutoStartContainers(new AutomaticResolutionLinksAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
@@ -133,7 +133,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new BeforeSuite());
@@ -154,7 +154,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new BeforeSuite());
@@ -175,7 +175,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         fire(new AfterSuite());
@@ -198,7 +198,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(cubeData);
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
@@ -228,7 +228,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(cubeData);
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
@@ -257,7 +257,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(cubeData);
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);

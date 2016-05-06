@@ -56,7 +56,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         final LocalDockerNetworkRegistry localDockerNetworkRegistry = new LocalDockerNetworkRegistry();
@@ -93,7 +93,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
-        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         final LocalDockerNetworkRegistry localDockerNetworkRegistry = new LocalDockerNetworkRegistry();

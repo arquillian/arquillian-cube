@@ -228,7 +228,7 @@ Let's see valid attributes:
 |In case you are using COMPOSE format, you cannot configure cube custom properties like `await` or `beforeStop`. This property allows you to add them in already defined containers.
 
 |autoStartContainers
-|Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. In case of defining networks instead of links, Cube will start *only* all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_.
+|Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. In case of defining networks instead of links, Cube will start *only* all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_, or you can add a custom implementation of `org.arquillian.cube.spi.AutoStartParser` by using reserved word `custom:` and the full qualified class name.
 
 |tlsVerify
 |Boolean to set if Cube should connect to Docker server with TLS. This attribute will be ignored if `serverUri` attribute starts with `http://` or `https://`.
@@ -1036,6 +1036,45 @@ For example:
 ----
 <extension qualifier="docker">
     <property name="autoStartContainers">regexp:a(.*)</property>
+</extension>
+----
+
+Also you can provide your own implementation of autostart containers.
+To make it so, first you need to implement `org.arquillian.cube.spi.AutoStartParser` interface.
+
+[source, java]
+----
+public class ChangeNameAutoStartParser implements AutoStartParser { // <1>
+
+    @Inject // <2>
+    public Instance<CubeDockerConfiguration> cubeDockerConfigurationInstance;
+
+    @Override
+    public Map<String, Node> parse() { // <3>
+        final DockerCompositions dockerContainersContent = cubeDockerConfigurationInstance.get().getDockerContainersContent();
+
+        final Map<String, Node> nodes = new HashMap<>();
+        final Set<String> containersNames = new TreeSet<>(dockerContainersContent.getContainers().keySet());
+
+        for (String name : containersNames) {
+            nodes.put(new StringBuilder(name).reverse().toString(), Node.from(name));
+        }
+
+        return nodes;
+    }
+}
+----
+<1> Need to implement AutoStartParser interface
+<2> You can Inject any element produced by Arquillian such as CubeDockerConfiguration or ContainerRegistry
+<3> Returns a map with the name of the map and id.
+
+Then you need to use reserved word `custom:` + full qualified class name in the `autoStartContainers` property.
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+    <property name="autoStartContainers">custom:org.arquillian.cube.docker.impl.client.ChangeNameAutoStartParser</property>
 </extension>
 ----
 

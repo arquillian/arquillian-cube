@@ -3,6 +3,8 @@ package org.arquillian.cube.docker.impl.client;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.arquillian.cube.spi.Node;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +22,9 @@ public class AutomaticResolutionNetworkAutoStartParser implements AutoStartParse
     }
 
     @Override
-    public Map<String, AutoStartOrderUtil.Node> parse() {
+    public Map<String, Node> parse() {
 
-        Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
+        Map<String, Node> nodes = new HashMap<>();
 
         Set<String> networksIds = this.containerDefinition.getNetworkIds();
 
@@ -35,7 +37,7 @@ public class AutomaticResolutionNetworkAutoStartParser implements AutoStartParse
                     // if the network that this cube must connect is registered in current cube definition
                     if (networksIds.contains(networkMode)) {
                         String name = container.getKey();
-                        AutoStartOrderUtil.Node child = AutoStartOrderUtil.Node.from(name);
+                        Node child = Node.from(name);
                         nodes.put(name, child);
                     }
                 }

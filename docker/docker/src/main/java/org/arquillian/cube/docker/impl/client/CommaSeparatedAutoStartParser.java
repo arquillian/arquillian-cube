@@ -6,6 +6,8 @@ import java.util.Map;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.arquillian.cube.spi.Node;
 
 public class CommaSeparatedAutoStartParser implements AutoStartParser {
 
@@ -18,13 +20,13 @@ public class CommaSeparatedAutoStartParser implements AutoStartParser {
     }
 
     @Override
-    public Map<String, AutoStartOrderUtil.Node> parse() {
-        Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
+    public Map<String, Node> parse() {
+        Map<String, Node> nodes = new HashMap<>();
 
         String[] autoStartContainers = ConfigUtil.trim(expression.split(","));
         for (String autoStart : autoStartContainers) {
             if (containerDefinitions.get(autoStart) != null) {
-                nodes.put(autoStart, AutoStartOrderUtil.Node.from(autoStart));
+                nodes.put(autoStart, Node.from(autoStart));
             }
         }
         return nodes;

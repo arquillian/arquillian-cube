@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.arquillian.cube.spi.Node;
 
 public class RegularExpressionAutoStartParser implements AutoStartParser {
 
@@ -25,8 +27,8 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
     }
 
     @Override
-    public Map<String, AutoStartOrderUtil.Node> parse() {
-        Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
+    public Map<String, Node> parse() {
+        Map<String, Node> nodes = new HashMap<>();
 
         String regularExpression = getRegularExpression(expression);
         Pattern pattern = Pattern.compile(regularExpression);
@@ -34,7 +36,7 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
         for(String containerName : definedContainers) {
             Matcher matcher = pattern.matcher(containerName);
             if(matcher.matches()) {
-                nodes.put(containerName, AutoStartOrderUtil.Node.from(containerName));
+                nodes.put(containerName, Node.from(containerName));
             }
         }
         return nodes;

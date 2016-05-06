@@ -14,6 +14,10 @@ import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.jboss.arquillian.core.api.Injector;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class CubeDockerConfiguration {
 
@@ -138,7 +142,7 @@ public class CubeDockerConfiguration {
         return dockerInsideDockerResolution;
     }
 
-    public static CubeDockerConfiguration fromMap(Map<String, String> map) {
+    public static CubeDockerConfiguration fromMap(Map<String, String> map, Injector injector) {
         CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
 
         if(map.containsKey(DOCKER_SERVER_IP)) {
@@ -250,7 +254,7 @@ public class CubeDockerConfiguration {
         if (map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
             DockerCompositions containerDefinitions = cubeConfiguration.getDockerContainersContent();
-            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
+            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions, injector);
 
             cubeConfiguration.autoStartContainers = autoStartParser;
         }
