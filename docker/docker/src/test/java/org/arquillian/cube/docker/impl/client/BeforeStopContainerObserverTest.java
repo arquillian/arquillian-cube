@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -90,7 +90,7 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         String content = CONTAINER_COPY_CONFIGURATION;
         content += newFolder.getAbsolutePath();
 
-        CubeContainers configuration = ConfigUtil.load(content);
+        DockerCompositions configuration = ConfigUtil.load(content);
         CubeContainer config = configuration.get("tomcat_default");
 
         Mockito.when(cube.configuration()).thenReturn(config);
@@ -107,7 +107,7 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         content += newFolder.getAbsolutePath();
         content += "mylog.log";
 
-        CubeContainers configuration = ConfigUtil.load(content);
+        DockerCompositions configuration = ConfigUtil.load(content);
         CubeContainer config = configuration.get("tomcat_default");
         Mockito.when(cube.configuration()).thenReturn(config);
         fire(new BeforeStop(CUBE_CONTAINER_NAME));

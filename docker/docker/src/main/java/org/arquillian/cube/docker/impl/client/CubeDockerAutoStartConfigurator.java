@@ -4,7 +4,7 @@ package org.arquillian.cube.docker.impl.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
@@ -21,11 +21,17 @@ public class CubeDockerAutoStartConfigurator {
 
     }
 
-
-    private AutoStartParser resolveNotSetAutoStart(ContainerRegistry containerRegistry, CubeContainers containers) {
+    private AutoStartParser resolveNotSetAutoStart(ContainerRegistry containerRegistry, DockerCompositions containers) {
         //we want to use the automatic autoconfiguration
         List<String> containersName = toContainersName(containerRegistry.getContainers());
-        return new AutomaticResolutionAutoStartParser(containersName, containers);
+
+        if (containers.getNetworkIds().size() > 0) {
+             //if network defined then you should not mix links and network
+            return new AutomaticResolutionNetworkAutoStartParser(containersName, containers);
+        } else {
+            // if no network defined then links approach is used.
+            return new AutomaticResolutionLinksAutoStartParser(containersName, containers);
+        }
     }
 
 

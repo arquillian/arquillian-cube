@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -59,7 +59,7 @@ public class CubeDockerConfiguration {
     private boolean clean = false;
     private AutoStartParser autoStartContainers = null;
 
-    private CubeContainers dockerContainersContent;
+    private DockerCompositions dockerContainersContent;
 
     public String getDockerServerUri() {
         return dockerServerUri;
@@ -69,7 +69,7 @@ public class CubeDockerConfiguration {
         return dockerServerVersion;
     }
 
-    public CubeContainers getDockerContainersContent() {
+    public DockerCompositions getDockerContainersContent() {
         return dockerContainersContent;
     }
 
@@ -243,13 +243,13 @@ public class CubeDockerConfiguration {
 
         if (map.containsKey(CUBE_SPECIFIC_PROPERTIES)) {
             String content = map.get(CUBE_SPECIFIC_PROPERTIES);
-            final CubeContainers overrideInformation = DockerContainerDefinitionParser.convert(content, DefinitionFormat.CUBE);
+            final DockerCompositions overrideInformation = DockerContainerDefinitionParser.convert(content, DefinitionFormat.CUBE);
             cubeConfiguration.dockerContainersContent.overrideCubeProperties(overrideInformation);
         }
 
         if (map.containsKey(AUTO_START_CONTAINERS)) {
             String expression = map.get(AUTO_START_CONTAINERS);
-            CubeContainers containerDefinitions = cubeConfiguration.getDockerContainersContent();
+            DockerCompositions containerDefinitions = cubeConfiguration.getDockerContainersContent();
             AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
 
             cubeConfiguration.autoStartContainers = autoStartParser;
