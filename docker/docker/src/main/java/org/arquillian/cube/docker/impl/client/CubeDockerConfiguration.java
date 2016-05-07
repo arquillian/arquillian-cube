@@ -38,6 +38,7 @@ public class CubeDockerConfiguration {
     public static final String DOCKER_MACHINE_NAME = "machineName";
     public static final String DOCKER_MACHINE_DRIVER = "machineDriver";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
+    public static final String AUTO_START_ORDER = "autoStartOrder";
     private static final String DEFINITION_FORMAT = "definitionFormat";
     static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
     private static final String CUBE_ENVIRONMENT = "cube.environment";
@@ -62,6 +63,7 @@ public class CubeDockerConfiguration {
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
     private AutoStartParser autoStartContainers = null;
+    private DockerAutoStartOrder dockerAutoStartOrder = null;
 
     private DockerCompositions dockerContainersContent;
 
@@ -124,6 +126,10 @@ public class CubeDockerConfiguration {
 
     public AutoStartParser getAutoStartContainers() {
        return autoStartContainers;
+    }
+
+    public DockerAutoStartOrder getDockerAutoStartOrder() {
+        return dockerAutoStartOrder;
     }
 
     public boolean isClean() {
@@ -262,7 +268,13 @@ public class CubeDockerConfiguration {
         if (map.containsKey(CLEAN)) {
             cubeConfiguration.clean = Boolean.parseBoolean(map.get(CLEAN));
         }
-        
+
+        if (map.containsKey(AUTO_START_ORDER)) {
+            cubeConfiguration.dockerAutoStartOrder = AutoStartOrderFactory.createDockerAutoStartOrder(map.get(AUTO_START_ORDER));
+        } else {
+            cubeConfiguration.dockerAutoStartOrder = AutoStartOrderFactory.createDefaultDockerAutoStartOrder();
+        }
+
         return cubeConfiguration;
     }
 
