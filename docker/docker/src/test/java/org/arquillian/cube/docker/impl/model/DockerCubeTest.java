@@ -1,15 +1,11 @@
 package org.arquillian.cube.docker.impl.model;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyString;
 
-import java.util.HashMap;
-
-import com.github.dockerjava.api.exception.NotFoundException;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
@@ -31,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 
@@ -64,7 +61,9 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
         when(executor.getDockerClient()).thenReturn(dockerClient);
-        cube = injectorInst.get().inject(new DockerCube(ID, new CubeContainer(), executor));
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setRemoveVolumes(false);
+        cube = injectorInst.get().inject(new DockerCube(ID, cubeContainer, executor));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Test
     public void shouldFireLifecycleEventsDuringDestroyWhenContainerNotFound() {
         doThrow(new NotFoundException("container not found"))
-            .when(executor).removeContainer(ID);
+            .when(executor).removeContainer(ID, false);
         cube.stop();
         cube.destroy();
         assertEventFired(BeforeDestroy.class, 1);

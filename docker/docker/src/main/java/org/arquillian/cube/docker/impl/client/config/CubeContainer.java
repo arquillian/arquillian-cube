@@ -26,6 +26,7 @@ public class CubeContainer {
     private Collection<String> dns;
     private Collection<String> volumes;
     private Collection<String> volumesFrom;
+    private Boolean removeVolumes;
     private Collection<String> binds;
     private Collection<Link> links;
     private Collection<PortBinding> portBindings;
@@ -252,6 +253,14 @@ public class CubeContainer {
 
     public void setVolumesFrom(Collection<String> volumesFrom) {
         this.volumesFrom = volumesFrom;
+    }
+
+    public Boolean getRemoveVolumes() {
+        return removeVolumes;
+    }
+
+    public void setRemoveVolumes(Boolean deleteVolumes) {
+        this.removeVolumes = deleteVolumes;
     }
 
     public Collection<String> getBinds() {

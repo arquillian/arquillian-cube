@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -16,8 +17,6 @@ import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.core.api.Injector;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class CubeDockerConfiguration {
 
@@ -46,6 +45,7 @@ public class CubeDockerConfiguration {
     public static final String DOCKER_MACHINE_ARQUILLIAN_PATH = "~/.arquillian/machine";
     public static final String CUBE_SPECIFIC_PROPERTIES = "cubeSpecificProperties";
     public static final String CLEAN = "clean";
+    public static final String REMOVE_VOLUMES = "removeVolumes";
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -62,6 +62,7 @@ public class CubeDockerConfiguration {
     private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
+    private boolean removeVolumes = true;
     private AutoStartParser autoStartContainers = null;
     private DockerAutoStartOrder dockerAutoStartOrder = null;
 
@@ -134,6 +135,10 @@ public class CubeDockerConfiguration {
 
     public boolean isClean() {
         return clean;
+    }
+    
+    public boolean isRemoveVolumes() {
+        return removeVolumes;
     }
 
     void setAutoStartContainers(AutoStartParser autoStartParser) {
@@ -275,6 +280,16 @@ public class CubeDockerConfiguration {
             cubeConfiguration.dockerAutoStartOrder = AutoStartOrderFactory.createDefaultDockerAutoStartOrder();
         }
 
+        if (map.containsKey(REMOVE_VOLUMES)) {
+            cubeConfiguration.removeVolumes = Boolean.parseBoolean(map.get(REMOVE_VOLUMES));
+        }
+        
+        for (CubeContainer container : cubeConfiguration.dockerContainersContent.getContainers().values()) {
+            if (container.getRemoveVolumes() == null) {
+                container.setRemoveVolumes(cubeConfiguration.isRemoveVolumes());
+            }
+        }
+        
         return cubeConfiguration;
     }
 
@@ -353,9 +368,11 @@ public class CubeDockerConfiguration {
         if (autoStartContainers != null) {
             content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
         }
-        if (clean) {
-            content.append("  ").append(CLEAN).append(" = ").append(clean).append(SEP);
-        }
+        
+        content.append("  ").append(CLEAN).append(" = ").append(clean).append(SEP);
+        
+        content.append("  ").append(REMOVE_VOLUMES).append(" = ").append(removeVolumes).append(SEP);
+        
         if (dockerContainersContent != null) {
             String output = ConfigUtil.dump(dockerContainersContent);
             content.append("  ").append(DOCKER_CONTAINERS).append(" = ").append(output).append(SEP);

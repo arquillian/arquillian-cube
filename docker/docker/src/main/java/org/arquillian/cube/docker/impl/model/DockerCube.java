@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.github.dockerjava.api.exception.NotFoundException;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
@@ -37,6 +36,8 @@ import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
+
+import com.github.dockerjava.api.exception.NotFoundException;
 
 public class DockerCube extends BaseCube<CubeContainer> {
 
@@ -150,7 +151,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
         try {
             lifecycle.fire(new BeforeDestroy(id));
             try {
-                executor.removeContainer(id);
+                executor.removeContainer(id, configuration.getRemoveVolumes());
             } catch(NotFoundException e) {}
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
