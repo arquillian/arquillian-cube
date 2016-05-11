@@ -36,12 +36,14 @@ public class CubeSuiteLifecycleController {
     private Instance<DockerClientExecutor> dockerClientExecutor;
 
     public void startAutoContainers(@Observes(precedence = 100) BeforeSuite event, CubeConfiguration cubeConfiguration, CubeDockerConfiguration dockerConfiguration) {
-        List<String[]> autoStartSteps = AutoStartOrderUtil.getAutoStartOrder(dockerConfiguration);
+        final DockerAutoStartOrder dockerAutoStartOrder = dockerConfiguration.getDockerAutoStartOrder();
+        List<String[]> autoStartSteps = dockerAutoStartOrder.getAutoStartOrder(dockerConfiguration);
         startAllSteps(autoStartSteps, cubeConfiguration.getConnectionMode());
     }
 
     public void stopAutoContainers(@Observes(precedence = -100) AfterSuite event, CubeDockerConfiguration configuration) {
-        List<String[]> autoStopSteps = AutoStartOrderUtil.getAutoStopOrder(configuration);
+        final DockerAutoStartOrder dockerAutoStartOrder = configuration.getDockerAutoStartOrder();
+        List<String[]> autoStopSteps = dockerAutoStartOrder.getAutoStopOrder(configuration);
         stopAllSteps(autoStopSteps);
     }
 

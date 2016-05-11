@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;

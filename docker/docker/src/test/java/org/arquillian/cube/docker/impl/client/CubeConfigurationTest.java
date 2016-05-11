@@ -77,7 +77,7 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("cubeSpecificProperties", OVERRIDE_CUSTOM);
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
         final CubeContainer tomcat = dockerContainersContent.get("tomcat");
@@ -104,7 +104,7 @@ public class CubeConfigurationTest {
         parameters.put("dockerContainersFiles", newFile.toURI().toString() + ", " + newFile2.toURI().toString());
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
         assertThat(dockerContainersContent.get("tomcat"), is(notNullValue()));
@@ -120,7 +120,7 @@ public class CubeConfigurationTest {
         parameters.put("dockerContainers", DOCKER_COMPOSE_CONTENT);
         parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
 
         CubeContainer actualWeb = dockerContainersContent.get("web");
@@ -140,7 +140,7 @@ public class CubeConfigurationTest {
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
         CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
@@ -159,7 +159,7 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainers", CONTENT);
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
@@ -186,7 +186,7 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainersFile", newFile.toURI().toString());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
@@ -211,7 +211,7 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainersFile", newFile.toURI().toString());
 
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
         assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
 
@@ -239,7 +239,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeContainer tomcat7 = cubeConfiguration.getDockerContainersContent().get("tomcat7");
         Assert.assertEquals("tutum/tomcat:7.0", tomcat7.getImage().toImageRef());
@@ -266,7 +266,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final Network mynetwork = cubeConfiguration.getDockerContainersContent().getNetwork("mynetwork");
         assertThat(mynetwork, is(notNullValue()));

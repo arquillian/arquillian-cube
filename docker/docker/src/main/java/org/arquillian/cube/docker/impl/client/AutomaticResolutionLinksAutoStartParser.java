@@ -10,6 +10,8 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.arquillian.cube.spi.Node;
 
 public class AutomaticResolutionLinksAutoStartParser implements AutoStartParser {
 
@@ -22,9 +24,9 @@ public class AutomaticResolutionLinksAutoStartParser implements AutoStartParser 
     }
 
     @Override
-    public Map<String, AutoStartOrderUtil.Node> parse() {
+    public Map<String, Node> parse() {
 
-        Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
+        Map<String, Node> nodes = new HashMap<>();
 
         for(String deployableContainer : this.deployableContainers) {
             CubeContainer content = containerDefinition.get(deployableContainer);
@@ -38,7 +40,7 @@ public class AutomaticResolutionLinksAutoStartParser implements AutoStartParser 
                     String name = link.getName();
 
                     if (containerDefinition.get(name) != null) {
-                        AutoStartOrderUtil.Node child = AutoStartOrderUtil.Node.from(name);
+                        Node child = Node.from(name);
                         nodes.put(name, child);
                     }
                 }

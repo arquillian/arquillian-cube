@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class StandaloneAutoStartConfigurator {

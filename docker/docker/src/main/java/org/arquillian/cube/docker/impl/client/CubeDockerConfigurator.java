@@ -24,6 +24,7 @@ import org.arquillian.cube.spi.CubeConfiguration;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.task.net.DownloadTool;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
+import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -60,6 +61,9 @@ public class CubeDockerConfigurator {
     private Instance<Top> topInstance;
 
     @Inject
+    private Instance<Injector> injectorInstance;
+
+    @Inject
     @ApplicationScoped
     private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
 
@@ -78,7 +82,7 @@ public class CubeDockerConfigurator {
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerIp(config);
         config = resolveTlsVerification(config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);

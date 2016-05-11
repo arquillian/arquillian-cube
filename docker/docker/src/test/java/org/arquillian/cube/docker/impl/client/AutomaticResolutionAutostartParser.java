@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
+import org.arquillian.cube.spi.Node;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,10 +41,10 @@ public class AutomaticResolutionAutostartParser {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         AutomaticResolutionNetworkAutoStartParser automaticResolutionNetworkAutoStartParser = new AutomaticResolutionNetworkAutoStartParser(deployableContainer, cubeConfiguration.getDockerContainersContent());
-        final Map<String, AutoStartOrderUtil.Node> parse = automaticResolutionNetworkAutoStartParser.parse();
+        final Map<String, Node> parse = automaticResolutionNetworkAutoStartParser.parse();
 
         assertThat(parse.get("pingpong"), is(notNullValue()));
         assertThat(parse.get("tomcat"), is(nullValue()));
