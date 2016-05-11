@@ -32,6 +32,9 @@ public class Await {
     private Map<String, Object> headers;
     private String url;
 
+    //waitforit
+    private Integer timeout = 15;
+
     public Await() {
     }
 
@@ -145,5 +148,13 @@ public class Await {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
     }
 }

@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.await;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -8,15 +9,22 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
+import org.arquillian.spacelift.Spacelift;
+import org.arquillian.spacelift.task.net.DownloadTool;
 
 public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
 
     private static final Logger log = Logger.getLogger(PollingAwaitStrategy.class.getName());
+    private static final String MESSAGE = "Service is Up";
+    private static final String WAIT_FOR_IT_SCRIPT_DOWNLOAD_LOCATION = "https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh";
+    private static final String WAIT_FOR_IT_SCRIPT_DIRECTORY = HomeResolverUtil.resolveHomeDirectoryChar("~/.arquillian");
+    private static final String WAIT_FOR_IT_SCRIPT = WAIT_FOR_IT_SCRIPT_DIRECTORY + "/wait-for-it.sh";
 
     public static final String TAG = "polling";
 
@@ -94,11 +102,48 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                         return false;
                     }
                 }
+                break;
+                case "waitforit": {
+                    if (! executeWaitForIt(portBindings.getInternalIP(), port)) {
+                        return false;
+                    }
+                }
             }
 
         }
 
         return true;
+    }
+
+    private boolean executeWaitForIt(String containerIp, int port) {
+        if (! new File(WAIT_FOR_IT_SCRIPT_DIRECTORY).exists()) {
+            if (! new File(WAIT_FOR_IT_SCRIPT_DIRECTORY).mkdirs()) {
+                throw new IllegalArgumentException("Couldn't create the Arquillian directory at ~/.arquillian");
+            }
+        }
+
+        // Check if in (~/.arquillian/wait-for-it.sh) is the file
+        if (! new File(WAIT_FOR_IT_SCRIPT).exists()) {
+            // If not then download the script
+            Spacelift.task(DownloadTool.class)
+                    .from(WAIT_FOR_IT_SCRIPT_DOWNLOAD_LOCATION)
+                    .to(WAIT_FOR_IT_SCRIPT)
+                    .execute()
+                    .await();
+        }
+        // Then copy this into the container
+        dockerClientExecutor.copyStreamToContainer(cube.getId(), new File(WAIT_FOR_IT_SCRIPT));
+        // Fix permissions
+        dockerClientExecutor.execStart(cube.getId(), "sh", "-c", "chmod 744 wait-for-it.sh");
+
+        String command = resolveWaitForItCommand(containerIp, port);
+        final String[] commands = {"sh", "-c", command};
+        String result = dockerClientExecutor.execStart(cube.getId(), commands);
+        return result != null && result.trim().contains(MESSAGE);
+    }
+
+    private String resolveWaitForItCommand(String containerIp, int port) {
+        return String.format("/wait-for-it.sh %s:%s -s -- echo %s", containerIp, port, MESSAGE);
     }
 
     private String resolveCommand(String command, int port) {

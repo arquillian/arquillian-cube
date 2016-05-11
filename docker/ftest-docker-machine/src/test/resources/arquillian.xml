@@ -12,6 +12,12 @@
         <property name="definitionFormat">COMPOSE</property>
         <property name="machineName">dev</property>
         <property name="dockerContainersFile">docker-compose.yml</property>
+        <property name="cubeSpecificProperties">
+            tomcat:
+              await:
+                strategy: polling
+                type: waitforit
+        </property>
     </extension>
 
     <container qualifier="tomcat">

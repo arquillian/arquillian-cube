@@ -592,7 +592,7 @@ public class DockerClientExecutor {
 
     public String execStart(String containerId, String... commands) {
         ExecCreateCmdResponse execCreateCmdResponse = this.dockerClient.execCreateCmd(containerId)
-                .withAttachStdout(true).withAttachStdin(true).withAttachStderr(false).withTty(false).withCmd(commands)
+                .withAttachStdout(true).withAttachStdin(true).withAttachStderr(true).withTty(false).withCmd(commands)
                 .exec();
 
         OutputStream outputStream = new ByteArrayOutputStream();
@@ -623,6 +623,10 @@ public class DockerClientExecutor {
     public InputStream getFileOrDirectoryFromContainerAsTar(String containerId, String from) {
         InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
         return response;
+    }
+
+    public void copyStreamToContainer(String containerId, File file) {
+        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(file.getAbsolutePath()).exec();
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
