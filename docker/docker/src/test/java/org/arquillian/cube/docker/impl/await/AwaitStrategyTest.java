@@ -14,8 +14,11 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.await.AwaitStrategy;
+import org.arquillian.spacelift.Spacelift;
+import org.arquillian.spacelift.task.net.DownloadTool;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,6 +31,15 @@ public class AwaitStrategyTest {
     private Cube<?> cube;
     @Mock
     private DockerClientExecutor dockerClientExecutor;
+
+    @Test
+    public void should_be_able_to_use_wait_for_it_await_strategy() {
+        Spacelift.task(DownloadTool.class)
+                .from("https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh")
+                .to(HomeResolverUtil.resolveHomeDirectoryChar("~/.arquillian/wait-for-it.sh"))
+                .execute()
+                .await();
+    }
 
     @Test
     public void should_be_able_to_create_http_await_strategy() {
