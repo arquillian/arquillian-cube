@@ -230,6 +230,9 @@ Let's see valid attributes:
 |autoStartContainers
 |Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. In case of defining networks instead of links, Cube will start *only* all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_, or you can add a custom implementation of `org.arquillian.cube.spi.AutoStartParser` by using reserved word `custom:` and the full qualified class name.
 
+|autoStartOrder
+|Property to set a new strategy for starting Cubes. Normally the default one is enough but in some cases, if you need to modify it or provide a custom one you can use this property. You need to set the fully qualified name of a class implementing `org.arquillian.cube.spi.AutoStartOrder`.
+
 |tlsVerify
 |Boolean to set if Cube should connect to Docker server with TLS. This attribute will be ignored if `serverUri` attribute starts with `http://` or `https://`.
 

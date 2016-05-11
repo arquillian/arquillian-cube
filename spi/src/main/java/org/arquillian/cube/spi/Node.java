@@ -3,6 +3,9 @@ package org.arquillian.cube.spi;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Node is a node in a tree/graph structure. It is used to draw the graph dependencies of each containers so they can be started in the correct order and in case it is possible in parallel.
+ */
 public class Node {
 
     private String id;
