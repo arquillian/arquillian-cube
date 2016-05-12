@@ -1,9 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 import org.arquillian.cube.spi.Node;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;

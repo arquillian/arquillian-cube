@@ -18,6 +18,9 @@ import org.yaml.snakeyaml.Yaml;
 
 public class DockerComposeConverter implements Converter {
 
+    private static final String DOCKER_COMPOSE_VERSION_KEY = "version";
+    private static final String DOCKER_COMPOSE_VERSION_2_VALUE = "2";
+
     private Map<String, Object> dockerComposeDefinitionMap = new HashMap<>();
     private Path dockerComposeRootDirectory;
 
@@ -62,15 +65,25 @@ public class DockerComposeConverter implements Converter {
 
         Set<String> names = dockerComposeDefinitionMap.keySet();
 
-        for(String name : names) {
-            CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
-            if (cubeContainer.getContainerName() != null) {
-                dockerCompositions.add(cubeContainer.getContainerName(), cubeContainer);
-            } else {
-                dockerCompositions.add(name, cubeContainer);
+        boolean isV2 = names.contains(DOCKER_COMPOSE_VERSION_KEY) && DOCKER_COMPOSE_VERSION_2_VALUE.equals(dockerComposeDefinitionMap.get(DOCKER_COMPOSE_VERSION_KEY));
+        if (isV2) {
+            dockerCompositions = convertCompose(dockerComposeDefinitionMap);
+        } else {
+            for(String name : names) {
+                CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
+                if (cubeContainer.getContainerName() != null) {
+                    dockerCompositions.add(cubeContainer.getContainerName(), cubeContainer);
+                } else {
+                    dockerCompositions.add(name, cubeContainer);
+                }
             }
         }
         return dockerCompositions;
+    }
+
+    private DockerCompositions convertCompose(Map<String, Object> dockerComposeContainerDefinition) {
+        ComposeBuilder composeBuilder = new ComposeBuilder(this.dockerComposeRootDirectory);
+        return composeBuilder.build(dockerComposeContainerDefinition);
     }
 
     private CubeContainer convertContainer(Map<String, Object> dockerComposeContainerDefinition) {
