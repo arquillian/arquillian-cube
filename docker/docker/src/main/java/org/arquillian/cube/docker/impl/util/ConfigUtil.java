@@ -28,6 +28,8 @@ public final class ConfigUtil {
 
     private static final String NETWORKS = "networks";
 
+    private static final String CONTAINERS = "containers";
+
     private ConfigUtil() {}
 
     public static String[] trim(String[] data) {
@@ -88,20 +90,27 @@ public final class ConfigUtil {
     public static DockerCompositions load(InputStream inputStream) {
         // TODO: Figure out how to map root Map<String, Type> objects. Workaround by mapping it to Map structure then dumping it into individual objects
         Yaml yaml = new Yaml(new CubeConstructor());
-        Map<String, Object> rawContainers = (Map<String, Object>) yaml.load(inputStream);
+        Map<String, Object> rawLoad = (Map<String, Object>) yaml.load(inputStream);
 
         DockerCompositions containers = new DockerCompositions();
 
-        for (Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
-            if (NETWORKS.equals(rawContainerEntry.getKey())) {
-                Map<String, Object> rawNetworks = (Map<String, Object>) rawContainerEntry.getValue();
+        for (Map.Entry<String, Object> rawLoadEntry : rawLoad.entrySet()) {
+            if (NETWORKS.equals(rawLoadEntry.getKey())) {
+                Map<String, Object> rawNetworks = (Map<String, Object>) rawLoadEntry.getValue();
                 for (Map.Entry<String, Object> rawNetworkEntry : rawNetworks.entrySet()) {
                     Network network = yaml.loadAs(yaml.dump(rawNetworkEntry.getValue()), Network.class);
                     containers.add(rawNetworkEntry.getKey(), network);
                 }
-            } else {
-                CubeContainer container = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
-                containers.add(rawContainerEntry.getKey(), container);
+            } else if (CONTAINERS.equals(rawLoadEntry.getKey())) {
+                Map<String, Object> rawContainers = (Map<String, Object>) rawLoadEntry.getValue();
+                for (Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
+                    CubeContainer cubeContainer = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
+                    containers.add(rawContainerEntry.getKey(), cubeContainer);
+                }
+            }
+            else {
+                CubeContainer container = yaml.loadAs(yaml.dump(rawLoadEntry.getValue()), CubeContainer.class);
+                containers.add(rawLoadEntry.getKey(), container);
             }
         }
         return applyExtendsRules(containers);
