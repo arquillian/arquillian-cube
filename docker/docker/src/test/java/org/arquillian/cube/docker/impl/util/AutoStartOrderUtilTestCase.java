@@ -49,6 +49,28 @@ public class AutoStartOrderUtilTestCase {
             "  links:\n" +
             "    - B:B\n";
 
+    private static final String SCENARIO_SINGLE_ROOT_AND_MULTIPLE_DEPENDS =
+            "A:\n" +
+            "  dependsOn:\n" +
+            "    - B\n" +
+            "B:\n" +
+            "  image: a\n" +
+            "C:\n" +
+            "  dependsOn:\n" +
+            "    - B\n";
+
+    private static final String SCENARIO_SINGLE_ROOT_AND_MULTIPLE_DEPENDS_AND_LINK =
+            "A:\n" +
+            "  dependsOn:\n" +
+            "    - B\n" +
+            "B:\n" +
+            "  image: a\n" +
+            "C:\n" +
+            "  links:\n" +
+            "    - A:A\n" +
+            "  dependsOn:\n" +
+            "    - B\n";
+
     private static final String SCENARIO_MULTI_ROOT_AND_MULTIPLE_LINKS =
             "A:\n" +
             "  links:\n" +
@@ -121,6 +143,22 @@ public class AutoStartOrderUtilTestCase {
     public void shouldSortSingleRootWithMultipleLinks() throws Exception {
         List<String[]> sorted = AutoStartOrderUtil.getAutoStartOrder(
                 create(SCENARIO_SINGLE_ROOT_AND_MULTIPLE_LINKS, "C", "A"));
+
+        assertExecutionSteps(sorted, new String[]{"B"}, new String[]{"A", "C"});
+    }
+
+    @Test
+    public void shouldSortSingleRootWithMultipleDependsOn() throws Exception {
+        List<String[]> sorted = AutoStartOrderUtil.getAutoStartOrder(
+                create(SCENARIO_SINGLE_ROOT_AND_MULTIPLE_DEPENDS, "C", "A"));
+
+        assertExecutionSteps(sorted, new String[]{"B"}, new String[]{"A", "C"});
+    }
+
+    @Test
+    public void shouldSortSingleRootWithMultipleDependsOnMustHavePriorityOverLinks() throws Exception {
+        List<String[]> sorted = AutoStartOrderUtil.getAutoStartOrder(
+                create(SCENARIO_SINGLE_ROOT_AND_MULTIPLE_DEPENDS_AND_LINK, "C", "A"));
 
         assertExecutionSteps(sorted, new String[]{"B"}, new String[]{"A", "C"});
     }

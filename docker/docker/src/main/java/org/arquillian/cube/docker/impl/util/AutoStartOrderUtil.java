@@ -98,10 +98,8 @@ public class AutoStartOrderUtil {
             return;
         }
         Node parent = nodes.get(id);
-        if(content.getLinks() != null) {
-            Collection<Link> links = content.getLinks();
-            for(Link link : links) {
-                String name = link.getName();
+            Collection<String> dependencies = content.getDependingContainers();
+            for(String name : dependencies) {
 
                 if(config.getDockerContainersContent().get(name) != null) {
                     Node child = nodes.get(name);
@@ -115,7 +113,6 @@ public class AutoStartOrderUtil {
                     }
                 }
             }
-        }
     }
 
     public static class Node {

@@ -75,11 +75,12 @@ public class ContainerBuilder {
     private static final String EXTRA_HOSTS = "extra_hosts";
     private static final String DEVICES = "devices";
     private static final String CONTAINERNAME = "container_name";
+    private static final String DEPENDS_ON = "depends_on";
 
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
             DNS_SEARCH, WORKING_DIR, ENTRYPOINT, USER, HOSTNAME, MEM_LIMIT, PRIVILEGED, RESTART, STDIN_OPEN, TTY,
-            CPU_SET, CPU_SHARES, EXTRA_HOSTS, DEVICES, CONTAINERNAME);
+            CPU_SET, CPU_SHARES, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON);
 
     private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
 
@@ -112,6 +113,9 @@ public class ContainerBuilder {
         }
         if (dockerComposeContainerDefinition.containsKey(COMMAND)) {
             this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
+        }
+        if (dockerComposeContainerDefinition.containsKey(DEPENDS_ON)) {
+            this.addDependsOn(asListOfString(dockerComposeContainerDefinition, DEPENDS_ON));
         }
         if (dockerComposeContainerDefinition.containsKey(LINKS)) {
             this.addLinks(asListOfString(dockerComposeContainerDefinition, LINKS));
@@ -288,6 +292,21 @@ public class ContainerBuilder {
 
     public ContainerBuilder addCommand(String command) {
         configuration.setCmd(Arrays.asList(command));
+        return this;
+    }
+
+    public ContainerBuilder addDependsOn(Collection<String> dependsOn) {
+        Collection<String> listOfDependsOn = new HashSet<>();
+        for (String link : dependsOn) {
+            listOfDependsOn.add(link);
+        }
+
+        if (configuration.getDependsOn() != null) {
+            Collection<String> oldDependsOn = configuration.getDependsOn();
+            oldDependsOn.addAll(listOfDependsOn);
+        } else {
+            configuration.setDependsOn(listOfDependsOn);
+        }
         return this;
     }
 

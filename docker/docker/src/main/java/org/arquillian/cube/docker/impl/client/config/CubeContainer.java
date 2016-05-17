@@ -1,8 +1,12 @@
 package org.arquillian.cube.docker.impl.client.config;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CubeContainer {
 
@@ -28,6 +32,7 @@ public class CubeContainer {
     private Collection<String> volumesFrom;
     private Collection<String> binds;
     private Collection<Link> links;
+    private Collection<String> dependsOn;
     private Collection<PortBinding> portBindings;
     private Collection<ExposedPort> exposedPorts;
     private Boolean privileged;
@@ -404,6 +409,31 @@ public class CubeContainer {
 
     public void setContainerName(String containerName) {
         this.containerName = containerName;
+    }
+
+    public Collection<String> getDependsOn() {
+        return dependsOn;
+    }
+
+    public void setDependsOn(Collection<String> dependsOn) {
+        this.dependsOn = dependsOn;
+    }
+
+    public Collection<String> getDependingContainers() {
+        // Depends on has more priority than links
+        if (dependsOn != null && dependsOn.size() > 0) {
+            return Collections.unmodifiableCollection(dependsOn);
+        } else {
+            if (links != null && links.size() > 0) {
+                Set<String> dependencies = new HashSet<>();
+                for (Link link : links) {
+                    dependencies.add(link.getName());
+                }
+                return dependencies;
+            } else {
+                return new ArrayList<>();
+            }
+        }
     }
 
     public void merge(CubeContainer container) {
