@@ -101,6 +101,8 @@ public class DockerCompositions {
             if (containers.containsKey(containerId)) {
                 final CubeContainer cubeContainer = containers.get(containerId);
                 final CubeContainer overrideCubeContainer = overrideDockerCompositions.get(containerId);
+                
+                cubeContainer.setRemoveVolumes(overrideCubeContainer.getRemoveVolumes());
 
                 if (overrideCubeContainer.hasAwait()) {
                     cubeContainer.setAwait(overrideCubeContainer.getAwait());

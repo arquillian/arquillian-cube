@@ -260,6 +260,9 @@ Let's see valid attributes:
 |clean
 |Sometimes you might left some container running inside your docker host with the same name as one defined for Cube test. At these cases Arquillian Cube (actually Docker) complains of a conflict of trying to create a container name that it is already running. If you want that Cube automatically removes these containers you can set this property to true. By default is false.
 
+|removeVolumes
+|Boolean to set if Cube should also remove the volumes associated with a container when removing the container. By default is true. Can be overwritten on container level.
+
 |connectionMode
 |Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. _STARTANDSTOP_ which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. _STARTORCONNECT_ mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is _STARTORCONNECTANDLEAVE_ which is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions. *This is a Cube property, not a Docker one*, thus it should be inside a <extension qualifier="cube"> tag. See link:#allow-connecting-to-a-running-container[here] for an example.
 |===
@@ -315,6 +318,7 @@ tomcat: #1
   dns: [127.0.0.1]
   volumes: [/tmp]
   volumesFrom: [tomcat]
+  removeVolumes: true
   binds:
     - /host:/container:ro
   links:
@@ -660,6 +664,7 @@ NOTE: This property only overrides custom properties defined by CUBE format.
 ----
 <property name="cubeSpecificProperties">
     tomcat:
+      removeVolumes: true
       await:
         strategy: polling
       beforeStop:

@@ -146,7 +146,7 @@ public class CubeConfigurationTest {
         CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.getImage().toImageRef();
+        String image = actualTomcat.getImage().toImageRef();
         assertThat(image, is("tomcat:7.0"));
     }
 
@@ -194,7 +194,7 @@ public class CubeConfigurationTest {
         CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
         assertThat(actualTomcat, is(notNullValue()));
 
-        String image = (String) actualTomcat.getImage().toImageRef();
+        String image = actualTomcat.getImage().toImageRef();
         assertThat(image, is("tutum/tomcat:7.0"));
         assertThat(dockerContainersContent.get("tomcat2"), is(notNullValue()));
     }
@@ -272,4 +272,53 @@ public class CubeConfigurationTest {
         assertThat(mynetwork, is(notNullValue()));
         assertThat(mynetwork.getDriver(), is("bridge"));
     }
+    
+    @Test
+    public void should_set_global_removeVolumes_option_if_not_set_on_container_level() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", CONTENT);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        
+        CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
+        assertThat(containerConfig.getRemoveVolumes(), is(true));
+        
+        parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "true");
+        cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
+        assertThat(containerConfig.getRemoveVolumes(), is(true));
+        
+        parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");
+        cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
+        assertThat(containerConfig.getRemoveVolumes(), is(false));
+    }
+    
+    @Test
+    public void should_container_level_removeVolumes_option_overwrite_global_value() {
+        String config1 =
+                "tomcat:\n" +
+                "  image: tutum/tomcat:6.0\n" +
+                "  removeVolumes: false";
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "true");
+        parameters.put("dockerContainers", config1);
+        
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
+        assertThat(containerConfig.getRemoveVolumes(), is(false));
+        
+        String config2 =
+                "tomcat:\n" +
+                "  image: tutum/tomcat:6.0\n" +
+                "  removeVolumes: true";
+
+        parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");
+        parameters.put("dockerContainers", config2);
+        
+        cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
+        assertThat(containerConfig.getRemoveVolumes(), is(true));
+    }
+    
 }

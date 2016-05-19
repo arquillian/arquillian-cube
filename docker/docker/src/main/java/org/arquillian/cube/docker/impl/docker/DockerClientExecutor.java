@@ -25,8 +25,6 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.command.CreateNetworkCmd;
-import com.github.dockerjava.api.command.CreateNetworkResponse;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -41,6 +39,8 @@ import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateNetworkCmd;
+import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.LogContainerCmd;
@@ -361,7 +361,7 @@ public class DockerClientExecutor {
                 } catch (NotModifiedException e1) {
                     // Container was already stopped
                 }
-                this.removeContainer(name);
+                this.removeContainer(name, containerConfiguration.getRemoveVolumes());
                 return createContainerCmd.exec().getId();
             } else {
                 throw e;
@@ -465,8 +465,8 @@ public class DockerClientExecutor {
         this.dockerClient.stopContainerCmd(containerId).exec();
     }
 
-    public void removeContainer(String containerId) {
-        this.dockerClient.removeContainerCmd(containerId).exec();
+    public void removeContainer(String containerId, boolean removeVolumes) {
+        this.dockerClient.removeContainerCmd(containerId).withRemoveVolumes(removeVolumes).exec();
     }
 
     public InspectContainerResponse inspectContainer(String containerId) {
