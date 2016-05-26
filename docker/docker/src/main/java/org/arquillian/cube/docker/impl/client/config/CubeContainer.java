@@ -424,15 +424,19 @@ public class CubeContainer {
         if (dependsOn != null && dependsOn.size() > 0) {
             return Collections.unmodifiableCollection(dependsOn);
         } else {
-            if (links != null && links.size() > 0) {
-                Set<String> dependencies = new HashSet<>();
-                for (Link link : links) {
-                    dependencies.add(link.getName());
-                }
-                return dependencies;
-            } else {
-                return new ArrayList<>();
+            return getLinksName();
+        }
+    }
+
+    private Collection<String> getLinksName() {
+        if (links != null && links.size() > 0) {
+            Set<String> dependencies = new HashSet<>();
+            for (Link link : links) {
+                dependencies.add(link.getName());
             }
+            return dependencies;
+        } else {
+            return new ArrayList<>();
         }
     }
 
