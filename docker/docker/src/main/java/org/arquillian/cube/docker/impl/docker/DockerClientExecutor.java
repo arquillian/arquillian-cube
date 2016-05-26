@@ -278,7 +278,8 @@ public class DockerClientExecutor {
             createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
         }
 
-        if (containerConfiguration.getLinks() != null) {
+        // Dependencies is precedence over links
+        if (containerConfiguration.getLinks() != null && containerConfiguration.getDependsOn() == null) {
             createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
         }
 

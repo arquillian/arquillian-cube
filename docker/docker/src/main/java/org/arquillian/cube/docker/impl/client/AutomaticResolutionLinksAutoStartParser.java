@@ -34,17 +34,14 @@ public class AutomaticResolutionLinksAutoStartParser implements AutoStartParser 
                 return nodes;
             }
 
-            if (content.getLinks() != null) {
-                Collection<Link> links = content.getLinks();
-                for (Link link : links) {
-                    String name = link.getName();
+                Collection<String> dependencies = content.getDependingContainers();
+                for (String name : dependencies) {
 
                     if (containerDefinition.get(name) != null) {
                         Node child = Node.from(name);
                         nodes.put(name, child);
                     }
                 }
-            }
         }
 
         return nodes;
