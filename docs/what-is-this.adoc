@@ -1,0 +1,22 @@
+== What is this?
+
+*Arquillian Cube* is an _Arquillian_ extension that can be used to manager _Docker_ containers from _Arquillian_.
+
+Extension is named *Cube* for two reasons:
+
+* Because Docker is like a cube
+* Because http://en.memory-alpha.org/wiki/Borg_cube[Borg starship] is named *cube* and well because we are moving tests close to production we can say that "any resistance is futile, bugs will be assimilated".
+
+With this extension you can start a _Docker_ container with a server installed, deploy the required deployable file within it and execute _Arquillian_ tests.
+
+The key point here is that if _Docker_ is used as deployable platform in production, your tests are executed in a the same container as it will be in production, so your tests are even more real than before.
+
+But it also lets you start a container with every required service like database, mail server, ... and instead of stubbing or using fake objects your tests can use real servers.
+
+[WARNING]
+====
+This extension has been developed and tested on a Linux machine with the _Docker_ server already installed.
+It works with *Boot2Docker* as well in _Windows_ and _MacOS_ machines, but some parameters like _host ip_ must be the _Boot2Docker_ server instead of _localhost_ (in case you have _Docker_ server installed inside your own machine).
+
+One of the best resources to learn about why using _Boot2Docker_ is different from using _Docker_ in Linux can be read here http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide
+====

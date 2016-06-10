@@ -1,0 +1,128 @@
+== Basic Example
+
+After having a _Docker_ server installed we can start using *Arquillian Cube*.
+In this case we are going to use a very simple example using a _Docker_ image with _Apache Tomcat_ and we are going to test a _Servlet_ on it.
+
+[source, java]
+.HelloWorldServlet.java
+----
+@WebServlet("/HelloWorld")
+public class HelloWorldServlet extends HttpServlet {
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    PrintWriter writer = resp.getWriter();
+    writer.println("Hello World");
+  }
+}
+----
+
+[source, java]
+.HelloWorldServletTest.java
+----
+@RunWith(Arquillian.class)
+public class HelloWorldServletTest {
+
+  @Deployment(testable=false) //<1>
+  public static WebArchive create() {
+    return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class); //<2>
+  }
+
+  @Test
+  public void should_parse_and_load_configuration_file(@ArquillianResource URL resource) throws IOException { //<3>
+
+    URL obj = new URL(resource, "HelloWorld");
+    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+    con.setRequestMethod("GET");
+
+    BufferedReader in = new BufferedReader(
+            new InputStreamReader(con.getInputStream()));
+    String inputLine;
+    StringBuffer response = new StringBuffer();
+
+    while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+    }
+    in.close();
+
+    assertThat(response.toString(), is("Hello World"));//<4>
+  }
+}
+----
+<1> In this case we are running the test as a client. So in fact this test is executed against the container instead of inside the container.
+<2> No changes in this part, we need to create a deployable file, and because we are testing against _Tomcat_, a _war_ file is created.
+<3> Because the test is run as client, we can use +@ArquillianResource+ to get the URL where the file is deployed. Note that this will be the URL to access _Tomcat_ running inside the _Docker_ container.
+<4> Typical jUnit assertion of servlet response.
+
+Now this test could be run in any container, there is nothing that ties this to _Docker_.
+Next step is adding some dependencies apart from the typical _Arquillian_ dependencies.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+  <groupId>org.arquillian.cube</groupId>
+  <artifactId>arquillian-cube-docker</artifactId> <!--1-->
+  <version>${project.version}</version>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.jboss.arquillian.container</groupId>
+  <artifactId>arquillian-tomcat-remote-7</artifactId> <!--2-->
+  <version>1.0.0.CR7</version>
+  <scope>test</scope>
+</dependency>
+----
+<1> Adds *Arquillian Cube* dependency.
+<2> From the point of view of _Arquillian_, _Tomcat_ is being executed in a remote host (in fact this is true because _Tomcat_ is running inside _Docker_ which is external to _Arquillian_), so we need to add the remote adapter.
+
+And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* in +arquillian.xml+ file.
+
+[source, xml]
+.arquillian.xml
+----
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
+  http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="docker"> <!--1-->
+      <property name="serverVersion">1.12</property> <!--2-->
+      <property name="serverUri">http://localhost:2375</property> <!--3-->
+      <property name="dockerContainers"> <!--4-->
+          tomcat:
+            image: tutum/tomcat:7.0
+            exposedPorts: [8089/tcp]
+            await:
+              strategy: polling
+            env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+            portBindings: [8089/tcp, 8080/tcp]
+      </property>
+  </extension>
+
+  <container qualifier="tomcat" default="true"> <!--5-->
+      <configuration>
+          <property name="host">localhost</property> <!--6-->
+          <property name="httpPort">8080</property> <!--7-->
+          <property name="user">admin</property> <!--8-->
+          <property name="pass">mypass</property>
+      </configuration>
+  </container>
+
+</arquillian>
+----
+<1> *Arquillian Cube* extension is registered.
+<2> _Docker_ server version is required.
+<3> _Docker_ server URI is required. In case you are using a remote _Docker_ host or _Boot2Docker_ here you need to set the remote host ip, but in this case _Docker_ server is on same machine.
+<4> A _Docker_ container contains a lot of parameters that can be configured. To avoid having to create one XML property for each one, a YAML content can be embedded directly as property.
+<5> Configuration of _Tomcat_ remote adapter. Cube will start the _Docker_ container when it is ran in the same context as an _Arquillian_ container with the same name.
+<6> Host can be _localhost_ because there is a port forwarding between container and _Docker_ server.
+<7> Port is exposed as well.
+<8> User and password are required to deploy the war file to remote _Tomcat_.
+
+And that's all.
+Now you can run your test and you will see how _tutum/tomcat:7.0_ image is downloaded and started.
+Ports 8080 (Tomcat standard port) and 8089(JMX port used by Arquillian) are exposed.
+Finally in _env_ section, environment variables are set. Read next link to understand why this is required https://docs.jboss.org/author/display/ARQ/Tomcat+7.0+-+Remote

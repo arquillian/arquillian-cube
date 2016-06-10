@@ -1,0 +1,46 @@
+== Building containers
+
+To build a container _Docker_ uses a file called +Dockerfile+ http://docs.docker.com/reference/builder/.
+*Arquillian Cube* also supports building and running a container from a +Dockerfile+.
+
+To set that *Arquillian Cube* must build the container, the +image+ property must be changed to +buildImage+ and add the location of +Dockerfile+.
+
+Let's see previous example but instead of creating a container from a predefined image, we are going to build one:
+
+[source, yaml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+  tomcat:
+    buildImage: #1
+      dockerfileLocation: src/test/resources-tomcat-7-dockerfile/tomcat #2
+      noCache: true #3
+      remove: true #4
+      dockerfileName: my-dockerfile #5
+    await:
+      strategy: polling
+    env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+    portBindings: [8089/tcp, 8080/tcp]
+</property>
+----
+<1> +buildImage+ section is used in front of +image+. In case of both sections present in a document, +image+ section has preference over +buildImage+.
+<2> +dockerfileLocation+ contains the location of +Dockerfile+ and all files required to build the container.
+<3> Property to enable or disable the no cache attribute.
+<4> Property to enable or disable the remove attribute.
+<5> Property to set the dockerfile name to be used instead of the default ones.
+
+TIP: +dockerfileLocation+ can be a directory that must contains +Dockerfile+ in root directory (in case you don't set _dockerfileName_ property), also a +tar.gz+ file or a _URL_ pointing to a +tar.gz+ file.
+
+An example of +Dockerfile+ is:
+
+[source, properties]
+.src/test/resources-tomcat-7-dockerfile/tomcat/Dockerfile
+----
+FROM tutum/tomcat:7.0
+
+ENV JAVA_OPTS -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+ADD tomcat-users.xml /tomcat/conf/ # <1>
+EXPOSE 8089
+CMD ["/tomcat/bin/catalina.sh","run"]
+----
+<1> +tomcat-users.xml+ file is located at same directory as +Dockerfile+.
