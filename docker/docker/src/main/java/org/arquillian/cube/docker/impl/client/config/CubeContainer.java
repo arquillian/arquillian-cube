@@ -30,7 +30,7 @@ public class CubeContainer {
     private Collection<String> dns;
     private Collection<String> volumes;
     private Collection<String> volumesFrom;
-    private Boolean removeVolumes;
+    private Boolean removeVolumes = Boolean.TRUE;
     private Collection<String> binds;
     private Collection<Link> links;
     private Collection<String> dependsOn;
