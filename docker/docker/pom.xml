@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-parent</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
+        <version>1.0.0.Alpha12</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Arquillian Cube Docker</name>
