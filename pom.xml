@@ -15,7 +15,7 @@
     <!-- Artifact Configuration -->
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.0.0.Alpha12</version>
+    <version>1.0.0.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Arquillian Cube Extension</name>
@@ -51,7 +51,7 @@
         <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
         <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
         <url>git://github.com/arquillian/arquillian-cube.git</url>
-        <tag>1.0.0.Alpha12</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
