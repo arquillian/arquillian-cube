@@ -22,6 +22,17 @@ public class DockerCompositions {
         return containers;
     }
 
+    public Map<String, CubeContainer> getNoneManualContainers() {
+        Map<String, CubeContainer> autoContainers = new HashMap<>();
+        for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
+            if (!container.getValue().isManual()) {
+                autoContainers.put(container.getKey(), container.getValue());
+            }
+        }
+
+        return autoContainers;
+    }
+
     public Map<String, Network> getNetworks() {
         return networks;
     }

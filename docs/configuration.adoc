@@ -148,6 +148,7 @@ tomcat: #1
   capAdd: [a]
   capDrop: [b]
   extends: container-id #9
+  manual: true #10
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
 <2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you. If you want to always pull latest image before container is created, you can configure *alwaysPull: true*.
@@ -158,6 +159,7 @@ tomcat: #1
 <7> After the container is up, a list of commands can be executed within it.
 <8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
+<10> You can use `manual` to indicate that this container is going to be started or in the test manually using `CubeController` or started by an extension. This attribute is ingorned in case of arquillian containers (none autostart containers) or in case of a linked container that comes from a none manual container.
 
 As we've seen in the basic example the definition of the Arquillian Cube scenarios are described in `dockerContainers` property.
 But if you want you can avoid using this property by simply creating a file called `cube` in the root of the classpath of your project.

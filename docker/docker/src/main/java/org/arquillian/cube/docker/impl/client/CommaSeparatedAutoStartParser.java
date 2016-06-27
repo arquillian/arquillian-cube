@@ -25,7 +25,7 @@ public class CommaSeparatedAutoStartParser implements AutoStartParser {
 
         String[] autoStartContainers = ConfigUtil.trim(expression.split(","));
         for (String autoStart : autoStartContainers) {
-            if (containerDefinitions.get(autoStart) != null) {
+            if (containerDefinitions.get(autoStart) != null && !containerDefinitions.get(autoStart).isManual()) {
                 nodes.put(autoStart, Node.from(autoStart));
             }
         }

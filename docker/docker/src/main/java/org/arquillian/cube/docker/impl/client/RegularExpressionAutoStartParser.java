@@ -32,7 +32,7 @@ public class RegularExpressionAutoStartParser implements AutoStartParser {
 
         String regularExpression = getRegularExpression(expression);
         Pattern pattern = Pattern.compile(regularExpression);
-        Set<String> definedContainers = containerDefinitions.getContainerIds();
+        Set<String> definedContainers = containerDefinitions.getNoneManualContainers().keySet();
         for(String containerName : definedContainers) {
             Matcher matcher = pattern.matcher(containerName);
             if(matcher.matches()) {
