@@ -47,7 +47,8 @@ public class CubeContainer {
     private Collection<String> extraHosts;
     private Collection<String> entryPoint;
     private String domainName;
-    private Boolean alwaysPull = false;
+    private Boolean alwaysPull = Boolean.FALSE;
+    private boolean manual = false;
     private Await await;
 
     private Image image;
@@ -426,6 +427,14 @@ public class CubeContainer {
 
     public void setDependsOn(Collection<String> dependsOn) {
         this.dependsOn = dependsOn;
+    }
+
+    public void setManual(boolean manual) {
+        this.manual = manual;
+    }
+
+    public boolean isManual() {
+        return manual;
     }
 
     public Collection<String> getDependingContainers() {

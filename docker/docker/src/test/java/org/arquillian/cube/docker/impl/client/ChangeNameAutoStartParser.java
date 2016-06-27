@@ -21,7 +21,7 @@ public class ChangeNameAutoStartParser implements AutoStartParser {
         final DockerCompositions dockerContainersContent = cubeDockerConfigurationInstance.get().getDockerContainersContent();
 
         final Map<String, Node> nodes = new HashMap<>();
-        final Set<String> containersNames = new TreeSet<>(dockerContainersContent.getContainers().keySet());
+        final Set<String> containersNames = new TreeSet<>(dockerContainersContent.getNoneManualContainers().keySet());
 
         for (String name : containersNames) {
             nodes.put(new StringBuilder(name).reverse().toString(), Node.from(name));

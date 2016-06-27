@@ -28,7 +28,7 @@ public class AutomaticResolutionNetworkAutoStartParser implements AutoStartParse
 
         Set<String> networksIds = this.containerDefinition.getNetworkIds();
 
-        for (Map.Entry<String, CubeContainer> container : this.containerDefinition.getContainers().entrySet()) {
+        for (Map.Entry<String, CubeContainer> container : this.containerDefinition.getNoneManualContainers().entrySet()) {
             // If cube is not named as the deployable container (this is done in this way because containers that are named as the deployable container are started by another process).
             if (! this.deployableContainers.contains(container.getKey())) {
 
