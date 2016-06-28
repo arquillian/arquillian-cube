@@ -122,6 +122,11 @@ public class DockerCompositions {
                 if (overrideCubeContainer.hasBeforeStop()) {
                     cubeContainer.setBeforeStop(overrideCubeContainer.getBeforeStop());
                 }
+
+                if (overrideCubeContainer.isManual()) {
+                    cubeContainer.setManual(overrideCubeContainer.isManual());
+                }
+
             } else {
                 logger.warning(String.format("Overriding Container %s are not defined in main definition of containers."));
             }
