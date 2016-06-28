@@ -38,7 +38,7 @@ public final class BindingUtil {
                     .getBindings().entrySet()) {
                 com.github.dockerjava.api.model.Ports.Binding[] allBindings = bind.getValue();
                 for (com.github.dockerjava.api.model.Ports.Binding bindings : allBindings) {
-                    binding.addPortBinding(bind.getKey().getPort(), bindings.getHostPort());
+                    binding.addPortBinding(bind.getKey().getPort(), Integer.parseInt(bindings.getHostPortSpec()));
                 }
             }
         } else {
