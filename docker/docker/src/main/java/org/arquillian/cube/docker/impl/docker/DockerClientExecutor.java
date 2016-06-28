@@ -457,7 +457,7 @@ public class DockerClientExecutor {
                     new ExposedPort(
                             portBinding.getExposedPort().getExposed(),
                             InternetProtocol.parse(portBinding.getExposedPort().getType())),
-                    new Binding(portBinding.getHost(), portBinding.getBound()));
+                    new Binding(portBinding.getHost(), Integer.toString(portBinding.getBound())));
         }
         return ports;
     }
