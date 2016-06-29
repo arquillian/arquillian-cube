@@ -43,8 +43,11 @@ public final class BindingUtil {
             }
         } else {
             ContainerConfig connectionConfig = inspectResponse.getConfig();
-            for(ExposedPort port : connectionConfig.getExposedPorts()) {
-                binding.addPortBinding(port.getPort(), -1);
+            final ExposedPort[] exposedPorts = connectionConfig.getExposedPorts();
+            if (exposedPorts != null) {
+                for (ExposedPort port : exposedPorts) {
+                    binding.addPortBinding(port.getPort(), -1);
+                }
             }
         }
         return binding;
