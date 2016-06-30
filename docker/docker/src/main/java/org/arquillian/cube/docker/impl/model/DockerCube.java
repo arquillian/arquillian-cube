@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.github.dockerjava.api.exception.NotModifiedException;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
@@ -134,7 +135,8 @@ public class DockerCube extends BaseCube<CubeContainer> {
             lifecycle.fire(new BeforeStop(id));
             try {
                 executor.stopContainer(id);
-            } catch(NotFoundException e) {}
+            } catch(NotFoundException e) {
+            } catch (NotModifiedException e) {}
             state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
         } catch(Exception e) {
@@ -152,7 +154,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
             lifecycle.fire(new BeforeDestroy(id));
             try {
                 executor.removeContainer(id, configuration.getRemoveVolumes());
-            } catch(NotFoundException e) {}
+            } catch (NotFoundException e) {
+            } catch (NotModifiedException e) {}
+
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch(Exception e) {
