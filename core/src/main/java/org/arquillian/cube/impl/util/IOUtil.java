@@ -1,28 +1,30 @@
 package org.arquillian.cube.impl.util;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.text.StrLookup;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.text.StrLookup;
-import org.apache.commons.lang3.text.StrSubstitutor;
 
 public class IOUtil {
 
@@ -32,6 +34,26 @@ public class IOUtil {
     private IOUtil() {
         super();
     }
+
+    public static void tar(File file, File outputPath) throws IOException {
+
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outputPath));
+        try(TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)) {
+
+            if (file != null && file.exists() && file.isFile()) {
+                TarArchiveEntry tarFile = new TarArchiveEntry(file, file.getName());
+                tarFile.setSize(file.length());
+                tarArchiveOutputStream.putArchiveEntry(tarFile);
+                IOUtils.copy(new FileInputStream(file), tarArchiveOutputStream);
+                tarArchiveOutputStream.closeArchiveEntry();
+                tarArchiveOutputStream.finish();
+            } else {
+                throw new IllegalArgumentException(String.format("File %s is not a file or does not exists.", file.getAbsolutePath()));
+            }
+        }
+    }
+
+
 
     public static void untar(InputStream tarContent, File destination) throws IOException {
         BufferedInputStream bufferedLogs = new BufferedInputStream(tarContent);

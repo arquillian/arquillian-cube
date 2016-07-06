@@ -3,13 +3,39 @@ package org.arquillian.cube.impl.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.arquillian.cube.impl.util.IOUtil;
+import org.apache.commons.io.IOUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class IOUtilTest {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Test
+    public void shouldTarFile() throws IOException {
+        final File file = temporaryFolder.newFile("content.txt");
+        final FileOutputStream output = new FileOutputStream(file);
+        IOUtils.copy(new ByteArrayInputStream("hello".getBytes()), output);
+        output.flush();
+        output.close();
+
+        File outputFolder = temporaryFolder.newFolder();
+        IOUtil.tar(file, new File(outputFolder, "x.tar"));
+
+        IOUtil.untar(new FileInputStream(new File(outputFolder, "x.tar")), outputFolder);
+        final String content = IOUtil.asString(new FileInputStream(new File(outputFolder, "content.txt")));
+        assertThat(content, is("hello"));
+    }
 
     @Test
     public void shouldMergeToEmptyMap() {
@@ -29,8 +55,6 @@ public class IOUtilTest {
         assertThat(innerElement.containsKey("c"), is(true));
         assertThat((String)innerElement.get("c"), is("d"));
     }
-
-
 
     @Test
     public void shouldAddSimpleAndComplexElements() {
