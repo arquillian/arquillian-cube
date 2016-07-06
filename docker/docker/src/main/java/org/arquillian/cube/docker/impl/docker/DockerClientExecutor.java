@@ -657,14 +657,14 @@ public class DockerClientExecutor {
         return response;
     }
 
-    public void copyStreamToContainer(String containerId, String from) {
-        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(from).exec();
+    public void copyStreamToContainer(String containerId, File from) {
+        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(from.getAbsolutePath()).exec();
     }
 
-    public void copyStreamToContainer(String containerId, String from, String to) {
+    public void copyStreamToContainer(String containerId, File from, File to) {
         dockerClient.copyArchiveToContainerCmd(containerId)
-                .withRemotePath(to)
-                .withHostResource(from).exec();
+                .withRemotePath(to.getAbsolutePath())
+                .withHostResource(from.getAbsolutePath()).exec();
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
