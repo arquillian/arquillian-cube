@@ -594,7 +594,7 @@ public class DockerClientExecutor {
     }
 
     public String execStart(String containerId, String... commands) {
-        String id = execCreate(containerId);
+        String id = execCreate(containerId, commands);
         String output = execStartOutput(id);
 
         return output;
@@ -607,7 +607,7 @@ public class DockerClientExecutor {
      * @return
      */
     public ExecInspection execStartVerbose(String containerId, String... commands) {
-        String id = execCreate(containerId);
+        String id = execCreate(containerId, commands);
         String output = execStartOutput(id);
 
         return new ExecInspection(output, inspectExec(id));
