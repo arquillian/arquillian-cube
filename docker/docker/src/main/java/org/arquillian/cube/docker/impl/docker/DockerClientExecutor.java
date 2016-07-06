@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
+import com.github.dockerjava.api.command.InspectExecCmd;
+import com.github.dockerjava.api.command.InspectExecResponse;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -592,13 +594,42 @@ public class DockerClientExecutor {
     }
 
     public String execStart(String containerId, String... commands) {
+        String id = execCreate(containerId);
+        String output = execStartOutput(id);
+
+        return output;
+    }
+
+    /**
+     * EXecutes command to given container returning the inspection object as well. This method does 3 calls to dockerhost. Create, Start and Inspect.
+     * @param containerId to execute command.
+     * @param commands
+     * @return
+     */
+    public ExecInspection execStartVerbose(String containerId, String... commands) {
+        String id = execCreate(containerId);
+        String output = execStartOutput(id);
+
+        return new ExecInspection(output, inspectExec(id));
+    }
+
+    private InspectExecResponse inspectExec(String id) {
+        final InspectExecResponse exec = this.dockerClient.inspectExecCmd(id).exec();
+        return exec;
+    }
+
+    private String execCreate(String containerId, String...commands) {
         ExecCreateCmdResponse execCreateCmdResponse = this.dockerClient.execCreateCmd(containerId)
                 .withAttachStdout(true).withAttachStdin(true).withAttachStderr(true).withTty(false).withCmd(commands)
                 .exec();
 
+        return execCreateCmdResponse.getId();
+    }
+
+    private String execStartOutput(String id) {
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
-            dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
+            dockerClient.execStartCmd(id).withDetach(false)
                     .exec(new ExecStartResultCallback(outputStream, System.err)).awaitCompletion();
         } catch (InterruptedException e) {
             return "";
@@ -626,8 +657,14 @@ public class DockerClientExecutor {
         return response;
     }
 
-    public void copyStreamToContainer(String containerId, File file) {
-        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(file.getAbsolutePath()).exec();
+    public void copyStreamToContainer(String containerId, String from) {
+        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(from).exec();
+    }
+
+    public void copyStreamToContainer(String containerId, String from, String to) {
+        dockerClient.copyArchiveToContainerCmd(containerId)
+                .withRemotePath(to)
+                .withHostResource(from).exec();
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
@@ -810,6 +847,24 @@ public class DockerClientExecutor {
 
     public String getDockerServerIp() {
         return dockerServerIp;
+    }
+
+    public static class ExecInspection {
+        private String output;
+        private InspectExecResponse inspectExecResponse;
+
+        public ExecInspection(String output, InspectExecResponse inspectExecResponse) {
+            this.output = output;
+            this.inspectExecResponse = inspectExecResponse;
+        }
+
+        public String getOutput() {
+            return output;
+        }
+
+        public InspectExecResponse getInspectExecResponse() {
+            return inspectExecResponse;
+        }
     }
 
     private static class OutputStreamLogsResultCallback extends ResultCallbackTemplate<LogContainerResultCallback, Frame> {

@@ -14,6 +14,8 @@ import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
 import org.arquillian.cube.docker.impl.client.metadata.CopyFromContainer;
+import org.arquillian.cube.docker.impl.client.metadata.CopyToContainer;
+import org.arquillian.cube.docker.impl.client.metadata.ExecuteProcessInContainer;
 import org.arquillian.cube.docker.impl.client.metadata.GetTop;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
@@ -31,6 +33,8 @@ import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
 import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
+import org.arquillian.cube.spi.metadata.CanCopyToContainer;
+import org.arquillian.cube.spi.metadata.CanExecuteProcessInContainer;
 import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
 import org.arquillian.cube.spi.metadata.CanSeeTop;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -66,6 +70,8 @@ public class DockerCube extends BaseCube<CubeContainer> {
     }
 
     private void addDefaultMetadata() {
+        addMetadata(CanCopyToContainer.class, new CopyToContainer(getId(), executor));
+        addMetadata(CanExecuteProcessInContainer.class, new ExecuteProcessInContainer(getId(), executor));
         addMetadata(CanCopyFromContainer.class, new CopyFromContainer(getId(), executor));
         addMetadata(CanSeeChangesOnFilesystem.class, new ChangesOnFilesystem(getId(), executor));
         addMetadata(CanSeeTop.class, new GetTop(getId(), executor));
