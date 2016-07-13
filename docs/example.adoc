@@ -126,3 +126,75 @@ And that's all.
 Now you can run your test and you will see how _tutum/tomcat:7.0_ image is downloaded and started.
 Ports 8080 (Tomcat standard port) and 8089(JMX port used by Arquillian) are exposed.
 Finally in _env_ section, environment variables are set. Read next link to understand why this is required https://docs.jboss.org/author/display/ARQ/Tomcat+7.0+-+Remote
+
+== Standalone Example
+
+In previous example you have seen how to to start a Docker container, deploy an _Shrinkrap_ element using `@Deployment` to finally execute the test inside Docker container, get the results and stops everything.
+
+But this is not the only way of using Arquillian Cube.
+Sometimes you already have your container image created and you want to test that it starts, that exposes correctly the ports and of course that for example the deployment file is in the correct place.
+This is known as *Container tests*.
+Notice that in this case you don't need `@Deployment` method since the image is already created and you don't want to modify anything.
+The only thin g that you want is start the container, run the test (as client) and if everything works, then just stop the container.
+
+Let's see how to do it:
+
+First major change is in dependencies:
+
+[source, xml]
+.pom.xml
+----
+<dependencies>
+    <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.arquillian.junit</groupId>
+        <artifactId>arquillian-junit-standalone</artifactId> <!-- 1 -->
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+<1> Instead of setting a container, you set arquillian in standalone mode
+
+Than you can define in your `arquillian.xml` or `docker-compose.xml` containers.
+For example:
+
+[source, yml]
+.docker-compose.yml
+----
+planetstest:
+  extends:
+      file: ../docker-compose.yml
+      service: planets
+  image: lordofthejars/starwars:1.0.1 #1
+----
+<1>Image with WAR file already bundled inside server
+
+And finally the test:
+
+[source, java]
+.PlanetServiceAPIContainerTest.java
+----
+@RunWith(Arquillian.class)
+public class PlanetServiceAPIContainerTest {
+
+    @HostIp
+    private String ip;
+
+    @HostPort(containerName = "planetstest", value = 8080)
+    int planetsPort;
+
+    @Test
+    public void shouldReturnAverage() {
+        URL url = new URL("http://" + ip + ":" + planetsPort + "/starwars/");
+        final String average = RestAssured.get(url.toExternalForm() + "rest/planet/orbital/average").asString();
+        assertThat(average, is("1699.42"));
+    }
+----
+
+Notice that in this case there is no `@Dpeloyment` method because the full application is already bundled in the docker image that is being used.
+This test basically validates that the image can be started, and finally that from outside you can communicate with it and it returns something valid.
+
