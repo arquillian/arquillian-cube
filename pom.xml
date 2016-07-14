@@ -64,7 +64,7 @@
         <version.junit>4.11</version.junit>
         <version.hamcrest>1.3</version.hamcrest>
         <version.docker-java>3.0.0</version.docker-java>
-        <version.fabric8_kubernetes>2.2.80</version.fabric8_kubernetes>
+        <version.fabric8_kubernetes>2.2.143</version.fabric8_kubernetes>
         <version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
         <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>

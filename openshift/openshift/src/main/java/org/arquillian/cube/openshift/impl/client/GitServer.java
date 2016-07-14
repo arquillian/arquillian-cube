@@ -2,7 +2,7 @@ package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 
 import java.io.File;
 import java.net.URI;
@@ -17,11 +17,11 @@ public class GitServer {
 
     private static int PORT = 6768;
 
-    private KubernetesClient client;
+    private NamespacedKubernetesClient client;
     private String namespace;
     private Pod server;
 
-    public GitServer(KubernetesClient client, String namespace) {
+    public GitServer(NamespacedKubernetesClient client, String namespace) {
         this.client = client;
         this.namespace = namespace;
     }
