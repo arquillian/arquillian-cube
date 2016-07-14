@@ -22,6 +22,10 @@ public class Link {
         this.name = name;
     }
 
+    public boolean isAliasSet() {
+        return alias != null;
+    }
+
     public String getAlias() {
         if (alias == null) {
             return name;

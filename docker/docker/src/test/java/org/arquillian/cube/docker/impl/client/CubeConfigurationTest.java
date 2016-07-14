@@ -2,22 +2,31 @@ package org.arquillian.cube.docker.impl.client;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.yaml.snakeyaml.Yaml;
 
 public class CubeConfigurationTest {
 
@@ -63,6 +72,95 @@ public class CubeConfigurationTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void shouldParallelizeStarCubes() {
+        String content =
+                "tomcat*:\n" +
+                        "  image: tutum/tomcat:8.0\n" +
+                        "  portBindings: [8080/tcp]\n" +
+                        "  links:\n" +
+                        "    - ping*\n" +
+                        "ping*:\n" +
+                        "  image: jonmorehouse/ping-pong\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "storage:\n" +
+                        "  image: tutum/mongodb";
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+
+        final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
+        final String tomcat = findElementStartingWith(containerIds, "tomcat");
+        assertThat(tomcat.length(), is(greaterThan(6)));
+
+        final String ping = findElementStartingWith(containerIds, "ping");
+        assertThat(ping.length(), is(greaterThan(4)));
+
+        final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
+        assertThat(getFirst(tomcatContainer.getPortBindings()).getBound(), is(greaterThan(49152)));
+        assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + ping));
+        assertThat(getFirst(tomcatContainer.getLinks()).getName(), is(ping));
+
+    }
+
+    @Test
+    public void shouldParallelizeStarCubesUsingRemappingAlias() {
+        String content =
+                "tomcat*:\n" +
+                        "  image: tutum/tomcat:8.0\n" +
+                        "  portBindings: [8080/tcp]\n" +
+                        "  links:\n" +
+                        "    - ping*:bb\n" +
+                        "ping*:\n" +
+                        "  image: jonmorehouse/ping-pong\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "storage:\n" +
+                        "  image: tutum/mongodb";
+
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+
+        final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
+        final String tomcat = findElementStartingWith(containerIds, "tomcat");
+        assertThat(tomcat.length(), is(greaterThan(6)));
+
+        final String ping = findElementStartingWith(containerIds, "ping");
+        assertThat(ping.length(), is(greaterThan(4)));
+
+        String uuid = ping.substring(ping.indexOf('_') + 1);
+
+        final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
+        Link link = getFirst(tomcatContainer.getLinks());
+        assertThat(getFirst(tomcatContainer.getPortBindings()).getBound(), is(greaterThan(49152)));
+        assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + link.getAlias()));
+        assertThat(getFirst(tomcatContainer.getLinks()).getName(), is(ping));
+        assertThat(link.getAlias(), is("bb_" + uuid));
+
+    }
+
+    private <T> T getFirst(Collection<T> collection) {
+        return collection.iterator().next();
+    }
+
+    private String findElementStartingWith(Set<String> elements, String startsWith) {
+        for (String element : elements) {
+            if (element.startsWith(startsWith)) {
+                return element;
+            }
+        }
+
+        return null;
+    }
 
     @Test
     public void should_override_custom_cube_properties() throws IOException {
@@ -286,11 +384,7 @@ public class CubeConfigurationTest {
         cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
         assertThat(containerConfig.getRemoveVolumes(), is(true));
-        
-        parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");
-        cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
-        containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
-        assertThat(containerConfig.getRemoveVolumes(), is(false));
+
     }
     
     @Test

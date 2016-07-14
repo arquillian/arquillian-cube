@@ -4,12 +4,21 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.arquillian.cube.HostUriContext;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -31,8 +40,11 @@ import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import javax.sound.sampled.Port;
+
 public class CubeDockerConfigurator {
 
+    private static Random random = new Random();
     private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
@@ -83,9 +95,93 @@ public class CubeDockerConfigurator {
         config = resolveServerIp(config);
         config = resolveTlsVerification(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
+        cubeConfiguration = resolveDynamicNames(cubeConfiguration);
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
+    }
+
+    CubeDockerConfiguration resolveDynamicNames(CubeDockerConfiguration cubeConfiguration) {
+
+        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
+
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
+
+        final UUID uuid = UUID.randomUUID();
+
+        for (Map.Entry<String, CubeContainer> container: containers.entrySet()) {
+
+            // If it is a dynamic definition
+            final String containerId = container.getKey();
+            if (containerId.endsWith("*")) {
+                String templateName = containerId.substring(0, containerId.lastIndexOf('*'));
+
+                CubeContainer cubeContainer = container.getValue();
+
+                //Now we need to randomize binding ports and resolve links
+                adaptPortBindingToParallelRun(cubeContainer);
+
+                //Now we need to change links to real services
+                adaptLinksToParallelRun(uuid, cubeContainer);
+
+                String newId = generateNewName(templateName, uuid);
+                resolvedContainers.put(newId, cubeContainer);
+            } else {
+                resolvedContainers.put(containerId, container.getValue());
+            }
+        }
+
+        dockerContainersContent.setContainers(resolvedContainers);
+        return cubeConfiguration;
+    }
+
+    private void adaptLinksToParallelRun(UUID uuid, CubeContainer cubeContainer) {
+        final Collection<Link> links = cubeContainer.getLinks();
+        if (links != null) {
+            for (Link link : links) {
+                if (link.getName().endsWith("*")) {
+                    String linkTemplate = link.getName().substring(0, link.getName().lastIndexOf('*'));
+                    link.setName(generateNewName(linkTemplate, uuid));
+
+                    String environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getName();
+                    if (link.isAliasSet()) {
+                        link.setAlias(generateNewName(link.getAlias(), uuid));
+                        environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getAlias();
+                    }
+
+                    final Collection<String> env = cubeContainer.getEnv();
+                    if (env != null) {
+                        // to avoid duplicates
+                        if (env.contains(environmentVariable)) {
+                            env.remove(environmentVariable);
+                        }
+                    } else {
+                        cubeContainer.setEnv(new ArrayList<String>());
+                    }
+                    cubeContainer.getEnv().add(environmentVariable);
+                }
+            }
+        }
+    }
+
+    private void adaptPortBindingToParallelRun(CubeContainer cubeContainer) {
+        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
+        if (portBindings != null) {
+            for (PortBinding portBinding : portBindings) {
+                final int randomPrivatePort = generateRandomPrivatePort();
+                portBinding.setBound(randomPrivatePort);
+            }
+        }
+    }
+
+    private String generateNewName(String containerName, UUID uuid) {
+        return containerName + "_" + uuid;
+    }
+
+    private int generateRandomPrivatePort() {
+        final int randomPort = random.nextInt(16383);
+        return randomPort + 49152;
     }
 
     private Map<String,String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
