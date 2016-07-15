@@ -4,12 +4,21 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.arquillian.cube.HostUriContext;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -31,8 +40,11 @@ import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import javax.sound.sampled.Port;
+
 public class CubeDockerConfigurator {
 
+    private static Random random = new Random();
     private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
     private static final String EXTENSION_NAME = "docker";
     private static final String UNIX_SOCKET_SCHEME = "unix";
@@ -83,12 +95,97 @@ public class CubeDockerConfigurator {
         config = resolveServerIp(config);
         config = resolveTlsVerification(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
+        cubeConfiguration = resolveDynamicNames(cubeConfiguration);
         System.out.println(cubeConfiguration);
         hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
         configurationProducer.set(cubeConfiguration);
     }
 
-    private Map<String,String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
+    CubeDockerConfiguration resolveDynamicNames(CubeDockerConfiguration cubeConfiguration) {
+
+        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
+
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
+
+        final UUID uuid = UUID.randomUUID();
+
+        for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
+
+            // If it is a dynamic definition
+            final String containerId = container.getKey();
+            if (containerId.endsWith("*")) {
+                String templateName = containerId.substring(0, containerId.lastIndexOf('*'));
+
+                CubeContainer cubeContainer = container.getValue();
+
+                adaptPortBindingToParallelRun(cubeContainer);
+                adaptLinksToParallelRun(uuid, cubeContainer);
+
+                String newId = generateNewName(templateName, uuid);
+                resolvedContainers.put(newId, cubeContainer);
+            } else {
+                resolvedContainers.put(containerId, container.getValue());
+            }
+        }
+
+        dockerContainersContent.setContainers(resolvedContainers);
+        return cubeConfiguration;
+    }
+
+    private void adaptLinksToParallelRun(UUID uuid, CubeContainer cubeContainer) {
+        final Collection<Link> links = cubeContainer.getLinks();
+
+        if (links == null) {
+            return;
+        }
+
+        for (Link link : links) {
+            if (link.getName().endsWith("*")) {
+                String linkTemplate = link.getName().substring(0, link.getName().lastIndexOf('*'));
+                link.setName(generateNewName(linkTemplate, uuid));
+
+                String environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getName();
+                if (link.isAliasSet()) {
+                    link.setAlias(generateNewName(link.getAlias(), uuid));
+                    environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getAlias();
+                }
+
+                final Collection<String> env = cubeContainer.getEnv();
+                if (env != null) {
+                    // to avoid duplicates
+                    if (env.contains(environmentVariable)) {
+                        env.remove(environmentVariable);
+                    }
+                } else {
+                    cubeContainer.setEnv(new ArrayList<String>());
+                }
+                cubeContainer.getEnv().add(environmentVariable);
+            }
+        }
+    }
+
+    private void adaptPortBindingToParallelRun(CubeContainer cubeContainer) {
+        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
+        if (portBindings == null) {
+            return;
+        }
+        for (PortBinding portBinding : portBindings) {
+            final int randomPrivatePort = generateRandomPrivatePort();
+            portBinding.setBound(randomPrivatePort);
+        }
+    }
+
+    private String generateNewName(String containerName, UUID uuid) {
+        return containerName + "_" + uuid;
+    }
+
+    private int generateRandomPrivatePort() {
+        final int randomPort = random.nextInt(16383);
+        return randomPort + 49152;
+    }
+
+    private Map<String, String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
         // if DIND_RESOLUTION property is not set, since by default is enabled, we need to go inside code.
         if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
             if (topInstance.get().isSpinning()) {
@@ -116,10 +213,10 @@ public class CubeDockerConfigurator {
 
                 if (!dockerMachineFileExist) {
                     Spacelift.task(DownloadTool.class)
-                                .from(machineUrl)
-                                .to(dockerMachineFile)
-                                .execute()
-                                .await();
+                            .from(machineUrl)
+                            .to(dockerMachineFile)
+                            .execute()
+                            .await();
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
 
                     dockerMachineInstance.get().grantPermissionToDockerMachine(machineArquillianPath);
@@ -134,7 +231,7 @@ public class CubeDockerConfigurator {
         return config;
     }
 
-    private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {
+    private Map<String, String> resolveAutoStartDockerMachine(Map<String, String> config) {
 
         if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
             final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
@@ -158,7 +255,7 @@ public class CubeDockerConfigurator {
         return config;
     }
 
-    private Map<String,String> resolveDefaultDockerMachine(Map<String, String> config) {
+    private Map<String, String> resolveDefaultDockerMachine(Map<String, String> config) {
 
         // if user has not specified Docker URI host not a docker machine
         // setting DOCKER_URI to avoid using docker machine although it is installed
@@ -225,10 +322,10 @@ public class CubeDockerConfigurator {
 
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
-        
+
         if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME)) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
-            
+
             try {
                 // docker-java supports only tcp and unix schemes
                 serverUri = new URI(TCP_SCHEME, serverUri.getSchemeSpecificPart(), serverUri.getFragment());
@@ -237,29 +334,29 @@ public class CubeDockerConfigurator {
                 throw new IllegalArgumentException(e);
             }
         }
-        
+
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
-            
+
             if (this.operatingSystemFamilyInstanceProducer.get() == OperatingSystemFamily.LINUX) {
-    
+
                 String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
-    
+
                 if (isDockerMachineSet(config)) {
-    
+
                     if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
                             || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                     } else {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
                     }
-                    
+
                 } else {
                     config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                 }
             }
         }
-        
+
         if (Boolean.FALSE.toString().equals(config.get(CubeDockerConfiguration.TLS_VERIFY))) {
             config.remove(CubeDockerConfiguration.CERT_PATH);
         }
@@ -280,9 +377,11 @@ public class CubeDockerConfigurator {
     private boolean isDockerHostSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST) != null;
     }
+
     private boolean isDockerCertPathSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH) != null;
     }
+
     private boolean isDockerMachineNameSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME) != null;
     }

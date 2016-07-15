@@ -28,7 +28,7 @@ public class CubeDockerConfiguration {
     private static final String EMAIL = "email";
     public static final String CERT_PATH = "certPath";
     public static final String TLS_VERIFY = "tlsVerify";
-    private static final String DOCKER_CONTAINERS = "dockerContainers";
+    public static final String DOCKER_CONTAINERS = "dockerContainers";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
     private static final String DOCKER_REGISTRY = "dockerRegistry";

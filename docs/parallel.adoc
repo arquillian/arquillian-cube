@@ -1,0 +1,66 @@
+== Parallel Execution
+
+Soemtimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
+This means that same `docker-compose` file is executed for all tests.
+The problem is that probably _docker host_ is the same.
+So when you start the second test (in parallel) you will get a failure regarding that a container with same name is already started in that docker host.
+
+So arrived at this point you can do two things:
+
+* You can have one _docker host_ for each parallel test and override `serverUri` property at each case using system property (arq.extension.docker.serverUri).
+
+* You can reuse the same _docker host_ and use _star operator_.
+
+=== Star Operator
+
+Star operator let's you indicate to Arquillian Cube that you want to generate cube names randomly and adapt links as well.
+In this way when you execute your tests in parallel there will be no conflicts because of names or binding ports.
+
+Let's see an example:
+
+[source, yml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+    tomcat*:
+      image: tutum/tomcat:8.0
+      portBindings: [8080/tcp]
+      links:
+        - ping*
+    ping*:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+</property>
+----
+
+You add the special character `*` to indicate that cube name should be randomized.
+
+With previous example Cube will:
+
+. Generate a unique _UUID_.
+. Substitute cube name and links using the name + UUID
+. In case of using an alias, don't add the `*` since it is extended from the service name
+. Bind port is going to be changed to a random private port (49152 - 65535)
+. Add an environment variable with new hostname. This environment variable is <name>_HOSTNAME
+
+So for example the result file could look like:
+
+[source, yml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+    tomcat_123456:
+      image: tutum/tomcat:8.0
+      portBindings: [54678 -> 8080/tcp]
+      env: [ping_HOSTNAME=ping_123456]
+      links:
+        - ping_123456
+    ping_123456:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+</property>
+----
+
+Since now the ports are unique and names are unique, you can run tests using same orchestration in parallel against same docker host.
+
+NOTE: You can use the same approach for _docker-compose_ files not only with _cube_ format. But then your _docker-compose_ will be tight to Arquillian Cube. The best approach if you want to use docker-compose format is using `extends`.
