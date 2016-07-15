@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
@@ -34,7 +34,7 @@ public class OpenShiftClient {
 
     private String namespace;
 
-    private KubernetesClient kubernetes;
+    private NamespacedKubernetesClient kubernetes;
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
@@ -189,12 +189,12 @@ public class OpenShiftClient {
 		}
 	}
 
-	public KubernetesClient getClient() {
+	public NamespacedKubernetesClient getClient() {
 		return kubernetes;
 	}
 
-	public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
-		return kubernetes.adapt(io.fabric8.openshift.client.OpenShiftClient.class);
+	public io.fabric8.openshift.client.NamespacedOpenShiftClient getClientExt() {
+		return kubernetes.adapt(io.fabric8.openshift.client.NamespacedOpenShiftClient.class);
 	}
 
 	private Map<String, String> getDefaultLabels() {
