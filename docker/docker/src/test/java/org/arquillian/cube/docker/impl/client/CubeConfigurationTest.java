@@ -74,7 +74,7 @@ public class CubeConfigurationTest {
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
-    public void shouldParallelizeStarCubes() {
+    public void shouldChangeNamesInParallelizeStarCubes() {
         String content =
                 "tomcat*:\n" +
                         "  image: tutum/tomcat:8.0\n" +
@@ -101,9 +101,96 @@ public class CubeConfigurationTest {
         final String ping = findElementStartingWith(containerIds, "ping");
         assertThat(ping.length(), is(greaterThan(4)));
 
+    }
+
+    @Test
+    public void shouldAddEnvVarsWithHostNameInParallelizeStarCubes() {
+        String content =
+                "tomcat*:\n" +
+                        "  image: tutum/tomcat:8.0\n" +
+                        "  portBindings: [8080/tcp]\n" +
+                        "  links:\n" +
+                        "    - ping*\n" +
+                        "ping*:\n" +
+                        "  image: jonmorehouse/ping-pong\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "storage:\n" +
+                        "  image: tutum/mongodb";
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+
+        final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
+
+        final String tomcat = findElementStartingWith(containerIds, "tomcat");
+        final String ping = findElementStartingWith(containerIds, "ping");
+
+        final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
+        assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + ping));
+
+    }
+
+    @Test
+    public void shouldChangePortBindingToPrivatePortsInParallelizeStarCubes() {
+        String content =
+                "tomcat*:\n" +
+                        "  image: tutum/tomcat:8.0\n" +
+                        "  portBindings: [8080/tcp]\n" +
+                        "  links:\n" +
+                        "    - ping*\n" +
+                        "ping*:\n" +
+                        "  image: jonmorehouse/ping-pong\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "storage:\n" +
+                        "  image: tutum/mongodb";
+
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+
+        final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
+        final String tomcat = findElementStartingWith(containerIds, "tomcat");
+
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         assertThat(getFirst(tomcatContainer.getPortBindings()).getBound(), is(greaterThan(49152)));
-        assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + ping));
+
+    }
+
+    @Test
+    public void shouldChangeStarLinksInParallelizeStarCubes() {
+        String content =
+                "tomcat*:\n" +
+                        "  image: tutum/tomcat:8.0\n" +
+                        "  portBindings: [8080/tcp]\n" +
+                        "  links:\n" +
+                        "    - ping*\n" +
+                        "ping*:\n" +
+                        "  image: jonmorehouse/ping-pong\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "storage:\n" +
+                        "  image: tutum/mongodb";
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+
+        final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
+
+        final String tomcat = findElementStartingWith(containerIds, "tomcat");
+        final String ping = findElementStartingWith(containerIds, "ping");
+
+        final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         assertThat(getFirst(tomcatContainer.getLinks()).getName(), is(ping));
 
     }
@@ -132,18 +219,13 @@ public class CubeConfigurationTest {
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
         final String tomcat = findElementStartingWith(containerIds, "tomcat");
-        assertThat(tomcat.length(), is(greaterThan(6)));
 
         final String ping = findElementStartingWith(containerIds, "ping");
-        assertThat(ping.length(), is(greaterThan(4)));
 
         String uuid = ping.substring(ping.indexOf('_') + 1);
 
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         Link link = getFirst(tomcatContainer.getLinks());
-        assertThat(getFirst(tomcatContainer.getPortBindings()).getBound(), is(greaterThan(49152)));
-        assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + link.getAlias()));
-        assertThat(getFirst(tomcatContainer.getLinks()).getName(), is(ping));
         assertThat(link.getAlias(), is("bb_" + uuid));
 
     }

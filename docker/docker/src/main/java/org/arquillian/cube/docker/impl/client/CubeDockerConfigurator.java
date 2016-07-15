@@ -110,7 +110,7 @@ public class CubeDockerConfigurator {
 
         final UUID uuid = UUID.randomUUID();
 
-        for (Map.Entry<String, CubeContainer> container: containers.entrySet()) {
+        for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
 
             // If it is a dynamic definition
             final String containerId = container.getKey();
@@ -119,10 +119,7 @@ public class CubeDockerConfigurator {
 
                 CubeContainer cubeContainer = container.getValue();
 
-                //Now we need to randomize binding ports and resolve links
                 adaptPortBindingToParallelRun(cubeContainer);
-
-                //Now we need to change links to real services
                 adaptLinksToParallelRun(uuid, cubeContainer);
 
                 String newId = generateNewName(templateName, uuid);
@@ -138,40 +135,44 @@ public class CubeDockerConfigurator {
 
     private void adaptLinksToParallelRun(UUID uuid, CubeContainer cubeContainer) {
         final Collection<Link> links = cubeContainer.getLinks();
-        if (links != null) {
-            for (Link link : links) {
-                if (link.getName().endsWith("*")) {
-                    String linkTemplate = link.getName().substring(0, link.getName().lastIndexOf('*'));
-                    link.setName(generateNewName(linkTemplate, uuid));
 
-                    String environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getName();
-                    if (link.isAliasSet()) {
-                        link.setAlias(generateNewName(link.getAlias(), uuid));
-                        environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getAlias();
-                    }
+        if (links == null) {
+            return;
+        }
 
-                    final Collection<String> env = cubeContainer.getEnv();
-                    if (env != null) {
-                        // to avoid duplicates
-                        if (env.contains(environmentVariable)) {
-                            env.remove(environmentVariable);
-                        }
-                    } else {
-                        cubeContainer.setEnv(new ArrayList<String>());
-                    }
-                    cubeContainer.getEnv().add(environmentVariable);
+        for (Link link : links) {
+            if (link.getName().endsWith("*")) {
+                String linkTemplate = link.getName().substring(0, link.getName().lastIndexOf('*'));
+                link.setName(generateNewName(linkTemplate, uuid));
+
+                String environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getName();
+                if (link.isAliasSet()) {
+                    link.setAlias(generateNewName(link.getAlias(), uuid));
+                    environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getAlias();
                 }
+
+                final Collection<String> env = cubeContainer.getEnv();
+                if (env != null) {
+                    // to avoid duplicates
+                    if (env.contains(environmentVariable)) {
+                        env.remove(environmentVariable);
+                    }
+                } else {
+                    cubeContainer.setEnv(new ArrayList<String>());
+                }
+                cubeContainer.getEnv().add(environmentVariable);
             }
         }
     }
 
     private void adaptPortBindingToParallelRun(CubeContainer cubeContainer) {
         final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-        if (portBindings != null) {
-            for (PortBinding portBinding : portBindings) {
-                final int randomPrivatePort = generateRandomPrivatePort();
-                portBinding.setBound(randomPrivatePort);
-            }
+        if (portBindings == null) {
+            return;
+        }
+        for (PortBinding portBinding : portBindings) {
+            final int randomPrivatePort = generateRandomPrivatePort();
+            portBinding.setBound(randomPrivatePort);
         }
     }
 
@@ -184,7 +185,7 @@ public class CubeDockerConfigurator {
         return randomPort + 49152;
     }
 
-    private Map<String,String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
+    private Map<String, String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
         // if DIND_RESOLUTION property is not set, since by default is enabled, we need to go inside code.
         if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
             if (topInstance.get().isSpinning()) {
@@ -212,10 +213,10 @@ public class CubeDockerConfigurator {
 
                 if (!dockerMachineFileExist) {
                     Spacelift.task(DownloadTool.class)
-                                .from(machineUrl)
-                                .to(dockerMachineFile)
-                                .execute()
-                                .await();
+                            .from(machineUrl)
+                            .to(dockerMachineFile)
+                            .execute()
+                            .await();
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
 
                     dockerMachineInstance.get().grantPermissionToDockerMachine(machineArquillianPath);
@@ -230,7 +231,7 @@ public class CubeDockerConfigurator {
         return config;
     }
 
-    private Map<String,String> resolveAutoStartDockerMachine(Map<String, String> config) {
+    private Map<String, String> resolveAutoStartDockerMachine(Map<String, String> config) {
 
         if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
             final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
@@ -254,7 +255,7 @@ public class CubeDockerConfigurator {
         return config;
     }
 
-    private Map<String,String> resolveDefaultDockerMachine(Map<String, String> config) {
+    private Map<String, String> resolveDefaultDockerMachine(Map<String, String> config) {
 
         // if user has not specified Docker URI host not a docker machine
         // setting DOCKER_URI to avoid using docker machine although it is installed
@@ -321,10 +322,10 @@ public class CubeDockerConfigurator {
 
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
-        
+
         if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME)) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
-            
+
             try {
                 // docker-java supports only tcp and unix schemes
                 serverUri = new URI(TCP_SCHEME, serverUri.getSchemeSpecificPart(), serverUri.getFragment());
@@ -333,29 +334,29 @@ public class CubeDockerConfigurator {
                 throw new IllegalArgumentException(e);
             }
         }
-        
+
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
-            
+
             if (this.operatingSystemFamilyInstanceProducer.get() == OperatingSystemFamily.LINUX) {
-    
+
                 String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
-    
+
                 if (isDockerMachineSet(config)) {
-    
+
                     if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
                             || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                     } else {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
                     }
-                    
+
                 } else {
                     config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                 }
             }
         }
-        
+
         if (Boolean.FALSE.toString().equals(config.get(CubeDockerConfiguration.TLS_VERIFY))) {
             config.remove(CubeDockerConfiguration.CERT_PATH);
         }
@@ -376,9 +377,11 @@ public class CubeDockerConfigurator {
     private boolean isDockerHostSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST) != null;
     }
+
     private boolean isDockerCertPathSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH) != null;
     }
+
     private boolean isDockerMachineNameSet() {
         return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME) != null;
     }
