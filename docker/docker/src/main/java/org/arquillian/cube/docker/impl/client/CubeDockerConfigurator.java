@@ -203,8 +203,8 @@ public class CubeDockerConfigurator {
             if (!dockerMachineInstance.get().isDockerMachineInstalled(cliPathExec)) {
                 String machineVersion = GitHubUtil.getDockerMachineLatestVersion();
                 String machineCustomPath = config.get(CubeDockerConfiguration.DOCKER_MACHINE_CUSTOM_PATH);
-                String machineArquillianPath = CubeDockerConfiguration.resolveMachinePath(machineCustomPath, machineVersion);
-                File dockerMachineFile = new File(machineArquillianPath);
+                File dockerMachineFile = CubeDockerConfiguration.resolveMachinePath(machineCustomPath, machineVersion);
+                String dockerMachinePath = dockerMachineFile.getPath();
 
                 boolean dockerMachineFileExist = dockerMachineFile != null && dockerMachineFile.exists();
 
@@ -212,19 +212,20 @@ public class CubeDockerConfigurator {
                 String machineUrl = CubeDockerConfiguration.resolveUrl(machineVersion);
 
                 if (!dockerMachineFileExist) {
+                    dockerMachineFile.getParentFile().mkdirs();
                     Spacelift.task(DownloadTool.class)
                             .from(machineUrl)
                             .to(dockerMachineFile)
                             .execute()
                             .await();
-                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
+                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachinePath);
 
-                    dockerMachineInstance.get().grantPermissionToDockerMachine(machineArquillianPath);
+                    dockerMachineInstance.get().grantPermissionToDockerMachine(dockerMachinePath);
 
                     String machineDriver = config.get(CubeDockerConfiguration.DOCKER_MACHINE_DRIVER);
-                    dockerMachineInstance.get().createMachine(machineArquillianPath, machineDriver, machineName);
+                    dockerMachineInstance.get().createMachine(dockerMachinePath, machineDriver, machineName);
                 } else {
-                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachineFile.getAbsolutePath());
+                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachinePath);
                 }
             }
         }

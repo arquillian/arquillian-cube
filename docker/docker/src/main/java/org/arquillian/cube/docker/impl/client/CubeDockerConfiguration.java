@@ -385,11 +385,12 @@ public class CubeDockerConfiguration {
         return "https://github.com/docker/machine/releases/download/" + machineVersion + "/" + DockerMachineDistro.resolveDistro();
     }
 
-    public static String resolveMachinePath(String machineCustomPath, String machineVersion) {
+    public static File resolveMachinePath(String machineCustomPath, String machineVersion) {
         if (StringUtils.isBlank(machineCustomPath)) {
             machineCustomPath = DOCKER_MACHINE_ARQUILLIAN_PATH;
         }
-        return HomeResolverUtil.resolveHomeDirectoryChar(machineCustomPath + "/" + machineVersion + "/" + DockerMachine.DOCKER_MACHINE_EXEC);
+        String dockerMachineFile = HomeResolverUtil.resolveHomeDirectoryChar(machineCustomPath + "/" + machineVersion + "/" + DockerMachine.DOCKER_MACHINE_EXEC);
+        return new File(dockerMachineFile);
     }
 
 }
