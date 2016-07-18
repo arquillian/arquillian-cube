@@ -19,6 +19,7 @@
 
     <modules>
         <module>fabric8</module>
+        <module>kubernetes</module>
     </modules>
 
 </project>
