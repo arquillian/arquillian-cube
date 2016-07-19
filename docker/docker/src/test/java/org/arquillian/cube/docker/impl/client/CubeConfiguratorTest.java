@@ -5,6 +5,7 @@ import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.hamcrest.Matcher;
@@ -32,6 +33,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -97,6 +99,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldUseBoot2DockerIfDockerHostIsSetOnServerURIByDefault() {
+
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
+
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
 
@@ -260,6 +265,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfNotSetAndDockerHostTagNotPresent() {
+
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
+
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222");
 
@@ -305,6 +313,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfNotSetAndDockerHostTagPresent() {
+
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
+
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
 
@@ -320,6 +331,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfCertPathPresent() {
+
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
+
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
         config.put(CubeDockerConfiguration.CERT_PATH, "~/.ssh");
@@ -394,6 +408,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
     @Test
     public void dockerUriConfigurationParameterShouldTakePrecedenceOverSystemEnv() {
+
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
+
         String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
         try {
             System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "tcp://127.0.0.1:22222");
