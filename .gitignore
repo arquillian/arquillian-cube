@@ -30,6 +30,7 @@ infinitest.filters
 # Logs
 *.log
 *.log~
+*.DS_Store
 
 # Libreoffice leftovers (XLS)
 .~lock*
