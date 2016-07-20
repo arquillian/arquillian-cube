@@ -1,22 +1,8 @@
 package org.arquillian.cube.openshift.impl.model;
 
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
-
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
@@ -27,21 +13,21 @@ import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
-import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
-import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
-import org.arquillian.cube.spi.event.lifecycle.AfterStart;
-import org.arquillian.cube.spi.event.lifecycle.AfterStop;
-import org.arquillian.cube.spi.event.lifecycle.BeforeCreate;
-import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
-import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
-import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
-import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.arquillian.cube.spi.event.lifecycle.*;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.xnio.IoUtils;
+
+import java.net.Inet4Address;
+import java.net.ServerSocket;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 
 public class BuildablePodCube extends BaseCube<Void> {
 
@@ -69,7 +55,7 @@ public class BuildablePodCube extends BaseCube<Void> {
     }
 
     private void addDefaultMetadata() {
-        if(template.getRefs() != null && template.getRefs().size() > 0) {
+        if (template.getRefs() != null && template.getRefs().size() > 0) {
             addMetadata(IsBuildable.class, new IsBuildable(template.getRefs().get(0).getPath()));
         }
         addMetadata(HasPortBindings.class, this.portBindings);
@@ -181,7 +167,7 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public Binding configuredBindings() {
-            return toBinding(resource);
+        return toBinding(resource);
     }
 
     @Override
@@ -201,11 +187,24 @@ public class BuildablePodCube extends BaseCube<Void> {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
             this.proxiedPorts = new LinkedHashMap<Integer, Integer>();
             for (String proxy : configuration.getProxiedContainerPorts()) {
+                // Syntax: pod:port - backward compatibility
+                // pod::port - use the same port than container port
+                // pod:0:port - use an aleatory port
                 String[] split = proxy.split(":");
-                if (split.length == 2) {
+                if (split.length == 2 || split.length == 3) {
                     if (split[0].length() == 0 || id.equals(split[0])) {
-                        final int containerPort = Integer.valueOf(split[1]);
-                        final int mappedPort = allocateLocalPort();
+                        final int containerPort = !"".equals(split[1]) ? Integer.valueOf(split[1]) : Integer.valueOf(split[2]);
+                        int mappedPort = 0;
+                        if (split.length == 3 && "".equals(split[1])) {
+                            // pod::port - use the same port than container port
+                            mappedPort = allocateLocalPort(Integer.valueOf(split[2]));
+                        } else if (split.length == 3 && !"".equals(split[1])){
+                            //pod:0:port - use an aleatory port or pod:port:port to map the same port
+                            mappedPort = allocateLocalPort(Integer.valueOf(split[1]));
+                        } else {
+                            // pod:port - backward compatibility, aleatory port
+                            mappedPort = allocateLocalPort(0);
+                        }
                         proxiedPorts.put(containerPort, mappedPort);
                         mappedPorts.put(containerPort, new PortAddressImpl("localhost", mappedPort));
                     }
@@ -229,7 +228,7 @@ public class BuildablePodCube extends BaseCube<Void> {
                     }
                 }
             }
-            
+
             // add proxied ports into the mix, if they're not already there
             containerPorts.addAll(proxiedPorts.keySet());
         }
@@ -328,9 +327,10 @@ public class BuildablePodCube extends BaseCube<Void> {
             }
         }
 
-        private int allocateLocalPort() {
+        //If you are going to change this method, please also change the tests PortForwarderPort.java
+        private int allocateLocalPort(int port) {
             try {
-                try (ServerSocket serverSocket = new ServerSocket(0, 0, Inet4Address.getLocalHost())) {
+                try (ServerSocket serverSocket = new ServerSocket(port, 0, Inet4Address.getLocalHost())) {
                     return serverSocket.getLocalPort();
                 }
             } catch (Throwable t) {
