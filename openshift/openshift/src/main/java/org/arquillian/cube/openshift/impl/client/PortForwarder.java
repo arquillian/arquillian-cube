@@ -62,7 +62,7 @@ public final class PortForwarder implements Closeable {
     public PortForwarder(Config config, String podName) throws Exception {
         try {
             this.portForwardURI = URI.create(String.format(PORT_FWD, config.getMasterUrl(), config.getNamespace(), podName));
-    
+
             final Xnio xnio = Xnio.getInstance();
             DEFAULT_OPTIONS = OptionMap.builder()
                     .set(Options.WORKER_NAME, String.format("PortForwarding for %s/%s", config.getNamespace(), podName))
@@ -74,7 +74,6 @@ public final class PortForwarder implements Closeable {
                     .set(Options.TCP_NODELAY, true)
                     .set(Options.KEEP_ALIVE, true)
                     .set(Options.SSL_PROTOCOL, "TLS")
-                    .set(UndertowOptions.IDLE_TIMEOUT, 1200000)
                     //.set(Options.CORK, true)
                     .getMap();
             // XXX: hard-coding trust all certs
@@ -82,16 +81,16 @@ public final class PortForwarder implements Closeable {
                     new TrustManager[] {new X509TrustManager() {
                         public void checkClientTrusted(X509Certificate[] chain, String s) {
                         }
-    
+
                         public void checkServerTrusted(X509Certificate[] chain, String s) {
                         }
-    
+
                         public X509Certificate[] getAcceptedIssuers() {
                             return new X509Certificate[0];
                         }
                     } }, DEFAULT_OPTIONS);
             this.xnioWorker = xnio.createWorker(null, DEFAULT_OPTIONS);
-            this.bufferPool = new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 16 * 1024, 16 * 1024 * 20);
+            this.bufferPool = new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 17 * 1024, 17 * 1024 * 20);
             IoFuture<ClientConnection> connectFuture = UndertowClient.getInstance().connect(portForwardURI, xnioWorker,
                     xnioSsl, bufferPool, DEFAULT_OPTIONS);
             // XXX: use timeout
@@ -159,13 +158,13 @@ public final class PortForwarder implements Closeable {
             throw t;
         }
     }
-    
+
     public synchronized PortForwardServer forwardPort(int sourcePort, int targetPort) throws IllegalArgumentException, IOException {
         PortForwardServer server = new PortForwardServer(createServer(sourcePort, targetPort), targetPort);
         servers.add(server);
         return server;
     }
-    
+
     public synchronized void close() {
         for (PortForwardServer server : servers) {
             IoUtils.safeClose(server.server);
@@ -176,12 +175,12 @@ public final class PortForwarder implements Closeable {
         xnioWorker.shutdown();
         xnioWorker = null;
     }
-    
+
     private synchronized void close(PortForwardServer server) {
         IoUtils.safeClose(server.server);
         servers.remove(server);
     }
-    
+
     private AcceptingChannel<? extends StreamConnection> createServer(int sourcePort, int targetPort) throws IllegalArgumentException, IOException {
         OptionMap socketOptions = OptionMap.builder()
                 .set(Options.WORKER_IO_THREADS, 4)
@@ -210,7 +209,7 @@ public final class PortForwarder implements Closeable {
 
             // Create the upgraded SPDY connection
             SpdyChannel spdyChannel = new SpdyChannelWithoutFlowControl(connection.performUpgrade(),
-                    bufferPool, null, new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8192, 8192), true);
+                    bufferPool, null, new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8196, 8196), true);
             Integer idleTimeout = DEFAULT_OPTIONS.get(UndertowOptions.IDLE_TIMEOUT);
             if (idleTimeout != null && idleTimeout > 0) {
                 spdyChannel.setIdleTimeout(idleTimeout);
@@ -240,32 +239,32 @@ public final class PortForwarder implements Closeable {
     }
 
     public final class PortForwardServer {
-        
+
         private final AcceptingChannel<? extends StreamConnection> server;
         private final int targetPort;
-        
+
         private PortForwardServer(AcceptingChannel<? extends StreamConnection> server, int targetPort) {
             this.server = server;
             this.targetPort = targetPort;
         }
-        
+
         public int getSourcePort() {
             return getLocalAddress().getPort();
         }
-        
+
         public int getTargetPort() {
             return targetPort;
         }
-        
+
         public InetSocketAddress getLocalAddress() {
             return server.getLocalAddress(InetSocketAddress.class);
         }
-        
+
         public void close() {
             PortForwarder.this.close(this);
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
             System.out.println("Usage: portforward <namespace> <pod> <source-port> <target-port>");
@@ -275,7 +274,7 @@ public final class PortForwarder implements Closeable {
         final String podName = args[1];
         final int sourcePort = Integer.valueOf(args[2]);
         final int targetPort = Integer.valueOf(args[3]);
-        
+
         final Config config = new Config();
         config.setNamespace(namespace);
         final PortForwarder forwarder = new PortForwarder(config, podName);

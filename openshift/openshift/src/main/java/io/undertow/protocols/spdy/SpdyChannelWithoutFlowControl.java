@@ -1,5 +1,6 @@
 package io.undertow.protocols.spdy;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 
@@ -8,7 +9,7 @@ import org.xnio.Pooled;
 import org.xnio.StreamConnection;
 
 public class SpdyChannelWithoutFlowControl extends SpdyChannel {
-    
+
     private int initialWindowSize;
     private int currentWindowSize;
 
@@ -19,27 +20,11 @@ public class SpdyChannelWithoutFlowControl extends SpdyChannel {
     }
 
     @Override
-    int grabFlowControlBytes(final int bytesToGrab) {
+    synchronized int grabFlowControlBytes(final int bytesToGrab) {
+        //Doing by this way the window will always have space so the connection will not hang anymore.
+        currentWindowSize += initialWindowSize;
+        updateSettings(Collections.singletonList(new SpdySetting(0, SpdySetting.SETTINGS_INITIAL_WINDOW_SIZE, currentWindowSize)));
         // no flow control
-        final int bytesGrabbed = super.grabFlowControlBytes(bytesToGrab);
-        if (bytesGrabbed < bytesToGrab || bytesToGrab == 0) {
-            getWorker().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        synchronized (SpdyChannelWithoutFlowControl.this) {
-                            currentWindowSize += initialWindowSize;
-                            updateSettings(Collections.singletonList(new SpdySetting(0, SpdySetting.SETTINGS_INITIAL_WINDOW_SIZE, currentWindowSize)));
-                            handleWindowUpdate(0, initialWindowSize);
-                            notifyFlowControlAllowed();
-                        }
-                    } catch (Throwable t) {
-                        t.printStackTrace();
-                    }
-                }
-            });
-        }
-        return bytesGrabbed;
+        return super.grabFlowControlBytes(bytesToGrab);
     }
-    
 }
