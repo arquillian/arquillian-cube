@@ -5,8 +5,9 @@ import com.jcabi.ssh.Shell;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.util.IOUtil;
-import org.jboss.arquillian.junit.Arquillian;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -18,7 +19,8 @@ import com.jcraft.jsch.SftpException;
 import java.io.File;
 import java.io.IOException;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class JSchTest {
 
     @Rule

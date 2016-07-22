@@ -14,8 +14,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.arquillian.cube.*;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -26,7 +27,8 @@ import org.junit.runner.RunWith;
 
 import com.github.dockerjava.api.DockerClient;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class HelloWorldServletTest {
 
     @Deployment(testable=false)

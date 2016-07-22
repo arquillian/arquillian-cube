@@ -1,6 +1,7 @@
 package org.arquillian.cube.containerobject;
 
-import org.jboss.arquillian.junit.Arquillian;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,7 +15,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
     @Cube

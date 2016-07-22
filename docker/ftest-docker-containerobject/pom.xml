@@ -20,6 +20,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-requirement</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-ssh</artifactId>
             <version>1.5</version>
