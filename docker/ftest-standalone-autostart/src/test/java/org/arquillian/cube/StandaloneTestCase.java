@@ -1,7 +1,8 @@
 package org.arquillian.cube;
 
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.hamcrest.CoreMatchers;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +17,8 @@ import java.net.URL;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class StandaloneTestCase {
 
     @HostIp

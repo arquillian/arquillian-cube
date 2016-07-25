@@ -12,6 +12,8 @@ import java.net.URL;
 
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -22,7 +24,8 @@ import org.junit.runner.RunWith;
 
 import com.github.dockerjava.api.DockerClient;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
 public class HelloWorldServletTest {
 
     @Deployment(testable=false)

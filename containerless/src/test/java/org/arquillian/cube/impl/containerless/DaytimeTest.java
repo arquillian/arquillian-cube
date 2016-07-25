@@ -10,8 +10,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.UnknownHostException;
 
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
@@ -20,7 +21,8 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class DaytimeTest {
 
     private static final String LINE_SEPARATOR = System
