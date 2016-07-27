@@ -13,16 +13,16 @@ import java.util.logging.Logger;
 /**
  * Utility class for Selenium.
  */
-public class SeleniumVersionUtil {
+public class SeleniumVersionExtractor {
 
-    private static final Logger logger = Logger.getLogger(SeleniumVersionUtil.class.getName());
+    private static final Logger logger = Logger.getLogger(SeleniumVersionExtractor.class.getName());
     private static final String SELENIUM_VERSION = "latest";
 
     /**
      * Returns current selenium version from JAR set in classpath.
      * @return Version of Selenium.
      */
-    public static String getSeleniumVersionFromClasspath() {
+    public static String fromClassPath() {
         Set<String> versions = new HashSet<>();
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -60,7 +60,7 @@ public class SeleniumVersionUtil {
             return SELENIUM_VERSION;
         }
 
-        if (versions.size() == 0) {
+        if (versions.isEmpty()) {
             logger.log(Level.INFO, "No version of Selenium found in classpath. Using latest image.");
             return SELENIUM_VERSION;
         }

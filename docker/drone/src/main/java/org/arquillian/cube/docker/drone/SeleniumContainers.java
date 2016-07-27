@@ -1,16 +1,13 @@
 package org.arquillian.cube.docker.drone;
 
-import org.arquillian.cube.docker.drone.util.SeleniumVersionUtil;
-import org.arquillian.cube.docker.drone.util.VolumeUtils;
+import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
+import org.arquillian.cube.docker.drone.util.VolumeCreator;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -82,7 +79,7 @@ public class SeleniumContainers {
     }
 
     public static SeleniumContainers create(String browser) {
-        final Path temporaryVolume = VolumeUtils.createTemporaryVolume(DEFAULT_PASSWORD);
+        final Path temporaryVolume = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
         return new SeleniumContainers(createSeleniumContainer(browser), browser, createVncContainer(temporaryVolume), temporaryVolume);
     }
 
@@ -116,7 +113,7 @@ public class SeleniumContainers {
 
     private static CubeContainer createSeleniumContainer(String browser) {
 
-        String version = SeleniumVersionUtil.getSeleniumVersionFromClasspath();
+        String version = SeleniumVersionExtractor.fromClassPath();
 
         switch(browser) {
             case "firefox": return configureCube(String.format(FIREFOX_IMAGE, version));

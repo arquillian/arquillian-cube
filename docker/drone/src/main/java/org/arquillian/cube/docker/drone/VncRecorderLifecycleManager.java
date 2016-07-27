@@ -58,11 +58,10 @@ public class VncRecorderLifecycleManager {
 
         if (this.vnc != null) {
 
-            if (cubeDroneConfiguration.isRecordingOnlyFailing() && testResult.getStatus() == TestResult.Status.FAILED) {
+            if (shouldRecordOnlyOnFailure(testResult, cubeDroneConfiguration)) {
                 moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
             } else {
-                // RECORD ALWAYS
-                if (cubeDroneConfiguration.isRecording() && !cubeDroneConfiguration.isRecordingOnlyFailing()) {
+                if (shouldRecordAlways(cubeDroneConfiguration)) {
                     moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
                 }
             }
@@ -71,6 +70,14 @@ public class VncRecorderLifecycleManager {
             vnc.destroy();
         }
 
+    }
+
+    private boolean shouldRecordAlways(CubeDroneConfiguration cubeDroneConfiguration) {
+        return cubeDroneConfiguration.isRecording() && !cubeDroneConfiguration.isRecordOnFailure();
+    }
+
+    private boolean shouldRecordOnlyOnFailure(TestResult testResult, CubeDroneConfiguration cubeDroneConfiguration) {
+        return cubeDroneConfiguration.isRecordOnFailure() && testResult.getStatus() == TestResult.Status.FAILED;
     }
 
     private void moveFromVolumeFolderToBuildDirectory(After afterTestMethod, CubeDroneConfiguration cubeDroneConfiguration, SeleniumContainers seleniumContainers) {

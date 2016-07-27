@@ -16,7 +16,7 @@ public class CubeDroneConfiguration {
      */
     private RecordMode recordMode = RecordMode.ALL;
 
-    public boolean isRecordingOnlyFailing() {
+    public boolean isRecordOnFailure() {
         return recordMode == RecordMode.ONLY_FAILING;
     }
 

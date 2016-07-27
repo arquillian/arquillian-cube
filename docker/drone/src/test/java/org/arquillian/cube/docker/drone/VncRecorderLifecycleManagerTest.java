@@ -14,11 +14,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +41,7 @@ public class VncRecorderLifecycleManagerTest {
     SeleniumContainers seleniumContainers;
 
     @Test
-    public void shouldStartVncBeforeEachTestByDefault() {
+    public void should_start_vnc_by_default() {
 
         when(cubeRegistry.getCube(SeleniumContainers.VNC_CONTAINER_NAME)).thenReturn(cube);
 
@@ -56,14 +56,15 @@ public class VncRecorderLifecycleManagerTest {
     }
 
     @Test
-    public void shouldMoveRecordingVideo() throws IOException, NoSuchMethodException {
+    public void should_move_recording_video() throws IOException, NoSuchMethodException {
 
         final File destination = temporaryFolder.newFolder("destination");
         final File video = temporaryFolder.newFile("file.flv");
+        Files.write(video.toPath(), "Hello".getBytes());
 
         when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
         when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
-        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("shouldMoveRecordingVideo"));
+        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("should_move_recording_video"));
 
         Map<String, String> conf = new HashMap<>();
         conf.put("videoOutput", destination.getAbsolutePath());
@@ -78,18 +79,20 @@ public class VncRecorderLifecycleManagerTest {
                 seleniumContainers
                 );
 
-        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_shouldMoveRecordingVideo.flv").exists(), is(true));
+        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_should_move_recording_video.flv"))
+                .exists()
+                .hasContent("Hello");
     }
 
     @Test
-    public void shouldStopVncAfterEachTestByDefault() throws IOException, NoSuchMethodException {
+    public void should_stop_vnc_by_default() throws IOException, NoSuchMethodException {
 
         final File destination = temporaryFolder.newFolder("destination");
         final File video = temporaryFolder.newFile("file.flv");
 
         when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
         when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
-        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("shouldMoveRecordingVideo"));
+        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("should_stop_vnc_by_default"));
 
         Map<String, String> conf = new HashMap<>();
         conf.put("videoOutput", destination.getAbsolutePath());
@@ -109,14 +112,14 @@ public class VncRecorderLifecycleManagerTest {
     }
 
     @Test
-    public void shouldDiscardRecordingIfConfiguredInOnlyFailingAndPassedTest() throws IOException, NoSuchMethodException {
+    public void should_discard_recording_if_configured_in_only_failing_and_passed_test() throws IOException, NoSuchMethodException {
 
         final File destination = temporaryFolder.newFolder("destination");
         final File video = temporaryFolder.newFile("file.flv");
 
         when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
         when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
-        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("shouldDiscardRecordingIfConfiguredInOnlyFailingAndPassedTest"));
+        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("should_discard_recording_if_configured_in_only_failing_and_passed_test"));
 
         Map<String, String> conf = new HashMap<>();
         conf.put("videoOutput", destination.getAbsolutePath());
@@ -132,18 +135,18 @@ public class VncRecorderLifecycleManagerTest {
                 seleniumContainers
         );
 
-        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_shouldDiscardRecordingIfConfiguredInOnlyFailingAndPassedTest.flv").exists(), is(false));
+        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_should_discard_recording_if_configured_in_only_failing_and_passed_test.flv")).doesNotExist();
     }
 
     @Test
-    public void shouldMoveRecordingIfConfiguredInOnlyFailingAndFailedTest() throws IOException, NoSuchMethodException {
+    public void should_move_recording_if_configured_in_only_failing_and_failed_test() throws IOException, NoSuchMethodException {
 
         final File destination = temporaryFolder.newFolder("destination");
         final File video = temporaryFolder.newFile("file.flv");
 
         when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
         when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
-        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("shouldDiscardRecordingIfConfiguredInOnlyFailingAndPassedTest"));
+        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod("should_move_recording_if_configured_in_only_failing_and_failed_test"));
 
         Map<String, String> conf = new HashMap<>();
         conf.put("videoOutput", destination.getAbsolutePath());
@@ -159,7 +162,7 @@ public class VncRecorderLifecycleManagerTest {
                 seleniumContainers
         );
 
-        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_shouldDiscardRecordingIfConfiguredInOnlyFailingAndPassedTest.flv").exists(), is(true));
+        assertThat(new File(destination, "org_arquillian_cube_docker_drone_VncRecorderLifecycleManagerTest_should_move_recording_if_configured_in_only_failing_and_failed_test.flv")).exists();
     }
 
 }

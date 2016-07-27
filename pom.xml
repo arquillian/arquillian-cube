@@ -72,6 +72,7 @@
         <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
         <version.undertow>1.2.12.Final</version.undertow>
         <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
+        <version.assertj>2.5.0</version.assertj>
     </properties>
 
     <dependencyManagement>
@@ -165,6 +166,12 @@
                         <artifactId>hamcrest-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${version.assertj}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>

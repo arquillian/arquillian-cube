@@ -5,14 +5,26 @@
 The Arquillian Drone extension for Arquillian provides a simple way how to include functional tests for your application with a web-based user interface.
 Arquillian Drone brings the power of WebDriver into the Arquillian framework.
 
-You can read more about Drone in https://docs.jboss.org/author/display/ARQ/Drone
+Arquillian Drone provides some features that make it better to use instead of plain WebDriver:
+
+* Life cycle management of the browser
+* Interaction with deployments and containers provided by Arquillian
+* Simple usage of multiple browsers in a single test
+* Configuration kept on a single place, outside of the Java code
+* Fully compatible with the IDE
+* Support for injection of Pages, PagesFragments, AJAX request guards and more via Arquillian Graphene 2
+* Integration with mobile based browsers testing (Arquillian Droidium)
+* Integration of JavaScript test suite execution (QUnit)
+* Compatible with WebDriver (Selenium 2) and Selenium Grids
+
+You can read more about Drone at https://docs.jboss.org/author/display/ARQ/Drone
 
 === Integration with Cube Docker
 
 Arquillian Cube Docker is the Arquillian extension for managing Docker containers from your test.
 
 Selenium offers Docker images for Selenium Standalone Server with Chrome or Firefox installed.
-You can see the images at https://github.com/SeleniumHQ/docker-selenium.
+You can check available the images at https://github.com/SeleniumHQ/docker-selenium.
 
 With these images and using Selenium WebDriver you can run your functional tests for web IU applications without having to install any browser.
 
@@ -40,6 +52,7 @@ An example of configuration might look like:
 <arquillian>
     <extension qualifier="cubedrone">
         <property name="recordingMode">NONE</property>
+    </extension>
 </arquillian>
 ----
 
@@ -62,10 +75,11 @@ Configure the Cube extension:
 ----
 <extension qualifier="docker">
     <property name="definitionFormat">COMPOSE</property>
-    <property name="machineName">dev</property>
+    <property name="machineName">dev</property> <!--1-->
     <property name="dockerContainersFile">docker-compose.yml</property>
 </extension>
 ----
+<1> In case of using more than one docker machine instance, you need to set it manually.
 
 And finally among `cube` dependencies, add the `drone`, `selenium` and `cube-drone` dependencies.
 

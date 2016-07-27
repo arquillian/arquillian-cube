@@ -10,9 +10,9 @@ import java.nio.file.Path;
 /**
  * Volume utils.
  */
-public class VolumeUtils {
+public class VolumeCreator {
 
-    private VolumeUtils() {
+    private VolumeCreator() {
         super();
     }
 
