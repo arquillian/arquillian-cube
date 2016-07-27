@@ -1,0 +1,110 @@
+== Cube Docker Drone Integration
+
+=== Drone
+
+The Arquillian Drone extension for Arquillian provides a simple way how to include functional tests for your application with a web-based user interface.
+Arquillian Drone brings the power of WebDriver into the Arquillian framework.
+
+You can read more about Drone in https://docs.jboss.org/author/display/ARQ/Drone
+
+=== Integration with Cube Docker
+
+Arquillian Cube Docker is the Arquillian extension for managing Docker containers from your test.
+
+Selenium offers Docker images for Selenium Standalone Server with Chrome or Firefox installed.
+You can see the images at https://github.com/SeleniumHQ/docker-selenium.
+
+With these images and using Selenium WebDriver you can run your functional tests for web IU applications without having to install any browser.
+
+It seems logic an integration of Arquillian Drone with Cube, so you can use all powerful features of Drone, and let Cube configure Docker things for you.
+
+This integration does next things for you:
+
+. Inspect classpath to get selenium version used
+. Starts a docker container with configured browser in Drone and same selenium version as your `JARs`. If not Firefox is used
+. Provides a WebDriver that is able to connect to this container
+. If configured (by default it is) a VNC recorder container is started so each test is recorded in a `flv` file.
+
+=== Configuration
+
+Apart from using Drone configuration properties for configuring browser, Cube Docker can be customized with some specific attributes:
+
+recordingMode:: Configures mode for recording. The valid values are: `ALL, ONLY_FAILING, NONE. Default value is `ALL`.
+videoOutput:: Directory where video is stored. By default is `target/surefire-target` if not exists `build/test-results` if not `build` and if not `target`.
+
+An example of configuration might look like:
+
+[source, xml]
+.arquillian.xml
+----
+<arquillian>
+    <extension qualifier="cubedrone">
+        <property name="recordingMode">NONE</property>
+</arquillian>
+----
+
+=== Example
+
+For adding Drone Cube integration you only need a Cube project with a `docker-compose` or `cube` file only specifying business containers.
+
+[source, yml]
+----
+helloworld:
+  image: dockercloud/hello-world
+  ports:
+    - "80:80"
+----
+
+Configure the Cube extension:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+    <property name="definitionFormat">COMPOSE</property>
+    <property name="machineName">dev</property>
+    <property name="dockerContainersFile">docker-compose.yml</property>
+</extension>
+----
+
+And finally among `cube` dependencies, add the `drone`, `selenium` and `cube-drone` dependencies.
+
+[source, xml]
+.pom.xml
+----
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-drone-bom</artifactId>
+            <version>2.0.0.Final</versio>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.selenium</groupId>
+            <artifactId>selenium-bom</artifactId>
+            <version>2.53.1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker-drone</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jboss.arquillian.extension</groupId>
+        <artifactId>arquillian-drone-webdriver-depchain</artifactId>
+        <version>2.0.0.Final</version>
+        <type>pom</type>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+
+Full source code can be found at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone

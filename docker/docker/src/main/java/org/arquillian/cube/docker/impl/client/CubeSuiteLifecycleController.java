@@ -18,6 +18,8 @@ import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStop;
+import org.arquillian.cube.spi.event.lifecycle.BeforeAutoStart;
+import org.arquillian.cube.spi.event.lifecycle.BeforeAutoStop;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
@@ -33,6 +35,12 @@ public class CubeSuiteLifecycleController {
     private Event<AfterAutoStart> afterAutoStart;
 
     @Inject
+    private Event<BeforeAutoStart> beforeAutoStart;
+
+    @Inject
+    private Event<BeforeAutoStop> beforeAutoStop;
+
+    @Inject
     private Event<AfterAutoStop> afterAutoStop;
 
     @Inject
@@ -45,6 +53,7 @@ public class CubeSuiteLifecycleController {
     private Instance<DockerClientExecutor> dockerClientExecutor;
 
     public void startAutoContainers(@Observes(precedence = 100) BeforeSuite event, CubeConfiguration cubeConfiguration, CubeDockerConfiguration dockerConfiguration) {
+        beforeAutoStart.fire(new BeforeAutoStart());
         final DockerAutoStartOrder dockerAutoStartOrder = dockerConfiguration.getDockerAutoStartOrder();
         List<String[]> autoStartSteps = dockerAutoStartOrder.getAutoStartOrder(dockerConfiguration);
         startAllSteps(autoStartSteps, cubeConfiguration.getConnectionMode());
@@ -52,6 +61,7 @@ public class CubeSuiteLifecycleController {
     }
 
     public void stopAutoContainers(@Observes(precedence = -100) AfterSuite event, CubeDockerConfiguration configuration) {
+        beforeAutoStop.fire(new BeforeAutoStop());
         final DockerAutoStartOrder dockerAutoStartOrder = configuration.getDockerAutoStartOrder();
         List<String[]> autoStopSteps = dockerAutoStartOrder.getAutoStopOrder(configuration);
         stopAllSteps(autoStopSteps);

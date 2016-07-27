@@ -600,6 +600,11 @@ public class DockerClientExecutor {
         return output;
     }
 
+    public void execStartDetached(String containerId, String... commands) {
+        String id = execCreate(containerId, commands);
+        this.dockerClient.execStartCmd(id).withDetach(true).exec(new ExecStartResultCallback());
+    }
+
     /**
      * EXecutes command to given container returning the inspection object as well. This method does 3 calls to dockerhost. Create, Start and Inspect.
      * @param containerId to execute command.
