@@ -68,9 +68,9 @@ public class ExposedPort {
         int exposed;
         String type = null;
         String[] parts = exp.split("/");
-        exposed = Integer.parseInt(parts[0]);
+        exposed = Integer.parseInt(parts[0].trim());
         if (parts.length > 1) {
-            type = parts[1];
+            type = parts[1].trim();
         }
         return new ExposedPort(exposed, type);
     }
