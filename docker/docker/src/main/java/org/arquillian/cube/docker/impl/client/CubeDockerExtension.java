@@ -31,13 +31,21 @@ public class CubeDockerExtension implements LoadableExtension {
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath
-        if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
+        if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")
+                && doesNotContainStandaloneExtension()) {
             builder.observer(DockerServerIPConfigurator.class);
             builder.observer(CubeDockerAutoStartConfigurator.class);
         } else {
             // Arquillian in Standalone mode
             builder.observer(StandaloneAutoStartConfigurator.class);
         }
+    }
+
+    private boolean doesNotContainStandaloneExtension() {
+        final boolean junitStandalone = Validate.classExists("org.jboss.arquillian.junit.standalone.JUnitStandaloneExtension");
+        final boolean testngStandalone = Validate.classExists("org.jboss.arquillian.testng.standalone.TestNGStandaloneExtension");
+
+        return !junitStandalone && !testngStandalone;
     }
 
 }

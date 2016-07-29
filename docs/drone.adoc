@@ -1,4 +1,4 @@
-== Cube Docker Drone Integration
+== Cube Docker Drone/Graphene Integration
 
 === Drone
 
@@ -19,7 +19,7 @@ Arquillian Drone provides some features that make it better to use instead of pl
 
 You can read more about Drone at https://docs.jboss.org/author/display/ARQ/Drone
 
-=== Integration with Cube Docker
+==== Integration with Cube Docker
 
 Arquillian Cube Docker is the Arquillian extension for managing Docker containers from your test.
 
@@ -37,7 +37,7 @@ This integration does next things for you:
 . Provides a WebDriver that is able to connect to this container
 . If configured (by default it is) a VNC recorder container is started so each test is recorded in a `flv` file.
 
-=== Configuration
+==== Configuration
 
 Apart from using Drone configuration properties for configuring browser, Cube Docker can be customized with some specific attributes:
 
@@ -56,7 +56,7 @@ An example of configuration might look like:
 </arquillian>
 ----
 
-=== Example
+==== Example
 
 For adding Drone Cube integration you only need a Cube project with a `docker-compose` or `cube` file only specifying business containers.
 
@@ -122,3 +122,130 @@ And finally among `cube` dependencies, add the `drone`, `selenium` and `cube-dro
 ----
 
 Full source code can be found at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone
+
+=== Graphene
+
+Arquillian Graphene is a set of extensions for the WebDriver API, focused on rapid development and usability in a Java environment.
+Its API encourages people to write tests for AJAX-based web applications in a concise and maintainable way.
+Graphene strives for reusable tests by simplifying the use of web page abstractions (Page Objects and Page Fragments).
+You will get a taste of the Graphene API in just a minute!
+
+==== Integration with Docker Cube
+
+Arquillian Graphene depends on Drone to provide an instance of WebDriver, so everything that is valid in <<Integration with Cube Docker>> is also valid for Cube Graphene.
+
+So what can offer Docker Cube integration to you?
+
+Arquillian has in summary two operating modes:
+
+Standalone:: runs tests without container integration, only lifecycle of extensions is managed allows to use Graphene independently of Arquillian containers and deployment management. In terms of implementation means a test without `@Deployment` method, so it means that the artifact is already created and running. In case of Docker Cube means that docker image has been already created with the artifact inside it. You are in standalone mode if you add the `arquillian-junit-standalone` artifact.
+Container:: runs tests with container, managed lifecycle of container including deployment. In terms of Docekr Cube means that the deployment file is going to be deployed into a running Docker image. You are in standalone mode if you add the `arquillian-junit-container` artifact.
+
+One of the things that Graphene offers to developers is to not have to worry about where the application is deployed by resolving automatically the host and the context of the application.
+In summary developer does not need to worry about calling `webdriver.get(...)` method since it is automatically called by Graphene.
+Notice that this is a big difference with Drone where you need to call the `get` method <<Example>>.
+
+This autoresolution only works in case of running with *container* mode since it knows everything from the point of view deployment.
+But in case of using *Standalone* mode, since it doesn't know anything from deployment, you need to use `url` configuration property to set the url to use in `webdriver.get(..)` method.
+
+[[graphene-configuration]]
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="graphene">
+  <property name="scheme">http</property> <!--1-->
+  <property name="url">localhost:8080/myapp</property> <!--2-->
+</extension>
+----
+<1> Optional parameter to set the scheme
+<2> Base URL of WebDriver
+
+The problem is that in case of using Docker Cube (and more specifically docker-machine/boot2docker) is that probably you don't know the docker host at configuration time but in runtime.
+And this is where Docker Cube can help you when using *Standalone* mode.
+
+==== URL configuration in Standalone mode
+
+As noted in <<graphene-configuration, Graphene Configuration>> you need to configure the `url` parameter in case of using Graphene in Standalone mode.
+This is quite difficult to do it with Docker Cube because you need to set the docker host address and you might not know at configuration time.
+For this reason Docker Cube Graphene integration helps you on this following next rules:
+
+`scheme` is set to `http` if not set.
+
+`url` can use the _dockerHost_ special word which will be replaced at runtime by docker host ip.
+
+If `url` property starts with relative path, _dockerHost_ resolution will be appended automatically at the start of the `url`.
+If `url` property starts with absolute path (`/`), then you need to add explicitly _dockerHost_.
+
+Some examples (for now don't think about ports since it is going to touch later):
+
+* An empty or not present of both properties: `scheme` and `url` will result in `http://ipOfDockerhost`.
+* If `url` is _/192.168.99.100/context_ (absolute path) the result will be `http://192.168.99.100/context`.
+* If `url` is _context_ (relative path) then the result will be `http://ipOfDockerHost/context`.
+* If `url` is _/dockerHost/context_ (absolute path) then the result will be `http://ipOfDockerHost/context`.
+* If `url` is _dockerHost/context_ (relative path) then rhe result will be `http://ipOfDockerHost/context`.
+
+Previous examples has not take into consideration port thing.
+The next thing to resolve is the port of the URL which in case of Docker Cube means deal with binding ports (ports available from host).
+
+Port resolution follows next rules:
+
+* If `url` has no port, Cube will find among all cubes if there is only one bounded port. If it is the case this is the one used, if there is not bound port or there are more than one then an exception is thrown.
+* If `url` has a port (for example dockerHost:8080), Cube will find a service which *exposes* port _8080_ with a bind port too and will return the bind port. If there is more than one service that exposes (and binds) same port, then an exception is thrown.
+* If there is no exposed port an exception is thrown too.
+* If there is more than one cube with given exposed port with <b>port binding</b> and exception is thrown.
+
+For example having a service with 9090:8080 port configuration and `url set to /dockerHost:8080/context, then the result will be `http://ipOfDockerHost:9090/context`.
+
+In most cases you would only need two different kind of configurations:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="graphene">
+  <property name="url">myapp</property>
+</extension>
+----
+
+In previous snippet works if you have several containers but only one binds a port to host.
+In that case you only need to specify the context of the application.
+That configuration would be translated to: `http://ipOfDockerHost:bindport/context` and Graphene will use it as base for all WebDriver calls.
+
+The other configuration might be:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="graphene">
+  <property name="url">dockerHost:8080/myapp</property>
+</extension>
+----
+
+In later example works if you have several containers binding different ports but only one is binding the exposed 8080 port.
+That configuration would be translated to `http://ipOfDockerHost:bindport/context` as well and Graphene will use it as base for all WebDriver calls.
+Notice that this late case is useful only if you have more than one bind port.
+
+==== Example
+
+Apart from adding `arquillian`, `arquillian-drone`, `selenium-bom` and `arquillian-cube-docker-drone`, obviously you also need to add the dependencies of Graphene.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver</artifactId>
+    <version>2.1.0.Final</version>
+    <type>pom</type>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver-impl</artifactId>
+    <version>2.1.0.Final</version>
+    <scope>test</scope>
+</dependency>
+----
+
+You can see the same example we used in Drone but using Graphene at https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-graphene
+
+Also you can learn about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/
