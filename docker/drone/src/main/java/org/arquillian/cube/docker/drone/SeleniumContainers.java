@@ -115,7 +115,7 @@ public class SeleniumContainers {
     private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
 
         if (cubeDroneConfiguration.isBrowserDockerfileDirectorySet()) {
-            return createCube(cubeDroneConfiguration.getBrowserDockerfileDirectory());
+            return createCube(cubeDroneConfiguration.getBrowserDockerfileLocation());
         } else {
             if (cubeDroneConfiguration.isBrowserImageSet()) {
                 return configureCube(cubeDroneConfiguration.getBrowserImage());

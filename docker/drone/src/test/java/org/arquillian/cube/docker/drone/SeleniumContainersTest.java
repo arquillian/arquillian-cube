@@ -4,7 +4,6 @@ import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -35,7 +34,7 @@ public class SeleniumContainersTest {
     public void shouldCreateCustomContainerFromDockerfile() {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(true);
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
-        when(cubeDroneConfiguration.getBrowserDockerfileDirectory()).thenReturn("src/test/resources/browser");
+        when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
@@ -47,7 +46,7 @@ public class SeleniumContainersTest {
     public void shouldTakePrecedenceDockerfileDirectoryThanImage() {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(true);
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
-        when(cubeDroneConfiguration.getBrowserDockerfileDirectory()).thenReturn("src/test/resources/browser");
+        when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));

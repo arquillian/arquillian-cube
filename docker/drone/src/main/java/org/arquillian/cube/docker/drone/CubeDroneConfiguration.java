@@ -20,12 +20,12 @@ public class CubeDroneConfiguration {
      */
     private String browserImage = null;
     /**
-     * Dockerfiel location to be used to built custom docker image instead of the official one.
+     * Dockerfile location to be used to built custom docker image instead of the official one.
      * This property has preference over browserImage.
      *
      * @see org.arquillian.cube.docker.drone.CubeDroneConfiguration#browserImage
      */
-    private String browserDockerfileDirectory = null;
+    private String browserDockerfileLocation = null;
 
     public boolean isRecordOnFailure() {
         return recordMode == RecordMode.ONLY_FAILING;
@@ -52,15 +52,15 @@ public class CubeDroneConfiguration {
     }
 
     public boolean isBrowserDockerfileDirectorySet() {
-        return this.browserDockerfileDirectory != null && !this.browserDockerfileDirectory.isEmpty();
+        return this.browserDockerfileLocation != null && !this.browserDockerfileLocation.isEmpty();
     }
 
     public String getBrowserImage() {
         return browserImage;
     }
 
-    public String getBrowserDockerfileDirectory() {
-        return browserDockerfileDirectory;
+    public String getBrowserDockerfileLocation() {
+        return browserDockerfileLocation;
     }
 
     public static enum RecordMode {
@@ -82,8 +82,8 @@ public class CubeDroneConfiguration {
             cubeDroneConfiguration.browserImage = config.get("browserImage");
         }
 
-        if (config.containsKey("browserDockerfileDirectory")) {
-            cubeDroneConfiguration.browserDockerfileDirectory = config.get("browserDockerfileDirectory");
+        if (config.containsKey("browserDockerfileLocation")) {
+            cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
         }
 
         return cubeDroneConfiguration;

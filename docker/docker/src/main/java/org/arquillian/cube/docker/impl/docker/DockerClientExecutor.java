@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,6 +140,10 @@ public class DockerClientExecutor {
     private final String dockerServerIp;
     private DockerClientConfig dockerClientConfig;
 
+    //this should be removed in the future it is only a hack to avoid some errors with Hijack is incompatible with use of CloseNotifier.
+    // It seems to be a problem with go and should be fixed in go 1.6 (and maybe in Docker 1.11.0). #320
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
     public DockerClientExecutor(CubeDockerConfiguration cubeConfiguration) {
         DockerClientConfigBuilder configBuilder =
             DockerClientConfig.createDefaultConfigBuilder();
@@ -177,210 +183,220 @@ public class DockerClientExecutor {
     }
 
     public List<Container> listRunningContainers() {
-        return this.dockerClient.listContainersCmd().exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            return this.dockerClient.listContainersCmd().exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public String createContainer(String name, CubeContainer containerConfiguration) {
-
-        String image = getImageName(containerConfiguration);
-
-        CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
-        createContainerCmd.withName(name);
-
-        Set<ExposedPort> allExposedPorts = resolveExposedPorts(containerConfiguration, createContainerCmd);
-        if (!allExposedPorts.isEmpty()) {
-            int numberOfExposedPorts = allExposedPorts.size();
-            createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
-        }
-
-        if(containerConfiguration.getReadonlyRootfs() != null) {
-            createContainerCmd.withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
-        }
-
-        if(containerConfiguration.getLabels() != null) {
-            createContainerCmd.withLabels(containerConfiguration.getLabels());
-        }
-
-        if (containerConfiguration.getWorkingDir() != null) {
-            createContainerCmd.withWorkingDir(containerConfiguration.getWorkingDir());
-        }
-
-        if (containerConfiguration.getDisableNetwork() != null) {
-            createContainerCmd.withNetworkDisabled(containerConfiguration.getDisableNetwork());
-        }
-
-        if (containerConfiguration.getHostName() != null) {
-            createContainerCmd.withHostName(containerConfiguration.getHostName());
-        }
-
-        if (containerConfiguration.getPortSpecs() != null) {
-            createContainerCmd.withPortSpecs(containerConfiguration.getPortSpecs().toArray(new String[0]));
-        }
-
-        if (containerConfiguration.getUser() != null) {
-            createContainerCmd.withUser(containerConfiguration.getUser());
-        }
-
-        if(containerConfiguration.getTty() != null) {
-            createContainerCmd.withTty(containerConfiguration.getTty());
-        }
-        if(containerConfiguration.getStdinOpen() != null) {
-            createContainerCmd.withStdinOpen(containerConfiguration.getStdinOpen());
-        }
-
-        if (containerConfiguration.getStdinOnce() != null) {
-            createContainerCmd.withStdInOnce(containerConfiguration.getStdinOnce());
-        }
-
-        if (containerConfiguration.getMemoryLimit() != null) {
-            createContainerCmd.withMemory(containerConfiguration.getMemoryLimit());
-        }
-
-        if (containerConfiguration.getMemorySwap() != null) {
-            createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
-        }
-
-        if (containerConfiguration.getCpuShares() != null) {
-            createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
-        }
-
-        if(containerConfiguration.getCpuSet() != null) {
-            createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
-        }
-
-        if (containerConfiguration.getAttachStdin() != null) {
-            createContainerCmd.withAttachStdin(containerConfiguration.getAttachStdin());
-        }
-
-        if (containerConfiguration.getAttachSterr() != null) {
-            createContainerCmd.withAttachStderr(containerConfiguration.getAttachSterr());
-        }
-
-        if (containerConfiguration.getEnv() != null) {
-            createContainerCmd.withEnv(resolveDockerServerIpInList(containerConfiguration.getEnv()).toArray(new String[0]));
-        }
-
-        if (containerConfiguration.getCmd() != null) {
-            createContainerCmd.withCmd(containerConfiguration.getCmd().toArray(new String[0]));
-        }
-
-        if (containerConfiguration.getDns() != null) {
-            createContainerCmd.withDns(containerConfiguration.getDns().toArray(new String[0]));
-        }
-
-        if (containerConfiguration.getVolumes() != null) {
-            createContainerCmd.withVolumes(toVolumes(containerConfiguration.getVolumes()));
-        }
-
-        if (containerConfiguration.getVolumesFrom() != null) {
-            createContainerCmd.withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
-        }
-
-        if (containerConfiguration.getBinds() != null) {
-            createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
-        }
-
-        // Dependencies is precedence over links
-        if (containerConfiguration.getLinks() != null && containerConfiguration.getDependsOn() == null) {
-            createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
-        }
-
-        if (containerConfiguration.getPortBindings() != null) {
-            createContainerCmd.withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
-        }
-
-        if (containerConfiguration.getPrivileged() != null) {
-            createContainerCmd.withPrivileged(containerConfiguration.getPrivileged());
-        }
-
-        if (containerConfiguration.getPublishAllPorts() != null) {
-            createContainerCmd.withPublishAllPorts(containerConfiguration.getPublishAllPorts());
-        }
-
-        if (containerConfiguration.getNetworkMode() != null) {
-            createContainerCmd.withNetworkMode(containerConfiguration.getNetworkMode());
-        }
-
-        if (containerConfiguration.getDnsSearch() != null) {
-            createContainerCmd.withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
-        }
-
-        if (containerConfiguration.getDevices() != null) {
-            createContainerCmd.withDevices(toDevices(containerConfiguration.getDevices()));
-        }
-
-        if (containerConfiguration.getRestartPolicy() != null) {
-            createContainerCmd.withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
-        }
-
-        if (containerConfiguration.getCapAdd() != null) {
-            createContainerCmd.withCapAdd(toCapability(containerConfiguration.getCapAdd()));
-        }
-
-        if (containerConfiguration.getCapDrop() != null) {
-            createContainerCmd.withCapDrop(toCapability(containerConfiguration.getCapDrop()));
-        }
-
-        if(containerConfiguration.getExtraHosts() != null) {
-            createContainerCmd.withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
-        }
-        if(containerConfiguration.getEntryPoint() != null) {
-            createContainerCmd.withEntrypoint(containerConfiguration.getEntryPoint().toArray(new String[0]));
-        }
-
-        if(containerConfiguration.getDomainName() != null) {
-            createContainerCmd.withDomainName(containerConfiguration.getDomainName());
-        }
-
-        boolean alwaysPull = false;
-
-        if (containerConfiguration.getAlwaysPull() != null) {
-            alwaysPull = containerConfiguration.getAlwaysPull();
-        }
-
-        if ( alwaysPull ) {
-            log.info(String.format(
-                        "Pulling latest Docker Image %s.", image));
-            this.pullImage(image);
-        }
+            String image = getImageName(containerConfiguration);
 
         try {
-            return createContainerCmd.exec().getId();
-        } catch (NotFoundException e) {
-            if (!alwaysPull) {
-                log.warning(String.format(
-                        "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
+            this.readWriteLock.readLock().lock();
+
+            CreateContainerCmd createContainerCmd = this.dockerClient.createContainerCmd(image);
+            createContainerCmd.withName(name);
+
+            Set<ExposedPort> allExposedPorts = resolveExposedPorts(containerConfiguration, createContainerCmd);
+            if (!allExposedPorts.isEmpty()) {
+                int numberOfExposedPorts = allExposedPorts.size();
+                createContainerCmd.withExposedPorts(allExposedPorts.toArray(new ExposedPort[numberOfExposedPorts]));
+            }
+
+            if (containerConfiguration.getReadonlyRootfs() != null) {
+                createContainerCmd.withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
+            }
+
+            if (containerConfiguration.getLabels() != null) {
+                createContainerCmd.withLabels(containerConfiguration.getLabels());
+            }
+
+            if (containerConfiguration.getWorkingDir() != null) {
+                createContainerCmd.withWorkingDir(containerConfiguration.getWorkingDir());
+            }
+
+            if (containerConfiguration.getDisableNetwork() != null) {
+                createContainerCmd.withNetworkDisabled(containerConfiguration.getDisableNetwork());
+            }
+
+            if (containerConfiguration.getHostName() != null) {
+                createContainerCmd.withHostName(containerConfiguration.getHostName());
+            }
+
+            if (containerConfiguration.getPortSpecs() != null) {
+                createContainerCmd.withPortSpecs(containerConfiguration.getPortSpecs().toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getUser() != null) {
+                createContainerCmd.withUser(containerConfiguration.getUser());
+            }
+
+            if (containerConfiguration.getTty() != null) {
+                createContainerCmd.withTty(containerConfiguration.getTty());
+            }
+            if (containerConfiguration.getStdinOpen() != null) {
+                createContainerCmd.withStdinOpen(containerConfiguration.getStdinOpen());
+            }
+
+            if (containerConfiguration.getStdinOnce() != null) {
+                createContainerCmd.withStdInOnce(containerConfiguration.getStdinOnce());
+            }
+
+            if (containerConfiguration.getMemoryLimit() != null) {
+                createContainerCmd.withMemory(containerConfiguration.getMemoryLimit());
+            }
+
+            if (containerConfiguration.getMemorySwap() != null) {
+                createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
+            }
+
+            if (containerConfiguration.getCpuShares() != null) {
+                createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
+            }
+
+            if (containerConfiguration.getCpuSet() != null) {
+                createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
+            }
+
+            if (containerConfiguration.getAttachStdin() != null) {
+                createContainerCmd.withAttachStdin(containerConfiguration.getAttachStdin());
+            }
+
+            if (containerConfiguration.getAttachSterr() != null) {
+                createContainerCmd.withAttachStderr(containerConfiguration.getAttachSterr());
+            }
+
+            if (containerConfiguration.getEnv() != null) {
+                createContainerCmd.withEnv(resolveDockerServerIpInList(containerConfiguration.getEnv()).toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getCmd() != null) {
+                createContainerCmd.withCmd(containerConfiguration.getCmd().toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getDns() != null) {
+                createContainerCmd.withDns(containerConfiguration.getDns().toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getVolumes() != null) {
+                createContainerCmd.withVolumes(toVolumes(containerConfiguration.getVolumes()));
+            }
+
+            if (containerConfiguration.getVolumesFrom() != null) {
+                createContainerCmd.withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
+            }
+
+            if (containerConfiguration.getBinds() != null) {
+                createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
+            }
+
+            // Dependencies is precedence over links
+            if (containerConfiguration.getLinks() != null && containerConfiguration.getDependsOn() == null) {
+                createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
+            }
+
+            if (containerConfiguration.getPortBindings() != null) {
+                createContainerCmd.withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
+            }
+
+            if (containerConfiguration.getPrivileged() != null) {
+                createContainerCmd.withPrivileged(containerConfiguration.getPrivileged());
+            }
+
+            if (containerConfiguration.getPublishAllPorts() != null) {
+                createContainerCmd.withPublishAllPorts(containerConfiguration.getPublishAllPorts());
+            }
+
+            if (containerConfiguration.getNetworkMode() != null) {
+                createContainerCmd.withNetworkMode(containerConfiguration.getNetworkMode());
+            }
+
+            if (containerConfiguration.getDnsSearch() != null) {
+                createContainerCmd.withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getDevices() != null) {
+                createContainerCmd.withDevices(toDevices(containerConfiguration.getDevices()));
+            }
+
+            if (containerConfiguration.getRestartPolicy() != null) {
+                createContainerCmd.withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
+            }
+
+            if (containerConfiguration.getCapAdd() != null) {
+                createContainerCmd.withCapAdd(toCapability(containerConfiguration.getCapAdd()));
+            }
+
+            if (containerConfiguration.getCapDrop() != null) {
+                createContainerCmd.withCapDrop(toCapability(containerConfiguration.getCapDrop()));
+            }
+
+            if (containerConfiguration.getExtraHosts() != null) {
+                createContainerCmd.withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
+            }
+            if (containerConfiguration.getEntryPoint() != null) {
+                createContainerCmd.withEntrypoint(containerConfiguration.getEntryPoint().toArray(new String[0]));
+            }
+
+            if (containerConfiguration.getDomainName() != null) {
+                createContainerCmd.withDomainName(containerConfiguration.getDomainName());
+            }
+
+            boolean alwaysPull = false;
+
+            if (containerConfiguration.getAlwaysPull() != null) {
+                alwaysPull = containerConfiguration.getAlwaysPull();
+            }
+
+            if (alwaysPull) {
+                log.info(String.format(
+                        "Pulling latest Docker Image %s.", image));
                 this.pullImage(image);
-                return createContainerCmd.exec().getId();
-            } else {
-                throw e;
             }
-        } catch (ConflictException e) {
-            if (cubeConfiguration.isClean()) {
-                log.warning(String.format("Container name %s is already use. Since clean mode is enabled, " +
-                        "container is going to be self removed.", name));
-                try {
-                    this.stopContainer(name);
-                } catch (NotModifiedException e1) {
-                    // Container was already stopped
-                }
-                this.removeContainer(name, containerConfiguration.getRemoveVolumes());
+
+            try {
                 return createContainerCmd.exec().getId();
-            } else {
-                throw e;
-            }
-        } catch (ProcessingException e) {
-            if (e.getCause() instanceof UnsupportedSchemeException) {
-                if (e.getCause().getMessage().contains("https")) {
-                    throw new IllegalStateException("You have configured serverUri with https protocol but " +
-                            "certPath property is missing or points out to an invalid certificate to handle the SSL.",
-                            e.getCause());
+            } catch (NotFoundException e) {
+                if (!alwaysPull) {
+                    log.warning(String.format(
+                            "Docker Image %s is not on DockerHost and it is going to be automatically pulled.", image));
+                    this.pullImage(image);
+                    return createContainerCmd.exec().getId();
                 } else {
                     throw e;
                 }
-            } else {
-                throw e;
+            } catch (ConflictException e) {
+                if (cubeConfiguration.isClean()) {
+                    log.warning(String.format("Container name %s is already use. Since clean mode is enabled, " +
+                            "container is going to be self removed.", name));
+                    try {
+                        this.stopContainer(name);
+                    } catch (NotModifiedException e1) {
+                        // Container was already stopped
+                    }
+                    this.removeContainer(name, containerConfiguration.getRemoveVolumes());
+                    return createContainerCmd.exec().getId();
+                } else {
+                    throw e;
+                }
+            } catch (ProcessingException e) {
+                if (e.getCause() instanceof UnsupportedSchemeException) {
+                    if (e.getCause().getMessage().contains("https")) {
+                        throw new IllegalStateException("You have configured serverUri with https protocol but " +
+                                "certPath property is missing or points out to an invalid certificate to handle the SSL.",
+                                e.getCause());
+                    } else {
+                        throw e;
+                    }
+                } else {
+                    throw e;
+                }
             }
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
     }
 
@@ -447,9 +463,14 @@ public class DockerClientExecutor {
     }
 
     public void startContainer(String id, CubeContainer containerConfiguration) {
-        StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(id);
+        this.readWriteLock.readLock().lock();
+        try {
+            StartContainerCmd startContainerCmd = this.dockerClient.startContainerCmd(id);
 
-        startContainerCmd.exec();
+            startContainerCmd.exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     private Ports toPortBindings(Collection<PortBinding> portBindings) {
@@ -465,62 +486,92 @@ public class DockerClientExecutor {
     }
 
     public void stopContainer(String containerId) {
-        this.dockerClient.stopContainerCmd(containerId).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.stopContainerCmd(containerId).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public void removeContainer(String containerId, boolean removeVolumes) {
-        this.dockerClient.removeContainerCmd(containerId).withRemoveVolumes(removeVolumes).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.removeContainerCmd(containerId).withRemoveVolumes(removeVolumes).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public InspectContainerResponse inspectContainer(String containerId) {
-        return this.dockerClient.inspectContainerCmd(containerId).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            return this.dockerClient.inspectContainerCmd(containerId).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public int waitContainer(String containerId) {
-        return this.dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback()).awaitStatusCode();
+        this.readWriteLock.readLock().lock();
+        try {
+            return this.dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback()).awaitStatusCode();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public void pingDockerServer() {
+        this.readWriteLock.readLock().lock();
         try {
-            PingCmd pingCmd = this.dockerClient.pingCmd();
-            pingCmd.exec();
-        } catch (ProcessingException e) {
-            if (e.getCause() instanceof ConnectException) {
-                throw new IllegalStateException(
-                        String.format(
-                                "Docker server is not running in %s host or it does not accept connections in tcp protocol, read https://github.com/arquillian/arquillian-cube#preliminaries to learn how to enable it.",
-                                this.cubeConfiguration.getDockerServerUri()), e);
+            try {
+                PingCmd pingCmd = this.dockerClient.pingCmd();
+                pingCmd.exec();
+            } catch (ProcessingException e) {
+                if (e.getCause() instanceof ConnectException) {
+                    throw new IllegalStateException(
+                            String.format(
+                                    "Docker server is not running in %s host or it does not accept connections in tcp protocol, read https://github.com/arquillian/arquillian-cube#preliminaries to learn how to enable it.",
+                                    this.cubeConfiguration.getDockerServerUri()), e);
+                }
             }
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
     }
 
-    public String buildImage(String location, Map<String, Object> params) {
+    private String buildImage(String location, Map<String, Object> params) {
 
-        BuildImageCmd buildImageCmd = createBuildCommand(location);
-        configureBuildCommand(params, buildImageCmd);
-
-        String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
-
-        if (imageId == null) {
-            throw new IllegalStateException(
-                    String.format(
-                            "Docker server has not provided an imageId for image build from %s.",
-                            location));
-        }
-
-        // TODO this should be removed in the future it is only a hack to avoid some errors with Hijack is incompatible with use of CloseNotifier.
-        // It seems to be a problem with go and should be fixed in go 1.6 (and maybe in Docker 1.11.0).
-        // To test in future versions we only need to comment the close + recreation.
-        // following lines fixes #310 by closing and rebuilding dockerClient
-        // https://github.com/arquillian/arquillian-cube/issues/322
+        this.readWriteLock.writeLock().lock();
         try {
-            this.dockerClient.close();
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        this.dockerClient = buildDockerClient();
+            BuildImageCmd buildImageCmd = createBuildCommand(location);
+            configureBuildCommand(params, buildImageCmd);
 
-        return imageId.trim();
+            String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
+
+            if (imageId == null) {
+                throw new IllegalStateException(
+                        String.format(
+                                "Docker server has not provided an imageId for image build from %s.",
+                                location));
+            }
+
+            // TODO this should be removed in the future it is only a hack to avoid some errors with Hijack is incompatible with use of CloseNotifier.
+            // It seems to be a problem with go and should be fixed in go 1.6 (and maybe in Docker 1.11.0).
+            // To test in future versions we only need to comment the close + recreation.
+            // following lines fixes #310 by closing and rebuilding dockerClient
+            // https://github.com/arquillian/arquillian-cube/issues/322
+            try {
+                this.dockerClient.close();
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+            this.dockerClient = buildDockerClient();
+
+            return imageId.trim();
+        } finally {
+            this.readWriteLock.writeLock().unlock();
+        }
     }
 
     public static String getImageId(String fullLog) {
@@ -576,33 +627,49 @@ public class DockerClientExecutor {
 
     public void pullImage(String imageName) {
 
-        final Image image = Image.valueOf(imageName);
+        this.readWriteLock.readLock().lock();
 
-        PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(image.getName());
+        try {
+            final Image image = Image.valueOf(imageName);
 
-        if (this.cubeConfiguration.getDockerRegistry() != null) {
-            pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
+            PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(image.getName());
+
+            if (this.cubeConfiguration.getDockerRegistry() != null) {
+                pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
+            }
+
+            String tag = image.getTag();
+            if (tag != null && !"".equals(tag)) {
+                pullImageCmd.withTag(tag);
+            }
+
+            pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
-
-        String tag = image.getTag();
-        if (tag != null && !"".equals(tag)) {
-            pullImageCmd.withTag(tag);
-        }
-
-        pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
 
     }
 
     public String execStart(String containerId, String... commands) {
-        String id = execCreate(containerId, commands);
-        String output = execStartOutput(id);
+        this.readWriteLock.readLock().lock();
+        try {
+            String id = execCreate(containerId, commands);
+            String output = execStartOutput(id);
 
-        return output;
+            return output;
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public void execStartDetached(String containerId, String... commands) {
-        String id = execCreate(containerId, commands);
-        this.dockerClient.execStartCmd(id).withDetach(true).exec(new ExecStartResultCallback());
+        this.readWriteLock.readLock().lock();
+        try {
+            String id = execCreate(containerId, commands);
+            this.dockerClient.execStartCmd(id).withDetach(true).exec(new ExecStartResultCallback());
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     /**
@@ -612,10 +679,15 @@ public class DockerClientExecutor {
      * @return
      */
     public ExecInspection execStartVerbose(String containerId, String... commands) {
-        String id = execCreate(containerId, commands);
-        String output = execStartOutput(id);
+        this.readWriteLock.readLock().lock();
+        try {
+            String id = execCreate(containerId, commands);
+            String output = execStartOutput(id);
 
-        return new ExecInspection(output, inspectExec(id));
+            return new ExecInspection(output, inspectExec(id));
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     private InspectExecResponse inspectExec(String id) {
@@ -644,54 +716,85 @@ public class DockerClientExecutor {
     }
 
     public List<org.arquillian.cube.ChangeLog> inspectChangesOnContainerFilesystem(String containerId) {
-        List<ChangeLog> changeLogs = dockerClient.containerDiffCmd(containerId).exec();
-        List<org.arquillian.cube.ChangeLog> changes = new ArrayList<>();
-        for (ChangeLog changeLog : changeLogs) {
-            changes.add(new org.arquillian.cube.ChangeLog(changeLog.getPath(), changeLog.getKind()));
+        this.readWriteLock.readLock().lock();
+        try {
+            List<ChangeLog> changeLogs = dockerClient.containerDiffCmd(containerId).exec();
+            List<org.arquillian.cube.ChangeLog> changes = new ArrayList<>();
+            for (ChangeLog changeLog : changeLogs) {
+                changes.add(new org.arquillian.cube.ChangeLog(changeLog.getPath(), changeLog.getKind()));
+            }
+            return changes;
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
-        return changes;
     }
 
     public TopContainer top(String containerId) {
-        TopContainerResponse topContainer = dockerClient.topContainerCmd(containerId).exec();
-        return new TopContainer(topContainer.getTitles(), topContainer.getProcesses());
+        this.readWriteLock.readLock().lock();
+        try {
+            TopContainerResponse topContainer = dockerClient.topContainerCmd(containerId).exec();
+            return new TopContainer(topContainer.getTitles(), topContainer.getProcesses());
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public InputStream getFileOrDirectoryFromContainerAsTar(String containerId, String from) {
-        InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
-        return response;
+        this.readWriteLock.readLock().lock();
+        try {
+            InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
+            return response;
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public void copyStreamToContainer(String containerId, File from) {
-        dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(from.getAbsolutePath()).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            dockerClient.copyArchiveToContainerCmd(containerId).withHostResource(from.getAbsolutePath()).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+
     }
 
     public void copyStreamToContainer(String containerId, File from, File to) {
-        dockerClient.copyArchiveToContainerCmd(containerId)
-                .withRemotePath(to.getAbsolutePath())
-                .withHostResource(from.getAbsolutePath()).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            dockerClient.copyArchiveToContainerCmd(containerId)
+                    .withRemotePath(to.getAbsolutePath())
+                    .withHostResource(from.getAbsolutePath()).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) throws IOException {
-        LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr(false).withStdOut(false);
-
-        logContainerCmd.withFollowStream(follow);
-        logContainerCmd.withStdOut(stdout);
-        logContainerCmd.withStdErr(stderr);
-        logContainerCmd.withTimestamps(timestamps);
-
-        if(tail < 0) {
-            logContainerCmd.withTailAll();
-        } else {
-            logContainerCmd.withTail(tail);
-        }
-
-        OutputStreamLogsResultCallback outputStreamLogsResultCallback = new OutputStreamLogsResultCallback(outputStream);
-        logContainerCmd.exec(outputStreamLogsResultCallback);
+        this.readWriteLock.readLock().lock();
         try {
-            outputStreamLogsResultCallback.awaitCompletion();
-        } catch (InterruptedException e) {
-            throw new IOException(e);
+            LogContainerCmd logContainerCmd = dockerClient.logContainerCmd(containerId).withStdErr(false).withStdOut(false);
+
+            logContainerCmd.withFollowStream(follow);
+            logContainerCmd.withStdOut(stdout);
+            logContainerCmd.withStdErr(stderr);
+            logContainerCmd.withTimestamps(timestamps);
+
+            if (tail < 0) {
+                logContainerCmd.withTailAll();
+            } else {
+                logContainerCmd.withTail(tail);
+            }
+
+            OutputStreamLogsResultCallback outputStreamLogsResultCallback = new OutputStreamLogsResultCallback(outputStream);
+            logContainerCmd.exec(outputStreamLogsResultCallback);
+            try {
+                outputStreamLogsResultCallback.awaitCompletion();
+            } catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
     }
 
@@ -722,16 +825,21 @@ public class DockerClientExecutor {
     }
 
     public String createNetwork(String id, Network network) {
-        final CreateNetworkCmd createNetworkCmd = this.dockerClient.createNetworkCmd().withName(id);
+        this.readWriteLock.readLock().lock();
+        try {
+            final CreateNetworkCmd createNetworkCmd = this.dockerClient.createNetworkCmd().withName(id);
 
-        if (network.getDriver() != null) {
-            createNetworkCmd.withDriver(network.getDriver());
+            if (network.getDriver() != null) {
+                createNetworkCmd.withDriver(network.getDriver());
+            }
+
+            //TODO IPAM cannot be set at the time of writing this.
+
+            final CreateNetworkResponse exec = createNetworkCmd.exec();
+            return exec.getId();
+        } finally {
+            this.readWriteLock.readLock().unlock();
         }
-
-        //TODO IPAM cannot be set at the time of writing this.
-
-        final CreateNetworkResponse exec = createNetworkCmd.exec();
-        return exec.getId();
     }
 
     public void removeNetwork(String id) {
