@@ -44,8 +44,9 @@ public class CubeDockerExtension implements LoadableExtension {
     private boolean doesNotContainStandaloneExtension() {
         final boolean junitStandalone = Validate.classExists("org.jboss.arquillian.junit.standalone.JUnitStandaloneExtension");
         final boolean testngStandalone = Validate.classExists("org.jboss.arquillian.testng.standalone.TestNGStandaloneExtension");
+        final boolean spockStandalone = Validate.classExists("org.jboss.arquillian.spock.standalone.SpockStandaloneExtension");
 
-        return !junitStandalone && !testngStandalone;
+        return !junitStandalone && !testngStandalone && !spockStandalone;
     }
 
 }
