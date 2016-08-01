@@ -843,7 +843,12 @@ public class DockerClientExecutor {
     }
 
     public void removeNetwork(String id) {
-        this.dockerClient.removeNetworkCmd(id).exec();
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.removeNetworkCmd(id).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
     }
 
     /**
