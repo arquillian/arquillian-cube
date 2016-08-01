@@ -8,12 +8,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-        <version.selenium>2.53.1</version.selenium>
-        <version.graphene>2.1.0.Final</version.graphene>
-    </properties>
-
     <name>Arquillian Cube Docker Drone Integration</name>
     <artifactId>arquillian-cube-docker-drone</artifactId>
 

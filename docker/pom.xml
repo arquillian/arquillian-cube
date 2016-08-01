@@ -12,6 +12,12 @@
     <!-- Model Version -->
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <version.graphene>2.1.0.Final</version.graphene>
+        <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
+        <version.selenium>2.53.1</version.selenium>
+    </properties>
+
     <!-- Artifact Configuration -->
     <artifactId>arquillian-cube-docker-parent</artifactId>
     <packaging>pom</packaging>
