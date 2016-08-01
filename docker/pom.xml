@@ -40,6 +40,7 @@
         <module>ftest-boot2docker</module>
         <module>ftest-docker-compose</module>
         <module>ftest-drone</module>
+        <module>ftest-drone-custom</module>
         <module>ftest-graphene</module>
         <module>ftest-docker-compose-v2</module>
         <module>ftest-docker-machine</module>

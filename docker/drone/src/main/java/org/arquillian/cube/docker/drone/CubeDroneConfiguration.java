@@ -15,6 +15,17 @@ public class CubeDroneConfiguration {
      * Record mode to decide if not recording, only when failure or always.
      */
     private RecordMode recordMode = RecordMode.ALL;
+    /**
+     * Docker image to be used as custom browser image instead of the official one.
+     */
+    private String browserImage = null;
+    /**
+     * Dockerfile location to be used to built custom docker image instead of the official one.
+     * This property has preference over browserImage.
+     *
+     * @see org.arquillian.cube.docker.drone.CubeDroneConfiguration#browserImage
+     */
+    private String browserDockerfileLocation = null;
 
     public boolean isRecordOnFailure() {
         return recordMode == RecordMode.ONLY_FAILING;
@@ -36,6 +47,22 @@ public class CubeDroneConfiguration {
         return finalDirectory;
     }
 
+    public boolean isBrowserImageSet() {
+        return this.browserImage != null && !this.browserImage.isEmpty();
+    }
+
+    public boolean isBrowserDockerfileDirectorySet() {
+        return this.browserDockerfileLocation != null && !this.browserDockerfileLocation.isEmpty();
+    }
+
+    public String getBrowserImage() {
+        return browserImage;
+    }
+
+    public String getBrowserDockerfileLocation() {
+        return browserDockerfileLocation;
+    }
+
     public static enum RecordMode {
         ALL, ONLY_FAILING, NONE;
     }
@@ -49,6 +76,14 @@ public class CubeDroneConfiguration {
 
         if (config.containsKey("videoOutput")) {
             cubeDroneConfiguration.finalDirectory = config.get("videoOutput");
+        }
+
+        if (config.containsKey("browserImage")) {
+            cubeDroneConfiguration.browserImage = config.get("browserImage");
+        }
+
+        if (config.containsKey("browserDockerfileLocation")) {
+            cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
         }
 
         return cubeDroneConfiguration;
