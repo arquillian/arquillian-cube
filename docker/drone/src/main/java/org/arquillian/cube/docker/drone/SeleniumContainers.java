@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.drone;
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
 import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
@@ -22,7 +23,7 @@ public class SeleniumContainers {
 
     private static final int SELENIUM_BOUNDED_PORT = 14444;
     private static final int VNC_EXPOSED_PORT = 5900;
-    public static final String SELENIUM_CONTAINER_NAME = "selenium";
+    public static final String SELENIUM_CONTAINER_NAME = "browser";
     public static final String VNC_CONTAINER_NAME = "vnc";
     public static final String[] FLVREC_COMMAND = new String[]{
             "-o",
@@ -78,9 +79,9 @@ public class SeleniumContainers {
         return browser;
     }
 
-    public static SeleniumContainers create(String browser) {
+    public static SeleniumContainers create(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         final Path temporaryVolume = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
-        return new SeleniumContainers(createSeleniumContainer(browser), browser, createVncContainer(temporaryVolume), temporaryVolume);
+        return new SeleniumContainers(createSeleniumContainer(browser, cubeDroneConfiguration), browser, createVncContainer(temporaryVolume), temporaryVolume);
     }
 
     private static CubeContainer createVncContainer(final Path dockerVolume) {
@@ -111,8 +112,21 @@ public class SeleniumContainers {
 
     }
 
-    private static CubeContainer createSeleniumContainer(String browser) {
+    private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
 
+        if (cubeDroneConfiguration.isBrowserDockerfileDirectorySet()) {
+            return createCube(cubeDroneConfiguration.getBrowserDockerfileDirectory());
+        } else {
+            if (cubeDroneConfiguration.isBrowserImageSet()) {
+                return configureCube(cubeDroneConfiguration.getBrowserImage());
+
+            } else {
+                return useOfficialSeleniumImages(browser);
+            }
+        }
+    }
+
+    private static CubeContainer useOfficialSeleniumImages(String browser) {
         String version = SeleniumVersionExtractor.fromClassPath();
 
         switch(browser) {
@@ -122,9 +136,26 @@ public class SeleniumContainers {
         }
     }
 
+    private static CubeContainer createCube(String dockerFileLocation) {
+        CubeContainer cubeContainer = new CubeContainer();
+        BuildImage buildImage = new BuildImage(dockerFileLocation, null, true, true);
+        cubeContainer.setBuildImage(buildImage);
+
+        setDefaultSeleniumCubeProperties(cubeContainer);
+
+        return cubeContainer;
+    }
+
     private static CubeContainer configureCube(String image) {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setImage(Image.valueOf(image));
+
+        setDefaultSeleniumCubeProperties(cubeContainer);
+
+        return cubeContainer;
+    }
+
+    private static void setDefaultSeleniumCubeProperties(CubeContainer cubeContainer) {
         cubeContainer.setPortBindings(
                 Arrays.asList(PortBinding.valueOf(SELENIUM_BOUNDED_PORT + "-> 4444"))
         );
@@ -136,8 +167,6 @@ public class SeleniumContainers {
         await.setUrl("http://dockerHost:" + SELENIUM_BOUNDED_PORT);
 
         cubeContainer.setAwait(await);
-
-        return cubeContainer;
     }
 
 }

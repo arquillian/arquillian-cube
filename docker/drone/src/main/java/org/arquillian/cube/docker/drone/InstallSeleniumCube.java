@@ -32,7 +32,7 @@ public class InstallSeleniumCube {
 
         DockerCompositions cubes = configuration.getDockerContainersContent();
 
-        final SeleniumContainers seleniumContainers = SeleniumContainers.create(getBrowser(arquillianDescriptor));
+        final SeleniumContainers seleniumContainers = SeleniumContainers.create(getBrowser(arquillianDescriptor), cubeDroneConfigurationInstance.get());
         cubes.add(seleniumContainers.getSeleniumContainerName(), seleniumContainers.getSeleniumContainer());
 
         final boolean recording = cubeDroneConfigurationInstance.get().isRecording();
