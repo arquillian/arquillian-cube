@@ -6,8 +6,8 @@
         <artifactId>arquillian-cube-docker-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
     </parent>
-    <name>Arquillian Cube Docker Functional Test Drone</name>
-    <artifactId>arquillian-cube-docker-ftest-drone</artifactId>
+    <name>Arquillian Cube Docker Functional Test Graphene</name>
+    <artifactId>arquillian-cube-docker-ftest-graphene</artifactId>
 
     <properties>
     </properties>
@@ -35,6 +35,19 @@
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-standalone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver</artifactId>
+            <version>${version.graphene}</version>
+            <type>pom</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver-impl</artifactId>
+            <version>${version.graphene}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

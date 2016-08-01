@@ -22,7 +22,7 @@ public class SeleniumContainers {
 
     private static final int SELENIUM_BOUNDED_PORT = 14444;
     private static final int VNC_EXPOSED_PORT = 5900;
-    private static final String SELENIUM_CONTAINER_NAME = "selenium";
+    public static final String SELENIUM_CONTAINER_NAME = "selenium";
     public static final String VNC_CONTAINER_NAME = "vnc";
     public static final String[] FLVREC_COMMAND = new String[]{
             "-o",

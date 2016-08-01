@@ -8,11 +8,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-        <version.selenium>2.53.1</version.selenium>
-    </properties>
-
     <name>Arquillian Cube Docker Drone Integration</name>
     <artifactId>arquillian-cube-docker-drone</artifactId>
 
@@ -70,6 +65,19 @@
         <dependency>
             <groupId>org.jboss.arquillian.extension</groupId>
             <artifactId>arquillian-drone-spi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver</artifactId>
+            <version>${version.graphene}</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.graphene</groupId>
+            <artifactId>graphene-webdriver-impl</artifactId>
+            <version>${version.graphene}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

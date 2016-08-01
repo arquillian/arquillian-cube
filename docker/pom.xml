@@ -12,6 +12,12 @@
     <!-- Model Version -->
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <version.graphene>2.1.0.Final</version.graphene>
+        <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
+        <version.selenium>2.53.1</version.selenium>
+    </properties>
+
     <!-- Artifact Configuration -->
     <artifactId>arquillian-cube-docker-parent</artifactId>
     <packaging>pom</packaging>
@@ -34,6 +40,7 @@
         <module>ftest-boot2docker</module>
         <module>ftest-docker-compose</module>
         <module>ftest-drone</module>
+        <module>ftest-graphene</module>
         <module>ftest-docker-compose-v2</module>
         <module>ftest-docker-machine</module>
         <module>ftest-docker-machine-network</module>
