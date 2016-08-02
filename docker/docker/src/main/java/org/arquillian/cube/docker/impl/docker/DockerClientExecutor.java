@@ -29,6 +29,7 @@ import javax.ws.rs.ProcessingException;
 
 import com.github.dockerjava.api.command.InspectExecCmd;
 import com.github.dockerjava.api.command.InspectExecResponse;
+import com.github.dockerjava.api.model.Version;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -519,6 +520,16 @@ public class DockerClientExecutor {
         } finally {
             this.readWriteLock.readLock().unlock();
         }
+    }
+
+    public Version dockerHostVersion() {
+        this.readWriteLock.readLock().lock();
+        try {
+            return this.dockerClient.versionCmd().exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+
     }
 
     public void pingDockerServer() {

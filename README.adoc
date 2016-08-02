@@ -32,6 +32,8 @@ include::{asciidoctor-source}/containerless.adoc[]
 
 include::{asciidoctor-source}/drone.adoc[]
 
+include::{asciidoctor-source}/reports.adoc[]
+
 include::{asciidoctor-source}/polyglot.adoc[]
 
 == Future work

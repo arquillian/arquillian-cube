@@ -17,6 +17,7 @@ import org.arquillian.cube.docker.impl.client.metadata.CopyFromContainer;
 import org.arquillian.cube.docker.impl.client.metadata.CopyToContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ExecuteProcessInContainer;
 import org.arquillian.cube.docker.impl.client.metadata.GetTop;
+import org.arquillian.cube.docker.impl.client.metadata.ReportMetrics;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.spi.BaseCube;
@@ -35,6 +36,7 @@ import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
 import org.arquillian.cube.spi.metadata.CanCopyToContainer;
 import org.arquillian.cube.spi.metadata.CanExecuteProcessInContainer;
+import org.arquillian.cube.spi.metadata.CanReportMetrics;
 import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
 import org.arquillian.cube.spi.metadata.CanSeeTop;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -56,6 +58,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     private final PortBindings portBindings;
 
+    private long startingTimeInMillis = 0;
+    private long stoppingTimeInMillis = 0;
+
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
 
@@ -76,6 +81,8 @@ public class DockerCube extends BaseCube<CubeContainer> {
         addMetadata(CanSeeChangesOnFilesystem.class, new ChangesOnFilesystem(getId(), executor));
         addMetadata(CanSeeTop.class, new GetTop(getId(), executor));
         addMetadata(HasPortBindings.class, portBindings);
+        addMetadata(CanReportMetrics.class, new ReportMetrics(this));
+
         if(configuration.getBuildImage() !=null) {
             String path = configuration.getBuildImage().getDockerfileLocation();
             if(path != null) {
@@ -101,9 +108,13 @@ public class DockerCube extends BaseCube<CubeContainer> {
         }
         try {
             lifecycle.fire(new BeforeCreate(id));
+
             log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
+            long currentTime = System.currentTimeMillis();
             executor.createContainer(id, configuration);
+            this.startingTimeInMillis = System.currentTimeMillis() - currentTime;
             log.fine(String.format("Created container with id %s.", id));
+
             state = State.CREATED;
             lifecycle.fire(new AfterCreate(id));
         } catch(Exception e) {
@@ -119,7 +130,12 @@ public class DockerCube extends BaseCube<CubeContainer> {
         }
         try {
             lifecycle.fire(new BeforeStart(id));
+
+            long currentTime = System.currentTimeMillis();
             executor.startContainer(id, configuration);
+            long partialDuration = System.currentTimeMillis() - currentTime;
+            this.startingTimeInMillis = this.startingTimeInMillis + partialDuration;
+
             state = State.STARTED;
             portBindings.containerStarted();
             if(!AwaitStrategyFactory.create(executor, this, configuration).await()) {
@@ -139,10 +155,14 @@ public class DockerCube extends BaseCube<CubeContainer> {
         }
         try {
             lifecycle.fire(new BeforeStop(id));
+
+            long currentTime = System.currentTimeMillis();
             try {
                 executor.stopContainer(id);
             } catch(NotFoundException e) {
             } catch (NotModifiedException e) {}
+            this.stoppingTimeInMillis = System.currentTimeMillis() - currentTime;
+
             state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
         } catch(Exception e) {
@@ -158,10 +178,14 @@ public class DockerCube extends BaseCube<CubeContainer> {
         }
         try {
             lifecycle.fire(new BeforeDestroy(id));
+
+            long currentTime = System.currentTimeMillis();
             try {
                 executor.removeContainer(id, configuration.getRemoveVolumes());
             } catch (NotFoundException e) {
             } catch (NotModifiedException e) {}
+            long partialDuration = System.currentTimeMillis() - currentTime;
+            this.stoppingTimeInMillis = this.stoppingTimeInMillis + partialDuration;
 
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
@@ -220,7 +244,15 @@ public class DockerCube extends BaseCube<CubeContainer> {
         log.fine(String.format("Reusing prerunning container with name %s and configuration %s.", id, configuration));
         state = State.PRE_RUNNING;
     }
-    
+
+    public long getStartingTimeInMillis() {
+        return startingTimeInMillis;
+    }
+
+    public long getStoppingTimeInMillis() {
+        return stoppingTimeInMillis;
+    }
+
     private class PortBindings implements HasPortBindings {
 
         private final Map<Integer, PortAddress> mappedPorts;
@@ -277,7 +309,8 @@ public class DockerCube extends BaseCube<CubeContainer> {
             }
             return null;
         }
-        
+
+
         /*
          * Initialize bound ports and regenerate port mappings
          */

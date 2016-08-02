@@ -73,6 +73,7 @@
         <version.undertow>1.2.12.Final</version.undertow>
         <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
         <version.assertj>2.5.0</version.assertj>
+        <version.arquillian.recorder>1.1.0.Final</version.arquillian.recorder>
     </properties>
 
     <dependencyManagement>
@@ -120,6 +121,11 @@
             </dependency>
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-docker-recorder</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-openshift</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -136,6 +142,19 @@
                 <artifactId>arquillian-spacelift</artifactId>
                 <version>${version.arquillian_spacelift}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.arquillian.extension</groupId>
+                <artifactId>arquillian-recorder-reporter-api</artifactId>
+                <version>${version.arquillian.recorder}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.arquillian.extension</groupId>
+                <artifactId>arquillian-recorder-reporter-spi</artifactId>
+                <version>${version.arquillian.recorder}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-container-impl-base</artifactId>

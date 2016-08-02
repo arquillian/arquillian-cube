@@ -9,6 +9,7 @@ import org.arquillian.cube.impl.client.enricher.CubeControllerProvider;
 import org.arquillian.cube.impl.client.enricher.CubeIDResourceProvider;
 import org.arquillian.cube.impl.client.enricher.HostIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
+import org.arquillian.cube.impl.reporter.TakeCubeInformation;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -31,7 +32,7 @@ public class CubeExtension implements LoadableExtension {
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath
-        if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
+        if (Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
             builder.observer(ProtocolMetadataUpdater.class)
                    .observer(CubeContainerLifecycleController.class)
                    .observer(ContainerConfigurationController.class)
@@ -39,8 +40,13 @@ public class CubeExtension implements LoadableExtension {
             builder.service(AuxiliaryArchiveAppender.class, CubeAuxiliaryArchiveAppender.class);
         }
         // Only register if container-test-impl is on classpath
-        if(Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.OperatesOnDeploymentAwareProvider")) {
+        if (Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.OperatesOnDeploymentAwareProvider")) {
             builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
+        }
+
+        // Only if recorder-reporter is in classpath we should provide reporting capabilities.
+        if (Validate.classExists("org.arquillian.recorder.reporter.ReporterExtension")) {
+            builder.observer(TakeCubeInformation.class);
         }
     }
 
