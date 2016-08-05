@@ -7,6 +7,7 @@
     <extension qualifier="docker">
         <property name="machineName">dev</property>
         <property name="autoStartContainers">[none]</property>
+        <property name="serverVersion">1.23</property>
         <property name="dockerContainers">
             database:
               image: zhilvis/h2-db

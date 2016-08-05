@@ -16,12 +16,12 @@ public class DockerMachineRequirement implements Requirement<RequiresDockerMachi
         String name = context.name();
         try {
             if (name != null && !name.isEmpty()) {
-                String ip = commandLineExecutor.execCommand("docker-machine ip " + name);
-                if (ip != null && !ip.isEmpty()) {
+                String ip = commandLineExecutor.execCommand(new String[]{"docker-machine", "ip", name});
+                if (ip == null || ip.isEmpty()) {
                     throw new UnsatisfiedRequirementException("Docker machine with name: ["+name+"] not found!");
                 }
             } else {
-                int machines = countLines(commandLineExecutor.execCommand("docker-machine ls")) - 1;
+                int machines = countLines(commandLineExecutor.execCommand(new String[]{"docker-machine", "ls"})) - 1;
                 if (machines > 0) {
                     throw new UnsatisfiedRequirementException("No docker machine found!");
                 }
