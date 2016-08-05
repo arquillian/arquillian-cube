@@ -12,12 +12,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class IOUtil {
 
@@ -82,6 +87,37 @@ public class IOUtil {
                     dest.close();
                 }
             }
+        }
+    }
+
+
+    /**
+     * Unzips the given input stream of a ZIP to the given directory
+     */
+    public static void unzip(InputStream in, File toDir) throws IOException {
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(in));
+        try {
+            ZipEntry entry = zis.getNextEntry();
+            while (entry != null) {
+                if (!entry.isDirectory()) {
+                    String entryName = entry.getName();
+                    File toFile = new File(toDir, entryName);
+                    toFile.getParentFile().mkdirs();
+                    OutputStream os = new FileOutputStream(toFile);
+                    try {
+                        try {
+                            copy(zis, os);
+                        } finally {
+                            zis.closeEntry();
+                        }
+                    } finally {
+                        close(os, true);
+                    }
+                }
+                entry = zis.getNextEntry();
+            }
+        } finally {
+            close(zis, true);
         }
     }
 
@@ -263,5 +299,27 @@ public class IOUtil {
             }
         }
         return original;
+    }
+
+    public static void copy(InputStream is, OutputStream os) throws IOException {
+        byte[] b = new byte[4096];
+        int l = is.read(b);
+        while (l >= 0) {
+            os.write(b, 0, l);
+            l = is.read(b);
+        }
+    }
+
+    public static void close(Closeable closeable, boolean swallowIOException) throws IOException {
+        if(closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                if(!swallowIOException) {
+                    throw e;
+                }
+            }
+
+        }
     }
 }
