@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class CubeOpenShiftConfiguration {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final String ORIGIN_SERVER = "originServer";
     private static final String NAMESPACE = "namespace";
@@ -97,13 +100,13 @@ public class CubeOpenShiftConfiguration {
     public Object getDefinitions() {
         if (definitions != null) {
             try {
-                return KubernetesHelper.loadJson(definitions);
+                return OBJECT_MAPPER.readerFor(KubernetesResource.class).readValue(definitions);
             } catch (IOException e) {
                 throw new RuntimeException("Could not read " + DEFINITIONS, e);
             }
         } else if (definitionsFile != null) {
             try {
-                return KubernetesHelper.loadJson(new FileInputStream(definitionsFile));
+                return OBJECT_MAPPER.readerFor(KubernetesResource.class).readValue(new FileInputStream(definitionsFile));
             } catch (IOException e) {
                 throw new RuntimeException("Could not read " + DEFINITIONS_FILE + " at " + definitionsFile, e);
             }
