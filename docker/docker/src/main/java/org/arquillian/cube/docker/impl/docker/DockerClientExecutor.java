@@ -30,6 +30,7 @@ import javax.ws.rs.ProcessingException;
 import com.github.dockerjava.api.command.InspectExecCmd;
 import com.github.dockerjava.api.command.InspectExecResponse;
 import com.github.dockerjava.api.model.Version;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -72,7 +73,6 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.VolumesFrom;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
@@ -146,8 +146,9 @@ public class DockerClientExecutor {
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     public DockerClientExecutor(CubeDockerConfiguration cubeConfiguration) {
-        DockerClientConfigBuilder configBuilder =
-            DockerClientConfig.createDefaultConfigBuilder();
+
+        final DefaultDockerClientConfig.Builder configBuilder = DefaultDockerClientConfig
+                .createDefaultConfigBuilder();
 
         String dockerServerUri = cubeConfiguration.getDockerServerUri();
 
