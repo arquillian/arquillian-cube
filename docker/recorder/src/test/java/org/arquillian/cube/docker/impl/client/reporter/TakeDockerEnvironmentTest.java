@@ -128,7 +128,7 @@ public class TakeDockerEnvironmentTest {
         assertThat(propertyScreenshotEntry).isInstanceOf(ScreenshotEntry.class);
 
         ScreenshotEntry screenshotEntry = (ScreenshotEntry) propertyScreenshotEntry;
-        assertThat(screenshotEntry.getLink()).isEqualTo("target/schemas/docker_composition.png");
+        assertThat(screenshotEntry.getLink()).isEqualTo("reports/schemas/docker_composition.png");
     }
 
 }

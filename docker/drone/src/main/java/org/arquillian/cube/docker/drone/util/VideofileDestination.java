@@ -4,6 +4,8 @@ import org.arquillian.cube.docker.drone.CubeDroneConfiguration;
 import org.jboss.arquillian.test.spi.event.suite.After;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -11,10 +13,6 @@ public class VideoFileDestination {
 
     private static final File DEFAULT_LOCATION_OUTPUT_MAVEN = new File("target");
     private static final File DEFAULT_LOCATION_OUTPUT_GRADLE = new File("build");
-
-    private static final File MAVEN_REPORT_DIR = new File(DEFAULT_LOCATION_OUTPUT_MAVEN, "surefire-reports");
-    private static final File MAVEN_FAILSAFE_REPORT_DIR = new File(DEFAULT_LOCATION_OUTPUT_MAVEN, "failsafe-reports");
-    private static final File GRADLE_REPORT_DIR = new File(DEFAULT_LOCATION_OUTPUT_GRADLE, "test-results");
 
     private VideoFileDestination() {
         super();
@@ -25,34 +23,33 @@ public class VideoFileDestination {
     }
 
     private static Path resolveTargetDirectory(CubeDroneConfiguration cubeDroneConfiguration) {
+
+        Path output;
+
         if (cubeDroneConfiguration.isVideoOutputDirectorySet()) {
-            return Paths.get(cubeDroneConfiguration.getFinalDirectory());
+            output = Paths.get(cubeDroneConfiguration.getFinalDirectory());
         } else {
-            if (MAVEN_REPORT_DIR.exists()) {
-                return MAVEN_REPORT_DIR.toPath();
+            if (DEFAULT_LOCATION_OUTPUT_GRADLE.exists()) {
+                output = DEFAULT_LOCATION_OUTPUT_GRADLE.toPath().resolve("reports").resolve("videos");
             } else {
-                if (MAVEN_FAILSAFE_REPORT_DIR.exists()) {
-                    return MAVEN_FAILSAFE_REPORT_DIR.toPath();
+                if (DEFAULT_LOCATION_OUTPUT_MAVEN.exists()) {
+                    output = DEFAULT_LOCATION_OUTPUT_MAVEN.toPath().resolve("reports").resolve("videos");
                 } else {
-                    if (GRADLE_REPORT_DIR.exists()) {
-                        return GRADLE_REPORT_DIR.toPath();
-                    } else {
-                        if (DEFAULT_LOCATION_OUTPUT_GRADLE.exists()) {
-                            return DEFAULT_LOCATION_OUTPUT_GRADLE.toPath();
-                        } else {
-                            if (DEFAULT_LOCATION_OUTPUT_MAVEN.exists()) {
-                                return DEFAULT_LOCATION_OUTPUT_MAVEN.toPath();
-                            }
-                        }
+                    if (!DEFAULT_LOCATION_OUTPUT_MAVEN.mkdirs()) {
+                        throw new IllegalArgumentException("Couldn't create directory for storing videos");
                     }
+                    output = DEFAULT_LOCATION_OUTPUT_MAVEN.toPath().resolve("reports").resolve("videos");
                 }
             }
         }
 
-        if (!DEFAULT_LOCATION_OUTPUT_MAVEN.mkdirs()) {
+        try {
+            Files.createDirectories(output);
+        } catch (IOException e) {
             throw new IllegalArgumentException("Couldn't create directory for storing videos");
         }
-        return DEFAULT_LOCATION_OUTPUT_MAVEN.toPath();
+
+        return output;
     }
 
     private static String getFinalVideoName(After afterTestMethod) {

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -176,17 +177,16 @@ public class TakeDockerEnvironment {
     }
 
     private File createSchemasDirectory(File rootDirectory) {
-        File schemasDir = new File(rootDirectory, "schemas");
+        final Path reportsSchema = Paths.get("reports", "schemas");
+        final Path schemasDir = rootDirectory.toPath().resolve(reportsSchema);
 
-        if (schemasDir.exists() && schemasDir.isDirectory()) {
-            return schemasDir;
+        try {
+            Files.createDirectories(schemasDir);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Could not created schemas directory at %s", schemasDir));
         }
 
-        if (!schemasDir.mkdir()) {
-            throw new IllegalArgumentException(String.format("Could not created schemas directory at %s", schemasDir.getAbsolutePath()));
-        }
-
-        return schemasDir;
+        return schemasDir.toFile();
     }
 
     private void addEntry(PropertyEntry propertyEntry, GroupEntry groupEntry) {
