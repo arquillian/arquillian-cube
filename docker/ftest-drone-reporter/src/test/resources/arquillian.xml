@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://jboss.org/schema/arquillian"
+    xsi:schemaLocation="http://jboss.org/schema/arquillian
+    http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+    <extension qualifier="docker">
+        <property name="definitionFormat">COMPOSE</property>
+        <property name="machineName">dev</property>
+        <property name="serverVersion">1.23</property>
+        <property name="dockerContainersFile">docker-compose.yml</property>
+        <property name="cubeSpecificProperties">
+            helloworld:
+              await:
+                strategy: sleeping
+                sleepTime: 2 s
+        </property>
+    </extension>
+
+</arquillian>

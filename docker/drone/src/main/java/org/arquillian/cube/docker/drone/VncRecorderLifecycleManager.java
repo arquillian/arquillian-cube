@@ -1,17 +1,19 @@
 package org.arquillian.cube.docker.drone;
 
+import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
+import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestResult;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.Before;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
@@ -20,11 +22,8 @@ import java.nio.file.StandardCopyOption;
  */
 public class VncRecorderLifecycleManager {
 
-    private static final File DEFAULT_LOCATION_OUTPUT_MAVEN = new File("target");
-    private static final File DEFAULT_LOCATION_OUTPUT_GRADLE = new File("build");
-
-    private static final File MAVEN_REPORT_DIR = new File(DEFAULT_LOCATION_OUTPUT_MAVEN, "surefire-reports");
-    private static final File GRADLE_REPORT_DIR = new File(DEFAULT_LOCATION_OUTPUT_GRADLE, "test-results");
+    @Inject
+    Event<AfterVideoRecorded> afterVideoRecordedEvent;
 
     Cube vnc;
 
@@ -58,16 +57,19 @@ public class VncRecorderLifecycleManager {
 
         if (this.vnc != null) {
 
+            Path finalLocation = null;
             if (shouldRecordOnlyOnFailure(testResult, cubeDroneConfiguration)) {
-                moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
+                finalLocation = moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
             } else {
                 if (shouldRecordAlways(cubeDroneConfiguration)) {
-                    moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
+                    finalLocation = moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
                 }
             }
 
             vnc.stop();
             vnc.destroy();
+
+            this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(finalLocation));
         }
 
     }
@@ -80,52 +82,18 @@ public class VncRecorderLifecycleManager {
         return cubeDroneConfiguration.isRecordOnFailure() && testResult.getStatus() == TestResult.Status.FAILED;
     }
 
-    private void moveFromVolumeFolderToBuildDirectory(After afterTestMethod, CubeDroneConfiguration cubeDroneConfiguration, SeleniumContainers seleniumContainers) {
+    private Path moveFromVolumeFolderToBuildDirectory(After afterTestMethod, CubeDroneConfiguration cubeDroneConfiguration, SeleniumContainers seleniumContainers) {
         try {
-            Files.move(seleniumContainers.getVideoRecordingFile(), getFinalLocation(cubeDroneConfiguration, afterTestMethod), StandardCopyOption.REPLACE_EXISTING);
+            final Path finalLocation = getFinalLocation(cubeDroneConfiguration, afterTestMethod);
+            Files.move(seleniumContainers.getVideoRecordingFile(), finalLocation, StandardCopyOption.REPLACE_EXISTING);
+            return finalLocation;
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
     private Path getFinalLocation(CubeDroneConfiguration cubeDroneConfiguration, After afterTestMethod) {
-        return resolveTargetDirectory(cubeDroneConfiguration).resolve(getFinalVideoName(afterTestMethod));
-    }
-
-    private Path resolveTargetDirectory(CubeDroneConfiguration cubeDroneConfiguration) {
-        if (cubeDroneConfiguration.isVideoOutputDirectorySet()) {
-            return Paths.get(cubeDroneConfiguration.getFinalDirectory());
-        } else {
-            if (MAVEN_REPORT_DIR.exists()) {
-                return MAVEN_REPORT_DIR.toPath();
-            } else {
-                if (GRADLE_REPORT_DIR.exists()) {
-                    return GRADLE_REPORT_DIR.toPath();
-                } else {
-                    if (DEFAULT_LOCATION_OUTPUT_GRADLE.exists()) {
-                        return DEFAULT_LOCATION_OUTPUT_GRADLE.toPath();
-                    } else {
-                        if (DEFAULT_LOCATION_OUTPUT_MAVEN.exists()) {
-                            return DEFAULT_LOCATION_OUTPUT_MAVEN.toPath();
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!DEFAULT_LOCATION_OUTPUT_MAVEN.mkdirs()) {
-            throw new IllegalArgumentException("Couldn't create directory for storing videos");
-        }
-        return DEFAULT_LOCATION_OUTPUT_MAVEN.toPath();
-    }
-
-    private String getFinalVideoName(After afterTestMethod) {
-
-        final String className = afterTestMethod.getTestClass().getName().replace('.', '_');
-        final String methodName = afterTestMethod.getTestMethod().getName();
-
-        return className + "_" + methodName + ".flv";
-
+        return VideoFileDestination.getFinalLocation(afterTestMethod, cubeDroneConfiguration);
     }
 
 }

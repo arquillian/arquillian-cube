@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.drone;
 
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.TestResult;
 import org.jboss.arquillian.test.spi.event.suite.After;
@@ -36,6 +37,9 @@ public class VncRecorderLifecycleManagerTest {
 
     @Mock
     After after;
+
+    @Mock
+    Event event;
 
     @Mock
     SeleniumContainers seleniumContainers;
@@ -73,6 +77,7 @@ public class VncRecorderLifecycleManagerTest {
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
         vncRecorderLifecycleManager.vnc = cube;
+        vncRecorderLifecycleManager.afterVideoRecordedEvent = event;
         vncRecorderLifecycleManager.stopRecording(after,
                 testResult,
                 CubeDroneConfiguration.fromMap(conf),
@@ -101,6 +106,7 @@ public class VncRecorderLifecycleManagerTest {
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
         vncRecorderLifecycleManager.vnc = cube;
+        vncRecorderLifecycleManager.afterVideoRecordedEvent = event;
         vncRecorderLifecycleManager.stopRecording(after,
                 testResult,
                 CubeDroneConfiguration.fromMap(conf),
@@ -129,6 +135,7 @@ public class VncRecorderLifecycleManagerTest {
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
         vncRecorderLifecycleManager.vnc = cube;
+        vncRecorderLifecycleManager.afterVideoRecordedEvent = event;
         vncRecorderLifecycleManager.stopRecording(after,
                 testResult,
                 CubeDroneConfiguration.fromMap(conf),
@@ -156,6 +163,7 @@ public class VncRecorderLifecycleManagerTest {
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
         vncRecorderLifecycleManager.vnc = cube;
+        vncRecorderLifecycleManager.afterVideoRecordedEvent = event;
         vncRecorderLifecycleManager.stopRecording(after,
                 testResult,
                 CubeDroneConfiguration.fromMap(conf),
