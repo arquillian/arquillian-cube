@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client.metadata;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.metadata.CanReportMetrics;
 import org.arquillian.recorder.reporter.Reportable;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
@@ -11,6 +12,7 @@ import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
 
 import java.security.Key;
 import java.util.Collection;
+import java.util.EnumSet;
 
 /**
  * Reporting metrics capabilities for Docker Cube.
@@ -28,17 +30,9 @@ public class ReportMetrics implements CanReportMetrics {
 
         GroupEntry groupEntry = new GroupEntry(dockerCube.getId());
 
-        boolean error;
-        switch(dockerCube.state()) {
-            case START_FAILED:
-            case CREATE_FAILED:
-            case STOP_FAILED:
-            case DESTORY_FAILED:
-                error = true;
-            break;
-
-            default: error = false;
-        }
+        boolean error = EnumSet.of(Cube.State.START_FAILED, Cube.State.CREATE_FAILED,
+                                    Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
+                                .contains(dockerCube.state());
 
         KeyValueEntry errorKeyValue = new KeyValueEntry("Error during lifecycle", Boolean.toString(error));
         groupEntry.getPropertyEntries().add(errorKeyValue);

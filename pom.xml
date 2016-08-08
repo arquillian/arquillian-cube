@@ -73,7 +73,7 @@
         <version.undertow>1.2.12.Final</version.undertow>
         <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
         <version.assertj>2.5.0</version.assertj>
-        <version.arquillian.recorder>1.1.0.Final</version.arquillian.recorder>
+        <version.arquillian.recorder>1.1.1.Final</version.arquillian.recorder>
     </properties>
 
     <dependencyManagement>

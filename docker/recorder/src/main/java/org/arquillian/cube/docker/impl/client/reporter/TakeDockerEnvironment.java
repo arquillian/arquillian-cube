@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -39,6 +41,7 @@ import java.util.logging.Logger;
 public class TakeDockerEnvironment {
 
     private static Logger log = Logger.getLogger(TakeDockerEnvironment.class.getName());
+    private static ScreenshotEntry EMPTY_SCREENSHOT = new ScreenshotEntry();
 
     @Inject
     Event<org.arquillian.recorder.reporter.event.PropertyReportEvent> propertyReportEvent;
@@ -140,9 +143,13 @@ public class TakeDockerEnvironment {
         try {
             ImageIO.write(bufferedImage, "PNG", imageFile);
 
+            final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
+            final Path relativize = rootDir.relativize(imageFile.toPath());
+
             ScreenshotEntry screenshotEntry = new ScreenshotEntry();
             screenshotEntry.setPhase(When.BEFORE);
-            screenshotEntry.setLink(imageFile.getPath());
+            screenshotEntry.setPath(relativize.toString());
+            screenshotEntry.setLink(relativize.toString());
             screenshotEntry.setWidth(bufferedImage.getWidth());
             screenshotEntry.setHeight(bufferedImage.getHeight());
             screenshotEntry.setSize(String.valueOf(imageFile.length()));
@@ -153,7 +160,7 @@ public class TakeDockerEnvironment {
             log.log(Level.WARNING, String.format("Docker compositions schema could not be generated because of %s.", e));
         }
 
-        return null;
+        return EMPTY_SCREENSHOT;
     }
 
     private GroupEntry createDockerInfoGroup(DockerClientExecutor executor) {
