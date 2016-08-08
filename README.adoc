@@ -20,6 +20,8 @@ WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some case
 
 IMPORTANT: If you are using Docker 1.11 or beyond you will need to set explicitly the configuration property `serverVersion` to `1.23`. This is because of requirement of `docker-java` (https://github.com/docker-java/docker-java/issues/617#issuecomment-237825886).
 
+Documentation generated with Asciidoctor: http://arquillian.org/arquillian-cube/
+
 include::{asciidoctor-source}/what-is-this.adoc[]
 
 include::{asciidoctor-source}/preliminaries.adoc[]
