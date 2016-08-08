@@ -100,11 +100,11 @@ NOTE: In YAML adding brackets ("[" "]") is for setting a list.
 [[cube-format]]
 [source, yaml]
 ----
-tomcat: #1
-  image: tutum/tomcat:7.0 #2
-  exposedPorts: [8089/tcp] #3
-  await: #4
-    strategy: polling #5
+tomcat: # <1>
+  image: tutum/tomcat:7.0 # <2>
+  exposedPorts: [8089/tcp] # <3>
+  await: # <4>
+    strategy: polling # <5>
   workingDir: .
   alwaysPull: false
   disableNetwork: true
@@ -121,8 +121,8 @@ tomcat: #1
   extraHosts: a
   attachStdin: true
   attachStderr: true
-  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] #6
-  cmd: [] #7
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] # <6>
+  cmd: [] # <7>
   dns: [127.0.0.1]
   volumes: [/tmp]
   volumesFrom: [tomcat]
@@ -132,7 +132,7 @@ tomcat: #1
   links:
     - name:alias
     - name2:alias2
-  portBindings: [8089/tcp, 8081->8080/tcp] #8
+  portBindings: [8089/tcp, 8081->8080/tcp] # <8>
   privileged: true
   publishAllPorts: true
   networkMode: host
@@ -142,13 +142,13 @@ tomcat: #1
     cGroupPermissions: a
     pathOnHost: b
     pathInContainer: c
-  restartPolicy: #10
+  restartPolicy:
     name: failure
     maximumRetryCount: 1
   capAdd: [a]
   capDrop: [b]
-  extends: container-id #9
-  manual: true #10
+  extends: container-id # <9>
+  manual: true # <10>
 ----
 <1> The name that are going to be assign to running container. It is *mandatory*.
 <2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you. If you want to always pull latest image before container is created, you can configure *alwaysPull: true*.
@@ -185,13 +185,13 @@ For defining them you only need to use the reserved word `networks`.
 [source, yml]
 .src/test/resources/cube
 ----
-networks: #1
-   mynetwork: #2
-       driver: bridge #3
+networks: # <1>
+   mynetwork: # <2>
+       driver: bridge # <3>
 tomcat:
   image: tutum/tomcat:7.0
   exposedPorts: [8089/tcp]
-  networkMode: mynetwork #4
+  networkMode: mynetwork # <4>
 ----
 <1> Reserved word to indicate start of network definition
 <2> Network name
@@ -244,8 +244,8 @@ tomcat:
   exposedPorts: [8089/tcp]
   await:
     strategy: polling
-    sleepPollingTime: 200 s #1
-    iterations: 3 #2
+    sleepPollingTime: 200 s # <1>
+    iterations: 3 # <2>
 ----
 <1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
 <2> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
@@ -270,7 +270,7 @@ tomcat:
   exposedPorts: [8089/tcp]
   await:
     strategy: sleeping
-    sleepTime: 200 s #1
+    sleepTime: 200 s # <1>
 ----
 <1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
 
@@ -282,11 +282,11 @@ tomcat:
   exposedPorts: [8089/tcp]
   await:
     strategy: log
-    match: 'Server startup' #1
-    stdOut: true #2
-    stdErr: true #3
-    sleepPollingTime: 200 s #4
-    iterations: 3 #5
+    match: 'Server startup' # <1>
+    stdOut: true # <2>
+    stdErr: true # <3>
+    sleepPollingTime: 200 s # <4>
+    iterations: 3 # <5>
 ----
 <1> Mandatory parameter to configure the pattern that signals the service started. To use regular expression just prefix the pattern with `regexp:`.
 <2> Optional parameter to enable scanning of _standard output_ log. Default is true.
@@ -302,13 +302,13 @@ tomcat:
   exposedPorts: [8089/tcp]
   await:
     strategy: http
-    match: 'Server startup' #1
-    responseCode: 201 #2
-    url: http://dockerHost:8080 #3
-    sleepPollingTime: 200 s #4
-    iterations: 3 #5
+    match: 'Server startup' # <1>
+    responseCode: 201 # <2>
+    url: http://dockerHost:8080 # <3>
+    sleepPollingTime: 200 s # <4>
+    iterations: 3 # <5>
     headers:
-        X-Cube: Docker #6
+        X-Cube: Docker # <6>
 ----
 <1> Parameter to configure the pattern that signals the service returned correctly value. To use regular expression just prefix the pattern with `regexp:`.
 <2> Optional parameter to set which response http code is the expected one from service. Default is 200.

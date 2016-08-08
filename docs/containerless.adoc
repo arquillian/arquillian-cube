@@ -82,7 +82,7 @@ The idea is creating a file called +DockerfileTemplate+.
 FROM java:7
 
 WORKDIR /usr/src/server
-COPY ${deployableFilename} /usr/src/server/${deployableFilename} #1
+COPY ${deployableFilename} /usr/src/server/${deployableFilename} # <1>
 EXPOSE 8080
 CMD ["java", "-jar", "${deployableFilename}"]
 ----

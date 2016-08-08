@@ -47,7 +47,7 @@ For example you can configure +arquillian.xml+ file to use _docker-machine_ as:
 <extension qualifier="docker">
     <property name="serverVersion">${docker.api.version}</property>
     <property name="definitionFormat">COMPOSE</property>
-    <property name="machineName">dev</property> <!-- 1 -->
+    <property name="machineName">dev</property> <!--1-->
     <property name="dockerContainersFile">docker-compose.yml</property>
 </extension>
 ----

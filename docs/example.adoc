@@ -152,7 +152,7 @@ First major change is in dependencies:
     </dependency>
     <dependency>
         <groupId>org.jboss.arquillian.junit</groupId>
-        <artifactId>arquillian-junit-standalone</artifactId> <!-- 1 -->
+        <artifactId>arquillian-junit-standalone</artifactId> <!--1-->
         <scope>test</scope>
     </dependency>
 </dependencies>

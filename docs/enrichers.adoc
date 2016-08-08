@@ -119,7 +119,7 @@ An example of orchestration can be:
   wildfly_database:
     extends: wildfly
     links:
-      - database:database #1
+      - database:database # <1>
   database:
     image: zhilvis/h2-db
     exposedPorts: [81/tcp, 1521/tcp]
@@ -238,7 +238,7 @@ Suppose you have a _Docker Container_ configuration like:
       await:
         strategy: polling
       env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-      portBindings: [8089/tcp, 8081->8080/tcp] #1
+      portBindings: [8089/tcp, 8081->8080/tcp] # <1>
 </property>
 ----
 <1> Note that the exposed port is the 8081.

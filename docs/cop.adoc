@@ -218,7 +218,7 @@ Dependencies you need to set for Standalone mode are:
 <dependencies>
     <dependency>
         <groupId>org.jboss.arquillian.junit</groupId>
-        <artifactId>arquillian-junit-standalone</artifactId> <!-- 1 -->
+        <artifactId>arquillian-junit-standalone</artifactId> <!--1-->
         <scope>test</scope>
     </dependency>
     <dependency>

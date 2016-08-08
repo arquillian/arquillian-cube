@@ -1,5 +1,13 @@
 = Arquillian Cube
 :asciidoctor-source: https://raw.githubusercontent.com/arquillian/arquillian-cube/master/docs
+:numbered:
+:sectlink:
+:sectanchors:
+:sectid:
+:source-language: java
+:sectnums:
+:icons: font
+:toc:
 
 Documentation for version Alpha6 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha6/README.adoc
 
@@ -27,6 +35,8 @@ include::{asciidoctor-source}/build-containers.adoc[]
 include::{asciidoctor-source}/compose.adoc[]
 
 include::{asciidoctor-source}/enrichers.adoc[]
+
+include::{asciidoctor-source}/parallel.adoc[]
 
 include::{asciidoctor-source}/cop.adoc[]
 
