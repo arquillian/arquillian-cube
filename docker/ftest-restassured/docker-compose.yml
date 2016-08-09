@@ -1,0 +1,4 @@
+helloworld:
+  image: jonmorehouse/ping-pong
+  ports:
+    - "5000:8080"
