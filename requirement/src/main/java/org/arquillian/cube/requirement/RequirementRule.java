@@ -9,9 +9,13 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Annotation;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class RequirementRule implements TestRule {
+
+    private static final Logger log = Logger.getLogger(RequirementRule.class.getName());
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -24,6 +28,7 @@ public class RequirementRule implements TestRule {
                 checkRequirement(annotation.annotationType().getAnnotation(Requires.class), annotation);
             }
         } catch (UnsatisfiedRequirementException e) {
+            log.log(Level.WARNING, String.format("Unsatisfied assumption in test class %s. Requirement problem: %s.", description.getTestClass().getName(), e.getMessage()));
             return new UnsatisfiedRequirement(e.getMessage());
         }
         return result;

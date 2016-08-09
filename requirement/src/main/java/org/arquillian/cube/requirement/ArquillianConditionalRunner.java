@@ -8,10 +8,14 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 
 import java.lang.annotation.Annotation;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.arquillian.cube.requirement.Requirements.checkRequirement;
 
 public class ArquillianConditionalRunner extends Arquillian {
+
+    private static final Logger log = Logger.getLogger(ArquillianConditionalRunner.class.getName());
 
     public ArquillianConditionalRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
@@ -24,6 +28,7 @@ public class ArquillianConditionalRunner extends Arquillian {
             checkRequirements(testClass);
             super.run(notifier);
         } catch (UnsatisfiedRequirementException e) {
+            log.log(Level.WARNING, String.format("Unsatisfied assumption in test class %s. Requirement problem: %s.", testClass.getName(), e.getMessage()));
             notifier.fireTestAssumptionFailed(new Failure(getDescription(), e));
         }
     }
