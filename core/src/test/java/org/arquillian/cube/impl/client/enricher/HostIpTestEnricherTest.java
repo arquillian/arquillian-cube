@@ -5,7 +5,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import org.arquillian.cube.HostIp;
-import org.arquillian.cube.HostUriContext;
+import org.arquillian.cube.HostIpContext;
 import org.jboss.arquillian.core.api.Instance;
 import org.junit.Test;
 
@@ -15,10 +15,10 @@ public class HostIpTestEnricherTest {
     @Test
     public void shouldEnrichTest() {
         HostIpTestEnricher hostIpTestEnricher = new HostIpTestEnricher();
-        hostIpTestEnricher.hostUriContext = new Instance<HostUriContext>() {
+        hostIpTestEnricher.hostUriContext = new Instance<HostIpContext>() {
             @Override
-            public HostUriContext get() {
-                return new HostUriContext("http://192.168.99.100");
+            public HostIpContext get() {
+                return new HostIpContext("192.168.99.100");
             }
         };
         MyTest test = new MyTest();
@@ -29,10 +29,10 @@ public class HostIpTestEnricherTest {
     @Test
     public void shouldEnrichTestMethod() throws NoSuchMethodException {
         HostIpTestEnricher hostIpTestEnricher = new HostIpTestEnricher();
-        hostIpTestEnricher.hostUriContext = new Instance<HostUriContext>() {
+        hostIpTestEnricher.hostUriContext = new Instance<HostIpContext>() {
             @Override
-            public HostUriContext get() {
-                return new HostUriContext("http://192.168.99.100");
+            public HostIpContext get() {
+                return new HostIpContext("192.168.99.100");
             }
         };
         MyTest test = new MyTest();

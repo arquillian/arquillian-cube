@@ -221,6 +221,29 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     @Test
+    public void shouldSetServerIpWithLocalhostInCaseOfNativeLinuxInstallation() {
+        String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
+        try {
+            System.setProperty(CubeDockerConfigurator.DOCKER_HOST, "unix:///var/run/docker.sock");
+
+            Map<String, String> config = new HashMap<>();
+
+            when(extensionDef.getExtensionProperties()).thenReturn(config);
+            when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+
+            fire(new CubeConfiguration());
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "unix:///var/run/docker.sock"));
+            assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_SERVER_IP, "localhost"));
+        } finally {
+            if (originalVar != null) {
+                System.setProperty(CubeDockerConfigurator.DOCKER_HOST, originalVar);
+            } else {
+                System.clearProperty(CubeDockerConfigurator.DOCKER_HOST);
+            }
+        }
+    }
+
+    @Test
     public void shouldUseHostEnvIfDockerHostIsSetOnServerURIAndSystemEnvironmentVarIsSet() {
         String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
         try {
