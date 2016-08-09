@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.arquillian.cube.HostUriContext;
+import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
@@ -40,8 +40,6 @@ import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import javax.sound.sampled.Port;
-
 public class CubeDockerConfigurator {
 
     private static Random random = new Random();
@@ -61,7 +59,7 @@ public class CubeDockerConfigurator {
 
     @Inject
     @ApplicationScoped
-    private InstanceProducer<HostUriContext> hostUriContextInstanceProducer;
+    private InstanceProducer<HostIpContext> hostUriContextInstanceProducer;
 
     @Inject
     private Instance<Boot2Docker> boot2DockerInstance;
@@ -97,7 +95,7 @@ public class CubeDockerConfigurator {
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
         cubeConfiguration = resolveDynamicNames(cubeConfiguration);
         System.out.println(cubeConfiguration);
-        hostUriContextInstanceProducer.set(new HostUriContext(cubeConfiguration.getDockerServerUri()));
+        hostUriContextInstanceProducer.set(new HostIpContext(cubeConfiguration.getDockerServerIp()));
         configurationProducer.set(cubeConfiguration);
     }
 

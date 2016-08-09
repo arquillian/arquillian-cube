@@ -1,7 +1,7 @@
 package org.arquillian.cube.impl.client.enricher;
 
 import org.arquillian.cube.HostIp;
-import org.arquillian.cube.HostUriContext;
+import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -16,7 +16,7 @@ import java.util.List;
 public class HostIpTestEnricher implements TestEnricher {
 
     @Inject
-    Instance<HostUriContext> hostUriContext;
+    Instance<HostIpContext> hostUriContext;
 
     @Override
     public void enrich(Object testCase) {

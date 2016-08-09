@@ -120,7 +120,7 @@ public class CubeDockerConfiguration {
         return tlsVerify;
     }
 
-    //this property is resolved in CubeConfigurator class.
+    //this property is resolved in DockerCubeConfigurator class.
     public String getDockerServerIp() {
         return dockerServerIp;
     }
