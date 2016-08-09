@@ -5,6 +5,7 @@ import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;
 import io.undertow.client.ClientRequest;
+import io.undertow.connector.ByteBufferPool;
 import io.undertow.protocols.spdy.SpdyStreamStreamSinkChannel;
 import io.undertow.server.AbstractServerConnection;
 import io.undertow.server.HttpServerExchange;
@@ -51,8 +52,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
      * @param undertowOptions
      * @param bufferSize
      */
-    public PortForwardServerConnection(StreamConnection channel, Pool<ByteBuffer> bufferPool,
-            OptionMap undertowOptions, int bufferSize) {
+    public PortForwardServerConnection(StreamConnection channel, ByteBufferPool bufferPool, OptionMap undertowOptions, int bufferSize) {
         super(channel, bufferPool, null, undertowOptions, bufferSize);
     }
 

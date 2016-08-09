@@ -1,11 +1,10 @@
 package io.undertow.protocols.spdy;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 
-import org.xnio.Pool;
-import org.xnio.Pooled;
+import io.undertow.connector.ByteBufferPool;
+import io.undertow.connector.PooledByteBuffer;
+import org.xnio.OptionMap;
 import org.xnio.StreamConnection;
 
 public class SpdyChannelWithoutFlowControl extends SpdyChannel {
@@ -13,9 +12,8 @@ public class SpdyChannelWithoutFlowControl extends SpdyChannel {
     private int initialWindowSize;
     private int currentWindowSize;
 
-    public SpdyChannelWithoutFlowControl(StreamConnection connectedStreamChannel, Pool<ByteBuffer> bufferPool,
-            Pooled<ByteBuffer> data, Pool<ByteBuffer> heapBufferPool, boolean clientSide) {
-        super(connectedStreamChannel, bufferPool, data, heapBufferPool, clientSide);
+    public SpdyChannelWithoutFlowControl(StreamConnection connectedStreamChannel, ByteBufferPool bufferPool, PooledByteBuffer data, ByteBufferPool heapBufferPool, boolean clientSide, OptionMap options) {
+        super(connectedStreamChannel, bufferPool, data, heapBufferPool, clientSide, options);
         currentWindowSize = initialWindowSize = getInitialWindowSize();
     }
 
