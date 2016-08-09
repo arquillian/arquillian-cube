@@ -42,6 +42,8 @@ include::{asciidoctor-source}/parallel.adoc[]
 
 include::{asciidoctor-source}/cop.adoc[]
 
+include::{asciidoctor-source}/requirements.adoc[]
+
 include::{asciidoctor-source}/containerless.adoc[]
 
 include::{asciidoctor-source}/drone.adoc[]
