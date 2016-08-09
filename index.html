@@ -468,26 +468,33 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_arquillian_standalone_and_cube">12. Arquillian Standalone and Cube</a></li>
-<li><a href="#_containerless_server_and_docker">13. Containerless Server and Docker</a>
+<li><a href="#_requirements_module">13. Requirements Module</a>
 <ul class="sectlevel2">
-<li><a href="#_java_embedded_servers">13.1. Java Embedded Servers</a></li>
+<li><a href="#_example_of_environment_requirements">13.1. Example of environment requirements</a></li>
+<li><a href="#_example_with_docker">13.2. Example with Docker</a></li>
+<li><a href="#_customizing_requirements">13.3. Customizing Requirements</a></li>
 </ul>
 </li>
-<li><a href="#_cube_docker_drone_graphene_integration">14. Cube Docker Drone/Graphene Integration</a>
+<li><a href="#_containerless_server_and_docker">14. Containerless Server and Docker</a>
 <ul class="sectlevel2">
-<li><a href="#_drone">14.1. Drone</a></li>
-<li><a href="#_graphene">14.2. Graphene</a></li>
+<li><a href="#_java_embedded_servers">14.1. Java Embedded Servers</a></li>
 </ul>
 </li>
-<li><a href="#_arquillian_recorder_reporter_integration">15. Arquillian Recorder Reporter integration</a>
+<li><a href="#_cube_docker_drone_graphene_integration">15. Cube Docker Drone/Graphene Integration</a>
 <ul class="sectlevel2">
-<li><a href="#_arquillian_cube_docker_reporter">15.1. Arquillian Cube Docker Reporter</a></li>
-<li><a href="#_arquillian_cube_docker_drone_integration">15.2. Arquillian Cube Docker Drone Integration</a></li>
-<li><a href="#_examples">15.3. Examples</a></li>
+<li><a href="#_drone">15.1. Drone</a></li>
+<li><a href="#_graphene">15.2. Graphene</a></li>
 </ul>
 </li>
-<li><a href="#_polyglot_applications">16. Polyglot Applications</a></li>
-<li><a href="#_future_work">17. Future work</a></li>
+<li><a href="#_arquillian_recorder_reporter_integration">16. Arquillian Recorder Reporter integration</a>
+<ul class="sectlevel2">
+<li><a href="#_arquillian_cube_docker_reporter">16.1. Arquillian Cube Docker Reporter</a></li>
+<li><a href="#_arquillian_cube_docker_drone_integration">16.2. Arquillian Cube Docker Drone Integration</a></li>
+<li><a href="#_examples">16.3. Examples</a></li>
+</ul>
+</li>
+<li><a href="#_polyglot_applications">17. Polyglot Applications</a></li>
+<li><a href="#_future_work">18. Future work</a></li>
 </ul>
 </div>
 </div>
@@ -526,6 +533,9 @@ If you are using Docker 1.11 or beyond you will need to set explicitly the confi
 </td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>Documentation generated with Asciidoctor: <a href="http://arquillian.org/arquillian-cube/" class="bare">http://arquillian.org/arquillian-cube/</a></p>
 </div>
 </div>
 </div>
@@ -2846,7 +2856,227 @@ If you want to avoid this, you can set yourself this property to <code>[none]</c
 </div>
 </div>
 <div class="sect1">
-<h2 id="_containerless_server_and_docker"><a class="anchor" href="#_containerless_server_and_docker"></a>13. Containerless Server and Docker</h2>
+<h2 id="_requirements_module"><a class="anchor" href="#_requirements_module"></a>13. Requirements Module</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Arquillian Cube tries to adapt to docker installation you have.
+For example if you are running Docker in linux machine, Docker Cube is going to try to connect there.
+If it is in MacOS or Windows will try to use docker-machine, and if there is only one machine defined, it will use that one.</p>
+</div>
+<div class="paragraph">
+<p>But sometimes this automatic resolutions are not possible, for example you have more than one docker machine installed/started, or you don&#8217;t know if the user is going to have one docker machine installed/started or more than one.
+In these cases you need to set using <code>machineName</code> property which docker machine you want to use.</p>
+</div>
+<div class="paragraph">
+<p>The problem is that you don&#8217;t know if the environment were test is running will have this machine or not.
+If it doesn&#8217;t have then an exception will be thrown regarding cannot connect to given docker machine and test will fail.</p>
+</div>
+<div class="paragraph">
+<p>Obviously this is not a failure, but test should be ignored.
+For this use case Arquillian Cube and other ones, Cube implements the <strong>requirements</strong> module.
+This module makes skip tests instead of failing in case of not meeting some environment expectations.</p>
+</div>
+<div class="sect2">
+<h3 id="_example_of_environment_requirements"><a class="anchor" href="#_example_of_environment_requirements"></a>13.1. Example of environment requirements</h3>
+<div class="paragraph">
+<p>With Requirements you can set if you want to skip tests if some environment or property variables are not set.
+This is useful for example if you require that <code>DOCKER_HOST</code>, <code>DOCKER_TLS_VERIFY</code> or <code>DOCKER_CERT_PATH</code> system or environment variable must be set.</p>
+</div>
+<div class="paragraph">
+<p>Notice that Cube takes precedence these variables over configured in <code>arquillian.xml</code>.</p>
+</div>
+<div class="paragraph">
+<p>To use it you need to add requirements dependency.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
+    &lt;artifactId&gt;arquillian-cube-requirement&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you can use an special runner or a JUnit rule.
+If you use Rule, the scope of annotations are only a test class, if you use the runner then annotations can be used in a suite level.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s see how to use with Rule.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
+import org.arquillian.cube.requirement.RequirementRule;
+
+@RunWith(Arquillian.class)
+@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) <i class="conum" data-value="1"></i><b>(1)</b>
+public class HelloWorldServletTest {
+
+    @Rule <i class="conum" data-value="2"></i><b>(2)</b>
+    public RequirementRule requirementRule = new RequirementRule();
+
+    //....
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Checks if it is set a system property and if not environment variable with name <code>DOCKER_HOST</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Rule definition</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>But you can use the runner approach to use it suite level.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+
+@RunWith(ArquillianConditionalRunner.class) <i class="conum" data-value="1"></i><b>(1)</b>
+@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) <i class="conum" data-value="2"></i><b>(2)</b>
+public class HelloWorldServletTest {
+
+    //....
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Runner for requirements check</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Checks if it is set a system property and if not environment variable with name <code>DOCKER_HOST</code></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Other annotations you can use are: <code>RequiresEnvironmentVariable</code> and <code>RequiresSystemProperty</code> which basically instead of checking as system property or environment variable, they only checks ones.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example_with_docker"><a class="anchor" href="#_example_with_docker"></a>13.2. Example with Docker</h3>
+<div class="paragraph">
+<p>But also there is an annotation in docker module for checking the environment against docker machine.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev") <i class="conum" data-value="1"></i><b>(1)</b>
+public class HelloWorldServletTest {
+
+    //....
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Docker machine requirement</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Previous test will only be executed if in the environment where test is running has docker machine installed with a machine named <em>dev</em>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_customizing_requirements"><a class="anchor" href="#_customizing_requirements"></a>13.3. Customizing Requirements</h3>
+<div class="paragraph">
+<p>You can also implement your own requirement annotations.
+To do it you only need to do two things.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An annotation annotated with  <code>org.arquillian.cube.spi.requirement.Requires</code> pointing to a class which implements <code>org.arquillian.cube.spi.requirement.Requirement</code>.</p>
+</li>
+<li>
+<p>An implementation of <code>org.arquillian.cube.spi.requirement.Requirement</code> interface.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s see an example of how to implement a requirement against docker version.</p>
+</div>
+<div class="listingblock">
+<div class="title">RequiresDockerVersion.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Requires(DockerRequirement.class) <i class="conum" data-value="1"></i><b>(1)</b>
+public @interface RequiresDockerVersion {
+    String name() default ""; <i class="conum" data-value="2"></i><b>(2)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Sets requirement interface</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Attribute to set the required version</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>And the implementation logic:</p>
+</div>
+<div class="listingblock">
+<div class="title">DockerRequirement.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class DockerRequirement implements Requirement&lt;RequiresDockerVersion&gt; {
+
+    @Override
+    public void check(RequiresDockerMachine context) throws UnsatisfiedRequirementException {
+        String name = context.name();
+        if (name != null &amp;&amp; !name.isEmpty()) {
+            String installedVersion = getDockerVersion();
+
+            if (!name.equals(installedVersion)) {
+                throw new UnsatisfiedRequirementException("Docker version not specified."); <i class="conum" data-value="1"></i><b>(1)</b>
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>In case of not meeting an expectation, <code>org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException</code> should be thrown with a message.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After that you can use this annotation as any other requirements provided by Cube.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_containerless_server_and_docker"><a class="anchor" href="#_containerless_server_and_docker"></a>14. Containerless Server and Docker</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In all previous sections we have seen that the application is deployed inside a container.
@@ -2861,7 +3091,7 @@ Some examples can be <em>Spring Boot</em>, <em>Netty</em>, <em>SparkJava</em> or
 <p>If you are using some of these technologies with <em>Docker</em>, you can still use <strong>Arquillian Cube</strong> to write your tests.</p>
 </div>
 <div class="sect2">
-<h3 id="_java_embedded_servers"><a class="anchor" href="#_java_embedded_servers"></a>13.1. Java Embedded Servers</h3>
+<h3 id="_java_embedded_servers"><a class="anchor" href="#_java_embedded_servers"></a>14.1. Java Embedded Servers</h3>
 <div class="paragraph">
 <p>Let&#8217;s suppose we are writing a service which should return as text the current day and time.
 To serve this service to the world we decide to use <em>undertow</em> embedded server.</p>
@@ -3119,10 +3349,10 @@ public class DaytimeTest {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_cube_docker_drone_graphene_integration"><a class="anchor" href="#_cube_docker_drone_graphene_integration"></a>14. Cube Docker Drone/Graphene Integration</h2>
+<h2 id="_cube_docker_drone_graphene_integration"><a class="anchor" href="#_cube_docker_drone_graphene_integration"></a>15. Cube Docker Drone/Graphene Integration</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_drone"><a class="anchor" href="#_drone"></a>14.1. Drone</h3>
+<h3 id="_drone"><a class="anchor" href="#_drone"></a>15.1. Drone</h3>
 <div class="paragraph">
 <p>The Arquillian Drone extension for Arquillian provides a simple way how to include functional tests for your application with a web-based user interface.
 Arquillian Drone brings the power of WebDriver into the Arquillian framework.</p>
@@ -3165,7 +3395,7 @@ Arquillian Drone brings the power of WebDriver into the Arquillian framework.</p
 <p>You can read more about Drone at <a href="https://docs.jboss.org/author/display/ARQ/Drone" class="bare">https://docs.jboss.org/author/display/ARQ/Drone</a></p>
 </div>
 <div class="sect3">
-<h4 id="_integration_with_cube_docker"><a class="anchor" href="#_integration_with_cube_docker"></a>14.1.1. Integration with Cube Docker</h4>
+<h4 id="_integration_with_cube_docker"><a class="anchor" href="#_integration_with_cube_docker"></a>15.1.1. Integration with Cube Docker</h4>
 <div class="paragraph">
 <p>Arquillian Cube Docker is the Arquillian extension for managing Docker containers from your test.</p>
 </div>
@@ -3200,7 +3430,7 @@ You can check available the images at <a href="https://github.com/SeleniumHQ/doc
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>14.1.2. Configuration</h4>
+<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>15.1.2. Configuration</h4>
 <div class="paragraph">
 <p>Apart from using Drone configuration properties for configuring browser, Cube Docker can be customized with some specific attributes:</p>
 </div>
@@ -3251,7 +3481,7 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example"><a class="anchor" href="#_example"></a>14.1.3. Example</h4>
+<h4 id="_example"><a class="anchor" href="#_example"></a>15.1.3. Example</h4>
 <div class="paragraph">
 <p>For adding Drone Cube integration you only need a Cube project with a <code>docker-compose</code> or <code>cube</code> file only specifying business containers.</p>
 </div>
@@ -3334,7 +3564,7 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_graphene"><a class="anchor" href="#_graphene"></a>14.2. Graphene</h3>
+<h3 id="_graphene"><a class="anchor" href="#_graphene"></a>15.2. Graphene</h3>
 <div class="paragraph">
 <p>Arquillian Graphene is a set of extensions for the WebDriver API, focused on rapid development and usability in a Java environment.
 Its API encourages people to write tests for AJAX-based web applications in a concise and maintainable way.
@@ -3342,7 +3572,7 @@ Graphene strives for reusable tests by simplifying the use of web page abstracti
 You will get a taste of the Graphene API in just a minute!</p>
 </div>
 <div class="sect3">
-<h4 id="_integration_with_docker_cube"><a class="anchor" href="#_integration_with_docker_cube"></a>14.2.1. Integration with Docker Cube</h4>
+<h4 id="_integration_with_docker_cube"><a class="anchor" href="#_integration_with_docker_cube"></a>15.2.1. Integration with Docker Cube</h4>
 <div class="paragraph">
 <p>Arquillian Graphene depends on Drone to provide an instance of WebDriver, so everything that is valid in <a href="#_integration_with_cube_docker">Integration with Cube Docker</a> is also valid for Cube Graphene.</p>
 </div>
@@ -3400,7 +3630,7 @@ And this is where Docker Cube can help you when using <strong>Standalone</strong
 </div>
 </div>
 <div class="sect3">
-<h4 id="_url_configuration_in_standalone_mode"><a class="anchor" href="#_url_configuration_in_standalone_mode"></a>14.2.2. URL configuration in Standalone mode</h4>
+<h4 id="_url_configuration_in_standalone_mode"><a class="anchor" href="#_url_configuration_in_standalone_mode"></a>15.2.2. URL configuration in Standalone mode</h4>
 <div class="paragraph">
 <p>As noted in <a href="#graphene-configuration">Graphene Configuration</a> you need to configure the <code>url</code> parameter in case of using Graphene in Standalone mode.
 This is quite difficult to do it with Docker Cube because you need to set the docker host address and you might not know at configuration time.
@@ -3498,7 +3728,7 @@ Notice that this late case is useful only if you have more than one bind port.</
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_2"><a class="anchor" href="#_example_2"></a>14.2.3. Example</h4>
+<h4 id="_example_2"><a class="anchor" href="#_example_2"></a>15.2.3. Example</h4>
 <div class="paragraph">
 <p>Apart from adding <code>arquillian</code>, <code>arquillian-drone</code>, <code>selenium-bom</code> and <code>arquillian-cube-docker-drone</code>, obviously you also need to add the dependencies of Graphene.</p>
 </div>
@@ -3531,7 +3761,7 @@ Notice that this late case is useful only if you have more than one bind port.</
 </div>
 </div>
 <div class="sect1">
-<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>15. Arquillian Recorder Reporter integration</h2>
+<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>16. Arquillian Recorder Reporter integration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Arquillian Recorder (<a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a>) project brings neat reports of your Arquillian tests.</p>
@@ -3564,7 +3794,7 @@ Cubes are elements that are deployed into a system, for example a Pod or a Docke
 <p>For example in case of a Docker Cube it will report start and stop duration time, if it has failed or not and some container properties like ports, links, image name, entrypoint, network &#8230;&#8203;.</p>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>15.1. Arquillian Cube Docker Reporter</h3>
+<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>16.1. Arquillian Cube Docker Reporter</h3>
 <div class="paragraph">
 <p>In previous section you&#8217;ve read that by just adding recorder reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
 </div>
@@ -3590,7 +3820,7 @@ For this reason there is a docker cube reporter integration that adds on the rep
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>15.2. Arquillian Cube Docker Drone Integration</h3>
+<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>16.2. Arquillian Cube Docker Drone Integration</h3>
 <div class="paragraph">
 <p>In <a href="#_cube_docker_drone_graphene_integration">Cube Docker Drone/Graphene Integration</a> you&#8217;ve read that you can execute web UI tests inside a docker container which contains the browser.
 Also an screencast is recorded so you can review lately what has happened inside the container.</p>
@@ -3600,7 +3830,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>15.3. Examples</h3>
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>16.3. Examples</h3>
 <div class="paragraph">
 <p>Arquillian Cube Docker Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter</a></p>
 </div>
@@ -3614,7 +3844,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect1">
-<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>16. Polyglot Applications</h2>
+<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>17. Polyglot Applications</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In previous section we have seen that we can test any <em>java</em> <em>CLI</em> application that offers a socket connection.
@@ -3801,7 +4031,7 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect1">
-<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>17. Future work</h2>
+<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>18. Future work</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>API will continuously evolve to fit requirements of an enterprise application as well as providing integration with <em>Kubernates</em> and other Docker related tools.
@@ -3816,7 +4046,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-08 16:13:43 CEST
+Last updated 2016-08-09 08:18:47 CEST
 </div>
 </div>
 </body>
