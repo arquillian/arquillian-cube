@@ -23,7 +23,7 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
     private static final int DEFAULT_POLL_ITERATIONS = 10;
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
-    private String url = "";
+    private URL url = null;
     private int responseCode = 200;
     private Map<String, Object> headers;
     private String matcher;
@@ -48,11 +48,9 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
             if(url.contains(DOCKER_HOST)) {
                 url = url.replaceAll(DOCKER_HOST, dockerClientExecutor.getDockerServerIp());
             }
-            this.url = url;
 
             try {
-                URL obj = new URL(this.url);
-                this.urlConnection = (HttpURLConnection) obj.openConnection();
+                this.url = new URL(url);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -80,6 +78,8 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
             @Override
             public boolean call() {
                 try {
+
+                    urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.connect();
 
                     int connectionResponseCode = urlConnection.getResponseCode();
@@ -126,7 +126,10 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
     }
 
     public String getUrl() {
-        return url;
+        if (url == null){
+            return "";
+        }
+        return url.toString();
     }
 
     public int getResponseCode() {
