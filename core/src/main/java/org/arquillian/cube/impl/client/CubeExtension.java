@@ -7,6 +7,7 @@ import org.arquillian.cube.impl.client.container.ProtocolMetadataUpdater;
 import org.arquillian.cube.impl.client.container.remote.CubeAuxiliaryArchiveAppender;
 import org.arquillian.cube.impl.client.enricher.CubeControllerProvider;
 import org.arquillian.cube.impl.client.enricher.CubeIDResourceProvider;
+import org.arquillian.cube.impl.client.enricher.CubeIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.reporter.TakeCubeInformation;
@@ -28,6 +29,7 @@ public class CubeExtension implements LoadableExtension {
 
         builder.service(ResourceProvider.class, CubeControllerProvider.class)
                 .service(TestEnricher.class, HostIpTestEnricher.class)
+                .service(TestEnricher.class, CubeIpTestEnricher.class)
                 .service(TestEnricher.class, HostPortTestEnricher.class);
 
         // Arquillian Container integration
