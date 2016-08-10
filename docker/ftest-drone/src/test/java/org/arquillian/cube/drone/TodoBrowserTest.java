@@ -1,5 +1,6 @@
 package org.arquillian.cube.drone;
 
+import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
 import org.jboss.arquillian.drone.api.annotation.Drone;
@@ -21,7 +22,7 @@ public class TodoBrowserTest {
     @Drone
     WebDriver webDriver;
 
-    @HostIp
+    @CubeIp(containerName = "helloworld")
     String ip;
 
     @HostPort(containerName = "helloworld", value = 80)
