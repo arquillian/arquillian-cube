@@ -121,6 +121,11 @@
             </dependency>
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
+                <artifactId>arquillian-cube-docker-restassured</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.cube</groupId>
                 <artifactId>arquillian-cube-docker-recorder</artifactId>
                 <version>${project.version}</version>
             </dependency>

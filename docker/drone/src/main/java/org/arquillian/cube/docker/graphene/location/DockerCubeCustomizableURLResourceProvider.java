@@ -5,6 +5,7 @@ import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.util.SinglePortBindResolver;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.graphene.spi.configuration.GrapheneConfiguration;
@@ -144,104 +145,18 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
 
     private int resolveBindPort(int port) {
         final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurationInstance.get();
-        final DockerCompositions dockerContainersContent = cubeDockerConfiguration.getDockerContainersContent();
-        final Set<Map.Entry<String, CubeContainer>> containers = dockerContainersContent.getContainers().entrySet();
 
+        final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
         if (port == NO_PORT) {
-
-            //if no port, we check if there is only one cube with one bind port and if not, return default one
-
-            int bindPort = -1;
-            for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers) {
-
-                // need to skip vnc and selenium container
-                final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
-                if (isSeleniumContainers(cubeContainerEntry, seleniumContainers)) {
-                    continue;
-                }
-
-                final CubeContainer cubeContainer = cubeContainerEntry.getValue();
-                if (hasMoreThanOneBindPort(cubeContainer)) {
-                    throw new IllegalArgumentException("No port was specified and a container has more than one bind port.");
-                }
-
-                if (hasOnlyOneBindPort(cubeContainer)) {
-                    if (noPreviousBindPortFound(bindPort)) {
-                        bindPort = cubeContainer.getPortBindings()
-                                .iterator().next()
-                                .getBound();
-                    } else {
-                        throw new IllegalArgumentException("No port was specified and in all containers there are more than one bind port.");
-                    }
-                }
-            }
-
-            if (noPreviousBindPortFound(bindPort)) {
-                throw new IllegalArgumentException("No port was provided and there isn't any bind port.");
-            }
-
-            return bindPort;
+            return SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration,
+                    seleniumContainers.getSeleniumContainerName(),
+                    seleniumContainers.getVncContainerName());
 
         } else {
-            // user specified an exposed port
-            int bindPort = -1;
-            for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers) {
-
-                // need to skip vnc and selenium container
-                final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
-                if (isSeleniumContainers(cubeContainerEntry, seleniumContainers)) {
-                    continue;
-                }
-
-                final CubeContainer cubeContainer = cubeContainerEntry.getValue();
-                final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-                if (portBindings != null) {
-                    for (PortBinding portBinding : portBindings) {
-                        if (portBinding.getExposedPort().getExposed() == port) {
-                            if (noPreviousBindPortFound(bindPort)) {
-                                bindPort = portBinding.getBound();
-                            } else {
-                                throw new IllegalArgumentException(String.format("More than one docker container with port binding having exposed port %s.", port));
-                            }
-                        }
-                    }
-                }
-
-                if (noPreviousBindPortFound(bindPort)) {
-                    return port;
-                }
-            }
-            return bindPort;
+            return SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration, port,
+                    seleniumContainers.getSeleniumContainerName(),
+                    seleniumContainers.getVncContainerName());
         }
-    }
-
-    private boolean isSeleniumContainers(Map.Entry<String, CubeContainer> cubeContainerEntry, SeleniumContainers seleniumContainers) {
-        return seleniumContainers.getSeleniumContainerName().equals(cubeContainerEntry.getKey())
-                || seleniumContainers.getVncContainerName().equals(cubeContainerEntry.getKey());
-    }
-
-    private boolean noPreviousBindPortFound(int bindPort) {
-        return bindPort == -1;
-    }
-
-    private boolean hasOnlyOneBindPort(CubeContainer cubeContainer) {
-
-        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-        if (portBindings == null) {
-            return false;
-        }
-
-        return portBindings.size() == 1;
-    }
-
-    private boolean hasMoreThanOneBindPort(CubeContainer cubeContainer) {
-
-        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-        if (portBindings == null) {
-            return false;
-        }
-
-        return portBindings.size() > 1;
     }
 
     private int extractPort(String url) {
