@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Utility class that helps on autoresolution of binding ports in case of running Arquillian as client mode and not using
  * enrichments for getting the host/bind port of exposed one.
- *
+ * <p>
  * Usually this class is used by extensions that needs autoresolution.
  */
 public class SinglePortBindResolver {
@@ -25,18 +25,38 @@ public class SinglePortBindResolver {
 
     /**
      * Method that tries to resolve a bind port for a given exposed port.
+     *
      * @param cubeDockerConfiguration where all docker configuration is exposed
-     * @param exposedPort used to find the binding port
-     * @param excludedContainers where binding port search is ignored
+     * @param exposedPort             used to find the binding port
+     * @param excludedContainers      where binding port search is ignored
      * @return binding port
      */
-    public static int resolveBindPort(CubeDockerConfiguration cubeDockerConfiguration, int exposedPort, String...excludedContainers) {
+    public static int resolveBindPort(CubeDockerConfiguration cubeDockerConfiguration, int exposedPort, String... excludedContainers) {
+        final
+        PortBindInfo portBinding = resolvePortBindPort(cubeDockerConfiguration, exposedPort, excludedContainers);
+
+        if (portBinding == null) {
+            return exposedPort;
+        }
+
+        return portBinding.getBindPort();
+    }
+
+    /**
+     * Method that tries to resolve a bind port for a given exposed port.
+     *
+     * @param cubeDockerConfiguration where all docker configuration is exposed
+     * @param exposedPort             used to find the binding port
+     * @param excludedContainers      where binding port search is ignored
+     * @return binding port or null if couldn't be found
+     */
+    public static PortBindInfo resolvePortBindPort(CubeDockerConfiguration cubeDockerConfiguration, int exposedPort, String... excludedContainers) {
 
         final DockerCompositions dockerContainersContent = cubeDockerConfiguration.getDockerContainersContent();
         final Set<Map.Entry<String, CubeContainer>> containers = dockerContainersContent.getContainers().entrySet();
 
         // user specified an exposed port
-        int bindPort = -1;
+        PortBindInfo portBindInfo = null;
         for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers) {
 
             // need to skip vnc and selenium container
@@ -49,8 +69,9 @@ public class SinglePortBindResolver {
             if (portBindings != null) {
                 for (PortBinding portBinding : portBindings) {
                     if (portBinding.getExposedPort().getExposed() == exposedPort) {
-                        if (noPreviousBindPortFound(bindPort)) {
-                            bindPort = portBinding.getBound();
+                        if (noPreviousBindPortFound(portBindInfo)) {
+                            int bindPort = portBinding.getBound();
+                            portBindInfo = new PortBindInfo(bindPort, cubeContainerEntry.getKey());
                         } else {
                             throw new IllegalArgumentException(String.format("More than one docker container with port binding having exposed port %s.", exposedPort));
                         }
@@ -58,59 +79,76 @@ public class SinglePortBindResolver {
                 }
             }
 
-            if (noPreviousBindPortFound(bindPort)) {
-                return exposedPort;
+            if (noPreviousBindPortFound(portBindInfo)) {
+                return null;
             }
         }
-        return bindPort;
+        return portBindInfo;
     }
 
     /**
      * Method that tries to resolve a bind port by searching if there is only one binding port across all running containers
+     *
      * @param cubeDockerConfiguration where all docker configuration is exposed
-     * @param excludedContainers where binding port search is ignored
+     * @param excludedContainers      where binding port search is ignored
      * @return binding port
      */
-    public static int resolveBindPort(CubeDockerConfiguration cubeDockerConfiguration, String...excludedContainers) {
+    public static int resolveBindPort(CubeDockerConfiguration cubeDockerConfiguration, String... excludedContainers) {
+        final PortBindInfo portBinding = resolvePortBindPort(cubeDockerConfiguration, excludedContainers);
+
+        if (portBinding == null) {
+            throw new IllegalArgumentException("There isn't any bind port.");
+        }
+        return portBinding.getBindPort();
+    }
+
+    /**
+     * Method that tries to resolve a bind port by searching if there is only one binding port across all running containers
+     *
+     * @param cubeDockerConfiguration where all docker configuration is exposed
+     * @param excludedContainers      where binding port search is ignored
+     * @return binding port
+     */
+    public static PortBindInfo resolvePortBindPort(CubeDockerConfiguration cubeDockerConfiguration, String... excludedContainers) {
 
         final DockerCompositions dockerContainersContent = cubeDockerConfiguration.getDockerContainersContent();
         final Set<Map.Entry<String, CubeContainer>> containers = dockerContainersContent.getContainers().entrySet();
 
-            //if no port, we check if there is only one cube with one bind port and if not, return default one
+        //if no port, we check if there is only one cube with one bind port and if not, return default one
 
-            int bindPort = -1;
-            for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers) {
+        PortBindInfo portBindInfo = null;
+        for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers) {
 
-                // need to skip excluded containers
-                if (shouldBeIgnored(cubeContainerEntry.getKey(), excludedContainers)) {
-                    continue;
-                }
-
-                final CubeContainer cubeContainer = cubeContainerEntry.getValue();
-                if (hasMoreThanOneBindPort(cubeContainer)) {
-                    throw new IllegalArgumentException("No port was specified and a container has more than one bind port.");
-                }
-
-                if (hasOnlyOneBindPort(cubeContainer)) {
-                    if (noPreviousBindPortFound(bindPort)) {
-                        bindPort = cubeContainer.getPortBindings()
-                                .iterator().next()
-                                .getBound();
-                    } else {
-                        throw new IllegalArgumentException("No port was specified and in all containers there are more than one bind port.");
-                    }
-                }
+            // need to skip excluded containers
+            if (shouldBeIgnored(cubeContainerEntry.getKey(), excludedContainers)) {
+                continue;
             }
 
-            if (noPreviousBindPortFound(bindPort)) {
-                throw new IllegalArgumentException("There isn't any bind port.");
+            final CubeContainer cubeContainer = cubeContainerEntry.getValue();
+            if (hasMoreThanOneBindPort(cubeContainer)) {
+                throw new IllegalArgumentException("No port was specified and a container has more than one bind port.");
             }
 
-            return bindPort;
+            if (hasOnlyOneBindPort(cubeContainer)) {
+                if (noPreviousBindPortFound(portBindInfo)) {
+                    int bindPort = cubeContainer.getPortBindings()
+                            .iterator().next().getBound();
+                    portBindInfo = new PortBindInfo(bindPort, cubeContainerEntry.getKey());
+                } else {
+                    throw new IllegalArgumentException("No port was specified and in all containers there are more than one bind port.");
+                }
+            }
+        }
+
+        if (noPreviousBindPortFound(portBindInfo)) {
+            throw new IllegalArgumentException("There isn't any bind port.");
+        }
+
+        return portBindInfo;
 
     }
 
-    private static boolean shouldBeIgnored(String containerId, String...excludedContainers) {
+    private static boolean shouldBeIgnored(String containerId, String... excludedContainers) {
         for (String excludedContainer : excludedContainers) {
             if (excludedContainer.equals(containerId)) {
                 return true;
@@ -120,8 +158,8 @@ public class SinglePortBindResolver {
         return false;
     }
 
-    private static boolean noPreviousBindPortFound(int bindPort) {
-        return bindPort == -1;
+    private static boolean noPreviousBindPortFound(PortBindInfo bindPort) {
+        return bindPort == null;
     }
 
     private static boolean hasOnlyOneBindPort(CubeContainer cubeContainer) {
@@ -142,6 +180,24 @@ public class SinglePortBindResolver {
         }
 
         return portBindings.size() > 1;
+    }
+
+    public static class PortBindInfo {
+        private int bindPort;
+        private String containerName;
+
+        public PortBindInfo(int bindPort, String containerName) {
+            this.bindPort = bindPort;
+            this.containerName = containerName;
+        }
+
+        public int getBindPort() {
+            return bindPort;
+        }
+
+        public String getContainerName() {
+            return containerName;
+        }
     }
 
 }

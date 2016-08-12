@@ -4,6 +4,10 @@ import org.arquillian.cube.docker.drone.SeleniumContainers;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.CubeMetadata;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.graphene.spi.configuration.GrapheneConfiguration;
 import org.junit.Before;
@@ -48,6 +52,15 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Mock
     private SeleniumContainers seleniumContainers;
 
+    @Mock
+    private CubeRegistry cubeRegistry;
+
+    @Mock
+    private Cube cube;
+
+    @Mock
+    private HasPortBindings hasPortBindings;
+
     private DockerCubeCustomizableURLResourceProvider dockerCubeCustomizableURLResourceProvider;
 
     @Before
@@ -55,6 +68,12 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         when(cubeDockerConfiguration.getDockerServerIp()).thenReturn(DOCKER_HOST);
         when(seleniumContainers.getSeleniumContainerName()).thenReturn(SeleniumContainers.SELENIUM_CONTAINER_NAME);
         when(seleniumContainers.getVncContainerName()).thenReturn(SeleniumContainers.VNC_CONTAINER_NAME);
+
+        when(hasPortBindings.getInternalIP()).thenReturn("192.168.99.100");
+        when(cube.hasMetadata(HasPortBindings.class)).thenReturn(true);
+        when(cube.getMetadata(HasPortBindings.class)).thenReturn(hasPortBindings);
+        when(cubeRegistry.getCube("helloworld")).thenReturn(cube);
+
 
         dockerCubeCustomizableURLResourceProvider = new DockerCubeCustomizableURLResourceProvider();
         dockerCubeCustomizableURLResourceProvider.cubeDockerConfigurationInstance = new Instance<CubeDockerConfiguration>() {
@@ -73,6 +92,12 @@ public class CubeDockerCustomizableURLResourceProviderTest {
             @Override
             public SeleniumContainers get() {
                 return seleniumContainers;
+            }
+        };
+        dockerCubeCustomizableURLResourceProvider.cubeRegistryInstance = new Instance<CubeRegistry>() {
+            @Override
+            public CubeRegistry get() {
+                return cubeRegistry;
             }
         };
     }

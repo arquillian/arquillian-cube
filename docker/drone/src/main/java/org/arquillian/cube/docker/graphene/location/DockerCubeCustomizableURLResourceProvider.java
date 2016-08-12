@@ -6,6 +6,9 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.SinglePortBindResolver;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.graphene.spi.configuration.GrapheneConfiguration;
@@ -69,6 +72,9 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
     @Inject
     Instance<SeleniumContainers> seleniumContainersInstance;
 
+    @Inject
+    Instance<CubeRegistry> cubeRegistryInstance;
+
     @Override
     public boolean canProvide(Class<?> type) {
         return URL.class.isAssignableFrom(type);
@@ -111,14 +117,17 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
                 urlBuilder.context(resolveContext(replacedWithDockerHostUrl));
 
             } else {
-                urlBuilder.host(cubeDockerConfiguration.getDockerServerIp());
-                urlBuilder.port(resolveBindPort(NO_PORT));
+
+                final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(NO_PORT);
+                urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo));
+                urlBuilder.port(portBindInfo.getBindPort());
                 urlBuilder.context(configuredUrl);
             }
 
         } else {
-            urlBuilder.host(cubeDockerConfiguration.getDockerServerIp());
-            urlBuilder.port(resolveBindPort(NO_PORT));
+            final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(NO_PORT);
+            urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo));
+            urlBuilder.port(portBindInfo.getBindPort());
         }
 
         try {
@@ -126,6 +135,22 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Configured custom URL from GrapheneConfiguration should be already a valid URL.");
         }
+    }
+
+    private String getInternalIp(CubeDockerConfiguration cubeDockerConfiguration, SinglePortBindResolver.PortBindInfo portBindInfo) {
+        final Cube<?> cube = cubeRegistryInstance.get()
+                .getCube(portBindInfo.getContainerName());
+
+        if (cube == null) {
+            return cubeDockerConfiguration.getDockerServerIp();
+        }
+
+        if (cube.hasMetadata(HasPortBindings.class)) {
+            return cube.getMetadata(HasPortBindings.class).getInternalIP();
+        }
+
+        return cubeDockerConfiguration.getDockerServerIp();
+
     }
 
     private String resolveContext(String url) {
@@ -140,20 +165,26 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
 
     private int resolvePort(String url) {
         int port = extractPort(url);
-        return resolveBindPort(port);
+        final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(port);
+
+        if (portBindInfo == null) {
+            return port;
+        }
+
+        return portBindInfo.getBindPort();
     }
 
-    private int resolveBindPort(int port) {
+    private SinglePortBindResolver.PortBindInfo resolveBindPort(int port) {
         final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurationInstance.get();
 
         final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
         if (port == NO_PORT) {
-            return SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration,
+            return SinglePortBindResolver.resolvePortBindPort(cubeDockerConfiguration,
                     seleniumContainers.getSeleniumContainerName(),
                     seleniumContainers.getVncContainerName());
 
         } else {
-            return SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration, port,
+            return SinglePortBindResolver.resolvePortBindPort(cubeDockerConfiguration, port,
                     seleniumContainers.getSeleniumContainerName(),
                     seleniumContainers.getVncContainerName());
         }
