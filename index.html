@@ -486,16 +486,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_graphene">15.2. Graphene</a></li>
 </ul>
 </li>
-<li><a href="#_arquillian_recorder_reporter_integration">16. Arquillian Recorder Reporter integration</a>
+<li><a href="#_rest_assured_integration">16. Rest-Assured integration</a>
 <ul class="sectlevel2">
-<li><a href="#_arquillian_cube_docker_reporter">16.1. Arquillian Cube Docker Reporter</a></li>
-<li><a href="#_arquillian_cube_docker_drone_integration">16.2. Arquillian Cube Docker Drone Integration</a></li>
-<li><a href="#_arquillian_cube_docker_restassured_integration">16.3. Arquillian Cube Docker RestAssured Integration</a></li>
-<li><a href="#_examples">16.4. Examples</a></li>
+<li><a href="#_why_integration_with_cube">16.1. Why integration with Cube?</a></li>
+<li><a href="#_configuration_3">16.2. Configuration</a></li>
 </ul>
 </li>
-<li><a href="#_polyglot_applications">17. Polyglot Applications</a></li>
-<li><a href="#_future_work">18. Future work</a></li>
+<li><a href="#_arquillian_recorder_reporter_integration">17. Arquillian Recorder Reporter integration</a>
+<ul class="sectlevel2">
+<li><a href="#_arquillian_cube_docker_reporter">17.1. Arquillian Cube Docker Reporter</a></li>
+<li><a href="#_arquillian_cube_docker_drone_integration">17.2. Arquillian Cube Docker Drone Integration</a></li>
+<li><a href="#_arquillian_cube_docker_restassured_integration">17.3. Arquillian Cube Docker RestAssured Integration</a></li>
+<li><a href="#_examples">17.4. Examples</a></li>
+</ul>
+</li>
+<li><a href="#_polyglot_applications">18. Polyglot Applications</a></li>
+<li><a href="#_future_work">19. Future work</a></li>
 </ul>
 </div>
 </div>
@@ -3778,7 +3784,235 @@ Notice that this late case is useful only if you have more than one bind port.</
 </div>
 </div>
 <div class="sect1">
-<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>16. Arquillian Recorder Reporter integration</h2>
+<h2 id="_rest_assured_integration"><a class="anchor" href="#_rest_assured_integration"></a>16. Rest-Assured integration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Rest-Assured is a Java DSL for easy testing of REST services.
+An example of how to make a GET request and validate the JSON or XML response might be like:</p>
+</div>
+<div class="paragraph">
+<p><code>get("/lotto").then().assertThat().body("lotto.lottoId", equalTo(5));</code></p>
+</div>
+<div class="paragraph">
+<p>The problem with Rest Assured is that by default it assumes that host is <em>localhost</em> and port <em>8080</em>.
+This might be perfect when not using Docker but when using docker this assumptions might not be the most typical.</p>
+</div>
+<div class="paragraph">
+<p>For example you may use another bind port rather than <em>8080</em>, you can expose 8080 port but bind to another port.
+Also you might run docker host in different ip rather than <em>localhost</em>, maybe because you are using docker machine or maybe because you are using an external docker host.</p>
+</div>
+<div class="paragraph">
+<p>So in these cases you need to set in every request:</p>
+</div>
+<div class="paragraph">
+<p><code>get("http://myhost.org:5000/lotto").then().assertThat().body("lotto.lottoId", equalTo(5));</code></p>
+</div>
+<div class="paragraph">
+<p>or you can also configure Rest-Assured:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>RestAssured.baseURI = "http://myhost.org";
+RestAssured.port = 5000;</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_why_integration_with_cube"><a class="anchor" href="#_why_integration_with_cube"></a>16.1. Why integration with Cube?</h3>
+<div class="paragraph">
+<p>Previous approach works but it has some problems:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You need to repeat the same configuration properties in all tests you want to use Rest-Assured with Docker.</p>
+</li>
+<li>
+<p>Requires some development interference of the developer, if it is running in docker machine needs to set one <em>ip</em> which might change in the future, or if running on native linux must be changed to <em>localhost</em>.</p>
+</li>
+<li>
+<p>Any change on Rest-Assured configuration properties would make all tests fails.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To fix these problems, you can use Arquillian Cube Docker RestAssured integration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration_3"><a class="anchor" href="#_configuration_3"></a>16.2. Configuration</h3>
+<div class="sect3">
+<h4 id="_dependencies"><a class="anchor" href="#_dependencies"></a>16.2.1. Dependencies</h4>
+<div class="paragraph">
+<p>To use Arquillian Cube RestAssured integration you only need to add as dependency.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
+     &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
+     &lt;artifactId&gt;arquillian-cube-docker-restassured&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_configuration_parameters"><a class="anchor" href="#_configuration_parameters"></a>16.2.2. Configuration Parameters</h4>
+<div class="paragraph">
+<p>By default, if your scenario is not complex you don&#8217;t need to configure anything else, but this extension also contains some configuration parameters that can be used.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 22.2222%;">
+<col style="width: 55.5556%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Attribute</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">baseUri</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;schema&gt;://&lt;dockerhost&gt;</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>It is the base uri used in RestAssured. You can set an specific value or not set and let extension to configure it by default using auto-resolution system.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">http</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Schema used in case of auto-resolution of baseUri</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">port</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If from all running containers there is only one binding port (notice that exposed ports are not bound if not specified), then this is the value used. If there are more than one binding port then an exception is thrown.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Port to be used for communicating with docker host. By default this port must be the exposed port used in port binding. The extension will resolve for given exposed port which is the binding port. If it is not found then exposed port will be assumed as binding port too. For example using -p 8080:80 you need to set this property to 80 and extension will resolve to 8080.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">exclusionContainers</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>If you want to use auto-resolution of the port attribute you might want to exclude that extension searches for binding ports in some containers (for example monitoring containers). This is a CSV property to set container names of al of them.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basePath</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Base path (context) of the application</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">rootPath</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Root path property of RestAssured. <a href="http://code.google.com/p/rest-assured/wiki/Usage#Root_path" class="bare">http://code.google.com/p/rest-assured/wiki/Usage#Root_path</a></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">useRelaxedHttpsValidation</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Configures RestAssured to use relaxed https validation. If attribute is present but with no value then it is applied to all protocols. If you put an string, only this protocol will be applied the relaxed rules.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">authenticationScheme</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Sets the authentication scheme. Possible values are:
+* <code>basic:username:password</code> for basic auth.
+* <code>form:username:password</code> for from auth.
+* <code>preemptive:username:password</code>.
+* <code>certificate:url:password</code> for cert auth.
+* <code>digest:username:password</code> for digest auth.
+* <code>oauth:consumerKey:consumerSecret:accessToken:secretToken</code> for oauth 1.
+* <code>oauth2:accessToken</code> for oauth 2.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="restassured"&gt;
+    &lt;property name="port"&gt;80&lt;/property&gt;
+&lt;/extension&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You can set any extension property using system properties or environment variables, this can be really helpful in case of setting authentication scheme and sensitive data. For example <code>arq.extension.restassured.basePath=helloworld</code> for setting <code>basePath</code> property.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_3"><a class="anchor" href="#_example_3"></a>16.2.3. Example</h4>
+<div class="paragraph">
+<p>After setting the dependency and configuring the extension if required you can write your Arquillian Cube test as usually and use RestAssured without configuring it:</p>
+</div>
+<div class="paragraph">
+<p>With next docker compose file which starts a ping pong server listening at root context:</p>
+</div>
+<div class="listingblock">
+<div class="title">docker-compose.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">helloworld:
+  image: jonmorehouse/ping-pong
+  ports:
+    - "5000:8080"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You only need to do:</p>
+</div>
+<div class="listingblock">
+<div class="title">PingPongTest.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
+public class PingPongTest {
+
+    @Test
+    public void should_receive_ok_message() throws MalformedURLException, InterruptedException {
+        RestAssured.get()
+            .then()
+                .assertThat()
+                .body("status", equalTo("OK"));
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that no <em>ip</em> nor <em>port</em> configuration are required since everything is managed and configured by Cube.</p>
+</div>
+<div class="paragraph">
+<p>You can see full example at: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-restassured" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-restassured</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>17. Arquillian Recorder Reporter integration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Arquillian Recorder (<a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a>) project brings neat reports of your Arquillian tests.</p>
@@ -3811,7 +4045,7 @@ Cubes are elements that are deployed into a system, for example a Pod or a Docke
 <p>For example in case of a Docker Cube it will report start and stop duration time, if it has failed or not and some container properties like ports, links, image name, entrypoint, network &#8230;&#8203;.</p>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>16.1. Arquillian Cube Docker Reporter</h3>
+<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>17.1. Arquillian Cube Docker Reporter</h3>
 <div class="paragraph">
 <p>In previous section you&#8217;ve read that by just adding recorder reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
 </div>
@@ -3837,7 +4071,7 @@ For this reason there is a docker cube reporter integration that adds on the rep
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>16.2. Arquillian Cube Docker Drone Integration</h3>
+<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>17.2. Arquillian Cube Docker Drone Integration</h3>
 <div class="paragraph">
 <p>In <a href="#_cube_docker_drone_graphene_integration">Cube Docker Drone/Graphene Integration</a> you&#8217;ve read that you can execute web UI tests inside a docker container which contains the browser.
 Also an screencast is recorded so you can review lately what has happened inside the container.</p>
@@ -3847,13 +4081,13 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>16.3. Arquillian Cube Docker RestAssured Integration</h3>
+<h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>17.3. Arquillian Cube Docker RestAssured Integration</h3>
 <div class="paragraph">
 <p>If you add <code>arquillian-cube-docker-recorder</code> and <code>arquillian-recorder-reporter-impl</code> in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>16.4. Examples</h3>
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>17.4. Examples</h3>
 <div class="paragraph">
 <p>Arquillian Cube Docker Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter</a></p>
 </div>
@@ -3867,7 +4101,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect1">
-<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>17. Polyglot Applications</h2>
+<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>18. Polyglot Applications</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In previous section we have seen that we can test any <em>java</em> <em>CLI</em> application that offers a socket connection.
@@ -4054,7 +4288,7 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect1">
-<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>18. Future work</h2>
+<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>19. Future work</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>API will continuously evolve to fit requirements of an enterprise application as well as providing integration with <em>Kubernates</em> and other Docker related tools.
@@ -4069,7 +4303,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-16 14:02:39 CEST
+Last updated 2016-08-16 15:40:32 CEST
 </div>
 </div>
 </body>
