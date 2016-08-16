@@ -490,7 +490,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_arquillian_cube_docker_reporter">16.1. Arquillian Cube Docker Reporter</a></li>
 <li><a href="#_arquillian_cube_docker_drone_integration">16.2. Arquillian Cube Docker Drone Integration</a></li>
-<li><a href="#_examples">16.3. Examples</a></li>
+<li><a href="#_arquillian_cube_docker_restassured_integration">16.3. Arquillian Cube Docker RestAssured Integration</a></li>
+<li><a href="#_examples">16.4. Examples</a></li>
 </ul>
 </li>
 <li><a href="#_polyglot_applications">17. Polyglot Applications</a></li>
@@ -529,7 +530,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-If you are using Docker 1.11 or beyond you will need to set explicitly the configuration property <code>serverVersion</code> to <code>1.23</code>. This is because of requirement of <code>docker-java</code> (<a href="https://github.com/docker-java/docker-java/issues/617#issuecomment-237825886" class="bare">https://github.com/docker-java/docker-java/issues/617#issuecomment-237825886</a>).
+1.0.0.Alpha13 changes default format from Cube to Docker Compose. In case you are using Cube format you need to update arquillian.xml with <code>&lt;property name="definitionFormat"&gt;CUBE&lt;/property&gt;</code>
 </td>
 </tr>
 </table>
@@ -749,6 +750,7 @@ Next step is adding some dependencies apart from the typical <em>Arquillian</em>
   &lt;extension qualifier="docker"&gt; <i class="conum" data-value="1"></i><b>(1)</b>
       &lt;property name="serverVersion"&gt;1.12&lt;/property&gt; <i class="conum" data-value="2"></i><b>(2)</b>
       &lt;property name="serverUri"&gt;http://localhost:2375&lt;/property&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+      &lt;property name="definitionFormat"&gt;CUBE&lt;/property&gt;
       &lt;property name="dockerContainers"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
           tomcat:
             image: tutum/tomcat:7.0
@@ -807,6 +809,10 @@ Next step is adding some dependencies apart from the typical <em>Arquillian</em>
 <td>User and password are required to deploy the war file to remote <em>Tomcat</em>.</td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>Notice that in this case you are using <em>CUBE</em> format as orchestration definition but you&#8217;ll see in next sections that you can use <strong>docker_compose</strong> too.
+Read more at <a href="#_configuration">Configuration</a> section and <a href="#docker-compose-format">Docker-Compose Format</a>.</p>
 </div>
 <div class="paragraph">
 <p>And that&#8217;s all.
@@ -901,7 +907,7 @@ public class PlanetServiceAPIContainerTest {
 </div>
 </div>
 <div class="paragraph">
-<p>Notice that in this case there is no <code>@Dpeloyment</code> method because the full application is already bundled in the docker image that is being used.
+<p>Notice that in this case there is no <code>@Deployment</code> method because the full application is already bundled in the docker image that is being used.
 This test basically validates that the image can be started, and finally that from outside you can communicate with it and it returns something valid.</p>
 </div>
 </div>
@@ -953,7 +959,7 @@ Let&#8217;s see valid attributes:</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">definitionFormat</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the format of content expressed in <code>dockerContainers</code> attribute or in file set in <code>dockerContainersFile</code>. It can contain two possible values <em>CUBE</em> (default one in case of not set) to indicate that content is written following <a href="#cube-format">Arquillian Cube</a> format or <em>COMPOSE</em> to indicate that content is written following <a href="#docker-compose-format">Docker Compose</a> format.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the format of content expressed in <code>dockerContainers</code> attribute or in file set in <code>dockerContainersFile</code>. It can contain two possible values <em>CUBE</em> to indicate that content is written following <a href="#cube-format">Arquillian Cube</a> format or <em>COMPOSE</em> (default one in case of not set) to indicate that content is written following <a href="#docker-compose-format">Docker Compose</a> format.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">cubeSpecificProperties</p></td>
@@ -961,7 +967,7 @@ Let&#8217;s see valid attributes:</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">autoStartContainers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Cube will normally start a <em>Docker</em> container when it has the same name as an active <em>Arquillian</em> container and all the containers defined as links to this container, so basically <em>Cube</em> resolves all the container depdendencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are <em>DeployableContainer</em>'s. In case of defining networks instead of links, Cube will start <strong>only</strong> all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the <em>DeployableContainer</em>, e.g. a monitor, you can use the <em>autoStartContainers</em> option to define which <em>Docker</em> containers to automatically start up. The option takes a comma separated list of <em>Docker</em> container ids. e.g. <em>monitor</em>. <strong>Arquillian Cube</strong> will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with <code>regexp:</code>, for example setting the property to <code>regexp:a(.*)</code> would start all container ids starting with <em>a</em>, or you can add a custom implementation of <code>org.arquillian.cube.spi.AutoStartParser</code> by using reserved word <code>custom:</code> and the full qualified class name.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cube will normally start a <em>Docker</em> container when it has the same name as an active <em>Arquillian</em> container and all the containers defined as links to this container, so basically <em>Cube</em> resolves all the container dependencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are <em>DeployableContainer</em>'s. In case of defining networks instead of links, Cube will start <strong>only</strong> all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the <em>DeployableContainer</em>, e.g. a monitor, you can use the <em>autoStartContainers</em> option to define which <em>Docker</em> containers to automatically start up. The option takes a comma separated list of <em>Docker</em> container ids. e.g. <em>monitor</em>. <strong>Arquillian Cube</strong> will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with <code>regexp:</code>, for example setting the property to <code>regexp:a(.*)</code> would start all container ids starting with <em>a</em>, or you can add a custom implementation of <code>org.arquillian.cube.spi.AutoStartParser</code> by using reserved word <code>custom:</code> and the full qualified class name.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">autoStartOrder</p></td>
@@ -1074,6 +1080,8 @@ In YAML adding brackets ("[" "]") is for setting a list.
   memoryLimit: 1
   memorySwap: 1
   cpuShares: 1
+  cpuQuota: 1
+  shmSize: 64
   cpuSet: a
   extraHosts: a
   attachStdin: true
@@ -1927,7 +1935,6 @@ You can use <code>dockerServerIp</code> as special tag for identify the docker h
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
   &lt;property name="serverVersion"&gt;1.13&lt;/property&gt;
   &lt;property name="serverUri"&gt;localhost&lt;/property&gt;
-  &lt;property name="definitionFormat"&gt;COMPOSE&lt;/property&gt;
   &lt;property name="dockerContainersFile"&gt;docker-compose.yml&lt;/property&gt;
 &lt;/extension&gt;
 
@@ -1938,6 +1945,9 @@ You can use <code>dockerServerIp</code> as special tag for identify the docker h
   &lt;/configuration&gt;
 &lt;/container&gt;</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Notice that you don&#8217;t need to specify <em>definitionFormat</em> since docker compose format is the default one.</p>
 </div>
 <div class="paragraph">
 <p>And that&#8217;s all, you can now reuse your existing docker-compose files in Arquillian Cube too.
@@ -1955,7 +1965,8 @@ You can see the full example at: <a href="https://github.com/arquillian/arquilli
 <p>One for injecting the CubeID(<em>containerId</em>) of the current container created for executing the test, one that injects the CubeController to call lifecycle methods on any cube and one that injects com.github.dockerjava.api.DockerClient instance used to communicate with <em>Docker</em> server. Also you can inject in your tests the <em>Docker Host IP</em> used for running containers by using @HostIp annotation.</p>
 </div>
 <div class="paragraph">
-<p>DockerClient, Docker Host IP and Docker Host Port injection only work if the tests are run in client mode, that is by using @RunAsClient or by setting the testable property to false @Deployment(testable = false).</p>
+<p>DockerClient, Docker Host IP, Docker Host Port and Cube Ip injection only work if the tests are run in client mode, that is by using @RunAsClient or by setting the testable property to false @Deployment(testable = false).
+Also they work if you run Arquillian in standalone mode.</p>
 </div>
 <div class="paragraph">
 <p>These can be injected using the @ArquillianResource annotation.</p>
@@ -1996,6 +2007,13 @@ String ip;</code></pre>
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@HostPort(containerName = "tomcat", value = 8080)
 int tomcatPort; // gets the binding port for exposed port 8080 of container tomcat.</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">CubeIpProvider.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@CubeIp(containerName = "tomcat")
+String ip;</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -3500,7 +3518,6 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 <div class="title">arquillian.xml</div>
 <div class="content">
 <pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-    &lt;property name="definitionFormat"&gt;COMPOSE&lt;/property&gt;
     &lt;property name="machineName"&gt;dev&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
     &lt;property name="dockerContainersFile"&gt;docker-compose.yml&lt;/property&gt;
 &lt;/extension&gt;</code></pre>
@@ -3830,7 +3847,13 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>16.3. Examples</h3>
+<h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>16.3. Arquillian Cube Docker RestAssured Integration</h3>
+<div class="paragraph">
+<p>If you add <code>arquillian-cube-docker-recorder</code> and <code>arquillian-recorder-reporter-impl</code> in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>16.4. Examples</h3>
 <div class="paragraph">
 <p>Arquillian Cube Docker Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter</a></p>
 </div>
@@ -4046,7 +4069,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-09 08:18:47 CEST
+Last updated 2016-08-16 14:02:39 CEST
 </div>
 </div>
 </body>
