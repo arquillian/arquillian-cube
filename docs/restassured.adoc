@@ -83,6 +83,10 @@ By default, if your scenario is not complex you don't need to configure anything
 |
 |Root path property of RestAssured. http://code.google.com/p/rest-assured/wiki/Usage#Root_path
 
+|useRelaxedHttpsValidation
+|
+|Configures RestAssured to use relaxed https validation. If attribute is present but with no value then it is applied to all protocols. If you put an string, only this protocol will be applied the relaxed rules.
+
 |authenticationScheme
 |
 |Sets the authentication scheme. Possible values are:
