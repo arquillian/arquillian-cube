@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.requirement;
 
+import java.util.List;
+
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.spi.requirement.Requirement;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
@@ -7,7 +9,6 @@ import org.arquillian.spacelift.execution.ExecutionException;
 
 public class DockerMachineRequirement implements Requirement<RequiresDockerMachine> {
 
-    private static final String NEWLINE_PATTERN = "\r\n|\r|\n";
     private final CommandLineExecutor commandLineExecutor = new CommandLineExecutor();
 
 
@@ -16,13 +17,13 @@ public class DockerMachineRequirement implements Requirement<RequiresDockerMachi
         String name = context.name();
         try {
             if (name != null && !name.isEmpty()) {
-                String ip = commandLineExecutor.execCommand(new String[]{"docker-machine", "ip", name});
-                if (ip == null || ip.isEmpty()) {
+                List<String> machines = commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=" + name, "--format", "{{.Name}}");
+                if (!machines.contains(name)) {
                     throw new UnsatisfiedRequirementException("Docker machine with name: ["+name+"] not found!");
                 }
             } else {
-                int machines = countLines(commandLineExecutor.execCommand(new String[]{"docker-machine", "ls"})) - 1;
-                if (machines > 0) {
+                List<String> machines = commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--format", "{{.Name}}");
+                if (machines.size() > 0) {
                     throw new UnsatisfiedRequirementException("No docker machine found!");
                 }
             }
@@ -31,9 +32,4 @@ public class DockerMachineRequirement implements Requirement<RequiresDockerMachi
         }
     }
 
-
-    private static int countLines(String s) {
-        String[] lines = s.split(NEWLINE_PATTERN);
-        return lines.length;
-    }
 }
