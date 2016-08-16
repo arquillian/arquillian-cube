@@ -91,6 +91,7 @@ And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* i
   <extension qualifier="docker"> <!--1-->
       <property name="serverVersion">1.12</property> <!--2-->
       <property name="serverUri">http://localhost:2375</property> <!--3-->
+      <property name="definitionFormat">CUBE</property>
       <property name="dockerContainers"> <!--4-->
           tomcat:
             image: tutum/tomcat:7.0
@@ -121,6 +122,9 @@ And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* i
 <6> Host can be _localhost_ because there is a port forwarding between container and _Docker_ server.
 <7> Port is exposed as well.
 <8> User and password are required to deploy the war file to remote _Tomcat_.
+
+Notice that in this case you are using _CUBE_ format as orchestration definition but you'll see in next sections that you can use *docker_compose* too.
+Read more at <<Configuration>> section and <<Docker-Compose Format>>.
 
 And that's all.
 Now you can run your test and you will see how _tutum/tomcat:7.0_ image is downloaded and started.
@@ -195,6 +199,6 @@ public class PlanetServiceAPIContainerTest {
     }
 ----
 
-Notice that in this case there is no `@Dpeloyment` method because the full application is already bundled in the docker image that is being used.
+Notice that in this case there is no `@Deployment` method because the full application is already bundled in the docker image that is being used.
 This test basically validates that the image can be started, and finally that from outside you can communicate with it and it returns something valid.
 

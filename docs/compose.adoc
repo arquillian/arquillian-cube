@@ -46,7 +46,6 @@ and finally you can configure in `arquillian.xml` file that you want to use dock
 <extension qualifier="docker">
   <property name="serverVersion">1.13</property>
   <property name="serverUri">localhost</property>
-  <property name="definitionFormat">COMPOSE</property>
   <property name="dockerContainersFile">docker-compose.yml</property>
 </extension>
 
@@ -57,6 +56,8 @@ and finally you can configure in `arquillian.xml` file that you want to use dock
   </configuration>
 </container>
 ----
+
+Notice that you don't need to specify _definitionFormat_ since docker compose format is the default one.
 
 And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too.
 You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-docker-compose
