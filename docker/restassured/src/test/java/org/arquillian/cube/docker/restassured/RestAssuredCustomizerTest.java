@@ -1,6 +1,8 @@
 package org.arquillian.cube.docker.restassured;
 
 import io.restassured.RestAssured;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.jboss.arquillian.core.api.Instance;
@@ -146,6 +148,28 @@ public class RestAssuredCustomizerTest {
         restAssuredCustomizer.configure(restAssuredConfiguration);
 
         assertThat(RestAssured.port).isEqualTo(8081);
+    }
+
+    @Test
+    public void should_set_relaxed_https_validation_in_all_protocols() {
+        RestAssuredCustomizer restAssuredCustomizer = new RestAssuredCustomizer();
+        restAssuredCustomizer.cubeDockerConfigurationInstance = new Instance<CubeDockerConfiguration>() {
+            @Override
+            public CubeDockerConfiguration get() {
+                return cubeDockerConfiguration;
+            }
+        };
+
+        Map<String, String> conf = new HashMap<>();
+        conf.put("baseUri", "http://localhost");
+        conf.put("port", "8081");
+        conf.put("useRelaxedHttpsValidation", null);
+
+        final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
+        restAssuredCustomizer.configure(restAssuredConfiguration);
+
+        final SSLSocketFactory sslSocketFactory = RestAssured.config().getSSLConfig().getSSLSocketFactory();
+        assertThat(sslSocketFactory.getHostnameVerifier()).isInstanceOf(AllowAllHostnameVerifier.class);
     }
 
 }

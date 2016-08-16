@@ -6,13 +6,28 @@ import java.util.Map;
 
 public class RestAssuredConfiguration {
 
+    private static final String RELAXED_HTTPS_VALIDATION_ALL_PROTOCOLS = "";
+
     private String baseUri;
     private String schema = "http";
     private int port = -1;
     private String basePath;
     private String rootPath;
     private AuthenticationScheme authenticationScheme;
+    private String useRelaxedHttpsValidation;
     private String[] exclusionContainers = new String[0];
+
+    public String getUseRelaxedHttpsValidation() {
+        return useRelaxedHttpsValidation;
+    }
+
+    public boolean isUseRelaxedHttpsValidationSet() {
+        return this.useRelaxedHttpsValidation != null;
+    }
+
+    public boolean isUseRelaxedHttpsValidationInAllProtocols() {
+        return RELAXED_HTTPS_VALIDATION_ALL_PROTOCOLS.equals(this.useRelaxedHttpsValidation);
+    }
 
     public boolean isAuthenticationSchemeSet() {
         return this.authenticationScheme != null;
@@ -94,6 +109,17 @@ public class RestAssuredConfiguration {
             for(int i=0; i <restAssuredConfiguration.exclusionContainers.length; i++) {
                 restAssuredConfiguration.exclusionContainers[i] = restAssuredConfiguration.exclusionContainers[i].trim();
             }
+        }
+
+        if( conf.containsKey("useRelaxedHttpsValidation")) {
+            final String useRelaxedHttpsValidation = conf.get("useRelaxedHttpsValidation");
+
+            if (useRelaxedHttpsValidation == null || useRelaxedHttpsValidation.isEmpty()) {
+                restAssuredConfiguration.useRelaxedHttpsValidation = RELAXED_HTTPS_VALIDATION_ALL_PROTOCOLS;
+            } else {
+                restAssuredConfiguration.useRelaxedHttpsValidation = useRelaxedHttpsValidation;
+            }
+
         }
 
         return restAssuredConfiguration;

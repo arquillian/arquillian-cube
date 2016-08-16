@@ -9,7 +9,7 @@
     </parent>
 
     <properties>
-        <version.restassured>3.0.0</version.restassured>
+
     </properties>
 
     <name>Arquillian Cube Docker RestAssured Integration</name>
@@ -36,6 +36,11 @@
             <groupId>org.jboss.arquillian.core</groupId>
             <artifactId>arquillian-core-spi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.arquillian.extension</groupId>
+            <artifactId>arquillian-recorder-reporter-spi</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jboss.arquillian.test</groupId>
@@ -50,7 +55,6 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${version.restassured}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

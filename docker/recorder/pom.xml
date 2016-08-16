@@ -26,6 +26,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-docker-restassured</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.tinyjee.jgraphx</groupId>
             <artifactId>jgraphx</artifactId>
             <version>${version.jgraphx}</version>

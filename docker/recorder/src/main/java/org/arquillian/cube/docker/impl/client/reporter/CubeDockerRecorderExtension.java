@@ -8,13 +8,19 @@ public class CubeDockerRecorderExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
 
         // Only if recorder-reporter is in classpath we should provide reporting capabilities.
-        if (Validate.classExists("org.arquillian.recorder.reporter.ReporterExtension")) {
+        final boolean reportedInClasspath = Validate.classExists("org.arquillian.recorder.reporter.ReporterExtension");
+        if (reportedInClasspath) {
             builder.observer(TakeDockerEnvironment.class);
         }
 
         // Only if drone is in classpath we should provide reporting capabilities for videos.
-        if (Validate.classExists("org.arquillian.cube.docker.drone.CubeDockerDroneExtension")) {
+        if (reportedInClasspath && Validate.classExists("org.arquillian.cube.docker.drone.CubeDockerDroneExtension")) {
             builder.observer(TakeVncDroneVideo.class);
+        }
+
+        // Only if restassured is in classpath we should provide reporting capabilities for restassured
+        if (reportedInClasspath && Validate.classExists("org.arquillian.cube.docker.restassured.RestAssuredExtension")) {
+            builder.observer(TakeRestAssuredContent.class);
         }
 
     }
