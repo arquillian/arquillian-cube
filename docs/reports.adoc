@@ -52,6 +52,10 @@ Also an screencast is recorded so you can review lately what has happened inside
 
 If you add previous dependency  `arquillian-cube-docker-recorder` and `arquillian-recorder-reporter-impl` in a cube docker drone project, then the report will contain the screencasts as well in the report, so you can play from the report the recordings as well.
 
+=== Arquillian Cube Docker RestAssured Integration
+
+If you add `arquillian-cube-docker-recorder` and `arquillian-recorder-reporter-impl` in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.
+
 === Examples
 
 Arquillian Cube Docker Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter

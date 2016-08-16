@@ -56,6 +56,14 @@ public class RestAssuredCustomizer {
             RestAssured.rootPath = restAssuredConfiguration.getRootPath();
         }
 
+        if (restAssuredConfiguration.isUseRelaxedHttpsValidationSet()) {
+            if (restAssuredConfiguration.isUseRelaxedHttpsValidationInAllProtocols()) {
+                RestAssured.useRelaxedHTTPSValidation();
+            } else {
+                RestAssured.useRelaxedHTTPSValidation(restAssuredConfiguration.getUseRelaxedHttpsValidation());
+            }
+        }
+
     }
 
     /**

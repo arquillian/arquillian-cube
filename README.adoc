@@ -18,8 +18,6 @@ Documentation for version Alpha4 can be found here: https://github.com/arquillia
 
 WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some cases. The major difference is that instead of using the _boot2docker_ keyword to refer to the auto resolved boot2docker ip in the _serverUri_ parameter, you should now used _dockerHost_.
 
-IMPORTANT: If you are using Docker 1.11 or beyond you will need to set explicitly the configuration property `serverVersion` to `1.23`. This is because of requirement of `docker-java` (https://github.com/docker-java/docker-java/issues/617#issuecomment-237825886).
-
 Documentation generated with Asciidoctor: http://arquillian.org/arquillian-cube/
 
 include::{asciidoctor-source}/what-is-this.adoc[]

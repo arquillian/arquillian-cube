@@ -65,7 +65,7 @@
         <version.arquillian_core>1.1.11.Final</version.arquillian_core>
         <version.junit>4.11</version.junit>
         <version.hamcrest>1.3</version.hamcrest>
-        <version.docker-java>3.0.1</version.docker-java>
+        <version.docker-java>3.0.4</version.docker-java>
         <version.fabric8_kubernetes>2.2.143</version.fabric8_kubernetes>
         <version.snakeyaml>1.15</version.snakeyaml>
         <version.mockito>1.10.19</version.mockito>
@@ -73,7 +73,8 @@
         <version.undertow>1.2.12.Final</version.undertow>
         <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
         <version.assertj>2.5.0</version.assertj>
-        <version.arquillian.recorder>1.1.1.Final</version.arquillian.recorder>
+        <version.arquillian.recorder>1.1.2.Final</version.arquillian.recorder>
+        <version.restassured>3.0.0</version.restassured>
     </properties>
 
     <dependencyManagement>
@@ -178,6 +179,11 @@
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java</artifactId>
                 <version>${version.docker-java}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${version.restassured}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
