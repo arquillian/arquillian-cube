@@ -42,6 +42,7 @@ public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("dockerContainers", CONTENT);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         final CubeDockerConfiguration cubeDockerConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         Injector injector = new Injector() {

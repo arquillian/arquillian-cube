@@ -59,7 +59,7 @@ public class CubeDockerConfiguration {
     private String certPath;
     private boolean tlsVerify;
     private String dockerServerIp;
-    private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
+    private DefinitionFormat definitionFormat = DefinitionFormat.COMPOSE;
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
     private boolean removeVolumes = true;

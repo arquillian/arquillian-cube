@@ -9,7 +9,6 @@
 
     <extension qualifier="docker">
         <property name="serverVersion">${docker.api.version}</property>
-        <property name="definitionFormat">COMPOSE</property>
         <property name="machineName">dev</property>
         <property name="dockerContainersFile">docker-compose.yml</property>
         <property name="cubeSpecificProperties">

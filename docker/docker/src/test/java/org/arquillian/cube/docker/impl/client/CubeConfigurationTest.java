@@ -88,6 +88,7 @@ public class CubeConfigurationTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
@@ -118,6 +119,7 @@ public class CubeConfigurationTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
@@ -150,6 +152,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
@@ -179,6 +182,7 @@ public class CubeConfigurationTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
@@ -211,6 +215,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
@@ -319,6 +324,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
@@ -337,6 +343,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("dockerContainers", CONTENT);
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
@@ -364,6 +371,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("dockerContainersFile", newFile.toURI().toString());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
@@ -389,6 +397,7 @@ public class CubeConfigurationTest {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("dockerContainersFile", newFile.toURI().toString());
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
@@ -419,6 +428,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeContainer tomcat7 = cubeConfiguration.getDockerContainersContent().get("tomcat7");
@@ -446,6 +456,7 @@ public class CubeConfigurationTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final Network mynetwork = cubeConfiguration.getDockerContainersContent().getNetwork("mynetwork");
@@ -457,6 +468,7 @@ public class CubeConfigurationTest {
     public void should_set_global_removeVolumes_option_if_not_set_on_container_level() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", CONTENT);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         
         CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
@@ -479,6 +491,7 @@ public class CubeConfigurationTest {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "true");
         parameters.put("dockerContainers", config1);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
@@ -491,6 +504,7 @@ public class CubeConfigurationTest {
 
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");
         parameters.put("dockerContainers", config2);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         
         cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");

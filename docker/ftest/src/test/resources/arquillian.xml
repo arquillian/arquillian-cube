@@ -11,6 +11,7 @@
         <property name="serverVersion">${docker.api.version}</property>
         <property name="serverUri">${docker.api.url}</property>
         <property name="autoStartContainers">${arquillian.cube.autostart}</property>
+        <property name="definitionFormat">CUBE</property>
         <property name="dockerContainers">
             tomcat_default:
               image: tutum/tomcat:7.0

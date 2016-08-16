@@ -52,6 +52,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
 
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
@@ -89,6 +90,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
 
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
