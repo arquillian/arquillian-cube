@@ -58,6 +58,7 @@ public class CubeRegistrarTestCase extends AbstractManagerTestBase {
 
         parameters.put("serverVersion", "1.13");
         parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("dockerContainers", CONTENT);
 
         return CubeDockerConfiguration.fromMap(parameters, null);

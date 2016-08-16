@@ -6,6 +6,7 @@
 
     <extension qualifier="docker">
         <property name="machineName">dev</property>
+        <property name="definitionFormat">CUBE</property>
         <property name="dockerContainers">
             pingpong:
               image: jonmorehouse/ping-pong

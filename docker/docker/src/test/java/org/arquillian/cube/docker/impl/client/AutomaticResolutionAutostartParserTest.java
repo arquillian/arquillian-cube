@@ -38,6 +38,7 @@ public class AutomaticResolutionAutostartParserTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         AutomaticResolutionNetworkAutoStartParser automaticResolutionNetworkAutoStartParser = new AutomaticResolutionNetworkAutoStartParser(deployableContainer, cubeConfiguration.getDockerContainersContent());
@@ -65,6 +66,7 @@ public class AutomaticResolutionAutostartParserTest {
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         RegularExpressionAutoStartParser regularExpressionAutoStartParser = new RegularExpressionAutoStartParser("regexp:.*", cubeConfiguration.getDockerContainersContent());

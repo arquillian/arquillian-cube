@@ -5,10 +5,8 @@
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
     <extension qualifier="docker">
-        <property name="definitionFormat">COMPOSE</property>
         <property name="machineName">dev</property>
         <property name="dockerContainersFile">docker-compose.yml</property>
-        <property name="serverVersion">1.23</property>
     </extension>
 
 </arquillian>

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -205,6 +206,7 @@ public class AutoStartOrderUtilTestCase {
             config.put("autoStartContainers", join(autoStart));
         }
         config.put("dockerContainers", setup);
+        config.put("definitionFormat", DefinitionFormat.CUBE.name());
         return CubeDockerConfiguration.fromMap(config, null);
     }
 

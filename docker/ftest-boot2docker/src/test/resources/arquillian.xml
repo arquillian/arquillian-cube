@@ -20,6 +20,7 @@
             Cube will resolve to ~/.boot2docker/certs/boot2docker-vm 
          -->
         <property name="autoStartContainers">${arquillian.cube.autostart}</property>
+        <property name="definitionFormat">CUBE</property>
         <property name="dockerContainers">
             tomcat_default:
               image: tutum/tomcat:7.0
