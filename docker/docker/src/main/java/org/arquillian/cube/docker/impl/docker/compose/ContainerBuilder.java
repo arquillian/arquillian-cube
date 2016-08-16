@@ -66,12 +66,15 @@ public class ContainerBuilder {
     private static final String HOSTNAME = "hostname";
     private static final String DOMAINNAME = "domainname";
     private static final String MEM_LIMIT = "mem_limit";
+    private static final String MEM_SWAP_LIMIT = "memswap_limit";
+    private static final String SHM_SIZE = "shm_size";
     private static final String PRIVILEGED = "privileged";
     private static final String RESTART = "restart";
     private static final String STDIN_OPEN = "stdin_open";
     private static final String TTY = "tty";
     private static final String CPU_SHARES = "cpu_shares";
     private static final String CPU_SET = "cpuset";
+    private static final String CPU_QUOTA = "cpu_quota";
     private static final String EXTRA_HOSTS = "extra_hosts";
     private static final String DEVICES = "devices";
     private static final String CONTAINERNAME = "container_name";
@@ -80,7 +83,7 @@ public class ContainerBuilder {
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
             DNS_SEARCH, WORKING_DIR, ENTRYPOINT, USER, HOSTNAME, MEM_LIMIT, PRIVILEGED, RESTART, STDIN_OPEN, TTY,
-            CPU_SET, CPU_SHARES, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON);
+            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE);
 
     private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
 
@@ -191,6 +194,12 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(MEM_LIMIT)) {
             this.addMemLimit(asLong(dockerComposeContainerDefinition, MEM_LIMIT));
         }
+        if (dockerComposeContainerDefinition.containsKey(MEM_SWAP_LIMIT)) {
+            this.addMemSwapLimit(asLong(dockerComposeContainerDefinition, MEM_SWAP_LIMIT));
+        }
+        if (dockerComposeContainerDefinition.containsKey(SHM_SIZE)) {
+            this.addShmSize(asLong(dockerComposeContainerDefinition, SHM_SIZE));
+        }
         if (dockerComposeContainerDefinition.containsKey(PRIVILEGED)) {
             this.addPrivileged(asBoolean(dockerComposeContainerDefinition, PRIVILEGED));
         }
@@ -209,6 +218,9 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(CPU_SET)) {
             this.addCpuSet(asString(dockerComposeContainerDefinition, CPU_SET));
         }
+        if (dockerComposeContainerDefinition.containsKey(CPU_QUOTA)) {
+            this.addCpuQuota(asInt(dockerComposeContainerDefinition, CPU_QUOTA));
+        }
         if (dockerComposeContainerDefinition.containsKey(DEVICES)) {
             this.addDevices(asListOfString(dockerComposeContainerDefinition, DEVICES));
         }
@@ -226,6 +238,17 @@ public class ContainerBuilder {
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
     }
+
+    private ContainerBuilder addShmSize(long shmSize) {
+        configuration.setShmSize(shmSize);
+        return this;
+    }
+
+    private ContainerBuilder addMemSwapLimit(long memSwapLimit) {
+        configuration.setMemorySwap(memSwapLimit);
+        return this;
+    }
+
 
     private ContainerBuilder addDevices(Collection<String> devices) {
         Collection<Device> devicesDefinition = new HashSet<Device>();
@@ -497,6 +520,11 @@ public class ContainerBuilder {
 
     private ContainerBuilder addCpuSet(String cpuSet) {
         configuration.setCpuSet(cpuSet);
+        return this;
+    }
+
+    public ContainerBuilder addCpuQuota(int cpuQuota) {
+        configuration.setCpuQuota(cpuQuota);
         return this;
     }
 
