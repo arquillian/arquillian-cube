@@ -117,6 +117,8 @@ tomcat: # <1>
   memoryLimit: 1
   memorySwap: 1
   cpuShares: 1
+  cpuQuota: 1
+  shmSize: 64
   cpuSet: a
   extraHosts: a
   attachStdin: true

@@ -21,7 +21,9 @@ public class CubeContainer {
     private Boolean stdinOnce;
     private Long memoryLimit;
     private Long memorySwap;
+    private Long shmSize;
     private Integer cpuShares;
+    private Integer cpuQuota;
     private String cpuSet;
     private Boolean attachStdin;
     private Boolean attachSterr;
@@ -189,6 +191,14 @@ public class CubeContainer {
         this.memorySwap = memorySwap;
     }
 
+    public Long getShmSize() {
+        return shmSize;
+    }
+
+    public void setShmSize(Long shmSize) {
+        this.shmSize = shmSize;
+    }
+
     public Integer getCpuShares() {
         return cpuShares;
     }
@@ -203,6 +213,14 @@ public class CubeContainer {
 
     public void setCpuSet(String cpuSet) {
         this.cpuSet = cpuSet;
+    }
+
+    public Integer getCpuQuota() {
+        return cpuQuota;
+    }
+
+    public void setCpuQuota(Integer cpuQuota) {
+        this.cpuQuota = cpuQuota;
     }
 
     public Boolean getAttachStdin() {

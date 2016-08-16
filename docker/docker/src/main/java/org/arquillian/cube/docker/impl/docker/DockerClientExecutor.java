@@ -255,12 +255,20 @@ public class DockerClientExecutor {
                 createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
             }
 
+            if (containerConfiguration.getShmSize() != null) {
+                createContainerCmd.getHostConfig().withShmSize(containerConfiguration.getShmSize());
+            }
+
             if (containerConfiguration.getCpuShares() != null) {
                 createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
             }
 
             if (containerConfiguration.getCpuSet() != null) {
                 createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
+            }
+
+            if (containerConfiguration.getCpuQuota() != null) {
+                createContainerCmd.getHostConfig().withCpuQuota(containerConfiguration.getCpuQuota());
             }
 
             if (containerConfiguration.getAttachStdin() != null) {
