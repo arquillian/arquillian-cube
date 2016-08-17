@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.util;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration);
@@ -47,6 +49,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration);
@@ -67,6 +70,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration);
@@ -87,6 +91,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration, "ping");
@@ -108,6 +113,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration, 8080);
@@ -129,6 +135,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration, 8080);
@@ -149,6 +156,7 @@ public class SinglePortBindResolverTest {
                         "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         final int bindPort = SinglePortBindResolver.resolveBindPort(cubeConfiguration, 8082);
