@@ -3681,19 +3681,22 @@ If <code>url</code> property starts with absolute path (<code>/</code>), then yo
 <p>If <code>url</code> is <em>/192.168.99.100/context</em> (absolute path) the result will be <code><a href="http://192.168.99.100/context" class="bare">http://192.168.99.100/context</a></code>.</p>
 </li>
 <li>
-<p>If <code>url</code> is <em>context</em> (relative path) then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
+<p>If <code>url</code> is <em>context</em> (relative path) then the result will be <code><a href="http://ipOfContainer/context" class="bare">http://ipOfContainer/context</a></code>.</p>
 </li>
 <li>
 <p>If <code>url</code> is <em>/dockerHost/context</em> (absolute path) then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
 </li>
 <li>
-<p>If <code>url</code> is <em>dockerHost/context</em> (relative path) then rhe result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
+<p>If <code>url</code> is <em>dockerHost/context</em> (relative path) then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
+</li>
+<li>
+<p>if <code>url</code> is <em>/containerName/context</em> (absolute path) which means it is not an IP nor <code>dockerHost</code>, then Cube will find the internal IP of container with given name.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
 <p>Previous examples has not take into consideration port thing.
-The next thing to resolve is the port of the URL which in case of Docker Cube means deal with binding ports (ports available from host).</p>
+The next thing to resolve is the port of the URL which in this case and since browser runs inside docker host means resolve exposed ports..</p>
 </div>
 <div class="paragraph">
 <p>Port resolution follows next rules:</p>
@@ -3701,21 +3704,19 @@ The next thing to resolve is the port of the URL which in case of Docker Cube me
 <div class="ulist">
 <ul>
 <li>
-<p>If <code>url</code> has no port, Cube will find among all cubes if there is only one bounded port. If it is the case this is the one used, if there is not bound port or there are more than one then an exception is thrown.</p>
+<p>If <code>url</code> is <strong>relative</strong>, Cube will find among all cubes if there is only one bounded port. If it is the case, it will return the exposed one, if there is not bound port or there are more than one then an exception is thrown.</p>
 </li>
 <li>
-<p>If <code>url</code> has a port (for example dockerHost:8080), Cube will find a service which <strong>exposes</strong> port <em>8080</em> with a bind port too and will return the bind port. If there is more than one service that exposes (and binds) same port, then an exception is thrown.</p>
+<p>If <code>url</code> has a port (for example dockerHost:8080), Cube will use this port as exposed port.</p>
 </li>
 <li>
-<p>If there is no exposed port an exception is thrown too.</p>
-</li>
-<li>
-<p>If there is more than one cube with given exposed port with &lt;b&gt;port binding&lt;/b&gt; and exception is thrown.</p>
+<p>If <code>url</code> is absolute but no port is set, 8080 is used.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>For example having a service with 9090:8080 port configuration and <code>url set to /dockerHost:8080/context, then the result will be `http://ipOfDockerHost:9090/context</code>.</p>
+<p>For example having a service with 9090:8080 port configuration and <code>url</code> set to /dockerHost:8080/context, then the result will be <code><a href="http://ipOfDockerHost:8080/context" class="bare">http://ipOfDockerHost:8080/context</a></code>.
+Another example, having a service with 9090:8080 port configuration and <code>url</code> set to context, then the result will be <code><a href="http://ipOfContainer:8080/context" class="bare">http://ipOfContainer:8080/context</a></code>.</p>
 </div>
 <div class="paragraph">
 <p>In most cases you would only need two different kind of configurations:</p>
@@ -3731,7 +3732,7 @@ The next thing to resolve is the port of the URL which in case of Docker Cube me
 <div class="paragraph">
 <p>In previous snippet works if you have several containers but only one binds a port to host.
 In that case you only need to specify the context of the application.
-That configuration would be translated to: <code><a href="http://ipOfDockerHost:bindport/context" class="bare">http://ipOfDockerHost:bindport/context</a></code> and Graphene will use it as base for all WebDriver calls.</p>
+That configuration would be translated to: <code><a href="http://cubeIp:exposedPort/myapp" class="bare">http://cubeIp:exposedPort/myapp</a></code> and Graphene will use it as base for all WebDriver calls.</p>
 </div>
 <div class="paragraph">
 <p>The other configuration might be:</p>
@@ -3746,7 +3747,7 @@ That configuration would be translated to: <code><a href="http://ipOfDockerHost:
 </div>
 <div class="paragraph">
 <p>In later example works if you have several containers binding different ports but only one is binding the exposed 8080 port.
-That configuration would be translated to <code><a href="http://ipOfDockerHost:bindport/context" class="bare">http://ipOfDockerHost:bindport/context</a></code> as well and Graphene will use it as base for all WebDriver calls.
+That configuration would be translated to <code><a href="http://ipOfDockerHost:8080/myapp" class="bare">http://ipOfDockerHost:8080/myapp</a></code> as well and Graphene will use it as base for all WebDriver calls.
 Notice that this late case is useful only if you have more than one bind port.</p>
 </div>
 </div>
@@ -4303,7 +4304,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-16 15:40:32 CEST
+Last updated 2016-08-16 16:30:02 CEST
 </div>
 </div>
 </body>
