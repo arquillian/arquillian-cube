@@ -71,7 +71,9 @@ public class SinglePortBindResolver {
                     if (portBinding.getExposedPort().getExposed() == exposedPort) {
                         if (noPreviousBindPortFound(portBindInfo)) {
                             int bindPort = portBinding.getBound();
-                            portBindInfo = new PortBindInfo(bindPort, cubeContainerEntry.getKey());
+                            portBindInfo = new PortBindInfo(
+                                    portBinding.getExposedPort().getExposed(),
+                                    bindPort, cubeContainerEntry.getKey());
                         } else {
                             throw new IllegalArgumentException(String.format("More than one docker container with port binding having exposed port %s.", exposedPort));
                         }
@@ -131,9 +133,11 @@ public class SinglePortBindResolver {
 
             if (hasOnlyOneBindPort(cubeContainer)) {
                 if (noPreviousBindPortFound(portBindInfo)) {
-                    int bindPort = cubeContainer.getPortBindings()
-                            .iterator().next().getBound();
-                    portBindInfo = new PortBindInfo(bindPort, cubeContainerEntry.getKey());
+                    final PortBinding portBinding = cubeContainer.getPortBindings()
+                            .iterator().next();
+                    int bindPort = portBinding.getBound();
+                    int exposedPort = portBinding.getExposedPort().getExposed();
+                    portBindInfo = new PortBindInfo(exposedPort, bindPort, cubeContainerEntry.getKey());
                 } else {
                     throw new IllegalArgumentException("No port was specified and in all containers there are more than one bind port.");
                 }
@@ -184,15 +188,21 @@ public class SinglePortBindResolver {
 
     public static class PortBindInfo {
         private int bindPort;
+        private int exposedPort;
         private String containerName;
 
-        public PortBindInfo(int bindPort, String containerName) {
+        public PortBindInfo(int exposedPort, int bindPort, String containerName) {
+            this.exposedPort = exposedPort;
             this.bindPort = bindPort;
             this.containerName = containerName;
         }
 
         public int getBindPort() {
             return bindPort;
+        }
+
+        public int getExposedPort() {
+            return exposedPort;
         }
 
         public String getContainerName() {
