@@ -25,12 +25,9 @@ public class TodoBrowserTest {
     @CubeIp(containerName = "helloworld")
     String ip;
 
-    @HostPort(containerName = "helloworld", value = 80)
-    int port;
-
     @Test
     public void shouldShowHelloWorld() throws MalformedURLException, InterruptedException {
-        URL url = new URL("http", ip, port, "/");
+        URL url = new URL("http", ip, 80, "/");
         webDriver.get(url.toString());
         final String message = webDriver.findElement(By.tagName("h1")).getText();
         assertThat(message, is("Hello world!"));

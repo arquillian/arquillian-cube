@@ -113,8 +113,19 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasNoPath();
+    }
+
+    @Test
+    public void should_resolve_internal_ip_of_container() {
+        final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
+        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        when(grapheneConfiguration.getUrl()).thenReturn("/helloworld:80/context");
+
+        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
+
+
     }
 
     @Test
@@ -128,7 +139,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
 
     }
@@ -174,7 +185,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
     }
 
@@ -189,7 +200,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
     }
 
@@ -204,7 +215,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
     }
 
@@ -219,25 +230,16 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
 
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void should_throw_exception_full_absolute_url_and_multiple_port_binding() {
-        final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_PORT_BINDING_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void should_throw_exception_relative_url_and_multiple_port_binding() {
         final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_PORT_BINDING_SCENARIO);
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100/context");
+        when(grapheneConfiguration.getUrl()).thenReturn("context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
     }
@@ -253,7 +255,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         assertThat(url)
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
-                .hasPort(8080)
+                .hasPort(80)
                 .hasPath("context");
     }
 

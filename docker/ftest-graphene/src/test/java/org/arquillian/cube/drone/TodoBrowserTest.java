@@ -13,7 +13,6 @@ public class TodoBrowserTest {
     @Drone
     WebDriver webDriver;
 
-
     @Test
     public void shouldShowHelloWorld(@InitialPage HomePage homePage) {
         homePage.assertOnWelcomePage();

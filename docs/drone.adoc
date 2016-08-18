@@ -186,21 +186,23 @@ Some examples (for now don't think about ports since it is going to touch later)
 
 * An empty or not present of both properties: `scheme` and `url` will result in `http://ipOfDockerhost`.
 * If `url` is _/192.168.99.100/context_ (absolute path) the result will be `http://192.168.99.100/context`.
-* If `url` is _context_ (relative path) then the result will be `http://ipOfDockerHost/context`.
+* If `url` is _context_ (relative path) then the result will be `http://ipOfContainer/context`.
 * If `url` is _/dockerHost/context_ (absolute path) then the result will be `http://ipOfDockerHost/context`.
-* If `url` is _dockerHost/context_ (relative path) then rhe result will be `http://ipOfDockerHost/context`.
+* If `url` is _dockerHost/context_ (relative path) then the result will be `http://ipOfDockerHost/context`.
+* if `url` is _/containerName/context_ (absolute path) which means it is not an IP nor `dockerHost`, then Cube will find the internal IP of container with given name.
 
 Previous examples has not take into consideration port thing.
-The next thing to resolve is the port of the URL which in case of Docker Cube means deal with binding ports (ports available from host).
+The next thing to resolve is the port of the URL which in this case and since browser runs inside docker host means resolve exposed ports..
 
 Port resolution follows next rules:
 
-* If `url` has no port, Cube will find among all cubes if there is only one bounded port. If it is the case this is the one used, if there is not bound port or there are more than one then an exception is thrown.
-* If `url` has a port (for example dockerHost:8080), Cube will find a service which *exposes* port _8080_ with a bind port too and will return the bind port. If there is more than one service that exposes (and binds) same port, then an exception is thrown.
-* If there is no exposed port an exception is thrown too.
-* If there is more than one cube with given exposed port with <b>port binding</b> and exception is thrown.
+* If `url` is *relative*, Cube will find among all cubes if there is only one bounded port. If it is the case, it will return the exposed one, if there is not bound port or there are more than one then an exception is thrown.
+* If `url` has a port (for example dockerHost:8080), Cube will use this port as exposed port.
+* If `url` is absolute but no port is set, 8080 is used.
 
-For example having a service with 9090:8080 port configuration and `url set to /dockerHost:8080/context, then the result will be `http://ipOfDockerHost:9090/context`.
+
+For example having a service with 9090:8080 port configuration and `url` set to /dockerHost:8080/context, then the result will be `http://ipOfDockerHost:8080/context`.
+Another example, having a service with 9090:8080 port configuration and `url` set to context, then the result will be `http://ipOfContainer:8080/context`.
 
 In most cases you would only need two different kind of configurations:
 
@@ -214,7 +216,7 @@ In most cases you would only need two different kind of configurations:
 
 In previous snippet works if you have several containers but only one binds a port to host.
 In that case you only need to specify the context of the application.
-That configuration would be translated to: `http://ipOfDockerHost:bindport/context` and Graphene will use it as base for all WebDriver calls.
+That configuration would be translated to: `http://cubeIp:exposedPort/myapp` and Graphene will use it as base for all WebDriver calls.
 
 The other configuration might be:
 
@@ -227,7 +229,7 @@ The other configuration might be:
 ----
 
 In later example works if you have several containers binding different ports but only one is binding the exposed 8080 port.
-That configuration would be translated to `http://ipOfDockerHost:bindport/context` as well and Graphene will use it as base for all WebDriver calls.
+That configuration would be translated to `http://ipOfDockerHost:8080/myapp` as well and Graphene will use it as base for all WebDriver calls.
 Notice that this late case is useful only if you have more than one bind port.
 
 ==== Example

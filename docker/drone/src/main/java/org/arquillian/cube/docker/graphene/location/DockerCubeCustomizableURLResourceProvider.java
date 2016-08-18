@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.graphene.location;
 
 import org.arquillian.cube.docker.drone.SeleniumContainers;
+import org.arquillian.cube.docker.drone.util.IpAddressValidator;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -41,21 +42,23 @@ import java.util.Set;
  *
  * If <i>url</i> is <b>/192.168.99.100/context</b> the result will be http://192.168.99.100/context
  *
- * If <i>url</i> is <b>context</b> then the result will be http://&lt;ipOfDockerHost&gt;/context
+ * If <i>url</i> is <b>context</b> then the result will be http://&lt;ipOfContainer&gt;/context
  *
  * If <i>url</i> is <b>/dockerHost/context</b> then the result will be http://&lt;ipOfDockerHost&gt;/context
  *
  * If <i>url</i> is <b>dockerHost/context</b> then the result will be http://&lt;ipOfDockerHost&gt;/context
  *
+ * If <i>url</i> is <b>/&lt;containerName&gt;/context</b> so NOT dockerHost and not an IP then the result will be http://&lt;ipOfGivenContainer&gt;/context
+ *
  * The next thing to resolve is the port of the URL.
  *
- * If <i>url</i> has no port, Cube will find among all cubes if there is only one bounded port. If it is the case this is the one used, if not 8080 is used.
+ * If <i>url</i> has no port and it is NOT absolute, Cube will find among all cubes if there is only one binding port. If it is the case this the exposed port will be used, if not 8080 is used.
  *
- * If <i>url</i> has a port (dockerHost:8080), Cube will find a service which <b>exposes</b> port 8080 with a bind port too and will resolve to bind port (port of docker host).
- * If there is no exposed port will assume that it is directly the binding port. Notice that this latter case affects the portability of the test.
- * If there is more than one cube with given exposed port with <b>port binding</b> and exception is thrown.
+ * If <i>url</i> has not port and it is absolute, then 8080 port is used.
  *
- * For example having a service with 9090:8080 port configuration and <i>url</i> set to /dockerHost:8080/context, then the result will be http://&lt;ipOfDockerHost&gt;:9090/context
+ * If <i>url</i> has a port (dockerHost:8080), Cube will use 8080 as exposed port.
+ *
+ * For example having a service with 9090:8080 port configuration and <i>url</i> set to <b>context</b>, then the result will be http://&lt;ipOfContainer&gt;:8080/context
  *
  * @see org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider
  **/
@@ -112,34 +115,47 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
                         .replace("dockerHost", cubeDockerConfiguration.getDockerServerIp());
 
                 // We need to get the host part, port part and context
-                urlBuilder.host(resolveHost(replacedWithDockerHostUrl));
-                urlBuilder.port(resolvePort(replacedWithDockerHostUrl));
+                String host = resolveHost(replacedWithDockerHostUrl);
+
+                // check if host is an ip or not. If it is not an ip means that user wants to use internal ip of given container and host is the name of the container
+                if (! IpAddressValidator.validate(host)) {
+                    host = getInternalIp(cubeDockerConfiguration, host);
+                }
+
+                urlBuilder.host(host);
+                int port = extractPort(replacedWithDockerHostUrl);
+
+                if (port == NO_PORT) {
+                    port = 8080;
+                }
+
+                urlBuilder.port(port);
                 urlBuilder.context(resolveContext(replacedWithDockerHostUrl));
 
             } else {
 
                 final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(NO_PORT);
-                urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo));
-                urlBuilder.port(portBindInfo.getBindPort());
+                urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo.getContainerName()));
+                urlBuilder.port(portBindInfo.getExposedPort());
                 urlBuilder.context(configuredUrl);
             }
 
         } else {
             final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(NO_PORT);
-            urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo));
-            urlBuilder.port(portBindInfo.getBindPort());
+            urlBuilder.host(getInternalIp(cubeDockerConfiguration, portBindInfo.getContainerName()));
+            urlBuilder.port(portBindInfo.getExposedPort());
         }
 
         try {
             return urlBuilder.build();
         } catch (MalformedURLException e) {
-            throw new IllegalStateException("Configured custom URL from GrapheneConfiguration should be already a valid URL.");
+            throw new IllegalStateException("Configured custom URL from Graphene Configuration should be already a valid URL.");
         }
     }
 
-    private String getInternalIp(CubeDockerConfiguration cubeDockerConfiguration, SinglePortBindResolver.PortBindInfo portBindInfo) {
+    private String getInternalIp(CubeDockerConfiguration cubeDockerConfiguration, String containerName) {
         final Cube<?> cube = cubeRegistryInstance.get()
-                .getCube(portBindInfo.getContainerName());
+                .getCube(containerName);
 
         if (cube == null) {
             return cubeDockerConfiguration.getDockerServerIp();
@@ -161,17 +177,6 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
         }
 
         return "";
-    }
-
-    private int resolvePort(String url) {
-        int port = extractPort(url);
-        final SinglePortBindResolver.PortBindInfo portBindInfo = resolveBindPort(port);
-
-        if (portBindInfo == null) {
-            return port;
-        }
-
-        return portBindInfo.getBindPort();
     }
 
     private SinglePortBindResolver.PortBindInfo resolveBindPort(int port) {
