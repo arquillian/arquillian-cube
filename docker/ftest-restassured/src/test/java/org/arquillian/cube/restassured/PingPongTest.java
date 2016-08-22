@@ -1,8 +1,8 @@
 package org.arquillian.cube.restassured;
 
 import io.restassured.RestAssured;
-import org.hamcrest.CoreMatchers;
-import org.jboss.arquillian.junit.Arquillian;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -10,7 +10,8 @@ import java.net.MalformedURLException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
     @Test

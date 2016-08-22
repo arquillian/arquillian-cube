@@ -2,6 +2,9 @@ package org.arquillian.cube.drone;
 
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.arquillian.cube.requirement.RequirementRule;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Test;
@@ -15,7 +18,8 @@ import java.net.URL;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class TodoBrowserTest {
 
     @Drone
