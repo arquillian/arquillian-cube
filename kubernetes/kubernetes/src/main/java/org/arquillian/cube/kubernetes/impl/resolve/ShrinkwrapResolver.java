@@ -21,9 +21,6 @@ import java.util.jar.JarInputStream;
 
 import static org.arquillian.cube.kubernetes.api.Configuration.DEFAULT_CONFIG_FILE_NAME;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class ShrinkwrapResolver implements DependencyResolver {
 
     public static final String JAR = "jar";

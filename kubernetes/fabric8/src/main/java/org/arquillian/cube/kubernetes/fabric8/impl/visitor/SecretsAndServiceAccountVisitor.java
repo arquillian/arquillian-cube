@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class SecretsAndServiceAccountVisitor implements Visitor {
 
     @Inject

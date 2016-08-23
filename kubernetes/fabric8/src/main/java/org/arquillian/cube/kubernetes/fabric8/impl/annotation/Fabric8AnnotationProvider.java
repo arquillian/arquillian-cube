@@ -1,6 +1,5 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.annotation;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -20,9 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * Created by iocanel on 8/5/16.
- */
 public class Fabric8AnnotationProvider implements AnnotationProvider {
 
     public static final String GIT_COMMIT = "fabric8.io/git-commit";

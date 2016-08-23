@@ -8,9 +8,6 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class DefaultLabelProvider implements LabelProvider {
 
     @Inject

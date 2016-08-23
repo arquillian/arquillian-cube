@@ -13,9 +13,6 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class DefaultNamespaceService implements NamespaceService {
 
     private static final String PROJECT_LABEL = "project";

@@ -10,9 +10,6 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by iocanel on 8/2/16.
- */
 public class DockerRegistryVisitor extends TypedVisitor<ContainerBuilder> {
 
     private static final Pattern IMAGE_PATTERN = Pattern.compile("^(.+?)(?::([^:/]+))?$");

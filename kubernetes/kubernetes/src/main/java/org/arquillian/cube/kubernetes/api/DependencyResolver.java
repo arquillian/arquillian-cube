@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public interface DependencyResolver {
 
     /**

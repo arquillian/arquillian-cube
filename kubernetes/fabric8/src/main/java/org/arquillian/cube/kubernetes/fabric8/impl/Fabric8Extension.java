@@ -13,9 +13,6 @@ import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 import org.arquillian.cube.kubernetes.impl.visitor.ServiceAccountVisitor;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
-/**
- * Created by iocanel on 8/5/16.
- */
 public class Fabric8Extension implements LoadableExtension {
 
     @Override

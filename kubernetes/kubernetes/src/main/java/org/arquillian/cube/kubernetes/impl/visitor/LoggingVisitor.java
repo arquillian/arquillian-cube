@@ -6,9 +6,6 @@ import org.arquillian.cube.kubernetes.api.Logger;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class LoggingVisitor extends TypedVisitor<HasMetadata> {
 
     @Inject

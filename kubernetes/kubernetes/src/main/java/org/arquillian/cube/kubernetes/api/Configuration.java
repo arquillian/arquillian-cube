@@ -7,9 +7,6 @@ import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import java.net.URL;
 import java.util.List;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public interface Configuration {
 
     String KUBERNETES_MASTER = "kubernetes.master";

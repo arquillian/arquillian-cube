@@ -5,9 +5,6 @@ import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by iocanel on 8/3/16.
- */
 public class DefaultAnnotationProvider implements AnnotationProvider {
 
     public static final String SESSION_ID = "arquillian.org/test-session-id";

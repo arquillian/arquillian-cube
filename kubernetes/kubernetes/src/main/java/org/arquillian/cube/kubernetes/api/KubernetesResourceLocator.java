@@ -2,9 +2,6 @@ package org.arquillian.cube.kubernetes.api;
 
 import java.net.URL;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public interface KubernetesResourceLocator {
 
     /**

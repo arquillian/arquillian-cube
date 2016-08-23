@@ -6,9 +6,6 @@ import io.fabric8.kubernetes.api.builder.Visitor;
 import java.lang.reflect.Method;
 import java.util.List;
 
-/**
- * Created by iocanel on 8/6/16.
- */
 public class CompositeVisitor<T> implements Visitor<T> {
 
     private final List<Visitor<T>> visitors;

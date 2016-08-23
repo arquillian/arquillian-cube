@@ -9,9 +9,6 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
 
-/**
- * Created by iocanel on 7/30/16.
- */
 public abstract class AbstractKubernetesResourceProvider implements ResourceProvider {
 
     @Inject

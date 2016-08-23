@@ -16,11 +16,7 @@ import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_FOR_SER
 import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_POLL_INTERVAL;
 import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_TIMEOUT;
 
-
-/**
- * Created by iocanel on 8/1/16.
- */
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false)
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.Configuration {
 
     private final String sessionId;

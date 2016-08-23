@@ -8,9 +8,6 @@ import org.arquillian.cube.kubernetes.api.Configuration;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-/**
- * Created by iocanel on 8/6/16.
- */
 public class ServiceAccountVisitor implements Visitor {
 
     @Inject

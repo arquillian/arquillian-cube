@@ -4,9 +4,6 @@ import io.fabric8.kubernetes.api.model.Namespace;
 
 import java.util.Map;
 
-/**
- * Created by iocanel on 7/30/16.
- */
 public interface NamespaceService {
 
     /**

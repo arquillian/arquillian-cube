@@ -6,9 +6,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by iocanel on 7/30/16.
- */
 public final class Strings {
 
     private Strings() {

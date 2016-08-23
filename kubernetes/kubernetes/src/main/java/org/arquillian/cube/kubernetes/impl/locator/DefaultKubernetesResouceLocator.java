@@ -4,9 +4,6 @@ import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 import java.net.URL;
 
-/**
- * Created by iocanel on 8/1/16.
- */
 public class DefaultKubernetesResouceLocator implements KubernetesResourceLocator {
 
     private static final String ROOT = "/";
