@@ -1,0 +1,10 @@
+== Fabric8
+
+The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the link:https://fabric8.io/guide/fabric8DevOps.html[Fabric8 Microservices Platform]
+
+=== Additional Features
+- Integration with link:https://fabric8.io/guide/cdelivery.html[Fabric8 CI/CID]
+- Management of Secrets via link:https://fabric8.io/guide/secretAnnotations.html[Secret Annotations]
+- Integration with Fabric8 Modules:
+    - link:https://fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]
+    - link:https://fabric8.io/guide/fabric8DevOps.html[Microservices Platform]

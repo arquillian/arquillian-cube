@@ -43,6 +43,11 @@
         </dependency>
         <dependency>
             <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-requirement</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.arquillian.cube</groupId>
             <artifactId>arquillian-cube-docker-drone</artifactId>
             <scope>test</scope>
         </dependency>

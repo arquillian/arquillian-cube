@@ -6,9 +6,6 @@ import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
 import java.lang.annotation.Annotation;
 
-/**
- * Created by iocanel on 7/20/16.
- */
 public class Requirements {
 
     private Requirements() {
