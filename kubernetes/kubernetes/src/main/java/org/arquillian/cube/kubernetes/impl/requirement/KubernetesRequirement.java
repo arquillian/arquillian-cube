@@ -1,11 +1,11 @@
 package org.arquillian.cube.kubernetes.impl.requirement;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.HttpClientAware;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.utils.URLUtils;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.arquillian.cube.spi.requirement.Requirement;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
@@ -19,10 +19,10 @@ public class KubernetesRequirement implements Requirement<RequiresKubernetes> {
     public void check(RequiresKubernetes context) throws UnsatisfiedRequirementException {
         KubernetesClient client = new DefaultKubernetesClient();
 
-        OkHttpClient httpClient = client.adapt(HttpClientAware.class).getHttpClient();
+        OkHttpClient httpClient = client.adapt(OkHttpClient.class);
         Request versionRequest = new Request.Builder()
                 .get()
-                .url("/version")
+                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
                 .build();
 
         try {

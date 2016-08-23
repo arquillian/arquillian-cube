@@ -53,7 +53,7 @@
         <dependency>
             <groupId>io.sundr</groupId>
             <artifactId>builder-annotations</artifactId>
-            <version>0.3.3</version>
+            <version>0.2.8</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
