@@ -15,7 +15,7 @@
     <!-- Artifact Configuration -->
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Arquillian Cube Extension</name>

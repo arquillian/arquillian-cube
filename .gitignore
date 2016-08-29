@@ -17,6 +17,7 @@ bin/
 
 # Maven
 target/
+*.versionsBackup
 
 # TestNG
 test-output/
