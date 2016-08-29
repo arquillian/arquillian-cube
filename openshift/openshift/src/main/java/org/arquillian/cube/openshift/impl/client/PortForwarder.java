@@ -9,8 +9,10 @@ import io.undertow.client.ClientExchange;
 import io.undertow.client.ClientRequest;
 import io.undertow.client.UndertowClient;
 import io.undertow.client.spdy.SpdyClientConnection;
+import io.undertow.connector.ByteBufferPool;
 import io.undertow.protocols.spdy.SpdyChannel;
 import io.undertow.protocols.spdy.SpdyChannelWithoutFlowControl;
+import io.undertow.server.XnioByteBufferPool;
 import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 import io.undertow.util.StringReadChannelListener;
@@ -53,10 +55,11 @@ public final class PortForwarder implements Closeable {
 
     private URI portForwardURI;
     private final OptionMap DEFAULT_OPTIONS;
-    private Pool<ByteBuffer> bufferPool;
+    private Pool<ByteBuffer> bufferPoolSlice;
+    private ByteBufferPool bufferPool;
     private XnioWorker xnioWorker;
     private ClientConnection connection;
-    private Collection<PortForwardServer> servers = new ArrayList<PortForwardServer>();
+    private Collection<PortForwardServer> servers = new ArrayList<>();
     private static final AtomicInteger requestId = new AtomicInteger();
 
     public PortForwarder(Config config, String podName) throws Exception {
@@ -90,9 +93,9 @@ public final class PortForwarder implements Closeable {
                         }
                     } }, DEFAULT_OPTIONS);
             this.xnioWorker = xnio.createWorker(null, DEFAULT_OPTIONS);
-            this.bufferPool = new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 17 * 1024, 17 * 1024 * 20);
-            IoFuture<ClientConnection> connectFuture = UndertowClient.getInstance().connect(portForwardURI, xnioWorker,
-                    xnioSsl, bufferPool, DEFAULT_OPTIONS);
+            bufferPoolSlice = new ByteBufferSlicePool(BufferAllocator.DIRECT_BYTE_BUFFER_ALLOCATOR, 17 * 1024, 17 * 1024 * 20);
+            bufferPool = new XnioByteBufferPool(bufferPoolSlice);
+            IoFuture<ClientConnection> connectFuture = UndertowClient.getInstance().connect(portForwardURI, xnioWorker, xnioSsl, bufferPool, DEFAULT_OPTIONS);
             // XXX: use timeout
             connection = connectFuture.getInterruptibly();
 
@@ -188,7 +191,7 @@ public final class PortForwarder implements Closeable {
                 .set(Options.REUSE_ADDRESSES, true)
                 .getMap();
 
-        ChannelListener<AcceptingChannel<StreamConnection>> acceptListener = ChannelListeners.openListenerAdapter(new PortForwardOpenListener(connection, portForwardURI.getPath(), targetPort, requestId, bufferPool, OptionMap.EMPTY));
+        ChannelListener<AcceptingChannel<StreamConnection>> acceptListener = ChannelListeners.openListenerAdapter(new PortForwardOpenListener(connection, portForwardURI.getPath(), targetPort, requestId, bufferPoolSlice, OptionMap.EMPTY));
         AcceptingChannel<? extends StreamConnection> server = xnioWorker.createStreamConnectionServer(new InetSocketAddress(Inet4Address.getLoopbackAddress(), sourcePort), acceptListener, socketOptions);
         server.resumeAccepts();
         return server;
@@ -208,13 +211,13 @@ public final class PortForwarder implements Closeable {
             }.setup(result.getResponseChannel());
 
             // Create the upgraded SPDY connection
-            SpdyChannel spdyChannel = new SpdyChannelWithoutFlowControl(connection.performUpgrade(),
-                    bufferPool, null, new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8196, 8196), true);
+            ByteBufferPool heapBufferPool = new XnioByteBufferPool(new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8196, 8196));
+            SpdyChannel spdyChannel = new SpdyChannelWithoutFlowControl(connection.performUpgrade(), bufferPool, null, heapBufferPool, true, OptionMap.EMPTY);
             Integer idleTimeout = DEFAULT_OPTIONS.get(UndertowOptions.IDLE_TIMEOUT);
             if (idleTimeout != null && idleTimeout > 0) {
                 spdyChannel.setIdleTimeout(idleTimeout);
             }
-            connection = new SpdyClientConnection(spdyChannel);
+            connection = new SpdyClientConnection(spdyChannel, null);
         } else {
             throw new IOException("Failed to upgrade connection");
         }

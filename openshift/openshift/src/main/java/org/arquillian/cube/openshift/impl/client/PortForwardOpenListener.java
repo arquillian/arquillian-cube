@@ -6,6 +6,7 @@ import io.undertow.UndertowOptions;
 import io.undertow.client.ClientConnection;
 import io.undertow.conduits.ReadTimeoutStreamSourceConduit;
 import io.undertow.conduits.WriteTimeoutStreamSinkConduit;
+import io.undertow.connector.ByteBufferPool;
 import io.undertow.server.ConnectorStatistics;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.OpenListener;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.undertow.server.XnioByteBufferPool;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 import org.xnio.Options;
@@ -28,7 +30,7 @@ import org.xnio.StreamConnection;
  */
 public class PortForwardOpenListener implements OpenListener {
 
-    private final Pool<ByteBuffer> bufferPool;
+    private final ByteBufferPool bufferPool;
     private final int bufferSize;
     private volatile OptionMap undertowOptions;
     private ClientConnection masterPortForwardConnection;
@@ -42,7 +44,7 @@ public class PortForwardOpenListener implements OpenListener {
         this.targetPort = targetPort;
         this.requestId = requestId;
         this.undertowOptions = undertowOptions;
-        this.bufferPool = pool;
+        this.bufferPool = new XnioByteBufferPool(pool);
         Pooled<ByteBuffer> buf = pool.allocate();
         this.bufferSize = buf.getResource().remaining();
         buf.free();
@@ -113,7 +115,7 @@ public class PortForwardOpenListener implements OpenListener {
     }
 
     @Override
-    public Pool<ByteBuffer> getBufferPool() {
+    public ByteBufferPool getBufferPool() {
         return bufferPool;
     }
 
