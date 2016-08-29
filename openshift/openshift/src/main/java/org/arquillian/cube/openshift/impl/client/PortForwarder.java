@@ -104,6 +104,7 @@ public final class PortForwarder implements Closeable {
                     .setMethod(Methods.POST)
                     .setPath(portForwardURI.getPath());
             request.getRequestHeaders()
+                    .put(Headers.HOST, this.portForwardURI.getHost())
                     .put(Headers.CONNECTION, "Upgrade")
                     .put(Headers.UPGRADE, "SPDY/3.1");
             if (config.getOauthToken() != null) {
