@@ -54,10 +54,13 @@ include::{asciidoctor-source}/reports.adoc[]
 
 include::{asciidoctor-source}/polyglot.adoc[]
 
+include::{asciidoctor-source}/kubernetes.adoc[]
+
+include::{asciidoctor-source}/fabric8.adoc[]
+
 == Future work
 
-API will continuously evolve to fit requirements of an enterprise application as well as providing integration with _Kubernates_ and other Docker related tools.
-Also some configuration parameters will be modified to fix any possible requirements.
+Some configuration parameters will be modified to fix any possible requirements.
 Although we are going to try to not break compatibility with previous versions, we cannot guarantee until _beta_ stage.
 
 Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.
