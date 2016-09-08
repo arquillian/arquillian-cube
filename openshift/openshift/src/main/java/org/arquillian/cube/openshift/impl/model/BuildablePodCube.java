@@ -187,28 +187,37 @@ public class BuildablePodCube extends BaseCube<Void> {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
             this.proxiedPorts = new LinkedHashMap<Integer, Integer>();
             for (String proxy : configuration.getProxiedContainerPorts()) {
-                // Syntax: pod:port - backward compatibility
-                // pod::port - use the same port than container port
-                // pod:0:port - use an aleatory port
-                String[] split = proxy.split(":");
-                if (split.length == 2 || split.length == 3) {
-                    if (split[0].length() == 0 || id.equals(split[0])) {
-                        final int containerPort = !"".equals(split[1]) ? Integer.valueOf(split[1]) : Integer.valueOf(split[2]);
-                        int mappedPort = 0;
-                        if (split.length == 3 && "".equals(split[1])) {
-                            // pod::port - use the same port than container port
-                            mappedPort = allocateLocalPort(Integer.valueOf(split[2]));
-                        } else if (split.length == 3 && !"".equals(split[1])){
-                            //pod:0:port - use an aleatory port or pod:port:port to map the same port
-                            mappedPort = allocateLocalPort(Integer.valueOf(split[1]));
-                        } else {
-                            // pod:port - backward compatibility, aleatory port
-                            mappedPort = allocateLocalPort(0);
-                        }
-                        proxiedPorts.put(containerPort, mappedPort);
-                        mappedPorts.put(containerPort, new PortAddressImpl("localhost", mappedPort));
-                    }
+                // Syntax: pod:containerPort - backward compatibility, uses allocated port
+                // pod:mappedPort:containerPort - use the same port than container port
+                // pod::containerPort - mappedPort == containerPort (same as oc port-forward), except mappedPort may be 0, which will dynamically allocate a port
+                String[] split = proxy.trim().split(":");
+                final String containerName = split[0];
+                if (containerName.length() > 0 && !id.equals(containerName)) {
+                    // empty matches all, so if it's not empty and doesn't match, skip it
+                    continue;
                 }
+                final Integer containerPort;
+                final Integer mappedPort;
+                if (split.length == 2) {
+                    // backward compatibility: pod:containerPort
+                    // allocate mappedPort
+                    containerPort = Integer.valueOf(split[1]);
+                    mappedPort = allocateLocalPort(0);
+                } else if (split.length == 3) {
+                    containerPort = Integer.valueOf(split[2]);
+                    if (split[1].length() == 0) {
+                        // pod::containerPort - use the same port as container port
+                        mappedPort = allocateLocalPort(containerPort);
+                    } else {
+                        //pod:mappedPort:containerPort - use specified port; if 0, we'll allocate one
+                        mappedPort = allocateLocalPort(Integer.valueOf(split[1]));
+                    }
+                } else {
+                    // log an error
+                    continue;
+                }
+                proxiedPorts.put(containerPort, mappedPort);
+                mappedPorts.put(containerPort, new PortAddressImpl("localhost", mappedPort));
             }
 
             this.containerPorts = new LinkedHashSet<Integer>();
