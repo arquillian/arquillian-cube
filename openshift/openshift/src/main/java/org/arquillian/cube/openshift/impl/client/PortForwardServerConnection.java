@@ -220,8 +220,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     @Override
                     public void completed(final ClientExchange result) {
                         result.getResponseChannel().getCloseSetter().set(new LatchReleaseChannelListener(requestComplete));
-                        
-                        getWorker().execute( new Runnable() {
+                        getIoThread().execute(new Runnable() {
                             @Override
                             public void run() {
                                 // read from remote
