@@ -16,7 +16,6 @@ import io.undertow.util.Methods;
 import io.undertow.util.StringReadChannelListener;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -25,9 +24,7 @@ import org.xnio.ChainedChannelListener;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
-import org.xnio.Pool;
 import org.xnio.StreamConnection;
-import org.xnio.XnioIoThread;
 import org.xnio.channels.CloseableChannel;
 import org.xnio.conduits.StreamSinkConduit;
 
@@ -39,10 +36,7 @@ import org.xnio.conduits.StreamSinkConduit;
 public class PortForwardServerConnection extends AbstractServerConnection {
 
     private final CountDownLatch errorComplete = new CountDownLatch(1);
-    private final CountDownLatch responseComplete = new CountDownLatch(1);
     private final CountDownLatch requestComplete = new CountDownLatch(1);
-//    private ChannelPipe<StreamConnection, StreamConnection> pipe;
-    private String error;
 
     /**
      * Create a new PortForwardServerConnection.
@@ -118,12 +112,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 
     public void startForwarding(final ClientConnection clientConnection, final String urlPath, final int targetPort, final int requestId) throws IOException {
         try {
-            //resetChannel();
-//            pipe = getIoThread().createFullDuplexPipeConnection(clientConnection.getIoThread());
-//            // hook up the left side
-//            ChannelUtils.initiateTransfer(Long.MAX_VALUE, getChannel().getSourceChannel(), pipe.getLeftSide().getSinkChannel(), bufferPool);
-//            ChannelUtils.initiateTransfer(Long.MAX_VALUE, pipe.getLeftSide().getSourceChannel(), getChannel().getSinkChannel(), bufferPool);
-
             // initiate the streams
             openErrorStream(clientConnection, urlPath, targetPort, requestId);
             openDataStream(clientConnection, urlPath, targetPort, requestId);
@@ -142,8 +130,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
             e.printStackTrace();
         } finally {
             IoUtils.safeClose(this);
-//            IoUtils.safeClose(pipe.getLeftSide());
-//            IoUtils.safeClose(pipe.getRightSide());
         }
     }
 
@@ -202,7 +188,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     public void failed(IOException e) {
                         setError(e.getMessage());
                     }
-                    
                 });
             }
         });
@@ -215,7 +200,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
             throw holder[0];
         }
     }
-    
+
     private void openDataStream(final ClientConnection clientConnection, final String urlPath, final int targetPort, final int requestId) throws IOException {
         ClientRequest request = new ClientRequest()
                 .setMethod(Methods.POST)
@@ -264,7 +249,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                                         Long.MAX_VALUE,
                                         result.getResponseChannel(),
                                         getChannel().getSinkChannel(),
-//                                        pipe.getRightSide().getSinkChannel(),
                                         getBufferPool());
                             }
                         });
@@ -275,12 +259,11 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                         requestComplete.countDown();
                     }
                 });
-                
+
                 // write to remote
                 ChannelUtils.initiateTransfer(
                         Long.MAX_VALUE,
                         getChannel().getSourceChannel(),
-//                        pipe.getRightSide().getSourceChannel(),
                         result.getRequestChannel(),
                         getBufferPool());
 
@@ -373,7 +356,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
     private static final class CancelTimerChannelListener implements ChannelListener<CloseableChannel> {
 
         private final Timer timer;
-        
+
         private CancelTimerChannelListener(Timer timer) {
             this.timer = timer;
         }
@@ -382,13 +365,13 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         public void handleEvent(CloseableChannel channel) {
             timer.cancel();
         }
-        
+
     }
 
     private static final class LatchReleaseChannelListener implements ChannelListener<CloseableChannel> {
 
         private final CountDownLatch latch;
-        
+
         private LatchReleaseChannelListener(CountDownLatch latch) {
             this.latch = latch;
         }
@@ -397,6 +380,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         public void handleEvent(CloseableChannel channel) {
             latch.countDown();
         }
-        
+
     }
 }
