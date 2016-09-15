@@ -158,22 +158,17 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     @Override
                     public void completed(final ClientExchange result) {
                         // read the error, if any
-                        getWorker().execute( new Runnable() {
+                        new StringReadChannelListener(getByteBufferPool()) {
                             @Override
-                            public void run() {
-                                new StringReadChannelListener(getBufferPool()) {
-                                    @Override
-                                    protected void stringDone(String string) {
-                                        setError(string);
-                                    }
-
-                                    @Override
-                                    protected void error(IOException e) {
-                                        setError(e.getMessage());
-                                    }
-                                }.setup(result.getResponseChannel());
+                            protected void stringDone(String string) {
+                                setError(string);
                             }
-                        });
+
+                            @Override
+                            protected void error(IOException e) {
+                                setError(e.getMessage());
+                            }
+                        }.setup(result.getResponseChannel());
                     }
 
                     @Override
@@ -204,9 +199,10 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         final CountDownLatch latch = new CountDownLatch(1);
         final IOException[] holder = new IOException[1];
         final Timer timer = new Timer("SPDY Keep Alive", true);
-        
-        getChannel().getCloseSetter().set(
-                new ChainedChannelListener<CloseableChannel>(new CancelTimerChannelListener(timer),
+
+        getChannel().getCloseSetter()
+                .set(new ChainedChannelListener<CloseableChannel>(
+                        new CancelTimerChannelListener(timer),
                         new LatchReleaseChannelListener(requestComplete)));
 
         clientConnection.sendRequest(request, new ClientCallback<ClientExchange>() {
@@ -274,7 +270,8 @@ public class PortForwardServerConnection extends AbstractServerConnection {
     }
 
     private void setError(String error) {
-        this.error = error;
+        if (!error.trim().equals(""))
+            System.err.println("Port forwarding error: " + error);
         errorComplete.countDown();
     }
 
