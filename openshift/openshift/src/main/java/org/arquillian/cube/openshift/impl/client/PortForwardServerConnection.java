@@ -152,16 +152,8 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 
             @Override
             public void completed(final ClientExchange result) {
-                try {
-                    flushRequest(result);
-                } catch (IOException e) {
-                    holder[0] = e;
-                }
                 latch.countDown();
-                if (holder[0] != null) {
-                    return;
-                }
-                
+
                 result.setResponseListener(new ClientCallback<ClientExchange>() {
                     @Override
                     public void completed(final ClientExchange result) {
@@ -226,15 +218,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 
             @Override
             public void completed(final ClientExchange result) {
-                try {
-                    flushRequest(result);
-                } catch (IOException e) {
-                    holder[0] = e;
-                }
                 latch.countDown();
-                if (holder[0] != null) {
-                    return;
-                }
 
                 result.setResponseListener(new ClientCallback<ClientExchange>() {
                     @Override
@@ -286,43 +270,6 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         }
         if (holder[0] != null) {
             throw holder[0];
-        }
-    }
-
-    private void flushRequest(final ClientExchange result) throws IOException {
-        /*
-         * We do this in the IO thread because we can't invoke flush() a second
-         * time if it fails. SPDY stream sink will only flush an empty buffer on
-         * the first flush call. If the flush fails, we need to invoke it a
-         * second time through a callback handler and that won't do anything
-         * because the buffer is empty and it's not the first flush, causing the
-         * channel to hang. :(
-         */
-        if (XnioIoThread.currentThread() == null) {
-            final IOException[] holder = new IOException[1];
-            final CountDownLatch openLatch = new CountDownLatch(1);
-            getIoThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        result.getRequestChannel().flush();
-                    } catch (IOException e) {
-                        holder[0] = e;
-                    } finally {
-                        openLatch.countDown();
-                    }
-                }
-            });
-            try {
-                openLatch.await();
-            } catch (InterruptedException e) {
-                throw new IOException("Interrupted while opening SPDY channel", e);
-            }
-            if (holder[0] != null) {
-                throw new IOException(holder[0]);
-            }
-        } else {
-            result.getRequestChannel().flush();
         }
     }
 
