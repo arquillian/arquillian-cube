@@ -9,9 +9,16 @@ import java.util.List;
 
 public interface Configuration {
 
-    String KUBERNETES_MASTER = "kubernetes.master";
-    String KUBERNETES_NAMESPACE = "kubernetes.namespace";
-    String KUBERNETES_DOMAIN = "kubernetes.domain";
+    //Deprecated Property Names: {
+        String KUBERNETES_MASTER = "kubernetes.master";
+        String KUBERNETES_NAMESPACE = "kubernetes.namespace";
+        String KUBERNETES_DOMAIN = "kubernetes.domain";
+    // }
+
+    String MASTER_URL = "master.url";
+    String NAMESPACE = "namespace";
+    String DOMAIN = "domain";
+
     String DOCKER_REGISTY = "docker.registry";
     String DOCKER_REGISTRY_HOST = "DOCKER_REGISTRY_HOST";
     String DOCKER_REGISTRY_PORT = "DOCKER_REGISTRY_PORT";

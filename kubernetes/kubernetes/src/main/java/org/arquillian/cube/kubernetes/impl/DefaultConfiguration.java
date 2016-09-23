@@ -48,7 +48,7 @@ public class DefaultConfiguration implements Configuration {
             return new DefaultConfigurationBuilder()
                     .withSessionId(sessionId)
                     .withNamespace(namespace)
-                    .withMasterUrl(new URL(getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
+                    .withMasterUrl(new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                     .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                     .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                     .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
@@ -62,7 +62,7 @@ public class DefaultConfiguration implements Configuration {
                     .withWaitForServiceConnectionEnabled(getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION_ENABLED, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED))
                     .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT))
                     .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
-                    .withKubernetesDomain(getStringProperty(KUBERNETES_DOMAIN, map, null))
+                    .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                     .withDockerRegistry(getDockerRegistry(map))
                     .build();
         } catch (Throwable t) {
@@ -187,7 +187,7 @@ public class DefaultConfiguration implements Configuration {
         return dockerRegistry;
     }
 
-    private static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
+    public static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(DOCKER_REGISTY)) {
             return map.get(DOCKER_REGISTY);
         }
@@ -211,7 +211,7 @@ public class DefaultConfiguration implements Configuration {
      *
      * @param map The arquillian configuration.
      */
-    private static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
+    public static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(ENVIRONMENT_CONFIG_URL)) {
             return new URL(map.get(ENVIRONMENT_CONFIG_URL));
         } else if (map.containsKey(ENVIRONMENT_CONFIG_RESOURCE_NAME)) {
@@ -233,7 +233,16 @@ public class DefaultConfiguration implements Configuration {
         return resourceName.startsWith("/") ? DefaultConfiguration.class.getResource(resourceName) : DefaultConfiguration.class.getResource("/" + resourceName);
     }
 
-    private static String getStringProperty(String name, Map<String, String> map, String defaultValue) {
+
+    /**
+     * Gets a property from system, environment or an external map.
+     * The lookup order is system > env > map > defaultValue.
+     * @param name              The name of the property.
+     * @param map               The external map.
+     * @param defaultValue      The value that should be used if property is not found.
+     * @return
+     */
+    public static String getStringProperty(String name, Map<String, String> map, String defaultValue) {
         if (map.containsKey(name)) {
             return map.get(name);
         } else {
@@ -241,7 +250,23 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
-    private static Boolean getBooleanProperty(String name, Map<String, String> map, Boolean defaultValue) {
+
+    /**
+     * Gets a property from system, environment or an external map. This method supports also passing an alternative name.
+     * The reason for supporting multiple names, is to support multiple keys for the same property (e.g. adding a new and deprecating the old).
+     * The lookup order is system[name] > env[name] > map[name] > system[alternativeName] > env[alternativeName] > map[alternativeName] > defaultValue.
+     * @param name              The name of the property.
+     * @param alternativeName   An alternate name to use.
+     * @param map               The external map.
+     * @param defaultValue      The value that should be used if property is not found.
+     * @return
+     */
+    public static String getStringProperty(String name, String alternativeName, Map<String, String> map, String defaultValue) {
+        return getStringProperty(name, map, getStringProperty(alternativeName, map, defaultValue));
+    }
+
+
+    public static Boolean getBooleanProperty(String name, Map<String, String> map, Boolean defaultValue) {
         if (map.containsKey(name)) {
             return Boolean.parseBoolean(map.get(name));
         } else {
@@ -249,7 +274,7 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
-    private static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
+    public static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
         if (map.containsKey(name)) {
             return Long.parseLong(map.get(name));
         } else {
@@ -257,7 +282,7 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
-    private static URL[] asURL(List<String> stringUrls) {
+    public static URL[] asURL(List<String> stringUrls) {
         List<URL> urls = new ArrayList<>();
         for (String stringUrl : stringUrls) {
             try {
