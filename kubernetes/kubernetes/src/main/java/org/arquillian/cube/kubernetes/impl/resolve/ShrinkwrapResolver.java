@@ -2,9 +2,7 @@ package org.arquillian.cube.kubernetes.impl.resolve;
 
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.impl.log.SimpleLogger;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
 import java.io.File;

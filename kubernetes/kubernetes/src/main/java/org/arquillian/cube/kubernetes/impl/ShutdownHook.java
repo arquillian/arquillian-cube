@@ -25,6 +25,6 @@ public class ShutdownHook extends Thread {
 
     @Override
     public void run() {
-        delegate.run();;
+        delegate.run();
     }
 }

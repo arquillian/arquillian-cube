@@ -2,8 +2,6 @@ package org.arquillian.cube.kubernetes.impl.locator;
 
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
