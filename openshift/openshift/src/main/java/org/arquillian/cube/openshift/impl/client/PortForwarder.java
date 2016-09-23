@@ -205,7 +205,7 @@ public final class PortForwarder implements Closeable {
             }.setup(result.getResponseChannel());
 
             // Create the upgraded SPDY connection
-            ByteBufferPool heapBufferPool = new XnioByteBufferPool(new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8196, 8196));
+            ByteBufferPool heapBufferPool = new XnioByteBufferPool(new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR,17 * 1024, 17 * 1024 * 20));
             SpdyChannel spdyChannel = new SpdyChannelWithoutFlowControl(connection.performUpgrade(), bufferPool, null, heapBufferPool, true, OptionMap.EMPTY);
             Integer idleTimeout = DEFAULT_OPTIONS.get(UndertowOptions.IDLE_TIMEOUT);
             if (idleTimeout != null && idleTimeout > 0) {
