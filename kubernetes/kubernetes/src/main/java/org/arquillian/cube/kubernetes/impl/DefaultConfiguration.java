@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.client.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
+import org.arquillian.cube.kubernetes.api.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,12 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED;
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_POLL_INTERVAL;
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_TIMEOUT;
-
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false)
-public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.Configuration {
+public class DefaultConfiguration implements Configuration {
 
     private final String sessionId;
     private final String namespace;
@@ -63,7 +60,7 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
                     .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                     .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
                     .withWaitForServiceConnectionEnabled(getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION_ENABLED, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED))
-                    .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+                    .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT))
                     .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                     .withKubernetesDomain(getStringProperty(KUBERNETES_DOMAIN, map, null))
                     .withDockerRegistry(getDockerRegistry(map))
