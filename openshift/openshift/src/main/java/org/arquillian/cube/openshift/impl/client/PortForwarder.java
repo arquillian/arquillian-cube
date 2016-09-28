@@ -115,13 +115,6 @@ public final class PortForwarder implements Closeable {
             connection.sendRequest(request, new ClientCallback<ClientExchange>() {
                 @Override
                 public void completed(ClientExchange result) {
-                    // connection hangs if no content is sent: UNDERTOW-607
-                    try {
-                        undertow607(result, holder, latch);
-                    } catch (IOException e) {
-                        holder[0] = e;
-                        latch.countDown();
-                    }
                     result.setResponseListener(new ClientCallback<ClientExchange>() {
                         @Override
                         public void completed(ClientExchange result) {
@@ -221,24 +214,6 @@ public final class PortForwarder implements Closeable {
             connection = new SpdyClientConnection(spdyChannel, null);
         } else {
             throw new IOException("Failed to upgrade connection");
-        }
-    }
-
-    private void undertow607(ClientExchange result, final IOException[] holder, final CountDownLatch latch)
-            throws IOException {
-        result.getRequestChannel().shutdownWrites();
-        if (!result.getRequestChannel().flush()) {
-            result.getRequestChannel()
-                    .getWriteSetter()
-                    .set(ChannelListeners.flushingChannelListener(null,
-                            new ChannelExceptionHandler<StreamSinkChannel>() {
-                                @Override
-                                public void handleException(StreamSinkChannel channel, IOException exception) {
-                                    holder[0] = exception;
-                                    latch.countDown();
-                                }
-                            }));
-            result.getRequestChannel().resumeWrites();
         }
     }
 
