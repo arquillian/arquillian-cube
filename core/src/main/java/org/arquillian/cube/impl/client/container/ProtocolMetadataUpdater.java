@@ -1,5 +1,6 @@
 package org.arquillian.cube.impl.client.container;
 
+import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -26,7 +27,7 @@ public class ProtocolMetadataUpdater {
         boolean updated = false;
 
         try {
-            Cube<?> cube = registry.getCube(container.getName());
+            Cube<?> cube = registry.getCube(ContainerUtil.getCubeIDForContainer(container));
             if(cube == null) {
                 return;
             }

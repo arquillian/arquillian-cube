@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.container.spi.Container;
@@ -40,7 +41,7 @@ public class CubeDockerAutoStartConfigurator {
         List<String> containerNames = new ArrayList<>();
 
         for (Container container : containers) {
-            containerNames.add(container.getName());
+            containerNames.add(ContainerUtil.getCubeIDForContainer(container));
         }
 
         return containerNames;

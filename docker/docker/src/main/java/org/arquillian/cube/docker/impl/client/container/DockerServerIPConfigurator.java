@@ -41,7 +41,7 @@ public class DockerServerIPConfigurator {
         if (container == null) {
             return;
         }
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(org.arquillian.cube.impl.util.ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
