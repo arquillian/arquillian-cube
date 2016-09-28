@@ -86,6 +86,13 @@ To cover cases like this the **env.dependencies** is provided which accepts a sp
 
 **Also:** If your project is using maven and dependencies like the above are expressed in the pom, the will be used *automatically*. (work in progress)
 
+[IMPORTANT]
+====
+Arquillian Cube Kubernetes needs to authenticate into Kubernetes.
+To do it, Cube reads from `~/.kube/config` user information.
+
+For example in case of OpenShift you can use `oc login --username=admin --password=admin` for creating a token for connecting as admin, or `oc config set-credentials myself --username=admin --password=admin` for statically add the username and password. 
+====
 
 === Readiness and waiting
 Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
