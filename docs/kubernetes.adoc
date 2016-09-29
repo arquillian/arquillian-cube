@@ -90,9 +90,11 @@ To cover cases like this the **env.dependencies** is provided which accepts a sp
 [IMPORTANT]
 ====
 Arquillian Cube Kubernetes needs to authenticate into Kubernetes.
-To do it, Cube reads from `~/.kube/config` user information.
+To do it, Cube reads from `~/.kube/config` user information (token, password).
 
-For example in case of OpenShift you can use `oc login --username=admin --password=admin` for creating a token for connecting as admin, or `oc config set-credentials myself --username=admin --password=admin` for statically add the username and password. 
+For example in case of OpenShift you can use `oc login --username=admin --password=admin` for creating a token for connecting as admin, or `oc config set-credentials myself --username=admin --password=admin` for statically add the username and password and will communicate with Kubernetes to update the `~/.kube/config` file with the info provided.
+
+You can read more about Kubernetes config file at http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/
 ====
 
 === Readiness and waiting
