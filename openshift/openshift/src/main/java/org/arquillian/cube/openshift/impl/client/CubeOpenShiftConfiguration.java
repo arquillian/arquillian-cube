@@ -1,36 +1,51 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.sundr.builder.annotations.Buildable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
+import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
+
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false)
 public class CubeOpenShiftConfiguration {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
 
-    private static final String ORIGIN_SERVER = "originServer";
+    //Deprecated Property Names: {
+        private static final String ORIGIN_SERVER = "originServer";
+    // }
+
+    private static final String MASTER_URL = "master.url";
     private static final String NAMESPACE = "namespace";
     private static final String KEEP_ALIVE_GIT_SERVER = "keepAliveGitServer";
     private static final String DEFINITIONS_FILE = "definitionsFile";
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
-    private static final String PROXIED_COTNAINER_PORTS = "proxiedContainerPorts";
+    private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
 
-    private String originServer;
-    private String namespace;
-    private boolean keepAliveGitServer = true;
-    private String definitions;
-    private String definitionsFile;
-    private String[] autoStartContainers;
-    private Set<String> proxiedContainerPorts;
+    private final String originServer;
+    private final String namespace;
+    private final boolean keepAliveGitServer;
+    private final String definitions;
+    private final String definitionsFile;
+    private final String[] autoStartContainers;
+    private final Set<String> proxiedContainerPorts;
+
+    public CubeOpenShiftConfiguration(String originServer, String namespace, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts) {
+        this.originServer = originServer;
+        this.namespace = namespace;
+        this.keepAliveGitServer = keepAliveGitServer;
+        this.definitions = definitions;
+        this.definitionsFile = definitionsFile;
+        this.autoStartContainers = autoStartContainers;
+        this.proxiedContainerPorts = proxiedContainerPorts;
+    }
 
     public String getOriginServer() {
         return originServer;
@@ -38,6 +53,18 @@ public class CubeOpenShiftConfiguration {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public boolean isKeepAliveGitServer() {
+        return keepAliveGitServer;
+    }
+
+    public String getDefinitionsFile() {
+        return definitionsFile;
+    }
+
+    public String getDefinitions() {
+        return definitions;
     }
 
     public boolean shouldKeepAliveGitServer() {
@@ -58,60 +85,43 @@ public class CubeOpenShiftConfiguration {
         return proxiedContainerPorts;
     }
 
-    public static CubeOpenShiftConfiguration fromMap(Map<String, String> config) {
 
-        CubeOpenShiftConfiguration conf = new CubeOpenShiftConfiguration();
-        conf.originServer = getRequired(config, ORIGIN_SERVER);
-        conf.namespace = getRequired(config, NAMESPACE);
-        conf.definitions = config.get(DEFINITIONS);
-        conf.definitionsFile = config.get(DEFINITIONS_FILE);
-        if (config.containsKey(KEEP_ALIVE_GIT_SERVER)) {
-            conf.keepAliveGitServer = Boolean.parseBoolean(config.get(KEEP_ALIVE_GIT_SERVER));
+    private static String[] split(String str, String regex) {
+        if (str == null || str.isEmpty()) {
+            return new String[0];
+        } else {
+            return str.split(regex);
         }
-        if (config.containsKey(AUTO_START_CONTAINERS)) {
-            conf.autoStartContainers = config.get(AUTO_START_CONTAINERS).split(",");
-        }
-        if (conf.definitions == null && conf.definitionsFile == null) {
-            throw new IllegalArgumentException(
-                    DEFINITIONS + " or " + DEFINITIONS_FILE + " configuration option is required");
-        }
-        if (conf.definitionsFile != null) {
-            if (!new File(conf.definitionsFile).exists()) {
-                throw new IllegalArgumentException("No " + DEFINITIONS_FILE + " file found at " + conf.definitionsFile);
-            }
-        }
-        if (config.containsKey(PROXIED_COTNAINER_PORTS)) {
-            conf.proxiedContainerPorts = new HashSet<String>(Arrays.asList(config.get(PROXIED_COTNAINER_PORTS).split(",")));
-        }
-        return conf;
     }
 
-    private static String getRequired(Map<String, String> config, String key) {
-        if (!config.containsKey(key)) {
-            throwOptionRequired(key);
-        }
-        return config.get(key);
-    }
+    public static CubeOpenShiftConfiguration fromMap(Map<String, String> map) {
+        try {
+            CubeOpenShiftConfiguration conf = new CubeOpenShiftConfigurationBuilder()
+                    .withOriginServer(getStringProperty(MASTER_URL, ORIGIN_SERVER, map, FALLBACK_CONFIG.getMasterUrl()))
+                    .withNamespace(getStringProperty(NAMESPACE, map, FALLBACK_CONFIG.getNamespace()))
+                    .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, true))
+                    .withDefinitions(getStringProperty(DEFINITIONS, map, null))
+                    .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
+                    .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
+                    .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
+                    .build();
 
-    private static void throwOptionRequired(String key) {
-        throw new IllegalArgumentException(key + " configuration option is required");
-    }
-
-    public Object getDefinitions() {
-        if (definitions != null) {
-            try {
-                return OBJECT_MAPPER.readerFor(KubernetesResource.class).readValue(definitions);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not read " + DEFINITIONS, e);
+            if (conf.getDefinitions() == null && conf.getDefinitionsFile() == null) {
+                throw new IllegalArgumentException(
+                        DEFINITIONS + " or " + DEFINITIONS_FILE + " configuration option is required");
             }
-        } else if (definitionsFile != null) {
-            try {
-                return OBJECT_MAPPER.readerFor(KubernetesResource.class).readValue(new FileInputStream(definitionsFile));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not read " + DEFINITIONS_FILE + " at " + definitionsFile, e);
+            if (conf.getDefinitionsFile() != null) {
+                if (!new File(conf.definitionsFile).exists()) {
+                    throw new IllegalArgumentException("No " + DEFINITIONS_FILE + " file found at " + conf.definitionsFile);
+                }
+            }
+            return conf;
+        } catch (Throwable t) {
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else {
+                throw new RuntimeException(t);
             }
         }
-        // Technically should not happen, validated during creation.
-        throw new IllegalStateException(DEFINITIONS + " or " + DEFINITIONS_FILE + " not provided.");
     }
 }
