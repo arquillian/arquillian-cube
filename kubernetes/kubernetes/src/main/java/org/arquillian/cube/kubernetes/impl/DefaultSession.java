@@ -16,7 +16,7 @@ public class DefaultSession implements Session {
     private final String namespace;
     private final AtomicInteger passed = new AtomicInteger();
     private final AtomicInteger failed = new AtomicInteger();
-    private final AtomicInteger skiped = new AtomicInteger();
+    private final AtomicInteger skipped = new AtomicInteger();
 
     public DefaultSession(String id, String namespace, Logger logger) {
         this.id = id;
@@ -55,7 +55,7 @@ public class DefaultSession implements Session {
         return failed;
     }
 
-    public AtomicInteger getSkiped() {
-        return skiped;
+    public AtomicInteger getSkipped() {
+        return skipped;
     }
 }

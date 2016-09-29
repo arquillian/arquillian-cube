@@ -12,6 +12,7 @@ import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
+import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -118,9 +119,9 @@ public class MockTest {
         System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, masterUrl);
         System.setProperty(Config.KUBERNETES_TRUST_CERT_SYSTEM_PROPERTY, "true");
         System.setProperty(Config.KUBERNETES_NAMESPACE_SYSTEM_PROPERTY, "arquillian");
-        System.setProperty(Constants.NAMESPACE_TO_USE, "arquillian");
-        System.setProperty(Constants.NAMESPACE_CLEANUP_ENABLED, "true");
-        System.setProperty(Constants.ENVIRONMENT_CONFIG_URL, MockTest.class.getResource("/test-kubernetes-1.json").toString());
+        System.setProperty(Configuration.NAMESPACE_TO_USE, "arquillian");
+        System.setProperty(Configuration.NAMESPACE_CLEANUP_ENABLED, "true");
+        System.setProperty(Configuration.ENVIRONMENT_CONFIG_URL, MockTest.class.getResource("/test-kubernetes-1.json").toString());
     }
 
     @AfterClass

@@ -62,7 +62,7 @@ public class TestListener {
                 session.getFailed().incrementAndGet();
                 break;
             case SKIPPED:
-                session.getSkiped().incrementAndGet();
+                session.getSkipped().incrementAndGet();
         }
     }
 

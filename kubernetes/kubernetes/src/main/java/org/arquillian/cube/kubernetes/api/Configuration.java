@@ -9,9 +9,16 @@ import java.util.List;
 
 public interface Configuration {
 
-    String KUBERNETES_MASTER = "kubernetes.master";
-    String KUBERNETES_NAMESPACE = "kubernetes.namespace";
-    String KUBERNETES_DOMAIN = "kubernetes.domain";
+    //Deprecated Property Names: {
+        String KUBERNETES_MASTER = "kubernetes.master";
+        String KUBERNETES_NAMESPACE = "kubernetes.namespace";
+        String KUBERNETES_DOMAIN = "kubernetes.domain";
+    // }
+
+    String MASTER_URL = "master.url";
+    String NAMESPACE = "namespace";
+    String DOMAIN = "domain";
+
     String DOCKER_REGISTY = "docker.registry";
     String DOCKER_REGISTRY_HOST = "DOCKER_REGISTRY_HOST";
     String DOCKER_REGISTRY_PORT = "DOCKER_REGISTRY_PORT";
@@ -39,15 +46,18 @@ public interface Configuration {
 
     String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
 
-        // Non-config constants
-    String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
-    String PROTOCOL_HANDLERS = "protocolHandlers";
-    String DEFAULT_MAVEN_PROTOCOL_HANDLER = "org.ops4j.pax.url";
 
+    /**
+     * We often won't be able to connect to the services from the JUnit test case
+     * unless the user explicitly knows its OK and allows it. (e.g. there may not be a network route)
+     */
+    Boolean DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED = false;
+    Long DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT = 10 * 1000L;
+    Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
+    Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
     Long DEFAULT_NAMESPACE_CLEANUP_TIMEOUT = 0L;
-    Boolean DEFAULT_NAMESPACE_CLEANUP_ENABLED = true;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
 
     Config FALLBACK_CLIENT_CONFIG = new ConfigBuilder().build();

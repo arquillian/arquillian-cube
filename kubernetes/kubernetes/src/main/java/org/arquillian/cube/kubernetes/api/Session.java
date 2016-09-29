@@ -10,6 +10,6 @@ public interface Session {
 
     AtomicInteger getPassed();
     AtomicInteger getFailed();
-    AtomicInteger getSkiped();
+    AtomicInteger getSkipped();
 
 }

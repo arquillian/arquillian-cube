@@ -2,8 +2,6 @@ package org.arquillian.cube.kubernetes.impl.annotation;
 
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.LabelProvider;
-import org.arquillian.cube.kubernetes.impl.label.DefaultLabelProvider;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;

@@ -4,20 +4,21 @@ import io.fabric8.kubernetes.client.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
+import org.arquillian.cube.kubernetes.api.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED;
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_POLL_INTERVAL;
-import static org.arquillian.cube.kubernetes.impl.Constants.DEFAULT_WAIT_TIMEOUT;
+import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
+import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
+import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
+import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false)
-public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.Configuration {
+public class DefaultConfiguration implements Configuration {
 
     private final String sessionId;
     private final String namespace;
@@ -51,7 +52,7 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
             return new DefaultConfigurationBuilder()
                     .withSessionId(sessionId)
                     .withNamespace(namespace)
-                    .withMasterUrl(new URL(getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
+                    .withMasterUrl(new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                     .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                     .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                     .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
@@ -63,9 +64,9 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
                     .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                     .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
                     .withWaitForServiceConnectionEnabled(getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION_ENABLED, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED))
-                    .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+                    .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT))
                     .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
-                    .withKubernetesDomain(getStringProperty(KUBERNETES_DOMAIN, map, null))
+                    .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                     .withDockerRegistry(getDockerRegistry(map))
                     .build();
         } catch (Throwable t) {
@@ -190,7 +191,7 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
         return dockerRegistry;
     }
 
-    private static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
+    public static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(DOCKER_REGISTY)) {
             return map.get(DOCKER_REGISTY);
         }
@@ -214,7 +215,7 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
      *
      * @param map The arquillian configuration.
      */
-    private static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
+    public static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(ENVIRONMENT_CONFIG_URL)) {
             return new URL(map.get(ENVIRONMENT_CONFIG_URL));
         } else if (map.containsKey(ENVIRONMENT_CONFIG_RESOURCE_NAME)) {
@@ -234,41 +235,5 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
 
     public static URL findConfigResource(String resourceName) {
         return resourceName.startsWith("/") ? DefaultConfiguration.class.getResource(resourceName) : DefaultConfiguration.class.getResource("/" + resourceName);
-    }
-
-    private static String getStringProperty(String name, Map<String, String> map, String defaultValue) {
-        if (map.containsKey(name)) {
-            return map.get(name);
-        } else {
-            return Utils.getSystemPropertyOrEnvVar(name, defaultValue);
-        }
-    }
-
-    private static Boolean getBooleanProperty(String name, Map<String, String> map, Boolean defaultValue) {
-        if (map.containsKey(name)) {
-            return Boolean.parseBoolean(map.get(name));
-        } else {
-            return Utils.getSystemPropertyOrEnvVar(name, defaultValue);
-        }
-    }
-
-    private static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
-        if (map.containsKey(name)) {
-            return Long.parseLong(map.get(name));
-        } else {
-            return Long.parseLong(Utils.getSystemPropertyOrEnvVar(name, String.valueOf(defaultValue)));
-        }
-    }
-
-    private static URL[] asURL(List<String> stringUrls) {
-        List<URL> urls = new ArrayList<>();
-        for (String stringUrl : stringUrls) {
-            try {
-                urls.add(new URL(stringUrl));
-            } catch (MalformedURLException e) {
-                //Just ignore
-            }
-        }
-        return urls.toArray(new URL[urls.size()]);
     }
 }
