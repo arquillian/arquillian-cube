@@ -23,6 +23,7 @@ public interface Configuration {
     String NAMESPACE_CLEANUP_CONFIRM_ENABLED = "namespace.cleanup.confirm.enabled";
     String NAMESPACE_CLEANUP_ENABLED = "namespace.cleanup.enabled";
     String NAMESPACE_TO_USE = "namespace.use.existing";
+    String NAMESPACE_PREFIX = "namespace.prefix";
 
     String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";
     String ENVIRONMENT_CONFIG_URL = "env.config.url";
@@ -49,7 +50,6 @@ public interface Configuration {
     Boolean DEFAULT_NAMESPACE_CLEANUP_ENABLED = true;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
 
-    String NAMESPACE_PREFIX = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable("ARQUILLIAN_NAMESPACE_PREFIX", "itest-");
     Config FALLBACK_CLIENT_CONFIG = new ConfigBuilder().build();
 
 

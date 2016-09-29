@@ -27,6 +27,7 @@ public class Constants {
     public static final String NAMESPACE_CLEANUP_CONFIRM_ENABLED = "namespace.cleanup.confirm.enabled";
     public static final String NAMESPACE_CLEANUP_ENABLED = "namespace.cleanup.enabled";
     public static final String NAMESPACE_TO_USE = "namespace.use.existing";
+    public static final String NAMESPACE_PREFIX = "namespace.prefix";
 
     public static final String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";
     public static final String ENVIRONMENT_CONFIG_URL = "env.config.url";

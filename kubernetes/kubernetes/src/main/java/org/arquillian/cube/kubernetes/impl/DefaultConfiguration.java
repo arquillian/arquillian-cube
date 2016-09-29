@@ -44,16 +44,19 @@ public class DefaultConfiguration implements org.arquillian.cube.kubernetes.api.
     public static DefaultConfiguration fromMap(Map<String, String> map) {
         try {
             String sessionId = UUID.randomUUID().toString();
-            String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+            String namespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+            if (Strings.isNullOrEmpty(namespace)) {
+                namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
+            }
             return new DefaultConfigurationBuilder()
                     .withSessionId(sessionId)
-                    .withNamespace(Strings.isNotNullOrEmpty(existingNamespace) ? existingNamespace : NAMESPACE_PREFIX + sessionId)
+                    .withNamespace(namespace)
                     .withMasterUrl(new URL(getStringProperty(KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                     .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                     .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                     .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
                     .withNamespaceLazyCreateEnabled(getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
-                    .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, Strings.isNullOrEmpty(existingNamespace)))
+                    .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, namespace.contains(sessionId)))
                     .withNamespaceCleanupConfirmationEnabled(getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                     .withNamespaceCleanupTimeout(getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
                     .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
