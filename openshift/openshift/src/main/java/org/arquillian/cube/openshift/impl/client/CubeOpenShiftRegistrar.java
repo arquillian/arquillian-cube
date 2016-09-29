@@ -1,36 +1,44 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import org.arquillian.cube.openshift.impl.model.BuildablePodCube;
 import org.arquillian.cube.openshift.impl.model.ServiceCube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Service;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class CubeOpenShiftRegistrar {
 
-    public void register(@Observes OpenShiftClient client, CubeRegistry registry, CubeOpenShiftConfiguration configuration, Injector injector) {
-        Object model = configuration.getDefinitions();
-
-        if (model instanceof KubernetesList) {
-            KubernetesList list = (KubernetesList) model;
-            for(HasMetadata meta : list.getItems()) {
-                register(meta, registry, client, configuration, injector);
+    public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final CubeOpenShiftConfiguration configuration, final Injector injector) {
+        for (HasMetadata item : client.getClientExt().load(getDefinitionStream(configuration)).get()) {
+            if (item instanceof Pod) {
+                registry.addCube(injector.inject(new BuildablePodCube((Pod) item, client, configuration)));
+            } else if (item instanceof Service) {
+                registry.addCube(injector.inject(new ServiceCube((Service) item, client, configuration)));
             }
-        } else {
-            register(model, registry, client, configuration, injector);
+
         }
     }
 
-    private void register(Object model, CubeRegistry registry, OpenShiftClient client, CubeOpenShiftConfiguration configuration, Injector injector) {
-        if (model instanceof Pod) {
-            registry.addCube(injector.inject(new BuildablePodCube((Pod) model, client, configuration)));
-        } else if (model instanceof Service) {
-            registry.addCube(injector.inject(new ServiceCube((Service) model, client, configuration)));
+    private InputStream getDefinitionStream(CubeOpenShiftConfiguration conf) {
+        try {
+            if (conf.getDefinitions() != null && !conf.getDefinitions().isEmpty()) {
+                return new ByteArrayInputStream(conf.getDefinitions().getBytes(StandardCharsets.UTF_8));
+            } else if (conf.getDefinitionsFile() != null && !conf.getDefinitionsFile().isEmpty()) {
+                return new FileInputStream(conf.getDefinitionsFile());
+            }
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("No definitions file found at " + conf.getDefinitionsFile());
         }
+        //We've already check both
+        throw new IllegalStateException("Neither definitions nor definitionsFile has been configured.");
     }
 }
