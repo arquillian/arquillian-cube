@@ -99,7 +99,7 @@ public class CubeOpenShiftConfiguration {
             CubeOpenShiftConfiguration conf = new CubeOpenShiftConfigurationBuilder()
                     .withOriginServer(getStringProperty(MASTER_URL, ORIGIN_SERVER, map, FALLBACK_CONFIG.getMasterUrl()))
                     .withNamespace(getStringProperty(NAMESPACE, map, FALLBACK_CONFIG.getNamespace()))
-                    .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, true))
+                    .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, false))
                     .withDefinitions(getStringProperty(DEFINITIONS, map, null))
                     .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
                     .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
