@@ -269,7 +269,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
     }
 
     private void setError(String error) {
-        if (!error.trim().equals(""))
+        if (error != null && !error.trim().equals(""))
             System.err.println("Port forwarding error: " + error);
         errorComplete.countDown();
     }
