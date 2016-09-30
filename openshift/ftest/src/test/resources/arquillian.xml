@@ -7,6 +7,7 @@
 		<property name="originServer">https://192.168.215.151:8443</property>
 		<property name="namespace">demo</property>
 		<property name="definitionsFile">src/test/resources/hello_pod.json</property>
+		<property name="proxiedContainerPorts">hello-openshift:9990</property>
 	</extension>
 
 	<container qualifier="hello-openshift" default="true">

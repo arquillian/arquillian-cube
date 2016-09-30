@@ -43,7 +43,7 @@ public class OpenShiftClient {
         this.kubernetes = new DefaultKubernetesClient(config);
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
-        this.gitserver = new GitServer(this.getClient(), namespace);
+        this.gitserver = new GitServer(this.getClient(), config, namespace);
     }
 
     public List<Exception> clean(ResourceHolder holder) {

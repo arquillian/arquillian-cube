@@ -2,6 +2,9 @@ package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 
 import java.io.File;
@@ -14,29 +17,30 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 
 public class GitServer {
-
-    private static int PORT = 6768;
-
+    private static final String GIT_SERVICE = "git";
+    private static final String GIT_LOCALPORT = "10001";
+    private static final String GIT_REMOTEPORT = "8080";
     private NamespacedKubernetesClient client;
     private String namespace;
     private Pod server;
+    private PortForwarder forwarder;
+    private Config config;
+    private Service service;
 
-    public GitServer(NamespacedKubernetesClient client, String namespace) {
+    public GitServer(NamespacedKubernetesClient client, Config config, String namespace) {
         this.client = client;
+        this.config = config;
         this.namespace = namespace;
     }
 
     public URI push(File source, String name) throws Exception {
         init();
 
-        URI server = getServerURI();
-
-        String id = name;
-        String repoUrl = server.toASCIIString() + "/" + id;
-
-        File gitRoot = new File("target", id);
+        File gitRoot = new File("target", name);
         FileUtils.copyDirectory(source, gitRoot);
 
+        // Push via port forward
+        String repoUrl = String.format("http://localhost:%s/%s", GIT_LOCALPORT, name);
         Git git = Git.init().setDirectory(gitRoot).call();
         Repository repo = git.getRepository();
         repo.getConfig().setString("remote", "origin", "url", repoUrl);
@@ -47,11 +51,19 @@ public class GitServer {
         git.push().setRemote("origin").setPushAll().setForce(true).call();
         repo.close();
 
-        return URI.create(repoUrl);
+        // Return an internal service name, for use within the openshift network
+        String serverUrl = String.format("http://%s:%s/%s", GIT_SERVICE, GIT_REMOTEPORT, name);
+        return URI.create(serverUrl);
 
     }
 
     public void shutdown() throws Exception {
+        if (forwarder != null) {
+            forwarder.close();
+        }
+        if (service != null) {
+            client.services().inNamespace(namespace).withName(service.getMetadata().getName()).delete();
+        }
         if (server != null) {
             client.pods().inNamespace(namespace).withName(server.getMetadata().getName()).delete();
             client.secrets().inNamespace(namespace).withName("gitserver-config").delete();
@@ -59,24 +71,28 @@ public class GitServer {
     }
 
     private void init() throws Exception {
+        createService();
+
         if (server == null) {
             server = getSpec();
 
             server = client.pods().inNamespace(namespace).withName(server.getMetadata().getName()).get();
             if (server == null) {
                 server = client.pods().inNamespace(namespace).create(getSpec());
+                server = ResourceUtil.waitForStart(client, server);
             }
-            server = ResourceUtil.waitForStart(client, server);
         }
-    }
-
-    private URI getServerURI() {
-        return URI.create("http://" + server.getStatus().getHostIP() + ":" + PORT);
+        if (forwarder != null) {
+            forwarder.close();
+        }
+        forwarder = new PortForwarder(config, server.getMetadata().getName());
+        forwarder.forwardPort(Integer.valueOf(GIT_LOCALPORT), Integer.valueOf(GIT_REMOTEPORT));
     }
 
 	private Pod getSpec() {
 		Map<String, String> labels = new HashMap<String, String>();
 		labels.put("generatedby", "arquillian");
+		labels.put("pod", "arquillian-gitserver");
 
 		return new PodBuilder()
 				.withNewMetadata()
@@ -88,15 +104,48 @@ public class GitServer {
 					.withName("arquillian-gitserver")
 					.withImage("aslakknutsen/openshift-arquillian-gitserver")
 					.addNewPort()
-						.withHostPort(PORT)
-						.withContainerPort(8080)
+						.withContainerPort(Integer.valueOf(GIT_REMOTEPORT))
 						.endPort()
 					.addNewEnv()
 						.withName("GIT_HOME")
 						.withValue("/var/lib/git")
 						.endEnv()
+					// This volume is necessary in order to override the image volume, otherwise
+					// we wouldn't have permission to write in that directory
+					.addNewVolumeMount("/var/lib/git", "git-repo", false)
 				.endContainer()
+			.addNewVolume()
+			    .withName("git-repo")
+			    .withNewEmptyDir("Memory")
+			    .endVolume()
 				.endSpec()
 			.build();
 	}
+
+    private void createService() {
+        if (service != null)
+            return;
+
+        Map<String, String> labels = new HashMap<String, String>();
+        labels.put("generatedby", "arquillian");
+
+        Service svc = client.services().inNamespace(namespace).withName(GIT_SERVICE).get();
+        if (svc == null) {
+            svc = new ServiceBuilder()
+                    .withNewMetadata()
+                    .withName(GIT_SERVICE)
+                    .withLabels(labels)
+                    .endMetadata()
+                .withNewSpec()
+                    .addNewPort()
+                        .withPort(Integer.valueOf(GIT_REMOTEPORT))
+                        .withNewTargetPort(Integer.valueOf(GIT_REMOTEPORT))
+                        .endPort()
+                    .addToSelector("pod", "arquillian-gitserver")
+                .and()
+                .build();
+            client.services().inNamespace(namespace).create(svc);
+        }
+        service = svc;
+    }
 }
