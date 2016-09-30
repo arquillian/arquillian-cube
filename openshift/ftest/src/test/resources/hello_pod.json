@@ -13,16 +13,23 @@
 			"image": "arquillian:./src/test/resources/wildfly",
             "ports": [
                 {
-                    "hostPort": 8080,
                     "containerPort": 8080,
                     "protocol": "TCP"
                 },
                 {
-                    "hostPort": 9990,
                     "containerPort": 9990,
                     "protocol": "TCP"
                 }
-            ]
+            ],
+			"readinessProbe" : {
+				"exec": {
+					"command": [
+					    "/bin/bash",
+					    "-c",
+					    "curl -s --digest -u \"admin:Admin#70365\" -L http://localhost:9990/management --header \"Content-Type: application/json\" -d '{\"operation\":\"read-attribute\",\"name\":\"server-state\",\"json.pretty\":1}' | grep -iq running"
+					]
+				}
+			}
 		}]
 	}
 }
