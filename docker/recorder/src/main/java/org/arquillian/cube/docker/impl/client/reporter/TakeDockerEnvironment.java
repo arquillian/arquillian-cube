@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.layout.mxIGraphLayout;
@@ -10,29 +11,42 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
 import org.arquillian.extension.recorder.When;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
 import org.arquillian.recorder.reporter.event.PropertyReportEvent;
+import org.arquillian.recorder.reporter.model.entry.FileEntry;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.event.suite.After;
+import org.jboss.arquillian.test.spi.event.suite.Before;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,6 +61,9 @@ public class TakeDockerEnvironment {
     @Inject
     Event<org.arquillian.recorder.reporter.event.PropertyReportEvent> propertyReportEvent;
 
+    @Inject
+    private Instance<CubeRegistry> cubeRegistryInstance;
+
     public void reportDockerEnvironment(@Observes AfterAutoStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
 
         GroupEntry docker = new GroupEntry("Cube Environment");
@@ -58,8 +75,65 @@ public class TakeDockerEnvironment {
         docker.getPropertyEntries().add(containersComposition);
 
         propertyReportEvent.fire(new PropertyReportEvent(docker));
-
     }
+
+    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor) {
+        generateStats(executor, false, "Before");
+    }
+
+    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, ReporterConfiguration configuration) {
+        generateStats(executor, false, "After");
+    }
+
+    private void generateStats(DockerClientExecutor executor, Boolean decimal, String when) {
+        if (executor != null) {
+            List<Cube<?>> containers = cubeRegistryInstance.get().getCubes();
+
+            GroupEntry containersStat = new GroupEntry("Container Statistics " + when + " Method");
+
+            for (Cube<?> container : containers) {
+                String name = container.getId();
+                Statistics statistics = executor.statsContainer(name);
+                Map<String, Map> stats = getStats(statistics, decimal);
+                containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
+            }
+            propertyReportEvent.fire(new PropertyReportEvent(containersStat));
+        }
+    }
+
+    private GroupEntry createContainerStatGroup(Map<String, Map> stats, String id) {
+
+        GroupEntry containerStatsInfo = new GroupEntry(id + " Statistics");
+
+        for (Map.Entry<String, Map> stat : stats.entrySet()) {
+            GroupEntry info = new GroupEntry(stat.getKey() + " statistics");
+            for(Object entry : stat.getValue().entrySet()){
+                Map.Entry castEntry = (Map.Entry) entry;
+                addEntry(new KeyValueEntry(castEntry.getKey().toString(),castEntry.getValue().toString()), info);
+            }
+            containerStatsInfo.getPropertyEntries().add(info);
+         }
+
+        return containerStatsInfo;
+    }
+
+   public void reportLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
+        final String cubeId = beforeStop.getCubeId();
+        if (cubeId != null) {
+            final File logFile = new File(reporterConfiguration.getRootDir(), cubeId + ".log");
+            try {
+                executor.copyLog(beforeStop.getCubeId(), false, true, true, false, -1, new FileOutputStream(logFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            FileEntry fileEntry = new FileEntry();
+            fileEntry.setPath(logFile.getPath());
+            fileEntry.setType(".log");
+            fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
+            propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
+        }
+    }
+
 
     private GroupEntry createDockerCompositionSchema(CubeDockerConfiguration cubeDockerConfiguration, ReporterConfiguration reporterConfiguration) {
 
@@ -193,4 +267,59 @@ public class TakeDockerEnvironment {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
+    private Map<String, Map> getStats(Statistics statistics, Boolean decimal) {
+        Map<String, Map> stats = new LinkedHashMap<>();
+
+          if (statistics != null){
+              Map<String, String> network = extractStats(statistics.getNetwork(), decimal, "rx_bytes", "tx_bytes");
+              Map<String, String> memory = extractStats(statistics.getMemoryStats(), decimal, "usage", "max_usage", "limit");
+              Map<String, String> blkio = extractIORW(statistics.getBlkioStats(), decimal);
+              stats.put("network", network);
+              stats.put("memory", memory);
+              stats.put("block I/O", blkio);
+        }
+        return stats;
+    }
+
+    private Map<String, String> extractIORW(Map<String, Object> blkioStats, Boolean decimal) {
+
+        ArrayList<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
+        Map<String, String> blkrwStats = new LinkedHashMap<>();
+        long read = 0, write=0;
+        Iterator iterator = bios.iterator();
+        while (iterator.hasNext()){
+            Map<String, Object> m = (LinkedHashMap) iterator.next();
+            switch ((String) m.get("op")) {
+                case "Read":
+                    read = ((Integer) m.get("value")).longValue();
+                case "Write":
+                    write = ((Integer) m.get("value")).longValue();
+            }
+        }
+        blkrwStats.put("I/O Bytes Read", humanReadableByteCount(read, decimal));
+        blkrwStats.put("I/O Bytes Write", humanReadableByteCount(write, decimal));
+        return blkrwStats;
+    }
+
+    private Map<String, String> extractStats(Map<String, Object> map, boolean si, String... fields) {
+        Map<String, String> newMap = new LinkedHashMap<>();
+        for (String field: fields) {
+            Object number = map.get(field);
+            if( map.get(field) instanceof Integer){
+                number = ((Integer) number).longValue();
+            }
+            newMap.put(field, humanReadableByteCount((long)(number), si));
+        }
+        return newMap;
+    }
+
+    private String humanReadableByteCount(Long bytes, boolean decimal) {
+
+        int unit = decimal ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
+
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
 }

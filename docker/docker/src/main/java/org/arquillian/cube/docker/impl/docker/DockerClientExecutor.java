@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.command.InspectExecCmd;
 import com.github.dockerjava.api.command.InspectExecResponse;
 import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -53,6 +52,7 @@ import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.command.StatsCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -71,6 +71,7 @@ import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.VolumesFrom;
+import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
@@ -481,6 +482,25 @@ public class DockerClientExecutor {
         } finally {
             this.readWriteLock.readLock().unlock();
         }
+    }
+
+    public Statistics statsContainer(String id) {
+         this.readWriteLock.readLock().lock();
+
+        try {
+            StatsCmd statsCmd = this.dockerClient.statsCmd(id);
+            StatsLogsResultCallback statslogs = new StatsLogsResultCallback();
+            try {
+                statsCmd.exec(statslogs).awaitCompletion();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return statslogs.statistics;
+
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+
     }
 
     private Ports toPortBindings(Collection<PortBinding> portBindings) {
@@ -1022,5 +1042,26 @@ public class DockerClientExecutor {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private static class StatsLogsResultCallback extends ResultCallbackTemplate<StatsLogsResultCallback, Statistics>{
+
+        private Statistics statistics = null;
+
+        public StatsLogsResultCallback() {
+        }
+
+        @Override
+        public void onNext(Statistics statistics) {
+            if (statistics != null) {
+                this.statistics = statistics;
+                this.onComplete();
+            }
+        }
+
+        public Statistics getStatistics() {
+            return this.statistics;
+        }
+
     }
 }
