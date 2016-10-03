@@ -3,6 +3,7 @@ package org.arquillian.cube.impl.client.container;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
@@ -48,6 +50,9 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
     @Mock
     private Container container;
 
+    @Mock
+    private ContainerDef containerDef;
+
     @SuppressWarnings("rawtypes")
     @Mock
     private DeployableContainer deployableContainer;
@@ -67,6 +72,8 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
         when(cube.getId()).thenReturn(CUBE_ID);
         when(container.getName()).thenReturn(CUBE_ID);
         when(container.getDeployableContainer()).thenReturn(deployableContainer);
+        when(container.getContainerConfiguration()).thenReturn(containerDef);
+        when(containerDef.getContainerProperties()).thenReturn(Collections.EMPTY_MAP);
         when(containerRegistry.getContainers()).thenReturn(Arrays.asList(container));
         registry = new LocalCubeRegistry();
         registry.addCube(cube);
@@ -158,5 +165,16 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
         fire(new AfterStop(deployableContainer));
         assertEventFired(StopCube.class, 0);
         assertEventFired(DestroyCube.class, 0);
+    }
+
+    @Test
+    public void shouldUseOverriddenCubeId() {
+        Map<String, String> containerConfig = new HashMap<String, String>();
+        containerConfig.put("cubeId", CUBE_ID);
+
+        when(container.getName()).thenReturn(MISSING_CUBE_ID);
+        when(containerDef.getContainerProperties()).thenReturn(containerConfig);
+
+        shouldCreateAndStartCubeDuringBeforeStart();
     }
 }

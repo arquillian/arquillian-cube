@@ -13,6 +13,7 @@ import org.arquillian.cube.impl.client.container.remote.command.DestroyCubeComma
 import org.arquillian.cube.impl.client.container.remote.command.StartCubeCommand;
 import org.arquillian.cube.impl.client.container.remote.command.StopCubeCommand;
 import org.arquillian.cube.impl.client.container.remote.command.TopCommand;
+import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.container.spi.Container;
@@ -74,9 +75,9 @@ public class CubeRemoteCommandObserver {
         if(cubeRegistry == null) {
             throw new IllegalStateException("No CubeRegistry found in context, can't perform CubeID injection");
         }
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if(cube == null) {
-            throw new IllegalStateException("No Cube found mapped to current Container: " + container.getName());
+            throw new IllegalStateException(String.format("No Cube found mapped to current Container[%s] with CubeID[%s]", container.getName(), ContainerUtil.getCubeIDForContainer(container)));
         }
         command.setResult(cube.getId());
     }

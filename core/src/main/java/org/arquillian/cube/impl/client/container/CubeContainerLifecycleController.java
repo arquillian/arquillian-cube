@@ -32,7 +32,7 @@ public class CubeContainerLifecycleController {
             return;
         }
 
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
@@ -62,7 +62,7 @@ public class CubeContainerLifecycleController {
             return;
         }
 
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
