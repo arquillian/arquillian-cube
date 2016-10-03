@@ -69,11 +69,11 @@ public final class PortForwarder implements Closeable {
             final Xnio xnio = Xnio.getInstance();
             DEFAULT_OPTIONS = OptionMap.builder()
                     .set(Options.WORKER_NAME, String.format("PortForwarding for %s/%s", config.getNamespace(), podName))
-                    .set(Options.WORKER_IO_THREADS, 4)
-                    .set(Options.CONNECTION_HIGH_WATER, 100)
-                    .set(Options.CONNECTION_LOW_WATER, 100)
-                    .set(Options.WORKER_TASK_CORE_THREADS, 4)
-                    .set(Options.WORKER_TASK_MAX_THREADS, 32)
+                    .set(Options.WORKER_IO_THREADS, 16)
+                    .set(Options.CONNECTION_HIGH_WATER, 400)
+                    .set(Options.CONNECTION_LOW_WATER, 200)
+                    .set(Options.WORKER_TASK_CORE_THREADS, 16)
+                    .set(Options.WORKER_TASK_MAX_THREADS, 128)
                     .set(Options.TCP_NODELAY, true)
                     .set(Options.KEEP_ALIVE, true)
                     .set(Options.SSL_PROTOCOL, "TLS")
@@ -180,7 +180,7 @@ public final class PortForwarder implements Closeable {
 
     private AcceptingChannel<? extends StreamConnection> createServer(int sourcePort, int targetPort) throws IllegalArgumentException, IOException {
         OptionMap socketOptions = OptionMap.builder()
-                .set(Options.WORKER_IO_THREADS, 4)
+                .set(Options.WORKER_IO_THREADS, 16)
                 .set(Options.TCP_NODELAY, true)
                 .set(Options.REUSE_ADDRESSES, true)
                 .getMap();

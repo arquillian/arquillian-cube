@@ -20,8 +20,9 @@ public class SpdyChannelWithoutFlowControl extends SpdyChannel {
     @Override
     synchronized int grabFlowControlBytes(final int bytesToGrab) {
         //Doing by this way the window will always have space so the connection will not hang anymore.
-        currentWindowSize += initialWindowSize;
+        currentWindowSize += bytesToGrab;
         updateSettings(Collections.singletonList(new SpdySetting(0, SpdySetting.SETTINGS_INITIAL_WINDOW_SIZE, currentWindowSize)));
+        super.updateReceiveFlowControlWindow(currentWindowSize);
         // no flow control
         return super.grabFlowControlBytes(bytesToGrab);
     }
