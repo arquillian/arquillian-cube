@@ -209,4 +209,24 @@ public class DockerComposeConverterTest {
     assertThat(network.getDriver(), is("bridge"));
   }
 
+  @Test
+  public void shouldBuildImageFromContextProperty() throws URISyntaxException {
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-build-with-context-dir.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp");
+    assertThat(webapp.getBuildImage(), is(notNullValue()));
+  }
+
+  @Test
+  public void shouldBuildImageFromBuildProperty() throws URISyntaxException {
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-build-with-dockerfile.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp");
+    assertThat(webapp.getBuildImage(), is(notNullValue()));
+  }
+
 }

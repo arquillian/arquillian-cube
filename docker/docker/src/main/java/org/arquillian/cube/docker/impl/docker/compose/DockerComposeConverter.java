@@ -19,7 +19,7 @@ import org.yaml.snakeyaml.Yaml;
 public class DockerComposeConverter implements Converter {
 
     private static final String DOCKER_COMPOSE_VERSION_KEY = "version";
-    private static final String DOCKER_COMPOSE_VERSION_2_VALUE = "2";
+    public static final String DOCKER_COMPOSE_VERSION_2_VALUE = "2";
 
     private Map<String, Object> dockerComposeDefinitionMap = new HashMap<>();
     private Path dockerComposeRootDirectory;

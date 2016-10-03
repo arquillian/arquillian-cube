@@ -9,6 +9,7 @@ import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,6 +33,8 @@ import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -79,6 +82,7 @@ public class ContainerBuilder {
     private static final String DEVICES = "devices";
     private static final String CONTAINERNAME = "container_name";
     private static final String DEPENDS_ON = "depends_on";
+    private static final String CONTEXT = "context";
 
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
@@ -101,8 +105,12 @@ public class ContainerBuilder {
         this.configuration = configuration;
     }
 
-    @SuppressWarnings("unchecked")
     public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition) {
+        return build(dockerComposeContainerDefinition, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition, String version) {
         if(dockerComposeContainerDefinition.containsKey(EXTENDS)) {
             Map<String, Object> extendsDefinition = asMap(dockerComposeContainerDefinition, EXTENDS);
             this.extend(Paths.get(asString(extendsDefinition, "file")), asString(extendsDefinition, "service"));
@@ -111,8 +119,32 @@ public class ContainerBuilder {
             this.addImage(asString(dockerComposeContainerDefinition, IMAGE));
         }
         if (dockerComposeContainerDefinition.containsKey(BUILD)) {
-            String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
-            this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+            if (DockerComposeConverter.DOCKER_COMPOSE_VERSION_2_VALUE.equals(version)) {
+                Object o = dockerComposeContainerDefinition.get(BUILD);
+                if (o instanceof String) {
+                    String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                    this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+                } else if (o instanceof Map) {
+                    Map<String, Object> buildDefinition = asMap(dockerComposeContainerDefinition, BUILD);
+
+                    String context = buildDefinition.containsKey(CONTEXT) ? asString(buildDefinition, CONTEXT) : null;
+                    final String dockerfile = buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
+
+                    if (context != null && dockerfile != null) {
+                        File directory = new File(context);
+                        if (directory.isDirectory()) {
+                            this.addBuild(asString(buildDefinition, CONTEXT),
+                                    dockerfile);
+                        } else {
+                            File[] files = getDockerfileFromGit(context, dockerfile);
+                            this.addBuild(asString(buildDefinition, CONTEXT), files[0].getName());
+                        }
+                    }
+                }
+            } else {
+                String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+            }
         }
         if (dockerComposeContainerDefinition.containsKey(COMMAND)) {
             this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
@@ -237,6 +269,26 @@ public class ContainerBuilder {
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
+    }
+
+    private File[] getDockerfileFromGit(String uri, final String dockerfileName) {
+        Git git = cloneRepository(uri);
+        File repo = git.getRepository().getDirectory().getParentFile();
+        File gitRepository = new File(repo.getAbsolutePath());
+        return gitRepository.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().equals(dockerfileName);
+            }
+        });
+    }
+
+    private Git cloneRepository(String uri) {
+        try {
+            return Git.cloneRepository().setURI(uri).call();
+        } catch (GitAPIException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private ContainerBuilder addShmSize(long shmSize) {
