@@ -1,16 +1,23 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
+import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
 import org.arquillian.recorder.reporter.event.PropertyReportEvent;
+import org.arquillian.recorder.reporter.model.entry.FileEntry;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.test.spi.event.suite.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +44,8 @@ public class TakeDockerEnvironmentTest {
             "  networkMode: host\n" +
             "  portBindings: [8080->80/tcp, 8081->81/tcp]";
 
+    private static final String CUBE_ID = "tomcat";
+
     @Mock
     DockerClientExecutor dockerClientExecutor;
 
@@ -46,17 +55,37 @@ public class TakeDockerEnvironmentTest {
     @Mock
     Event<PropertyReportEvent> propertyReportEvent;
 
+    @Mock
+    private Cube cube;
+
     @Captor
     ArgumentCaptor<PropertyReportEvent> propertyReportEventArgumentCaptor;
 
+    private CubeRegistry cubeRegistry;
+
+    private Statistics statistics;
+
     @Before
-    public void configureDockerExecutor() {
+    public void beforeTest(){
+        configureDockerExecutor();
+        configuraCube();
+    }
+
+    private void configureDockerExecutor() {
         when(version.getVersion()).thenReturn("1.1.0");
         when(version.getOperatingSystem()).thenReturn("linux");
         when(version.getKernelVersion()).thenReturn("3.1.0");
         when(version.getApiVersion()).thenReturn("1.12");
         when(version.getArch()).thenReturn("x86");
         when(dockerClientExecutor.dockerHostVersion()).thenReturn(version);
+    }
+
+    private void configuraCube(){
+        cubeRegistry = new LocalCubeRegistry();
+        statistics = new Statistics();
+        cubeRegistry.addCube(cube);
+        when(cube.getId()).thenReturn(CUBE_ID);
+        when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
     }
 
     @Test
@@ -131,4 +160,48 @@ public class TakeDockerEnvironmentTest {
         assertThat(screenshotEntry.getLink()).isEqualTo("reports/schemas/docker_composition.png");
     }
 
+   @Test
+    public void shouldRepostLogFile(){
+        final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
+        takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
+        takeDockerEnvironment.reportContainerLogs(new BeforeStop(CUBE_ID), dockerClientExecutor, new ReporterConfiguration());
+        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+
+        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertThat(propertyEntry).isInstanceOf(FileEntry.class);
+
+        FileEntry fileEntry = (FileEntry) propertyEntry;
+        assertThat(fileEntry.getPath()).isEqualTo("target/reports/logs/tomcat.log");
+    }
+
+    @Test
+    public void shouldReportStats() {
+        final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
+        takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
+
+        getReportStats(takeDockerEnvironment);
+        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+
+        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
+
+        GroupEntry parent = (GroupEntry) propertyEntry;
+        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
+        assertThat(rootEntries).hasSize(1);
+
+        List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
+
+        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
+        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
+    }
+
+    private void getReportStats(TakeDockerEnvironment takeDockerEnvironment){
+        try {
+            takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("shouldReportStats")), dockerClientExecutor, cubeRegistry);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -23,7 +23,6 @@ import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
 import org.jboss.arquillian.core.api.Event;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.After;
@@ -44,7 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 
 import java.util.logging.Level;
@@ -61,8 +59,6 @@ public class TakeDockerEnvironment {
     @Inject
     Event<org.arquillian.recorder.reporter.event.PropertyReportEvent> propertyReportEvent;
 
-    @Inject
-    private Instance<CubeRegistry> cubeRegistryInstance;
 
     public void reportDockerEnvironment(@Observes AfterAutoStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
 
@@ -77,58 +73,72 @@ public class TakeDockerEnvironment {
         propertyReportEvent.fire(new PropertyReportEvent(docker));
     }
 
-    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor) {
-        generateStats(executor, false, "Before");
+    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) {
+        generateStats(executor, cubeRegistry, false, "Before");
     }
 
-    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, ReporterConfiguration configuration) {
-        generateStats(executor, false, "After");
+    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, CubeRegistry cubeRegistry) {
+        generateStats(executor, cubeRegistry, false, "After");
     }
 
-    private void generateStats(DockerClientExecutor executor, Boolean decimal, String when) {
+    private void generateStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, Boolean decimal, String when) {
         if (executor != null) {
-            List<Cube<?>> containers = cubeRegistryInstance.get().getCubes();
+            List<Cube<?>> containers = cubeRegistry.getCubes();
 
             GroupEntry containersStat = new GroupEntry("Container Statistics " + when + " Method");
 
             for (Cube<?> container : containers) {
                 String name = container.getId();
                 Statistics statistics = executor.statsContainer(name);
-                Map<String, Map> stats = getStats(statistics, decimal);
+                Map<String, Map<String, ?>> stats = getStats(statistics, decimal);
                 containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
             }
             propertyReportEvent.fire(new PropertyReportEvent(containersStat));
         }
     }
 
-    private GroupEntry createContainerStatGroup(Map<String, Map> stats, String id) {
+    private GroupEntry createContainerStatGroup(Map<String, Map<String, ?>> stats, String id) {
 
         GroupEntry containerStatsInfo = new GroupEntry(id + " Statistics");
 
-        for (Map.Entry<String, Map> stat : stats.entrySet()) {
-            GroupEntry info = new GroupEntry(stat.getKey() + " statistics");
-            for(Object entry : stat.getValue().entrySet()){
-                Map.Entry castEntry = (Map.Entry) entry;
-                addEntry(new KeyValueEntry(castEntry.getKey().toString(),castEntry.getValue().toString()), info);
-            }
-            containerStatsInfo.getPropertyEntries().add(info);
-         }
+        for (Map.Entry<String, Map<String, ?>> stat : stats.entrySet()) {
+            GroupEntry statType = new GroupEntry(stat.getKey() + " statistics");
 
+            Map<String, ?> nwStats = stat.getValue();
+            for (Map.Entry<String, ?> entry : nwStats.entrySet()) {
+                GroupEntry info = new GroupEntry(entry.getKey() + " statistics");
+
+                if (entry.getValue() instanceof LinkedHashMap) {
+
+                    Map<String, String> nwstats = (LinkedHashMap) entry.getValue();
+
+                    for (Map.Entry<String, String> nwstat : nwstats.entrySet()) {
+                        addEntry(new KeyValueEntry(nwstat.getKey(), nwstat.getValue()), info);
+                    }
+
+                } else {
+
+                    addEntry(new KeyValueEntry(entry.getKey(), (String) entry.getValue()), info);
+                }
+                statType.getPropertyEntries().add(info);
+            }
+            containerStatsInfo.getPropertyEntries().add(statType);
+        }
         return containerStatsInfo;
     }
 
-   public void reportLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
+    public void reportContainerLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
         final String cubeId = beforeStop.getCubeId();
         if (cubeId != null) {
-            final File logFile = new File(reporterConfiguration.getRootDir(), cubeId + ".log");
+            final File logFile = new File(createContainerLogDirectory(reporterConfiguration.getRootDir()), cubeId + ".log");
             try {
-                executor.copyLog(beforeStop.getCubeId(), false, true, true, false, -1, new FileOutputStream(logFile));
+                executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             FileEntry fileEntry = new FileEntry();
             fileEntry.setPath(logFile.getPath());
-            fileEntry.setType(".log");
+            fileEntry.setType("Log");
             fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
             propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
         }
@@ -263,63 +273,131 @@ public class TakeDockerEnvironment {
         return schemasDir.toFile();
     }
 
+    private File createContainerLogDirectory(File rootDirectory) {
+        final Path reportsLogs = Paths.get("reports", "logs");
+        final Path logsDir = rootDirectory.toPath().resolve(reportsLogs);
+        if (Files.notExists(logsDir)) {
+            try {
+
+                Files.createDirectories(logsDir);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(String.format("Could not created logs directory at %s", logsDir));
+            }
+        }
+        return logsDir.toFile();
+    }
+
     private void addEntry(PropertyEntry propertyEntry, GroupEntry groupEntry) {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
-    private Map<String, Map> getStats(Statistics statistics, Boolean decimal) {
-        Map<String, Map> stats = new LinkedHashMap<>();
+    private Map<String, Map<String, ?>> getStats(Statistics statistics, Boolean decimal) {
 
-          if (statistics != null){
-              Map<String, String> network = extractStats(statistics.getNetwork(), decimal, "rx_bytes", "tx_bytes");
-              Map<String, String> memory = extractStats(statistics.getMemoryStats(), decimal, "usage", "max_usage", "limit");
-              Map<String, String> blkio = extractIORW(statistics.getBlkioStats(), decimal);
-              stats.put("network", network);
-              stats.put("memory", memory);
-              stats.put("block I/O", blkio);
+        Map<String, Map<String, ?>> stats = new LinkedHashMap<>();
+        if (statistics != null){
+            Map<String, Map<String, String>> networks = extractNetworksStats(statistics.getNetworks(), decimal);
+            Map<String, String> memory = extractMemoryStats(statistics.getMemoryStats(), decimal, "usage", "max_usage", "limit");
+            Map<String, String> blkio = extractIORW(statistics.getBlkioStats(), decimal);
+            stats.put("network", networks);
+            stats.put("memory", memory);
+            stats.put("block I/O", blkio);
         }
         return stats;
     }
 
-    private Map<String, String> extractIORW(Map<String, Object> blkioStats, Boolean decimal) {
+    private Map<String, Map<String, String>> extractNetworksStats(Map<String, Object> map, boolean decimal) {
+        Map<String, Map<String, String>> nwStatsForEachNICAndTotal = new LinkedHashMap<>();
+        if (map != null) {
+            long rx_bytes = 0, tx_bytes = 0;
 
-        ArrayList<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
-        Map<String, String> blkrwStats = new LinkedHashMap<>();
-        long read = 0, write=0;
-        Iterator iterator = bios.iterator();
-        while (iterator.hasNext()){
-            Map<String, Object> m = (LinkedHashMap) iterator.next();
-            switch ((String) m.get("op")) {
-                case "Read":
-                    read = ((Integer) m.get("value")).longValue();
-                case "Write":
-                    write = ((Integer) m.get("value")).longValue();
+            for (Map.Entry<String, Object> entry: map.entrySet()) {
+                Map<String, String> nwStats = new LinkedHashMap<>();
+                String adapterName = entry.getKey();
+                if (entry.getValue() instanceof LinkedHashMap) {
+
+                    Map<String, ?> adapter = (LinkedHashMap) entry.getValue();
+
+                    long rx_bytes_ = convertToLong(adapter.get("rx_bytes"));
+                    long tx_bytes_ = convertToLong(adapter.get("tx_bytes"));
+
+                    nwStats.put("rx_bytes", humanReadableByteCount(rx_bytes_, decimal));
+                    nwStats.put("tx_bytes", humanReadableByteCount(tx_bytes_, decimal));
+                    nwStatsForEachNICAndTotal.put(adapterName, nwStats);
+
+                    rx_bytes += rx_bytes_;
+                    tx_bytes += tx_bytes_;
+                }
             }
+
+            Map<String, String> total = new LinkedHashMap<>();
+
+            total.put("rx_bytes", humanReadableByteCount(rx_bytes, decimal));
+            total.put("tx_bytes", humanReadableByteCount(tx_bytes, decimal));
+            nwStatsForEachNICAndTotal.put("Total", total);
         }
-        blkrwStats.put("I/O Bytes Read", humanReadableByteCount(read, decimal));
-        blkrwStats.put("I/O Bytes Write", humanReadableByteCount(write, decimal));
+        return nwStatsForEachNICAndTotal;
+    }
+
+    private Map<String, String> extractIORW(Map<String, Object> blkioStats, Boolean decimal) {
+        Map<String, String> blkrwStats = new LinkedHashMap<>();
+        if (blkioStats != null) {
+            List<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
+            long read = 0, write = 0;
+            for (Map<String, ?> io: bios) {
+                if (io != null) {
+                    switch ((String) io.get("op")) {
+                        case "Read":
+                            read = convertToLong(io.get("value"));
+                            break;
+                        case "Write":
+                            write = convertToLong(io.get("value"));
+                            break;
+                    }
+                }
+            }
+            blkrwStats.put("I/O Bytes Read", humanReadableByteCount(read, decimal));
+            blkrwStats.put("I/O Bytes Write", humanReadableByteCount(write, decimal));
+        }
         return blkrwStats;
     }
 
-    private Map<String, String> extractStats(Map<String, Object> map, boolean si, String... fields) {
-        Map<String, String> newMap = new LinkedHashMap<>();
-        for (String field: fields) {
-            Object number = map.get(field);
-            if( map.get(field) instanceof Integer){
-                number = ((Integer) number).longValue();
+    private Map<String, String> extractMemoryStats(Map<String, Object> map, boolean decimal, String... fields) {
+        Map<String, String> memory = new LinkedHashMap<>();
+        if (map != null) {
+            for (String field: fields) {
+                long usage = convertToLong(map.get(field));
+                memory.put(field, humanReadableByteCount(usage, decimal));
             }
-            newMap.put(field, humanReadableByteCount((long)(number), si));
         }
-        return newMap;
+        return memory;
     }
 
     private String humanReadableByteCount(Long bytes, boolean decimal) {
-
         int unit = decimal ? 1000 : 1024;
         if (bytes < unit) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
 
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    private long convertToLong(Object number) {
+        long longNumber = 0;
+        String type = number.getClass().getSimpleName();
+        switch (type) {
+            case "Byte":
+                longNumber = ((Byte) number).longValue();
+                break;
+            case "Short":
+                longNumber = ((Short) number).longValue();
+                break;
+            case "Integer":
+                longNumber = ((Integer) number).longValue();
+                break;
+            case "Long":
+                longNumber = (long) number;
+                break;
+        }
+        return longNumber;
     }
 }
