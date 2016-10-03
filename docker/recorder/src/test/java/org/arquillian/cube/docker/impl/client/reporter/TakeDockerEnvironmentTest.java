@@ -26,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +67,13 @@ public class TakeDockerEnvironmentTest {
     private Statistics statistics;
 
     @Before
-    public void beforeTest(){
+    public void configureDockerExecutorAndCubeRegistry(){
         configureDockerExecutor();
-        configuraCube();
+        try {
+            configureCube();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void configureDockerExecutor() {
@@ -80,7 +85,7 @@ public class TakeDockerEnvironmentTest {
         when(dockerClientExecutor.dockerHostVersion()).thenReturn(version);
     }
 
-    private void configuraCube(){
+    private void configureCube() throws IOException {
         cubeRegistry = new LocalCubeRegistry();
         statistics = new Statistics();
         cubeRegistry.addCube(cube);
@@ -161,7 +166,7 @@ public class TakeDockerEnvironmentTest {
     }
 
    @Test
-    public void shouldRepostLogFile(){
+    public void should_report_log_file(){
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
         takeDockerEnvironment.reportContainerLogs(new BeforeStop(CUBE_ID), dockerClientExecutor, new ReporterConfiguration());
@@ -176,7 +181,7 @@ public class TakeDockerEnvironmentTest {
     }
 
     @Test
-    public void shouldReportStats() {
+    public void should_report_container_stats() {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 

@@ -484,7 +484,7 @@ public class DockerClientExecutor {
         }
     }
 
-    public Statistics statsContainer(String id) {
+    public Statistics statsContainer(String id) throws IOException {
          this.readWriteLock.readLock().lock();
 
         try {
@@ -493,7 +493,7 @@ public class DockerClientExecutor {
             try {
                 statsCmd.exec(statslogs).awaitCompletion();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new IOException(e);
             }
             return statslogs.statistics;
 

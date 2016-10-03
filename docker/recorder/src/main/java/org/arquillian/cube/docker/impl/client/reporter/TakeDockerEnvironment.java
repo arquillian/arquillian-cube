@@ -11,6 +11,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.NumberType;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
@@ -89,7 +90,12 @@ public class TakeDockerEnvironment {
 
             for (Cube<?> container : containers) {
                 String name = container.getId();
-                Statistics statistics = executor.statsContainer(name);
+                Statistics statistics = null;
+                try {
+                    statistics = executor.statsContainer(name);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Map<String, Map<String, ?>> stats = getStats(statistics, decimal);
                 containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
             }
@@ -383,18 +389,20 @@ public class TakeDockerEnvironment {
 
     private long convertToLong(Object number) {
         long longNumber = 0;
-        String type = number.getClass().getSimpleName();
+
+        NumberType type = NumberType.valueOf(number.getClass().getSimpleName().toUpperCase());
+
         switch (type) {
-            case "Byte":
+            case BYTE:
                 longNumber = ((Byte) number).longValue();
                 break;
-            case "Short":
+            case SHORT:
                 longNumber = ((Short) number).longValue();
                 break;
-            case "Integer":
+            case INTEGER:
                 longNumber = ((Integer) number).longValue();
                 break;
-            case "Long":
+            case LONG:
                 longNumber = (long) number;
                 break;
         }
