@@ -158,7 +158,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
             long currentTime = System.currentTimeMillis();
             try {
-                executor.stopContainer(id);
+                if (configuration.isKillContainer()) {
+                    executor.killContainer(id);
+                } else {
+                    executor.stopContainer(id);
+                }
             } catch(NotFoundException e) {
             } catch (NotModifiedException e) {}
             this.stoppingTimeInMillis = System.currentTimeMillis() - currentTime;

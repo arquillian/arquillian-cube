@@ -495,6 +495,15 @@ public class DockerClientExecutor {
         return ports;
     }
 
+    public void killContainer(String containerId) {
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.killContainerCmd(containerId).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     public void stopContainer(String containerId) {
         this.readWriteLock.readLock().lock();
         try {
