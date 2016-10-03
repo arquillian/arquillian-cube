@@ -127,6 +127,10 @@ public class DockerCompositions {
                     cubeContainer.setManual(overrideCubeContainer.isManual());
                 }
 
+                if (overrideCubeContainer.isKillContainer()) {
+                    cubeContainer.setKillContainer(overrideCubeContainer.isKillContainer());
+                }
+
             } else {
                 logger.warning(String.format("Overriding Container %s are not defined in main definition of containers."));
             }

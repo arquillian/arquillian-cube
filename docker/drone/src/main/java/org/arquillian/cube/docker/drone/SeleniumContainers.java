@@ -167,6 +167,9 @@ public class SeleniumContainers {
         await.setUrl("http://dockerHost:" + SELENIUM_BOUNDED_PORT);
 
         cubeContainer.setAwait(await);
+
+        cubeContainer.setKillContainer(true);
+
     }
 
 }

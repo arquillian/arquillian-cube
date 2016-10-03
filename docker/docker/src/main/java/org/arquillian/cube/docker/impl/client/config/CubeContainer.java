@@ -51,6 +51,7 @@ public class CubeContainer {
     private String domainName;
     private Boolean alwaysPull = Boolean.FALSE;
     private boolean manual = false;
+    private boolean killContainer = false;
     private Await await;
 
     private Image image;
@@ -453,6 +454,14 @@ public class CubeContainer {
 
     public boolean isManual() {
         return manual;
+    }
+
+    public void setKillContainer(boolean killContainer) {
+        this.killContainer = killContainer;
+    }
+
+    public boolean isKillContainer() {
+        return killContainer;
     }
 
     public Collection<String> getDependingContainers() {
