@@ -67,13 +67,9 @@ public class TakeDockerEnvironmentTest {
     private Statistics statistics;
 
     @Before
-    public void configureDockerExecutorAndCubeRegistry(){
+    public void configureDockerExecutorAndCubeRegistry() throws IOException {
         configureDockerExecutor();
-        try {
-            configureCube();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        configureCube();
     }
 
     private void configureDockerExecutor() {
@@ -166,7 +162,7 @@ public class TakeDockerEnvironmentTest {
     }
 
    @Test
-    public void should_report_log_file(){
+    public void should_report_log_file() throws IOException {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
         takeDockerEnvironment.reportContainerLogs(new BeforeStop(CUBE_ID), dockerClientExecutor, new ReporterConfiguration());
@@ -181,11 +177,11 @@ public class TakeDockerEnvironmentTest {
     }
 
     @Test
-    public void should_report_container_stats() {
+    public void should_report_container_stats() throws IOException, NoSuchMethodException {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
-        getReportStats(takeDockerEnvironment);
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("shouldReportStats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
         final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
@@ -202,11 +198,4 @@ public class TakeDockerEnvironmentTest {
         assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
     }
 
-    private void getReportStats(TakeDockerEnvironment takeDockerEnvironment){
-        try {
-            takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("shouldReportStats")), dockerClientExecutor, cubeRegistry);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
 }

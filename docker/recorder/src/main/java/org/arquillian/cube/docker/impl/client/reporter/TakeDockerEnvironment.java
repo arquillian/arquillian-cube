@@ -34,6 +34,7 @@ import javax.swing.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,15 +75,15 @@ public class TakeDockerEnvironment {
         propertyReportEvent.fire(new PropertyReportEvent(docker));
     }
 
-    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) {
+    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
         generateStats(executor, cubeRegistry, false, "Before");
     }
 
-    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, CubeRegistry cubeRegistry) {
+    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
         generateStats(executor, cubeRegistry, false, "After");
     }
 
-    private void generateStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, Boolean decimal, String when) {
+    private void generateStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, Boolean decimal, String when) throws IOException {
         if (executor != null) {
             List<Cube<?>> containers = cubeRegistry.getCubes();
 
@@ -91,11 +92,9 @@ public class TakeDockerEnvironment {
             for (Cube<?> container : containers) {
                 String name = container.getId();
                 Statistics statistics = null;
-                try {
-                    statistics = executor.statsContainer(name);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                statistics = executor.statsContainer(name);
+
                 Map<String, Map<String, ?>> stats = getStats(statistics, decimal);
                 containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
             }
@@ -133,15 +132,13 @@ public class TakeDockerEnvironment {
         return containerStatsInfo;
     }
 
-    public void reportContainerLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
+    public void reportContainerLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) throws IOException {
         final String cubeId = beforeStop.getCubeId();
         if (cubeId != null) {
             final File logFile = new File(createContainerLogDirectory(reporterConfiguration.getRootDir()), cubeId + ".log");
-            try {
-                executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
+
             FileEntry fileEntry = new FileEntry();
             fileEntry.setPath(logFile.getPath());
             fileEntry.setType("Log");
@@ -314,7 +311,7 @@ public class TakeDockerEnvironment {
     private Map<String, Map<String, String>> extractNetworksStats(Map<String, Object> map, boolean decimal) {
         Map<String, Map<String, String>> nwStatsForEachNICAndTotal = new LinkedHashMap<>();
         if (map != null) {
-            long rx_bytes = 0, tx_bytes = 0;
+            long totalRxBytes = 0, totalTxBytes = 0;
 
             for (Map.Entry<String, Object> entry: map.entrySet()) {
                 Map<String, String> nwStats = new LinkedHashMap<>();
@@ -323,22 +320,22 @@ public class TakeDockerEnvironment {
 
                     Map<String, ?> adapter = (LinkedHashMap) entry.getValue();
 
-                    long rx_bytes_ = convertToLong(adapter.get("rx_bytes"));
-                    long tx_bytes_ = convertToLong(adapter.get("tx_bytes"));
+                    long rxBytes = convertToLong(adapter.get("rx_bytes"));
+                    long txBytes = convertToLong(adapter.get("tx_bytes"));
 
-                    nwStats.put("rx_bytes", humanReadableByteCount(rx_bytes_, decimal));
-                    nwStats.put("tx_bytes", humanReadableByteCount(tx_bytes_, decimal));
+                    nwStats.put("rx_bytes", humanReadableByteCount(rxBytes, decimal));
+                    nwStats.put("tx_bytes", humanReadableByteCount(txBytes, decimal));
                     nwStatsForEachNICAndTotal.put(adapterName, nwStats);
 
-                    rx_bytes += rx_bytes_;
-                    tx_bytes += tx_bytes_;
+                    totalRxBytes += rxBytes;
+                    totalTxBytes += txBytes;
                 }
             }
 
             Map<String, String> total = new LinkedHashMap<>();
 
-            total.put("rx_bytes", humanReadableByteCount(rx_bytes, decimal));
-            total.put("tx_bytes", humanReadableByteCount(tx_bytes, decimal));
+            total.put("rx_bytes", humanReadableByteCount(totalRxBytes, decimal));
+            total.put("tx_bytes", humanReadableByteCount(totalTxBytes, decimal));
             nwStatsForEachNICAndTotal.put("Total", total);
         }
         return nwStatsForEachNICAndTotal;
