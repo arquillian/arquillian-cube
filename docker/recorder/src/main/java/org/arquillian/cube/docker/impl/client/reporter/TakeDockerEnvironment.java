@@ -343,18 +343,20 @@ public class TakeDockerEnvironment {
 
     private Map<String, String> extractIORW(Map<String, Object> blkioStats, Boolean decimal) {
         Map<String, String> blkrwStats = new LinkedHashMap<>();
-        if (blkioStats != null) {
+        if (blkioStats != null && !blkioStats.isEmpty()) {
             List<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
             long read = 0, write = 0;
-            for (Map<String, ?> io: bios) {
-                if (io != null) {
-                    switch ((String) io.get("op")) {
-                        case "Read":
-                            read = convertToLong(io.get("value"));
-                            break;
-                        case "Write":
-                            write = convertToLong(io.get("value"));
-                            break;
+            if (bios != null) {
+                for (Map<String, ?> io : bios) {
+                    if (io != null) {
+                        switch ((String) io.get("op")) {
+                            case "Read":
+                                read = convertToLong(io.get("value"));
+                                break;
+                            case "Write":
+                                write = convertToLong(io.get("value"));
+                                break;
+                        }
                     }
                 }
             }
@@ -386,22 +388,23 @@ public class TakeDockerEnvironment {
 
     private long convertToLong(Object number) {
         long longNumber = 0;
+        if (number != null) {
+            NumberType type = NumberType.valueOf(number.getClass().getSimpleName().toUpperCase());
 
-        NumberType type = NumberType.valueOf(number.getClass().getSimpleName().toUpperCase());
-
-        switch (type) {
-            case BYTE:
-                longNumber = ((Byte) number).longValue();
-                break;
-            case SHORT:
-                longNumber = ((Short) number).longValue();
-                break;
-            case INTEGER:
-                longNumber = ((Integer) number).longValue();
-                break;
-            case LONG:
-                longNumber = (long) number;
-                break;
+            switch (type) {
+                case BYTE:
+                    longNumber = ((Byte) number).longValue();
+                    break;
+                case SHORT:
+                    longNumber = ((Short) number).longValue();
+                    break;
+                case INTEGER:
+                    longNumber = ((Integer) number).longValue();
+                    break;
+                case LONG:
+                    longNumber = (long) number;
+                    break;
+            }
         }
         return longNumber;
     }
