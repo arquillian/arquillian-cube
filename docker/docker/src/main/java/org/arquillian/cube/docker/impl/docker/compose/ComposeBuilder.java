@@ -39,7 +39,7 @@ public class ComposeBuilder {
 			Set<String> keys = servicesDefinition.keySet();
 			for (String key : keys) {
 				ContainerBuilder services = new ContainerBuilder(this.dockerComposeRootLocation);
-				CubeContainer cubeContainer = services.build(asMap(servicesDefinition, key));
+				CubeContainer cubeContainer = services.build(asMap(servicesDefinition, key), DockerComposeConverter.DOCKER_COMPOSE_VERSION_2_VALUE);
 				if (!dockerComposeContainerDefinition.containsKey(NETWORKS)) {
 					String networkName = getDefaultNetworkName();
 					cubeContainer.setNetworkMode(networkName);
