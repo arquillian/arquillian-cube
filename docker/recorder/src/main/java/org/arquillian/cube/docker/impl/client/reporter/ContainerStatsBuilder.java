@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExtractContainerStats {
+public class ContainerStatsBuilder {
 
     public static Map<String, Map<String, ?>> getStats(Statistics statistics, Boolean decimal) {
 

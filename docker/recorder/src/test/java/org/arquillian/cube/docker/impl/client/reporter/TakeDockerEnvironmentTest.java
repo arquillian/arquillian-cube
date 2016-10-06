@@ -188,7 +188,7 @@ public class TakeDockerEnvironmentTest {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
-        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_stats")), dockerClientExecutor, cubeRegistry);
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_network_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
         final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
@@ -222,7 +222,7 @@ public class TakeDockerEnvironmentTest {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
-        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_stats")), dockerClientExecutor, cubeRegistry);
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_memory_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
         final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
@@ -244,9 +244,9 @@ public class TakeDockerEnvironmentTest {
 
         assertThat(memList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
         assertThat(memList).flatExtracting("propertyEntries").containsExactly(
-                new KeyValueEntry("usage", "33.5 MiB"),
-                new KeyValueEntry("max_usage", "34.1 MiB"),
-                new KeyValueEntry("limit", "19.0 GiB"));
+                new KeyValueEntry("usage", "33.51 MiB"),
+                new KeyValueEntry("max_usage", "34.11 MiB"),
+                new KeyValueEntry("limit", "19.04 GiB"));
     }
 
     @Test
@@ -254,7 +254,7 @@ public class TakeDockerEnvironmentTest {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
-        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_stats")), dockerClientExecutor, cubeRegistry);
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_blkio_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
         final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
@@ -276,7 +276,7 @@ public class TakeDockerEnvironmentTest {
 
         assertThat(blkIOList).hasSize(2).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry");
         assertThat(blkIOList).flatExtracting("propertyEntries").containsExactly(
-                new KeyValueEntry("I/O Bytes Read", "49.5 KiB"),
+                new KeyValueEntry("I/O Bytes Read", "49.50 KiB"),
                 new KeyValueEntry("I/O Bytes Write", "0 B"));
     }
 

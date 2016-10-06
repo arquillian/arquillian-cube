@@ -7,11 +7,12 @@ public class NumberConversion {
 
     public static String humanReadableByteCount(Long bytes, boolean decimal) {
         int unit = decimal ? 1000 : 1024;
+        if (bytes == null) bytes = 0L;
         if (bytes < unit) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
 
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        return String.format("%.2f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public static long convertToLong(Object number) {
