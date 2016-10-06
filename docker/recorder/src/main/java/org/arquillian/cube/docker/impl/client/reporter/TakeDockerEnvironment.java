@@ -11,7 +11,6 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.NumberType;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
@@ -34,7 +33,6 @@ import javax.swing.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,11 +42,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.arquillian.cube.docker.impl.client.reporter.ExtractContainerStats.getStats;
 
 /**
  * Class that reports generic Docker information like orchestration or docker version.
@@ -294,118 +293,4 @@ public class TakeDockerEnvironment {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
-    private Map<String, Map<String, ?>> getStats(Statistics statistics, Boolean decimal) {
-
-        Map<String, Map<String, ?>> stats = new LinkedHashMap<>();
-        if (statistics != null){
-            Map<String, Map<String, String>> networks = extractNetworksStats(statistics.getNetworks(), decimal);
-            Map<String, String> memory = extractMemoryStats(statistics.getMemoryStats(), decimal, "usage", "max_usage", "limit");
-            Map<String, String> blkio = extractIORW(statistics.getBlkioStats(), decimal);
-            stats.put("network", networks);
-            stats.put("memory", memory);
-            stats.put("block I/O", blkio);
-        }
-        return stats;
-    }
-
-    private Map<String, Map<String, String>> extractNetworksStats(Map<String, Object> map, boolean decimal) {
-        Map<String, Map<String, String>> nwStatsForEachNICAndTotal = new LinkedHashMap<>();
-        if (map != null) {
-            long totalRxBytes = 0, totalTxBytes = 0;
-
-            for (Map.Entry<String, Object> entry: map.entrySet()) {
-                Map<String, String> nwStats = new LinkedHashMap<>();
-                String adapterName = entry.getKey();
-                if (entry.getValue() instanceof LinkedHashMap) {
-
-                    Map<String, ?> adapter = (LinkedHashMap) entry.getValue();
-
-                    long rxBytes = convertToLong(adapter.get("rx_bytes"));
-                    long txBytes = convertToLong(adapter.get("tx_bytes"));
-
-                    nwStats.put("rx_bytes", humanReadableByteCount(rxBytes, decimal));
-                    nwStats.put("tx_bytes", humanReadableByteCount(txBytes, decimal));
-                    nwStatsForEachNICAndTotal.put(adapterName, nwStats);
-
-                    totalRxBytes += rxBytes;
-                    totalTxBytes += txBytes;
-                }
-            }
-
-            Map<String, String> total = new LinkedHashMap<>();
-
-            total.put("rx_bytes", humanReadableByteCount(totalRxBytes, decimal));
-            total.put("tx_bytes", humanReadableByteCount(totalTxBytes, decimal));
-            nwStatsForEachNICAndTotal.put("Total", total);
-        }
-        return nwStatsForEachNICAndTotal;
-    }
-
-    private Map<String, String> extractIORW(Map<String, Object> blkioStats, Boolean decimal) {
-        Map<String, String> blkrwStats = new LinkedHashMap<>();
-        if (blkioStats != null && !blkioStats.isEmpty()) {
-            List<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
-            long read = 0, write = 0;
-            if (bios != null) {
-                for (Map<String, ?> io : bios) {
-                    if (io != null) {
-                        switch ((String) io.get("op")) {
-                            case "Read":
-                                read = convertToLong(io.get("value"));
-                                break;
-                            case "Write":
-                                write = convertToLong(io.get("value"));
-                                break;
-                        }
-                    }
-                }
-            }
-            blkrwStats.put("I/O Bytes Read", humanReadableByteCount(read, decimal));
-            blkrwStats.put("I/O Bytes Write", humanReadableByteCount(write, decimal));
-        }
-        return blkrwStats;
-    }
-
-    private Map<String, String> extractMemoryStats(Map<String, Object> map, boolean decimal, String... fields) {
-        Map<String, String> memory = new LinkedHashMap<>();
-        if (map != null) {
-            for (String field: fields) {
-                long usage = convertToLong(map.get(field));
-                memory.put(field, humanReadableByteCount(usage, decimal));
-            }
-        }
-        return memory;
-    }
-
-    private String humanReadableByteCount(Long bytes, boolean decimal) {
-        int unit = decimal ? 1000 : 1024;
-        if (bytes < unit) return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
-
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-    }
-
-    private long convertToLong(Object number) {
-        long longNumber = 0;
-        if (number != null) {
-            NumberType type = NumberType.valueOf(number.getClass().getSimpleName().toUpperCase());
-
-            switch (type) {
-                case BYTE:
-                    longNumber = ((Byte) number).longValue();
-                    break;
-                case SHORT:
-                    longNumber = ((Short) number).longValue();
-                    break;
-                case INTEGER:
-                    longNumber = ((Integer) number).longValue();
-                    break;
-                case LONG:
-                    longNumber = (long) number;
-                    break;
-            }
-        }
-        return longNumber;
-    }
 }

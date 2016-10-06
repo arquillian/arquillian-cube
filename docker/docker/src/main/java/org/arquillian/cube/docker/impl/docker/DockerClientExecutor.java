@@ -32,6 +32,7 @@ import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
+import org.arquillian.cube.docker.impl.await.StatsLogsResultCallback;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -495,7 +496,7 @@ public class DockerClientExecutor {
             } catch (InterruptedException e) {
                 throw new IOException(e);
             }
-            return statslogs.statistics;
+            return statslogs.getStatistics();
 
         } finally {
             this.readWriteLock.readLock().unlock();
@@ -1044,24 +1045,4 @@ public class DockerClientExecutor {
         }
     }
 
-    private static class StatsLogsResultCallback extends ResultCallbackTemplate<StatsLogsResultCallback, Statistics>{
-
-        private Statistics statistics = null;
-
-        public StatsLogsResultCallback() {
-        }
-
-        @Override
-        public void onNext(Statistics statistics) {
-            if (statistics != null) {
-                this.statistics = statistics;
-                this.onComplete();
-            }
-        }
-
-        public Statistics getStatistics() {
-            return this.statistics;
-        }
-
-    }
 }

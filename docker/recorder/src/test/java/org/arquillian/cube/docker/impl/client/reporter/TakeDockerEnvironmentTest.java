@@ -184,7 +184,7 @@ public class TakeDockerEnvironmentTest {
     }
 
     @Test
-    public void should_report_container_stats() throws IOException, NoSuchMethodException {
+    public void should_report_container_network_stats() throws IOException, NoSuchMethodException {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
@@ -215,6 +215,28 @@ public class TakeDockerEnvironmentTest {
                 new KeyValueEntry("tx_bytes", "418 B"),
                 new KeyValueEntry("rx_bytes", "724 B"),
                 new KeyValueEntry("tx_bytes", "418 B"));
+    }
+
+    @Test
+    public void should_report_container_memory_stats() throws IOException, NoSuchMethodException {
+        final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
+        takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
+
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_stats")), dockerClientExecutor, cubeRegistry);
+        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+
+        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
+
+        GroupEntry parent = (GroupEntry) propertyEntry;
+        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
+        assertThat(rootEntries).hasSize(1);
+
+        List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
+
+        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
+        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
 
         PropertyEntry memory = entryList.get(1);
         assertThat(memory).isInstanceOf(GroupEntry.class);
@@ -225,6 +247,28 @@ public class TakeDockerEnvironmentTest {
                 new KeyValueEntry("usage", "33.5 MiB"),
                 new KeyValueEntry("max_usage", "34.1 MiB"),
                 new KeyValueEntry("limit", "19.0 GiB"));
+    }
+
+    @Test
+    public void should_report_container_blkio_stats() throws IOException, NoSuchMethodException {
+        final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
+        takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
+
+        takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_stats")), dockerClientExecutor, cubeRegistry);
+        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+
+        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
+
+        GroupEntry parent = (GroupEntry) propertyEntry;
+        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
+        assertThat(rootEntries).hasSize(1);
+
+        List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
+
+        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
+        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
 
         PropertyEntry blkIO = entryList.get(2);
         assertThat(blkIO).isInstanceOf(GroupEntry.class);
@@ -243,6 +287,7 @@ public class TakeDockerEnvironmentTest {
         bytes.put("tx_bytes", 418);
         bytes.put("rx_packets", 19);
         nw.put("eth0", bytes);
+
         return nw;
     }
 
@@ -252,6 +297,7 @@ public class TakeDockerEnvironmentTest {
         memory.put("max_usage", 35770368);
         memory.put("limit", 20444532736L);
         memory.put("stats", new LinkedHashMap<>());
+
         return memory;
     }
 
@@ -282,6 +328,7 @@ public class TakeDockerEnvironmentTest {
 
         blkIO.put("io_service_bytes_recursive", io);
         blkIO.put("io_time_recursive",new ArrayList<>());
+
         return blkIO;
     }
 }
