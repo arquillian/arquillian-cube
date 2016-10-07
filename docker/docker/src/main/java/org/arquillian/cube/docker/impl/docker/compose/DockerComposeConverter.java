@@ -43,9 +43,13 @@ public class DockerComposeConverter implements Converter {
     }
 
     private DockerComposeConverter(String content) {
+        this(content, null);
+    }
+
+    private DockerComposeConverter(String content, String dockerComposeRootDirectory) {
         String resolvePlaceholders = resolvePlaceholders(content);
         this.dockerComposeDefinitionMap = loadConfig(resolvePlaceholders);
-        this.dockerComposeRootDirectory = Paths.get(".");
+        this.dockerComposeRootDirectory = dockerComposeRootDirectory == null ? Paths.get(".") : Paths.get(dockerComposeRootDirectory);
     }
 
     public static DockerComposeConverter create(Path location) {
@@ -58,6 +62,10 @@ public class DockerComposeConverter implements Converter {
 
     public static DockerComposeConverter create(String content) {
         return new DockerComposeConverter(content);
+    }
+
+    public static DockerComposeConverter create(String content, String dockerComposeRootDirectory) {
+        return new DockerComposeConverter(content, dockerComposeRootDirectory);
     }
 
     public DockerCompositions convert() {
