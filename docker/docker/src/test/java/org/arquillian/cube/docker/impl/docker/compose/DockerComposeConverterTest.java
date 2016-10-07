@@ -129,7 +129,7 @@ public class DockerComposeConverterTest {
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
     DockerCompositions convert = dockerComposeConverter.convert();
-    CubeContainer webapp = convert.getContainers().get("webapp");
+    CubeContainer webapp = convert.getContainers().get("test-classes_webapp");
     assertThat(webapp.getBuildImage(), is(notNullValue()));
     assertThat(webapp.getPortBindings(), is(notNullValue()));
     Collection<PortBinding> ports = webapp.getPortBindings();
@@ -139,7 +139,7 @@ public class DockerComposeConverterTest {
     Collection<String> webappVolumes = (Collection<String>) webapp.getVolumes();
     assertThat(webappVolumes, containsInAnyOrder("/data"));
 
-    CubeContainer webapp2 = convert.getContainers().get("webapp2");
+    CubeContainer webapp2 = convert.getContainers().get("test-classes_webapp2");
     assertThat(webapp2.getImage(), is(notNullValue()));
     assertThat(webapp2.getPortBindings(), is(notNullValue()));
     assertThat(webapp2.getLinks(), is(notNullValue()));
@@ -150,10 +150,10 @@ public class DockerComposeConverterTest {
     assertThat(env, containsInAnyOrder("RACK_ENV=development"));
 
     Map<String, Network> networks = convert.getNetworks();
-    Network network = networks.get("front-tier");
+    Network network = networks.get("test-classes_front-tier");
     assertThat(network.getDriver(), is("bridge"));
 
-    Network network2 = networks.get("back-tier");
+    Network network2 = networks.get("test-classes_back-tier");
     assertThat(network2.getDriver(), is("bridge"));
   }
 
@@ -164,7 +164,7 @@ public class DockerComposeConverterTest {
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
     DockerCompositions convert = dockerComposeConverter.convert();
-    CubeContainer webapp = convert.getContainers().get("webapp");
+    CubeContainer webapp = convert.getContainers().get("test-classes_webapp");
     assertThat(webapp.getBuildImage(), is(notNullValue()));
     assertThat(webapp.getPortBindings(), is(notNullValue()));
     Collection<PortBinding> ports = webapp.getPortBindings();
@@ -174,7 +174,7 @@ public class DockerComposeConverterTest {
     Collection<String> webappVolumes = (Collection<String>) webapp.getVolumes();
     assertThat(webappVolumes, containsInAnyOrder("/data"));
 
-    CubeContainer webapp2 = convert.getContainers().get("webapp2");
+    CubeContainer webapp2 = convert.getContainers().get("test-classes_webapp2");
     assertThat(webapp2.getImage(), is(notNullValue()));
     assertThat(webapp2.getPortBindings(), is(notNullValue()));
     assertThat(webapp2.getLinks(), is(notNullValue()));
@@ -185,10 +185,10 @@ public class DockerComposeConverterTest {
     assertThat(env, containsInAnyOrder("RACK_ENV=development"));
 
     Map<String, Network> networks = convert.getNetworks();
-    Network network = networks.get("front-tier");
+    Network network = networks.get("test-classes_front-tier");
     assertThat(network.getDriver(), is("bridge"));
 
-    Network network2 = networks.get("back-tier");
+    Network network2 = networks.get("test-classes_back-tier");
     assertThat(network2.getDriver(), is("bridge"));
   }
 
@@ -199,7 +199,7 @@ public class DockerComposeConverterTest {
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
     DockerCompositions convert = dockerComposeConverter.convert();
-    CubeContainer webapp = convert.getContainers().get("webapp");
+    CubeContainer webapp = convert.getContainers().get("myapp_webapp");
     assertThat(webapp, is(notNullValue()));
     assertThat(webapp.getNetworkMode(), is("myapp_default"));
 
@@ -210,22 +210,22 @@ public class DockerComposeConverterTest {
   }
 
   @Test
-  public void shouldBuildImageFromContextProperty() throws URISyntaxException {
+  public void shouldBuildImageForSimpleDockerComposeV2FormatFromContextProperty() throws URISyntaxException {
     URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-build-with-context-dir.yml").toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
     DockerCompositions convert = dockerComposeConverter.convert();
-    CubeContainer webapp = convert.get("webapp");
+    CubeContainer webapp = convert.get("test-classes_webapp");
     assertThat(webapp.getBuildImage(), is(notNullValue()));
   }
 
   @Test
-  public void shouldBuildImageFromBuildProperty() throws URISyntaxException {
+  public void shouldBuildImageForSimpleDockerComposeV2FormatFromBuildProperty() throws URISyntaxException {
     URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-build-with-dockerfile.yml").toURI();
     DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
 
     DockerCompositions convert = dockerComposeConverter.convert();
-    CubeContainer webapp = convert.get("webapp");
+    CubeContainer webapp = convert.get("test-classes_webapp");
     assertThat(webapp.getBuildImage(), is(notNullValue()));
   }
 

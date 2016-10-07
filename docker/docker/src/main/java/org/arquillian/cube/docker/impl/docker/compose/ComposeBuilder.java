@@ -19,7 +19,7 @@ public class ComposeBuilder {
 	private static final String SERVICES = "services";
 	private static final String NETWORKS = "networks";
 
-	private static final String NETWORK_NAME_SUFFIX = "_default";
+	private static final String NETWORK_NAME_SUFFIX = "default";
 
 	private Path dockerComposeRootLocation;
 
@@ -91,6 +91,6 @@ public class ComposeBuilder {
 	}
 
 	private String getComposeRootLocation() {
-        return this.dockerComposeRootLocation.toFile().getAbsoluteFile().getParentFile().getName() + "_";
+        return this.dockerComposeRootLocation.toFile().getAbsoluteFile().getName() + "_";
     }
 }
