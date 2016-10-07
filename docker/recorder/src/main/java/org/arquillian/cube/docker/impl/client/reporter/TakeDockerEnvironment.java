@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.layout.mxIGraphLayout;
@@ -10,31 +11,43 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
 import org.arquillian.extension.recorder.When;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
 import org.arquillian.recorder.reporter.event.PropertyReportEvent;
+import org.arquillian.recorder.reporter.model.entry.FileEntry;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.event.suite.After;
+import org.jboss.arquillian.test.spi.event.suite.Before;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.arquillian.cube.docker.impl.client.reporter.ContainerStatsBuilder.getStats;
 
 /**
  * Class that reports generic Docker information like orchestration or docker version.
@@ -47,6 +60,7 @@ public class TakeDockerEnvironment {
     @Inject
     Event<org.arquillian.recorder.reporter.event.PropertyReportEvent> propertyReportEvent;
 
+
     public void reportDockerEnvironment(@Observes AfterAutoStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
 
         GroupEntry docker = new GroupEntry("Cube Environment");
@@ -58,8 +72,80 @@ public class TakeDockerEnvironment {
         docker.getPropertyEntries().add(containersComposition);
 
         propertyReportEvent.fire(new PropertyReportEvent(docker));
-
     }
+
+    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
+        generateStats(executor, cubeRegistry, false, "Before");
+    }
+
+    public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
+        generateStats(executor, cubeRegistry, false, "After");
+    }
+
+    private void generateStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, Boolean decimal, String when) throws IOException {
+        if (executor != null) {
+            List<Cube<?>> containers = cubeRegistry.getCubes();
+
+            GroupEntry containersStat = new GroupEntry("Container Statistics " + when + " Method");
+
+            for (Cube<?> container : containers) {
+                String name = container.getId();
+                Statistics statistics = null;
+
+                statistics = executor.statsContainer(name);
+
+                Map<String, Map<String, ?>> stats = getStats(statistics, decimal);
+                containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
+            }
+            propertyReportEvent.fire(new PropertyReportEvent(containersStat));
+        }
+    }
+
+    private GroupEntry createContainerStatGroup(Map<String, Map<String, ?>> stats, String id) {
+
+        GroupEntry containerStatsInfo = new GroupEntry(id + " Statistics");
+
+        for (Map.Entry<String, Map<String, ?>> stat : stats.entrySet()) {
+            GroupEntry statType = new GroupEntry(stat.getKey() + " statistics");
+
+            Map<String, ?> nwStats = stat.getValue();
+            for (Map.Entry<String, ?> entry : nwStats.entrySet()) {
+                GroupEntry info = new GroupEntry(entry.getKey() + " statistics");
+
+                if (entry.getValue() instanceof LinkedHashMap) {
+
+                    Map<String, String> nwstats = (LinkedHashMap) entry.getValue();
+
+                    for (Map.Entry<String, String> nwstat : nwstats.entrySet()) {
+                        addEntry(new KeyValueEntry(nwstat.getKey(), nwstat.getValue()), info);
+                    }
+
+                } else {
+
+                    addEntry(new KeyValueEntry(entry.getKey(), (String) entry.getValue()), info);
+                }
+                statType.getPropertyEntries().add(info);
+            }
+            containerStatsInfo.getPropertyEntries().add(statType);
+        }
+        return containerStatsInfo;
+    }
+
+    public void reportContainerLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) throws IOException {
+        final String cubeId = beforeStop.getCubeId();
+        if (cubeId != null) {
+            final File logFile = new File(createContainerLogDirectory(reporterConfiguration.getRootDir()), cubeId + ".log");
+
+            executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
+
+            FileEntry fileEntry = new FileEntry();
+            fileEntry.setPath(logFile.getPath());
+            fileEntry.setType("Log");
+            fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
+            propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
+        }
+    }
+
 
     private GroupEntry createDockerCompositionSchema(CubeDockerConfiguration cubeDockerConfiguration, ReporterConfiguration reporterConfiguration) {
 
@@ -187,6 +273,20 @@ public class TakeDockerEnvironment {
         }
 
         return schemasDir.toFile();
+    }
+
+    private File createContainerLogDirectory(File rootDirectory) {
+        final Path reportsLogs = Paths.get("reports", "logs");
+        final Path logsDir = rootDirectory.toPath().resolve(reportsLogs);
+        if (Files.notExists(logsDir)) {
+            try {
+
+                Files.createDirectories(logsDir);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(String.format("Could not created logs directory at %s", logsDir));
+            }
+        }
+        return logsDir.toFile();
     }
 
     private void addEntry(PropertyEntry propertyEntry, GroupEntry groupEntry) {

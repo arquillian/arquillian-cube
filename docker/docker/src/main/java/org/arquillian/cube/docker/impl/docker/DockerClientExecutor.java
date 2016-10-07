@@ -27,12 +27,12 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.ProcessingException;
 
-import com.github.dockerjava.api.command.InspectExecCmd;
 import com.github.dockerjava.api.command.InspectExecResponse;
 import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
+import org.arquillian.cube.docker.impl.await.StatsLogsResultCallback;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -53,6 +53,7 @@ import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.PingCmd;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.command.StatsCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
@@ -71,6 +72,7 @@ import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.api.model.VolumesFrom;
+import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
@@ -481,6 +483,25 @@ public class DockerClientExecutor {
         } finally {
             this.readWriteLock.readLock().unlock();
         }
+    }
+
+    public Statistics statsContainer(String id) throws IOException {
+         this.readWriteLock.readLock().lock();
+
+        try {
+            StatsCmd statsCmd = this.dockerClient.statsCmd(id);
+            StatsLogsResultCallback statslogs = new StatsLogsResultCallback();
+            try {
+                statsCmd.exec(statslogs).awaitCompletion();
+            } catch (InterruptedException e) {
+                throw new IOException(e);
+            }
+            return statslogs.getStatistics();
+
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+
     }
 
     private Ports toPortBindings(Collection<PortBinding> portBindings) {
@@ -1032,4 +1053,5 @@ public class DockerClientExecutor {
             }
         }
     }
+
 }
