@@ -69,14 +69,14 @@ public class DockerContainerDefinitionParser {
             return convert(content, definitionFormat);
         } catch(IllegalArgumentException e) {
             String content = "";
-            String fileContent = "";
+            String fileLocation = "";
             if(uri.isAbsolute()) {
                 content = IOUtil.asStringPreservingNewLines(uri.toURL().openStream());
             } else {
-                fileContent = uri.toString();
-                content = IOUtil.asStringPreservingNewLines(new FileInputStream(fileContent));
+                fileLocation = uri.toString();
+                content = IOUtil.asStringPreservingNewLines(new FileInputStream(fileLocation));
             }
-            return convert(content, definitionFormat, fileContent);
+            return convert(content, definitionFormat, fileLocation);
         }
     }
 
