@@ -63,6 +63,7 @@ public final class ConfigUtil {
             this.representers.put(ExposedPort.class, new ToStringRepresent());
             this.representers.put(Image.class, new ToStringRepresent());
             this.representers.put(Link.class, new ToStringRepresent());
+            this.representers.put(Network.class, new ToStringRepresent());
             addClassTag(DockerCompositions.class, Tag.MAP);
         }
 

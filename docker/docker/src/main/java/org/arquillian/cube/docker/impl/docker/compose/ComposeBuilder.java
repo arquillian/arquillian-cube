@@ -3,10 +3,12 @@ package org.arquillian.cube.docker.impl.docker.compose;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -46,9 +48,9 @@ public class ComposeBuilder {
                 String networkName = getComposeRootLocation() + key ;
                 Network network = networks.build(asMap(networksDefinition, key));
                 this.configuration.add(networkName, network);
-                networkNames.put(key,networkName);
+                networkNames.put(key, networkName);
             }
-        }  else {
+        } else {
             String networkName = getDefaultNetworkName();
             NetworkBuilder networkBuilder = new NetworkBuilder();
             Network network = networkBuilder.withDefaultDriver().build();
@@ -65,22 +67,37 @@ public class ComposeBuilder {
                 if (!dockerComposeContainerDefinition.containsKey(NETWORKS)) {
 					String networkName = getDefaultNetworkName();
 					cubeContainer.setNetworkMode(networkName);
+                    Collection<Network> nwList = new HashSet<>();
+                    nwList.add(this.configuration.getNetworks().get(networkName));
+                    cubeContainer.setNetworks(nwList);
 				} else {
 					if (serviceDefinition.containsKey(NETWORKS)) {
-						ArrayList<String> networks = (ArrayList) serviceDefinition.get(NETWORKS);
-						if (networks.size() >= 1) {
-							String networkName = networkNames.get(networks.get(0));
-							cubeContainer.setNetworkMode(networkName);
-						} else {
+                        ArrayList<String> networks = (ArrayList) serviceDefinition.get(NETWORKS);
+                        if (networks.size() >= 1) {
+                            String networkName = networkNames.get(networks.get(0));
+                            cubeContainer.setNetworkMode(networkName);
+                            Collection<Network> nwList = new HashSet<>();
+                            nwList.add(this.configuration.getNetworks().get(networkName));
+                            cubeContainer.setNetworks(nwList);
+                        } else {
                             throw new IllegalArgumentException("networks not mentioned under services networks section.");
                         }
-					} else {
-						String networkName = getDefaultNetworkName();
-						cubeContainer.setNetworkMode(networkName);
-					}
+                    } else {
+                        Map<String, Network> nws = this.configuration.getNetworks();
+                        String networkName = getDefaultNetworkName();
+                        Collection<Network> nwList = new HashSet<>();
+                        if (!nws.containsKey(networkName)) {
+                            NetworkBuilder networkBuilder = new NetworkBuilder();
+                            Network network = networkBuilder.withDefaultDriver().build();
+                            this.configuration.add(networkName, network);
+                        }
+                        cubeContainer.setNetworkMode(networkName);
+                        nwList.add(this.configuration.getNetworks().get(networkName));
+                        cubeContainer.setNetworks(nwList);
+                    }
 				}
                 String serviceName = getComposeRootLocation() + key;
-				this.configuration.add(serviceName , cubeContainer);
+                this.configuration.add(serviceName, cubeContainer);
 			}
 		}
 		return this.configuration;

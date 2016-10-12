@@ -9,6 +9,9 @@ services:
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyUSB0:/dev/ttyUSB0:rm"
+    networks:
+      - front-tier
+
   webapp2:
     image: ubuntu
     ports:
