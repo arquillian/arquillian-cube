@@ -2,7 +2,7 @@ version: '2'
 services:
   webapp:
     build:
-      context: ./demo
+      context: .
       dockerfile: Dockerfile-alternative
     ports:
       - "8000:8000"
