@@ -9,7 +9,6 @@ import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,8 +32,6 @@ import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -136,8 +133,7 @@ public class ContainerBuilder {
                             this.addBuild(asString(buildDefinition, CONTEXT),
                                     dockerfile);
                         } else {
-                            File[] files = getDockerfileFromGit(context, dockerfile);
-                            this.addBuild(asString(buildDefinition, CONTEXT), files[0].getName());
+                            // This is when it is a git repository. Using JGit enters in conflict with docker-java dependencies, so for now it cannot be used.
                         }
                     }
                 }
@@ -269,26 +265,6 @@ public class ContainerBuilder {
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
-    }
-
-    private File[] getDockerfileFromGit(String uri, final String dockerfileName) {
-        Git git = cloneRepository(uri);
-        File repo = git.getRepository().getDirectory().getParentFile();
-        File gitRepository = new File(repo.getAbsolutePath());
-        return gitRepository.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().equals(dockerfileName);
-            }
-        });
-    }
-
-    private Git cloneRepository(String uri) {
-        try {
-            return Git.cloneRepository().setURI(uri).call();
-        } catch (GitAPIException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     private ContainerBuilder addShmSize(long shmSize) {

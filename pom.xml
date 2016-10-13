@@ -77,7 +77,6 @@
         <version.assertj>2.5.0</version.assertj>
         <version.arquillian.recorder>1.1.4.Final</version.arquillian.recorder>
         <version.restassured>3.0.0</version.restassured>
-        <version.jgit>4.5.0.201609210915-r</version.jgit>
     </properties>
 
     <dependencyManagement>
@@ -274,12 +273,6 @@
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-core</artifactId>
                 <version>${version.undertow}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.eclipse.jgit</groupId>
-                <artifactId>org.eclipse.jgit</artifactId>
-                <version>${version.jgit}</version>
             </dependency>
 
         </dependencies>
