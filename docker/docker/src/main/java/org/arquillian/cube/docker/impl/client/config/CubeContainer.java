@@ -32,6 +32,7 @@ public class CubeContainer {
     private Collection<String> dns;
     private Collection<String> volumes;
     private Collection<String> volumesFrom;
+    private Collection<Network> networks;
     private Boolean removeVolumes = Boolean.TRUE;
     private Collection<String> binds;
     private Collection<Link> links;
@@ -462,6 +463,14 @@ public class CubeContainer {
 
     public boolean isKillContainer() {
         return killContainer;
+    }
+
+    public Collection<Network> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(Collection<Network> networks) {
+        this.networks = networks;
     }
 
     public Collection<String> getDependingContainers() {

@@ -69,20 +69,21 @@ public class DockerContainerDefinitionParser {
             return convert(content, definitionFormat);
         } catch(IllegalArgumentException e) {
             String content = "";
+            String fileLocation = "";
             if(uri.isAbsolute()) {
                 content = IOUtil.asStringPreservingNewLines(uri.toURL().openStream());
             } else {
-                String fileContent = uri.toString();
-                content = IOUtil.asStringPreservingNewLines(new FileInputStream(fileContent));
+                fileLocation = uri.toString();
+                content = IOUtil.asStringPreservingNewLines(new FileInputStream(fileLocation));
             }
-            return convert(content, definitionFormat);
+            return convert(content, definitionFormat, fileLocation);
         }
     }
 
-    public static DockerCompositions convert(String content, DefinitionFormat definitionFormat) {
+    public  static DockerCompositions convert(String content, DefinitionFormat definitionFormat, String composeLocation) {
         switch (definitionFormat) {
             case COMPOSE: {
-                DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(content);
+                DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(content, composeLocation);
                 return dockerComposeConverter.convert();
             }
             case CUBE: {
@@ -94,6 +95,10 @@ public class DockerContainerDefinitionParser {
                 return cubeConverter.convert();
             }
         }
+    }
+
+    public static DockerCompositions convert(String content, DefinitionFormat definitionFormat) {
+        return convert(content, definitionFormat, null);
     }
 
     public static DockerCompositions convertDefault(DefinitionFormat definitionFormat) throws IOException {

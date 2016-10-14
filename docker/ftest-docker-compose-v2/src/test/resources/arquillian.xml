@@ -16,6 +16,7 @@
         <configuration>
             <property name="user">admin</property>
             <property name="pass">mypass</property>
+            <property name="cubeId">ftest-docker-compose-v2_tomcat</property>
         </configuration>
     </container>
 </arquillian>
