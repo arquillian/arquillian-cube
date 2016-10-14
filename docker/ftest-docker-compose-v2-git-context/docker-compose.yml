@@ -1,0 +1,8 @@
+version: '2'
+services:
+  pingpong:
+    build:
+      context: https://github.com/lordofthejars/pingpongdockerfile.git
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
