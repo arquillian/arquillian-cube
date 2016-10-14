@@ -901,6 +901,15 @@ public class DockerClientExecutor {
         }
     }
 
+    public void connectToNetwork(String networkId, String containerID) {
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.connectToNetworkCmd().withNetworkId(networkId).withContainerId(containerID).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     /**
      * Get the URI of the docker host
      *
