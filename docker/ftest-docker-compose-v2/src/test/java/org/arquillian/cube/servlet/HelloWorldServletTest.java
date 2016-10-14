@@ -33,8 +33,6 @@ import com.github.dockerjava.api.DockerClient;
 @RunWith(Arquillian.class)
 public class HelloWorldServletTest {
 
-    private final CubeID cubeID = new CubeID("ftest-docker-compose-v2_tomcat");
-
     @Deployment(testable=false)
     public static WebArchive create() {
         return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class);
@@ -65,7 +63,7 @@ public class HelloWorldServletTest {
     }
 
     @Test
-    public void should_get_running_logs(@ArquillianResource CubeController cubeController) {
+    public void should_get_running_logs(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         cubeController.copyLog(cubeID, false, true, true, false, -1, bos);
         String log = new String(bos.toByteArray());
@@ -74,7 +72,7 @@ public class HelloWorldServletTest {
 
     @Ignore
     @Test
-    public void should_execute_top(@ArquillianResource CubeController cubeController) {
+    public void should_execute_top(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
         TopContainer top = cubeController.top(cubeID);
         assertThat(top, notNullValue());
         assertThat(top.getProcesses(), notNullValue());
@@ -82,14 +80,14 @@ public class HelloWorldServletTest {
     }
 
     @Test
-    public void should_get_changes_on_container(@ArquillianResource CubeController cubeController) {
+    public void should_get_changes_on_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
         List<ChangeLog> changesOnFilesystem = cubeController.changesOnFilesystem(cubeID);
         assertThat(changesOnFilesystem, notNullValue());
         assertThat(changesOnFilesystem.size() > 0, is(true));
     }
 
     @Test
-    public void should_copy_files_from_container(@ArquillianResource CubeController cubeController) throws IOException {
+    public void should_copy_files_from_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) throws IOException {
         File newFolder = folder.newFolder();
         cubeController.copyFileDirectoryFromContainer(cubeID, "/tomcat/logs", newFolder.getAbsolutePath());
         File logFolder = newFolder.listFiles()[0];
@@ -108,7 +106,7 @@ public class HelloWorldServletTest {
     }
 
     @Test
-    public void should_enrich_test_with_cube_id() {
-        assertThat(cubeID, notNullValue());
+    public void should_enrich_test_with_cube_id(@ArquillianResource CubeID cubeId) {
+        assertThat(cubeId, notNullValue());
     }
 }
