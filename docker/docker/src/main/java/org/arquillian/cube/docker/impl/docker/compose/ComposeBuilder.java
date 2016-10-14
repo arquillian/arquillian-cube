@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -72,8 +73,8 @@ public class ComposeBuilder {
                     cubeContainer.setNetworks(nwList);
 				} else {
 					if (serviceDefinition.containsKey(NETWORKS)) {
-                        ArrayList<String> networks = (ArrayList) serviceDefinition.get(NETWORKS);
-                        if (networks.size() >= 1) {
+                        List<String> networks = (ArrayList) serviceDefinition.get(NETWORKS);
+                        if (!networks.isEmpty()) {
                             String networkName = networkNames.get(networks.get(0));
                             cubeContainer.setNetworkMode(networkName);
                             Collection<Network> nwList = new HashSet<>();

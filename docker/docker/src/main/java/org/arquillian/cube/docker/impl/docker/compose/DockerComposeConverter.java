@@ -49,7 +49,7 @@ public class DockerComposeConverter implements Converter {
     private DockerComposeConverter(String content, String dockerComposeRootDirectory) {
         String resolvePlaceholders = resolvePlaceholders(content);
         this.dockerComposeDefinitionMap = loadConfig(resolvePlaceholders);
-        this.dockerComposeRootDirectory = dockerComposeRootDirectory == null || dockerComposeRootDirectory.isEmpty() ? Paths.get(".") : Paths.get(dockerComposeRootDirectory).toAbsolutePath().getParent();
+        this.dockerComposeRootDirectory = dockerComposeRootDirectory == null || dockerComposeRootDirectory.isEmpty() ? Paths.get(".").toAbsolutePath().getParent() : Paths.get(dockerComposeRootDirectory).toAbsolutePath().getParent();
     }
 
     public static DockerComposeConverter create(Path location) {
