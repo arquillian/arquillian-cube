@@ -196,7 +196,7 @@ public class DockerClientExecutor {
     }
 
     public String createContainer(String name, CubeContainer containerConfiguration) {
-            String image = getImageName(containerConfiguration);
+            String image = getImageName(containerConfiguration, name);
 
         try {
             this.readWriteLock.readLock().lock();
@@ -440,7 +440,7 @@ public class DockerClientExecutor {
         return allExposedPorts;
     }
 
-    private String getImageName(CubeContainer containerConfiguration) {
+    private String getImageName(CubeContainer containerConfiguration, String name) {
         String image;
 
         if (containerConfiguration.getImage() != null) {
@@ -458,7 +458,7 @@ public class DockerClientExecutor {
                     params.put("dockerFileLocation", buildImage.getDockerfileLocation());
                     params.put("dockerFileName", buildImage.getDockerfileName());
 
-                    image = this.buildImage(buildImage.getDockerfileLocation(), params);
+                    image = this.buildImage(buildImage.getDockerfileLocation(), name, params);
                 } else {
                     throw new IllegalArgumentException(
                             "A tar file with Dockerfile on root or a directory with a Dockerfile should be provided.");
@@ -590,13 +590,15 @@ public class DockerClientExecutor {
         }
     }
 
-    private String buildImage(String location, Map<String, Object> params) {
+    private String buildImage(String location, String name, Map<String, Object> params) {
 
         this.readWriteLock.writeLock().lock();
         try {
             BuildImageCmd buildImageCmd = createBuildCommand(location);
             configureBuildCommand(params, buildImageCmd);
-
+            if (name != null) {
+                buildImageCmd.withTag(name);
+            }
             String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
 
             if (imageId == null) {

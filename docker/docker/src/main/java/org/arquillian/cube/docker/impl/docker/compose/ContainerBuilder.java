@@ -11,6 +11,7 @@ import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
@@ -92,6 +94,7 @@ public class ContainerBuilder {
 
     private CubeContainer configuration;
     private Path dockerComposeRootLocation;
+    GitOperations gitOperations;
 
     public ContainerBuilder(Path dockerComposeRootLocation) {
         this(dockerComposeRootLocation, new CubeContainer());
@@ -125,16 +128,26 @@ public class ContainerBuilder {
                     Map<String, Object> buildDefinition = asMap(dockerComposeContainerDefinition, BUILD);
 
                     String context = buildDefinition.containsKey(CONTEXT) ? asString(buildDefinition, CONTEXT) : null;
-                    final String dockerfile = buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
 
-                    if (context != null && dockerfile != null) {
+                    final String dockerfile = buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
+                    if (context != null) {
                         File directory = new File(context);
                         if (directory.isDirectory()) {
                             this.addBuild(asString(buildDefinition, CONTEXT),
                                     dockerfile);
                         } else {
-                            // This is when it is a git repository. Using JGit enters in conflict with docker-java dependencies, so for now it cannot be used.
+                            // Make GitOperations lazy because it will help for testing purposes and to avoid instantiate JGit classes when Git is not required-
+                            // In this way, if you don't need Git, you don't need to add jgit dependency
+                            if (gitOperations == null) {
+                                log.log(Level.INFO, String.format("Starting cloning git repository %s defined in docker-compose", context));
+                                GitOperations gitOperations = new GitOperations();
+                                File clonedDirectory = gitOperations.cloneRepo(context);
+                                log.log(Level.INFO, String.format("Finished cloning git repository %s defined in docker-compose", context));
+                                this.addBuild(clonedDirectory.getParentFile().getAbsolutePath(), dockerfile);
+                            }
                         }
+                    } else {
+                        log.log(Level.WARNING, "build configuration is provided as object but no context definition is found.");
                     }
                 }
             } else {
@@ -333,10 +346,17 @@ public class ContainerBuilder {
         //. directory is the root of the project, but docker-compose . means relative to docker-compose file, so we resolve the full path
         //and to no add full path we relativize to docker-compose
 
-        Path fullDirectory = this.dockerComposeRootLocation.resolve(buildPath);
-        Path relativize = this.dockerComposeRootLocation.relativize(fullDirectory);
+        Path buildPathPath = Paths.get(buildPath);
 
-        BuildImage buildImage = new BuildImage(relativize.toString(), dockerfile, true, true);
+        Path calculatedPath;
+        if (buildPathPath.isAbsolute()) {
+            calculatedPath = buildPathPath;
+        } else {
+            Path fullDirectory = this.dockerComposeRootLocation.resolve(buildPath);
+            calculatedPath = this.dockerComposeRootLocation.relativize(fullDirectory);
+        }
+
+        BuildImage buildImage = new BuildImage(calculatedPath.toString(), dockerfile, true, true);
         configuration.setBuildImage(buildImage);
         return this;
     }
