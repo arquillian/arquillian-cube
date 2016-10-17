@@ -87,7 +87,7 @@ public class KubernetesExtension implements LoadableExtension {
         Class creatorClass = null;
         String creatorClassName = System.getProperty(Constants.CLIENT_CREATOR_CLASS_NAME);
         try {
-            if (Strings.isNullOrEmpty(creatorClassName))
+            if (Strings.isNotNullOrEmpty(creatorClassName))
                 creatorClass = KubernetesExtension.class.getClassLoader().loadClass(creatorClassName);
         } catch (Throwable t) {
             //fallback to default
