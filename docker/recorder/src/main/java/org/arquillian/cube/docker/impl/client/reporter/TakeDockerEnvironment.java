@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -10,6 +12,7 @@ import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
@@ -68,7 +71,9 @@ public class TakeDockerEnvironment {
         GroupEntry dockerInfo = createDockerInfoGroup(executor);
         docker.getPropertyEntries().add(dockerInfo);
 
-        GroupEntry containersComposition = createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration);
+        GroupEntry containersComposition = createNetworkTopologyGraph(cubeDockerConfiguration, reporterConfiguration, executor);
+
+       // GroupEntry containersComposition = createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration);
         docker.getPropertyEntries().add(containersComposition);
 
         propertyReportEvent.fire(new PropertyReportEvent(docker));
@@ -165,7 +170,6 @@ public class TakeDockerEnvironment {
             final Map<String, Object> insertedVertex = new HashMap<>();
 
             for (Map.Entry<String, CubeContainer> containerEntry : containers.entrySet()) {
-
                 String containerId = containerEntry.getKey();
                 CubeContainer cubeContainer = containerEntry.getValue();
 
@@ -184,6 +188,48 @@ public class TakeDockerEnvironment {
         addEntry(screenshotEntry, containersComposition);
 
         return containersComposition;
+    }
+
+    private GroupEntry createNetworkTopologyGraph(CubeDockerConfiguration cubeDockerConfiguration, ReporterConfiguration reporterConfiguration, DockerClientExecutor executor) {
+
+        final GroupEntry netTopology = new GroupEntry("Network Topology Graph");
+        mxGraph graph = new mxGraph();
+        Object parent = graph.getDefaultParent();
+
+        graph.setAutoSizeCells(true);
+        graph.getModel().beginUpdate();
+        try {
+            DockerCompositions dockerCompositions = cubeDockerConfiguration.getDockerContainersContent();
+            Map<String, CubeContainer> containers = dockerCompositions.getContainers();
+            final Map<String, Object> insertedVertex = new HashMap<>();
+                for (Map.Entry<String, CubeContainer> container: containers.entrySet()) {
+                    String containerName = container.getValue().getContainerName();
+                    Object container_ = graph.insertVertex(parent, null , containerName, 0, 0, 80, 30);
+                    InspectContainerResponse containerResponse = executor.inspectContainer(containerName);
+                    Map<String, ContainerNetwork> nws = containerResponse.getNetworkSettings().getNetworks();
+                    for (String nw: nws.keySet()) {
+                        Object nwName = null;
+                        if (insertedVertex.containsKey(nw)) {
+                            nwName = insertedVertex.get(nw);
+                        } else {
+                            nwName = graph.insertVertex(parent, null, nw, 0, 0, 80, 30);
+                        }
+                        graph.updateCellSize(nwName);
+                        graph.insertEdge(parent, null, nw, container_, nwName);
+                        insertedVertex.put(nw, nwName);
+                    }
+                }
+            } finally {
+            graph.getModel().endUpdate();
+        }
+
+        mxIGraphLayout layout = new mxHierarchicalLayout(graph, SwingConstants.WEST);
+        layout.execute(graph.getDefaultParent());
+
+        ScreenshotEntry screenshotEntry = generateCompositionSchemaImage(graph, reporterConfiguration);
+        addEntry(screenshotEntry, netTopology);
+
+        return netTopology;
     }
 
     private void updateGraph(mxGraph graph, Object parent, Map<String, Object> insertedVertex, String containerId, CubeContainer cubeContainer) {
@@ -222,6 +268,7 @@ public class TakeDockerEnvironment {
             }
         }
     }
+
 
     private ScreenshotEntry generateCompositionSchemaImage(mxGraph graph, ReporterConfiguration reporterConfiguration) {
         final BufferedImage bufferedImage = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
