@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Collection;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -105,11 +107,17 @@ public final class ConfigUtil {
                 Map<String, Object> rawContainers = (Map<String, Object>) rawLoadEntry.getValue();
                 for (Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
                     CubeContainer cubeContainer = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
+                    if (cubeContainer.getNetworkMode() != null) {
+                        addNetworks(cubeContainer, containers);
+                    }
                     containers.add(rawContainerEntry.getKey(), cubeContainer);
                 }
             }
             else {
                 CubeContainer container = yaml.loadAs(yaml.dump(rawLoadEntry.getValue()), CubeContainer.class);
+                if (container.getNetworkMode() != null) {
+                    addNetworks(container, containers);
+                }
                 containers.add(rawLoadEntry.getKey(), container);
             }
         }
@@ -157,5 +165,14 @@ public final class ConfigUtil {
             }
         }
         return dockerCompositions;
+    }
+
+    private static void addNetworks(CubeContainer container, DockerCompositions containers) {
+        String networkMode = container.getNetworkMode();
+        if (containers.getNetworks().containsKey(networkMode)) {
+            Collection<Network> nwList = new HashSet<>();
+            nwList.add(containers.getNetworks().get(networkMode));
+            container.setNetworks(nwList);
+        }
     }
 }
