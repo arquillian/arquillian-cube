@@ -48,6 +48,7 @@ public class CubeContainer {
     private Collection<String> capDrop;
     private Collection<String> extraHosts;
     private Collection<String> entryPoint;
+    private Collection<String> networks;
     private String domainName;
     private Boolean alwaysPull = Boolean.FALSE;
     private boolean manual = false;
@@ -462,6 +463,14 @@ public class CubeContainer {
 
     public boolean isKillContainer() {
         return killContainer;
+    }
+
+    public Collection<String> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(Collection<String> networks) {
+        this.networks = networks;
     }
 
     public Collection<String> getDependingContainers() {

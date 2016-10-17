@@ -202,6 +202,20 @@ tomcat:
 <3> Driver used. Currently this is the only supported property due not support in docker-java
 <4> Sets the network where container must join.
 
+You can also use `networks` to connect to more than one network:
+
+[source, yml]
+.src/test/resources/cube
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  networkMode: mynetwork
+  networks:
+    - mynetwork
+    - myothernetwork
+----
+
 === cube.environment
 
 In case you use the `dockerContainersFile` to configure a YAML file (Cube format or Compose format) for loading the definition of your containers, you can use `cube.environment` system property to append a prefix to the file you want to load.

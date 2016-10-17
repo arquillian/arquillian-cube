@@ -1,10 +1,12 @@
 package org.arquillian.cube.docker.impl.client;
 
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.NetworkRegistry;
 import org.arquillian.cube.spi.CubeConfiguration;
+import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -43,6 +45,20 @@ public class NetworkLifecycleController {
         for (String networkId : networkIds) {
             dockerClientExecutor.removeNetwork(networkId);
         }
+    }
+
+    public void connectToNetworks(@Observes AfterCreate event, CubeDockerConfiguration dockerConfiguration) {
+        final DockerCompositions dockerContainersContent = dockerConfiguration.getDockerContainersContent();
+        final DockerClientExecutor dockerClientExecutor = dockerClientExecutorInstance.get();
+        String cubeId = event.getCubeId();
+        CubeContainer container = dockerContainersContent.get(cubeId);
+
+        for (String network : container.getNetworks()) {
+            if (!network.equals(container.getNetworkMode())) {
+                dockerClientExecutor.connectToNetwork(network, cubeId);
+            }
+        }
+
     }
 
 }

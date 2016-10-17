@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
@@ -17,6 +18,7 @@ import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class DockerComposeConverterTest {
@@ -193,6 +195,23 @@ public class DockerComposeConverterTest {
   }
 
   @Test
+  public void shouldTransformSimpleDockerComposeV2FormatMultipleNetworks() throws URISyntaxException {
+
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/myapp/docker-compose-multiple-networks.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.getContainers().get("pingpong");
+    assertThat(webapp, is(notNullValue()));
+    assertThat(webapp.getNetworkMode()).isEqualTo("front");
+    assertThat(webapp.getNetworks()).contains("front", "back");
+
+    Map<String, Network> networks = convert.getNetworks();
+    assertThat(networks).hasSize(2);
+    assertThat(networks).containsOnlyKeys("front", "back");
+  }
+
+  @Test
   public void shouldTransformSimpleDockerComposeV2FormatNetworkByDefault() throws URISyntaxException {
 
     URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/myapp/simple-docker-compose-v2.yml").toURI();
@@ -201,12 +220,11 @@ public class DockerComposeConverterTest {
     DockerCompositions convert = dockerComposeConverter.convert();
     CubeContainer webapp = convert.getContainers().get("webapp");
     assertThat(webapp, is(notNullValue()));
-    assertThat(webapp.getNetworkMode(), is("myapp_default"));
+    assertThat(webapp.getNetworkMode()).endsWith("_default");
 
     Map<String, Network> networks = convert.getNetworks();
-    Network network = networks.get("myapp_default");
-    assertThat(network, is(notNullValue()));
-    assertThat(network.getDriver(), is("bridge"));
+    assertThat(networks).hasSize(1);
+    assertThat(networks.keySet().iterator().next()).endsWith("_default");
   }
 
   @Test

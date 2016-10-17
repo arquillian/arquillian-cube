@@ -132,7 +132,7 @@ public class DockerClientExecutor {
     public static final String EXTRA_HOSTS = "extraHosts";
     public static final String READ_ONLY_ROOT_FS = "ReadonlyRootfs";
     public static final String LABELS = "labels";
-    public static final String DOMAINNAME= "domainName";
+    public static final String DOMAINNAME = "domainName";
 
     private static final Logger log = Logger.getLogger(DockerClientExecutor.class.getName());
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
@@ -158,19 +158,19 @@ public class DockerClientExecutor {
         dockerServerIp = cubeConfiguration.getDockerServerIp();
 
         configBuilder.withApiVersion(cubeConfiguration.getDockerServerVersion()).withDockerHost(dockerUri.toString());
-        if(cubeConfiguration.getUsername() != null) {
+        if (cubeConfiguration.getUsername() != null) {
             configBuilder.withRegistryUsername(cubeConfiguration.getUsername());
         }
 
-        if(cubeConfiguration.getPassword() != null) {
+        if (cubeConfiguration.getPassword() != null) {
             configBuilder.withRegistryPassword(cubeConfiguration.getPassword());
         }
 
-        if(cubeConfiguration.getEmail() != null) {
+        if (cubeConfiguration.getEmail() != null) {
             configBuilder.withRegistryEmail(cubeConfiguration.getEmail());
         }
 
-        if(cubeConfiguration.getCertPath() != null) {
+        if (cubeConfiguration.getCertPath() != null) {
             configBuilder.withDockerCertPath(HomeResolverUtil.resolveHomeDirectoryChar(cubeConfiguration.getCertPath()));
         }
 
@@ -196,7 +196,7 @@ public class DockerClientExecutor {
     }
 
     public String createContainer(String name, CubeContainer containerConfiguration) {
-            String image = getImageName(containerConfiguration, name);
+        String image = getImageName(containerConfiguration, name);
 
         try {
             this.readWriteLock.readLock().lock();
@@ -415,7 +415,7 @@ public class DockerClientExecutor {
     private List<String> resolveDockerServerIpInList(Collection<String> envs) {
         List<String> resolvedEnv = new ArrayList<String>();
         for (String env : envs) {
-            if(env.contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
+            if (env.contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
                 resolvedEnv.add(env.replaceAll(CubeDockerConfiguration.DOCKER_SERVER_IP, cubeConfiguration.getDockerServerIp()));
             } else {
                 resolvedEnv.add(env);
@@ -425,15 +425,15 @@ public class DockerClientExecutor {
     }
 
     private Set<ExposedPort> resolveExposedPorts(CubeContainer containerConfiguration,
-            CreateContainerCmd createContainerCmd) {
+                                                 CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
         if (containerConfiguration.getPortBindings() != null) {
-            for(PortBinding binding : containerConfiguration.getPortBindings()) {
+            for (PortBinding binding : containerConfiguration.getPortBindings()) {
                 allExposedPorts.add(new ExposedPort(binding.getExposedPort().getExposed(), InternetProtocol.parse(binding.getExposedPort().getType())));
             }
         }
         if (containerConfiguration.getExposedPorts() != null) {
-            for(org.arquillian.cube.docker.impl.client.config.ExposedPort port : containerConfiguration.getExposedPorts()) {
+            for (org.arquillian.cube.docker.impl.client.config.ExposedPort port : containerConfiguration.getExposedPorts()) {
                 allExposedPorts.add(new ExposedPort(port.getExposed(), InternetProtocol.parse(port.getType())));
             }
         }
@@ -486,7 +486,7 @@ public class DockerClientExecutor {
     }
 
     public Statistics statsContainer(String id) throws IOException {
-         this.readWriteLock.readLock().lock();
+        this.readWriteLock.readLock().lock();
 
         try {
             StatsCmd statsCmd = this.dockerClient.statsCmd(id);
@@ -644,7 +644,7 @@ public class DockerClientExecutor {
             buildImageCmd.withRemove((boolean) params.get(REMOVE));
         }
 
-        if(params.containsKey(DOCKERFILE_NAME)) {
+        if (params.containsKey(DOCKERFILE_NAME)) {
             buildImageCmd.withDockerfile(new File((String) params.get(DOCKERFILE_NAME)));
         }
     }
@@ -726,6 +726,7 @@ public class DockerClientExecutor {
 
     /**
      * EXecutes command to given container returning the inspection object as well. This method does 3 calls to dockerhost. Create, Start and Inspect.
+     *
      * @param containerId to execute command.
      * @param commands
      * @return
@@ -747,7 +748,7 @@ public class DockerClientExecutor {
         return exec;
     }
 
-    private String execCreate(String containerId, String...commands) {
+    private String execCreate(String containerId, String... commands) {
         ExecCreateCmdResponse execCreateCmdResponse = this.dockerClient.execCreateCmd(containerId)
                 .withAttachStdout(true).withAttachStdin(true).withAttachStderr(true).withTty(false).withCmd(commands)
                 .exec();
@@ -817,6 +818,15 @@ public class DockerClientExecutor {
             dockerClient.copyArchiveToContainerCmd(containerId)
                     .withRemotePath(to.getAbsolutePath())
                     .withHostResource(from.getAbsolutePath()).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
+    public void connectToNetwork(String networkId, String containerID) {
+        this.readWriteLock.readLock().lock();
+        try {
+            this.dockerClient.connectToNetworkCmd().withNetworkId(networkId).withContainerId(containerID).exec();
         } finally {
             this.readWriteLock.readLock().unlock();
         }
@@ -959,7 +969,7 @@ public class DockerClientExecutor {
 
     private static final Link[] toLinks(Collection<org.arquillian.cube.docker.impl.client.config.Link> linkList) {
         Link[] links = new Link[linkList.size()];
-        int i=0;
+        int i = 0;
         for (org.arquillian.cube.docker.impl.client.config.Link link : linkList) {
             links[i] = new Link(link.getName(), link.getAlias());
             i++;
@@ -980,7 +990,7 @@ public class DockerClientExecutor {
 
         Bind[] binds = new Bind[bindsList.size()];
         int i = 0;
-        for (String bind: bindsList) {
+        for (String bind : bindsList) {
             binds[i] = Bind.parse(bind);
             i++;
         }
@@ -1004,7 +1014,7 @@ public class DockerClientExecutor {
         VolumesFrom[] volumesFrom = new VolumesFrom[volumesFromList.size()];
 
         int i = 0;
-        for(String volumesFromm : volumesFromList) {
+        for (String volumesFromm : volumesFromList) {
             volumesFrom[i] = VolumesFrom.parse(volumesFromm);
             i++;
         }
