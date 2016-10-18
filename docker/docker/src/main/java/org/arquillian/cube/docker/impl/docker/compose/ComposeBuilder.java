@@ -1,8 +1,12 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +46,19 @@ public class ComposeBuilder {
                 CubeContainer cubeContainer = services.build(asMap(servicesDefinition, key), DockerComposeConverter.DOCKER_COMPOSE_VERSION_2_VALUE);
                 if (!dockerComposeContainerDefinition.containsKey(NETWORKS)) {
                     String networkName = getDefaultNetworkName();
+                    cubeContainer.setNetworks(Arrays.asList(networkName));
                     cubeContainer.setNetworkMode(networkName);
+                } else {
+                    final Map<String, Object> serviceDefinition = asMap(servicesDefinition, key);
+                    if (serviceDefinition.containsKey(NETWORKS)) {
+                        final Collection<String> serviceNetworks = asListOfString(serviceDefinition, NETWORKS);
+                        if (!serviceNetworks.isEmpty()) {
+                            cubeContainer.setNetworks(new HashSet<>(serviceNetworks));
+                            cubeContainer.setNetworkMode(serviceNetworks.iterator().next());
+                        } else {
+                            throw new IllegalArgumentException("Networks not mentioned under services networks section.");
+                        }
+                    }
                 }
                 this.configuration.add(key, cubeContainer);
             }
@@ -66,7 +82,10 @@ public class ComposeBuilder {
     }
 
     private String getDefaultNetworkName() {
-        return this.dockerComposeRootLocation.toFile().getName() + NETWORK_NAME_SUFFIX;
+        return this.dockerComposeRootLocation.toFile()
+                .getAbsoluteFile()
+                .getParentFile()
+                .getName() + NETWORK_NAME_SUFFIX;
     }
 
 }

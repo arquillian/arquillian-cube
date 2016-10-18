@@ -82,11 +82,12 @@ public class ContainerBuilder {
     private static final String CONTAINERNAME = "container_name";
     private static final String DEPENDS_ON = "depends_on";
     private static final String CONTEXT = "context";
+    private static final String NETWORKS = "networks";
 
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
             DNS_SEARCH, WORKING_DIR, ENTRYPOINT, USER, HOSTNAME, MEM_LIMIT, PRIVILEGED, RESTART, STDIN_OPEN, TTY,
-            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE);
+            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE, NETWORKS);
 
     private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
 
@@ -276,8 +277,22 @@ public class ContainerBuilder {
             this.addContainerName(asString(dockerComposeContainerDefinition, CONTAINERNAME));
         }
 
+        if (dockerComposeContainerDefinition.containsKey(NETWORKS)) {
+            this.addNetworks(asListOfString(dockerComposeContainerDefinition, NETWORKS));
+        }
+
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
+    }
+
+    private ContainerBuilder addNetworks(Collection<String> networks) {
+        if (configuration.getNetworks() != null) {
+            configuration.getNetworks().addAll(networks);
+        } else {
+            configuration.setNetworks(new HashSet<>(networks));
+        }
+
+        return this;
     }
 
     private ContainerBuilder addShmSize(long shmSize) {

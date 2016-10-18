@@ -4,31 +4,10 @@
     xsi:schemaLocation="http://jboss.org/schema/arquillian
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-  <!-- We have to bind the docker hostname and port, otherwise RMI will choose a random port, which we can't forward to the docker host.
-   RMI is a difficult protocol to configure :(.    -->
-
     <extension qualifier="docker">
         <property name="serverVersion">${docker.api.version}</property>
-        <property name="definitionFormat">CUBE</property>
-        <property name="dockerContainers">
-            networks:
-                mynetwork:
-                    driver: bridge
-            tomcat:
-                image: tutum/tomcat:7.0
-                exposedPorts: [8089/tcp]
-                env: [TOMCAT_PASS=mypass, "CATALINA_OPTS=-Djava.security.egd=file:/dev/./urandom", JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-                portBindings: [8089/tcp, 8088/tcp, 8081->8080/tcp]
-                networkMode: mynetwork
-            pingpong:
-                image: jonmorehouse/ping-pong
-                exposedPorts: [8080/tcp]
-                portBindings: [8080->8080/tcp]
-                networkMode: mynetwork
-        </property>
         <property name="machineName">dev</property>
-        <!--<property name="definitionFormat">COMPOSE</property>-->
-        <!--<property name="dockerContainersFile">docker-compose.yml</property>-->
+        <property name="dockerContainersFile">docker-compose.yml</property>
     </extension>
 
     <container qualifier="tomcat">
