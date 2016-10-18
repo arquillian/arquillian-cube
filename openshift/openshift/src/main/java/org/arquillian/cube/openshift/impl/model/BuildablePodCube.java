@@ -1,13 +1,13 @@
 package org.arquillian.cube.openshift.impl.model;
 
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.Pod;
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
+
+import java.util.List;
+
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
-import org.arquillian.cube.openshift.impl.client.PortForwarder;
-import org.arquillian.cube.openshift.impl.client.PortForwarder.PortForwardServer;
 import org.arquillian.cube.openshift.impl.client.metadata.CopyFromContainer;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
@@ -15,19 +15,11 @@ import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.event.lifecycle.*;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
-import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
-import org.xnio.IoUtils;
 
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.util.*;
-import java.util.Map.Entry;
-
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
+import io.fabric8.kubernetes.api.model.Pod;
 
 public class BuildablePodCube extends BaseCube<Void> {
 
@@ -35,10 +27,8 @@ public class BuildablePodCube extends BaseCube<Void> {
     private Pod resource;
     private Template<Pod> template;
     private Cube.State state;
-    private CubeOpenShiftConfiguration configuration;
     private OpenShiftClient client;
 
-    private PortBindings portBindings;
     private ResourceHolder holder;
 
     @Inject
@@ -49,8 +39,6 @@ public class BuildablePodCube extends BaseCube<Void> {
         this.resource = resource;
         this.template = new Template.PodTemplate(resource);
         this.client = client;
-        this.configuration = configuration;
-        this.portBindings = new PortBindings();
         addDefaultMetadata();
     }
 
@@ -58,7 +46,6 @@ public class BuildablePodCube extends BaseCube<Void> {
         if (template.getRefs() != null && template.getRefs().size() > 0) {
             addMetadata(IsBuildable.class, new IsBuildable(template.getRefs().get(0).getPath()));
         }
-        addMetadata(HasPortBindings.class, this.portBindings);
         addMetadata(CanCopyFromContainer.class, new CopyFromContainer(getId(), client));
     }
 
@@ -91,15 +78,6 @@ public class BuildablePodCube extends BaseCube<Void> {
             lifecycle.fire(new BeforeStart(id));
             holder.setPod(client.createAndWait(holder.getPod()));
             this.state = State.STARTED;
-            try {
-                portBindings.podStarted();
-            } catch (Exception e) {
-                try {
-                    client.destroy(holder.getPod());
-                } catch (Exception e1) {
-                }
-                throw e;
-            }
             lifecycle.fire(new AfterStart(id));
         } catch (Exception e) {
             this.state = State.START_FAILED;
@@ -112,11 +90,6 @@ public class BuildablePodCube extends BaseCube<Void> {
         try {
             lifecycle.fire(new BeforeStop(id));
             client.destroy(holder.getPod());
-            try {
-                portBindings.podStopped();
-            } catch (Exception e) {
-                // this shouldn't prevent normal shutdown behavior
-            }
             this.state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
         } catch (Exception e) {
@@ -175,176 +148,4 @@ public class BuildablePodCube extends BaseCube<Void> {
         return null;
     }
 
-    private final class PortBindings implements HasPortBindings {
-
-        private final Map<Integer, Integer> proxiedPorts;
-        private final Map<Integer, PortAddress> mappedPorts;
-        private final Set<Integer> containerPorts;
-        private PortForwarder portForwarder;
-        private Map<Integer, PortForwardServer> portForwardServers = new HashMap<Integer, PortForwardServer>();
-
-        public PortBindings() {
-            this.mappedPorts = new HashMap<Integer, PortAddress>();
-            this.proxiedPorts = new LinkedHashMap<Integer, Integer>();
-            for (String proxy : configuration.getProxiedContainerPorts()) {
-                // Syntax: pod:containerPort - backward compatibility, uses allocated port
-                // pod:mappedPort:containerPort - use the same port than container port
-                // pod::containerPort - mappedPort == containerPort (same as oc port-forward), except mappedPort may be 0, which will dynamically allocate a port
-                String[] split = proxy.trim().split(":");
-                final String containerName = split[0];
-                if (containerName.length() > 0 && !id.equals(containerName)) {
-                    // empty matches all, so if it's not empty and doesn't match, skip it
-                    continue;
-                }
-                final Integer containerPort;
-                final Integer mappedPort;
-                if (split.length == 2) {
-                    // backward compatibility: pod:containerPort
-                    // allocate mappedPort
-                    containerPort = Integer.valueOf(split[1]);
-                    mappedPort = allocateLocalPort(0);
-                } else if (split.length == 3) {
-                    containerPort = Integer.valueOf(split[2]);
-                    if (split[1].length() == 0) {
-                        // pod::containerPort - use the same port as container port
-                        mappedPort = allocateLocalPort(containerPort);
-                    } else {
-                        //pod:mappedPort:containerPort - use specified port; if 0, we'll allocate one
-                        mappedPort = allocateLocalPort(Integer.valueOf(split[1]));
-                    }
-                } else {
-                    // log an error
-                    continue;
-                }
-                proxiedPorts.put(containerPort, mappedPort);
-                mappedPorts.put(containerPort, new PortAddressImpl("localhost", mappedPort));
-            }
-
-            this.containerPorts = new LinkedHashSet<Integer>();
-            for (Container container : resource.getSpec().getContainers()) {
-                for (ContainerPort containerPort : container.getPorts()) {
-                    if (containerPort.getContainerPort() == null) {
-                        continue;
-                    }
-                    final int port = containerPort.getContainerPort();
-                    containerPorts.add(port);
-                    if (!proxiedPorts.containsKey(port)) {
-                        final Integer hostPort = containerPort.getHostPort();
-                        if (hostPort != null) {
-                            // we don't care about hostIP at the moment
-                            mappedPorts.put(port, new PortAddressImpl(containerPort.getHostIP(), hostPort));
-                        }
-                    }
-                }
-            }
-
-            // add proxied ports into the mix, if they're not already there
-            containerPorts.addAll(proxiedPorts.keySet());
-        }
-
-        @Override
-        public boolean isBound() {
-            return state == State.STARTED;
-        }
-
-        @Override
-        public String getContainerIP() {
-            if (isBound() && holder.getPod().getStatus() != null) {
-                return holder.getPod().getStatus().getPodIP();
-            }
-            return null;
-        }
-
-        @Override
-        public String getInternalIP() {
-            return null;
-        }
-
-        @Override
-        public Set<Integer> getContainerPorts() {
-            return Collections.unmodifiableSet(containerPorts);
-        }
-
-        @Override
-        public Set<Integer> getBoundPorts() {
-            // no difference between these
-            return Collections.unmodifiableSet(containerPorts);
-        }
-
-        @Override
-        public synchronized PortAddress getMappedAddress(int targetPort) {
-            if (mappedPorts.containsKey(targetPort)) {
-                return mappedPorts.get(targetPort);
-            }
-            return null;
-        }
-
-        private synchronized void podStarted() throws Exception {
-            if (holder.getPod() != null && holder.getPod().getSpec() != null
-                    && holder.getPod().getSpec().getContainers() != null) {
-                for (Container container : holder.getPod().getSpec().getContainers()) {
-                    for (ContainerPort containerPort : container.getPorts()) {
-                        if (containerPort.getContainerPort() == null) {
-                            continue;
-                        }
-                        final int port = containerPort.getContainerPort();
-                        if (!proxiedPorts.containsKey(port)) {
-                            final Integer hostPort = containerPort.getHostPort();
-                            if (hostPort != null) {
-                                // overwrite as hostIP info may have changed
-                                mappedPorts.put(port, new PortAddressImpl(containerPort.getHostIP(), hostPort));
-                            }
-                        }
-                    }
-                }
-            }
-
-            createProxies();
-        }
-
-        private void createProxies() throws Exception {
-            if (proxiedPorts.isEmpty()) {
-                return;
-            }
-            if (portForwarder == null) {
-                portForwarder = new PortForwarder(client.getClient().getConfiguration(), getId());
-            }
-            try {
-                for (Entry<Integer, Integer> mappedPort : proxiedPorts.entrySet()) {
-                    PortForwardServer server = portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
-                    portForwardServers.put(mappedPort.getKey(), server);
-                    System.out.println(String.format("Forwarding port %s for %s:%d", server.getLocalAddress(),
-                            getContainerIP(), mappedPort.getKey()));
-                }
-            } catch (Throwable t) {
-                IoUtils.safeClose(portForwarder);
-                portForwarder = null;
-                portForwardServers.clear();
-                throw t;
-            }
-        }
-
-        private synchronized void podStopped() {
-            destroyProxies();
-        }
-
-        private void destroyProxies() {
-            if (portForwarder != null) {
-                IoUtils.safeClose(portForwarder);
-                portForwarder = null;
-                portForwardServers.clear();
-            }
-        }
-
-        //If you are going to change this method, please also change the tests PortForwarderPort.java
-        private int allocateLocalPort(int port) {
-            try {
-                try (ServerSocket serverSocket = new ServerSocket(port, 0, Inet4Address.getLocalHost())) {
-                    return serverSocket.getLocalPort();
-                }
-            } catch (Throwable t) {
-                throw new IllegalStateException("Could not allocate local port for forwarding proxy", t);
-            }
-        }
-    }
 }

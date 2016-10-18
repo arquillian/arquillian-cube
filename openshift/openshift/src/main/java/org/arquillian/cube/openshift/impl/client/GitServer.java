@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 

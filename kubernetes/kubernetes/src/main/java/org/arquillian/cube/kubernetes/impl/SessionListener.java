@@ -1,6 +1,7 @@
 package org.arquillian.cube.kubernetes.impl;
 
 import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
@@ -17,6 +18,7 @@ import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.await.WaitStrategy;
 import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.cube.kubernetes.impl.event.Stop;
+import org.arquillian.cube.kubernetes.impl.portforward.PortBindings;
 import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -52,6 +54,7 @@ public class SessionListener {
     Instance<ServiceLoader> serviceLoader;
 
     private ShutdownHook shutdownHook;
+    private List<PortBindings> ports;
 
     public void start(final @Observes Start event) throws Exception {
         final KubernetesClient kubernetesClient = this.kubernetesClient.get();
@@ -97,12 +100,13 @@ public class SessionListener {
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.get().resolve(session);
+            List<HasMetadata> resources = new ArrayList<HasMetadata>();
 
             if (configuration.isEnvironmentInitEnabled()) {
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
                     try (InputStream is = dependencyUrl.openStream()) {
-                        kubernetesClient.load(is).accept(compositeVisitor).apply();
+                        resources.addAll(kubernetesClient.load(is).accept(compositeVisitor).apply());
                     }
                 }
 
@@ -113,7 +117,7 @@ public class SessionListener {
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
-                        kubernetesClient.load(is).accept(compositeVisitor).apply();
+                        resources.addAll(kubernetesClient.load(is).accept(compositeVisitor).apply());
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
@@ -122,6 +126,7 @@ public class SessionListener {
 
             if (!configuration.isEnvironmentInitEnabled() || waitStrategy.await()) {
                 displaySessionStatus(session);
+                setupPortForward(resources, session);
             } else {
                 throw new IllegalStateException("Environment not initialized in time.");
             }
@@ -157,6 +162,12 @@ public class SessionListener {
         Configuration configuration = this.configuration.get();
         String namespace = session.getNamespace();
 
+        if (ports != null) {
+            for (PortBindings pb : ports) {
+                pb.podStopped();
+            }
+        }
+
         if (configuration.isNamespaceCleanupEnabled()) {
             namespaceService.clean(namespace);
             namespaceService.destroy(namespace);
@@ -178,7 +189,7 @@ public class SessionListener {
 
             StringBuilder sb = new StringBuilder();
             sb.append("Service: [").append(service.getMetadata().getName()).append("]")
-                    .append(" IP: [").append(service.getSpec().getPortalIP()).append("]")
+                    .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
                     .append(" Ports: [ ");
 
             for (ServicePort servicePort : service.getSpec().getPorts()) {
@@ -190,6 +201,19 @@ public class SessionListener {
 
     }
 
+    private void setupPortForward(List<HasMetadata> resources, Session session) throws Exception {
+        KubernetesClient kubernetesClient = this.kubernetesClient.get();
+        ports = new ArrayList<PortBindings>();
+
+        for (HasMetadata item : resources) {
+            if (item instanceof Pod) {
+                Pod pod = kubernetesClient.pods().inNamespace(session.getNamespace()).withName(item.getMetadata().getName()).get();
+                PortBindings pb = new PortBindings(pod, kubernetesClient, this.configuration.get());
+                pb.podStarted();
+                ports.add(pb);
+            }
+        }
+    }
 
     private String getSessionStatus(Session session) {
         if (session.getFailed().get() > 0) {
