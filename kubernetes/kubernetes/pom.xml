@@ -10,6 +10,10 @@
     <artifactId>arquillian-cube-kubernetes</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <version.alpn>8.1.9.v20160720</version.alpn>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -46,6 +50,18 @@
             <artifactId>shrinkwrap-resolver-depchain</artifactId>
             <version>2.2.2</version>
             <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mortbay.jetty.alpn</groupId>
+            <artifactId>alpn-boot</artifactId>
+            <version>${version.alpn}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
         </dependency>
 
         <!-- Compile Only Dependencies -->
