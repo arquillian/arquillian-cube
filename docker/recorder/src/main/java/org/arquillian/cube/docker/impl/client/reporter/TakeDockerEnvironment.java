@@ -1,22 +1,22 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
+import org.arquillian.cube.spi.event.lifecycle.AfterStart;
 import org.arquillian.extension.recorder.When;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
@@ -41,12 +41,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-
+import java.util.Set;
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,9 +73,18 @@ public class TakeDockerEnvironment {
         GroupEntry dockerInfo = createDockerInfoGroup(executor);
         docker.getPropertyEntries().add(dockerInfo);
 
+        GroupEntry containersComposition = createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration);
+        docker.getPropertyEntries().add(containersComposition);
+
+        propertyReportEvent.fire(new PropertyReportEvent(docker));
+    }
+
+    public void reportDockerNetworks(@Observes AfterStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
+
+        GroupEntry docker = new GroupEntry("Containers Networks");
+
         GroupEntry containersComposition = createNetworkTopologyGraph(cubeDockerConfiguration, reporterConfiguration, executor);
 
-       // GroupEntry containersComposition = createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration);
         docker.getPropertyEntries().add(containersComposition);
 
         propertyReportEvent.fire(new PropertyReportEvent(docker));
@@ -200,22 +211,33 @@ public class TakeDockerEnvironment {
         graph.getModel().beginUpdate();
         try {
             DockerCompositions dockerCompositions = cubeDockerConfiguration.getDockerContainersContent();
-            Map<String, CubeContainer> containers = dockerCompositions.getContainers();
+            final Map<String, CubeContainer> containers = dockerCompositions.getContainers();
             final Map<String, Object> insertedVertex = new HashMap<>();
                 for (Map.Entry<String, CubeContainer> container: containers.entrySet()) {
-                    String containerName = container.getValue().getContainerName();
-                    Object container_ = graph.insertVertex(parent, null , containerName, 0, 0, 80, 30);
-                    InspectContainerResponse containerResponse = executor.inspectContainer(containerName);
-                    Map<String, ContainerNetwork> nws = containerResponse.getNetworkSettings().getNetworks();
-                    for (String nw: nws.keySet()) {
+                    final String containerId = container.getKey();
+                    Object containerName = graph.insertVertex(parent, null , containerId, 0, 0, 80, 30);
+                    final CubeContainer cubeContainer = container.getValue();
+                    Set<String> nwList = new HashSet<>();
+                    if (cubeContainer.getNetworkMode() != null) {
+                        nwList.add(cubeContainer.getNetworkMode());
+                    } else {
+                        InspectContainerResponse inspect = executor.inspectContainer(containerId);
+                        final String defaultNetwork = inspect.getHostConfig().getNetworkMode();
+                        nwList.add(defaultNetwork);
+                    }
+                    if (cubeContainer.getNetworks() != null) {
+                        nwList.addAll(cubeContainer.getNetworks());
+                    }
+                    for (String nw: nwList) {
                         Object nwName = null;
                         if (insertedVertex.containsKey(nw)) {
                             nwName = insertedVertex.get(nw);
                         } else {
-                            nwName = graph.insertVertex(parent, null, nw, 0, 0, 80, 30);
+                            nwName = graph.insertVertex(parent, null, nw, 0, 0, 60, 20);
+                            graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#00FF00", new Object[]{nwName});
                         }
                         graph.updateCellSize(nwName);
-                        graph.insertEdge(parent, null, nw, container_, nwName);
+                        graph.insertEdge(parent, null, nw, containerName, nwName);
                         insertedVertex.put(nw, nwName);
                     }
                 }
@@ -226,7 +248,7 @@ public class TakeDockerEnvironment {
         mxIGraphLayout layout = new mxHierarchicalLayout(graph, SwingConstants.WEST);
         layout.execute(graph.getDefaultParent());
 
-        ScreenshotEntry screenshotEntry = generateCompositionSchemaImage(graph, reporterConfiguration);
+        ScreenshotEntry screenshotEntry = generateNetworkTopologyImage(graph, reporterConfiguration);
         addEntry(screenshotEntry, netTopology);
 
         return netTopology;
@@ -271,22 +293,10 @@ public class TakeDockerEnvironment {
 
 
     private ScreenshotEntry generateCompositionSchemaImage(mxGraph graph, ReporterConfiguration reporterConfiguration) {
-        final BufferedImage bufferedImage = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
 
         final File imageFile = new File(createSchemasDirectory(reporterConfiguration.getRootDir()), "docker_composition.png");
         try {
-            ImageIO.write(bufferedImage, "PNG", imageFile);
-
-            final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
-            final Path relativize = rootDir.relativize(imageFile.toPath());
-
-            ScreenshotEntry screenshotEntry = new ScreenshotEntry();
-            screenshotEntry.setPhase(When.BEFORE);
-            screenshotEntry.setPath(relativize.toString());
-            screenshotEntry.setLink(relativize.toString());
-            screenshotEntry.setWidth(bufferedImage.getWidth());
-            screenshotEntry.setHeight(bufferedImage.getHeight());
-            screenshotEntry.setSize(String.valueOf(imageFile.length()));
+            ScreenshotEntry screenshotEntry = createScreenshotEntry(imageFile, graph, reporterConfiguration);
             screenshotEntry.setMessage("Docker Composition before executing tests.");
 
             return screenshotEntry;
@@ -297,6 +307,39 @@ public class TakeDockerEnvironment {
         return EMPTY_SCREENSHOT;
     }
 
+    private ScreenshotEntry generateNetworkTopologyImage(mxGraph graph, ReporterConfiguration reporterConfiguration) {
+        final File imageFile = new File(createNetworkTopologyDirectory(reporterConfiguration.getRootDir()), "docker_network_topology.png");
+        try {
+            ScreenshotEntry screenshotEntry = createScreenshotEntry(imageFile, graph, reporterConfiguration);
+            screenshotEntry.setMessage("Containers Network topology before executing tests.");
+
+            return screenshotEntry;
+        } catch (IOException e) {
+            log.log(Level.WARNING, String.format("Docker container network toplogy could not be generated because of %s.", e));
+        }
+
+        return EMPTY_SCREENSHOT;
+
+    }
+
+    private ScreenshotEntry createScreenshotEntry(File imageFile, mxGraph graph, ReporterConfiguration reporterConfiguration) throws IOException {
+        final BufferedImage bufferedImage = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
+
+        ImageIO.write(bufferedImage, "PNG", imageFile);
+
+        final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
+        final Path relativize = rootDir.relativize(imageFile.toPath());
+
+        ScreenshotEntry screenshotEntry = new ScreenshotEntry();
+        screenshotEntry.setPhase(When.BEFORE);
+        screenshotEntry.setPath(relativize.toString());
+        screenshotEntry.setLink(relativize.toString());
+        screenshotEntry.setWidth(bufferedImage.getWidth());
+        screenshotEntry.setHeight(bufferedImage.getHeight());
+        screenshotEntry.setSize(String.valueOf(imageFile.length()));
+
+        return  screenshotEntry;
+    }
     private GroupEntry createDockerInfoGroup(DockerClientExecutor executor) {
         GroupEntry dockerInfo = new GroupEntry("Docker Info");
 
@@ -334,6 +377,19 @@ public class TakeDockerEnvironment {
             }
         }
         return logsDir.toFile();
+    }
+
+    private File createNetworkTopologyDirectory(File rootDirectory) {
+        final Path reportsNetworks = Paths.get("reports", "networks");
+        final Path networksDir = rootDirectory.toPath().resolve(reportsNetworks);
+
+        try {
+            Files.createDirectories(networksDir);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Could not created networks directory at %s", networksDir));
+        }
+
+        return networksDir.toFile();
     }
 
     private void addEntry(PropertyEntry propertyEntry, GroupEntry groupEntry) {

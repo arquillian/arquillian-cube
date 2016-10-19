@@ -280,6 +280,42 @@ public class TakeDockerEnvironmentTest {
                 new KeyValueEntry("I/O Bytes Write", "0 B"));
     }
 
+    @Test
+    public void should_report_network_topology_of_docker_containers() {
+        final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
+        takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
+
+        Map<String, String> configuration = new HashMap<>();
+        configuration.put(CubeDockerConfiguration.DOCKER_CONTAINERS, MULTIPLE_PORT_BINDING_SCENARIO);
+
+        takeDockerEnvironment.reportDockerNetworks(new org.arquillian.cube.spi.event.lifecycle.AfterStart("helloworld"), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
+
+        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+
+        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
+
+        GroupEntry parent = (GroupEntry) propertyEntry;
+        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
+        assertThat(rootEntries).hasSize(1);
+
+        final PropertyEntry networksEntry = rootEntries.get(0);
+        assertThat(networksEntry).isInstanceOf(GroupEntry.class);
+
+        GroupEntry networksGroupEntry = (GroupEntry) networksEntry;
+        final List<PropertyEntry> propertyEntries = networksGroupEntry.getPropertyEntries();
+
+        assertThat(propertyEntries).hasSize(1);
+
+        PropertyEntry propertyScreenshotEntry = propertyEntries.get(0);
+
+        assertThat(propertyScreenshotEntry).isInstanceOf(ScreenshotEntry.class);
+
+        ScreenshotEntry screenshotEntry = (ScreenshotEntry) propertyScreenshotEntry;
+        assertThat(screenshotEntry.getLink()).isEqualTo("reports/networks/docker_network_topology.png");
+    }
+
     private Map<String, Object> getNetworks(){
         Map<String, Object> nw = new LinkedHashMap<>();
         Map<String, Integer> bytes = new LinkedHashMap<>();

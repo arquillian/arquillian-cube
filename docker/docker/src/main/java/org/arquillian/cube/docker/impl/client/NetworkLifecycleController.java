@@ -52,13 +52,13 @@ public class NetworkLifecycleController {
         final DockerClientExecutor dockerClientExecutor = dockerClientExecutorInstance.get();
         String cubeId = event.getCubeId();
         CubeContainer container = dockerContainersContent.get(cubeId);
-
-        for (String network : container.getNetworks()) {
-            if (!network.equals(container.getNetworkMode())) {
-                dockerClientExecutor.connectToNetwork(network, cubeId);
+        if (container.getNetworks() != null) {
+            for (String network : container.getNetworks()) {
+                if (!network.equals(container.getNetworkMode())) {
+                    dockerClientExecutor.connectToNetwork(network, cubeId);
+                }
             }
         }
-
     }
 
 }
