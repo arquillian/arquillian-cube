@@ -32,6 +32,7 @@ import org.arquillian.cube.kubernetes.impl.enricher.ReplicationControllerResourc
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.SessionResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.UrlResourceProvider;
 import org.arquillian.cube.kubernetes.impl.label.DefaultLabelProvider;
 import org.arquillian.cube.kubernetes.impl.label.LabelProviderRegistar;
 import org.arquillian.cube.kubernetes.impl.locator.KubernetesResourceLocatorRegistar;
@@ -63,7 +64,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .observer(getClientCreator())
                 .observer(SuiteListener.class)
                 .observer(TestListener.class)
-                .observer(SessionListener.class);
+                .observer(SessionCreatedListener.class);
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
                 .service(LabelProvider.class, DefaultLabelProvider.class)
@@ -80,7 +81,8 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ReplicationControllerResourceProvider.class)
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
                 .service(ResourceProvider.class, ServiceResourceProvider.class)
-                .service(ResourceProvider.class, SessionResourceProvider.class);
+                .service(ResourceProvider.class, SessionResourceProvider.class)
+                .service(ResourceProvider.class, UrlResourceProvider.class);
     }
 
     private Class getClientCreator() {

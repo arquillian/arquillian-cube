@@ -3,12 +3,16 @@
     <parent>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes-parent</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
+        <version>1.0.0-voxxed</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Arquillian Cube Kubernetes</name>
     <artifactId>arquillian-cube-kubernetes</artifactId>
     <packaging>jar</packaging>
+
+    <properties>
+        <version.alpn>8.1.9.v20160720</version.alpn>
+    </properties>
 
     <dependencies>
 
@@ -46,6 +50,18 @@
             <artifactId>shrinkwrap-resolver-depchain</artifactId>
             <version>2.2.2</version>
             <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mortbay.jetty.alpn</groupId>
+            <artifactId>alpn-boot</artifactId>
+            <version>${version.alpn}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
         </dependency>
 
         <!-- Compile Only Dependencies -->
