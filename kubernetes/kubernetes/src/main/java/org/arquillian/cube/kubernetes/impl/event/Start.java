@@ -17,9 +17,9 @@ package org.arquillian.cube.kubernetes.impl.event;
 
 
 import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.impl.SessionEvent;
+import org.arquillian.cube.kubernetes.impl.SessionCreatedEvent;
 
-public class Start extends SessionEvent {
+public class Start extends SessionCreatedEvent {
 
     public Start(Session session) {
         super(session);

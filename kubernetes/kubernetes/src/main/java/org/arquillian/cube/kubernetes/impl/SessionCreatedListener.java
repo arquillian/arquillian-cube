@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SessionListener {
+public class SessionCreatedListener {
 
     @Inject
     Instance<KubernetesClient> kubernetesClient;
@@ -82,7 +82,7 @@ public class SessionListener {
         shutdownHook = new ShutdownHook(new Runnable() {
             @Override
             public void run() {
-                SessionListener.this.cleanupSession(session, Constants.ABORTED_STATUS);
+                SessionCreatedListener.this.cleanupSession(session, Constants.ABORTED_STATUS);
             }
         });
 

@@ -1,9 +1,11 @@
 package org.arquillian.cube.kubernetes.impl;
 
 
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.kubernetes.api.*;
+import org.arquillian.cube.kubernetes.api.SessionListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,6 +19,7 @@ public class DefaultSession implements Session {
     private final AtomicInteger passed = new AtomicInteger();
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger skipped = new AtomicInteger();
+    private final List<SessionListener> listeners = new ArrayList<>();
 
     public DefaultSession(String id, String namespace, Logger logger) {
         this.id = id;
@@ -30,6 +33,14 @@ public class DefaultSession implements Session {
     void destroy() {
         logger.status("Destroying Session:" + id);
         System.out.flush();
+
+        for (SessionListener listener : listeners) {
+            try {
+                listener.onClose();
+            } catch (Throwable t) {
+                logger.warn("Error calling session listener: [" + listener + "]");
+            }
+        }
     }
 
     public String getId() {
@@ -57,5 +68,15 @@ public class DefaultSession implements Session {
 
     public AtomicInteger getSkipped() {
         return skipped;
+    }
+
+    @Override
+    public void addListener(SessionListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(SessionListener listener) {
+        listeners.remove(listener);
     }
 }
