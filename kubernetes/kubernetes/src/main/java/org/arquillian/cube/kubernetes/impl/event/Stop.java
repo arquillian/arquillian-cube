@@ -17,9 +17,9 @@ package org.arquillian.cube.kubernetes.impl.event;
 
 
 import org.arquillian.cube.kubernetes.impl.DefaultSession;
-import org.arquillian.cube.kubernetes.impl.SessionEvent;
+import org.arquillian.cube.kubernetes.impl.SessionCreatedEvent;
 
-public class Stop extends SessionEvent {
+public class Stop extends SessionCreatedEvent {
 
     public Stop(DefaultSession session) {
         super(session);
