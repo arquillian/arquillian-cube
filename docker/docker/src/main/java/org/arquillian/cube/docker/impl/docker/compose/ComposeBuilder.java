@@ -58,6 +58,15 @@ public class ComposeBuilder {
                         } else {
                             throw new IllegalArgumentException("Networks not mentioned under services networks section.");
                         }
+                    } else {
+                        String networkName = getDefaultNetworkName();
+                        if (!this.configuration.getNetworks().containsKey(networkName)) {
+                            NetworkBuilder networkBuilder = new NetworkBuilder();
+                            Network network = networkBuilder.withDefaultDriver().build();
+                            this.configuration.add(networkName, network);
+                        }
+                        cubeContainer.setNetworks(Arrays.asList(networkName));
+                        cubeContainer.setNetworkMode(networkName);
                     }
                 }
                 this.configuration.add(key, cubeContainer);
