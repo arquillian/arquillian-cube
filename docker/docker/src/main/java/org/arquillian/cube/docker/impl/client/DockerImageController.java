@@ -21,7 +21,12 @@ public class DockerImageController {
         if (configuration.isCleanBuildImage()) {
             Cube cube = validateAndGet(registry, event.getCubeId());
             CubeContainer config = (CubeContainer) cube.configuration();
-            String imageRef = config.getImage().toImageRef();
+            String imageRef;
+            if (config.getImage() != null) {
+                imageRef = config.getImage().toImageRef();
+            } else {
+                imageRef = event.getCubeId() + ":latest";  // building image from Dockerfile.
+            }
             DockerClientExecutor executor = dockerClientExecutorInstance.get();
             executor.removeImage(imageRef, false);
         }
