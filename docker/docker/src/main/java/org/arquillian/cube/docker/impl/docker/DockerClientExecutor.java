@@ -626,6 +626,17 @@ public class DockerClientExecutor {
         }
     }
 
+    public void removeImage(String contaierID, Boolean force) {
+        this.readWriteLock.readLock().lock();
+        try {
+
+            this.dockerClient.removeImageCmd(contaierID).withForce(force).exec();
+
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     public static String getImageId(String fullLog) {
         Matcher m = IMAGEID_PATTERN.matcher(fullLog);
         String imageId = null;
