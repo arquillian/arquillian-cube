@@ -31,16 +31,7 @@ public class AwaitStrategyTest {
     private Cube<?> cube;
     @Mock
     private DockerClientExecutor dockerClientExecutor;
-
-    @Test
-    public void should_be_able_to_use_wait_for_it_await_strategy() {
-        Spacelift.task(DownloadTool.class)
-                .from("https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh")
-                .to(HomeResolverUtil.resolveHomeDirectoryChar("~/.arquillian/wait-for-it.sh"))
-                .execute()
-                .await();
-    }
-
+    
     @Test
     public void should_be_able_to_create_http_await_strategy() {
         String containerDefinition = "tomcat:\n" +
