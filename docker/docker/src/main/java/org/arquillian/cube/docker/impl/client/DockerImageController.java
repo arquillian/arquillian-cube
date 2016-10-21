@@ -9,26 +9,31 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import static org.arquillian.cube.impl.client.CubeLifecycleController.validateAndGet;
-
 
 public class DockerImageController {
+
+    private static final String TAG = ":latest";
 
     @Inject
     private Instance<DockerClientExecutor> dockerClientExecutorInstance;
 
     public void removeImage(@Observes AfterDestroy event, CubeRegistry registry, CubeDockerConfiguration configuration) {
         if (configuration.isCleanBuildImage()) {
-            Cube cube = validateAndGet(registry, event.getCubeId());
-            CubeContainer config = (CubeContainer) cube.configuration();
-            String imageRef;
-            if (config.getImage() != null) {
-                imageRef = config.getImage().toImageRef();
-            } else {
-                imageRef = event.getCubeId() + ":latest";  // building image from Dockerfile.
+            String cubeId = event.getCubeId();
+            Cube cube = registry.getCube(cubeId);
+            if(cube == null) {
+                throw new IllegalArgumentException("No cube with id " + cubeId + " found in registry");
             }
-            DockerClientExecutor executor = dockerClientExecutorInstance.get();
-            executor.removeImage(imageRef, false);
+            if (cube.configuration() instanceof  CubeContainer) {
+                CubeContainer config = (CubeContainer) cube.configuration();
+
+                // removing image only if it's built by cube
+                if (config.getBuildImage() != null) {
+                    String imageRef = event.getCubeId() + TAG;
+                    DockerClientExecutor executor = dockerClientExecutorInstance.get();
+                    executor.removeImage(imageRef, false);
+                }
+            }
         }
     }
 }

@@ -65,9 +65,9 @@ public class CubeDockerConfiguration {
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
     private boolean removeVolumes = true;
+    private boolean cleanBuildImage = true;
     private AutoStartParser autoStartContainers = null;
     private DockerAutoStartOrder dockerAutoStartOrder = null;
-    private boolean cleanBuildImage = true;
 
     private DockerCompositions dockerContainersContent;
 

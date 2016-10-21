@@ -72,7 +72,7 @@ Let's see valid attributes:
 |Boolean to set if Cube should also remove the volumes associated with a container when removing the container. By default is true. Can be overwritten on container level.
 
 |cleanBuildImage
-|Boolean to set if Cube should also remove the images on which container is build after removing the container. By default is true. Can be overwritten on container level.
+|Boolean to set if you set to true all images built by cube are removed and if false no built images are removed. If image is not built by cube it should not be removed. By default is true.
 
 
 |connectionMode
