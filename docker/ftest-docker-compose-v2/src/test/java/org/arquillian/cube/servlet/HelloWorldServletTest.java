@@ -17,6 +17,8 @@ import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
 import org.arquillian.cube.TopContainer;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -30,7 +32,8 @@ import org.junit.runner.RunWith;
 
 import com.github.dockerjava.api.DockerClient;
 
-@RunWith(Arquillian.class)
+@RequiresDocker
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloWorldServletTest {
 
     @Deployment(testable=false)
