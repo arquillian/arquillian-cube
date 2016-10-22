@@ -28,6 +28,7 @@ import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
+import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.arquillian.spacelift.Spacelift;
@@ -374,15 +375,15 @@ public class CubeDockerConfigurator {
     }
 
     private boolean isDockerHostSet() {
-        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST) != null;
+        return  Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST));
     }
 
     private boolean isDockerCertPathSet() {
-        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH) != null;
+        return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH));
     }
 
     private boolean isDockerMachineNameSet() {
-        return SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME) != null;
+        return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME));
     }
 
     private boolean isDockerMachineSet(Map<String, String> config) {

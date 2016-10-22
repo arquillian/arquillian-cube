@@ -19,7 +19,10 @@ public class SystemEnvironmentVariables {
 
     public static final String getEnvironmentVariable(String property, String defaultValue) {
         String result = System.getenv(property);
-        if (result == null) {
+
+        //The reason that we also check against empty, is that test use surefire to build a predictable environment
+        //and surefire doesn't let you set an environment variable to `null`. So we treat them the same.
+        if (Strings.isNullOrEmpty(result)) {
             return defaultValue;
         } else {
             return result;
