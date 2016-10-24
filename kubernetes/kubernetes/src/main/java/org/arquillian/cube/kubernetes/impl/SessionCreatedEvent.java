@@ -18,11 +18,11 @@ package org.arquillian.cube.kubernetes.impl;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.jboss.arquillian.core.spi.event.Event;
 
-public class SessionEvent implements Event {
+public class SessionCreatedEvent implements Event {
 
     private Session session;
 
-    public SessionEvent(Session session) {
+    public SessionCreatedEvent(Session session) {
         this.session = session;
     }
 

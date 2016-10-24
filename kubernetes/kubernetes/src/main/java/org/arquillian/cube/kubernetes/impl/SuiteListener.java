@@ -34,7 +34,7 @@ public class SuiteListener {
     private InstanceProducer<DefaultSession> sessionProducer;
 
     @Inject
-    private Event<SessionEvent> controlEvent;
+    private Event<SessionCreatedEvent> controlEvent;
 
     private DefaultSession session;
 
