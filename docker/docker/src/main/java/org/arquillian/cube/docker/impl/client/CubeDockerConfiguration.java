@@ -46,6 +46,8 @@ public class CubeDockerConfiguration {
     public static final String CUBE_SPECIFIC_PROPERTIES = "cubeSpecificProperties";
     public static final String CLEAN = "clean";
     public static final String REMOVE_VOLUMES = "removeVolumes";
+    public static final String CLEAN_BUILD_IMAGE = "cleanBuildImage";
+
 
     private String dockerServerVersion;
     private String dockerServerUri;
@@ -63,6 +65,7 @@ public class CubeDockerConfiguration {
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
     private boolean removeVolumes = true;
+    private boolean cleanBuildImage = true;
     private AutoStartParser autoStartContainers = null;
     private DockerAutoStartOrder dockerAutoStartOrder = null;
 
@@ -151,6 +154,10 @@ public class CubeDockerConfiguration {
 
     public boolean isDockerInsideDockerResolution() {
         return dockerInsideDockerResolution;
+    }
+
+    public boolean isCleanBuildImage() {
+        return cleanBuildImage;
     }
 
     public static CubeDockerConfiguration fromMap(Map<String, String> map, Injector injector) {
@@ -283,7 +290,11 @@ public class CubeDockerConfiguration {
         if (map.containsKey(REMOVE_VOLUMES)) {
             cubeConfiguration.removeVolumes = Boolean.parseBoolean(map.get(REMOVE_VOLUMES));
         }
-        
+
+        if (map.containsKey(CLEAN_BUILD_IMAGE)) {
+            cubeConfiguration.cleanBuildImage = Boolean.parseBoolean(map.get(CLEAN_BUILD_IMAGE));
+        }
+
         for (CubeContainer container : cubeConfiguration.dockerContainersContent.getContainers().values()) {
             if (container.getRemoveVolumes() == null) {
                 container.setRemoveVolumes(cubeConfiguration.isRemoveVolumes());

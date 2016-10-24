@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.client.reporter;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.Cube;
@@ -289,7 +290,7 @@ public class TakeDockerEnvironmentTest {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put(CubeDockerConfiguration.DOCKER_CONTAINERS, MULTIPLE_PORT_BINDING_SCENARIO);
-
+        configuration.put("definitionFormat", DefinitionFormat.CUBE.name());
         takeDockerEnvironment.reportDockerNetworks(new org.arquillian.cube.spi.event.lifecycle.AfterStart("helloworld"), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
 
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
