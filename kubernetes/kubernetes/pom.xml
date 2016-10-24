@@ -48,6 +48,11 @@
             <type>pom</type>
         </dependency>
 
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+        </dependency>
+
         <!-- Compile Only Dependencies -->
         <dependency>
             <groupId>io.sundr</groupId>

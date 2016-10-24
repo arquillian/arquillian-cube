@@ -8,8 +8,10 @@ import org.arquillian.cube.kubernetes.api.Configuration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
@@ -29,6 +31,7 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceCleanupEnabled;
     private final long namespaceCleanupTimeout;
     private final boolean namespaceCleanupConfirmationEnabled;
+    private final List<String> podForwardPorts;
 
     private final long waitTimeout;
     private final long waitPollInterval;
@@ -60,6 +63,7 @@ public class DefaultConfiguration implements Configuration {
                     .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, namespace.contains(sessionId)))
                     .withNamespaceCleanupConfirmationEnabled(getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                     .withNamespaceCleanupTimeout(getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+                    .withPodForwardPorts(Strings.splitAndTrimAsList(getStringProperty(POD_FORWARD_PORTS, map, ""), ","))
                     .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                     .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                     .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
@@ -79,7 +83,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
 
-    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
+    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry, List<String> podForwardPorts) {
         this.masterUrl = masterUrl;
         this.environmentDependencies = environmentDependencies;
         this.environmentConfigUrl = environmentConfigUrl;
@@ -98,6 +102,7 @@ public class DefaultConfiguration implements Configuration {
         this.environmentInitEnabled = environmentInitEnabled;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
+        this.podForwardPorts = podForwardPorts;
     }
 
 
@@ -189,6 +194,14 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String getDockerRegistry() {
         return dockerRegistry;
+    }
+
+    @Override
+    public List<String> getPodForwardPorts() {
+        if(podForwardPorts == null) {
+            return Collections.emptyList();
+        }
+        return podForwardPorts;
     }
 
     public static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {

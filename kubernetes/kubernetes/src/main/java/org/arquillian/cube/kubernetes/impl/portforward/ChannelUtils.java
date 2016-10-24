@@ -1,4 +1,4 @@
-package org.arquillian.cube.openshift.impl.client;
+package org.arquillian.cube.kubernetes.impl.portforward;
 
 import static org.xnio._private.Messages.msg;
 

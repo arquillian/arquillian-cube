@@ -2,7 +2,6 @@ package org.arquillian.cube.kubernetes.api;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 
 import java.net.URL;
 import java.util.List;
@@ -36,6 +35,8 @@ public interface Configuration {
     String ENVIRONMENT_CONFIG_URL = "env.config.url";
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
+
+    String POD_FORWARD_PORTS = "pod.forward.ports";
 
     String WAIT_TIMEOUT = "wait.timeout";
     String WAIT_POLL_INTERVAL = "wait.poll.interval";
@@ -98,5 +99,7 @@ public interface Configuration {
     String getKubernetesDomain();
 
     String getDockerRegistry();
+
+    List<String> getPodForwardPorts();
 
 }

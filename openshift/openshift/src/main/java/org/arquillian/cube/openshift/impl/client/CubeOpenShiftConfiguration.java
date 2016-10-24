@@ -27,7 +27,6 @@ public class CubeOpenShiftConfiguration {
     private static final String DEFINITIONS_FILE = "definitionsFile";
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
-    private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
 
     private final String originServer;
     private final String namespace;
@@ -35,16 +34,14 @@ public class CubeOpenShiftConfiguration {
     private final String definitions;
     private final String definitionsFile;
     private final String[] autoStartContainers;
-    private final Set<String> proxiedContainerPorts;
 
-    public CubeOpenShiftConfiguration(String originServer, String namespace, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts) {
+    public CubeOpenShiftConfiguration(String originServer, String namespace, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers) {
         this.originServer = originServer;
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
         this.autoStartContainers = autoStartContainers;
-        this.proxiedContainerPorts = proxiedContainerPorts;
     }
 
     public String getOriginServer() {
@@ -78,14 +75,6 @@ public class CubeOpenShiftConfiguration {
         return autoStartContainers;
     }
 
-    public Set<String> getProxiedContainerPorts() {
-        if(proxiedContainerPorts == null) {
-            return Collections.emptySet();
-        }
-        return proxiedContainerPorts;
-    }
-
-
     private static String[] split(String str, String regex) {
         if (str == null || str.isEmpty()) {
             return new String[0];
@@ -103,7 +92,6 @@ public class CubeOpenShiftConfiguration {
                     .withDefinitions(getStringProperty(DEFINITIONS, map, null))
                     .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
                     .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
-                    .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
                     .build();
 
             if (conf.getDefinitions() == null && conf.getDefinitionsFile() == null) {
