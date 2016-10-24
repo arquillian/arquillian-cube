@@ -1,6 +1,7 @@
 import io.fabric8.kubernetes.api.model.Service;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
 @RequiresKubernetes
 public class HelloWorldTest {
 

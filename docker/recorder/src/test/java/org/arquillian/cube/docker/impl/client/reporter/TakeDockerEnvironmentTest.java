@@ -19,6 +19,7 @@ import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -280,6 +281,7 @@ public class TakeDockerEnvironmentTest {
                 new KeyValueEntry("I/O Bytes Write", "0 B"));
     }
 
+    @Ignore("See #498")
     @Test
     public void should_report_network_topology_of_docker_containers() {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();

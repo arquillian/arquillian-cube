@@ -124,6 +124,8 @@
                 <configuration>
                     <environmentVariables>
                         <TESTIMAGENAME>MyImageName</TESTIMAGENAME>
+                        <DOCKER_HOST></DOCKER_HOST>
+                        <DOCKER_CERT_PATH></DOCKER_CERT_PATH>
                     </environmentVariables>
                     <systemPropertyVariables>
                         <SYSTEMTESTIMAGENAME>TestImageName</SYSTEMTESTIMAGENAME>

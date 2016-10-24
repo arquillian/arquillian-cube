@@ -124,9 +124,12 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
         output = findHeader(output);
 
-        final Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
-        for (String fields : output.subList(1, output.size())) {
-            machines.add(parse(headerIndex, fields));
+
+        if (!output.isEmpty()) {
+            final Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
+            for (String fields : output.subList(1, output.size())) {
+                machines.add(parse(headerIndex, fields));
+            }
         }
 
         return machines;
