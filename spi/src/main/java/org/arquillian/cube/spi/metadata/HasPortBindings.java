@@ -1,5 +1,6 @@
 package org.arquillian.cube.spi.metadata;
 
+import java.net.InetAddress;
 import java.util.Set;
 
 /**
@@ -52,6 +53,13 @@ public interface HasPortBindings extends CubeMetadata {
     PortAddress getMappedAddress(int targetPort);
 
     /**
+     * @return the mapped address in the arquillian.xml,defined by the
+     *         portForwardBindAddress property.
+     *         If null, returns the default - 127.0.0.1.
+     */
+    InetAddress getPortForwardBindAddress();
+
+    /**
      * Port mapping for a bound port. The socket address that should be used to
      * configure network connections to the specified contianer port.
      */
@@ -90,4 +98,5 @@ public interface HasPortBindings extends CubeMetadata {
         }
         
     }
+
 }
