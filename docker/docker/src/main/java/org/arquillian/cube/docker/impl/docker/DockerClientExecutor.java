@@ -81,6 +81,7 @@ import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import org.arquillian.cube.spi.CubeOutput;
 
 public class DockerClientExecutor {
 
@@ -713,13 +714,12 @@ public class DockerClientExecutor {
 
     }
 
-    public String execStart(String containerId, String... commands) {
+    public CubeOutput execStart(String containerId, String... commands) {
         this.readWriteLock.readLock().lock();
         try {
             String id = execCreate(containerId, commands);
-            String output = execStartOutput(id);
+            return execStartOutput(id);
 
-            return output;
         } finally {
             this.readWriteLock.readLock().unlock();
         }
@@ -746,7 +746,7 @@ public class DockerClientExecutor {
         this.readWriteLock.readLock().lock();
         try {
             String id = execCreate(containerId, commands);
-            String output = execStartOutput(id);
+            CubeOutput output = execStartOutput(id);
 
             return new ExecInspection(output, inspectExec(id));
         } finally {
@@ -767,16 +767,17 @@ public class DockerClientExecutor {
         return execCreateCmdResponse.getId();
     }
 
-    private String execStartOutput(String id) {
+    private CubeOutput execStartOutput(String id) {
         OutputStream outputStream = new ByteArrayOutputStream();
+        OutputStream errorStream = new ByteArrayOutputStream();
         try {
             dockerClient.execStartCmd(id).withDetach(false)
-                    .exec(new ExecStartResultCallback(outputStream, System.err)).awaitCompletion();
+                    .exec(new ExecStartResultCallback(outputStream, errorStream)).awaitCompletion();
         } catch (InterruptedException e) {
-            return "";
+            return new CubeOutput("", "");
         }
 
-        return outputStream.toString();
+        return new CubeOutput(outputStream.toString(), errorStream.toString());
     }
 
     public List<org.arquillian.cube.ChangeLog> inspectChangesOnContainerFilesystem(String containerId) {
@@ -1041,15 +1042,15 @@ public class DockerClientExecutor {
     }
 
     public static class ExecInspection {
-        private String output;
+        private CubeOutput output;
         private InspectExecResponse inspectExecResponse;
 
-        public ExecInspection(String output, InspectExecResponse inspectExecResponse) {
+        public ExecInspection(CubeOutput output, InspectExecResponse inspectExecResponse) {
             this.output = output;
             this.inspectExecResponse = inspectExecResponse;
         }
 
-        public String getOutput() {
+        public CubeOutput getOutput() {
             return output;
         }
 

@@ -7,10 +7,11 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.CubeOutput;
 
 public final class Ping {
 
-    public static final String COMMAND_NOT_FOUND = "command not found";
+    public static final String COMMAND_NOT_FOUND = "not found";
 
     private Ping() {
         super();
@@ -58,20 +59,20 @@ public final class Ping {
     private static boolean execContainerPing(DockerClientExecutor dockerClientExecutor, String containerId, String command) {
 
         final String[] commands = {"sh", "-c", command};
-        String result = dockerClientExecutor.execStart(containerId, commands);
+        CubeOutput result = dockerClientExecutor.execStart(containerId, commands);
 
-        if (result == null) {
+        if (result.getStandard() == null) {
             throw new IllegalArgumentException(
                     String.format("Command %s in container %s has returned no value.", Arrays.toString(commands), containerId));
         }
 
-        if (result.contains(COMMAND_NOT_FOUND)) {
+        if (result.getStandard().contains(COMMAND_NOT_FOUND) || result.getError().contains(COMMAND_NOT_FOUND)) {
             throw new UnsupportedOperationException(
                     String.format("Command %s is not available in container %s.", Arrays.toString(commands), containerId));
         }
 
         try {
-            int numberOfListenConnectons = Integer.parseInt(result.trim());
+            int numberOfListenConnectons = Integer.parseInt(result.getStandard().trim());
             //This number is based in that a port will be opened only as tcp or as udp.
             //We will need another issue to modify cube internals to save if port is udp or tcp.
             return numberOfListenConnectons > 0;
