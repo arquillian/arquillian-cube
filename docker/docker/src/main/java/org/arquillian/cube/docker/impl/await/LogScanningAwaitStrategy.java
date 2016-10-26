@@ -10,16 +10,18 @@ import org.arquillian.cube.spi.Cube;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
 
     public static final String TAG = "log";
 
+    private static final Logger logger = Logger.getLogger(LogScanningAwaitStrategy.class.getName());
     private static final String REGEXP_PREFIX = "regexp:";
-    private static final int DEFAULT_TIME_OUT = 15;
 
-    private int timeout = DEFAULT_TIME_OUT;
+    private int timeout = 15;
 
     private boolean stdOut;
     private boolean stdErr;
@@ -69,7 +71,6 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
         final CountDownLatch containerUp = new CountDownLatch(1);
 
         try (final LogContainerResultCallback callback = new LogContainerResultCallback(containerUp)) {
-            try {
 
                 client.logContainerCmd(cube.getId())
                         .withStdErr(true)
@@ -77,13 +78,9 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
                         .withFollowStream(true)
                         .exec(callback);
 
-                boolean result = containerUp.await(this.timeout, TimeUnit.SECONDS);
-                return result;
-            } catch (InterruptedException e) {
-                return false;
-            }
-        } catch (IOException e) {
-
+                return containerUp.await(this.timeout, TimeUnit.SECONDS);
+        } catch (IOException | InterruptedException e) {
+            logger.log(Level.SEVERE, String.format("Log Await Strategy failed with %s", e.getMessage()));
             return false;
         }
 

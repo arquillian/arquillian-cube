@@ -286,9 +286,10 @@ public class AwaitStrategyTest {
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
-        assertThat(((LogScanningAwaitStrategy)strategy).getTimeout(), is(15));
-        assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(true));
-        assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(false));
+        final LogScanningAwaitStrategy log = (LogScanningAwaitStrategy) strategy;
+        assertThat(log.getTimeout(), is(15));
+        assertThat(log.isStdOut(), is(true));
+        assertThat(log.isStdErr(), is(false));
     }
 
     @Test
@@ -307,9 +308,10 @@ public class AwaitStrategyTest {
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
-        assertThat(((LogScanningAwaitStrategy)strategy).getTimeout(), is(20));
-        assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(false));
-        assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(true));
+        final LogScanningAwaitStrategy log = (LogScanningAwaitStrategy) strategy;
+        assertThat(log.getTimeout(), is(20));
+        assertThat(log.isStdOut(), is(false));
+        assertThat(log.isStdErr(), is(true));
     }
 
 }
