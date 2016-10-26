@@ -484,11 +484,11 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
     
     private static Matcher<String> defaultDockerMachineCertPath() {
-        return pathEndsWith(".docker/machine/machines/dev");
+        return containsString(".docker/machine/machines");
     }
     
     private static Matcher<String> defaultBootToDockerCertPath() {
-        return pathEndsWith(".boot2docker/certs/boot2docker-vm");
+        return containsString(".boot2docker/certs");
     }
     
     private static Matcher<String> pathEndsWith(String suffix) {
