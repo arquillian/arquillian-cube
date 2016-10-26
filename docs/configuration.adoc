@@ -307,14 +307,12 @@ tomcat:
     match: 'Server startup' # <1>
     stdOut: true # <2>
     stdErr: true # <3>
-    sleepPollingTime: 200 s # <4>
-    iterations: 3 # <5>
+    timeout: 15 # <4>
 ----
 <1> Mandatory parameter to configure the pattern that signals the service started. To use regular expression just prefix the pattern with `regexp:`.
 <2> Optional parameter to enable scanning of _standard output_ log. Default is true.
 <3> Optional parameter to enable scanning of _standard error_ log. Default is false.
-<4> Optional parameter to configure sleeping time between log downloading. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
-<5> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
+<4> Optional parameter to configure timeout. It is expressed in seconds and by default is 15.
 
 [source, yaml]
 .Example http
