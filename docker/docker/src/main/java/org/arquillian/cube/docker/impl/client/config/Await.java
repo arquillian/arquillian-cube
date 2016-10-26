@@ -32,7 +32,7 @@ public class Await {
     private Map<String, Object> headers;
     private String url;
 
-    //waitforit
+    //waitforit and log
     private Integer timeout = 15;
 
     public Await() {

@@ -286,9 +286,7 @@ public class AwaitStrategyTest {
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
-        assertThat(((LogScanningAwaitStrategy)strategy).getSleepTime(), is(500));
-        assertThat(((LogScanningAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.MILLISECONDS));
-        assertThat(((LogScanningAwaitStrategy)strategy).getPollIterations(), is(10));
+        assertThat(((LogScanningAwaitStrategy)strategy).getTimeout(), is(15));
         assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(true));
         assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(false));
     }
@@ -301,8 +299,7 @@ public class AwaitStrategyTest {
         await.setMatch("regexp:.*STARTED.*");
         await.setStdOut(false);
         await.setStdErr(true);
-        await.setIterations(30);
-        await.setSleepPollingTime("2s");
+        await.setTimeout(20);
 
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
@@ -310,9 +307,7 @@ public class AwaitStrategyTest {
         AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
-        assertThat(((LogScanningAwaitStrategy)strategy).getSleepTime(), is(2));
-        assertThat(((LogScanningAwaitStrategy)strategy).getTimeUnit(), is(TimeUnit.SECONDS));
-        assertThat(((LogScanningAwaitStrategy)strategy).getPollIterations(), is(30));
+        assertThat(((LogScanningAwaitStrategy)strategy).getTimeout(), is(20));
         assertThat(((LogScanningAwaitStrategy)strategy).isStdOut(), is(false));
         assertThat(((LogScanningAwaitStrategy)strategy).isStdErr(), is(true));
     }
