@@ -104,17 +104,10 @@ public class TakeDockerEnvironment {
             executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
 
             FileEntry fileEntry = new FileEntry();
-
-            final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
-            final Path relativize = rootDir.relativize(logFile.toPath());
-
-            GroupEntry entry = new GroupEntry(cubeId + "Logs");
-
-            fileEntry.setPath(relativize.toString());
+            fileEntry.setPath(logFile.getPath());
             fileEntry.setType("Log");
             fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
-            entry.getPropertyEntries().add(fileEntry);
-            propertyReportEvent.fire(new PropertyReportEvent(entry));
+            propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
         }
     }
 
@@ -123,7 +116,7 @@ public class TakeDockerEnvironment {
         GroupEntry groupEntry = new GroupEntry("IO statistics");
         TableEntry tableEntry = new TableEntry();
 
-        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_wite", 3, 1));
+        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_write", 3, 1));
         tableEntry.getTableBody().addRows(new TableRowEntry(), new TableRowEntry());
 
         addCellsHeader(tableEntry.getTableBody().getRows().get(0), 2);
@@ -144,7 +137,7 @@ public class TakeDockerEnvironment {
 
         TableEntry tableEntry = new TableEntry();
 
-        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("Limit"));
+        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("limit"));
         tableEntry.getTableBody().addRows(new TableRowEntry(), new TableRowEntry());
         addCellsHeader(tableEntry.getTableBody().getRows().get(0), 2);
 

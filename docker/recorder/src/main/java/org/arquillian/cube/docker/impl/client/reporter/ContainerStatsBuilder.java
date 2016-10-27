@@ -17,8 +17,8 @@ public class ContainerStatsBuilder {
             Map<String, Long> blkio = extractIORW(statistics.getBlkioStats());
             Map<String, Long> memory = extractMemoryStats(statistics.getMemoryStats(), "usage", "max_usage", "limit");
 
-            stats.setIoBytesRead(blkio.get("ioBytesRead"));
-            stats.setIoBytesWrite(blkio.get("ioBytesWrite"));
+            stats.setIoBytesRead(blkio.get("io_bytes_read"));
+            stats.setIoBytesWrite(blkio.get("io_bytes_write"));
 
             stats.setMaxUsage(memory.get("max_usage"));
             stats.setUsage(memory.get("usage"));
@@ -80,8 +80,8 @@ public class ContainerStatsBuilder {
                     }
                 }
             }
-            blkrwStats.put("ioBytesRead", read);
-            blkrwStats.put("ioBytesWrite", write);
+            blkrwStats.put("io_bytes_read", read);
+            blkrwStats.put("io_bytes_write", write);
         }
         return blkrwStats;
     }
