@@ -17,6 +17,9 @@ import org.arquillian.recorder.reporter.model.entry.FileEntry;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.junit.Before;
@@ -141,6 +144,7 @@ public class TakeDockerEnvironmentTest {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put(CubeDockerConfiguration.DOCKER_CONTAINERS, MULTIPLE_PORT_BINDING_SCENARIO);
+        configuration.put("definitionFormat", DefinitionFormat.CUBE.name());
 
         takeDockerEnvironment.reportDockerEnvironment(new AfterAutoStart(), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
 
@@ -152,7 +156,7 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(2);
+        assertThat(rootEntries).hasSize(3);
 
         final PropertyEntry compositionsEntry = rootEntries.get(1);
         assertThat(compositionsEntry).isInstanceOf(GroupEntry.class);
@@ -190,6 +194,7 @@ public class TakeDockerEnvironmentTest {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
+        takeDockerEnvironment.captureContainerStatsBeforeTest(new org.jboss.arquillian.test.spi.event.suite.Before(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_memory_stats")), dockerClientExecutor, cubeRegistry);
         takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_network_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
@@ -199,24 +204,24 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
+        assertThat(rootEntries).hasSize(3);
 
-        List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
+        List<PropertyEntry> entryList = rootEntries.get(2).getPropertyEntries();
 
-        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
-        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
+        assertThat(entryList).hasSize(1).extracting("class.simpleName").containsExactly("TableEntry");
 
+        TableEntry tableEntry = (TableEntry) entryList.get(0);
 
-        PropertyEntry nw = entryList.get(0);
-        assertThat(nw).isInstanceOf(GroupEntry.class);
-        List<PropertyEntry> nwList = nw.getPropertyEntries();
+        assertThat(tableEntry).extracting("tableHead").extracting("row").flatExtracting("cells").
+                hasSize(3).containsExactly(new TableCellEntry("Adapter"), new TableCellEntry("rx_bytes", 3, 1), new TableCellEntry("tx_bytes", 3, 1));
 
-        assertThat(nwList).hasSize(2).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry");
-        assertThat(nwList).flatExtracting("propertyEntries").containsExactly(
-                new KeyValueEntry("rx_bytes","724 B"),
-                new KeyValueEntry("tx_bytes", "418 B"),
-                new KeyValueEntry("rx_bytes", "724 B"),
-                new KeyValueEntry("tx_bytes", "418 B"));
+        assertThat(tableEntry).extracting("tableBody").flatExtracting("rows").hasSize(3);
+
+        assertThat(tableEntry.getTableBody().getRows().get(1).getCells()).hasSize(7).extractingResultOf("getContent").
+                containsExactly("eth0", "724 B", "724 B", "0 B", "418 B", "418 B", "0 B");
+        assertThat(tableEntry.getTableBody().getRows().get(2).getCells()).hasSize(7).extractingResultOf("getContent").
+                containsExactly("Total", "724 B", "724 B", "0 B", "418 B", "418 B", "0 B");
+
     }
 
     @Test
@@ -224,6 +229,7 @@ public class TakeDockerEnvironmentTest {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
 
+        takeDockerEnvironment.captureContainerStatsBeforeTest(new org.jboss.arquillian.test.spi.event.suite.Before(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_memory_stats")), dockerClientExecutor, cubeRegistry);
         takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_memory_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
@@ -233,29 +239,28 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
-
+        assertThat(rootEntries).hasSize(3);
         List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
 
-        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
-        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
+        assertThat(entryList).hasSize(1).extracting("class.simpleName").containsExactly("TableEntry");
 
-        PropertyEntry memory = entryList.get(1);
-        assertThat(memory).isInstanceOf(GroupEntry.class);
-        List<PropertyEntry> memList = memory.getPropertyEntries();
+        TableEntry tableEntry = (TableEntry) entryList.get(0);
 
-        assertThat(memList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
-        assertThat(memList).flatExtracting("propertyEntries").containsExactly(
-                new KeyValueEntry("usage", "33.51 MiB"),
-                new KeyValueEntry("max_usage", "34.11 MiB"),
-                new KeyValueEntry("limit", "19.04 GiB"));
+        assertThat(tableEntry).extracting("tableHead").extracting("row").flatExtracting("cells").
+                hasSize(3).containsExactly(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("Limit"));
+
+        assertThat(tableEntry).extracting("tableBody").flatExtracting("rows").hasSize(2);
+        TableRowEntry rowEntry = tableEntry.getTableBody().getRows().get(1);
+        assertThat(rowEntry.getCells()).hasSize(7).extractingResultOf("getContent").
+                containsExactly("33.51 MiB", "33.51 MiB", "0 B", "34.11 MiB", "34.11 MiB", "0 B", "19.04 GiB");
+
     }
 
     @Test
     public void should_report_container_blkio_stats() throws IOException, NoSuchMethodException {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
         takeDockerEnvironment.propertyReportEvent = propertyReportEvent;
-
+        takeDockerEnvironment.captureContainerStatsBeforeTest(new org.jboss.arquillian.test.spi.event.suite.Before(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_memory_stats")), dockerClientExecutor, cubeRegistry);
         takeDockerEnvironment.reportContainerStatsAfterTest(new After(TakeDockerEnvironmentTest.class, TakeDockerEnvironmentTest.class.getMethod("should_report_container_blkio_stats")), dockerClientExecutor, cubeRegistry);
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
@@ -265,24 +270,23 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
 
-        List<PropertyEntry> entryList = rootEntries.get(0).getPropertyEntries();
+        assertThat(rootEntries).hasSize(3);
+        List<PropertyEntry> entryList = rootEntries.get(1).getPropertyEntries();
 
-        assertThat(entryList).hasSize(3).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry", "GroupEntry");
-        assertThat(entryList).extracting("name").contains("network statistics", "memory statistics", "block I/O statistics");
+        assertThat(entryList).hasSize(1).extracting("class.simpleName").containsExactly("TableEntry");
 
-        PropertyEntry blkIO = entryList.get(2);
-        assertThat(blkIO).isInstanceOf(GroupEntry.class);
-        List<PropertyEntry> blkIOList = blkIO.getPropertyEntries();
+        TableEntry tableEntry = (TableEntry) entryList.get(0);
 
-        assertThat(blkIOList).hasSize(2).extracting("class.simpleName").containsExactly("GroupEntry", "GroupEntry");
-        assertThat(blkIOList).flatExtracting("propertyEntries").containsExactly(
-                new KeyValueEntry("I/O Bytes Read", "49.50 KiB"),
-                new KeyValueEntry("I/O Bytes Write", "0 B"));
+        assertThat(tableEntry).extracting("tableHead").extracting("row").flatExtracting("cells").
+                hasSize(2).containsExactly(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_wite", 3, 1));
+
+        assertThat(tableEntry).extracting("tableBody").flatExtracting("rows").hasSize(2);
+        TableRowEntry rowEntry = tableEntry.getTableBody().getRows().get(1);
+        assertThat(rowEntry.getCells()).hasSize(6).extractingResultOf("getContent").
+                containsExactly("49.50 KiB", "49.50 KiB", "0 B", "0 B", "0 B", "0 B");
     }
 
-    @Ignore("See #498")
     @Test
     public void should_report_network_topology_of_docker_containers() {
         final TakeDockerEnvironment takeDockerEnvironment = new TakeDockerEnvironment();
@@ -291,7 +295,8 @@ public class TakeDockerEnvironmentTest {
         Map<String, String> configuration = new HashMap<>();
         configuration.put(CubeDockerConfiguration.DOCKER_CONTAINERS, MULTIPLE_PORT_BINDING_SCENARIO);
         configuration.put("definitionFormat", DefinitionFormat.CUBE.name());
-        takeDockerEnvironment.reportDockerNetworks(new org.arquillian.cube.spi.event.lifecycle.AfterStart("helloworld"), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
+
+        takeDockerEnvironment.reportDockerEnvironment(new org.arquillian.cube.spi.event.lifecycle.AfterAutoStart(), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
 
         verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
 
@@ -301,9 +306,9 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
+        assertThat(rootEntries).hasSize(3);
 
-        final PropertyEntry networksEntry = rootEntries.get(0);
+        final PropertyEntry networksEntry = rootEntries.get(2);
         assertThat(networksEntry).isInstanceOf(GroupEntry.class);
 
         GroupEntry networksGroupEntry = (GroupEntry) networksEntry;

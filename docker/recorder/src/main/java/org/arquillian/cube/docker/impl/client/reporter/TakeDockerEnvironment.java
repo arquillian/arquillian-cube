@@ -12,11 +12,11 @@ import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
-import org.arquillian.cube.spi.event.lifecycle.AfterStart;
 import org.arquillian.extension.recorder.When;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
@@ -25,6 +25,9 @@ import org.arquillian.recorder.reporter.model.entry.FileEntry;
 import org.arquillian.recorder.reporter.model.entry.GroupEntry;
 import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
 import org.arquillian.recorder.reporter.model.entry.ScreenshotEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableEntry;
+import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -44,11 +47,11 @@ import java.nio.file.Paths;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,6 +64,8 @@ public class TakeDockerEnvironment {
 
     private static Logger log = Logger.getLogger(TakeDockerEnvironment.class.getName());
     private static ScreenshotEntry EMPTY_SCREENSHOT = new ScreenshotEntry();
+    private static CubeStatistics statsBeforeMethod = new CubeStatistics();
+    private static CubeStatistics statsAfterMethod = new CubeStatistics();
 
     @Inject
     Event<org.arquillian.recorder.reporter.event.PropertyReportEvent> propertyReportEvent;
@@ -76,75 +81,19 @@ public class TakeDockerEnvironment {
         GroupEntry containersComposition = createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration);
         docker.getPropertyEntries().add(containersComposition);
 
-        propertyReportEvent.fire(new PropertyReportEvent(docker));
-    }
+        GroupEntry containersNetwork = createNetworkTopologyGraph(cubeDockerConfiguration, reporterConfiguration, executor);
 
-    public void reportDockerNetworks(@Observes AfterStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
-
-        GroupEntry docker = new GroupEntry("Containers Networks");
-
-        GroupEntry containersComposition = createNetworkTopologyGraph(cubeDockerConfiguration, reporterConfiguration, executor);
-
-        docker.getPropertyEntries().add(containersComposition);
+        docker.getPropertyEntries().add(containersNetwork);
 
         propertyReportEvent.fire(new PropertyReportEvent(docker));
     }
 
-    public void reportContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
-        generateStats(executor, cubeRegistry, false, "Before");
+    public void captureContainerStatsBeforeTest(@Observes Before before, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
+        captureStats(executor, cubeRegistry, "before", false);
     }
 
     public void reportContainerStatsAfterTest(@Observes After after, DockerClientExecutor executor, CubeRegistry cubeRegistry) throws IOException {
-        generateStats(executor, cubeRegistry, false, "After");
-    }
-
-    private void generateStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, Boolean decimal, String when) throws IOException {
-        if (executor != null) {
-            List<Cube<?>> containers = cubeRegistry.getCubes();
-
-            GroupEntry containersStat = new GroupEntry("Container Statistics " + when + " Method");
-
-            for (Cube<?> container : containers) {
-                String name = container.getId();
-                Statistics statistics = null;
-
-                statistics = executor.statsContainer(name);
-
-                Map<String, Map<String, ?>> stats = getStats(statistics, decimal);
-                containersStat.getPropertyEntries().add(createContainerStatGroup(stats, name));
-            }
-            propertyReportEvent.fire(new PropertyReportEvent(containersStat));
-        }
-    }
-
-    private GroupEntry createContainerStatGroup(Map<String, Map<String, ?>> stats, String id) {
-
-        GroupEntry containerStatsInfo = new GroupEntry(id + " Statistics");
-
-        for (Map.Entry<String, Map<String, ?>> stat : stats.entrySet()) {
-            GroupEntry statType = new GroupEntry(stat.getKey() + " statistics");
-
-            Map<String, ?> nwStats = stat.getValue();
-            for (Map.Entry<String, ?> entry : nwStats.entrySet()) {
-                GroupEntry info = new GroupEntry(entry.getKey() + " statistics");
-
-                if (entry.getValue() instanceof LinkedHashMap) {
-
-                    Map<String, String> nwstats = (LinkedHashMap) entry.getValue();
-
-                    for (Map.Entry<String, String> nwstat : nwstats.entrySet()) {
-                        addEntry(new KeyValueEntry(nwstat.getKey(), nwstat.getValue()), info);
-                    }
-
-                } else {
-
-                    addEntry(new KeyValueEntry(entry.getKey(), (String) entry.getValue()), info);
-                }
-                statType.getPropertyEntries().add(info);
-            }
-            containerStatsInfo.getPropertyEntries().add(statType);
-        }
-        return containerStatsInfo;
+        captureStats(executor, cubeRegistry, "after", false);
     }
 
     public void reportContainerLogs(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) throws IOException {
@@ -155,13 +104,121 @@ public class TakeDockerEnvironment {
             executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
 
             FileEntry fileEntry = new FileEntry();
-            fileEntry.setPath(logFile.getPath());
+
+            final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
+            final Path relativize = rootDir.relativize(logFile.toPath());
+
+            GroupEntry entry = new GroupEntry(cubeId + "Logs");
+
+            fileEntry.setPath(relativize.toString());
             fileEntry.setType("Log");
             fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
-            propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
+            entry.getPropertyEntries().add(fileEntry);
+            propertyReportEvent.fire(new PropertyReportEvent(entry));
         }
     }
 
+    private PropertyEntry createContainerStatsIOGroup(Boolean decimal) {
+
+        GroupEntry groupEntry = new GroupEntry("IO statistics");
+        TableEntry tableEntry = new TableEntry();
+
+        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_wite", 3, 1));
+        tableEntry.getTableBody().addRows(new TableRowEntry(), new TableRowEntry());
+
+        addCellsHeader(tableEntry.getTableBody().getRows().get(0), 2);
+        TableRowEntry tableRowEntry = tableEntry.getTableBody().getRows().get(1);
+        addCells(tableRowEntry, TakeDockerEnvironment.statsBeforeMethod.getIoBytesRead(),
+                TakeDockerEnvironment.statsAfterMethod.getIoBytesRead(), decimal);
+        addCells(tableRowEntry, TakeDockerEnvironment.statsBeforeMethod.getIoBytesWrite(),
+                TakeDockerEnvironment.statsAfterMethod.getIoBytesWrite(), decimal);
+
+        groupEntry.getPropertyEntries().add(tableEntry);
+
+        return  groupEntry;
+    }
+
+    private PropertyEntry createContainerStatMemoryGroup(Boolean decimal) {
+
+        GroupEntry groupEntry = new GroupEntry("Memory statistics");
+
+        TableEntry tableEntry = new TableEntry();
+
+        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("Limit"));
+        tableEntry.getTableBody().addRows(new TableRowEntry(), new TableRowEntry());
+        addCellsHeader(tableEntry.getTableBody().getRows().get(0), 2);
+
+        TableRowEntry tableRowEntry = tableEntry.getTableBody().getRows().get(1);
+        addCells(tableRowEntry,TakeDockerEnvironment.statsBeforeMethod.getUsage(),
+                TakeDockerEnvironment.statsAfterMethod.getUsage(), decimal);
+        addCells(tableRowEntry, TakeDockerEnvironment.statsBeforeMethod.getMaxUsage(),
+                TakeDockerEnvironment.statsAfterMethod.getMaxUsage(), decimal);
+        tableRowEntry.addCell(new TableCellEntry(getHumanReadbale(TakeDockerEnvironment.statsBeforeMethod.getLimit(), decimal)));
+
+        groupEntry.getPropertyEntries().add(tableEntry);
+
+        return  groupEntry;
+    }
+
+    private PropertyEntry createContainerStatNetworksGroup(Boolean decimal) {
+
+        GroupEntry groupEntry = new GroupEntry("Networks statistics");
+
+        Map<String, Map<String, Long>> networksBeforeTest = TakeDockerEnvironment.statsBeforeMethod.getNetworks();
+
+        Map<String, Map<String, Long>> networksAfterTest = TakeDockerEnvironment.statsBeforeMethod.getNetworks();
+
+        TableEntry tableEntry = createTableForNetwork(networksBeforeTest, networksAfterTest, decimal);
+
+        groupEntry.getPropertyEntries().add(tableEntry);
+
+        return  groupEntry;
+    }
+
+    private TableEntry createTableForNetwork(Map<String, Map<String, Long>> networksBeforeTest, Map<String, Map<String, Long>> networksAfterTest, Boolean decimal) {
+        TableEntry tableEntry = new TableEntry();
+        tableEntry.getTableHead().getRow().addCells(new TableCellEntry("Adapter"), new TableCellEntry("rx_bytes", 3, 1), new TableCellEntry("tx_bytes", 3, 1));
+        tableEntry.getTableBody().addRow(new TableRowEntry());
+        tableEntry.getTableBody().getRows().get(0).addCell(new TableCellEntry());
+        addCellsHeader(tableEntry.getTableBody().getRows().get(0), 2);
+        for (String adapter : networksBeforeTest.keySet()) {
+            if (networksBeforeTest.containsKey(adapter) && networksAfterTest.containsKey(adapter)) {
+                TableRowEntry tableRow = addRowsForNetwork(networksBeforeTest.get(adapter), networksAfterTest.get(adapter), decimal, adapter);
+                tableEntry.getTableBody().addRow(tableRow);
+            }
+        }
+
+        return tableEntry;
+    }
+
+
+    private TableRowEntry addRowsForNetwork(Map<String, Long> before, Map<String, Long> after, Boolean decimal, String adapter) {
+
+        TableRowEntry tableRowEntry = new TableRowEntry();
+
+        tableRowEntry.addCell(new TableCellEntry(adapter));
+        addCells(tableRowEntry, before.get("rx_bytes"), after.get("rx_bytes"), decimal);
+        addCells(tableRowEntry, before.get("tx_bytes"), after.get("tx_bytes"), decimal);
+
+        return tableRowEntry;
+    }
+
+    public void captureStats(DockerClientExecutor executor, CubeRegistry cubeRegistry, String when, Boolean decimal) throws IOException {
+        if (executor != null) {
+            List<Cube<?>> containers = cubeRegistry.getCubes();
+            for (Cube<?> container : containers) {
+                String name = container.getId();
+                Statistics statistics = executor.statsContainer(name);
+                if (when == "before") {
+                    getStats(statistics, TakeDockerEnvironment.statsBeforeMethod);
+                } else {
+                    getStats(statistics, TakeDockerEnvironment.statsAfterMethod);
+                    createEntryAndFire(name, decimal);
+                }
+            }
+        }
+
+    }
 
     private GroupEntry createDockerCompositionSchema(CubeDockerConfiguration cubeDockerConfiguration, ReporterConfiguration reporterConfiguration) {
 
@@ -340,6 +397,7 @@ public class TakeDockerEnvironment {
 
         return  screenshotEntry;
     }
+
     private GroupEntry createDockerInfoGroup(DockerClientExecutor executor) {
         GroupEntry dockerInfo = new GroupEntry("Docker Info");
 
@@ -396,4 +454,30 @@ public class TakeDockerEnvironment {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
+    private String getHumanReadbale(Long bytes, Boolean decimal) {
+        return NumberConversion.humanReadableByteCount(bytes, decimal);
+    }
+
+    private void addCellsHeader(TableRowEntry tableRowEntry, Integer params) {
+        for (int i = 0; i < params; i++) {
+            tableRowEntry.addCells(new TableCellEntry("Before Test"), new TableCellEntry("After Test"), new TableCellEntry("Use"));
+        }
+    }
+
+    private void addCells(TableRowEntry tableRowEntry, Long beforeTest, Long afterTest, Boolean decimal) {
+        tableRowEntry.addCells(
+                new TableCellEntry(getHumanReadbale(beforeTest, decimal)),
+                new TableCellEntry(getHumanReadbale(afterTest, decimal)),
+                new TableCellEntry(getHumanReadbale((afterTest - beforeTest), decimal)));
+    }
+
+    private void createEntryAndFire(String name, Boolean decimal) {
+
+        GroupEntry containersStat = new GroupEntry(name +" Statistics");
+        containersStat.getPropertyEntries().add(createContainerStatMemoryGroup(decimal));
+        containersStat.getPropertyEntries().add(createContainerStatsIOGroup(decimal));
+        containersStat.getPropertyEntries().add(createContainerStatNetworksGroup(decimal));
+        propertyReportEvent.fire(new PropertyReportEvent(containersStat));
+
+    }
 }
