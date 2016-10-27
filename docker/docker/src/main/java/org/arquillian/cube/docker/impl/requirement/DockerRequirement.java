@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.google.common.base.Strings;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
@@ -29,7 +30,7 @@ public class DockerRequirement implements Requirement<RequiresDocker> {
     @Override
     public void check(RequiresDocker context) throws UnsatisfiedRequirementException {
         Map<String, String> config = resolver.resolve(new HashMap<String, String>());
-        String serverUrl = config.get(CubeDockerConfigurator.DOCKER_HOST);
+        String serverUrl = config.get(CubeDockerConfiguration.DOCKER_URI);
         if (Strings.isNullOrEmpty(serverUrl)) {
             throw new UnsatisfiedRequirementException("Could not resolve the docker server url.");
         } else if (!isDockerRunning(serverUrl)) {
