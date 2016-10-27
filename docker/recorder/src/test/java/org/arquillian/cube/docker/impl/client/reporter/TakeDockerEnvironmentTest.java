@@ -108,6 +108,7 @@ public class TakeDockerEnvironmentTest {
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put(CubeDockerConfiguration.DOCKER_CONTAINERS, MULTIPLE_PORT_BINDING_SCENARIO);
+        configuration.put("definitionFormat", DefinitionFormat.CUBE.name());
 
         takeDockerEnvironment.reportDockerEnvironment(new AfterAutoStart(), CubeDockerConfiguration.fromMap(configuration, null), dockerClientExecutor, new ReporterConfiguration());
 
@@ -119,7 +120,7 @@ public class TakeDockerEnvironmentTest {
 
         GroupEntry parent = (GroupEntry) propertyEntry;
         final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(2);
+        assertThat(rootEntries).hasSize(3);
 
         final PropertyEntry propertyDockerInfoEntry = rootEntries.get(0);
         assertThat(propertyDockerInfoEntry).isInstanceOf(GroupEntry.class);
@@ -247,7 +248,7 @@ public class TakeDockerEnvironmentTest {
         TableEntry tableEntry = (TableEntry) entryList.get(0);
 
         assertThat(tableEntry).extracting("tableHead").extracting("row").flatExtracting("cells").
-                hasSize(3).containsExactly(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("Limit"));
+                hasSize(3).containsExactly(new TableCellEntry("usage", 3, 1), new TableCellEntry("max_usage", 3, 1), new TableCellEntry("limit"));
 
         assertThat(tableEntry).extracting("tableBody").flatExtracting("rows").hasSize(2);
         TableRowEntry rowEntry = tableEntry.getTableBody().getRows().get(1);
@@ -279,7 +280,7 @@ public class TakeDockerEnvironmentTest {
         TableEntry tableEntry = (TableEntry) entryList.get(0);
 
         assertThat(tableEntry).extracting("tableHead").extracting("row").flatExtracting("cells").
-                hasSize(2).containsExactly(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_wite", 3, 1));
+                hasSize(2).containsExactly(new TableCellEntry("io_bytes_read", 3, 1), new TableCellEntry("io_bytes_write", 3, 1));
 
         assertThat(tableEntry).extracting("tableBody").flatExtracting("rows").hasSize(2);
         TableRowEntry rowEntry = tableEntry.getTableBody().getRows().get(1);
