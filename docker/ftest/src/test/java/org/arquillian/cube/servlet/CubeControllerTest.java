@@ -91,10 +91,4 @@ public class CubeControllerTest {
         assertThat(changesOnFilesystem.size() > 0, is(true));
     }
 
-    @Test
-    public void should_copy_files_from_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) throws IOException {
-        File newFolder = folder.newFolder();
-        cubeController.copyFileDirectoryFromContainer(cubeID, "/tomcat/logs", newFolder.getAbsolutePath());
-        //needs manual inspection on /tmp/.... because this test is executed on server side but the files are copied in client side. 
-    }
 }
