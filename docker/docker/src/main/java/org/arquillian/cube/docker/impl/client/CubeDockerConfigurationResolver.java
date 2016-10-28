@@ -71,26 +71,6 @@ public class CubeDockerConfigurationResolver {
         return config;
     }
 
-    private void adaptPortBindingToParallelRun(CubeContainer cubeContainer) {
-        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-        if (portBindings == null) {
-            return;
-        }
-        for (PortBinding portBinding : portBindings) {
-            final int randomPrivatePort = generateRandomPrivatePort();
-            portBinding.setBound(randomPrivatePort);
-        }
-    }
-
-    private String generateNewName(String containerName, UUID uuid) {
-        return containerName + "_" + uuid;
-    }
-
-    private int generateRandomPrivatePort() {
-        final int randomPort = random.nextInt(16383);
-        return randomPort + 49152;
-    }
-
     private Map<String, String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
         // if DIND_RESOLUTION property is not set, since by default is enabled, we need to go inside code.
         if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
