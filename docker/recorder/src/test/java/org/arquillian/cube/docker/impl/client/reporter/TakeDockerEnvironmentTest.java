@@ -184,10 +184,13 @@ public class TakeDockerEnvironmentTest {
 
         final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
         final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
-        assertThat(propertyEntry).isInstanceOf(FileEntry.class);
+        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
 
-        FileEntry fileEntry = (FileEntry) propertyEntry;
-        assertThat(fileEntry.getPath()).isEqualTo("target/reports/logs/tomcat.log");
+        List<PropertyEntry> childEntry = propertyEntry.getPropertyEntries();
+        assertThat(childEntry).hasSize(1).extracting("class.simpleName").containsExactly("FileEntry");
+
+        FileEntry fileEntry = (FileEntry) childEntry.get(0);
+        assertThat(fileEntry.getPath()).isEqualTo("reports/logs/tomcat.log");
     }
 
     @Test
