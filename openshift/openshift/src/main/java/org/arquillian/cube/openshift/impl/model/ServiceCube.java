@@ -4,6 +4,7 @@ import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -158,6 +159,11 @@ public class ServiceCube extends BaseCube<Void> {
             if (mappedPorts.containsKey(targetPort)) {
                 return mappedPorts.get(targetPort);
             }
+            return null;
+        }
+
+        @Override
+        public InetAddress getPortForwardBindAddress() {
             return null;
         }
 

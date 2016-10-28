@@ -16,25 +16,8 @@ import io.undertow.server.XnioByteBufferPool;
 import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 import io.undertow.util.StringReadChannelListener;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.nio.ByteBuffer;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import org.xnio.BufferAllocator;
 import org.xnio.ByteBufferSlicePool;
-import org.xnio.ChannelExceptionHandler;
 import org.xnio.ChannelListener;
 import org.xnio.ChannelListeners;
 import org.xnio.IoFuture;
@@ -46,13 +29,29 @@ import org.xnio.StreamConnection;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 import org.xnio.channels.AcceptingChannel;
-import org.xnio.channels.StreamSinkChannel;
 import org.xnio.ssl.XnioSsl;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PortForwarder implements Closeable {
 
     private static final String PORT_FWD = "%sapi/v1/namespaces/%s/pods/%s/portforward";
 
+    private InetAddress portForwardBindAddress;
     private URI portForwardURI;
     private final OptionMap DEFAULT_OPTIONS;
     private Pool<ByteBuffer> bufferPoolSlice;
@@ -173,6 +172,17 @@ public final class PortForwarder implements Closeable {
         xnioWorker = null;
     }
 
+    public void setPortForwardBindAddress(InetAddress bindAddress){
+        if (bindAddress == null ) {
+            try {
+                bindAddress = Inet4Address.getLocalHost();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+        portForwardBindAddress = bindAddress;
+    }
+
     private synchronized void close(PortForwardServer server) {
         IoUtils.safeClose(server.server);
         servers.remove(server);
@@ -186,7 +196,7 @@ public final class PortForwarder implements Closeable {
                 .getMap();
 
         ChannelListener<AcceptingChannel<StreamConnection>> acceptListener = ChannelListeners.openListenerAdapter(new PortForwardOpenListener(connection, portForwardURI.getPath(), targetPort, requestId, bufferPoolSlice, OptionMap.EMPTY));
-        AcceptingChannel<? extends StreamConnection> server = xnioWorker.createStreamConnectionServer(new InetSocketAddress(Inet4Address.getLoopbackAddress(), sourcePort), acceptListener, socketOptions);
+        AcceptingChannel<? extends StreamConnection> server = xnioWorker.createStreamConnectionServer(new InetSocketAddress(portForwardBindAddress, sourcePort), acceptListener, socketOptions);
         server.resumeAccepts();
         return server;
     }
@@ -245,20 +255,31 @@ public final class PortForwarder implements Closeable {
     }
 
     public static void main(String[] args) throws Exception {
+
         if (args.length < 4) {
-            System.out.println("Usage: portforward <namespace> <pod> <source-port> <target-port>");
-            System.out.println("Example: portforward mynamespace somepod 8080 8080");
+            System.out.println("Usage: portforward <namespace> <pod> <source-port> <target-port> -b [optional] <bindAddress>");
+            System.out.println("Example: portforward mynamespace somepod 8080 8080 -b 10.1.1.1");
         }
+
         final String namespace = args[0];
         final String podName = args[1];
         final int sourcePort = Integer.valueOf(args[2]);
         final int targetPort = Integer.valueOf(args[3]);
+        InetAddress bindAddress = null;
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].contains("-b")){
+                bindAddress = InetAddress.getByName(args[i+1]);
+            }
+        }
 
         final Config config = new Config();
         config.setNamespace(namespace);
         final PortForwarder forwarder = new PortForwarder(config, podName);
+        forwarder.setPortForwardBindAddress(bindAddress);
         final PortForwardServer server = forwarder.forwardPort(sourcePort, targetPort);
         System.in.read();
+        server.close();
         forwarder.close();
     }
 }

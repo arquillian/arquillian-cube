@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.model;
 
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -311,6 +312,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
             if (mappedPorts.containsKey(targetPort)) {
                 return mappedPorts.get(targetPort);
             }
+            return null;
+        }
+
+        @Override
+        public InetAddress getPortForwardBindAddress() {
             return null;
         }
 

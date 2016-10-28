@@ -21,8 +21,9 @@ import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.xnio.IoUtils;
 
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -217,7 +218,7 @@ public class BuildablePodCube extends BaseCube<Void> {
                     continue;
                 }
                 proxiedPorts.put(containerPort, mappedPort);
-                mappedPorts.put(containerPort, new PortAddressImpl("localhost", mappedPort));
+                mappedPorts.put(containerPort, new PortAddressImpl(getPortForwardBindAddress().getHostAddress(), mappedPort));
             }
 
             this.containerPorts = new LinkedHashSet<Integer>();
@@ -279,6 +280,15 @@ public class BuildablePodCube extends BaseCube<Void> {
             return null;
         }
 
+        @Override
+        public InetAddress getPortForwardBindAddress() {
+            try {
+                return InetAddress.getByName(configuration.getPortForwardBindAddress());
+            } catch (UnknownHostException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
         private synchronized void podStarted() throws Exception {
             if (holder.getPod() != null && holder.getPod().getSpec() != null
                     && holder.getPod().getSpec().getContainers() != null) {
@@ -310,6 +320,7 @@ public class BuildablePodCube extends BaseCube<Void> {
                 portForwarder = new PortForwarder(client.getClient().getConfiguration(), getId());
             }
             try {
+                portForwarder.setPortForwardBindAddress(getPortForwardBindAddress());
                 for (Entry<Integer, Integer> mappedPort : proxiedPorts.entrySet()) {
                     PortForwardServer server = portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
                     portForwardServers.put(mappedPort.getKey(), server);
@@ -339,7 +350,7 @@ public class BuildablePodCube extends BaseCube<Void> {
         //If you are going to change this method, please also change the tests PortForwarderPort.java
         private int allocateLocalPort(int port) {
             try {
-                try (ServerSocket serverSocket = new ServerSocket(port, 0, Inet4Address.getLocalHost())) {
+                try (ServerSocket serverSocket = new ServerSocket(port, 0, getPortForwardBindAddress())) {
                     return serverSocket.getLocalPort();
                 }
             } catch (Throwable t) {

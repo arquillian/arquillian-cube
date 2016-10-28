@@ -28,6 +28,7 @@ public class CubeOpenShiftConfiguration {
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
+    private static final String PORT_FORWARDER_BIND_ADDRESS = "portForwardBindAddress";
 
     private final String originServer;
     private final String namespace;
@@ -36,8 +37,9 @@ public class CubeOpenShiftConfiguration {
     private final String definitionsFile;
     private final String[] autoStartContainers;
     private final Set<String> proxiedContainerPorts;
+    private final String portForwardBindAddress;
 
-    public CubeOpenShiftConfiguration(String originServer, String namespace, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts) {
+    public CubeOpenShiftConfiguration(String originServer, String namespace, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts, String portForwardBindAddress) {
         this.originServer = originServer;
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
@@ -45,6 +47,7 @@ public class CubeOpenShiftConfiguration {
         this.definitionsFile = definitionsFile;
         this.autoStartContainers = autoStartContainers;
         this.proxiedContainerPorts = proxiedContainerPorts;
+        this.portForwardBindAddress = portForwardBindAddress;
     }
 
     public String getOriginServer() {
@@ -85,6 +88,9 @@ public class CubeOpenShiftConfiguration {
         return proxiedContainerPorts;
     }
 
+    public String getPortForwardBindAddress() {
+        return portForwardBindAddress;
+    }
 
     private static String[] split(String str, String regex) {
         if (str == null || str.isEmpty()) {
@@ -104,6 +110,7 @@ public class CubeOpenShiftConfiguration {
                     .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
                     .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
                     .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
+                    .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
                     .build();
 
             if (conf.getDefinitions() == null && conf.getDefinitionsFile() == null) {
