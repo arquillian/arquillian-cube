@@ -94,7 +94,7 @@ public class PingPongTest {
     }
 
     @Test
-    public void container_should_have_static_ip_for_app_net_network() throws InterruptedException {
+    public void container_should_have_static_ip_for_app_net_network() throws InterruptedException, IOException {
         final InspectContainerResponse pingpong = dockerClient.inspectContainerCmd("pingpong").exec();
 
         ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(pingpong.getId())
@@ -107,6 +107,7 @@ public class PingPongTest {
                 .exec(new ExecStartResultCallback(outputStream, errorStream)).awaitCompletion();
 
         assertThat(outputStream.toString()).contains("inet addr:172.16.238.10", "inet6 addr: fe80::42:acff:fe10:ee0a/64");
-
+        outputStream.close();
+        errorStream.close();
     }
 }

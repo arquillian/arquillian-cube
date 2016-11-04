@@ -58,22 +58,22 @@ public class ComposeBuilder {
                     if (serviceDefinition.containsKey(NETWORKS)) {
                         Collection<String> serviceNetworks;
                         Map<String, Object> serviceNetworksConfig = null;
-                            if (serviceDefinition.get(NETWORKS) instanceof ArrayList) {
-                                serviceNetworks = asListOfString(serviceDefinition, NETWORKS);
-                            } else {
-                                serviceNetworksConfig = asMap(serviceDefinition, NETWORKS);
-                                serviceNetworks = serviceNetworksConfig.keySet();
+                        if (serviceDefinition.get(NETWORKS) instanceof ArrayList) {
+                            serviceNetworks = asListOfString(serviceDefinition, NETWORKS);
+                        } else {
+                            serviceNetworksConfig = asMap(serviceDefinition, NETWORKS);
+                            serviceNetworks = serviceNetworksConfig.keySet();
+                        }
+                        if (!serviceNetworks.isEmpty()) {
+                            cubeContainer.setNetworks(new HashSet<>(serviceNetworks));
+                            String networkName = serviceNetworks.iterator().next();
+                            cubeContainer.setNetworkMode(networkName);
+                            if (serviceNetworksConfig != null) {
+                                setNetworkOptions(serviceNetworksConfig.get(networkName), cubeContainer);
                             }
-                            if (!serviceNetworks.isEmpty()) {
-                                cubeContainer.setNetworks(new HashSet<>(serviceNetworks));
-                                String networkName = serviceNetworks.iterator().next();
-                                cubeContainer.setNetworkMode(networkName);
-                                if (serviceNetworksConfig != null) {
-                                    setNetworkOptions(serviceNetworksConfig.get(networkName), cubeContainer);
-                                }
-                            } else {
-                                throw new IllegalArgumentException("Networks not mentioned under services networks section.");
-                            }
+                        } else {
+                            throw new IllegalArgumentException("Networks not mentioned under services networks section.");
+                        }
                     } else {
                         String networkName = getDefaultNetworkName();
                         if (!this.configuration.getNetworks().containsKey(networkName)) {
@@ -115,7 +115,7 @@ public class ComposeBuilder {
 
     private void setNetworkOptions(Object networkOption, CubeContainer cubeContainer){
         if (networkOption != null) {
-            LinkedHashMap<String, Object> options = (LinkedHashMap) networkOption;
+            Map<String, Object> options = (LinkedHashMap) networkOption;
             if (options.containsKey(IP_V4_Address)) {
                 cubeContainer.setIpv4Address(asString(options, IP_V4_Address));
             }
