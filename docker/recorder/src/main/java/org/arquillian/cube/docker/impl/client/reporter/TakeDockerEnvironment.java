@@ -100,14 +100,18 @@ public class TakeDockerEnvironment {
         final String cubeId = beforeStop.getCubeId();
         if (cubeId != null) {
             final File logFile = new File(createContainerLogDirectory(reporterConfiguration.getRootDir()), cubeId + ".log");
+            final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
+            final Path relativePath = rootDir.relativize(logFile.toPath());
 
             executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
 
+            GroupEntry groupEntry = new GroupEntry(cubeId + " logs");
             FileEntry fileEntry = new FileEntry();
-            fileEntry.setPath(logFile.getPath());
+            fileEntry.setPath(relativePath.toString());
             fileEntry.setType("Log");
             fileEntry.setMessage("Logs of " + cubeId + " container before stop event.");
-            propertyReportEvent.fire(new PropertyReportEvent(fileEntry));
+            groupEntry.getPropertyEntries().add(fileEntry);
+            propertyReportEvent.fire(new PropertyReportEvent(groupEntry));
         }
     }
 
