@@ -39,6 +39,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 
@@ -356,6 +357,14 @@ public class DockerClientExecutor {
 
             if (containerConfiguration.getDomainName() != null) {
                 createContainerCmd.withDomainName(containerConfiguration.getDomainName());
+            }
+
+            if (containerConfiguration.getIpv4Address() != null) {
+                createContainerCmd.withIpv4Address(containerConfiguration.getIpv4Address());
+            }
+
+            if (containerConfiguration.getIpv6Address() != null) {
+                createContainerCmd.withIpv6Address(containerConfiguration.getIpv6Address());
             }
 
             boolean alwaysPull = false;
@@ -907,7 +916,14 @@ public class DockerClientExecutor {
                 createNetworkCmd.withDriver(network.getDriver());
             }
 
-            //TODO IPAM cannot be set at the time of writing this.
+            if (network.getIpam() != null) {
+                createNetworkCmd.withIpam(new com.github.dockerjava.api.model.Network.Ipam().withConfig(
+                        createIpamConfig(network)));
+            }
+
+            if (network.getOptions() != null && !network.getOptions().isEmpty()) {
+                createNetworkCmd.withOptions(network.getOptions());
+            }
 
             final CreateNetworkResponse exec = createNetworkCmd.exec();
             return exec.getId();
@@ -923,6 +939,29 @@ public class DockerClientExecutor {
         } finally {
             this.readWriteLock.readLock().unlock();
         }
+    }
+
+    private List<com.github.dockerjava.api.model.Network.Ipam.Config> createIpamConfig(Network network){
+        List<com.github.dockerjava.api.model.Network.Ipam.Config> ipamConfigs = new ArrayList<>();
+        List<IPAMConfig> IPAMConfigs = network.getIpam().getIpamConfigs();
+
+        if (IPAMConfigs != null) {
+            for (IPAMConfig IpamConfig : IPAMConfigs) {
+                com.github.dockerjava.api.model.Network.Ipam.Config config = new com.github.dockerjava.api.model.Network.Ipam.Config();
+                if (IpamConfig.getGateway() != null) {
+                    config.withGateway(IpamConfig.getGateway());
+                }
+                if (IpamConfig.getIpRange() != null) {
+                    config.withIpRange(IpamConfig.getIpRange());
+                }
+                if (IpamConfig.getSubnet() != null) {
+                    config.withSubnet(IpamConfig.getSubnet());
+                }
+                ipamConfigs.add(config);
+            }
+        }
+
+        return ipamConfigs;
     }
 
     /**

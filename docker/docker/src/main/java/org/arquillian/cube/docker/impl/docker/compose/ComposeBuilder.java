@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.docker.compose;
 
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -9,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -20,6 +23,8 @@ public class ComposeBuilder {
 
     private static final String SERVICES = "services";
     private static final String NETWORKS = "networks";
+    private static final String IP_V4_Address = "ipv4_address";
+    private static final String IP_V6_Address = "ipv6_address";
 
     private static final String NETWORK_NAME_SUFFIX = "_default";
 
@@ -51,13 +56,24 @@ public class ComposeBuilder {
                 } else {
                     final Map<String, Object> serviceDefinition = asMap(servicesDefinition, key);
                     if (serviceDefinition.containsKey(NETWORKS)) {
-                        final Collection<String> serviceNetworks = asListOfString(serviceDefinition, NETWORKS);
-                        if (!serviceNetworks.isEmpty()) {
-                            cubeContainer.setNetworks(new HashSet<>(serviceNetworks));
-                            cubeContainer.setNetworkMode(serviceNetworks.iterator().next());
-                        } else {
-                            throw new IllegalArgumentException("Networks not mentioned under services networks section.");
-                        }
+                        Collection<String> serviceNetworks;
+                        Map<String, Object> serviceNetworksConfig = null;
+                            if (serviceDefinition.get(NETWORKS) instanceof ArrayList) {
+                                serviceNetworks = asListOfString(serviceDefinition, NETWORKS);
+                            } else {
+                                serviceNetworksConfig = asMap(serviceDefinition, NETWORKS);
+                                serviceNetworks = serviceNetworksConfig.keySet();
+                            }
+                            if (!serviceNetworks.isEmpty()) {
+                                cubeContainer.setNetworks(new HashSet<>(serviceNetworks));
+                                String networkName = serviceNetworks.iterator().next();
+                                cubeContainer.setNetworkMode(networkName);
+                                if (serviceNetworksConfig != null) {
+                                    setNetworkOptions(serviceNetworksConfig.get(networkName), cubeContainer);
+                                }
+                            } else {
+                                throw new IllegalArgumentException("Networks not mentioned under services networks section.");
+                            }
                     } else {
                         String networkName = getDefaultNetworkName();
                         if (!this.configuration.getNetworks().containsKey(networkName)) {
@@ -97,4 +113,15 @@ public class ComposeBuilder {
                 .getName() + NETWORK_NAME_SUFFIX;
     }
 
+    private void setNetworkOptions(Object networkOption, CubeContainer cubeContainer){
+        if (networkOption != null) {
+            LinkedHashMap<String, Object> options = (LinkedHashMap) networkOption;
+            if (options.containsKey(IP_V4_Address)) {
+                cubeContainer.setIpv4Address(asString(options, IP_V4_Address));
+            }
+            if (options.containsKey(IP_V6_Address)) {
+                cubeContainer.setIpv6Address(asString(options, IP_V6_Address));
+            }
+        }
+    }
 }

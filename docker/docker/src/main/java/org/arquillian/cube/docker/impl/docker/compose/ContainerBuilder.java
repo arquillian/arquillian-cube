@@ -11,13 +11,13 @@ import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -278,7 +278,13 @@ public class ContainerBuilder {
         }
 
         if (dockerComposeContainerDefinition.containsKey(NETWORKS)) {
-            this.addNetworks(asListOfString(dockerComposeContainerDefinition, NETWORKS));
+            if (dockerComposeContainerDefinition.get(NETWORKS) instanceof ArrayList) {
+                this.addNetworks(asListOfString(dockerComposeContainerDefinition, NETWORKS));
+            } else {
+                Map<String, Object> networks = asMap(dockerComposeContainerDefinition, NETWORKS);
+                this.addNetworks(networks.keySet());
+            }
+
         }
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());

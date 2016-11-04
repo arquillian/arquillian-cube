@@ -6,11 +6,25 @@ services:
     ports:
       - "8080:8080"
     networks:
-     - front
-     - back
+      app_net:
+        ipv4_address: 172.16.238.10
+        ipv6_address: 2001:3984:3989::10
+      front:
+      back:
 
 networks:
   front:
     driver: bridge
   back:
     driver: bridge
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.1
+      - subnet: 2001:3984:3989::/64
+        gateway: 2001:3984:3989::1
