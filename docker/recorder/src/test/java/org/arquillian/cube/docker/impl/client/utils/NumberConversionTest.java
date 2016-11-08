@@ -86,6 +86,6 @@ public class NumberConversionTest {
 
     @Test
     public void should_be_possible_to_show_negative_kikibytes_in_human_readable_form(){
-        assertThat(humanReadableByteCount(NEGATIVE_ONE_KIKIBYTE, false), is("-1.00 KiB"));
+        assertThat(humanReadableByteCount(NEGATIVE_ONE_KIKIBYTE, false), is("- 1.00 KiB"));
     }
 }

@@ -10,11 +10,13 @@ public class NumberConversion {
         String sign = bytes < 0 ? "-" : "";
         Long absBytes = Math.abs(bytes);
         int unit = decimal ? 1000 : 1024;
-        if (absBytes < unit) return sign + absBytes + " B";
+        if (absBytes < unit) {
+            return sign + absBytes + " B";
+        }
         int exp = (int) (Math.log(absBytes) / Math.log(unit));
         String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
 
-        return sign + String.format("%.2f %sB", absBytes / Math.pow(unit, exp), pre);
+        return  String.format("%s %.2f %sB", sign, absBytes / Math.pow(unit, exp), pre).trim();
     }
 
     public static long convertToLong(Object number) {
