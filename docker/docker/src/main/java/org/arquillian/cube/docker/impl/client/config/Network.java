@@ -1,11 +1,13 @@
 package org.arquillian.cube.docker.impl.client.config;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 public class Network {
 
     private String driver;
     private IPAM ipam;
+    private Map<String, String> options;
 
     public String getDriver() {
         return driver;
@@ -40,5 +42,13 @@ public class Network {
         } catch (Exception e) {
             throw new RuntimeException("Could not merge objects", e);
         }
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
     }
 }
