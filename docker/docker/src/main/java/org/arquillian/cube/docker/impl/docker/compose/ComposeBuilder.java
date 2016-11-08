@@ -69,7 +69,8 @@ public class ComposeBuilder {
                             String networkName = serviceNetworks.iterator().next();
                             cubeContainer.setNetworkMode(networkName);
                             if (serviceNetworksConfig != null) {
-                                setNetworkOptions(serviceNetworksConfig.get(networkName), cubeContainer);
+                                Map<String, Object> configOption = (LinkedHashMap) serviceNetworksConfig.get(networkName);
+                                setNetworkOptions(configOption, cubeContainer);
                             }
                         } else {
                             throw new IllegalArgumentException("Networks not mentioned under services networks section.");
@@ -113,14 +114,13 @@ public class ComposeBuilder {
                 .getName() + NETWORK_NAME_SUFFIX;
     }
 
-    private void setNetworkOptions(Object networkOption, CubeContainer cubeContainer){
+    private void setNetworkOptions(Map<String, Object> networkOption, CubeContainer cubeContainer){
         if (networkOption != null) {
-            Map<String, Object> options = (LinkedHashMap) networkOption;
-            if (options.containsKey(IP_V4_Address)) {
-                cubeContainer.setIpv4Address(asString(options, IP_V4_Address));
+            if (networkOption.containsKey(IP_V4_Address)) {
+                cubeContainer.setIpv4Address(asString(networkOption, IP_V4_Address));
             }
-            if (options.containsKey(IP_V6_Address)) {
-                cubeContainer.setIpv6Address(asString(options, IP_V6_Address));
+            if (networkOption.containsKey(IP_V6_Address)) {
+                cubeContainer.setIpv6Address(asString(networkOption, IP_V6_Address));
             }
         }
     }

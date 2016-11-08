@@ -81,10 +81,9 @@ public class NetworkBuilder {
 
     private List<IPAMConfig> createIpamConfig(Collection<Map<String, Object>> configs) {
         List<IPAMConfig> ipamConfigs = new ArrayList<>();
-        for (Object config : configs) {
-            if (config instanceof Map) {
+        for (Map<String, Object> ipam : configs) {
+            if (ipam != null) {
                 IPAMConfig ipamConfig = new IPAMConfig();
-                Map<String, Object> ipam = (LinkedHashMap) config;
                 if (ipam.containsKey(SUBNET)) {
                     ipamConfig.setSubnet(asString(ipam, SUBNET));
                 }

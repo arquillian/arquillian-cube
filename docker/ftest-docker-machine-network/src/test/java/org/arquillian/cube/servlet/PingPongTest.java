@@ -100,14 +100,13 @@ public class PingPongTest {
         ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(pingpong.getId())
                 .withAttachStdout(true).withAttachStdin(true).withAttachStderr(true).withTty(false).withCmd("ifconfig")
                 .exec();
+        try(OutputStream outputStream = new ByteArrayOutputStream();
+            OutputStream errorStream = new ByteArrayOutputStream()) {
 
-        OutputStream outputStream = new ByteArrayOutputStream();
-        OutputStream errorStream = new ByteArrayOutputStream();
-        dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
-                .exec(new ExecStartResultCallback(outputStream, errorStream)).awaitCompletion();
+            dockerClient.execStartCmd(execCreateCmdResponse.getId()).withDetach(false)
+                    .exec(new ExecStartResultCallback(outputStream, errorStream)).awaitCompletion();
 
-        assertThat(outputStream.toString()).contains("inet addr:172.16.238.10", "inet6 addr: fe80::42:acff:fe10:ee0a/64");
-        outputStream.close();
-        errorStream.close();
+            assertThat(outputStream.toString()).contains("inet addr:172.16.238.10", "inet6 addr: fe80::42:acff:fe10:ee0a/64");
+        }
     }
 }
