@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -500,9 +502,12 @@ public class DockerClientExecutor {
 
         try {
             StatsCmd statsCmd = this.dockerClient.statsCmd(id);
-            StatsLogsResultCallback statslogs = new StatsLogsResultCallback();
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            StatsLogsResultCallback statslogs = new StatsLogsResultCallback(countDownLatch);
             try {
-                statsCmd.exec(statslogs).awaitCompletion();
+                StatsLogsResultCallback statscallback = statsCmd.exec(statslogs);
+                countDownLatch.await(3, TimeUnit.SECONDS);
+                statscallback.close();
             } catch (InterruptedException e) {
                 throw new IOException(e);
             }
