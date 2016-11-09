@@ -506,7 +506,7 @@ public class DockerClientExecutor {
             StatsLogsResultCallback statslogs = new StatsLogsResultCallback(countDownLatch);
             try {
                 StatsLogsResultCallback statscallback = statsCmd.exec(statslogs);
-                countDownLatch.await(3, TimeUnit.SECONDS);
+                countDownLatch.await(5, TimeUnit.SECONDS);
                 statscallback.close();
             } catch (InterruptedException e) {
                 throw new IOException(e);
