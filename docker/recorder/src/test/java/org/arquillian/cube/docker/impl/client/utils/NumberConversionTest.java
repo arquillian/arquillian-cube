@@ -13,6 +13,8 @@ public class NumberConversionTest {
 
     private static final Long ONE_KIKIBYTE = 1024L;
 
+    private static final Long NEGATIVE_ONE_KIKIBYTE = -1024L;
+
     private static final Long ONE_TERABYTES = 1000000000000L;
 
     private static final Long HUNDRED_GIGABYTES = 100000000000L;
@@ -82,4 +84,8 @@ public class NumberConversionTest {
         assertThat(humanReadableByteCount(ONE_EXBIBYTE, false), is("1.00 EiB"));
     }
 
+    @Test
+    public void should_be_possible_to_show_negative_kikibytes_in_human_readable_form(){
+        assertThat(humanReadableByteCount(NEGATIVE_ONE_KIKIBYTE, false), is("- 1.00 KiB"));
+    }
 }
