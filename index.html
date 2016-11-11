@@ -417,11 +417,102 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .show-for-print{display:inherit!important}}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
 <h1>Arquillian Cube</h1>
-<div id="toc" class="toc">
+<div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_what_is_this">1. What is this?</a></li>
@@ -636,7 +727,7 @@ To allow <em>Docker</em> server to use TCP add the following line to /etc/defaul
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-terminal" data-lang="terminal">$ docker -H tcp://127.0.0.1:2375 version
+<pre class="CodeRay highlight"><code data-lang="terminal">$ docker -H tcp://127.0.0.1:2375 version
 
 Client version: 0.8.0
 Go version (client): go1.2
@@ -661,13 +752,13 @@ In this case we are going to use a very simple example using a <em>Docker</em> i
 <div class="listingblock">
 <div class="title">HelloWorldServlet.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@WebServlet("/HelloWorld")
-public class HelloWorldServlet extends HttpServlet {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@WebServlet</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">/HelloWorld</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldServlet</span> <span class="directive">extends</span> HttpServlet {
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    PrintWriter writer = resp.getWriter();
-    writer.println("Hello World");
+  <span class="annotation">@Override</span>
+  <span class="directive">protected</span> <span class="type">void</span> doGet(HttpServletRequest req, HttpServletResponse resp) <span class="directive">throws</span> ServletException, <span class="exception">IOException</span> {
+    <span class="predefined-type">PrintWriter</span> writer = resp.getWriter();
+    writer.println(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello World</span><span class="delimiter">&quot;</span></span>);
   }
 }</code></pre>
 </div>
@@ -675,32 +766,32 @@ public class HelloWorldServlet extends HttpServlet {
 <div class="listingblock">
 <div class="title">HelloWorldServletTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class HelloWorldServletTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldServletTest</span> {
 
-  @Deployment(testable=false) <i class="conum" data-value="1"></i><b>(1)</b>
-  public static WebArchive create() {
-    return ShrinkWrap.create(WebArchive.class, "hello.war").addClass(HelloWorldServlet.class); <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="annotation">@Deployment</span>(testable=<span class="predefined-constant">false</span>) <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">public</span> <span class="directive">static</span> WebArchive create() {
+    <span class="keyword">return</span> ShrinkWrap.create(WebArchive.class, <span class="string"><span class="delimiter">&quot;</span><span class="content">hello.war</span><span class="delimiter">&quot;</span></span>).addClass(HelloWorldServlet.class); <i class="conum" data-value="2"></i><b>(2)</b>
   }
 
-  @Test
-  public void should_parse_and_load_configuration_file(@ArquillianResource URL resource) throws IOException { <i class="conum" data-value="3"></i><b>(3)</b>
+  <span class="annotation">@Test</span>
+  <span class="directive">public</span> <span class="type">void</span> should_parse_and_load_configuration_file(<span class="annotation">@ArquillianResource</span> <span class="predefined-type">URL</span> resource) <span class="directive">throws</span> <span class="exception">IOException</span> { <i class="conum" data-value="3"></i><b>(3)</b>
 
-    URL obj = new URL(resource, "HelloWorld");
-    HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-    con.setRequestMethod("GET");
+    <span class="predefined-type">URL</span> obj = <span class="keyword">new</span> <span class="predefined-type">URL</span>(resource, <span class="string"><span class="delimiter">&quot;</span><span class="content">HelloWorld</span><span class="delimiter">&quot;</span></span>);
+    <span class="predefined-type">HttpURLConnection</span> con = (<span class="predefined-type">HttpURLConnection</span>) obj.openConnection();
+    con.setRequestMethod(<span class="string"><span class="delimiter">&quot;</span><span class="content">GET</span><span class="delimiter">&quot;</span></span>);
 
-    BufferedReader in = new BufferedReader(
-            new InputStreamReader(con.getInputStream()));
-    String inputLine;
-    StringBuffer response = new StringBuffer();
+    <span class="predefined-type">BufferedReader</span> in = <span class="keyword">new</span> <span class="predefined-type">BufferedReader</span>(
+            <span class="keyword">new</span> <span class="predefined-type">InputStreamReader</span>(con.getInputStream()));
+    <span class="predefined-type">String</span> inputLine;
+    <span class="predefined-type">StringBuffer</span> response = <span class="keyword">new</span> <span class="predefined-type">StringBuffer</span>();
 
-    while ((inputLine = in.readLine()) != null) {
+    <span class="keyword">while</span> ((inputLine = in.readLine()) != <span class="predefined-constant">null</span>) {
         response.append(inputLine);
     }
     in.close();
 
-    assertThat(response.toString(), is("Hello World"));<i class="conum" data-value="4"></i><b>(4)</b>
+    assertThat(response.toString(), is(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello World</span><span class="delimiter">&quot;</span></span>));<i class="conum" data-value="4"></i><b>(4)</b>
   }
 }</code></pre>
 </div>
@@ -732,19 +823,19 @@ Next step is adding some dependencies apart from the typical <em>Arquillian</em>
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-  &lt;artifactId&gt;arquillian-cube-docker&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-  &lt;version&gt;${project.version}&lt;/version&gt;
-  &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
 
-&lt;dependency&gt;
-  &lt;groupId&gt;org.jboss.arquillian.container&lt;/groupId&gt;
-  &lt;artifactId&gt;arquillian-tomcat-remote-7&lt;/artifactId&gt; <i class="conum" data-value="2"></i><b>(2)</b>
-  &lt;version&gt;1.0.0.CR7&lt;/version&gt;
-  &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.container<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-tomcat-remote-7<span class="tag">&lt;/artifactId&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="tag">&lt;version&gt;</span>1.0.0.CR7<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -765,17 +856,17 @@ Next step is adding some dependencies apart from the typical <em>Arquillian</em>
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0"?&gt;
-&lt;arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://jboss.org/schema/arquillian"
-  xsi:schemaLocation="http://jboss.org/schema/arquillian
-  http://jboss.org/schema/arquillian/arquillian_1_0.xsd"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="tag">&lt;arquillian</span> <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xsi:schemaLocation</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span>
+  <span class="content">http://jboss.org/schema/arquillian/arquillian_1_0.xsd</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
 
-  &lt;extension qualifier="docker"&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-      &lt;property name="serverVersion"&gt;1.12&lt;/property&gt; <i class="conum" data-value="2"></i><b>(2)</b>
-      &lt;property name="serverUri"&gt;http://localhost:2375&lt;/property&gt; <i class="conum" data-value="3"></i><b>(3)</b>
-      &lt;property name="definitionFormat"&gt;CUBE&lt;/property&gt;
-      &lt;property name="dockerContainers"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+  <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>1.12<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://localhost:2375<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">definitionFormat</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>CUBE<span class="tag">&lt;/property&gt;</span>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
           tomcat:
             image: tutum/tomcat:7.0
             exposedPorts: [8089/tcp]
@@ -783,19 +874,19 @@ Next step is adding some dependencies apart from the typical <em>Arquillian</em>
               strategy: polling
             env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
             portBindings: [8089/tcp, 8080/tcp]
-      &lt;/property&gt;
-  &lt;/extension&gt;
+      <span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/extension&gt;</span>
 
-  &lt;container qualifier="tomcat" default="true"&gt; <i class="conum" data-value="5"></i><b>(5)</b>
-      &lt;configuration&gt;
-          &lt;property name="host"&gt;localhost&lt;/property&gt; <i class="conum" data-value="6"></i><b>(6)</b>
-          &lt;property name="httpPort"&gt;8080&lt;/property&gt; <i class="conum" data-value="7"></i><b>(7)</b>
-          &lt;property name="user"&gt;admin&lt;/property&gt; <i class="conum" data-value="8"></i><b>(8)</b>
-          &lt;property name="pass"&gt;mypass&lt;/property&gt;
-      &lt;/configuration&gt;
-  &lt;/container&gt;
+  <span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">default</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="5"></i><b>(5)</b>
+      <span class="tag">&lt;configuration&gt;</span>
+          <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">host</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>localhost<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+          <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">httpPort</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>8080<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="7"></i><b>(7)</b>
+          <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>admin<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="8"></i><b>(8)</b>
+          <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">pass</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mypass<span class="tag">&lt;/property&gt;</span>
+      <span class="tag">&lt;/configuration&gt;</span>
+  <span class="tag">&lt;/container&gt;</span>
 
-&lt;/arquillian&gt;</code></pre>
+<span class="tag">&lt;/arquillian&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -868,18 +959,18 @@ The only thin g that you want is start the container, run the test (as client) a
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-        &lt;artifactId&gt;arquillian-cube-docker&lt;/artifactId&gt;
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.jboss.arquillian.junit&lt;/groupId&gt;
-        &lt;artifactId&gt;arquillian-junit-standalone&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependencies&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.junit<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-junit-standalone<span class="tag">&lt;/artifactId&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -897,11 +988,11 @@ For example:</p>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">planetstest:
-  extends:
-      file: ../docker-compose.yml
-      service: planets
-  image: lordofthejars/starwars:1.0.1 #1</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">planetstest</span>:
+  <span class="key">extends</span>:
+      <span class="key">file</span>: <span class="string"><span class="content">../docker-compose.yml</span></span>
+      <span class="key">service</span>: <span class="string"><span class="content">planets</span></span>
+  <span class="key">image</span>: <span class="string"><span class="content">lordofthejars/starwars:1.0.1</span></span> <span class="comment">#1</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -913,20 +1004,20 @@ For example:</p>
 <div class="listingblock">
 <div class="title">PlanetServiceAPIContainerTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class PlanetServiceAPIContainerTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PlanetServiceAPIContainerTest</span> {
 
-    @HostIp
-    private String ip;
+    <span class="annotation">@HostIp</span>
+    <span class="directive">private</span> <span class="predefined-type">String</span> ip;
 
-    @HostPort(containerName = "planetstest", value = 8080)
-    int planetsPort;
+    <span class="annotation">@HostPort</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">planetstest</span><span class="delimiter">&quot;</span></span>, value = <span class="integer">8080</span>)
+    <span class="type">int</span> planetsPort;
 
-    @Test
-    public void shouldReturnAverage() {
-        URL url = new URL("http://" + ip + ":" + planetsPort + "/starwars/");
-        final String average = RestAssured.get(url.toExternalForm() + "rest/planet/orbital/average").asString();
-        assertThat(average, is("1699.42"));
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> shouldReturnAverage() {
+        <span class="predefined-type">URL</span> url = <span class="keyword">new</span> <span class="predefined-type">URL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">http://</span><span class="delimiter">&quot;</span></span> + ip + <span class="string"><span class="delimiter">&quot;</span><span class="content">:</span><span class="delimiter">&quot;</span></span> + planetsPort + <span class="string"><span class="delimiter">&quot;</span><span class="content">/starwars/</span><span class="delimiter">&quot;</span></span>);
+        <span class="directive">final</span> <span class="predefined-type">String</span> average = RestAssured.get(url.toExternalForm() + <span class="string"><span class="delimiter">&quot;</span><span class="content">rest/planet/orbital/average</span><span class="delimiter">&quot;</span></span>).asString();
+        assertThat(average, is(<span class="string"><span class="delimiter">&quot;</span><span class="content">1699.42</span><span class="delimiter">&quot;</span></span>));
     }</code></pre>
 </div>
 </div>
@@ -1038,6 +1129,10 @@ Let&#8217;s see valid attributes:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean to set if Cube should also remove the volumes associated with a container when removing the container. By default is true. Can be overwritten on container level.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cleanBuildImage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean to set if you set to true all images built by cube are removed and if false no built images are removed. If image is not built by cube it should not be removed. By default is true.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">connectionMode</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. <em>STARTANDSTOP</em> which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. <em>STARTORCONNECT</em> mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is <em>STARTORCONNECTANDLEAVE</em> which is exactly the same of <em>STARTORCONNECT</em> but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions. <strong>This is a Cube property, not a Docker one</strong>, thus it should be inside a &lt;extension qualifier="cube"&gt; tag. See <a href="#allow-connecting-to-a-running-container">here</a> for an example.</p></td>
 </tr>
@@ -1087,57 +1182,58 @@ In YAML adding brackets ("[" "]") is for setting a list.
 </div>
 <div id="cube-format" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat: <i class="conum" data-value="1"></i><b>(1)</b>
-  image: tutum/tomcat:7.0 <i class="conum" data-value="2"></i><b>(2)</b>
-  exposedPorts: [8089/tcp] <i class="conum" data-value="3"></i><b>(3)</b>
-  await: <i class="conum" data-value="4"></i><b>(4)</b>
-    strategy: polling <i class="conum" data-value="5"></i><b>(5)</b>
-  workingDir: .
-  alwaysPull: false
-  disableNetwork: true
-  hostName: host
-  portSpecs: [80,81]
-  user: alex
-  tty: true
-  stdinOpen: true
-  stdinOnce: true
-  memoryLimit: 1
-  memorySwap: 1
-  cpuShares: 1
-  cpuQuota: 1
-  shmSize: 64
-  cpuSet: a
-  extraHosts: a
-  attachStdin: true
-  attachStderr: true
-  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] <i class="conum" data-value="6"></i><b>(6)</b>
-  cmd: [] <i class="conum" data-value="7"></i><b>(7)</b>
-  dns: [127.0.0.1]
-  volumes: [/tmp]
-  volumesFrom: [tomcat]
-  removeVolumes: true
-  binds:
-    - /host:/container:ro
-  links:
-    - name:alias
-    - name2:alias2
-  portBindings: [8089/tcp, 8081-&gt;8080/tcp] <i class="conum" data-value="8"></i><b>(8)</b>
-  privileged: true
-  publishAllPorts: true
-  networkMode: host
-  dnsSearch: [127.0.0.1]
-  entryPoint: [sh]
-  devices:
-    cGroupPermissions: a
-    pathOnHost: b
-    pathInContainer: c
-  restartPolicy:
-    name: failure
-    maximumRetryCount: 1
-  capAdd: [a]
-  capDrop: [b]
-  extends: container-id <i class="conum" data-value="9"></i><b>(9)</b>
-  manual: true <i class="conum" data-value="10"></i><b>(10)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>: <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0 </span></span><i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp] </span></span><i class="conum" data-value="3"></i><b>(3)</b>
+  <span class="key">await</span>: <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="key">strategy</span>: <span class="string"><span class="content">polling </span></span><i class="conum" data-value="5"></i><b>(5)</b>
+  <span class="key">workingDir</span>: <span class="string"><span class="content">.</span></span>
+  <span class="key">alwaysPull</span>: <span class="string"><span class="content">false</span></span>
+  <span class="key">disableNetwork</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">hostName</span>: <span class="string"><span class="content">host</span></span>
+  <span class="key">portSpecs</span>: <span class="string"><span class="content">[80,81]</span></span>
+  <span class="key">user</span>: <span class="string"><span class="content">alex</span></span>
+  <span class="key">tty</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">stdinOpen</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">stdinOnce</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">memoryLimit</span>: <span class="string"><span class="content">1</span></span>
+  <span class="key">memorySwap</span>: <span class="string"><span class="content">1</span></span>
+  <span class="key">cpuShares</span>: <span class="string"><span class="content">1</span></span>
+  <span class="key">cpuQuota</span>: <span class="string"><span class="content">1</span></span>
+  <span class="key">shmSize</span>: <span class="string"><span class="content">64</span></span>
+  <span class="key">cpuSet</span>: <span class="string"><span class="content">a</span></span>
+  <span class="key">extraHosts</span>: <span class="string"><span class="content">a</span></span>
+  <span class="key">attachStdin</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">attachStderr</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">env</span>: <span class="string"><span class="content">[TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] </span></span><i class="conum" data-value="6"></i><b>(6)</b>
+  <span class="key">cmd</span>: <span class="string"><span class="content">[] </span></span><i class="conum" data-value="7"></i><b>(7)</b>
+  <span class="key">dns</span>: <span class="string"><span class="content">[127.0.0.1]</span></span>
+  <span class="key">volumes</span>: <span class="string"><span class="content">[/tmp]</span></span>
+  <span class="key">volumesFrom</span>: <span class="string"><span class="content">[tomcat]</span></span>
+  <span class="key">removeVolumes</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">binds</span>:
+    - <span class="string"><span class="content">/host:/container:ro</span></span>
+  <span class="key">links</span>:
+    - <span class="string"><span class="content">name:alias</span></span>
+    - <span class="string"><span class="content">name2:alias2</span></span>
+  <span class="key">portBindings</span>: <span class="string"><span class="content">[8089/tcp, 8081-&gt;8080/tcp] </span></span><i class="conum" data-value="8"></i><b>(8)</b>
+  <span class="key">privileged</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">publishAllPorts</span>: <span class="string"><span class="content">true</span></span>
+  <span class="key">networkMode</span>: <span class="string"><span class="content">host</span></span>
+  <span class="key">dnsSearch</span>: <span class="string"><span class="content">[127.0.0.1]</span></span>
+  <span class="key">entryPoint</span>: <span class="string"><span class="content">[sh]</span></span>
+  <span class="key">devices</span>:
+    <span class="key">cGroupPermissions</span>: <span class="string"><span class="content">a</span></span>
+    <span class="key">pathOnHost</span>: <span class="string"><span class="content">b</span></span>
+    <span class="key">pathInContainer</span>: <span class="string"><span class="content">c</span></span>
+  <span class="key">restartPolicy</span>:
+    <span class="key">name</span>: <span class="string"><span class="content">failure</span></span>
+    <span class="key">maximumRetryCount</span>: <span class="string"><span class="content">1</span></span>
+  <span class="key">capAdd</span>: <span class="string"><span class="content">[a]</span></span>
+  <span class="key">capDrop</span>: <span class="string"><span class="content">[b]</span></span>
+  <span class="key">extends</span>: <span class="string"><span class="content">container-id </span></span><i class="conum" data-value="9"></i><b>(9)</b>
+  <span class="key">manual</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="10"></i><b>(10)</b>
+  <span class="key">killContainer</span>: <span class="string"><span class="content">true </span></span> <i class="conum" data-value="11"></i><b>(11)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1182,6 +1278,10 @@ In YAML adding brackets ("[" "]") is for setting a list.
 <td><i class="conum" data-value="10"></i><b>10</b></td>
 <td>You can use <code>manual</code> to indicate that this container is going to be started or in the test manually using <code>CubeController</code> or started by an extension. This attribute is ingorned in case of arquillian containers (none autostart containers) or in case of a linked container that comes from a none manual container.</td>
 </tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Kills the container instead of stopping it normally. By default is false so containers are stopped.</td>
+</tr>
 </table>
 </div>
 <div class="paragraph">
@@ -1192,13 +1292,13 @@ But if you want you can avoid using this property by simply creating a file call
 <div class="listingblock">
 <div class="title">src/test/resources/cube</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: polling
-  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-  portBindings: [8089/tcp, 8080/tcp]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">polling</span></span>
+  <span class="key">env</span>: <span class="string"><span class="content">[TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]</span></span>
+  <span class="key">portBindings</span>: <span class="string"><span class="content">[8089/tcp, 8080/tcp]</span></span></code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -1210,13 +1310,13 @@ For defining them you only need to use the reserved word <code>networks</code>.<
 <div class="listingblock">
 <div class="title">src/test/resources/cube</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">networks: <i class="conum" data-value="1"></i><b>(1)</b>
-   mynetwork: <i class="conum" data-value="2"></i><b>(2)</b>
-       driver: bridge <i class="conum" data-value="3"></i><b>(3)</b>
-tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  networkMode: mynetwork <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">networks</span>: <i class="conum" data-value="1"></i><b>(1)</b>
+   <span class="key">mynetwork</span>: <i class="conum" data-value="2"></i><b>(2)</b>
+       <span class="key">driver</span>: <span class="string"><span class="content">bridge </span></span><i class="conum" data-value="3"></i><b>(3)</b>
+<span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">networkMode</span>: <span class="string"><span class="content">mynetwork </span></span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1238,6 +1338,21 @@ tomcat:
 <td>Sets the network where container must join.</td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>You can also use <code>networks</code> to connect to more than one network:</p>
+</div>
+<div class="listingblock">
+<div class="title">src/test/resources/cube</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">networkMode</span>: <span class="string"><span class="content">mynetwork</span></span>
+  <span class="key">networks</span>:
+    - <span class="string"><span class="content">mynetwork</span></span>
+    - <span class="string"><span class="content">myothernetwork</span></span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1272,7 +1387,10 @@ To avoid executing tests before the services are ready, you can set which await 
 </dd>
 <dt class="hdlist1">polling</dt>
 <dd>
-<p>in this case a polling (with <em>ping</em> or <em>ss</em> command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default <em>polling</em> executes <em>ss</em> command inside the running container to know if the server is already running. You can use a <em>ping</em> from client by setting type attribute to ping; Note that <em>ping</em> only works if you are running <em>Docker</em> daemon on localhost. You can also use <code>wait-for-it</code> script which is automatically downloaded, copied inside container and executed inside it. To do it you need to set <code>type</code> property to <code>waitforit</code>. In almost all cases the default behaviour matches all scenarios. If it is not specified, this is the default strategy.</p>
+<p>in this case a polling (with <em>ping</em> or <em>ss</em> command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default <em>polling</em> executes <em>ss</em> command inside the running container to know if the server is already running.
+Also you can use a <em>ping</em> strategy from client by setting type attribute to ping; Note that <em>ping</em> only works if you are running <em>Docker</em> daemon on localhost.
+You can also use <code>wait-for-it</code> script which is automatically downloaded, copied inside container and executed inside it. To do it you need to set <code>type</code> property to <code>waitforit</code>. In almost all cases the default behaviour matches all scenarios. If it is not specified, this is the default strategy.
+By default if you use <em>ss</em> strategy but ss command is not installed into the container it fallsback automatically to waitforit strategy.</p>
 </dd>
 <dt class="hdlist1">static</dt>
 <dd>
@@ -1297,28 +1415,28 @@ To avoid executing tests before the services are ready, you can set which await 
 </dl>
 </div>
 <div class="paragraph">
-<p>By default in case you don&#8217;t specify any <em>await</em> strategy, polling with <em>ss</em> command is used.</p>
+<p>By default in case you don&#8217;t specify any <em>await</em> strategy, polling with <em>ss</em> command is used with automatic fallback to <em>wait-fo_it</em> strategy.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example native</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: native</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">native</span></span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example polling using ss command by default</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: polling
-    sleepPollingTime: 200 s <i class="conum" data-value="1"></i><b>(1)</b>
-    iterations: 3 <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">polling</span></span>
+    <span class="key">sleepPollingTime</span>: <span class="string"><span class="content">200 s </span></span><i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="key">iterations</span>: <span class="string"><span class="content">3 </span></span> <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1336,24 +1454,24 @@ To avoid executing tests before the services are ready, you can set which await 
 <div class="listingblock">
 <div class="title">Example static</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: static
-    ip: localhost
-    ports: [8080, 8089]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">static</span></span>
+    <span class="key">ip</span>: <span class="string"><span class="content">localhost</span></span>
+    <span class="key">ports</span>: <span class="string"><span class="content">[8080, 8089]</span></span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example sleeping</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: sleeping
-    sleepTime: 200 s <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">sleeping</span></span>
+    <span class="key">sleepTime</span>: <span class="string"><span class="content">200 s </span></span> <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1367,16 +1485,15 @@ To avoid executing tests before the services are ready, you can set which await 
 <div class="listingblock">
 <div class="title">Example log</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: log
-    match: 'Server startup' <i class="conum" data-value="1"></i><b>(1)</b>
-    stdOut: true <i class="conum" data-value="2"></i><b>(2)</b>
-    stdErr: true <i class="conum" data-value="3"></i><b>(3)</b>
-    sleepPollingTime: 200 s <i class="conum" data-value="4"></i><b>(4)</b>
-    iterations: 3 <i class="conum" data-value="5"></i><b>(5)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">log</span></span>
+    <span class="key">match</span>: <span class="string"><span class="content">'Server startup' </span></span><i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="key">stdOut</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="key">stdErr</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="key">timeout</span>: <span class="string"><span class="content">15 </span></span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1395,29 +1512,25 @@ To avoid executing tests before the services are ready, you can set which await 
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Optional parameter to configure sleeping time between log downloading. You can set in seconds using <em>s</em> or miliseconds using <em>ms</em>. By default time unit is miliseconds and value 500.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Optional parameter to configure number of retries to be done. By default 10 iterations are done.</td>
+<td>Optional parameter to configure timeout. It is expressed in seconds and by default is 15.</td>
 </tr>
 </table>
 </div>
 <div class="listingblock">
 <div class="title">Example http</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: http
-    match: 'Server startup' <i class="conum" data-value="1"></i><b>(1)</b>
-    responseCode: 201 <i class="conum" data-value="2"></i><b>(2)</b>
-    url: http://dockerHost:8080 <i class="conum" data-value="3"></i><b>(3)</b>
-    sleepPollingTime: 200 s <i class="conum" data-value="4"></i><b>(4)</b>
-    iterations: 3 <i class="conum" data-value="5"></i><b>(5)</b>
-    headers:
-        X-Cube: Docker <i class="conum" data-value="6"></i><b>(6)</b></code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">http</span></span>
+    <span class="key">match</span>: <span class="string"><span class="content">'Server startup' </span></span><i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="key">responseCode</span>: <span class="string"><span class="content">201 </span></span><i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="key">url</span>: <span class="string"><span class="content">http://dockerHost:8080 </span></span><i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="key">sleepPollingTime</span>: <span class="string"><span class="content">200 s </span></span><i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="key">iterations</span>: <span class="string"><span class="content">3 </span></span><i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="key">headers</span>:
+        <span class="key">X-Cube</span>: <span class="string"><span class="content">Docker </span></span> <i class="conum" data-value="6"></i><b>(6)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1454,27 +1567,27 @@ To avoid executing tests before the services are ready, you can set which await 
 <div class="listingblock">
 <div class="title">org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class CustomAwaitStrategyImpl implements AwaitStrategy {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">CustomAwaitStrategyImpl</span> <span class="directive">implements</span> AwaitStrategy {
 
   Await params;
   DockerClientExecutor dockerClientExecutor;
   Cube&lt;?&gt; cube;
 
-  public void setCube(Cube&lt;?&gt; cube) {
-    this.cube = cube;
+  <span class="directive">public</span> <span class="type">void</span> setCube(Cube&lt;?&gt; cube) {
+    <span class="local-variable">this</span>.cube = cube;
   }
 
-  public void setDockerClientExecutor(DockerClientExecutor dockerClientExecutor) {
-    this.dockerClientExecutor = dockerClientExecutor;
+  <span class="directive">public</span> <span class="type">void</span> setDockerClientExecutor(DockerClientExecutor dockerClientExecutor) {
+    <span class="local-variable">this</span>.dockerClientExecutor = dockerClientExecutor;
   }
 
-  public void setParams(Await params) {
-     this.params = params;
+  <span class="directive">public</span> <span class="type">void</span> setParams(Await params) {
+     <span class="local-variable">this</span>.params = params;
   }
 
-  @Override
-  public boolean await() {
-    return this.params != null &amp;&amp; this.dockerClientExecutor != null &amp;&amp; this.cube != null;
+  <span class="annotation">@Override</span>
+  <span class="directive">public</span> <span class="type">boolean</span> await() {
+    <span class="keyword">return</span> <span class="local-variable">this</span>.params != <span class="predefined-constant">null</span> &amp;&amp; <span class="local-variable">this</span>.dockerClientExecutor != <span class="predefined-constant">null</span> &amp;&amp; <span class="local-variable">this</span>.cube != <span class="predefined-constant">null</span>;
   }
 }</code></pre>
 </div>
@@ -1485,11 +1598,11 @@ To avoid executing tests before the services are ready, you can set which await 
 <div class="listingblock">
 <div class="title">Example.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat:
-  image: tutum/tomcat:7.0
-  exposedPorts: [8089/tcp]
-  await:
-    strategy: org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl</span></span></code></pre>
 </div>
 </div>
 </div>
@@ -1510,7 +1623,7 @@ For this reason in <strong>Arquillian Cube</strong> you can use portBinding and 
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">daytime:
+<pre class="CodeRay highlight"><code data-lang="xml">daytime:
   buildImage:
     dockerfileLocation: src/test/resources/undertow
     noCache: true
@@ -1544,18 +1657,18 @@ run. This assumes you are not changing the actual definition of the <em>Docker</
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="cube"&gt;
-  &lt;property name="connectionMode"&gt;STARTORCONNECT&lt;/property&gt;
-&lt;/extension&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cube</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">connectionMode</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>STARTORCONNECT<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span>
 
-&lt;extension qualifier="docker"&gt;
-  &lt;property name="serverVersion"&gt;1.12&lt;/property&gt;
-  &lt;property name="serverUri"&gt;http://localhost:2375&lt;/property&gt;
-  &lt;property name="dockerContainers"&gt;
+<span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>1.12<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://localhost:2375<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
       tomcat:
         #more properties
-  &lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+  <span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1589,15 +1702,15 @@ In these cases you can configure each container to copy console log or copy a fi
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">tomcat_default:
-  image: tutum/tomcat:7.0
-  beforeStop: <i class="conum" data-value="1"></i><b>(1)</b>
-    - copy: <i class="conum" data-value="2"></i><b>(2)</b>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat_default</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">beforeStop</span>: <i class="conum" data-value="1"></i><b>(1)</b>
+    - <span class="string"><span class="content">copy: </span><span class="content"><i class="conum" data-value="2"></i><b>(2)</b>
         from: /test
-        to: /tmp
+        to: /tmp</span></span>
 
-    - log: <i class="conum" data-value="3"></i><b>(3)</b>
-        to: /tmp/container.log</code></pre>
+    - <span class="string"><span class="content">log: </span><span class="content"><i class="conum" data-value="3"></i><b>(3)</b>
+        to: /tmp/container.log</span></span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1623,14 +1736,14 @@ log <em>Docker</em> command can receive some configuration paramters and you can
 <div class="listingblock">
 <div class="title">Example of log parameters</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">beforeStop:
-  - log:
-    to: /tmp/container.log
-    follow: true
-    stdout: true
-    stderr: false
-    timestamps: true
-    tail: 10</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">beforeStop</span>:
+  - <span class="string"><span class="content">log:</span></span>
+    <span class="key">to</span>: <span class="string"><span class="content">/tmp/container.log</span></span>
+    <span class="key">follow</span>: <span class="string"><span class="content">true</span></span>
+    <span class="key">stdout</span>: <span class="string"><span class="content">true</span></span>
+    <span class="key">stderr</span>: <span class="string"><span class="content">false</span></span>
+    <span class="key">timestamps</span>: <span class="string"><span class="content">true</span></span>
+    <span class="key">tail</span>: <span class="string"><span class="content">10</span></span></code></pre>
 </div>
 </div>
 </div>
@@ -1655,7 +1768,7 @@ This property only overrides custom properties defined by CUBE format.
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;property name="cubeSpecificProperties"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cubeSpecificProperties</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     tomcat:
       removeVolumes: true
       await:
@@ -1663,8 +1776,8 @@ This property only overrides custom properties defined by CUBE format.
       beforeStop:
         - copy:
             from: /test
-            to: /tmp";
-&lt;/property&gt;</code></pre>
+            to: /tmp&quot;;
+<span class="tag">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1780,12 +1893,12 @@ If this property is not set and <em>docker-machine</em> is run, then this proper
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-    &lt;property name="serverVersion"&gt;${docker.api.version}&lt;/property&gt;
-    &lt;property name="definitionFormat"&gt;COMPOSE&lt;/property&gt;
-    &lt;property name="machineName"&gt;dev&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-    &lt;property name="dockerContainersFile"&gt;docker-compose.yml&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>${docker.api.version}<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">definitionFormat</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>COMPOSE<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">machineName</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>dev<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainersFile</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>docker-compose.yml<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1818,18 +1931,18 @@ If this property is not set and <em>docker-machine</em> is run, then this proper
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">&lt;property name="dockerContainers"&gt;
-  tomcat:
-    buildImage: <i class="conum" data-value="1"></i><b>(1)</b>
-      dockerfileLocation: src/test/resources-tomcat-7-dockerfile/tomcat <i class="conum" data-value="2"></i><b>(2)</b>
-      noCache: true <i class="conum" data-value="3"></i><b>(3)</b>
-      remove: true <i class="conum" data-value="4"></i><b>(4)</b>
-      dockerfileName: my-dockerfile <i class="conum" data-value="5"></i><b>(5)</b>
-    await:
-      strategy: polling
-    env: [JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-    portBindings: [8089/tcp, 8080/tcp]
-&lt;/property&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="error">&lt;property name=&quot;dockerContainers&quot;&gt;</span>
+  <span class="key">tomcat</span>:
+    <span class="key">buildImage</span>: <i class="conum" data-value="1"></i><b>(1)</b>
+      <span class="key">dockerfileLocation</span>: <span class="string"><span class="content">src/test/resources-tomcat-7-dockerfile/tomcat </span></span><i class="conum" data-value="2"></i><b>(2)</b>
+      <span class="key">noCache</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="3"></i><b>(3)</b>
+      <span class="key">remove</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="4"></i><b>(4)</b>
+      <span class="key">dockerfileName</span>: <span class="string"><span class="content">my-dockerfile </span></span><i class="conum" data-value="5"></i><b>(5)</b>
+    <span class="key">await</span>:
+      <span class="key">strategy</span>: <span class="string"><span class="content">polling</span></span>
+    <span class="key">env</span>: <span class="string"><span class="content">[JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]</span></span>
+    <span class="key">portBindings</span>: <span class="string"><span class="content">[8089/tcp, 8080/tcp]</span></span>
+<span class="error">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1874,12 +1987,12 @@ dockerfileLocation can be a directory that must contains Dockerfile in root dire
 <div class="listingblock">
 <div class="title">src/test/resources-tomcat-7-dockerfile/tomcat/Dockerfile</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">FROM tutum/tomcat:7.0
+<pre class="CodeRay highlight"><code data-lang="properties">FROM tutum/tomcat:7.0
 
 ENV JAVA_OPTS -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
 ADD tomcat-users.xml /tomcat/conf/ <i class="conum" data-value="1"></i><b>(1)</b>
 EXPOSE 8089
-CMD ["/tomcat/bin/catalina.sh","run"]</code></pre>
+CMD [&quot;/tomcat/bin/catalina.sh&quot;,&quot;run&quot;]</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1919,8 +2032,8 @@ CMD ["/tomcat/bin/catalina.sh","run"]</code></pre>
 <div class="listingblock">
 <div class="title">envs</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">TOMCAT_PASS=mypass
-JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">TOMCAT_PASS=mypass
+JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=<span class="integer">8088</span> -Dcom.sun.management.jmxremote.port=<span class="integer">8089</span> -Dcom.sun.management.jmxremote.ssl=<span class="predefined-constant">false</span> -Dcom.sun.management.jmxremote.authenticate=<span class="predefined-constant">false</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -1941,33 +2054,66 @@ You can use <code>dockerServerIp</code> as special tag for identify the docker h
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">tomcat:
-  env_file: envs
-  image: tutum/tomcat:7.0
-  ports:
-      - "8089:8089"
-      - "8088:8088"
-      - "8081:8080"</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">tomcat</span>:
+  <span class="key">env_file</span>: <span class="string"><span class="content">envs</span></span>
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">ports</span>:
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">8089:8089</span><span class="delimiter">&quot;</span></span>
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">8088:8088</span><span class="delimiter">&quot;</span></span>
+      - <span class="string"><span class="delimiter">&quot;</span><span class="content">8081:8080</span><span class="delimiter">&quot;</span></span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>and finally you can configure in <code>arquillian.xml</code> file that you want to use docker-compose format.</p>
 </div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p>In case you use <a href="https://docs.docker.com/compose/compose-file/#context">context</a> with a GIT repository, you should add the following dependency <code>org.eclipse.jgit:org.eclipse.jgit:${jgit.version}</code>.
+Due of library conflicts between <code>docker-java</code> and <code>jgit</code>, that they are sharing common libraries but different unsupported versions, you need to exclude and include some of them.</p>
+</div>
+<div class="paragraph">
+<p>For example in case of using Maven, your <code>pom.xml</code> should look like:</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.eclipse.jgit<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>org.eclipse.jgit<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+  <span class="tag">&lt;exclusions&gt;</span>
+    <span class="tag">&lt;exclusion&gt;</span>
+      <span class="tag">&lt;groupId&gt;</span>org.apache.httpcomponents<span class="tag">&lt;/groupId&gt;</span>
+      <span class="tag">&lt;artifactId&gt;</span>httpclient<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;/exclusion&gt;</span>
+  <span class="tag">&lt;/exclusions&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.slf4j<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>slf4j-api<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>1.7.21<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
 <div class="listingblock">
 <div class="title">src/test/resources/arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-  &lt;property name="serverVersion"&gt;1.13&lt;/property&gt;
-  &lt;property name="serverUri"&gt;localhost&lt;/property&gt;
-  &lt;property name="dockerContainersFile"&gt;docker-compose.yml&lt;/property&gt;
-&lt;/extension&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>1.13<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>localhost<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainersFile</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>docker-compose.yml<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span>
 
-&lt;container qualifier="tomcat"&gt;
-  &lt;configuration&gt;
-    &lt;property name="user"&gt;admin&lt;/property&gt;
-    &lt;property name="pass"&gt;mypass&lt;/property&gt;
-  &lt;/configuration&gt;
-&lt;/container&gt;</code></pre>
+<span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;configuration&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>admin<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">pass</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mypass<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/configuration&gt;</span>
+<span class="tag">&lt;/container&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2001,43 +2147,43 @@ Also they work if you run Arquillian in standalone mode.</p>
 <div class="listingblock">
 <div class="title">CubeIDResourceProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@ArquillianResource
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ArquillianResource</span>
 CubeID containerId;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">CubeResourceProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@ArquillianResource
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ArquillianResource</span>
 DockerClient dockerClient;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">CubeControllerProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@ArquillianResource
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ArquillianResource</span>
 CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">DockerHostProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@HostIp
-String ip;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@HostIp</span>
+<span class="predefined-type">String</span> ip;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">DockerHostPortProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@HostPort(containerName = "tomcat", value = 8080)
-int tomcatPort; // gets the binding port for exposed port 8080 of container tomcat.</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@HostPort</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat</span><span class="delimiter">&quot;</span></span>, value = <span class="integer">8080</span>)
+<span class="type">int</span> tomcatPort; <span class="comment">// gets the binding port for exposed port 8080 of container tomcat.</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">CubeIpProvider.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@CubeIp(containerName = "tomcat")
-String ip;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@CubeIp</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat</span><span class="delimiter">&quot;</span></span>)
+<span class="predefined-type">String</span> ip;</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -2090,11 +2236,11 @@ Basically it ignores any <code>SERVER_URI</code>, <code>Boot2Docker</code> or <c
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;property name="dockerContainers"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     manual_database:
         image: zhilvis/h2-db
-        portBindings: [1521/tcp, 8181-&gt;81/tcp]
-&lt;/property&gt;</code></pre>
+        portBindings: [1521/tcp, 8181-<span class="error">&gt;</span>81/tcp]
+<span class="tag">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2152,7 +2298,7 @@ So for example a full application may contain one <em>Docker Container</em> with
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;property name="dockerContainers"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
   wildfly_database:
     extends: wildfly
     links:
@@ -2162,16 +2308,16 @@ So for example a full application may contain one <em>Docker Container</em> with
     exposedPorts: [81/tcp, 1521/tcp]
     await:
       strategy: polling
-    portBindings: [1521/tcp, 8181-&gt;81/tcp]
-  &lt;/property&gt;
+    portBindings: [1521/tcp, 8181-<span class="error">&gt;</span>81/tcp]
+  <span class="tag">&lt;/property&gt;</span>
 
-&lt;container qualifier="wildfly_database"&gt;
-  &lt;configuration&gt;
-    &lt;property name="target"&gt;wildfly:8.1.0.Final:remote&lt;/property&gt;
-    &lt;property name="username"&gt;admin&lt;/property&gt;
-    &lt;property name="password"&gt;Admin#70365&lt;/property&gt;
-  &lt;/configuration&gt;
-&lt;/container&gt;</code></pre>
+<span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">wildfly_database</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;configuration&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">target</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>wildfly:8.1.0.Final:remote<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">username</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>admin<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">password</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>Admin#70365<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/configuration&gt;</span>
+<span class="tag">&lt;/container&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -2191,20 +2337,20 @@ So for example a full application may contain one <em>Docker Container</em> with
 <div class="listingblock">
 <div class="title">UserRepository.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@DataSourceDefinition(
-  name = "java:app/TestDataSource",
-  className = "org.h2.jdbcx.JdbcDataSource",
-  url = "jdbc:h2:tcp://database:1521/opt/h2-data/test",
-  user = "sa",
-  password = "sa"
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@DataSourceDefinition</span>(
+  name = <span class="string"><span class="delimiter">&quot;</span><span class="content">java:app/TestDataSource</span><span class="delimiter">&quot;</span></span>,
+  className = <span class="string"><span class="delimiter">&quot;</span><span class="content">org.h2.jdbcx.JdbcDataSource</span><span class="delimiter">&quot;</span></span>,
+  url = <span class="string"><span class="delimiter">&quot;</span><span class="content">jdbc:h2:tcp://database:1521/opt/h2-data/test</span><span class="delimiter">&quot;</span></span>,
+  user = <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>,
+  password = <span class="string"><span class="delimiter">&quot;</span><span class="content">sa</span><span class="delimiter">&quot;</span></span>
 )
-@Stateless
-public class UserRepository {
+<span class="annotation">@Stateless</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">UserRepository</span> {
 
-    @PersistenceContext
-    private EntityManager em;
+    <span class="annotation">@PersistenceContext</span>
+    <span class="directive">private</span> EntityManager em;
 
-    public void store(User user) {
+    <span class="directive">public</span> <span class="type">void</span> store(User user) {
         em.persist(user);
     }
 }</code></pre>
@@ -2225,9 +2371,9 @@ Also if you need to start several images, instead of adding them as CSV, you can
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-    &lt;property name="autoStartContainers"&gt;regexp:a(.*)&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">autoStartContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>regexp:a(.*)<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2236,23 +2382,23 @@ To make it so, first you need to implement <code>org.arquillian.cube.spi.AutoSta
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class ChangeNameAutoStartParser implements AutoStartParser { <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">ChangeNameAutoStartParser</span> <span class="directive">implements</span> AutoStartParser { <i class="conum" data-value="1"></i><b>(1)</b>
 
-    @Inject <i class="conum" data-value="2"></i><b>(2)</b>
-    public Instance&lt;CubeDockerConfiguration&gt; cubeDockerConfigurationInstance;
+    <span class="annotation">@Inject</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="directive">public</span> Instance&lt;CubeDockerConfiguration&gt; cubeDockerConfigurationInstance;
 
-    @Override
-    public Map&lt;String, Node&gt; parse() { <i class="conum" data-value="3"></i><b>(3)</b>
-        final DockerCompositions dockerContainersContent = cubeDockerConfigurationInstance.get().getDockerContainersContent();
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="predefined-type">Map</span>&lt;<span class="predefined-type">String</span>, Node&gt; parse() { <i class="conum" data-value="3"></i><b>(3)</b>
+        <span class="directive">final</span> DockerCompositions dockerContainersContent = cubeDockerConfigurationInstance.get().getDockerContainersContent();
 
-        final Map&lt;String, Node&gt; nodes = new HashMap&lt;&gt;();
-        final Set&lt;String&gt; containersNames = new TreeSet&lt;&gt;(dockerContainersContent.getContainers().keySet());
+        <span class="directive">final</span> <span class="predefined-type">Map</span>&lt;<span class="predefined-type">String</span>, Node&gt; nodes = <span class="keyword">new</span> <span class="predefined-type">HashMap</span>&lt;&gt;();
+        <span class="directive">final</span> <span class="predefined-type">Set</span>&lt;<span class="predefined-type">String</span>&gt; containersNames = <span class="keyword">new</span> <span class="predefined-type">TreeSet</span>&lt;&gt;(dockerContainersContent.getContainers().keySet());
 
-        for (String name : containersNames) {
-            nodes.put(new StringBuilder(name).reverse().toString(), Node.from(name));
+        <span class="keyword">for</span> (<span class="predefined-type">String</span> name : containersNames) {
+            nodes.put(<span class="keyword">new</span> <span class="predefined-type">StringBuilder</span>(name).reverse().toString(), Node.from(name));
         }
 
-        return nodes;
+        <span class="keyword">return</span> nodes;
     }
 }</code></pre>
 </div>
@@ -2279,9 +2425,9 @@ To make it so, first you need to implement <code>org.arquillian.cube.spi.AutoSta
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-    &lt;property name="autoStartContainers"&gt;custom:org.arquillian.cube.docker.impl.client.ChangeNameAutoStartParser&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">autoStartContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>custom:org.arquillian.cube.docker.impl.client.ChangeNameAutoStartParser<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 </div>
@@ -2299,15 +2445,15 @@ To make it so, first you need to implement <code>org.arquillian.cube.spi.AutoSta
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;property name="dockerContainers"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     tomcat_default:
       image: tutum/tomcat:7.0
       exposedPorts: [8089/tcp]
       await:
         strategy: polling
       env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
-      portBindings: [8089/tcp, 8081-&gt;8080/tcp] <i class="conum" data-value="1"></i><b>(1)</b>
-&lt;/property&gt;</code></pre>
+      portBindings: [8089/tcp, 8081-<span class="error">&gt;</span>8080/tcp] <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tag">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -2325,13 +2471,13 @@ But let&#8217;s say that you are using that remote adapter for a remote local ma
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;container qualifier="tomcat_default"&gt;
-  configuration&gt;
-    &lt;property name="host"&gt;localhost&lt;/property&gt;
-    &lt;property name="user"&gt;admin&lt;/property&gt;
-    &lt;property name="pass"&gt;mypass&lt;/property&gt;
-  &lt;/configuration&gt;
-&lt;/container&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat_default</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  configuration<span class="error">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">host</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>localhost<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>admin<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">pass</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mypass<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/configuration&gt;</span>
+<span class="tag">&lt;/container&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2368,17 +2514,17 @@ This replacement only works in properties that contains the string host or addre
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-        &lt;property name="serverUri"&gt;http://192.168.0.2:2756&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://192.168.0.2:2756<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
   ...
-&lt;/extension&gt;
-&lt;container qualifier="tomcat_default"&gt;
-  configuration&gt;
-    &lt;property name="host"&gt;dockerServerIp&lt;/property&gt; <i class="conum" data-value="2"></i><b>(2)</b>
-    &lt;property name="user"&gt;admin&lt;/property&gt;
-    &lt;property name="pass"&gt;mypass&lt;/property&gt;
-  &lt;/configuration&gt;
-&lt;/container&gt;</code></pre>
+<span class="tag">&lt;/extension&gt;</span>
+<span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat_default</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  configuration<span class="error">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">host</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>dockerServerIp<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>admin<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">pass</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>mypass<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/configuration&gt;</span>
+<span class="tag">&lt;/container&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -2422,10 +2568,10 @@ In case you are running in <em>MACOS</em> or <em>Windows</em> with boot2docker, 
 <div class="listingblock xml">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">&lt;container qualifier="tomcat_default"&gt;
+<pre class="CodeRay highlight"><code data-lang="java">&lt;container qualifier=<span class="string"><span class="delimiter">&quot;</span><span class="content">tomcat_default</span><span class="delimiter">&quot;</span></span>&gt;
   configuration&gt;
-    &lt;property name="user"&gt;admin&lt;/property&gt;
-    &lt;property name="pass"&gt;mypass&lt;/property&gt;
+    &lt;property name=<span class="string"><span class="delimiter">&quot;</span><span class="content">user</span><span class="delimiter">&quot;</span></span>&gt;admin&lt;/property&gt;
+    &lt;property name=<span class="string"><span class="delimiter">&quot;</span><span class="content">pass</span><span class="delimiter">&quot;</span></span>&gt;mypass&lt;/property&gt;
   &lt;/configuration&gt;
 &lt;/container&gt;</code></pre>
 </div>
@@ -2470,16 +2616,16 @@ In this way when you execute your tests in parallel there will be no conflicts b
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">&lt;property name="dockerContainers"&gt;
-    tomcat*:
-      image: tutum/tomcat:8.0
-      portBindings: [8080/tcp]
-      links:
-        - ping*
-    ping*:
-      image: jonmorehouse/ping-pong
-      exposedPorts: [8089/tcp]
-&lt;/property&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="error">&lt;property name=&quot;dockerContainers&quot;&gt;</span>
+    <span class="key">tomcat*</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:8.0</span></span>
+      <span class="key">portBindings</span>: <span class="string"><span class="content">[8080/tcp]</span></span>
+      <span class="key">links</span>:
+        - <span class="string"><span class="content">ping*</span></span>
+    <span class="key">ping*</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+      <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+<span class="error">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2513,17 +2659,17 @@ In this way when you execute your tests in parallel there will be no conflicts b
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">&lt;property name="dockerContainers"&gt;
-    tomcat_123456:
-      image: tutum/tomcat:8.0
-      portBindings: [54678 -&gt; 8080/tcp]
-      env: [ping_HOSTNAME=ping_123456]
-      links:
-        - ping_123456
-    ping_123456:
-      image: jonmorehouse/ping-pong
-      exposedPorts: [8089/tcp]
-&lt;/property&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="error">&lt;property name=&quot;dockerContainers&quot;&gt;</span>
+    <span class="key">tomcat_123456</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:8.0</span></span>
+      <span class="key">portBindings</span>: <span class="string"><span class="content">[54678 -&gt; 8080/tcp]</span></span>
+      <span class="key">env</span>: <span class="string"><span class="content">[ping_HOSTNAME=ping_123456]</span></span>
+      <span class="key">links</span>:
+        - <span class="string"><span class="content">ping_123456</span></span>
+    <span class="key">ping_123456</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+      <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+<span class="error">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2620,24 +2766,24 @@ The Container Object will be like a simple POJO with special annotations:</p>
 <div class="listingblock">
 <div class="title">PingPongContainer.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">package org.superbiz.containerobject;
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.superbiz.containerobject</span>;
 
-@Cube(value = "pingpong", portBinding = "5000-&gt;8080/tcp") <i class="conum" data-value="1"></i><b>(1)</b>
-@CubeDockerFile
-public class PingPongContainer {
+<span class="annotation">@Cube</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>, portBinding = <span class="string"><span class="delimiter">&quot;</span><span class="content">5000-&gt;8080/tcp</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="annotation">@CubeDockerFile</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongContainer</span> {
 
-  @HostIp <i class="conum" data-value="2"></i><b>(2)</b>
-  String dockerHost;
+  <span class="annotation">@HostIp</span> <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="predefined-type">String</span> dockerHost;
 
-  @HostPort(8080)
-  private int port;
+  <span class="annotation">@HostPort</span>(<span class="integer">8080</span>)
+  <span class="directive">private</span> <span class="type">int</span> port;
 
-  public URL getConnectionUrl() { <i class="conum" data-value="3"></i><b>(3)</b>
-    try {
-      return new URL(“http://” + dockerHost + “:” + port);
-	  } catch (MalformedURLException e) {
-		  throw new IllegalArgumentException(e);
-	  }
+  <span class="directive">public</span> <span class="predefined-type">URL</span> getConnectionUrl() { <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="keyword">try</span> {
+      <span class="keyword">return</span> <span class="keyword">new</span> <span class="predefined-type">URL</span>(<span class="error">“</span>http:<span class="comment">//” + dockerHost + “:” + port);</span>
+          } <span class="keyword">catch</span> (<span class="exception">MalformedURLException</span> e) {
+                  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalArgumentException</span>(e);
+          }
   }
 }</code></pre>
 </div>
@@ -2694,17 +2840,17 @@ So in this example port value will be 5000. You are going to lean briefly why th
 <div class="listingblock">
 <div class="title">PingPongTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class PingPongTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongTest</span> {
 
-    @Cube
+    <span class="annotation">@Cube</span>
     PingPongContainer pingPongContainer;
 
-    @Test
-    public void shouldReturnOkAsPong() throws IOException {
-        String pong = ping();
-        assertThat(pong, containsString("OK"));
-        assertThat(pingPongContainer.getConnectionPort(), is(5000));
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> shouldReturnOkAsPong() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        <span class="predefined-type">String</span> pong = ping();
+        assertThat(pong, containsString(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>));
+        assertThat(pingPongContainer.getConnectionPort(), is(<span class="integer">5000</span>));
     }
 }</code></pre>
 </div>
@@ -2737,17 +2883,17 @@ First thing you need to do is adding <code>shrinkwrap-descriptord-api-docker dep
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.jboss.shrinkwrap.descriptors&lt;/groupId&gt;
-  &lt;artifactId&gt;shrinkwrap-descriptors-api-docker&lt;/artifactId&gt;
-  &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.jboss.shrinkwrap.descriptors<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>shrinkwrap-descriptors-api-docker<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
 
-&lt;dependency&gt;
-  &lt;groupId&gt;org.jboss.shrinkwrap.descriptors&lt;/groupId&gt;
-  &lt;artifactId&gt;shrinkwrap-descriptors-impl-docker&lt;/artifactId&gt;
-  &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.jboss.shrinkwrap.descriptors<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>shrinkwrap-descriptors-impl-docker<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2756,14 +2902,14 @@ First thing you need to do is adding <code>shrinkwrap-descriptord-api-docker dep
 <div class="listingblock">
 <div class="title">PingPongContainer.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Cube(value = "pingpong", portBinding = "5000-&gt;8080/tcp")
-public class PingPongContainer {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>, portBinding = <span class="string"><span class="delimiter">&quot;</span><span class="content">5000-&gt;8080/tcp</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongContainer</span> {
 
-  @CubeDockerFile <i class="conum" data-value="1"></i><b>(1)</b>
-  public static Archive&lt;?&gt; createContainer() { <i class="conum" data-value="2"></i><b>(2)</b>
-    String dockerDescriptor =   Descriptors.create(DockerDescriptor.class).from("jonmorehouse/ping-pong").exportAsString();
-      return ShrinkWrap.create(GenericArchive.class)
-                .add(new StringAsset(dockerDescriptor), "Dockerfile"); <i class="conum" data-value="3"></i><b>(3)</b>
+  <span class="annotation">@CubeDockerFile</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">public</span> <span class="directive">static</span> Archive&lt;?&gt; createContainer() { <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="predefined-type">String</span> dockerDescriptor =   Descriptors.create(DockerDescriptor.class).from(<span class="string"><span class="delimiter">&quot;</span><span class="content">jonmorehouse/ping-pong</span><span class="delimiter">&quot;</span></span>).exportAsString();
+      <span class="keyword">return</span> ShrinkWrap.create(GenericArchive.class)
+                .add(<span class="keyword">new</span> StringAsset(dockerDescriptor), <span class="string"><span class="delimiter">&quot;</span><span class="content">Dockerfile</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="3"></i><b>(3)</b>
   }
 }</code></pre>
 </div>
@@ -2799,10 +2945,10 @@ So effectively a Container Object can be an aggregation of other Container Objec
 <div class="listingblock">
 <div class="title">FirstContainerObject.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Cube
-public class FirstContainerObject {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">FirstContainerObject</span> {
 
-  @Cube("inner") <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="annotation">@Cube</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">inner</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
   LinkContainerObject linkContainerObject;
 
 }</code></pre>
@@ -2824,8 +2970,8 @@ public class FirstContainerObject {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Cube("inner")
-@Link("db:db")
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">inner</span><span class="delimiter">&quot;</span></span>)
+<span class="annotation">@Link</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">db:db</span><span class="delimiter">&quot;</span></span>)
 TestLinkContainerObject linkContainerObject;</code></pre>
 </div>
 </div>
@@ -2838,9 +2984,9 @@ TestLinkContainerObject linkContainerObject;</code></pre>
 <div class="listingblock">
 <div class="title">ImageContainerObject.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Cube(“tomme”)
-@Image("tomee:8-jre-1.7.2-webprofile")
-public static class ImageContainerObject {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>(<span class="error">“</span>tomme<span class="error">”</span>)
+<span class="annotation">@Image</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">tomee:8-jre-1.7.2-webprofile</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="directive">static</span> <span class="type">class</span> <span class="class">ImageContainerObject</span> {
 }</code></pre>
 </div>
 </div>
@@ -2869,18 +3015,18 @@ Internally Arquillian Cube registers a <code>autostartContainers`property (in ca
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencies&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.jboss.arquillian.junit&lt;/groupId&gt;
-        &lt;artifactId&gt;arquillian-junit-standalone&lt;/artifactId&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-         &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-         &lt;artifactId&gt;arquillian-cube-docker&lt;/artifactId&gt;
-         &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependencies&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.junit<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-junit-standalone<span class="tag">&lt;/artifactId&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+         <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+         <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
+         <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -2933,11 +3079,11 @@ This is useful for example if you require that <code>DOCKER_HOST</code>, <code>D
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-    &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-    &lt;artifactId&gt;arquillian-cube-requirement&lt;/artifactId&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-requirement<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2949,17 +3095,17 @@ If you use Rule, the scope of annotations are only a test class, if you use the 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
-import org.arquillian.cube.requirement.RequirementRule;
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">import</span> <span class="include">org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable</span>;
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.requirement.RequirementRule</span>;
 
-@RunWith(Arquillian.class)
-@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) <i class="conum" data-value="1"></i><b>(1)</b>
-public class HelloWorldServletTest {
+<span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="annotation">@RequiresSystemPropertyOrEnvironmentVariable</span>(value = {<span class="string"><span class="delimiter">&quot;</span><span class="content">DOCKER_HOST</span><span class="delimiter">&quot;</span></span>}) <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldServletTest</span> {
 
-    @Rule <i class="conum" data-value="2"></i><b>(2)</b>
-    public RequirementRule requirementRule = new RequirementRule();
+    <span class="annotation">@Rule</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="directive">public</span> RequirementRule requirementRule = <span class="keyword">new</span> RequirementRule();
 
-    //....
+    <span class="comment">//....</span>
 
 }</code></pre>
 </div>
@@ -2981,14 +3127,14 @@ public class HelloWorldServletTest {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
-import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">import</span> <span class="include">org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable</span>;
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.requirement.ArquillianConditionalRunner</span>;
 
-@RunWith(ArquillianConditionalRunner.class) <i class="conum" data-value="1"></i><b>(1)</b>
-@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) <i class="conum" data-value="2"></i><b>(2)</b>
-public class HelloWorldServletTest {
+<span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class) <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="annotation">@RequiresSystemPropertyOrEnvironmentVariable</span>(value = {<span class="string"><span class="delimiter">&quot;</span><span class="content">DOCKER_HOST</span><span class="delimiter">&quot;</span></span>}) <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldServletTest</span> {
 
-    //....
+    <span class="comment">//....</span>
 
 }</code></pre>
 </div>
@@ -3016,14 +3162,14 @@ public class HelloWorldServletTest {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import org.arquillian.cube.requirement.ArquillianConditionalRunner;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">import</span> <span class="include">org.arquillian.cube.requirement.ArquillianConditionalRunner</span>;
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine</span>;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev") <i class="conum" data-value="1"></i><b>(1)</b>
-public class HelloWorldServletTest {
+<span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
+<span class="annotation">@RequiresDockerMachine</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">dev</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldServletTest</span> {
 
-    //....
+    <span class="comment">//....</span>
 }</code></pre>
 </div>
 </div>
@@ -3061,11 +3207,11 @@ To do it you only need to do two things.</p>
 <div class="listingblock">
 <div class="title">RequiresDockerVersion.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Requires(DockerRequirement.class) <i class="conum" data-value="1"></i><b>(1)</b>
-public @interface RequiresDockerVersion {
-    String name() default ""; <i class="conum" data-value="2"></i><b>(2)</b>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Retention</span>(<span class="predefined-type">RetentionPolicy</span>.RUNTIME)
+<span class="annotation">@Target</span>({<span class="predefined-type">ElementType</span>.TYPE, <span class="predefined-type">ElementType</span>.METHOD})
+<span class="annotation">@Requires</span>(DockerRequirement.class) <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="directive">public</span> <span class="annotation">@interface</span> RequiresDockerVersion {
+    <span class="predefined-type">String</span> name() <span class="keyword">default</span> <span class="string"><span class="delimiter">&quot;</span><span class="delimiter">&quot;</span></span>; <i class="conum" data-value="2"></i><b>(2)</b>
 }</code></pre>
 </div>
 </div>
@@ -3087,16 +3233,16 @@ public @interface RequiresDockerVersion {
 <div class="listingblock">
 <div class="title">DockerRequirement.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class DockerRequirement implements Requirement&lt;RequiresDockerVersion&gt; {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">DockerRequirement</span> <span class="directive">implements</span> Requirement&lt;RequiresDockerVersion&gt; {
 
-    @Override
-    public void check(RequiresDockerMachine context) throws UnsatisfiedRequirementException {
-        String name = context.name();
-        if (name != null &amp;&amp; !name.isEmpty()) {
-            String installedVersion = getDockerVersion();
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> check(RequiresDockerMachine context) <span class="directive">throws</span> UnsatisfiedRequirementException {
+        <span class="predefined-type">String</span> name = context.name();
+        <span class="keyword">if</span> (name != <span class="predefined-constant">null</span> &amp;&amp; !name.isEmpty()) {
+            <span class="predefined-type">String</span> installedVersion = getDockerVersion();
 
-            if (!name.equals(installedVersion)) {
-                throw new UnsatisfiedRequirementException("Docker version not specified."); <i class="conum" data-value="1"></i><b>(1)</b>
+            <span class="keyword">if</span> (!name.equals(installedVersion)) {
+                <span class="keyword">throw</span> <span class="keyword">new</span> UnsatisfiedRequirementException(<span class="string"><span class="delimiter">&quot;</span><span class="content">Docker version not specified.</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="1"></i><b>(1)</b>
             }
         }
     }
@@ -3144,26 +3290,26 @@ To serve this service to the world we decide to use <em>undertow</em> embedded s
 <div class="listingblock">
 <div class="title">DaytimeServer.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.Headers;
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">import</span> <span class="include">io.undertow.Undertow</span>;
+<span class="keyword">import</span> <span class="include">io.undertow.server.HttpHandler</span>;
+<span class="keyword">import</span> <span class="include">io.undertow.server.HttpServerExchange</span>;
+<span class="keyword">import</span> <span class="include">io.undertow.util.Headers</span>;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+<span class="keyword">import</span> <span class="include">java.text.SimpleDateFormat</span>;
+<span class="keyword">import</span> <span class="include">java.util.Date</span>;
 
-public class DaytimeServer {
+<span class="directive">public</span> <span class="type">class</span> <span class="class">DaytimeServer</span> {
 
-  public static void main(String[] args) { <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> main(<span class="predefined-type">String</span><span class="type">[]</span> args) { <i class="conum" data-value="1"></i><b>(1)</b>
 
       Undertow server = Undertow.builder()
-              .addHttpListener(8080, "0.0.0.0")
-              .setHandler(new HttpHandler() {
-                @Override
-                public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                    exchange.getResponseSender().send(simpleDateFormat.format(new Date()) + System.lineSeparator()); <i class="conum" data-value="2"></i><b>(2)</b>
+              .addHttpListener(<span class="integer">8080</span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">0.0.0.0</span><span class="delimiter">&quot;</span></span>)
+              .setHandler(<span class="keyword">new</span> HttpHandler() {
+                <span class="annotation">@Override</span>
+                <span class="directive">public</span> <span class="type">void</span> handleRequest(<span class="directive">final</span> HttpServerExchange exchange) <span class="directive">throws</span> <span class="exception">Exception</span> {
+                    <span class="predefined-type">SimpleDateFormat</span> simpleDateFormat = <span class="keyword">new</span> <span class="predefined-type">SimpleDateFormat</span>();
+                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, <span class="string"><span class="delimiter">&quot;</span><span class="content">text/plain</span><span class="delimiter">&quot;</span></span>);
+                    exchange.getResponseSender().send(simpleDateFormat.format(<span class="keyword">new</span> <span class="predefined-type">Date</span>()) + <span class="predefined-type">System</span>.lineSeparator()); <i class="conum" data-value="2"></i><b>(2)</b>
                 }
             }).build();
        server.start();
@@ -3200,11 +3346,11 @@ So in fact if you want to run the application probably you will end up by doing 
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-  &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-  &lt;artifactId&gt;arquillian-cube-containerless&lt;/artifactId&gt;
-  &lt;version&gt;${arquillian.cube.version}&lt;/version&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-containerless<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>${arquillian.cube.version}<span class="tag">&lt;/version&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3219,12 +3365,12 @@ The idea is creating a file called DockerfileTemplate.</p>
 <div class="listingblock">
 <div class="title">src/test/resources/daytime/DockerfileTemplate</div>
 <div class="content">
-<pre class="highlight"><code class="language-terminal" data-lang="terminal">FROM java:7
+<pre class="CodeRay highlight"><code data-lang="terminal">FROM java:7
 
 WORKDIR /usr/src/server
 COPY ${deployableFilename} /usr/src/server/${deployableFilename} <i class="conum" data-value="1"></i><b>(1)</b>
 EXPOSE 8080
-CMD ["java", "-jar", "${deployableFilename}"]</code></pre>
+CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;${deployableFilename}&quot;]</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3241,16 +3387,16 @@ CMD ["java", "-jar", "${deployableFilename}"]</code></pre>
 <div class="listingblock">
 <div class="title">src/test/resources/arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0"?&gt;
-&lt;arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://jboss.org/schema/arquillian"
-  xsi:schemaLocation="http://jboss.org/schema/arquillian
-  http://jboss.org/schema/arquillian/arquillian_1_0.xsd"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="tag">&lt;arquillian</span> <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xsi:schemaLocation</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span>
+  <span class="content">http://jboss.org/schema/arquillian/arquillian_1_0.xsd</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
 
-  &lt;extension qualifier="docker"&gt;
-    &lt;property name="serverVersion"&gt;1.12&lt;/property&gt;
-    &lt;property name="serverUri"&gt;http://localhost:2375&lt;/property&gt;
-    &lt;property name="dockerContainers"&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>1.12<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://localhost:2375<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
       daytime:
         buildImage: <i class="conum" data-value="2"></i><b>(2)</b>
           dockerfileLocation: src/test/resources/undertow <i class="conum" data-value="3"></i><b>(3)</b>
@@ -3259,17 +3405,17 @@ CMD ["java", "-jar", "${deployableFilename}"]</code></pre>
         await:
           strategy: polling
         portBindings: [8080/tcp]
-    &lt;/property&gt;
-  &lt;/extension&gt;
+    <span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/extension&gt;</span>
 
-  &lt;container qualifier="containerless" default="true"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
-    &lt;configuration&gt;
-        &lt;property name="containerlessDocker"&gt;daytime&lt;/property&gt; <i class="conum" data-value="5"></i><b>(5)</b>
-        &lt;property name="embeddedPort"&gt;8080&lt;/property&gt; <i class="conum" data-value="6"></i><b>(6)</b>
-    &lt;/configuration&gt;
-  &lt;/container&gt;
+  <span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">containerless</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">default</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+    <span class="tag">&lt;configuration&gt;</span>
+        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">containerlessDocker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>daytime<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">embeddedPort</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>8080<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+    <span class="tag">&lt;/configuration&gt;</span>
+  <span class="tag">&lt;/container&gt;</span>
 
-&lt;/arquillian&gt;</code></pre>
+<span class="tag">&lt;/arquillian&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3318,42 +3464,42 @@ If containerless definition only contains only one image, it is not necessary to
 <div class="listingblock">
 <div class="title">DaytimeTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class DaytimeTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">DaytimeTest</span> {
 
-  private static final String LINE_SEPARATOR = System
-          .getProperty("line.separator");
+  <span class="directive">private</span> <span class="directive">static</span> <span class="directive">final</span> <span class="predefined-type">String</span> LINE_SEPARATOR = <span class="predefined-type">System</span>
+          .getProperty(<span class="string"><span class="delimiter">&quot;</span><span class="content">line.separator</span><span class="delimiter">&quot;</span></span>);
 
-  @Deployment(testable = false) <i class="conum" data-value="1"></i><b>(1)</b>
-  public static JavaArchive createDeployment() {
-      JavaArchive[] undertow = Maven.resolver().resolve("io.undertow:undertow-core:1.1.1.Final").withTransitivity().as(JavaArchive.class); <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="annotation">@Deployment</span>(testable = <span class="predefined-constant">false</span>) <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">public</span> <span class="directive">static</span> JavaArchive createDeployment() {
+      JavaArchive<span class="type">[]</span> undertow = Maven.resolver().resolve(<span class="string"><span class="delimiter">&quot;</span><span class="content">io.undertow:undertow-core:1.1.1.Final</span><span class="delimiter">&quot;</span></span>).withTransitivity().as(JavaArchive.class); <i class="conum" data-value="2"></i><b>(2)</b>
 
       JavaArchive jar = ShrinkWrap
-              .create(JavaArchive.class, "daytime.jar")
+              .create(JavaArchive.class, <span class="string"><span class="delimiter">&quot;</span><span class="content">daytime.jar</span><span class="delimiter">&quot;</span></span>)
               .addClass(DaytimeServer.class); <i class="conum" data-value="3"></i><b>(3)</b>
 
-      for (JavaArchive javaArchive : undertow) { <i class="conum" data-value="4"></i><b>(4)</b>
+      <span class="keyword">for</span> (JavaArchive javaArchive : undertow) { <i class="conum" data-value="4"></i><b>(4)</b>
           jar.merge(javaArchive);
       }
 
       jar.addAsManifestResource(
-              new StringAsset(
-                      "Main-Class: org.arquillian.cube.impl.containerless.DaytimeServer"
-                              + LINE_SEPARATOR), "MANIFEST.MF"); <i class="conum" data-value="5"></i><b>(5)</b>
-      return jar;
+              <span class="keyword">new</span> StringAsset(
+                      <span class="string"><span class="delimiter">&quot;</span><span class="content">Main-Class: org.arquillian.cube.impl.containerless.DaytimeServer</span><span class="delimiter">&quot;</span></span>
+                              + LINE_SEPARATOR), <span class="string"><span class="delimiter">&quot;</span><span class="content">MANIFEST.MF</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="5"></i><b>(5)</b>
+      <span class="keyword">return</span> jar;
   }
 
-  @Test
-  public void shouldReturnDateFromDaytimeServer(@ArquillianResource URL base) { <i class="conum" data-value="6"></i><b>(6)</b>
-      try (
-              BufferedReader in = new BufferedReader(new InputStreamReader(
+  <span class="annotation">@Test</span>
+  <span class="directive">public</span> <span class="type">void</span> shouldReturnDateFromDaytimeServer(<span class="annotation">@ArquillianResource</span> <span class="predefined-type">URL</span> base) { <i class="conum" data-value="6"></i><b>(6)</b>
+      <span class="keyword">try</span> (
+              <span class="predefined-type">BufferedReader</span> in = <span class="keyword">new</span> <span class="predefined-type">BufferedReader</span>(<span class="keyword">new</span> <span class="predefined-type">InputStreamReader</span>(
                     base.openStream()));) {
-          String userInput = in.readLine();
+          <span class="predefined-type">String</span> userInput = in.readLine();
           assertThat(userInput, notNullValue());
-      } catch (UnknownHostException e) {
-          fail("Don't know about host ");
-      } catch (IOException e) {
-          fail("Couldn't get I/O for the connection to ");
+      } <span class="keyword">catch</span> (<span class="exception">UnknownHostException</span> e) {
+          fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Don't know about host </span><span class="delimiter">&quot;</span></span>);
+      } <span class="keyword">catch</span> (<span class="exception">IOException</span> e) {
+          fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Couldn't get I/O for the connection to </span><span class="delimiter">&quot;</span></span>);
       }
   }
 }</code></pre>
@@ -3514,11 +3660,11 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;arquillian&gt;
-    &lt;extension qualifier="cubedrone"&gt;
-        &lt;property name="recordingMode"&gt;NONE&lt;/property&gt;
-    &lt;/extension&gt;
-&lt;/arquillian&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;arquillian&gt;</span>
+    <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cubedrone</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">recordingMode</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>NONE<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;/extension&gt;</span>
+<span class="tag">&lt;/arquillian&gt;</span></code></pre>
 </div>
 </div>
 </div>
@@ -3529,10 +3675,10 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">helloworld:
-  image: dockercloud/hello-world
-  ports:
-    - "80:80"</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">helloworld</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">dockercloud/hello-world</span></span>
+  <span class="key">ports</span>:
+    - <span class="string"><span class="delimiter">&quot;</span><span class="content">80:80</span><span class="delimiter">&quot;</span></span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3541,10 +3687,10 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="docker"&gt;
-    &lt;property name="machineName"&gt;dev&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-    &lt;property name="dockerContainersFile"&gt;docker-compose.yml&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">machineName</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>dev<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainersFile</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>docker-compose.yml<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3561,39 +3707,39 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.jboss.arquillian.extension&lt;/groupId&gt;
-            &lt;artifactId&gt;arquillian-drone-bom&lt;/artifactId&gt;
-            &lt;version&gt;2.0.0.Final&lt;/versio&gt;
-            &lt;type&gt;pom&lt;/type&gt;
-            &lt;scope&gt;import&lt;/scope&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.jboss.arquillian.selenium&lt;/groupId&gt;
-            &lt;artifactId&gt;selenium-bom&lt;/artifactId&gt;
-            &lt;version&gt;2.53.1&lt;/version&gt;
-            &lt;type&gt;pom&lt;/type&gt;
-            &lt;scope&gt;import&lt;/scope&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-&lt;/dependencyManagement&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependencyManagement&gt;</span>
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>arquillian-drone-bom<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>2.0.0.Final<span class="tag">&lt;/versio&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.selenium<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>selenium-bom<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>2.53.1<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/dependencyManagement&gt;</span>
 
-&lt;dependencies&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-        &lt;artifactId&gt;arquillian-cube-docker-drone&lt;/artifactId&gt;
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.jboss.arquillian.extension&lt;/groupId&gt;
-        &lt;artifactId&gt;arquillian-drone-webdriver-depchain&lt;/artifactId&gt;
-        &lt;version&gt;2.0.0.Final&lt;/version&gt;
-        &lt;type&gt;pom&lt;/type&gt;
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;</code></pre>
+<span class="tag">&lt;dependencies&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-drone<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-drone-webdriver-depchain<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;version&gt;</span>2.0.0.Final<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3647,10 +3793,10 @@ But in case of using <strong>Standalone</strong> mode, since it doesn&#8217;t kn
 <div id="graphene-configuration" class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="graphene"&gt;
-  &lt;property name="scheme"&gt;http&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-  &lt;property name="url"&gt;localhost:8080/myapp&lt;/property&gt; <i class="conum" data-value="2"></i><b>(2)</b>
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">scheme</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>localhost:8080/myapp<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -3742,9 +3888,9 @@ Another example, having a service with 9090:8080 port configuration and <code>ur
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="graphene"&gt;
-  &lt;property name="url"&gt;myapp&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>myapp<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3758,9 +3904,9 @@ That configuration would be translated to: <code><a href="http://cubeIp:exposedP
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="graphene"&gt;
-  &lt;property name="url"&gt;dockerHost:8080/myapp&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>dockerHost:8080/myapp<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3777,19 +3923,19 @@ Notice that this late case is useful only if you have more than one bind port.</
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-    &lt;groupId&gt;org.jboss.arquillian.graphene&lt;/groupId&gt;
-    &lt;artifactId&gt;graphene-webdriver&lt;/artifactId&gt;
-    &lt;version&gt;2.1.0.Final&lt;/version&gt;
-    &lt;type&gt;pom&lt;/type&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.jboss.arquillian.graphene&lt;/groupId&gt;
-    &lt;artifactId&gt;graphene-webdriver-impl&lt;/artifactId&gt;
-    &lt;version&gt;2.1.0.Final&lt;/version&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.graphene<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>graphene-webdriver<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>2.1.0.Final<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.graphene<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>graphene-webdriver-impl<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>2.1.0.Final<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3867,11 +4013,11 @@ RestAssured.port = 5000;</pre>
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-     &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-     &lt;artifactId&gt;arquillian-cube-docker-restassured&lt;/artifactId&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-restassured<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
@@ -3965,9 +4111,9 @@ RestAssured.port = 5000;</pre>
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;extension qualifier="restassured"&gt;
-    &lt;property name="port"&gt;80&lt;/property&gt;
-&lt;/extension&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">restassured</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">port</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>80<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -3994,10 +4140,10 @@ You can set any extension property using system properties or environment variab
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yml" data-lang="yml">helloworld:
-  image: jonmorehouse/ping-pong
-  ports:
-    - "5000:8080"</code></pre>
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="key">helloworld</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+  <span class="key">ports</span>:
+    - <span class="string"><span class="delimiter">&quot;</span><span class="content">5000:8080</span><span class="delimiter">&quot;</span></span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4006,15 +4152,15 @@ You can set any extension property using system properties or environment variab
 <div class="listingblock">
 <div class="title">PingPongTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class PingPongTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongTest</span> {
 
-    @Test
-    public void should_receive_ok_message() throws MalformedURLException, InterruptedException {
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_receive_ok_message() <span class="directive">throws</span> <span class="exception">MalformedURLException</span>, <span class="exception">InterruptedException</span> {
         RestAssured.get()
             .then()
                 .assertThat()
-                .body("status", equalTo("OK"));
+                .body(<span class="string"><span class="delimiter">&quot;</span><span class="content">status</span><span class="delimiter">&quot;</span></span>, equalTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>));
     }
 
 }</code></pre>
@@ -4048,12 +4194,12 @@ public class PingPongTest {
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-    &lt;groupId&gt;org.arquillian.extension&lt;/groupId&gt;
-    &lt;artifactId&gt;arquillian-recorder-reporter-impl&lt;/artifactId&gt;
-    &lt;version&gt;${version.arquillian.recorder}&lt;/version&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-recorder-reporter-impl<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>${version.arquillian.recorder}<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4078,11 +4224,11 @@ For this reason there is a docker cube reporter integration that adds on the rep
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-    &lt;groupId&gt;org.arquillian.cube&lt;/groupId&gt;
-    &lt;artifactId&gt;arquillian-cube-docker-recorder&lt;/artifactId&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-recorder<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4135,31 +4281,31 @@ But if you think clearly there is nothing that avoid <strong>Arquillian Cube</st
 <div class="listingblock">
 <div class="title">src/main/js/package.json</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
-  "name": "helloworld-server",
-  "version": "0.0.1",
-  "description": "A NodeJS webserver to run inside a docker container",
-  "author": "asotobu@gmail.com",
-  "license": "APLv2",
-  "dependencies": {
-      "express": "*"
+<pre class="CodeRay highlight"><code data-lang="json">{
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">helloworld-server</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">0.0.1</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">description</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">A NodeJS webserver to run inside a docker container</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">author</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">asotobu@gmail.com</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">license</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">APLv2</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">dependencies</span><span class="delimiter">&quot;</span></span>: {
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">express</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">*</span><span class="delimiter">&quot;</span></span>
   },
-  "scripts": {"start": "node index.js"}
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">scripts</span><span class="delimiter">&quot;</span></span>: {<span class="key"><span class="delimiter">&quot;</span><span class="content">start</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">node index.js</span><span class="delimiter">&quot;</span></span>}
 }</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">src/main/js/index.js</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">var express = require('express');
+<pre class="CodeRay highlight"><code data-lang="javascript"><span class="keyword">var</span> express = require(<span class="string"><span class="delimiter">'</span><span class="content">express</span><span class="delimiter">'</span></span>);
 
-var app = express();
+<span class="keyword">var</span> app = express();
 
-app.get('/', function(req, res){
-  res.send('Hello from inside a container!');
+app.get(<span class="string"><span class="delimiter">'</span><span class="content">/</span><span class="delimiter">'</span></span>, <span class="keyword">function</span>(req, res){
+  res.send(<span class="string"><span class="delimiter">'</span><span class="content">Hello from inside a container!</span><span class="delimiter">'</span></span>);
 });
 
-app.listen(8080);</code></pre>
+app.listen(<span class="integer">8080</span>);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4168,16 +4314,16 @@ app.listen(8080);</code></pre>
 <div class="listingblock">
 <div class="title">src/test/resources/node/DockerfileTemplate</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">FROM node:0.11.14
+<pre class="CodeRay highlight"><code data-lang="java">FROM node:<span class="float">0.11</span><span class="float">.14</span>
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-ADD ${deployableFilename} /usr/src/app <i class="conum" data-value="1"></i><b>(1)</b>
+ADD <span class="error">$</span>{deployableFilename} /usr/src/app <i class="conum" data-value="1"></i><b>(1)</b>
 RUN npm install
-EXPOSE 8080
+EXPOSE <span class="integer">8080</span>
 
-CMD [ "npm", "start" ]</code></pre>
+CMD [ <span class="string"><span class="delimiter">&quot;</span><span class="content">npm</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">start</span><span class="delimiter">&quot;</span></span> ]</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -4194,16 +4340,16 @@ CMD [ "npm", "start" ]</code></pre>
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0"?&gt;
-&lt;arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://jboss.org/schema/arquillian"
-  xsi:schemaLocation="http://jboss.org/schema/arquillian
-  http://jboss.org/schema/arquillian/arquillian_1_0.xsd"&gt;
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="tag">&lt;arquillian</span> <span class="attribute-name">xmlns:xsi</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://www.w3.org/2001/XMLSchema-instance</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xmlns</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span><span class="delimiter">&quot;</span></span>
+  <span class="attribute-name">xsi:schemaLocation</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">http://jboss.org/schema/arquillian</span>
+  <span class="content">http://jboss.org/schema/arquillian/arquillian_1_0.xsd</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
 
-  &lt;extension qualifier="docker"&gt;
-    &lt;property name="serverVersion"&gt;1.12&lt;/property&gt;
-    &lt;property name="serverUri"&gt;http://localhost:2375&lt;/property&gt;
-    &lt;property name="dockerContainers"&gt;
+  <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">docker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverVersion</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>1.12<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">serverUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://localhost:2375<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">dockerContainers</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         node:
           buildImage:
             dockerfileLocation: src/test/resources/node
@@ -4212,17 +4358,17 @@ CMD [ "npm", "start" ]</code></pre>
           await:
             strategy: polling
           portBindings: [8080/tcp]
-    &lt;/property&gt;
-  &lt;/extension&gt;
+    <span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;/extension&gt;</span>
 
-  &lt;container qualifier="containerless" default="true"&gt;
-    &lt;configuration&gt;
-      &lt;property name="containerlessDocker"&gt;node&lt;/property&gt; <i class="conum" data-value="1"></i><b>(1)</b>
-      &lt;property name="embeddedPort"&gt;8080&lt;/property&gt;
-    &lt;/configuration&gt;
-  &lt;/container&gt;
+  <span class="tag">&lt;container</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">containerless</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">default</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">true</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;configuration&gt;</span>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">containerlessDocker</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>node<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+      <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">embeddedPort</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>8080<span class="tag">&lt;/property&gt;</span>
+    <span class="tag">&lt;/configuration&gt;</span>
+  <span class="tag">&lt;/container&gt;</span>
 
-&lt;/arquillian&gt;</code></pre>
+<span class="tag">&lt;/arquillian&gt;</span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -4251,26 +4397,26 @@ If containerless definition only contains only one image, it is not necessary to
 <div class="listingblock">
 <div class="title">NodeTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RunWith(Arquillian.class)
-public class NodeTest {
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">NodeTest</span> {
 
-  @Deployment(testable = false) <i class="conum" data-value="1"></i><b>(1)</b>
-  public static GenericArchive createDeployment() {
-    return ShrinkWrap.create(GenericArchive.class, "app.tar") <i class="conum" data-value="2"></i><b>(2)</b>
-            .add(new ClassLoaderAsset("index.js"), "index.js")
-            .add(new ClassLoaderAsset("package.json"), "package.json");
+  <span class="annotation">@Deployment</span>(testable = <span class="predefined-constant">false</span>) <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="directive">public</span> <span class="directive">static</span> GenericArchive createDeployment() {
+    <span class="keyword">return</span> ShrinkWrap.create(GenericArchive.class, <span class="string"><span class="delimiter">&quot;</span><span class="content">app.tar</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+            .add(<span class="keyword">new</span> ClassLoaderAsset(<span class="string"><span class="delimiter">&quot;</span><span class="content">index.js</span><span class="delimiter">&quot;</span></span>), <span class="string"><span class="delimiter">&quot;</span><span class="content">index.js</span><span class="delimiter">&quot;</span></span>)
+            .add(<span class="keyword">new</span> ClassLoaderAsset(<span class="string"><span class="delimiter">&quot;</span><span class="content">package.json</span><span class="delimiter">&quot;</span></span>), <span class="string"><span class="delimiter">&quot;</span><span class="content">package.json</span><span class="delimiter">&quot;</span></span>);
   }
 
-  @Test
-  public void shouldReturnMessageFromNodeJs(@ArquillianResource URL base) { <i class="conum" data-value="3"></i><b>(3)</b>
-    try (BufferedReader in = new BufferedReader(new InputStreamReader(
+  <span class="annotation">@Test</span>
+  <span class="directive">public</span> <span class="type">void</span> shouldReturnMessageFromNodeJs(<span class="annotation">@ArquillianResource</span> <span class="predefined-type">URL</span> base) { <i class="conum" data-value="3"></i><b>(3)</b>
+    <span class="keyword">try</span> (<span class="predefined-type">BufferedReader</span> in = <span class="keyword">new</span> <span class="predefined-type">BufferedReader</span>(<span class="keyword">new</span> <span class="predefined-type">InputStreamReader</span>(
             base.openStream()));) {
-        String userInput = in.readLine();
-        assertThat(userInput, is("Hello from inside a container!"));
-    } catch (UnknownHostException e) {
-        fail("Don't know about host ");
-    } catch (IOException e) {
-        fail("Couldn't get I/O for the connection to ");
+        <span class="predefined-type">String</span> userInput = in.readLine();
+        assertThat(userInput, is(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello from inside a container!</span><span class="delimiter">&quot;</span></span>));
+    } <span class="keyword">catch</span> (<span class="exception">UnknownHostException</span> e) {
+        fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Don't know about host </span><span class="delimiter">&quot;</span></span>);
+    } <span class="keyword">catch</span> (<span class="exception">IOException</span> e) {
+        fail(<span class="string"><span class="delimiter">&quot;</span><span class="content">Couldn't get I/O for the connection to </span><span class="delimiter">&quot;</span></span>);
     }
   }
 }</code></pre>
@@ -4442,6 +4588,13 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.prefix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String (itest)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you don&#8217;t specify a namespace, a random one will be created, with this prefix</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.lazy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
@@ -4578,6 +4731,27 @@ To cover cases like this the <strong>env.dependencies</strong> is provided which
 <div class="paragraph">
 <p><strong>Also:</strong> If your project is using maven and dependencies like the above are expressed in the pom, the will be used <strong>automatically</strong>. (work in progress)</p>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Arquillian Cube Kubernetes needs to authenticate into Kubernetes.
+To do it, Cube reads from <code>~/.kube/config</code> user information (token, password).</p>
+</div>
+<div class="paragraph">
+<p>For example in case of OpenShift you can use <code>oc login --username=admin --password=admin</code> for creating a token for connecting as admin, or <code>oc config set-credentials myself --username=admin --password=admin</code> for statically add the username and password and will communicate with Kubernetes to update the <code>~/.kube/config</code> file with the info provided.</p>
+</div>
+<div class="paragraph">
+<p>You can read more about Kubernetes config file at <a href="http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/" class="bare">http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/</a></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>19.7. Readiness and waiting</h3>
@@ -4638,18 +4812,18 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <div class="listingblock">
 <div class="title">ExampleTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">    @RunWith(Arquillian.class)
-    public class ExampleTest {
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">ExampleTest</span> {
 
-     @ArquillianResource
+     <span class="annotation">@ArquillianResource</span>
      KubernetesClient client;
 
-     @ArquillianResource
+     <span class="annotation">@ArquillianResource</span>
      Session session;
 
-      @Test
-      public void testAtLeastOnePod() throws Exception {
-       assertThat(client).pods().runningStatus().filterNamespace(session.getNamespace()).hasSize(1);
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testAtLeastOnePod() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       assertThat(client).pods().runningStatus().filterNamespace(session.getNamespace()).hasSize(<span class="integer">1</span>);
       }
     }</code></pre>
 </div>
@@ -4663,24 +4837,24 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <div class="listingblock">
 <div class="title">ResourceByIdTest.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">    @RunWith(Arquillian.class)
-    public class ResourceByIdTest {
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceByIdTest</span> {
 
-     @ArquillianResouce
-     @Named("my-serivce")
+     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-serivce</span><span class="delimiter">&quot;</span></span>)
      Service service;
 
-     @ArquillianResouce
-     @Named("my-pod")
+     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-pod</span><span class="delimiter">&quot;</span></span>)
      Pod pod;
 
-     @ArquillianResouce
-     @Named("my-contoller")
+     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-contoller</span><span class="delimiter">&quot;</span></span>)
      ReplicationController controller;
 
-      @Test
-      public void testStuff() throws Exception {
-       //Do stuff...
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       <span class="comment">//Do stuff...</span>
       }
     }</code></pre>
 </div>
@@ -4691,21 +4865,21 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <div class="listingblock">
 <div class="title">ResourceListExample.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">    @RunWith(Arquillian.class)
-    public class ResourceListExample {
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceListExample</span> {
 
-     @ArquillianResouce
+     <span class="annotation">@ArquillianResouce</span>
      ServiceList services;
 
-     @ArquillianResouce
+     <span class="annotation">@ArquillianResouce</span>
      PodList pods;
 
-     @ArquillianResouce
+     <span class="annotation">@ArquillianResouce</span>
      ReplicationControllers controllers;
 
-      @Test
-      public void testStuff() throws Exception {
-       //Do stuff...
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       <span class="comment">//Do stuff...</span>
       }
     }</code></pre>
 </div>
@@ -4758,7 +4932,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-09-01 22:51:58 CEST
+Last updated 2016-11-11 15:22:41 CET
 </div>
 </div>
 </body>
