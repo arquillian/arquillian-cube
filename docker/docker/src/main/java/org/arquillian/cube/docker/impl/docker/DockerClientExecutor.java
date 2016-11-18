@@ -719,6 +719,8 @@ public class DockerClientExecutor {
             String tag = image.getTag();
             if (tag != null && !"".equals(tag)) {
                 pullImageCmd.withTag(tag);
+            } else {
+                pullImageCmd.withTag("latest");
             }
 
             pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
