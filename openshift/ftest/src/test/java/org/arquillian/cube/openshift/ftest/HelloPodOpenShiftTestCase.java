@@ -1,6 +1,8 @@
 package org.arquillian.cube.openshift.ftest;
 
 import org.arquillian.cube.CubeController;
+import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -9,7 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @Ignore // hello-openshift container is auto started due to container mapping
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresOpenshift
 public class HelloPodOpenShiftTestCase {
 
 	private static final String ID = "hello-openshift";
