@@ -23,6 +23,15 @@ RestAssured.baseURI = "http://myhost.org";
 RestAssured.port = 5000;
 ----
 
+or using RequestSpecBuilder
+
+----
+spec = new RequestSpecBuilder()
+            .setContentType(ContentType.JSON)
+            .setBaseUri("http://localhost:8080/")
+            .build();
+----
+
 === Why integration with Cube?
 
 Previous approach works but it has some problems:
@@ -31,7 +40,7 @@ Previous approach works but it has some problems:
 * Requires some development interference of the developer, if it is running in docker machine needs to set one _ip_ which might change in the future, or if running on native linux must be changed to _localhost_.
 * Any change on Rest-Assured configuration properties would make all tests fails.
 
-To fix these problems, you can use Arquillian Cube Docker RestAssured integration.
+To fix these problems, you can use Arquillian Cube Docker RestAssured integration which creates a `RequestSpecBuilder` with correct values set.
 
 === Configuration
 
@@ -78,10 +87,6 @@ By default, if your scenario is not complex you don't need to configure anything
 |basePath
 |
 |Base path (context) of the application
-
-|rootPath
-|
-|Root path property of RestAssured. http://code.google.com/p/rest-assured/wiki/Usage#Root_path
 
 |useRelaxedHttpsValidation
 |
@@ -134,12 +139,18 @@ You only need to do:
 @RunWith(Arquillian.class)
 public class PingPongTest {
 
+    @ArquillianResource
+    RequestSpecBuilder requestSpecBuilder;
+
     @Test
     public void should_receive_ok_message() throws MalformedURLException, InterruptedException {
-        RestAssured.get()
+        RestAssured
+            .given()
+            .spec(requestSpecBuilder.build())
+            .when()
+            .get()
             .then()
-                .assertThat()
-                .body("status", equalTo("OK"));
+            .assertThat().body("status", equalTo("OK"));
     }
 
 }
