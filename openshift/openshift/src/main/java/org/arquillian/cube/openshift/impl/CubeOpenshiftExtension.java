@@ -5,6 +5,7 @@ import org.arquillian.cube.openshift.impl.client.CubeOpenShiftRegistrar;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClientCreator;
 import org.arquillian.cube.openshift.impl.client.OpenShiftSuiteLifecycleController;
 import org.jboss.arquillian.core.spi.LoadableExtension;
+import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 public class CubeOpenshiftExtension implements LoadableExtension {
 

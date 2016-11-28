@@ -109,10 +109,14 @@ public class GitServer {
 					.addNewEnv()
 						.withName("GIT_HOME")
 						.withValue("/var/lib/git")
-						.endEnv()
-					// This volume is necessary in order to override the image volume, otherwise
-					// we wouldn't have permission to write in that directory
-					.addNewVolumeMount("/var/lib/git", "git-repo", false)
+					.endEnv()
+                    // This volume is necessary in order to override the image volume, otherwise
+                    // we wouldn't have permission to write in that directory
+                    .addNewVolumeMount()
+                        .withName("git-repo")
+                        .withMountPath("/var/lib/git")
+                        .withReadOnly(false)
+                    .endVolumeMount()
 				.endContainer()
 			.addNewVolume()
 			    .withName("git-repo")
