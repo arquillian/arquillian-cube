@@ -23,11 +23,11 @@ public class PingPongTest {
     public void should_receive_ok_message() throws MalformedURLException, InterruptedException {
         RestAssured
                 .given()
-                .spec(requestSpecBuilder.build())
+                    .spec(requestSpecBuilder.build())
                 .when()
-                .get()
+                    .get()
                 .then()
-                .assertThat().body("status", equalTo("OK"));
+                    .assertThat().body("status", equalTo("OK"));
     }
 
 }
