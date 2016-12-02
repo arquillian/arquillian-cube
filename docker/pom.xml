@@ -33,6 +33,7 @@
     </dependencies>
 
     <modules>
+        <module>assertj</module>
         <module>docker</module>
         <module>drone</module>
         <module>recorder</module>

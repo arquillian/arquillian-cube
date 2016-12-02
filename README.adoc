@@ -5,9 +5,10 @@
 :sectanchors:
 :sectid:
 :source-language: java
+:source-highlighter: coderay
 :sectnums:
 :icons: font
-:toc:
+:toc: left
 
 Documentation for version Alpha6 can be found here: https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha6/README.adoc
 

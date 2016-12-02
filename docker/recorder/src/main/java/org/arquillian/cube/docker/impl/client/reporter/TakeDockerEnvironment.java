@@ -269,30 +269,32 @@ public class TakeDockerEnvironment {
             final Map<String, Object> insertedVertex = new HashMap<>();
                 for (Map.Entry<String, CubeContainer> container: containers.entrySet()) {
                     final String containerId = container.getKey();
-                    Object containerName = graph.insertVertex(parent, null , containerId, 0, 0, 80, 30);
+                    Object containerName = graph.insertVertex(parent, null, containerId, 0, 0, 80, 30);
                     final CubeContainer cubeContainer = container.getValue();
-                    Set<String> nwList = new HashSet<>();
-                    if (cubeContainer.getNetworkMode() != null) {
-                        nwList.add(cubeContainer.getNetworkMode());
-                    } else {
-                        InspectContainerResponse inspect = executor.inspectContainer(containerId);
-                        final String defaultNetwork = inspect.getHostConfig().getNetworkMode();
-                        nwList.add(defaultNetwork);
-                    }
-                    if (cubeContainer.getNetworks() != null) {
-                        nwList.addAll(cubeContainer.getNetworks());
-                    }
-                    for (String nw: nwList) {
-                        Object nwName = null;
-                        if (insertedVertex.containsKey(nw)) {
-                            nwName = insertedVertex.get(nw);
+                    if (!cubeContainer.isManual()) {
+                        Set<String> nwList = new HashSet<>();
+                        if (cubeContainer.getNetworkMode() != null) {
+                            nwList.add(cubeContainer.getNetworkMode());
                         } else {
-                            nwName = graph.insertVertex(parent, null, nw, 0, 0, 60, 20);
-                            graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#00FF00", new Object[]{nwName});
+                            InspectContainerResponse inspect = executor.inspectContainer(containerId);
+                            final String defaultNetwork = inspect.getHostConfig().getNetworkMode();
+                            nwList.add(defaultNetwork);
                         }
-                        graph.updateCellSize(nwName);
-                        graph.insertEdge(parent, null, nw, containerName, nwName);
-                        insertedVertex.put(nw, nwName);
+                        if (cubeContainer.getNetworks() != null) {
+                            nwList.addAll(cubeContainer.getNetworks());
+                        }
+                        for (String nw : nwList) {
+                            Object nwName = null;
+                            if (insertedVertex.containsKey(nw)) {
+                                nwName = insertedVertex.get(nw);
+                            } else {
+                                nwName = graph.insertVertex(parent, null, nw, 0, 0, 60, 20);
+                                graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#00FF00", new Object[]{nwName});
+                            }
+                            graph.updateCellSize(nwName);
+                            graph.insertEdge(parent, null, nw, containerName, nwName);
+                            insertedVertex.put(nw, nwName);
+                        }
                     }
                 }
             } finally {

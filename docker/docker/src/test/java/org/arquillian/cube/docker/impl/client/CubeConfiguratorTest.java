@@ -130,7 +130,6 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
-        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), defaultDockerMachineCertPath()));
     }
 
     @Test
@@ -149,7 +148,6 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
-        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), defaultDockerMachineCertPath()));
         verify(commandLineExecutor, times(1)).execCommand("docker-machine", "start", "dev");
     }
 
@@ -171,7 +169,6 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev"));
-        assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), defaultDockerMachineCertPath()));
     }
 
     // Only works in case of running in MACOS or Windows since by default in
@@ -269,7 +266,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfDockerMachine() {
         Map<String, String> config = new HashMap<>();
-        config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
+        config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
         config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev");
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);

@@ -2,12 +2,12 @@ package org.arquillian.cube.docker.impl.util;
 
 public enum OperatingSystemFamily {
     LINUX("unix:///var/run/docker.sock", false),
-    WINDOWS("tcp://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
+    WINDOWS("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
     UNIX("unix:///var/run/docker.sock", false),
     DIND("unix:///var/run/docker.sock", false),
     DEC_OS("unix:///var/run/docker.sock", false),
-    MAC("tcp://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
-    MACHINE("tcp://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
+    MAC("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
+    MACHINE("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
     UNKNOWN("tcp://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true);
 
     private final String serverUri;

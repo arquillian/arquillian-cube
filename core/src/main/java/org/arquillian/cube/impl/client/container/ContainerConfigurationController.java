@@ -64,15 +64,15 @@ public class ContainerConfigurationController {
         Object newConfigurationInstance = configurationClass.newInstance();
 
         for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
+            int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
+                    configurationClass, configurationClassPortField);
+            mappingForPort = bindings.getMappedAddress(containerPort);
+
             if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (configurationClassPortField.getPropertyType().equals(Integer.class) || configurationClassPortField.getPropertyType().equals(int.class))) {
                 // This means that port has not configured in arquillian.xml and it will use default value.
                 // In this case is when remapping should be activated to adequate the situation according to
                 // Arquillian Cube exposed ports.
-
-                int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
-                        configurationClass, configurationClassPortField);
-
-                if ((mappingForPort = bindings.getMappedAddress(containerPort)) != null) {
+                if (mappingForPort != null) {
                     containerConfiguration.overrideProperty(configurationClassPortField.getName(),
                             Integer.toString(mappingForPort.getPort()));
                 }
@@ -83,7 +83,9 @@ public class ContainerConfigurationController {
             if (!addressPropertiesFromArquillianConfigurationFile.contains(configurationClassAddressField.getName()) && (configurationClassAddressField.getPropertyType().equals(String.class) || configurationClassAddressField.getPropertyType().equals(String.class))) {
                 // If a property called portForwardBindAddress on openshift qualifier on arquillian.xml exists it will overrides the
                 // arquillian default|defined managementAddress with the IP address given on this property.
-                containerConfiguration.overrideProperty(configurationClassAddressField.getName(), mappingForPort.getIP());
+                if (mappingForPort != null) {
+                    containerConfiguration.overrideProperty(configurationClassAddressField.getName(), mappingForPort.getIP());
+                }
             }
         }
     }

@@ -7,6 +7,7 @@ public class IPAM {
 
     private List<IPAMConfig> ipamConfigs;
     private Map<String, String> options;
+    private String driver;
 
     public List<IPAMConfig> getIpamConfigs() {
         return ipamConfigs;
@@ -22,5 +23,13 @@ public class IPAM {
 
     public void setOptions(Map<String, String> options) {
         this.options = options;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
     }
 }

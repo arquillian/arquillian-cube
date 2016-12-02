@@ -85,7 +85,7 @@ public class OpenShiftClient {
 	                        .withLabels(defaultLabels)
 	                        .endMetadata()
 	                    .build();
-	            is = getClientExt().imageStreams().create(is);
+	            is = getClientExt().imageStreams().createOrReplace(is);
 	            holder.addResource(is);
 
 	            BuildConfig config = new BuildConfigBuilder()
@@ -114,10 +114,10 @@ public class OpenShiftClient {
 	                        .endSpec()
 	                    .build();
 
-	            config = getClientExt().buildConfigs().create(config);
+	            config = getClientExt().buildConfigs().createOrReplace(config);
 	            holder.addResource(config);
 
-	            final Integer lastBuildVersion = config.getStatus().getLastVersion();
+	            final Long lastBuildVersion = config.getStatus().getLastVersion();
 	            BuildRequest br = new BuildRequestBuilder()
 	                    .withNewMetadata()
 	                        .withName(config.getMetadata().getName())
