@@ -61,14 +61,6 @@ public class RestAssuredConfiguration {
         return baseUri;
     }
 
-    public boolean isRootPath() {
-        return rootPath != null && !rootPath.isEmpty();
-    }
-
-    public String getRootPath() {
-        return rootPath;
-    }
-
     public String[] getExclusionContainers() {
         return exclusionContainers;
     }
