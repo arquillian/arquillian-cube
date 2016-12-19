@@ -15,9 +15,11 @@ import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.await.WaitStrategy;
+import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.cube.kubernetes.impl.event.Stop;
 import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
+import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -50,6 +52,9 @@ public class SessionCreatedListener {
 
     @Inject
     Instance<ServiceLoader> serviceLoader;
+
+    @Inject
+    Event<AfterStart> afterStartEvent;
 
     private ShutdownHook shutdownHook;
 
@@ -122,6 +127,7 @@ public class SessionCreatedListener {
 
             if (!configuration.isEnvironmentInitEnabled() || waitStrategy.await()) {
                 displaySessionStatus(session);
+                afterStartEvent.fire(new AfterStart(session));
             } else {
                 throw new IllegalStateException("Environment not initialized in time.");
             }
