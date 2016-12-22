@@ -139,8 +139,8 @@ public class TakeKubernetesResourcesInformation {
         return tableEntry;
     }
 
-    private ArrayList<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
-        ArrayList<FileEntry> fileEntries = new ArrayList<>();
+    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
+        final List<FileEntry> fileEntries = new ArrayList<>();
         URL environmentConfigUrl = configuration.getEnvironmentConfigUrl();
 
         if (environmentConfigUrl != null) {
@@ -204,7 +204,7 @@ public class TakeKubernetesResourcesInformation {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
-    private void addFileEntries(GroupEntry groupEntry, ArrayList<FileEntry> propertyEntries) {
+    private void addFileEntries(GroupEntry groupEntry, List<FileEntry> propertyEntries) {
         groupEntry.getPropertyEntries().addAll(propertyEntries);
     }
 
