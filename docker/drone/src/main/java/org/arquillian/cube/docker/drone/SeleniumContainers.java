@@ -17,6 +17,7 @@ public class SeleniumContainers {
     private static final String CHROME_IMAGE = "selenium/standalone-chrome-debug:%s";
     private static final String FIREFOX_IMAGE = "selenium/standalone-firefox-debug:%s";
     private static final String VNC_IMAGE = "richnorth/vnc-recorder:latest";
+    private static final String CONVERSION_IMAGE = "hemanik/flv2mp4:latest";
     private static final String DEFAULT_PASSWORD = "secret";
     private static final String VNC_HOSTNAME = "vnchost";
     private static final String VOLUME_DIR = "recording";
@@ -25,6 +26,7 @@ public class SeleniumContainers {
     private static final int VNC_EXPOSED_PORT = 5900;
     public static final String SELENIUM_CONTAINER_NAME = "browser";
     public static final String VNC_CONTAINER_NAME = "vnc";
+    public static final String CONVERSION_CONTAINER_NAME = "flv2mp4";
     public static final String[] FLVREC_COMMAND = new String[]{
             "-o",
             "/" + VOLUME_DIR + "/screen.flv",
@@ -36,12 +38,14 @@ public class SeleniumContainers {
 
     private CubeContainer seleniumContainer;
     private CubeContainer vncContainer;
+    private CubeContainer videoConverterContainer;
     private String browser;
     private Path videoRecordingFolder;
 
-    private SeleniumContainers(CubeContainer seleniumContainer, String browser, CubeContainer vncContainer, Path videoRecordingFolder) {
+    private SeleniumContainers(CubeContainer seleniumContainer, String browser, CubeContainer vncContainer, CubeContainer videoConverterContainer, Path videoRecordingFolder) {
         this.seleniumContainer = seleniumContainer;
         this.vncContainer = vncContainer;
+        this.videoConverterContainer = videoConverterContainer;
         this.browser = browser;
         this.videoRecordingFolder = videoRecordingFolder;
 
@@ -53,6 +57,10 @@ public class SeleniumContainers {
 
     public CubeContainer getVncContainer() {
         return vncContainer;
+    }
+
+    public CubeContainer getVideoConverterContainer() {
+        return videoConverterContainer;
     }
 
     public Path getVideoRecordingFolder() {
@@ -75,14 +83,48 @@ public class SeleniumContainers {
         return VNC_CONTAINER_NAME;
     }
 
+    public String getVideoConverterContainerName() {
+        return CONVERSION_CONTAINER_NAME;
+    }
+
     public String getBrowser() {
         return browser;
     }
 
     public static SeleniumContainers create(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         final Path temporaryVolume = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
-        return new SeleniumContainers(createSeleniumContainer(browser, cubeDroneConfiguration), browser, createVncContainer(temporaryVolume), temporaryVolume);
+        return new SeleniumContainers(createSeleniumContainer(browser, cubeDroneConfiguration), browser, createVncContainer(temporaryVolume), createVideoConverterContainer(temporaryVolume), temporaryVolume);
     }
+
+    private static CubeContainer createVideoConverterContainer(Path dockerVolume) {
+
+        CubeContainer cubeContainer = new CubeContainer();
+        cubeContainer.setImage(Image.valueOf(CONVERSION_IMAGE));
+
+        cubeContainer.setBinds(
+                Arrays.asList(dockerVolume.toAbsolutePath().toString() + ":/" + VOLUME_DIR + ":rw")
+        );
+
+        final Link link = Link.valueOf(SELENIUM_CONTAINER_NAME + ":" + VNC_HOSTNAME);
+        cubeContainer.setLinks(Arrays.asList(link));
+
+        // Using sleeping strategy since VNC client is a CLI without exposing a port
+        Await await = new Await();
+        await.setStrategy("log");
+        await.setMatch("CONVERSION COMPLETED");
+
+        //await.setSleepTime("100 ms");
+
+        cubeContainer.setAwait(await);
+
+        // sets container as manual because we need to start and stop for each test case
+        cubeContainer.setManual(true);
+
+        return cubeContainer;
+
+
+    }
+
 
     private static CubeContainer createVncContainer(final Path dockerVolume) {
 
@@ -112,6 +154,7 @@ public class SeleniumContainers {
 
     }
 
+
     private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
 
         if (cubeDroneConfiguration.isBrowserDockerfileDirectorySet()) {
@@ -129,10 +172,13 @@ public class SeleniumContainers {
     private static CubeContainer useOfficialSeleniumImages(String browser) {
         String version = SeleniumVersionExtractor.fromClassPath();
 
-        switch(browser) {
-            case "firefox": return configureCube(String.format(FIREFOX_IMAGE, version));
-            case "chrome": return configureCube(String.format(CHROME_IMAGE, version));
-            default: throw new UnsupportedOperationException("Only firefox and chrome are supported. Unsupported browser " + browser);
+        switch (browser) {
+            case "firefox":
+                return configureCube(String.format(FIREFOX_IMAGE, version));
+            case "chrome":
+                return configureCube(String.format(CHROME_IMAGE, version));
+            default:
+                throw new UnsupportedOperationException("Only firefox and chrome are supported. Unsupported browser " + browser);
         }
     }
 
