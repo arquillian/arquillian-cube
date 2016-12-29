@@ -40,6 +40,8 @@ public class InstallSeleniumCube {
             cubes.add(seleniumContainers.getVncContainerName(), seleniumContainers.getVncContainer());
         }
 
+        cubes.add(seleniumContainers.getVideoConverterContainerName(), seleniumContainers.getVideoConverterContainer());
+
         seleniumContainersInstanceProducer.set(seleniumContainers);
 
         System.out.println("SELENIUM INSTALLED");
