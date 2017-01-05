@@ -24,6 +24,7 @@ public class CubeDockerDroneExtension implements LoadableExtension {
         extensionBuilder.observer(DroneOverwriteConfigurator.class);
         extensionBuilder.observer(CubeDroneConfigurator.class);
         extensionBuilder.observer(VncRecorderLifecycleManager.class);
+        extensionBuilder.observer(VideoConversionLifecycleManager.class);
 
         overrideWebDriver(extensionBuilder, FirefoxDriverFactory.class);
         overrideWebDriver(extensionBuilder, ChromeDriverFactory.class);
