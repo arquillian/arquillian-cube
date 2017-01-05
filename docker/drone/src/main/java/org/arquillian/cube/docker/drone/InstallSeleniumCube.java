@@ -38,9 +38,8 @@ public class InstallSeleniumCube {
         final boolean recording = cubeDroneConfigurationInstance.get().isRecording();
         if (recording) {
             cubes.add(seleniumContainers.getVncContainerName(), seleniumContainers.getVncContainer());
+            cubes.add(seleniumContainers.getVideoConverterContainerName(), seleniumContainers.getVideoConverterContainer());
         }
-
-        cubes.add(seleniumContainers.getVideoConverterContainerName(), seleniumContainers.getVideoConverterContainer());
 
         seleniumContainersInstanceProducer.set(seleniumContainers);
 

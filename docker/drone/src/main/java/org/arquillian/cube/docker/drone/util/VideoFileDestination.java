@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.drone.util;
 
 import org.arquillian.cube.docker.drone.CubeDroneConfiguration;
 import org.jboss.arquillian.test.spi.event.suite.After;
+import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class VideoFileDestination {
         return resolveTargetDirectory(cubeDroneConfiguration).resolve(getFinalVideoName(afterTestMethod));
     }
 
-    private static Path resolveTargetDirectory(CubeDroneConfiguration cubeDroneConfiguration) {
+    public static Path resolveTargetDirectory(CubeDroneConfiguration cubeDroneConfiguration) {
 
         Path output;
 

@@ -1,7 +1,9 @@
 package org.arquillian.cube.docker.drone;
 
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
+import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
+import org.arquillian.cube.docker.impl.await.LogScanningAwaitStrategy;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -17,7 +19,7 @@ public class SeleniumContainers {
     private static final String CHROME_IMAGE = "selenium/standalone-chrome-debug:%s";
     private static final String FIREFOX_IMAGE = "selenium/standalone-firefox-debug:%s";
     private static final String VNC_IMAGE = "richnorth/vnc-recorder:latest";
-    private static final String CONVERSION_IMAGE = "hemanik/flv2mp4:latest";
+    private static final String CONVERSION_IMAGE = "flv2mp4";
     private static final String DEFAULT_PASSWORD = "secret";
     private static final String VNC_HOSTNAME = "vnchost";
     private static final String VOLUME_DIR = "recording";
@@ -48,7 +50,6 @@ public class SeleniumContainers {
         this.videoConverterContainer = videoConverterContainer;
         this.browser = browser;
         this.videoRecordingFolder = videoRecordingFolder;
-
     }
 
     public CubeContainer getSeleniumContainer() {
@@ -93,10 +94,12 @@ public class SeleniumContainers {
 
     public static SeleniumContainers create(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         final Path temporaryVolume = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
-        return new SeleniumContainers(createSeleniumContainer(browser, cubeDroneConfiguration), browser, createVncContainer(temporaryVolume), createVideoConverterContainer(temporaryVolume), temporaryVolume);
+        final Path targetVolume = VideoFileDestination.resolveTargetDirectory(cubeDroneConfiguration);
+        return new SeleniumContainers(createSeleniumContainer(browser, cubeDroneConfiguration), browser, createVncContainer(temporaryVolume), createVideoConverterContainer(targetVolume), temporaryVolume);
     }
 
     private static CubeContainer createVideoConverterContainer(Path dockerVolume) {
+
 
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setImage(Image.valueOf(CONVERSION_IMAGE));
@@ -105,26 +108,24 @@ public class SeleniumContainers {
                 Arrays.asList(dockerVolume.toAbsolutePath().toString() + ":/" + VOLUME_DIR + ":rw")
         );
 
-        final Link link = Link.valueOf(SELENIUM_CONTAINER_NAME + ":" + VNC_HOSTNAME);
-        cubeContainer.setLinks(Arrays.asList(link));
+        //final Link link = Link.valueOf(VNC_HOSTNAME + ":" + CONVERSION_CONTAINER_NAME);
+        //cubeContainer.setLinks(Arrays.asList(link));
 
-        // Using sleeping strategy since VNC client is a CLI without exposing a port
+        // Using log await strategy to match the echo string indicating completion of conversion
         Await await = new Await();
+        //LogScanningAwaitStrategy awaitStrategy = new LogScanningAwaitStrategy();
+
         await.setStrategy("log");
         await.setMatch("CONVERSION COMPLETED");
 
-        //await.setSleepTime("100 ms");
-
         cubeContainer.setAwait(await);
 
-        // sets container as manual because we need to start and stop for each test case
+        // sets container as manual because we need to start and stop
         cubeContainer.setManual(true);
 
         return cubeContainer;
 
-
     }
-
 
     private static CubeContainer createVncContainer(final Path dockerVolume) {
 
