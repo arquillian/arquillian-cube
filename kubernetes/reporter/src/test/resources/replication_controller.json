@@ -1,0 +1,31 @@
+{
+  "apiVersion" : "v1",
+  "kind" : "ReplicationController",
+  "metadata" : {
+    "name" : "hello-world-controller"
+  },
+  "spec" : {
+    "replicas" : 1,
+    "selector" : {
+      "app" : "hello-world"
+    },
+    "template" : {
+      "metadata" : {
+        "labels" : {
+          "app" : "hello-world"
+        }
+      },
+      "spec" : {
+        "containers" : [ {
+          "image" : "dockercloud/hello-world",
+          "name" : "hello-world-container",
+          "ports" : [ {
+            "name" : "http",
+            "protocol" : "TCP",
+            "containerPort" : 8080
+          } ]
+        } ]
+      }
+    }
+  }
+}
