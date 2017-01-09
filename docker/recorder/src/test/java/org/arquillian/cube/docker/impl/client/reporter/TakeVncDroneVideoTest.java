@@ -41,7 +41,7 @@ public class TakeVncDroneVideoTest {
 
         assertThat(propertyEntry).isInstanceOf(VideoEntry.class);
         VideoEntry videoEntry = (VideoEntry) propertyEntry;
-        assertThat(videoEntry.getLink()).isEqualTo("myvideo.flv");
+        assertThat(videoEntry.getLink()).isEqualTo("myvideo.mp4");
 
     }
 
@@ -59,7 +59,7 @@ public class TakeVncDroneVideoTest {
 
         assertThat(propertyEntry).isInstanceOf(VideoEntry.class);
         VideoEntry videoEntry = (VideoEntry) propertyEntry;
-        assertThat(videoEntry.getLink()).isEqualTo("surefire-report/myvideo.flv");
+        assertThat(videoEntry.getLink()).isEqualTo("surefire-report/myvideo.mp4");
 
     }
 
