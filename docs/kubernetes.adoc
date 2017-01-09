@@ -77,11 +77,15 @@ used to prevent the extension from modifying the environment.
 
 ### Creating the environment
 After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.
-Out of the box, the extension will use the classpath and try to find a resource named **kubernetes.json** or **kubernetes.yaml***. The name of the resource can be changed using the **env.config.resource.name**.
-Of course it is also possible to specify an external resource by URL using the **env.config.url**.
 
-Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
-To cover cases like this the **env.dependencies** is provided which accepts a space separated list of URLs.
+#### How to run kubernetes with multiple configuration files?
+1. Out of the box, the extension will use the classpath and try to find a resource named **kubernetes.json** or **kubernetes.yaml***. The name of the resource can be changed using the **env.config.resource.name**.
+  Of course it is also possible to specify an external resource by URL using the **env.config.url**.
+
+2. Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
+  To cover cases like this the **env.dependencies** is provided which accepts a space separated list of URLs.
+
+(You can use any custom URL provided the appropriate URL stream handler.)
 
 **Note:** Out of the box mvn urls are supported, so you can use values like: **mvn:my.groupId/artifactId/1.0.0/json/kubernetes** (work in progress)
 

@@ -8,8 +8,10 @@ import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.io.FilenameUtils;
 import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
+import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.recorder.reporter.PropertyEntry;
 import org.arquillian.recorder.reporter.ReporterConfiguration;
 import org.arquillian.recorder.reporter.event.PropertyReportEvent;
@@ -20,13 +22,16 @@ import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
 import org.arquillian.recorder.reporter.model.entry.table.TableEntry;
 import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TakeKubernetesResourcesInformation {
 
@@ -45,11 +50,15 @@ public class TakeKubernetesResourcesInformation {
     @Inject
     Event<PropertyReportEvent> propertyReportEventEvent;
 
-    public void reportKubernetesConfiguration(@Observes Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
+    @Inject
+    Instance<DependencyResolver> dependencyResolver;
+
+    public void reportKubernetesConfiguration(@Observes Start start, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
         GroupEntry groupEntry = new GroupEntry(CONFIGURATION);
+        Session session = start.getSession();
 
         if (configuration != null) {
-            addEntry(groupEntry, getFileForResourcesConfiguration(configuration, reporterConfiguration));
+            addFileEntries(groupEntry, getFilesForResourcesConfiguration(session, configuration, reporterConfiguration));
         }
 
         propertyReportEventEvent.fire(new PropertyReportEvent(groupEntry));
@@ -130,18 +139,51 @@ public class TakeKubernetesResourcesInformation {
         return tableEntry;
     }
 
-    private FileEntry getFileForResourcesConfiguration(Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
-        String path = configuration.getEnvironmentConfigUrl().getPath();
+    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
+        final List<FileEntry> fileEntries = new ArrayList<>();
+        URL environmentConfigUrl = configuration.getEnvironmentConfigUrl();
+
+        if (environmentConfigUrl != null) {
+            fileEntries.add(getFileForResourcesConfiguration(environmentConfigUrl, reporterConfiguration));
+        }
+
+        if (configuration.isEnvironmentInitEnabled()) {
+            List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.get().resolve(session);
+
+            for (URL dependencyUrl : dependencyUrls) {
+                fileEntries.add(getFileForResourcesConfiguration(dependencyUrl, reporterConfiguration));
+            }
+        }
+
+        return fileEntries;
+    }
+
+    private FileEntry getFileForResourcesConfiguration(URL url, ReporterConfiguration reporterConfiguration) throws IOException {
+
 
         final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getAbsolutePath());
-        final Path relativize = rootDir.relativize(Paths.get(path));
+        final String filePath = relativizePath(url, rootDir);
 
         FileEntry fileEntry = new FileEntry();
-        fileEntry.setPath(relativize.toString());
+        fileEntry.setPath(filePath);
         fileEntry.setMessage(CONFIGURATION);
-        fileEntry.setType(getFileType(relativize));
+        fileEntry.setType(getFileType(filePath));
 
         return fileEntry;
+    }
+
+    private String relativizePath(URL url, Path rootDir) {
+        String filePath;
+        final String pathURL = url.toString();
+
+        if (pathURL.contains(rootDir.toString())) {
+            final Path relativize = rootDir.relativize(Paths.get(url.getFile()));
+            filePath = relativize.toString();
+        } else {
+            filePath = pathURL;
+        }
+
+        return filePath;
     }
 
     private KeyValueEntry getKeyValueEntry(String key, String value) {
@@ -162,8 +204,12 @@ public class TakeKubernetesResourcesInformation {
         groupEntry.getPropertyEntries().add(propertyEntry);
     }
 
-    private String getFileType(Path path) throws IOException {
-        String extension = FilenameUtils.getExtension(path.toString());
+    private void addFileEntries(GroupEntry groupEntry, List<FileEntry> propertyEntries) {
+        groupEntry.getPropertyEntries().addAll(propertyEntries);
+    }
+
+    private String getFileType(String path) throws IOException {
+        String extension = FilenameUtils.getExtension(path);
         String type = "";
         if ("json".equals(extension)) {
             type = "application/json";

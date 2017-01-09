@@ -56,10 +56,34 @@ If you add previous dependency  `arquillian-cube-docker-recorder` and `arquillia
 
 If you add `arquillian-cube-docker-recorder` and `arquillian-recorder-reporter-impl` in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.
 
+=== Arquillian Cube Kubernetes Reporter
+
+There is a arquillian cube kubernetes reporter integration that give report information about resources configuration and kubernetes session i.e. Namespace, Master URL, Replication Controllers, Pods, Services etc.
+
+For this reason you have to add following dependency:
+
+[source, xml]
+.pom.xml
+----
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.arquillian.extension</groupId>
+        <artifactId>arquillian-recorder-reporter-impl</artifactId>
+        <version>${version.arquillian.recorder}</version>
+        <scope>test</scope>
+    </dependency>
+----
+
 === Examples
 
 Arquillian Cube Docker Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter
 
 Arquillian Cube Docker Drone Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-reporter
+
+Arquillian Cube Kubernetes Reports: https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter
 
 Arquillian Recorder Reporter website for more information: https://github.com/arquillian/arquillian-recorder
