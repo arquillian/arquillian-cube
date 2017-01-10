@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-parent</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
+        <version>1.0.0.Alpha16</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Arquillian Cube Docker</name>
@@ -124,8 +124,8 @@
                 <configuration>
                     <environmentVariables>
                         <TESTIMAGENAME>MyImageName</TESTIMAGENAME>
-                        <DOCKER_HOST></DOCKER_HOST>
-                        <DOCKER_CERT_PATH></DOCKER_CERT_PATH>
+                        <DOCKER_HOST />
+                        <DOCKER_CERT_PATH />
                     </environmentVariables>
                     <systemPropertyVariables>
                         <SYSTEMTESTIMAGENAME>TestImageName</SYSTEMTESTIMAGENAME>
