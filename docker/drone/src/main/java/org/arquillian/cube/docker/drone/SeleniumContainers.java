@@ -19,7 +19,7 @@ public class SeleniumContainers {
     private static final String CHROME_IMAGE = "selenium/standalone-chrome-debug:%s";
     private static final String FIREFOX_IMAGE = "selenium/standalone-firefox-debug:%s";
     private static final String VNC_IMAGE = "richnorth/vnc-recorder:latest";
-    private static final String CONVERSION_IMAGE = "arquillian/flv2mp4";
+    private static final String CONVERSION_IMAGE = "arquillian/flv2mp4:0.0.1";
     private static final String DEFAULT_PASSWORD = "secret";
     private static final String VNC_HOSTNAME = "vnchost";
     private static final String VOLUME_DIR = "recording";
