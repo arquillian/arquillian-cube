@@ -13,7 +13,7 @@ public class VideoConversionLifecycleManager {
     Cube flv2mp4;
 
     @Inject
-    private Event<AfterConversion> afterConversionEvent;
+    Event<AfterConversion> afterConversionEvent;
 
     public void startConversion(@Observes AfterSuite afterSuite, CubeRegistry cubeRegistry) {
 
@@ -29,7 +29,7 @@ public class VideoConversionLifecycleManager {
             Cube conversionContainer = cubeRegistry.getCube(SeleniumContainers.CONVERSION_CONTAINER_NAME);
 
             if (conversionContainer == null) {
-                throw new IllegalArgumentException("CONVERSION cube is not present in the registry.");
+                throw new IllegalArgumentException( SeleniumContainers.CONVERSION_CONTAINER_NAME + " cube is not present in the registry.");
             }
 
             this.flv2mp4 = conversionContainer;
