@@ -20,11 +20,14 @@ public class TakeVncDroneVideo {
     // Executes after drone recording has finished and file is generated
     public void reportScreencastRecording(@Observes AfterVideoRecorded event, ReporterConfiguration reporterConfiguration) {
 
-        final Path videoLocation = event.getVideoLocation();
+        Path videoLocation = event.getVideoLocation();
+
         if (videoLocation != null) {
 
+            videoLocation = Paths.get(videoLocation.toString().replace("flv", "mp4"));
+
             VideoEntry videoEntry = new VideoEntry();
-            videoEntry.setType("x-flv");
+            videoEntry.setType("mp4");
             videoEntry.setPhase(When.IN_TEST);
 
             final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getName());
@@ -37,5 +40,4 @@ public class TakeVncDroneVideo {
 
         }
     }
-
 }

@@ -38,7 +38,6 @@ public class VncRecorderLifecycleManager {
             vnc.start();
 
         }
-
     }
 
     private void initVncCube(CubeRegistry cubeRegistry) {
@@ -71,7 +70,6 @@ public class VncRecorderLifecycleManager {
 
             this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(finalLocation));
         }
-
     }
 
     private boolean shouldRecordAlways(CubeDroneConfiguration cubeDroneConfiguration) {
