@@ -92,7 +92,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
-        
+        <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-requirement</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
