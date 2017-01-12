@@ -92,7 +92,7 @@ public class HelloWorldServletTest {
     @Test
     public void should_copy_files_from_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) throws IOException {
         File newFolder = folder.newFolder();
-        cubeController.copyFileDirectoryFromContainer(cubeID, "/tomcat/logs", newFolder.getAbsolutePath());
+        cubeController.copyFileDirectoryFromContainer(cubeID, "/usr/local/tomcat/logs", newFolder.getAbsolutePath());
         File logFolder = newFolder.listFiles()[0];
         assertThat(logFolder, notNullValue());
         assertThat(logFolder.listFiles().length > 0, is(true));
