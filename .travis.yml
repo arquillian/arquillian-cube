@@ -1,0 +1,16 @@
+sudo: required
+
+language: java
+
+services:
+  - docker
+
+before_install:
+  - mvn -N io.takari:maven:wrapper -Dmaven=3.3.9
+
+script:
+  - ./mvnw -fae clean install
+
+cache:
+  directories:
+    - $HOME/.m2
