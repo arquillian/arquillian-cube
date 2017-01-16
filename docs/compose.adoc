@@ -41,7 +41,7 @@ tomcat:
 and finally you can configure in `arquillian.xml` file that you want to use docker-compose format.
 
 [IMPORTANT]
-****
+====
 In case you use https://docs.docker.com/compose/compose-file/#context[context] with a GIT repository, you should add the following dependency `org.eclipse.jgit:org.eclipse.jgit:${jgit.version}`.
 Due of library conflicts between `docker-java` and `jgit`, that they are sharing common libraries but different unsupported versions, you need to exclude and include some of them.
 
@@ -69,7 +69,7 @@ For example in case of using Maven, your `pom.xml` should look like:
 </dependency>
 ----
 
-****
+====
 
 [source, xml]
 .src/test/resources/arquillian.xml
