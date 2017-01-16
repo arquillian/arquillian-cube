@@ -588,7 +588,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_arquillian_cube_docker_reporter">17.1. Arquillian Cube Docker Reporter</a></li>
 <li><a href="#_arquillian_cube_docker_drone_integration">17.2. Arquillian Cube Docker Drone Integration</a></li>
 <li><a href="#_arquillian_cube_docker_restassured_integration">17.3. Arquillian Cube Docker RestAssured Integration</a></li>
-<li><a href="#_examples">17.4. Examples</a></li>
+<li><a href="#_arquillian_cube_kubernetes_reporter">17.4. Arquillian Cube Kubernetes Reporter</a></li>
+<li><a href="#_examples">17.5. Examples</a></li>
 </ul>
 </li>
 <li><a href="#_polyglot_applications">18. Polyglot Applications</a></li>
@@ -2066,8 +2067,13 @@ You can use <code>dockerServerIp</code> as special tag for identify the docker h
 <div class="paragraph">
 <p>and finally you can configure in <code>arquillian.xml</code> file that you want to use docker-compose format.</p>
 </div>
-<div class="sidebarblock">
-<div class="content">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
 <div class="paragraph">
 <p>In case you use <a href="https://docs.docker.com/compose/compose-file/#context">context</a> with a GIT repository, you should add the following dependency <code>org.eclipse.jgit:org.eclipse.jgit:${jgit.version}</code>.
 Due of library conflicts between <code>docker-java</code> and <code>jgit</code>, that they are sharing common libraries but different unsupported versions, you need to exclude and include some of them.</p>
@@ -2097,7 +2103,9 @@ Due of library conflicts between <code>docker-java</code> and <code>jgit</code>,
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
-</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock">
 <div class="title">src/test/resources/arquillian.xml</div>
@@ -3981,6 +3989,17 @@ Also you might run docker host in different ip rather than <em>localhost</em>, m
 RestAssured.port = 5000;</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>or using RequestSpecBuilder</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>spec = new RequestSpecBuilder()
+            .setContentType(ContentType.JSON)
+            .setBaseUri("http://localhost:8080/")
+            .build();</pre>
+</div>
+</div>
 <div class="sect2">
 <h3 id="_why_integration_with_cube"><a class="anchor" href="#_why_integration_with_cube"></a>16.1. Why integration with Cube?</h3>
 <div class="paragraph">
@@ -4000,7 +4019,7 @@ RestAssured.port = 5000;</pre>
 </ul>
 </div>
 <div class="paragraph">
-<p>To fix these problems, you can use Arquillian Cube Docker RestAssured integration.</p>
+<p>To fix these problems, you can use Arquillian Cube Docker RestAssured integration which creates a <code>RequestSpecBuilder</code> with correct values set.</p>
 </div>
 </div>
 <div class="sect2">
@@ -4076,13 +4095,6 @@ RestAssured.port = 5000;</pre>
 </div></div></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">rootPath</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
-<p>Root path property of RestAssured. <a href="http://code.google.com/p/rest-assured/wiki/Usage#Root_path" class="bare">http://code.google.com/p/rest-assured/wiki/Usage#Root_path</a></p>
-</div></div></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">useRelaxedHttpsValidation</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><div><div class="paragraph">
@@ -4155,12 +4167,18 @@ You can set any extension property using system properties or environment variab
 <pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
 <span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongTest</span> {
 
+    <span class="annotation">@ArquillianResource</span>
+    RequestSpecBuilder requestSpecBuilder;
+
     <span class="annotation">@Test</span>
     <span class="directive">public</span> <span class="type">void</span> should_receive_ok_message() <span class="directive">throws</span> <span class="exception">MalformedURLException</span>, <span class="exception">InterruptedException</span> {
-        RestAssured.get()
+        RestAssured
+            .given()
+            .spec(requestSpecBuilder.build())
+            .when()
+            .get()
             .then()
-                .assertThat()
-                .body(<span class="string"><span class="delimiter">&quot;</span><span class="content">status</span><span class="delimiter">&quot;</span></span>, equalTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>));
+            .assertThat().body(<span class="string"><span class="delimiter">&quot;</span><span class="content">status</span><span class="delimiter">&quot;</span></span>, equalTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>));
     }
 
 }</code></pre>
@@ -4252,12 +4270,40 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>17.4. Examples</h3>
+<h3 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>17.4. Arquillian Cube Kubernetes Reporter</h3>
+<div class="paragraph">
+<p>There is a arquillian cube kubernetes reporter integration that give report information about resources configuration and kubernetes session i.e. Namespace, Master URL, Replication Controllers, Pods, Services etc.</p>
+</div>
+<div class="paragraph">
+<p>For this reason you have to add following dependency:</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml">    <span class="tag">&lt;dependency&gt;</span>
+      <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+      <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-reporter<span class="tag">&lt;/artifactId&gt;</span>
+      <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-recorder-reporter-impl<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;version&gt;</span>${version.arquillian.recorder}<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>17.5. Examples</h3>
 <div class="paragraph">
 <p>Arquillian Cube Docker Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter</a></p>
 </div>
 <div class="paragraph">
 <p>Arquillian Cube Docker Drone Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-reporter</a></p>
+</div>
+<div class="paragraph">
+<p>Arquillian Cube Kubernetes Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter</a></p>
 </div>
 <div class="paragraph">
 <p>Arquillian Recorder Reporter website for more information: <a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a></p>
@@ -4717,13 +4763,24 @@ used to prevent the extension from modifying the environment.</p>
 <div class="sect2">
 <h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>19.6. Creating the environment</h3>
 <div class="paragraph">
-<p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.
-Out of the box, the extension will use the classpath and try to find a resource named <strong>kubernetes.json</strong> or <strong>kubernetes.yaml</strong>*. The name of the resource can be changed using the <strong>env.config.resource.name</strong>.
-Of course it is also possible to specify an external resource by URL using the <strong>env.config.url</strong>.</p>
+<p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.</p>
 </div>
-<div class="paragraph">
+<div class="sect3">
+<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>19.6.1. How to run kubernetes with multiple configuration files?</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Out of the box, the extension will use the classpath and try to find a resource named <strong>kubernetes.json</strong> or <strong>kubernetes.yaml</strong>*. The name of the resource can be changed using the <strong>env.config.resource.name</strong>.
+Of course it is also possible to specify an external resource by URL using the <strong>env.config.url</strong>.</p>
+</li>
+<li>
 <p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
 To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>(You can use any custom URL provided the appropriate URL stream handler.)</p>
 </div>
 <div class="paragraph">
 <p><strong>Note:</strong> Out of the box mvn urls are supported, so you can use values like: <strong>mvn:my.groupId/artifactId/1.0.0/json/kubernetes</strong> (work in progress)</p>
@@ -4751,6 +4808,7 @@ To do it, Cube reads from <code>~/.kube/config</code> user information (token, p
 </td>
 </tr>
 </table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -4932,7 +4990,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-11-11 15:22:41 CET
+Last updated 2016-11-11 15:25:11 CET
 </div>
 </div>
 </body>
