@@ -19,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -108,31 +109,15 @@ public class CubeDockerCustomizableURLResourceProviderTest {
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn(null);
 
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(80)
-                .hasNoPath();
+        assertThatThrownBy(() -> {dockerCubeCustomizableURLResourceProvider.lookup(null);})
+                .hasMessage("Arquillian Cube Graphene integration should provide a URL in Graphene extension configuration.");
     }
 
     @Test
     public void should_resolve_internal_ip_of_container() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/helloworld:80/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-
-    }
-
-    @Test
-    public void should_resolve_full_absolute_url() {
-        final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100:80/context");
+        when(grapheneConfiguration.getUrl()).thenReturn("http://helloworld:80/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
 
@@ -140,45 +125,15 @@ public class CubeDockerCustomizableURLResourceProviderTest {
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
                 .hasPort(80)
-                .hasPath("context");
+                .hasPath("/context");
 
     }
 
     @Test
-    public void should_resolve_port_full_absolute_url() {
+    public void should_resolve_internal_ip_of_container_with_default_port() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(8080)
-                .hasPath("context");
-    }
-
-    @Test
-    public void should_resolve_return_as_exposed_port_in_case_of_specfied_port_without_binding_full_absolute_url() {
-        final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100:8081/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(8081)
-                .hasPath("context");
-    }
-
-    @Test
-    public void should_resolve_docker_host_in_absolute_url() {
-        final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/dockerHost:80/context");
+        when(grapheneConfiguration.getUrl()).thenReturn("http://helloworld/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
 
@@ -186,14 +141,31 @@ public class CubeDockerCustomizableURLResourceProviderTest {
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
                 .hasPort(80)
-                .hasPath("context");
+                .hasPath("/context");
+
+    }
+
+    @Test
+    public void should_not_resolve_ip() {
+        final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
+        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        when(grapheneConfiguration.getUrl()).thenReturn("http://192.168.99.101:80/context");
+
+        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
+
+        assertThat(url)
+                .hasProtocol("http")
+                .hasHost("192.168.99.101")
+                .hasPort(80)
+                .hasPath("/context");
+
     }
 
     @Test
     public void should_resolve_docker_host_in_relative_url() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("dockerHost:80/context");
+        when(grapheneConfiguration.getUrl()).thenReturn("http://dockerHost:80/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
 
@@ -201,14 +173,14 @@ public class CubeDockerCustomizableURLResourceProviderTest {
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
                 .hasPort(80)
-                .hasPath("context");
+                .hasPath("/context");
     }
 
     @Test
-    public void should_resolve_docker_host_and_port_in_relative_url() {
+    public void should_resolve_docker_host_in_relative_url_with_default_port() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
         when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("context");
+        when(grapheneConfiguration.getUrl()).thenReturn("http://dockerHost/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
 
@@ -216,62 +188,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
                 .hasProtocol("http")
                 .hasHost("192.168.99.100")
                 .hasPort(80)
-                .hasPath("context");
-    }
-
-    @Test
-    public void should_resolve_full_absolute_url_with_specified_port_and_multiple_port_bindings() {
-        final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_PORT_BINDING_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100:80/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(80)
-                .hasPath("context");
-
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void should_throw_exception_relative_url_and_multiple_port_binding() {
-        final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_PORT_BINDING_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-    }
-
-    @Test
-    public void should_resolve_port_absolute_url_with_multiple_container() {
-        final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_CONTAINER_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100:80/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(80)
-                .hasPath("context");
-    }
-
-    @Test
-    public void should_resolve_not_specified_port_absolute_url_with_multiple_container() {
-        final DockerCompositions compositions = ConfigUtil.load(MULTIPLE_CONTAINER_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
-        when(grapheneConfiguration.getUrl()).thenReturn("/192.168.99.100/context");
-
-        final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
-
-        assertThat(url)
-                .hasProtocol("http")
-                .hasHost("192.168.99.100")
-                .hasPort(8080)
-                .hasPath("context");
+                .hasPath("/context");
     }
 
 }
