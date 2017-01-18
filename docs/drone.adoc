@@ -26,7 +26,7 @@ Arquillian Cube Docker is the Arquillian extension for managing Docker container
 Selenium offers Docker images for Selenium Standalone Server with Chrome or Firefox installed.
 You can check available the images at https://github.com/SeleniumHQ/docker-selenium.
 
-With these images and using Selenium WebDriver you can run your functional tests for web IU applications without having to install any browser.
+With these images and using Selenium WebDriver you can run your functional tests for web UI applications without having to install any browser.
 
 It seems logic an integration of Arquillian Drone with Cube, so you can use all powerful features of Drone, and let Cube configure Docker things for you.
 
@@ -35,14 +35,14 @@ This integration does next things for you:
 . Inspect classpath to get selenium version used
 . Starts a docker container with configured browser in Drone and same selenium version as your `JARs`. If not Firefox is used
 . Provides a WebDriver that is able to connect to this container
-. If configured (by default it is) a VNC recorder container is started so each test is recorded in a `flv` file.
+. If configured (by default it is) a VNC recorder container is started so each test is recorded in a `mp4` file.
 
 ==== Configuration
 
 Apart from using Drone configuration properties for configuring browser, Cube Docker can be customized with some specific attributes:
 
 recordingMode:: Configures mode for recording. The valid values are: `ALL, ONLY_FAILING, NONE. Default value is `ALL`.
-videoOutput:: Directory where video is stored. By default is `target/reports/videos` or if target does not exists `build/reports/videos` and if not creates a `target/reports/videos` by default.
+videoOutput:: Directory where videos are stored. By default is `target/reports/videos` or if target does not exists `build/reports/videos` and if not creates a `target/reports/videos` by default.
 browserImage:: Docker image to be used as custom browser image instead of the official one (https://github.com/SeleniumHQ/docker-selenium). Notice that browser property will be used for setting `WebDriver` capabilities.
 browserDockerfileLocation:: Dockerfile location to be used to built custom docker image instead of the official one. This property has preference over browserImage.
 
@@ -159,12 +159,10 @@ But in case of using *Standalone* mode, since it doesn't know anything from depl
 .arquillian.xml
 ----
 <extension qualifier="graphene">
-  <property name="scheme">http</property> <!--1-->
-  <property name="url">localhost:8080/myapp</property> <!--2-->
+  <property name="url">http://localhost:8080/myapp</property> <!--1-->
 </extension>
 ----
-<1> Optional parameter to set the scheme
-<2> Base URL of WebDriver
+<1> Base URL of WebDriver
 
 The problem is that in case of using Docker Cube (and more specifically docker-machine/boot2docker) is that probably you don't know the docker host at configuration time but in runtime.
 And this is where Docker Cube can help you when using *Standalone* mode.
@@ -175,62 +173,36 @@ As noted in <<graphene-configuration, Graphene Configuration>> you need to confi
 This is quite difficult to do it with Docker Cube because you need to set the docker host address and you might not know at configuration time.
 For this reason Docker Cube Graphene integration helps you on this following next rules:
 
-`scheme` is set to `http` if not set.
-
 `url` can use the _dockerHost_ special word which will be replaced at runtime by docker host ip.
 
-If `url` property starts with relative path, _dockerHost_ resolution will be appended automatically at the start of the `url`.
-If `url` property starts with absolute path (`/`), then you need to add explicitly _dockerHost_.
+If `url` property starts with _dockerHost_ resolution will be appended automatically at the start of the `url`.
 
 Some examples (for now don't think about ports since it is going to touch later):
 
 * An empty or not present of both properties: `scheme` and `url` will result in `http://ipOfDockerhost`.
-* If `url` is _/192.168.99.100/context_ (absolute path) the result will be `http://192.168.99.100/context`.
-* If `url` is _context_ (relative path) then the result will be `http://ipOfContainer/context`.
-* If `url` is _/dockerHost/context_ (absolute path) then the result will be `http://ipOfDockerHost/context`.
-* If `url` is _dockerHost/context_ (relative path) then the result will be `http://ipOfDockerHost/context`.
-* if `url` is _/containerName/context_ (absolute path) which means it is not an IP nor `dockerHost`, then Cube will find the internal IP of container with given name.
+* If `url` is _http://192.168.99.100/context_  the result will be `http://192.168.99.100/context`.
+* If `url` is _http://dockerHost/context_  then the result will be `http://ipOfDockerHost/context`.
+* if `url` is _http://containerName/context_ which means it is not an IP nor `dockerHost`, then Cube will find the internal IP of container with given name.
 
 Previous examples has not take into consideration port thing.
 The next thing to resolve is the port of the URL which in this case and since browser runs inside docker host means resolve exposed ports..
 
 Port resolution follows next rules:
 
-* If `url` is *relative*, Cube will find among all cubes if there is only one bounded port. If it is the case, it will return the exposed one, if there is not bound port or there are more than one then an exception is thrown.
-* If `url` has a port (for example dockerHost:8080), Cube will use this port as exposed port.
-* If `url` is absolute but no port is set, 8080 is used.
+* If `url` contains a port, that port is used. Notice that this port should be an exposed port.
+* If `url` has no port then _80_ is used.
 
-
-For example having a service with 9090:8080 port configuration and `url` set to /dockerHost:8080/context, then the result will be `http://ipOfDockerHost:8080/context`.
-Another example, having a service with 9090:8080 port configuration and `url` set to context, then the result will be `http://ipOfContainer:8080/context`.
-
-In most cases you would only need two different kind of configurations:
+In most cases you are going to use:
 
 [source, xml]
 .arquillian.xml
 ----
 <extension qualifier="graphene">
-  <property name="url">myapp</property>
+  <property name="url">http://helloworld:8080/myapp</property>
 </extension>
 ----
 
-In previous snippet works if you have several containers but only one binds a port to host.
-In that case you only need to specify the context of the application.
-That configuration would be translated to: `http://cubeIp:exposedPort/myapp` and Graphene will use it as base for all WebDriver calls.
-
-The other configuration might be:
-
-[source, xml]
-.arquillian.xml
-----
-<extension qualifier="graphene">
-  <property name="url">dockerHost:8080/myapp</property>
-</extension>
-----
-
-In later example works if you have several containers binding different ports but only one is binding the exposed 8080 port.
-That configuration would be translated to `http://ipOfDockerHost:8080/myapp` as well and Graphene will use it as base for all WebDriver calls.
-Notice that this late case is useful only if you have more than one bind port.
+That configuration would be translated to `http://<internalIpOfhelloworldContainer:8080/myapp` and Graphene will use it as base for all WebDriver calls.
 
 ==== Example
 

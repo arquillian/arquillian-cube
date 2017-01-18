@@ -15,4 +15,8 @@
         </property>
     </extension>
 
+    <extension qualifier="graphene">
+        <property name="url">http://helloworld:80</property>
+    </extension>
+
 </arquillian>
