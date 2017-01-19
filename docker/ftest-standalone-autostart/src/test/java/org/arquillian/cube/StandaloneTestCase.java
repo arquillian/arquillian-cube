@@ -4,6 +4,7 @@ import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.hamcrest.CoreMatchers;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
@@ -23,6 +26,10 @@ public class StandaloneTestCase {
 
     @HostIp
     String ip;
+
+    @DockerUrl(containerName = "pingpong", exposedPort = 8080)
+    @ArquillianResource
+    private URL url;
 
     @Test
     @InSequence(0)
@@ -34,6 +41,15 @@ public class StandaloneTestCase {
     public void shouldBeAbleToCreateAndStart() throws IOException {
         String pong = ping();
         assertThat(pong, containsString("OK"));
+    }
+
+    @Test
+    @InSequence(2)
+    public void should_be_able_to_inject_url_in_standalone() {
+        assertThat(url, is(notNullValue()));
+        assertThat(url.getProtocol(), is("http"));
+        assertThat(url.getHost(), is(ip));
+        assertThat(url.getPort(), is(8080));
     }
 
     private String ping() throws IOException {

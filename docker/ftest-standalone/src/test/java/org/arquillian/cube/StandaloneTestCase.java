@@ -16,6 +16,7 @@ public class StandaloneTestCase {
     private static final String CONTAINER = "database";
 
     @ArquillianResource
+    @DockerUrl(containerName = "aaa", exposedPort = 8080)
     private CubeController cc;
 
     @Test @InSequence(0)

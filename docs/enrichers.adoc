@@ -53,6 +53,18 @@ int tomcatPort; // gets the binding port for exposed port 8080 of container tomc
 String ip;
 ----
 
+When running Arquillian Cube with Standalone you can enrich the test with URL.
+
+[source, java]
+.DockerUrlProvider.java
+----
+@DockerUrl(containerName = "pingpong", exposedPort = 8080) // resolves bind port
+@ArquillianResource
+private URL url;
+----
+
+URL will be `http://<docker_host>:<bind_port>/`
+
 === Docker Inside Docker / Docker On Docker
 
 If you are running your tests inside your continuous integration/delivery server (for example in Jenkins) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
