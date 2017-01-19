@@ -13,11 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.CubeDockerFile;
 import org.arquillian.cube.HostPort;
+import org.arquillian.cube.containerobject.Environment;
 import org.arquillian.cube.containerobject.Image;
 import org.arquillian.cube.containerobject.Link;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
@@ -161,9 +163,9 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
             org.arquillian.cube.spi.Cube<?> cube;
             if (imageSet) {
-                cube = createCubeFromImage(cubeName, cubePortBinding, links, cubeContainerClazz.getAnnotation(Image.class), output, testCase.getClass());
+                cube = createCubeFromImage(cubeName, cubePortBinding, links, cubeContainerClazz.getAnnotation(Image.class), cubeContainerClazz.getAnnotationsByType(Environment.class), output, testCase.getClass());
             } else {
-                cube = createCubeFromDockerfile(cubeName, cubePortBinding, links, cubeContainerClazzAnnotation, output, testCase.getClass());
+                cube = createCubeFromDockerfile(cubeName, cubePortBinding, links, cubeContainerClazzAnnotation, cubeContainerClazz.getAnnotationsByType(Environment.class), output, testCase.getClass());
             }
 
             logger.finer(String.format("Created Cube with name %s and configuration %s", cubeName, cube.configuration()));
@@ -264,23 +266,23 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
     }
 
 
-    private org.arquillian.cube.spi.Cube<?> createCubeFromDockerfile(String cubeName, String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation, Class<?> testClass) {
-        CubeContainer configuration = createConfigurationFromDockerfie(portBinding, links, cubeContainerClazzAnnotation, dockerfileLocation);
+    private org.arquillian.cube.spi.Cube<?> createCubeFromDockerfile(String cubeName, String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, Environment[] environments, File dockerfileLocation, Class<?> testClass) {
+        CubeContainer configuration = createConfigurationFromDockerfie(portBinding, links, cubeContainerClazzAnnotation, dockerfileLocation, environments);
         DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
         newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
         injectorInstance.get().inject(newCube);
         return newCube;
     }
 
-    private org.arquillian.cube.spi.Cube<?> createCubeFromImage(String cubeName, String[] portBinding, Set<String> links, Image image, File dockerfileLocation, Class<?> testClass) {
-        final CubeContainer configuration = createConfigurationFromImage(portBinding, links, image, dockerfileLocation);
+    private org.arquillian.cube.spi.Cube<?> createCubeFromImage(String cubeName, String[] portBinding, Set<String> links, Image image, Environment[] environment, File dockerfileLocation, Class<?> testClass) {
+        final CubeContainer configuration = createConfigurationFromImage(portBinding, links, image, dockerfileLocation, environment);
         DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
         newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
         injectorInstance.get().inject(newCube);
         return newCube;
     }
 
-    private CubeContainer createConfigurationFromDockerfie(String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation) {
+    private CubeContainer createConfigurationFromDockerfie(String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation, Environment[] environments) {
         CubeContainer configuration = new CubeContainer();
 
         List<PortBinding> bindings = new ArrayList<PortBinding>();
@@ -291,6 +293,13 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
         if (links.size() > 0) {
             configuration.setLinks(org.arquillian.cube.docker.impl.client.config.Link.valuesOf(links));
+        }
+
+        if (environments != null ) {
+            final List<String> collectEnvironments = Arrays.stream(environments)
+                    .map(environment -> environment.value())
+                    .collect(Collectors.toList());
+            configuration.setEnv(collectEnvironments);
         }
 
         BuildImage dockerfileConfiguration = new BuildImage(
@@ -303,7 +312,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
         return configuration;
     }
 
-    private CubeContainer createConfigurationFromImage(String[] portBinding, Set<String> links, Image image, File dockerfileLocation) {
+    private CubeContainer createConfigurationFromImage(String[] portBinding, Set<String> links, Image image, File dockerfileLocation, Environment[] environments) {
         CubeContainer configuration = new CubeContainer();
 
         List<PortBinding> bindings = new ArrayList<PortBinding>();
@@ -314,6 +323,13 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
         if (links.size() > 0) {
             configuration.setLinks(org.arquillian.cube.docker.impl.client.config.Link.valuesOf(links));
+        }
+
+        if (environments != null ) {
+            final List<String> collectEnvironments = Arrays.stream(environments)
+                    .map(environment -> environment.value())
+                    .collect(Collectors.toList());
+            configuration.setEnv(collectEnvironments);
         }
 
         configuration.setImage(org.arquillian.cube.docker.impl.client.config.Image.valueOf(image.value()));
