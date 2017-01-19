@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client.containerobject;
 
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -19,6 +20,7 @@ import java.util.Collection;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.CubeDockerFile;
+import org.arquillian.cube.containerobject.Environment;
 import org.arquillian.cube.containerobject.Image;
 import org.arquillian.cube.containerobject.Link;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
@@ -319,6 +321,57 @@ public class CubeContainerObjectTestEnricherTest {
 
     }
 
+    @Test
+    public void shouldStartAContainerObjectDefinedAsImageAndEnvironmentVariables() {
+        CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
+        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
+            @Override
+            public Injector get() {
+                return injector;
+            }
+        };
+        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
+            @Override
+            public CubeRegistry get() {
+                return cubeRegistry;
+            }
+        };
+        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
+            @Override
+            public ServiceLoader get() {
+                return serviceLoader;
+            }
+        };
+        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
+            @Override
+            public CubeController get() {
+                return cubeController;
+            }
+        };
+        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
+            @Override
+            public DockerClientExecutor get() {
+                return dockerClientExecutor;
+            }
+        };
+
+        FifthInjectableTest injectableTest = new FifthInjectableTest();
+        cubeContainerObjectTestEnricher.enrich(injectableTest);
+
+        final org.arquillian.cube.spi.Cube<?> image = cubeRegistry.getCube("image");
+        assertThat(image, is(notNullValue()));
+        assertThat(image.hasMetadata(IsContainerObject.class), is(true));
+        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(), is(FifthInjectableTest.class.getName()));
+
+        verify(cubeController, times(1)).start("image");
+        verify(cubeController, times(1)).create("image");
+
+        DockerCube dockerCube = (DockerCube) image;
+        assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
+        assertThat(dockerCube.configuration().getEnv(), hasItems("a=b", "c=d"));
+
+    }
+
     private static class InjectableTest {
         @Cube(value = "mycontainer")
         TestContainerObject testContainerObject;
@@ -343,6 +396,11 @@ public class CubeContainerObjectTestEnricherTest {
         @Cube("image")
         ImageContainerObject imageContainerObject;
     }
+    private static class FifthInjectableTest {
+        @Cube("image")
+        ImageWithEnvContainerObject imageContainerObject;
+    }
+
 
     @CubeDockerFile
     public static class TestContainerObject {
@@ -390,6 +448,12 @@ public class CubeContainerObjectTestEnricherTest {
 
     @Image("tomee:8-jre-1.7.2-webprofile")
     public static class ImageContainerObject {
+    }
+
+    @Image("tomee:8-jre-1.7.2-webprofile")
+    @Environment("a=b")
+    @Environment("c=d")
+    public static class ImageWithEnvContainerObject {
     }
 
     public static class TestLinkContainerObject {
