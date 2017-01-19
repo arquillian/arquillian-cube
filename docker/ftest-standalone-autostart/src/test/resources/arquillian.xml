@@ -11,7 +11,7 @@
             pingpong:
               image: jonmorehouse/ping-pong
               exposedPorts: [8080/tcp]
-              portBindings: [8080->8080/tcp]
+              portBindings: [80->8080/tcp]
         </property>
     </extension>
 
