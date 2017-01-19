@@ -49,11 +49,11 @@ public class StandaloneTestCase {
         assertThat(url, is(notNullValue()));
         assertThat(url.getProtocol(), is("http"));
         assertThat(url.getHost(), is(ip));
-        assertThat(url.getPort(), is(8080));
+        assertThat(url.getPort(), is(80));
     }
 
     private String ping() throws IOException {
-        URL url = new URL("http://" + ip + ":8080");
+        URL url = new URL("http://" + ip + ":80");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
