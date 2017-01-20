@@ -1,6 +1,7 @@
 package org.arquillian.cube.containerobject;
 
-import org.jboss.arquillian.junit.Arquillian;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -12,7 +13,8 @@ import java.nio.file.Files;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class FtpClientTest {
 
    public static final String REMOTE_FILENAME = "a.txt";
