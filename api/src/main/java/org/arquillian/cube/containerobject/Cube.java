@@ -13,7 +13,9 @@ public @interface Cube {
 
     public static final String DEFAULT_VALUE = "";
     public static final String[] DEFAULT_PORT_BINDING = new String[] {};
+    public static final int[] DEFAULT_AWAIT_PORT_BINDING = new int[] {};
 
     String value() default DEFAULT_VALUE;
     String[] portBinding() default {};
+    int[] awaitPorts() default {};
 }

@@ -201,6 +201,18 @@ public static class ImageContainerObject {
 
 So in this case Arquillian Cube starts and stops the image defined in the annotation.
 
+==== Environment
+
+You can set environment variables using `@Environment` annotation:
+
+[source, java]
+----
+@Environment("C=D")
+@Image("tomee:8-jre-1.7.2-webprofile")
+public class ImageContainer {
+}
+----
+
 == Arquillian Standalone and Cube
 
 You can use Arquillian Standalone with Arquillian Cube too.

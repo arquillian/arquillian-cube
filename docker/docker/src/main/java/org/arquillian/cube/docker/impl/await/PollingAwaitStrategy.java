@@ -60,7 +60,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
             this.type = params.getType();
         }
 
-        if (params.getPorts() != null) {
+        if (params.getPorts() != null && params.getPorts().size() > 0) {
             this.ports = params.getPorts();
         }
     }
