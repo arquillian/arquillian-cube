@@ -49,5 +49,12 @@
             <artifactId>shrinkwrap-impl-base</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.5</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

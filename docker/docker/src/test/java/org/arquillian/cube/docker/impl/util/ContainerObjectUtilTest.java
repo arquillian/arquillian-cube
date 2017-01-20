@@ -5,7 +5,11 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import org.arquillian.cube.containerobject.Cube;
+import org.arquillian.cube.containerobject.Environment;
 import org.junit.Test;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 public class ContainerObjectUtilTest {
 
@@ -52,6 +56,18 @@ public class ContainerObjectUtilTest {
         assertThat(ports[0], is("2222->22/tcp"));
     }
 
+    @Test
+    public void shouldReturnAnnotationsFromRootObject() {
+        final List<Environment> environments = (List<Environment>) ContainerObjectUtil.getAllAnnotations(SecondEnvironmentAnnotation.class, Environment.class);
+        assertThat(environments.size(), is(1));
+    }
+
+    @Test
+    public void shouldReturnAggregationAnnotationsOfAllObjectHierarchy() {
+        final List<Environment> environments = (List<Environment>) ContainerObjectUtil.getAllAnnotations(FirstEnvironmentAnnotation.class, Environment.class);
+        assertThat(environments.size(), is(2));
+    }
+
     @Cube("secondValue")
     private static class SecondClassAnnotated {
     }
@@ -77,4 +93,13 @@ public class ContainerObjectUtilTest {
     @Cube(portBinding = "2222->22/tcp")
     private static class FirstClassWithArray {
     }
+
+    @Environment("A=B")
+    public static class SecondEnvironmentAnnotation {
+    }
+
+    @Environment("C=D")
+    public static class FirstEnvironmentAnnotation extends SecondEnvironmentAnnotation {
+    }
+
 }
