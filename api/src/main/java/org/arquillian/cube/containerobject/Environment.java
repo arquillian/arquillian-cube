@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
 @Repeatable(Environments.class)
 public @interface Environment {
 
+   String key();
    String value();
 
 }

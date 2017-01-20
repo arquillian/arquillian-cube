@@ -10,8 +10,8 @@ import java.io.InputStream;
 @Cube(value = "ftp",
         portBinding =  FtpContainer.BIND_PORT +  "->21/tcp")
 @Image("andrewvos/docker-proftpd")
-@Environment("USERNAME=" + FtpContainer.USERNAME)
-@Environment("PASSWORD=" + FtpContainer.PASSWORD)
+@Environment(key = "USERNAME", value = FtpContainer.USERNAME)
+@Environment(key = "PASSWORD", value = FtpContainer.PASSWORD)
 public class FtpContainer {
 
    static final String USERNAME = "alex";

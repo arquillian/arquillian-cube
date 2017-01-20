@@ -451,8 +451,8 @@ public class CubeContainerObjectTestEnricherTest {
     }
 
     @Image("tomee:8-jre-1.7.2-webprofile")
-    @Environment("a=b")
-    @Environment("c=d")
+    @Environment(key = "a", value = "b")
+    @Environment(key = "c",  value = "d")
     public static class ImageWithEnvContainerObject {
     }
 

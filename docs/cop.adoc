@@ -207,7 +207,7 @@ You can set environment variables using `@Environment` annotation:
 
 [source, java]
 ----
-@Environment("C=D")
+@Environment(key = "C", value = "D")
 @Image("tomee:8-jre-1.7.2-webprofile")
 public class ImageContainer {
 }

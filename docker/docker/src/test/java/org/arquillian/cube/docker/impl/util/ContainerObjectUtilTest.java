@@ -94,11 +94,11 @@ public class ContainerObjectUtilTest {
     private static class FirstClassWithArray {
     }
 
-    @Environment("A=B")
+    @Environment(key = "A", value = "B")
     public static class SecondEnvironmentAnnotation {
     }
 
-    @Environment("C=D")
+    @Environment(key = "C", value = "D")
     public static class FirstEnvironmentAnnotation extends SecondEnvironmentAnnotation {
     }
 

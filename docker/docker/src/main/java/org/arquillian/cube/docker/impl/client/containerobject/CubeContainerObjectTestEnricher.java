@@ -332,7 +332,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
         if (environments != null ) {
             final List<String> collectEnvironments = Arrays.stream(environments)
-                    .map(environment -> environment.value())
+                    .map(environment -> environment.key() + "=" + environment.value())
                     .collect(Collectors.toList());
             configuration.setEnv(collectEnvironments);
         }
@@ -373,7 +373,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
 
         if (environments != null ) {
             final List<String> collectEnvironments = Arrays.stream(environments)
-                    .map(environment -> environment.value())
+                    .map(environment -> environment.key() + "=" + environment.value())
                     .collect(Collectors.toList());
             configuration.setEnv(collectEnvironments);
         }
