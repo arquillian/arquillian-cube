@@ -24,7 +24,7 @@ public class ContainerObjectUtil {
 
          Class<?> nextSource = source;
          while (nextSource != Object.class) {
-            final Annotation[] annotationsByType = nextSource.getAnnotationsByType(Environment.class);
+            final Annotation[] annotationsByType = nextSource.getAnnotationsByType(annotationClass);
             Collections.addAll(annotations, annotationsByType);
             //If not maybe we need to use the default value but maybe there is some parent class
             //That contains a different value rather than the default ones so we need to continue search.
