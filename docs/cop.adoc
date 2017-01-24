@@ -203,12 +203,26 @@ So in this case Arquillian Cube starts and stops the image defined in the annota
 
 ==== Environment
 
-You can set environment variables using `@Environment` annotation:
+You can set environment variables using `@Environment` annotation at field or object level:
 
 [source, java]
 ----
 @Environment(key = "C", value = "D")
+@Environment(key = "A", value = "B")
 @Image("tomee:8-jre-1.7.2-webprofile")
+public class ImageContainer {
+}
+----
+
+==== Volume
+
+You can set environment variables using `@Volume` annotation at field or object level:
+
+[source, java]
+----
+@Image("tomee:8-jre-1.7.2-webprofile")
+@Volume(hostPath = "/mypath", containerPath = "/containerPath")
+@Volume(hostPath = "/mypath2", containerPath = "/containerPath2")
 public class ImageContainer {
 }
 ----
