@@ -1,5 +1,12 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
+import static org.xnio._private.Messages.msg;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+
 import org.xnio.ChannelExceptionHandler;
 import org.xnio.ChannelListener;
 import org.xnio.ChannelListeners;
@@ -8,13 +15,6 @@ import org.xnio.Pooled;
 import org.xnio.channels.Channels;
 import org.xnio.channels.StreamSinkChannel;
 import org.xnio.channels.StreamSourceChannel;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
-
-import static org.xnio._private.Messages.msg;
 
 public final class ChannelUtils {
 

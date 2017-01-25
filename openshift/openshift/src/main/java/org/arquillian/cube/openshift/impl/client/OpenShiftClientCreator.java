@@ -3,6 +3,7 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.builder.TypedVisitor;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.client.OpenShiftConfig;
 
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -33,7 +34,7 @@ public class OpenShiftClientCreator {
                     }
                 }).build();
 
-        openShiftClientProducer.set(createClient(OpenShiftConfig.wrap(config), cubeConfiguration.getNamespace(),
+        openShiftClientProducer.set(createClient(config, cubeConfiguration.getNamespace(),
                 cubeConfiguration.shouldKeepAliveGitServer()));
     }
 
@@ -41,7 +42,7 @@ public class OpenShiftClientCreator {
         client.shutdown();
     }
 
-    public OpenShiftClient createClient(OpenShiftConfig openShiftConfig, String namespace, boolean keepAliveGitServer) {
+    public OpenShiftClient createClient(Config openShiftConfig, String namespace, boolean keepAliveGitServer) {
         return new OpenShiftClient(openShiftConfig, namespace, keepAliveGitServer);
     }
 }
