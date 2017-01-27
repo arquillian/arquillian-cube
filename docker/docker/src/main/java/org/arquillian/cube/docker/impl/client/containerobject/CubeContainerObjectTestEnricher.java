@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.arquillian.cube.CubeController;
+import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.CubeDockerFile;
 import org.arquillian.cube.HostPort;
@@ -185,11 +186,30 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
             // Since it is only has sense in case of container object that it is running one container in the scope.
             // Moreover it has no much sense to get this information in case of not using container object pattern.
             enrichHostPort(containerObjectInstance, cube);
-
+            enrichCubeIp(containerObjectInstance, cube);
 
             return link(field, cubeName);
         }
         return null;
+    }
+
+    private void enrichCubeIp(Object containerObjectInstance, org.arquillian.cube.spi.Cube<?> cube) throws IllegalAccessException {
+        final List<Field> fieldsWithCubeIp = ReflectionUtil.getFieldsWithAnnotation(containerObjectInstance.getClass(), CubeIp.class);
+        if (fieldsWithCubeIp.isEmpty()) {
+            return;
+        }
+
+        final HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
+        if (portBindings == null) {
+            throw new IllegalArgumentException(String.format("Container Object %s contains fields annotated with %s but no ports are exposed by the container", containerObjectInstance.getClass().getSimpleName(), CubeIp.class.getSimpleName()));
+        }
+
+        for (Field field: fieldsWithCubeIp) {
+            final CubeIp cubeIp = field.getAnnotation(CubeIp.class);
+            boolean cubeIpInternal = cubeIp.internal();
+            String cubeIpValue = (cubeIpInternal) ? portBindings.getInternalIP() : portBindings.getContainerIP();
+            field.set(containerObjectInstance, cubeIpValue);
+        }
     }
 
     private void enrichHostPort(Object containerObjectInstance, org.arquillian.cube.spi.Cube<?> cube) throws IllegalAccessException {
