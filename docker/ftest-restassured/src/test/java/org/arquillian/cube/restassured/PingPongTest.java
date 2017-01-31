@@ -2,6 +2,7 @@ package org.arquillian.cube.restassured;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import org.arquillian.cube.DockerUrl;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -16,6 +17,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 @RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
+    @DockerUrl(containerName = "helloworld", exposedPort = 8080)
     @ArquillianResource
     RequestSpecBuilder requestSpecBuilder;
 
