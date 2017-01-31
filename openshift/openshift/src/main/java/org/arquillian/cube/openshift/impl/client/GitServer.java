@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 
@@ -54,7 +55,6 @@ public class GitServer {
         // Return an internal service name, for use within the openshift network
         String serverUrl = String.format("http://%s:%s/%s", GIT_SERVICE, GIT_REMOTEPORT, name);
         return URI.create(serverUrl);
-
     }
 
     public void shutdown() throws Exception {

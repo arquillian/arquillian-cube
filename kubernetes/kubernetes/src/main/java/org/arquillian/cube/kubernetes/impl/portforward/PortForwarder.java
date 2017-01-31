@@ -1,4 +1,4 @@
-package org.arquillian.cube.openshift.impl.client;
+package org.arquillian.cube.kubernetes.impl.portforward;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.internal.SSLUtils;

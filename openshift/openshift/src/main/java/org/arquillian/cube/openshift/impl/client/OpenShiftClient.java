@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
@@ -39,7 +40,7 @@ public class OpenShiftClient {
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
-    public OpenShiftClient(OpenShiftConfig config, String namespace, boolean keepAliveGitServer) {
+    public OpenShiftClient(Config config, String namespace, boolean keepAliveGitServer) {
         this.kubernetes = new DefaultKubernetesClient(config);
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
@@ -71,13 +72,14 @@ public class OpenShiftClient {
             holder.setPod(service);
             return holder;
         }
-        
+
         for(TemplateImageRef ref : template.getRefs()) {
 	        URI repoUri = gitserver.push(new File(ref.getPath()), ref.getContainerName());
 
 	        String runID = ref.getContainerName();
 
 	        try {
+                /*
 	            ImageStream is = new ImageStreamBuilder()
 	                    .withNewMetadata()
 	                        .withName(runID)
@@ -132,13 +134,14 @@ public class OpenShiftClient {
                                 .withName(String.format("%s-%d", config.getMetadata().getName(), (lastBuildVersion + 1)))
                                 .get());
 
+
 	            holder.addResource(build);
 
 	            is = getClientExt().imageStreams().inNamespace(namespace).withName(is.getMetadata().getName()).get();
 
 	            String imageRef = is.getStatus().getTags().get(0).getItems().get(0).getDockerImageReference();
 	            template.resolve(ref,  imageRef);
-
+*/
                 Pod service = createStartablePod(template, defaultLabels);
 	            holder.setPod(service);
 	        } catch(Exception e) {
@@ -194,8 +197,8 @@ public class OpenShiftClient {
 		return kubernetes;
 	}
 
-	public io.fabric8.openshift.client.NamespacedOpenShiftClient getClientExt() {
-		return kubernetes.adapt(io.fabric8.openshift.client.NamespacedOpenShiftClient.class);
+	public io.fabric8.kubernetes.client.KubernetesClient getClientExt() {
+		return kubernetes;
 	}
 
 	private Map<String, String> getDefaultLabels() {

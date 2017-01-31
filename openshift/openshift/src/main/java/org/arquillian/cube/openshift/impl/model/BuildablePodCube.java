@@ -3,11 +3,11 @@ package org.arquillian.cube.openshift.impl.model;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
+
+import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient.ResourceHolder;
-import org.arquillian.cube.openshift.impl.client.PortForwarder;
-import org.arquillian.cube.openshift.impl.client.PortForwarder.PortForwardServer;
 import org.arquillian.cube.openshift.impl.client.metadata.CopyFromContainer;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
@@ -182,7 +182,7 @@ public class BuildablePodCube extends BaseCube<Void> {
         private final Map<Integer, PortAddress> mappedPorts;
         private final Set<Integer> containerPorts;
         private PortForwarder portForwarder;
-        private Map<Integer, PortForwardServer> portForwardServers = new HashMap<Integer, PortForwardServer>();
+        private Map<Integer, PortForwarder.PortForwardServer> portForwardServers = new HashMap<Integer, PortForwarder.PortForwardServer>();
 
         public PortBindings() {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
@@ -322,7 +322,7 @@ public class BuildablePodCube extends BaseCube<Void> {
             try {
                 portForwarder.setPortForwardBindAddress(getPortForwardBindAddress());
                 for (Entry<Integer, Integer> mappedPort : proxiedPorts.entrySet()) {
-                    PortForwardServer server = portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
+                    PortForwarder.PortForwardServer server = portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
                     portForwardServers.put(mappedPort.getKey(), server);
                     System.out.println(String.format("Forwarding port %s for %s:%d", server.getLocalAddress(),
                             getContainerIP(), mappedPort.getKey()));
