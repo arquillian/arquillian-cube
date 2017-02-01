@@ -32,7 +32,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
 
     public static final String TAG = "polling";
 
-    private static final int DEFAULT_POLL_ITERATIONS = 10;
+    private static final int DEFAULT_POLL_ITERATIONS = 40;
     private static final String DEFAULT_POLL_TYPE = "sscommand";
     public static final String CONTAINER_DIRECTORY = "/tmp";
 
