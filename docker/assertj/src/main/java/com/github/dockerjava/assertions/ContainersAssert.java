@@ -10,21 +10,21 @@ import org.assertj.core.api.ListAssert;
  */
 public class ContainersAssert extends ListAssert<InspectContainerResponse> {
 
-	protected ContainersAssert(List<InspectContainerResponse> actual) {
-		super(actual);
-	}
+   protected ContainersAssert(List<InspectContainerResponse> actual) {
+      super(actual);
+   }
 
-	public ContainersAssert areRunning() {
-		for (InspectContainerResponse container : this.actual) {
-			ContainerStateAssert stateAssert = new ContainerStateAssert(container.getState());
-			stateAssert.isNotNull();
+   public ContainersAssert areRunning() {
+      for (InspectContainerResponse container : this.actual) {
+         ContainerStateAssert stateAssert = new ContainerStateAssert(container.getState());
+         stateAssert.isNotNull();
 
-			if (!container.getState().getRunning()) {
-				failWithMessage("Container %s is not running", container.getName());
-			}
-		}
+         if (!container.getState().getRunning()) {
+            failWithMessage("Container %s is not running", container.getName());
+         }
+      }
 
-		return this;
-	}
+      return this;
+   }
 
 }
