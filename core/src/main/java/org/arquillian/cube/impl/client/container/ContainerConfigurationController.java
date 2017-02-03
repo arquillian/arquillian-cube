@@ -143,7 +143,9 @@ public class ContainerConfigurationController {
                 String propertyName = propertyDescriptor.getName();
 
                 if (portPattern.matcher(propertyName).matches()) {
-                    fields.add(propertyDescriptor);
+                    if (int.class.equals(propertyDescriptor.getPropertyType()) || Integer.class.equals(propertyDescriptor.getPropertyType())) {
+                        fields.add(propertyDescriptor);
+                    }
                 }
             }
 
