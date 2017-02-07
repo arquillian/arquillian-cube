@@ -1,15 +1,18 @@
 package com.github.dockerjava.assertions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.util.Objects;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,6 +39,24 @@ public class ContainerAssert extends AbstractAssert<ContainerAssert, InspectCont
       assertThat(getContainerConfig().getExposedPorts())
               .overridingErrorMessage("%nExpecting:%n <%s>%nto contain:%n <%s>", getContainerConfig().getExposedPorts(), Arrays.asList(ports))
               .contains(myports);
+
+      return this;
+   }
+
+   public ContainerAssert hasProcessRunning(String process) {
+      isNotNull();
+
+      InspectContainerResponse.ContainerState state = getContainerState();
+      ContainerStateAssert stateAssert = new ContainerStateAssert(state);
+      stateAssert.isNotNull();
+
+      this.isRunning();
+
+      final String actualProcessName = getProcessName(state.getPid());
+
+      assertThat(actualProcessName).isNotNull();
+      assertThat(actualProcessName).isNotEmpty();
+      assertThat(actualProcessName).isEqualToIgnoringCase(process);
 
       return this;
    }
@@ -175,4 +196,23 @@ public class ContainerAssert extends AbstractAssert<ContainerAssert, InspectCont
       return this.actual.getConfig();
    }
 
+    private static String getProcessName(int processId) {
+
+        final String command = "ps -p " + processId + " -o comm=";
+        String output = "";
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            output = reader.lines().collect(Collectors.joining());
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to execute command" + command);
+        }
+
+        return output;
+    }
 }
