@@ -148,9 +148,9 @@ public final class ResourceUtil {
 
     public static Binding toBinding(Service pod) {
         Binding binding = null;
-        if (pod.getStatus() != null && pod.getSpec().getPortalIP() != null) { // Running
+        if (pod.getStatus() != null && pod.getSpec().getClusterIP() != null) { // Running
                                                                               // pod
-            binding = new Binding(pod.getSpec().getPortalIP());
+            binding = new Binding(pod.getSpec().getClusterIP());
         } else { // Configured pod
             binding = new Binding(null);
         }

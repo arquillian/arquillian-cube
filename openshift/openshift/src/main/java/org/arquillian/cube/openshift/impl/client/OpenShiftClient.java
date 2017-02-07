@@ -184,7 +184,7 @@ public class OpenShiftClient {
     }
 
     public Pod update(Pod resource) throws Exception {
-		return getClient().pods().replace(resource);
+		return getClient().resource(resource).createOrReplace();
 	}
 
 	public void shutdown() throws Exception {
