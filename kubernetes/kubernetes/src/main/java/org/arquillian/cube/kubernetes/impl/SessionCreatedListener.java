@@ -129,7 +129,11 @@ public class SessionCreatedListener {
                 try {
                     kubernetesClient.resourceList(all).createOrReplaceAnd().waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                 } catch (KubernetesClientTimeoutException t) {
-                    throw new IllegalStateException("Environment not initialized in time.");
+                    log.warn("The are resources in not ready state.");
+                    for (HasMetadata r : t.getResourcesNotReady()) {
+                        log.error(r.getKind() + " name: " + r.getMetadata().getName()+ " namespace:" + r.getMetadata().getNamespace());
+                    }
+                    throw new IllegalStateException("Environment not initialized in time.", t);
                 }
             }
             displaySessionStatus(session);
