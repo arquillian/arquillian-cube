@@ -1,5 +1,8 @@
 package org.arquillian.cube.kubernetes.impl;
 
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsBuilder;
+import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
@@ -10,6 +13,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
+import io.fabric8.kubernetes.api.model.WatchEvent;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -20,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
@@ -43,6 +48,10 @@ public class MockTest {
                 .endMetadata()
                 .withNewStatus()
                     .withPhase("Running")
+                    .addNewCondition()
+                        .withType("Ready")
+                        .withStatus("True")
+                    .endCondition()
                 .endStatus()
                 .build();
 
@@ -56,6 +65,28 @@ public class MockTest {
                         .withPort(8080)
                     .endPort()
                 .endSpec()
+                .build();
+
+        Endpoints testEndpoints = new EndpointsBuilder()
+                .withNewMetadata()
+                .withName("test-service")
+                .endMetadata()
+                .build();
+
+        Endpoints readyTestEndpoints = new EndpointsBuilder()
+                .withNewMetadata()
+                    .withName("test-service")
+                    .withResourceVersion("2")
+                .endMetadata()
+                .addNewSubset()
+                    .addNewAddress()
+                        .withHostname("testhostname")
+                    .endAddress()
+                    .addNewPort()
+                        .withName("http")
+                        .withPort(8080)
+                    .endPort()
+                .endSubset()
                 .build();
 
         ReplicationController testController = new ReplicationControllerBuilder()
@@ -77,6 +108,10 @@ public class MockTest {
                         .endSpec()
                     .endTemplate()
                 .endSpec()
+                .withNewStatus()
+                    .withReplicas(1)
+                    .withReadyReplicas(1)
+                .endStatus()
                 .build();
 
 
@@ -91,8 +126,12 @@ public class MockTest {
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller").andReturn(404, "").once();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller").andReturn(200, testController).always();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/replicationcontrollers").andReturn(200, new ReplicationControllerListBuilder()
+                .withNewMetadata()
+                    .withResourceVersion("1")
+                .endMetadata()
                 .withItems(testController).build())
                 .always();
+
         MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller").andReturn(200, "").always();
 
         //test-pod
@@ -100,6 +139,9 @@ public class MockTest {
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(404, "").once();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(200, testPod).always();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods").andReturn(200, new PodListBuilder()
+                .withNewMetadata()
+                    .withResourceVersion("1")
+                .endMetadata()
                 .withItems(testPod)
                 .build()).always();
         MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(200, "").always();
@@ -109,9 +151,32 @@ public class MockTest {
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/services/test-service").andReturn(404, "").once();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/services/test-service").andReturn(200, testService).always();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/services").andReturn(200, new ServiceListBuilder()
+                .withNewMetadata()
+                    .withResourceVersion("1")
+                .endMetadata()
                 .withItems(testService)
                 .build()).always();
         MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/services/test-service").andReturn(200, "").always();
+
+        //test-service endpoints
+        MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/endpoints").andReturn(201, testEndpoints).always();
+
+        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/endpoints/test-service").andReturn(200, testEndpoints).once();
+        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/endpoints/test-service").andReturn(200, readyTestEndpoints).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/endpoints").andReturn(200, new EndpointsListBuilder()
+                .withNewMetadata()
+                    .withResourceVersion("1")
+                .endMetadata()
+                .withItems(testEndpoints)
+                .build()).always();
+
+        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/endpoints?resourceVersion=1&watch=true").andUpgradeToWebSocket()
+                .open()
+                .waitFor(1000)
+                .andEmit(new WatchEvent(readyTestEndpoints, "MODIFIED"))
+                .done().always();
+
+        MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/endpoints/test-service").andReturn(200, "").always();
 
         MOCK.init();
 
