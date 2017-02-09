@@ -113,15 +113,6 @@ public class CubeOpenShiftConfiguration {
                     .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
                     .build();
 
-            if (conf.getDefinitions() == null && conf.getDefinitionsFile() == null) {
-                throw new IllegalArgumentException(
-                        DEFINITIONS + " or " + DEFINITIONS_FILE + " configuration option is required");
-            }
-            if (conf.getDefinitionsFile() != null) {
-                if (!new File(conf.definitionsFile).exists()) {
-                    throw new IllegalArgumentException("No " + DEFINITIONS_FILE + " file found at " + conf.definitionsFile);
-                }
-            }
             return conf;
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {

@@ -1,11 +1,14 @@
 package org.arquillian.cube.kubernetes.impl;
 
 import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
+
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -14,7 +17,6 @@ import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.impl.await.WaitStrategy;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.cube.kubernetes.impl.event.Stop;
@@ -29,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SessionCreatedListener {
 
@@ -92,12 +95,9 @@ public class SessionCreatedListener {
         });
 
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-
-
-        WaitStrategy waitStrategy = new WaitStrategy(kubernetesClient, session, configuration);
         List<Visitor> visitors = new ArrayList<>(serviceLoader.all(Visitor.class));
-        visitors.add(waitStrategy);
         CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
+        List<HasMetadata> all = new ArrayList<>();
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -107,7 +107,7 @@ public class SessionCreatedListener {
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
                     try (InputStream is = dependencyUrl.openStream()) {
-                        kubernetesClient.load(is).accept(compositeVisitor).apply();
+                        all.addAll(kubernetesClient.load(is).accept(compositeVisitor).createOrReplace());
                     }
                 }
 
@@ -118,19 +118,26 @@ public class SessionCreatedListener {
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
-                        kubernetesClient.load(is).accept(compositeVisitor).apply();
+                        all.addAll(kubernetesClient.load(is).get());
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
                 }
             }
 
-            if (!configuration.isEnvironmentInitEnabled() || waitStrategy.await()) {
-                displaySessionStatus(session);
-                afterStartEvent.fire(new AfterStart(session));
-            } else {
-                throw new IllegalStateException("Environment not initialized in time.");
+            if (configuration.isEnvironmentInitEnabled() ) {
+                try {
+                    kubernetesClient.resourceList(all).createOrReplaceAnd().waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                } catch (KubernetesClientTimeoutException t) {
+                    log.warn("The are resources in not ready state.");
+                    for (HasMetadata r : t.getResourcesNotReady()) {
+                        log.error(r.getKind() + " name: " + r.getMetadata().getName()+ " namespace:" + r.getMetadata().getNamespace());
+                    }
+                    throw new IllegalStateException("Environment not initialized in time.", t);
+                }
             }
+            displaySessionStatus(session);
+            afterStartEvent.fire(new AfterStart(session));
         } catch (Exception e) {
             try {
                 cleanupSession(session, Constants.ERROR_STATUS);
@@ -184,7 +191,7 @@ public class SessionCreatedListener {
 
             StringBuilder sb = new StringBuilder();
             sb.append("Service: [").append(service.getMetadata().getName()).append("]")
-                    .append(" IP: [").append(service.getSpec().getPortalIP()).append("]")
+                    .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
                     .append(" Ports: [ ");
 
             for (ServicePort servicePort : service.getSpec().getPorts()) {

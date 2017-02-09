@@ -168,7 +168,7 @@ public class ServiceCube extends BaseCube<Void> {
         }
 
         private synchronized void serviceStarted() throws Exception {
-            containerIP = resource.getSpec().getPortalIP();
+            containerIP = resource.getSpec().getClusterIP();
             for (ServicePort servicePort : resource.getSpec().getPorts()) {
                 final int port = servicePort.getPort();
                 final Integer nodePort = servicePort.getNodePort();

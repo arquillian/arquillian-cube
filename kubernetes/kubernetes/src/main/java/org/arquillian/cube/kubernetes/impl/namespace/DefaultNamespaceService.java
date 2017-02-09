@@ -24,16 +24,16 @@ public class DefaultNamespaceService implements NamespaceService {
 
 
     @Inject
-    Instance<KubernetesClient> client;
+    protected Instance<KubernetesClient> client;
 
     @Inject
-    Instance<LabelProvider> labelProvider;
+    protected Instance<LabelProvider> labelProvider;
 
     @Inject
-    Instance<Logger> logger;
+    protected Instance<Logger> logger;
 
     @Inject
-    Instance<Configuration> configuration;
+    protected Instance<Configuration> configuration;
 
     @Override
     public Namespace create(String namespace) {
@@ -81,8 +81,6 @@ public class DefaultNamespaceService implements NamespaceService {
     public void destroy(String namespace) {
         Logger logger = this.logger.get();
         Configuration configuration = this.configuration.get();
-        KubernetesClient client = this.client.get();
-
         try {
             if (configuration.isNamespaceCleanupConfirmationEnabled()) {
                 showErrors();
@@ -118,7 +116,7 @@ public class DefaultNamespaceService implements NamespaceService {
                 }
             }
         } finally {
-            client.namespaces().withName(namespace).delete();
+            delete(namespace);
         }
     }
 

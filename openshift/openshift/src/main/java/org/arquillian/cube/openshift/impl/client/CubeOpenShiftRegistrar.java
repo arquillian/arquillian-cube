@@ -10,6 +10,7 @@ import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -18,6 +19,10 @@ import java.nio.charset.StandardCharsets;
 public class CubeOpenShiftRegistrar {
 
     public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final CubeOpenShiftConfiguration configuration, final Injector injector) {
+        if (!hasDefinitionStream(configuration)) {
+            return;
+        }
+
         for (HasMetadata item : client.getClientExt().load(getDefinitionStream(configuration)).get()) {
             if (item instanceof Pod) {
                 registry.addCube(injector.inject(new BuildablePodCube((Pod) item, client, configuration)));
@@ -26,6 +31,10 @@ public class CubeOpenShiftRegistrar {
             }
 
         }
+    }
+
+    private boolean hasDefinitionStream(CubeOpenShiftConfiguration conf) {
+        return conf.getDefinitions() != null || (conf.getDefinitionsFile() != null && new File(conf.getDefinitionsFile()).exists());
     }
 
     private InputStream getDefinitionStream(CubeOpenShiftConfiguration conf) {

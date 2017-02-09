@@ -6,6 +6,7 @@ import java.util.Map;
 import org.arquillian.cube.spi.metadata.CubeMetadata;
 
 public abstract class BaseCube<T> implements Cube<T> {
+
     private Map<Class<? extends CubeMetadata>, Object> metadata = new HashMap<>();
 
     @Override
