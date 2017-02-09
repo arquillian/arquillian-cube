@@ -1,15 +1,15 @@
 package com.github.dockerjava.assertions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.util.Objects;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -174,5 +174,4 @@ public class ContainerAssert extends AbstractAssert<ContainerAssert, InspectCont
    private ContainerConfig getContainerConfig() {
       return this.actual.getConfig();
    }
-
 }
