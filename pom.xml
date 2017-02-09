@@ -31,6 +31,7 @@
         <module>openshift</module>
         <module>kubernetes</module>
         <module>requirement</module>
+        <module>bom</module>
     </modules>
 
     <developers>

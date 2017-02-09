@@ -29,6 +29,8 @@ include::{asciidoctor-source}/preliminaries.adoc[]
 
 include::{asciidoctor-source}/example.adoc[]
 
+include::{asciidoctor-source}/bom.adoc[]
+
 include::{asciidoctor-source}/configuration.adoc[]
 
 include::{asciidoctor-source}/boot2docker-dockermachine.adoc[]
