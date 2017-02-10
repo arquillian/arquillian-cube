@@ -67,6 +67,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
     }
 
     @Override
+    @Deprecated // The method is redundant (since its called always before destroy).
     public void clean(String namespace) {
         KubernetesClient client = this.client.get();
         if (client.isAdaptable(OpenShiftClient.class)) {

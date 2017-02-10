@@ -66,6 +66,7 @@ public class DefaultNamespaceService implements NamespaceService {
     }
 
     @Override
+    @Deprecated // The method is redundant (since its called always before destroy).
     public void clean(String namespace) {
         KubernetesClient client = this.client.get();
         client.extensions().deployments().inNamespace(namespace).delete();

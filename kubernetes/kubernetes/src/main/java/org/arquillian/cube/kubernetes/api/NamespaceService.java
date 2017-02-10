@@ -39,6 +39,7 @@ public interface NamespaceService {
     /**
      * Clears all resources from the specified {@link Namespace}/
      */
+    @Deprecated // The method is redundant (since its called always before destroy).
     void clean(String namespace);
 
 
