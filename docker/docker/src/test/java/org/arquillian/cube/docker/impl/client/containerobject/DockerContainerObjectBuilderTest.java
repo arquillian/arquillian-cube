@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.base.StandardSystemProperty;
-
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeIp;
@@ -417,7 +415,7 @@ public class DockerContainerObjectBuilderTest {
     //<editor-fold desc="utility methods used by test methods">
 
     private static void deleteTestDirectory() {
-        File tempDirectory = new File(StandardSystemProperty.JAVA_IO_TMPDIR.value());
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         final File[] testsDirectories = tempDirectory.listFiles(DockerContainerObjectBuilderTest::testDirectoryFilter);
         for (File testDirectory: testsDirectories) {
             try {
@@ -429,7 +427,7 @@ public class DockerContainerObjectBuilderTest {
     }
 
     private static File findGeneratedDirectory() {
-        File tempDirectory = new File(StandardSystemProperty.JAVA_IO_TMPDIR.value());
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         final File[] testsDirectories = tempDirectory.listFiles(DockerContainerObjectBuilderTest::testDirectoryFilter);
         if (testsDirectories.length > 0) {
             return testsDirectories[0];
