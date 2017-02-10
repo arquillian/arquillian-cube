@@ -2,8 +2,10 @@ package com.github.dockerjava.assertions;
 
 import com.github.dockerjava.CubeOutput;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.SoftAssertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Arrays;
+import java.util.List;
 
 public class CubeOutputAssert extends AbstractAssert<CubeOutputAssert, CubeOutput> {
 
@@ -14,11 +16,15 @@ public class CubeOutputAssert extends AbstractAssert<CubeOutputAssert, CubeOutpu
     public CubeOutputAssert hasProcessRunning(String processName) {
         isNotNull();
 
-        assertThat(this.actual.getError()).isEmpty();
-        assertThat(this.actual.getOutput()).isNotNull();
-        assertThat(this.actual.getOutput()).isNotEmpty();
+        List<String> processes = getProcesses(this.actual.getOutput());
+        SoftAssertions softAssertions = new SoftAssertions();
 
-        assertThat(this.actual.getOutput()).contains(processName);
+        softAssertions.assertThat(this.actual.getError()).isEmpty();
+        softAssertions.assertThat(processes)
+                .overridingErrorMessage("Expected container's running process to contain <%s> but was %n <%s>", processName, processes)
+                .contains(processName);
+
+        softAssertions.assertAll();
 
         return this;
     }
@@ -26,12 +32,21 @@ public class CubeOutputAssert extends AbstractAssert<CubeOutputAssert, CubeOutpu
     public CubeOutputAssert hasProcessesRunning(String... processes) {
         isNotNull();
 
-        assertThat(this.actual.getError()).isEmpty();
-        assertThat(this.actual.getOutput()).isNotNull();
-        assertThat(this.actual.getOutput()).isNotEmpty();
+        List<String> actualProcesses = getProcesses(this.actual.getOutput());
 
-        assertThat(this.actual.getOutput()).contains(processes);
+        SoftAssertions softAssertions = new SoftAssertions();
+
+        softAssertions.assertThat(this.actual.getError()).isEmpty();
+        softAssertions.assertThat(actualProcesses)
+                .overridingErrorMessage("Expected container's running processes to contain %n <%s> but was %n <%s>", Arrays.asList(processes), actualProcesses)
+                .contains(processes);
+
+        softAssertions.assertAll();
 
         return this;
+    }
+
+    private List<String> getProcesses(String processes) {
+        return Arrays.asList(processes.split("\n"));
     }
 }
