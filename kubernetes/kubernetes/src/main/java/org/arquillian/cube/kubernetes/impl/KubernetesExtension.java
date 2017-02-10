@@ -25,8 +25,12 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.impl.annotation.AnnotationProviderRegistar;
 import org.arquillian.cube.kubernetes.impl.annotation.DefaultAnnotationProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ClientResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.DeploymentListResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.DeploymentResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.PodListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.PodResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.ReplicaSetListResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.ReplicaSetResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ReplicationControllerListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ReplicationControllerResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceListResourceProvider;
@@ -77,6 +81,10 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ClientResourceProvider.class)
                 .service(ResourceProvider.class, PodListResourceProvider.class)
                 .service(ResourceProvider.class, PodResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentListResourceProvider.class)
+                .service(ResourceProvider.class, ReplicaSetResourceProvider.class)
+                .service(ResourceProvider.class, ReplicaSetListResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerResourceProvider.class)
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
