@@ -171,7 +171,6 @@ public class SessionCreatedListener {
         String namespace = session.getNamespace();
 
         if (configuration.isNamespaceCleanupEnabled()) {
-            namespaceService.clean(namespace);
             namespaceService.destroy(namespace);
         } else {
             namespaceService.annotate(session.getNamespace(), annotationProvider.create(session.getId(), status));
