@@ -1,43 +1,46 @@
 == Container Object pattern
 
-If you search for a description of what *Page Object* is, you’ll find that The Page Object Pattern gives us a common sense way to model content in a reusable and maintainable way.
+If you search for a description of what *Page Object* is, you'll find that it describes a pattern that allows you to model content in a reusable and maintainable way.
+The description also points that within your web app's UI, there are areas that your tests interact with, and a Page Object simply models those areas as objects within the test code.
+Using the Page Object pattern reduces the amount of duplicated code. If the UI changes, only the Page Object will need to be updated for the test cases to run.
 
-And also points that: Within your web app’s UI there are areas that your tests interact with. A Page Object simply models these as objects within the test code. This reduces the amount of duplicated code and means that if the UI changes, the fix need only be applied in one place.
+As you can see, the Page Object pattern applies to UI elements. We (the Arquillian community) have coined a new pattern following Page Object that we call the *Container Object* pattern.
+You can think of a Container Object as a mechanism to encapsulate areas (data and actions) related to a container (for now only Docker containers) that your test might interact with.
+For example:
 
-As you can see, Page Object applies to UI elements. We (the Arquillian community) has coined a new pattern following Page Object pattern called *Container Object* pattern. You can think about Container Object as areas of a container (for now Docker container) that your test might interact with. For example some of these areas could be:
-
-* to get the host IP where container is running
+* the host IP where the container is running
 * the bounded port for a given exposed port
-* any parameter configured inside the configuration file (Dockerfile) like a user or password to access to the service which the container exposes.
+* any parameter configured inside the configuration file (Dockerfile), like a user or password to access the service running in the container.
 
-In case of running a MySQL database in the container, it could be the user and password to access to database. Notice that nothing prevents you to generate the correct URL for accessing to the service from the test, or execute commands against container like retrieving an internal file.
+For example, if running a MySQL database in a container, it could be the user and password to access the database.
+Notice that nothing prevents you from generating the correct URL to access the service directly from your test, or executing commands against the container, for example retrieving an internal file.
 
-And of course as Page Object does, Container Object gives you a way to build a model content that can be reused for several projects.
+As is the case with Page Objects, the Container Object pattern gives you a mechanism to build a model that can be reused on several projects.
 
-Before looking at how this pattern is implemented in Cube, let’s go thorough an example:
+Before looking at how this pattern is implemented in Cube, let's go through an example:
 
-Suppose all of your applications need to send a file to an FTP server.
-To write an integration/component test you might need a FTP server to send the file and check that the file was correctly sent.
-One way to do this is using Docker to start a FTP server just before executing the test, then execute the test using this docker container for FTP server, before stopping the container check that the file is there, and finally stop the container.
+Suppose all your applications need to send a file to an FTP server.
+To write an integration/component test for your apps, you might need an FTP server to send the file to, and then check that the file was correctly sent.
+One way to implement such test is (i) by using Docker to start an FTP server just before executing the test, then (ii) execute the test using this docker container as the receiving FTP server, (iii) before stopping the container check that the file is present, and finally (iv) stop and destroy the container.
 
-So all these operations that involves the FTP server and container could be joined inside a Container Object.
-This container object might contain information of:
+All these operations that involve the FTP server and container could be encapsulated inside a Container Object.
+This container object might contain the following information:
 
 * which image is used
-* IP and bounded port of host where this FTP server is running
-* user and password to access to the FTP server
-* methods for asserting the existence of a file
+* IP and port bound to the host where the FTP server is running
+* user and password required to access the FTP server
+* methods for asserting the existence of a file inside the container
 
-Then from the point of view of test, it only communicate with this object instead of directly hard coding all information inside the test.
-Again as in Page Object, any change on the container only affects the Container Object and not the test itself.
+Test code will only interact with this object instead of directly hard coding all required information inside the test.
+Again, as in the Page Object pattern, any change on the container only affects the Container Object and not the test itself.
 
-Now let’s see how _Arquillian Cube_ implements Container Object pattern.
+Now let's see how _Arquillian Cube_ implements the Container Object pattern.
 
 === Arquillian Cube and Container Object
 
-Let’s see a simple example on how you can implement a Container Object in _Cube_.
+Let's see a simple example of how you can implement a Container Object in _Cube_.
 Suppose you want to create a container object that encapsulates a ping pong server running inside Docker.
-The Container Object will be like a simple POJO with special annotations:
+The Container Object will be a simple POJO with special annotations:
 
 [source, java]
 .PingPongContainer.java
@@ -56,34 +59,35 @@ public class PingPongContainer {
 
   public URL getConnectionUrl() { // <3>
     try {
-      return new URL(“http://” + dockerHost + “:” + port);
+      return new URL("http://" + dockerHost + ":" + port);
 	  } catch (MalformedURLException e) {
 		  throw new IllegalArgumentException(e);
 	  }
   }
 }
 ----
-<1> `@Cube` annotation configures Container Object
+<1> The `@Cube` annotation configures the Container Object
 <2> A Container Object can be enriched with Arquillian enrichers
-<3> Container Object hides how to connect to PingPong server.
+<3> The Container Object hides how to connect to the PingPong server
 
-`@Cube` annotation is used to configure this Container Object.
-Initially you set that the started container will be named `pingpong` and the port binding information for the container instance, in this case `5000->8080/tcp`.
-Notice that this can be an array to set more than one port binding definition.
+The `@Cube` annotation is used to configure a Container Object.
+Its `value` property is used to specify how the started container will be named (in this example `pingpong`) while the `portBinding` property can be used to specify the port binding information for the container instance (in this case `5000->8080/tcp`).
+Notice that `portBinding` can also accept an array, in which case more than one port binding definitions can be specified.
 
-Next annotation is `@CubeDockerFile` which configure how Container is created.
-In this case using a Dockerfile located at default class path location.
-The default location is the _package+classname_, so for example in previous case, `Dockerfile` should be placed at `org/superbiz/containerobject/PingPongContainer`.
-Of course you can set any other class path location by passing as value of the annotation.
+The next annotation is `@CubeDockerFile`, which configures how the container is created.
+This example will use a Dockerfile located at the default class path location.
+As the default location is the _package+classname_, in our example the `Dockerfile` should be placed at `org/superbiz/containerobject/PingPongContainer`.
+It is possible to set any other class path location by passing it as the `value` property of the `@CubeDockerFile` annotation.
 
-IMPORTANT: `CubeDockerFile` annotation sets the location where the `Dockerfile` is found and not the file itself. Also this location should be reachable from ClassLoader, so it means it should be loaded in class path in order to find it.
+IMPORTANT: The `@CubeDockerFile` annotation defines the _location_ where the `Dockerfile` is found, not the file itself.
+This location must be reachable from the ClassLoader creating the container object, which means it should be on the class path for the class loader to be able to find it.
 
-Any Cube can be enriched with any client side enricher, in this case with `@HostIp` enricher, but it could be enriched with `DockerClient` using `@ArquillianResource` as well.
+Any Cube can be enriched with any client side enricher. In the previous example a `@HostIp` enricher is used, but it could be enriched similarly with `@CubeIp` (which works similar to `@HostPort`), or a `DockerClient` instance if the field is annotated with `@ArquillianResource`.
 
-Finally the `@HostPort` is used to translate the exposed port to bound port.
-So in this example port value will be 5000. You are going to lean briefly why this annotation is important.
+Finally the `@HostPort` is used to translate the exposed port to the bound port.
+In this example the port value will be 5000. Later you will learn briefly why this annotation is important.
 
-And then you can start using this container object in your test:
+After creating the container object, you can start using it in your test:
 
 [source, java]
 .PingPongTest.java
@@ -103,13 +107,13 @@ public class PingPongTest {
 }
 ----
 
-The most important thing here is that you need to set Container Object as a field of the class and annotate with `@Cube`.
-It is very important to annotate the field with `Cube`, so before Arquillian runs the test, it can detect that it needs to  start a new Cube (Docker container), create the Container Object and inject it in the test.
-Notice that this annotation is exactly the same as used when you defined the Container Object.
-And it is in this way because you can override any property of the Container Object from the test side.
-This is why `@HostPort` annotation is important, since port can be changed from the test definition, you need to find a way to inject the correct port inside the container object.
+The most important step in that test example is setting the Container Object as a field of the test class, and annotating it with `@Cube`.
+Before running a test, Arquillian will detect that it needs to (i) start a new Cube (Docker container), (ii) create the Container Object and (iii) inject it in the test.
+Notice that this `@Cube` annotation is exactly the same as the one used when you defined the Container Object.
+Placing a `@Cube` annotation on the field will allow you to override any property of the Container Object from the test side.
+Due to the override mechanism, it is important to use the `@HostPort` annotation when the bound port is needed, since it can be changed from the test definition.
 
-IMPORTANT: Container Object pattern only works in Client mode or Arquillian standalone.
+IMPORTANT: The Container Object pattern only works in Client mode or Arquillian Standalone.
 
 ==== ShrinkWrap Dockerfile Descriptor
 
@@ -152,15 +156,14 @@ public class PingPongContainer {
 <2> Method must be `public` and `static`.
 <3> Returns a `GenericArchive` with all elements required for building the Docker container instance.
 
-
-In Arquillian Cube we are providing a `org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset` asset.
-This asset is like `org.jboss.shrinkwrap.api.asset.UrlAsset` but it caches to disk for an amount of time the content that has been downloaded from the URL.
-By default this expiration time is 1 hour but it is configurable by using proper constructor.
+As part of Arquillian Cube, we are providing a `org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset` asset.
+This asset is similar to `org.jboss.shrinkwrap.api.asset.UrlAsset`, but the former caches to disk for an amount of time the content that has been downloaded from the URL.
+By default this expiration time is 1 hour, and it is configurable by using the proper constructor.
 
 ==== Links
 
-A Container Object can contain more Container Objects inside.
-So effectively a Container Object can be an aggregation of other Container Objects:
+A Container Object can reference more Container Objects from inside of it.
+Effectively, a Container Object can be an aggregation of other Container Objects:
 
 [source, java]
 .FirstContainerObject.java
@@ -177,7 +180,7 @@ public class FirstContainerObject {
 
 In this case Arquillian Cube will create a link from `FirstContainerObject` to `LinkContainerObject` with link value `inner:inner`.
 
-But of course you can override the link value using `@Link` annotation.
+Of course you can override the link value using `@Link` annotation.
 
 [source, java]
 ----
@@ -188,18 +191,18 @@ TestLinkContainerObject linkContainerObject;
 
 ==== Image
 
-So far, you’ve seen that the Container Object creates a Container object from a `Dockerfile` using `@CubeDockerFile` annotation, but you can also creates a Container Object from an image by using `@Image` annotation:
+So far, you've seen that a Container Object creates an instance from a `Dockerfile` using `@CubeDockerFile` annotation. You can also create a Container Object from an image by using `@Image` annotation:
 
 [source, java]
 .ImageContainerObject.java
 ----
-@Cube(“tomme”)
+@Cube("tomme")
 @Image("tomee:8-jre-1.7.2-webprofile")
 public static class ImageContainerObject {
 }
 ----
 
-So in this case Arquillian Cube starts and stops the image defined in the annotation.
+In this case Arquillian Cube will create containers based on the image defined in the annotation.
 
 ==== Environment
 
@@ -227,14 +230,55 @@ public class ImageContainer {
 }
 ----
 
+==== Creating container objects dynamically
+
+Up to this point you have seen how to automatically inject Container Objects in tests.
+Arquillian Cube also allows creating container objects from code.
+In the next example, the original `PingPongTest` has been rewritten to create the Container Object inside the test method.
+
+[source, java]
+.PingPongTest.java
+----
+@RunWith(Arquillian.class)
+public class PingPongTest {
+
+    @ArquillianResource
+    ContainerObjectFactory factory; // <1>
+
+    @ArquillianResource
+    CubeController cubeController;
+
+    @Test
+    public void shouldReturnOkAsPong() throws IOException {
+        PingPongContainer pingPongContainer =
+            factory.createContainer(PingPongContainer.class, null); // <2>
+        try {
+            String pong = ping();
+            assertThat(pong, containsString("OK"));
+            assertThat(pingPongContainer.getConnectionPort(), is(5000));
+        } finally {
+            cubeController.stop("pingpong"); // <3>
+            cubeController.destroy("pingpong");
+        }
+    }
+}
+----
+<1> A `ContainerObjectFactory` instance is injected into the test.
+<2> The injectect factory instance is used to instantiate a container object.
+<3> A `CubeController` could be used to stop the associated docker container.
+
+Although declaring container objects as fields of a test class is preffered, as it offers better control of the lifecycle of the container, creating container objects dynamically allows controlling exactly in which moment in time and in which order the containers are created.
+
 == Arquillian Standalone and Cube
 
 You can use Arquillian Standalone with Arquillian Cube too.
 Arquillian Standalone is a mode of Arquillian which allows you to use Arquillian but without deploying any application.
-Basically it means no `@Deployment` static method and tests runs as client implicitly.
+Basically it means no `@Deployment` static method, and tests runs as client implicitly.
 
 Running Arquillian Cube in Standalone mode means that Arquillian Cube starts all defined containers in the correct order.
-Internally Arquillian Cube registers a `autostartContainers`property (in case you have not registered any) with `regexp:.*` expression.
+Internally Arquillian Cube implicitly defines the `autostartContainers` property (unless you define it), with `regexp:.*` expression, which means all containers will be created/started.
+If you want to avoid this behavior, you can set this property to `[none]`.
+As a result, Arquilian Cube will not auto-start any container and you will be responsible of starting manually each instance (using for example, the CubeController class) by your own.
 
 Dependencies you need to set for Standalone mode are:
 
@@ -255,6 +299,3 @@ Dependencies you need to set for Standalone mode are:
 </dependencies>
 ----
 <1> You need to change `arquillian-junit-container` to `standalone`.
-
-Notice that in case of Standalone mode, Arquillian Cube registers automatically `autostartContainers` property to `regexp:.*`.
-If you want to avoid this, you can set yourself this property to `[none]`. Then Arquilian Cube will not touch anything and you will be the responsible of starting manually each instance using for example CubeController class by your own.
