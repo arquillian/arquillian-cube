@@ -18,13 +18,13 @@ public class ContainerObjectUtil {
       super();
    }
 
-   public static List<? extends Annotation> getAllAnnotations(final Class<?> source, final Class<? extends Annotation> annotationClass) {
-      return AccessController.doPrivileged((PrivilegedAction<List<? extends Annotation>>) () -> {
-         List<Annotation> annotations = new ArrayList<>();
+   public static <T extends Annotation> List<T> getAllAnnotations(final Class<?> source, final Class<T> annotationClass) {
+      return AccessController.doPrivileged((PrivilegedAction<List<T>>) () -> {
+         List<T> annotations = new ArrayList<>();
 
          Class<?> nextSource = source;
          while (nextSource != Object.class) {
-            final Annotation[] annotationsByType = nextSource.getAnnotationsByType(annotationClass);
+            final T[] annotationsByType = nextSource.getAnnotationsByType(annotationClass);
             Collections.addAll(annotations, annotationsByType);
             //If not maybe we need to use the default value but maybe there is some parent class
             //That contains a different value rather than the default ones so we need to continue search.

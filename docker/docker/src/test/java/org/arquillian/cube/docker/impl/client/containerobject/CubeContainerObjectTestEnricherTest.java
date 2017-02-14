@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -13,10 +12,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
+import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.CubeDockerFile;
@@ -30,8 +31,8 @@ import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.core.api.Injector;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.spi.ServiceLoader;
+import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -44,11 +45,12 @@ import org.junit.Test;
 
 public class CubeContainerObjectTestEnricherTest {
 
-    private CubeRegistry cubeRegistry = new LocalCubeRegistry();
+    private CubeRegistry cubeRegistry;
     private CubeController cubeController;
     private DockerClientExecutor dockerClientExecutor;
     private Injector injector;
     private ServiceLoader serviceLoader;
+    private DockerContainerObjectFactory dockerContainerObjectFactory;
 
     @AfterClass
     public static void cleanEnvironment() {
@@ -57,11 +59,19 @@ public class CubeContainerObjectTestEnricherTest {
 
     @Before
     public void init() {
+        cubeRegistry = new LocalCubeRegistry();
+        dockerContainerObjectFactory = new DockerContainerObjectFactory();
         cubeController = mock(CubeController.class);
         dockerClientExecutor = mock(DockerClientExecutor.class);
         injector = mock(Injector.class);
         serviceLoader = mock(ServiceLoader.class);
-        when(serviceLoader.all(any(Class.class))).thenReturn(new ArrayList<Object>());
+        when(serviceLoader.all(any(Class.class))).thenReturn(Collections.emptyList());
+
+        dockerContainerObjectFactory.serviceLoaderInstance = () -> serviceLoader;
+        dockerContainerObjectFactory.dockerClientExecutorInstance = () -> dockerClientExecutor;
+        dockerContainerObjectFactory.cubeRegistryInstance = () -> cubeRegistry;
+        dockerContainerObjectFactory.cubeControllerInstance = () -> cubeController;
+        dockerContainerObjectFactory.injectorInstance = () -> injector;
 
         //We asure that there is no previous executions there.
         deleteTestDirectory();
@@ -70,36 +80,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldStartAContainerObject() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         InjectableTest injectableTest = new InjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
@@ -117,36 +99,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldShouldStartAContainerObjectDefinedUsingDescriptor() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         SecondInjectableTest secondInjectableTest = new SecondInjectableTest();
         cubeContainerObjectTestEnricher.enrich(secondInjectableTest);
@@ -165,36 +119,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldLinkInnerContainers() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         ThirdInjetableTest thirdInjetableTest = new ThirdInjetableTest();
         cubeContainerObjectTestEnricher.enrich(thirdInjetableTest);
@@ -220,36 +146,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldLinkInnerContainersWithoutLink() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         FifthInjetableTest fifthInjetableTest = new FifthInjetableTest();
         cubeContainerObjectTestEnricher.enrich(fifthInjetableTest);
@@ -275,36 +173,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldStartAContainerObjectDefinedAsImage() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         FourthInjectableTest injectableTest = new FourthInjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
@@ -325,36 +195,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldStartAContainerObjectDefinedAsImageAndEnvironmentVariables() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         FifthInjectableTest injectableTest = new FifthInjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
@@ -376,36 +218,8 @@ public class CubeContainerObjectTestEnricherTest {
     @Test
     public void shouldStartAContainerObjectDefinedAsImageAndVolumesVariables() {
         CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher = new CubeContainerObjectTestEnricher();
-        cubeContainerObjectTestEnricher.injectorInstance = new Instance<Injector>() {
-            @Override
-            public Injector get() {
-                return injector;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeRegistryInstance = new Instance<CubeRegistry>() {
-            @Override
-            public CubeRegistry get() {
-                return cubeRegistry;
-            }
-        };
-        cubeContainerObjectTestEnricher.serviceLoader = new Instance<ServiceLoader>() {
-            @Override
-            public ServiceLoader get() {
-                return serviceLoader;
-            }
-        };
-        cubeContainerObjectTestEnricher.cubeControllerInstance = new Instance<CubeController>() {
-            @Override
-            public CubeController get() {
-                return cubeController;
-            }
-        };
-        cubeContainerObjectTestEnricher.dockerClientExecutorInstance = new Instance<DockerClientExecutor>() {
-            @Override
-            public DockerClientExecutor get() {
-                return dockerClientExecutor;
-            }
-        };
+        cubeContainerObjectTestEnricher.containerObjectFactoryInstance = () -> dockerContainerObjectFactory;
+        when(serviceLoader.all(TestEnricher.class)).thenReturn(Arrays.asList(cubeContainerObjectTestEnricher));
 
         SixthInjectableTest injectableTest = new SixthInjectableTest();
         cubeContainerObjectTestEnricher.enrich(injectableTest);
@@ -528,30 +342,29 @@ public class CubeContainerObjectTestEnricherTest {
 
     private static void deleteTestDirectory() {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-        final File[] tests = tempDirectory.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("Test");
+        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
+        for (File testDirectory: testsDirectories) {
+            try {
+                FileUtils.deleteDirectory(testDirectory);
+            } catch (IOException e) {
+                // ignore
             }
-        });
-        for (File testDirectory : tests) {
-            testDirectory.delete();
         }
     }
 
-    private File findGeneratedDirectory() {
-
+    private static File findGeneratedDirectory() {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-        final File[] tests = tempDirectory.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("Test");
-            }
-        });
-        if (tests.length > 0) {
-            return tests[0];
+        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
+        if (testsDirectories.length > 0) {
+            return testsDirectories[0];
         } else {
             return null;
         }
+    }
+
+    private static boolean testDirectoryFilter(File dir, String name) {
+        return dir.isDirectory()
+                && name.startsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_PREFIX)
+                && name.endsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_SUFFIX);
     }
 }
