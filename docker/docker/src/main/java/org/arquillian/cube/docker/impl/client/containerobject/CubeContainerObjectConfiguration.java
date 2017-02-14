@@ -27,6 +27,10 @@ public class CubeContainerObjectConfiguration implements ContainerObjectConfigur
         return configuration;
     }
 
+    public static CubeContainerObjectConfiguration empty() {
+        return new CubeContainerObjectConfiguration(null);
+    }
+
     @Override
     public String getContainerName() {
         return configuration.getContainerName();

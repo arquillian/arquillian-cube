@@ -174,6 +174,9 @@ public class DockerContainerObjectBuilder<T> {
      * @see CubeContainer
      */
     public DockerContainerObjectBuilder<T> withContainerObjectConfiguration(ContainerObjectConfiguration configuration) {
+        if (configuration == null) {
+            throw new IllegalArgumentException("configuration cannot be null");
+        }
         if (configuration != null && !(configuration instanceof CubeContainerObjectConfiguration)) {
             throw new IllegalArgumentException(
                     String.format("container object configuration received of type %s, but only %s is supported", configuration.getClass().getSimpleName(), CubeContainerObjectConfiguration.class.getSimpleName()));
@@ -190,6 +193,9 @@ public class DockerContainerObjectBuilder<T> {
      * @return the current builder instance
      */
     public DockerContainerObjectBuilder<T> withEnrichers(Collection<TestEnricher> enrichers) {
+        if (enrichers == null) {
+            throw new IllegalArgumentException("enrichers cannot be null");
+        }
         this.enrichers = enrichers;
         return this;
     }

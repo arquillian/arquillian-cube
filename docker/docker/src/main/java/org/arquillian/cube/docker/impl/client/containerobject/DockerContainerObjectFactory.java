@@ -34,11 +34,19 @@ public class DockerContainerObjectFactory implements ContainerObjectFactory {
     @Inject Instance<Injector> injectorInstance;
 
     @Override
+    public <T> T createContainerObject(Class<T> containerObjectClass) {
+        return createContainerObject(containerObjectClass, CubeContainerObjectConfiguration.empty(),null);
+    }
+
+    @Override
     public <T> T createContainerObject(Class<T> containerObjectClass, ContainerObjectConfiguration configuration) {
         return createContainerObject(containerObjectClass, configuration,null);
     }
 
     public <T> T createContainerObject(Class<T> containerObjectClass, ContainerObjectConfiguration configuration, Object containerObjectContainer) {
+        if (configuration == null) {
+            throw new IllegalArgumentException("configuration cannot be null");
+        }
         try {
             return new DockerContainerObjectBuilder<T>(dockerClientExecutorInstance.get(), cubeControllerInstance.get())
                     .withEnrichers(serviceLoaderInstance.get().all(TestEnricher.class))
