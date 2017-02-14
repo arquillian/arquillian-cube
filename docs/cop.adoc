@@ -251,7 +251,7 @@ public class PingPongTest {
     @Test
     public void shouldReturnOkAsPong() throws IOException {
         PingPongContainer pingPongContainer =
-            factory.createContainer(PingPongContainer.class, null); // <2>
+            factory.createContainer(PingPongContainer.class); // <2>
         try {
             String pong = ping();
             assertThat(pong, containsString("OK"));
