@@ -116,6 +116,15 @@ For example:
 
 IMPORTANT: You can set any extension property using system properties or environment variables, this can be really helpful in case of setting authentication scheme and sensitive data. For example `arq.extension.restassured.basePath=helloworld` for setting `basePath` property.
 
+You can also use `@DockerUrl` enrichment for configuring the `RequestSpecBuilder` instead of relaying to `arquillian.xml`.
+
+[source, java]
+----
+@DockerUrl(containerName = "pingpong", exposedPort = 8080)
+@ArquillianResource
+RequestSpecBuilder requestSpecBuilder;
+----
+
 ==== Example
 
 After setting the dependency and configuring the extension if required you can write your Arquillian Cube test as usually and use RestAssured without configuring it:
@@ -140,6 +149,7 @@ You only need to do:
 public class PingPongTest {
 
     @ArquillianResource
+    @DockerUrl(containerName = "helloworld", exposedPort = 8080)
     RequestSpecBuilder requestSpecBuilder;
 
     @Test
