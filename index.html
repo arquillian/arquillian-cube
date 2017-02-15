@@ -519,99 +519,105 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_preliminaries">2. Preliminaries</a></li>
 <li><a href="#_basic_example">3. Basic Example</a></li>
 <li><a href="#_standalone_example">4. Standalone Example</a></li>
-<li><a href="#_configuration">5. Configuration</a>
+<li><a href="#_arquillian_cube_bom_unified_dependencies">5. Arquillian Cube BOM - Unified Dependencies</a>
 <ul class="sectlevel2">
-<li><a href="#_networks">5.1. Networks</a></li>
-<li><a href="#_cube_environment">5.2. cube.environment</a></li>
-<li><a href="#_await">5.3. Await</a></li>
-<li><a href="#_inferring_exposedports_from_portbinding">5.4. Inferring exposedPorts from portBinding</a></li>
-<li><a href="#_allow_connecting_to_a_running_container">5.5. Allow connecting to a running container</a></li>
-<li><a href="#_before_stop_events">5.6. Before Stop Events</a></li>
-<li><a href="#_cubespecificproperties">5.7. CubeSpecificProperties</a></li>
-<li><a href="#automatic-resolution">5.8. Automatic serverUri resolution</a></li>
+<li><a href="#_usage">5.1. Usage</a></li>
+<li><a href="#_available_modules">5.2. Available Modules:</a></li>
 </ul>
 </li>
-<li><a href="#boot2docker">6. Boot2Docker and Docker Machine</a>
+<li><a href="#_configuration">6. Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#_boot2docker">6.1. Boot2Docker</a></li>
-<li><a href="#_docker_machine">6.2. Docker Machine</a></li>
+<li><a href="#_networks">6.1. Networks</a></li>
+<li><a href="#_cube_environment">6.2. cube.environment</a></li>
+<li><a href="#_await">6.3. Await</a></li>
+<li><a href="#_inferring_exposedports_from_portbinding">6.4. Inferring exposedPorts from portBinding</a></li>
+<li><a href="#_allow_connecting_to_a_running_container">6.5. Allow connecting to a running container</a></li>
+<li><a href="#_before_stop_events">6.6. Before Stop Events</a></li>
+<li><a href="#_cubespecificproperties">6.7. CubeSpecificProperties</a></li>
+<li><a href="#automatic-resolution">6.8. Automatic serverUri resolution</a></li>
 </ul>
 </li>
-<li><a href="#_building_containers">7. Building containers</a></li>
-<li><a href="#docker-compose-format">8. Docker-Compose Format</a></li>
-<li><a href="#_enrichers">9. Enrichers</a>
+<li><a href="#boot2docker">7. Boot2Docker and Docker Machine</a>
 <ul class="sectlevel2">
-<li><a href="#_docker_inside_docker_docker_on_docker">9.1. Docker Inside Docker / Docker On Docker</a></li>
-<li><a href="#_cubecontroller">9.2. CubeController</a></li>
-<li><a href="#_auto_starting_cubes_outside_of_arquillian_containers">9.3. Auto starting Cubes outside of Arquillian Containers</a></li>
-<li><a href="#_auto_remapping">9.4. Auto-Remapping</a></li>
-<li><a href="#_dockerserverip_and_containers">9.5. DockerServerIp and Containers</a></li>
+<li><a href="#_boot2docker">7.1. Boot2Docker</a></li>
+<li><a href="#_docker_machine">7.2. Docker Machine</a></li>
 </ul>
 </li>
-<li><a href="#_parallel_execution">10. Parallel Execution</a>
+<li><a href="#_building_containers">8. Building containers</a></li>
+<li><a href="#docker-compose-format">9. Docker-Compose Format</a></li>
+<li><a href="#_enrichers">10. Enrichers</a>
 <ul class="sectlevel2">
-<li><a href="#_star_operator">10.1. Star Operator</a></li>
+<li><a href="#_docker_inside_docker_docker_on_docker">10.1. Docker Inside Docker / Docker On Docker</a></li>
+<li><a href="#_cubecontroller">10.2. CubeController</a></li>
+<li><a href="#_auto_starting_cubes_outside_of_arquillian_containers">10.3. Auto starting Cubes outside of Arquillian Containers</a></li>
+<li><a href="#_auto_remapping">10.4. Auto-Remapping</a></li>
+<li><a href="#_dockerserverip_and_containers">10.5. DockerServerIp and Containers</a></li>
 </ul>
 </li>
-<li><a href="#_container_object_pattern">11. Container Object pattern</a>
+<li><a href="#_parallel_execution">11. Parallel Execution</a>
 <ul class="sectlevel2">
-<li><a href="#_arquillian_cube_and_container_object">11.1. Arquillian Cube and Container Object</a></li>
+<li><a href="#_star_operator">11.1. Star Operator</a></li>
 </ul>
 </li>
-<li><a href="#_arquillian_standalone_and_cube">12. Arquillian Standalone and Cube</a></li>
-<li><a href="#_requirements_module">13. Requirements Module</a>
+<li><a href="#_container_object_pattern">12. Container Object pattern</a>
 <ul class="sectlevel2">
-<li><a href="#_example_of_environment_requirements">13.1. Example of environment requirements</a></li>
-<li><a href="#_example_with_docker">13.2. Example with Docker</a></li>
-<li><a href="#_customizing_requirements">13.3. Customizing Requirements</a></li>
+<li><a href="#_arquillian_cube_and_container_object">12.1. Arquillian Cube and Container Object</a></li>
 </ul>
 </li>
-<li><a href="#_containerless_server_and_docker">14. Containerless Server and Docker</a>
+<li><a href="#_arquillian_standalone_and_cube">13. Arquillian Standalone and Cube</a></li>
+<li><a href="#_requirements_module">14. Requirements Module</a>
 <ul class="sectlevel2">
-<li><a href="#_java_embedded_servers">14.1. Java Embedded Servers</a></li>
+<li><a href="#_example_of_environment_requirements">14.1. Example of environment requirements</a></li>
+<li><a href="#_example_with_docker">14.2. Example with Docker</a></li>
+<li><a href="#_customizing_requirements">14.3. Customizing Requirements</a></li>
 </ul>
 </li>
-<li><a href="#_cube_docker_drone_graphene_integration">15. Cube Docker Drone/Graphene Integration</a>
+<li><a href="#_containerless_server_and_docker">15. Containerless Server and Docker</a>
 <ul class="sectlevel2">
-<li><a href="#_drone">15.1. Drone</a></li>
-<li><a href="#_graphene">15.2. Graphene</a></li>
+<li><a href="#_java_embedded_servers">15.1. Java Embedded Servers</a></li>
 </ul>
 </li>
-<li><a href="#_rest_assured_integration">16. Rest-Assured integration</a>
+<li><a href="#_cube_docker_drone_graphene_integration">16. Cube Docker Drone/Graphene Integration</a>
 <ul class="sectlevel2">
-<li><a href="#_why_integration_with_cube">16.1. Why integration with Cube?</a></li>
-<li><a href="#_configuration_3">16.2. Configuration</a></li>
+<li><a href="#_drone">16.1. Drone</a></li>
+<li><a href="#_graphene">16.2. Graphene</a></li>
 </ul>
 </li>
-<li><a href="#_arquillian_recorder_reporter_integration">17. Arquillian Recorder Reporter integration</a>
+<li><a href="#_rest_assured_integration">17. Rest-Assured integration</a>
 <ul class="sectlevel2">
-<li><a href="#_arquillian_cube_docker_reporter">17.1. Arquillian Cube Docker Reporter</a></li>
-<li><a href="#_arquillian_cube_docker_drone_integration">17.2. Arquillian Cube Docker Drone Integration</a></li>
-<li><a href="#_arquillian_cube_docker_restassured_integration">17.3. Arquillian Cube Docker RestAssured Integration</a></li>
-<li><a href="#_arquillian_cube_kubernetes_reporter">17.4. Arquillian Cube Kubernetes Reporter</a></li>
-<li><a href="#_examples">17.5. Examples</a></li>
+<li><a href="#_why_integration_with_cube">17.1. Why integration with Cube?</a></li>
+<li><a href="#_configuration_3">17.2. Configuration</a></li>
 </ul>
 </li>
-<li><a href="#_polyglot_applications">18. Polyglot Applications</a></li>
-<li><a href="#_kubernetes">19. Kubernetes</a>
+<li><a href="#_arquillian_recorder_reporter_integration">18. Arquillian Recorder Reporter integration</a>
 <ul class="sectlevel2">
-<li><a href="#_overview">19.1. Overview</a></li>
-<li><a href="#_modules">19.2. Modules</a></li>
-<li><a href="#_features">19.3. Features</a></li>
-<li><a href="#_configuring_the_extension">19.4. Configuring the extension</a></li>
-<li><a href="#_namespaces">19.5. Namespaces</a></li>
-<li><a href="#_creating_the_environment">19.6. Creating the environment</a></li>
-<li><a href="#_readiness_and_waiting">19.7. Readiness and waiting</a></li>
-<li><a href="#_immutable_infrastructure_and_integration_testing">19.8. Immutable infrastructure and integration testing</a></li>
-<li><a href="#_resource_providers">19.9. Resource Providers</a></li>
+<li><a href="#_arquillian_cube_docker_reporter">18.1. Arquillian Cube Docker Reporter</a></li>
+<li><a href="#_arquillian_cube_docker_drone_integration">18.2. Arquillian Cube Docker Drone Integration</a></li>
+<li><a href="#_arquillian_cube_docker_restassured_integration">18.3. Arquillian Cube Docker RestAssured Integration</a></li>
+<li><a href="#_arquillian_cube_kubernetes_reporter_2">18.4. Arquillian Cube Kubernetes Reporter</a></li>
+<li><a href="#_examples">18.5. Examples</a></li>
 </ul>
 </li>
-<li><a href="#_fabric8">20. Fabric8</a>
+<li><a href="#_polyglot_applications">19. Polyglot Applications</a></li>
+<li><a href="#_kubernetes">20. Kubernetes</a>
 <ul class="sectlevel2">
-<li><a href="#_additional_features">20.1. Additional Features</a></li>
+<li><a href="#_overview">20.1. Overview</a></li>
+<li><a href="#_modules">20.2. Modules</a></li>
+<li><a href="#_features">20.3. Features</a></li>
+<li><a href="#_configuring_the_extension">20.4. Configuring the extension</a></li>
+<li><a href="#_namespaces">20.5. Namespaces</a></li>
+<li><a href="#_creating_the_environment">20.6. Creating the environment</a></li>
+<li><a href="#_readiness_and_waiting">20.7. Readiness and waiting</a></li>
+<li><a href="#_immutable_infrastructure_and_integration_testing">20.8. Immutable infrastructure and integration testing</a></li>
+<li><a href="#_resource_providers">20.9. Resource Providers</a></li>
 </ul>
 </li>
-<li><a href="#_future_work">21. Future work</a></li>
+<li><a href="#_fabric8">21. Fabric8</a>
+<ul class="sectlevel2">
+<li><a href="#_additional_features">21.1. Additional Features</a></li>
+</ul>
+</li>
+<li><a href="#_future_work">22. Future work</a></li>
 </ul>
 </div>
 </div>
@@ -1029,7 +1035,240 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect1">
-<h2 id="_configuration"><a class="anchor" href="#_configuration"></a>5. Configuration</h2>
+<h2 id="_arquillian_cube_bom_unified_dependencies"><a class="anchor" href="#_arquillian_cube_bom_unified_dependencies"></a>5. Arquillian Cube BOM - Unified Dependencies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This aims to fulfill requirements of unify naming &amp; versions.</p>
+</div>
+<div class="sect2">
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>5.1. Usage</h3>
+<div class="paragraph">
+<p>Include the following snippet in your pom.xml file:</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;properties&gt;</span>
+    <span class="tag">&lt;version.arquillian_cube&gt;</span>${latest_released_version}<span class="tag">&lt;/version.arquillian_cube&gt;</span>
+<span class="tag">&lt;/properties&gt;</span>
+
+<span class="tag">&lt;dependencyManagement&gt;</span>
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-bom<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>${version.arquillian_cube}<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/dependencyManagement&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then include the individual modules as you see fit, by simply depending on the unified pom name:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependencies&gt;</span>
+    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;/dependencies&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_available_modules"><a class="anchor" href="#_available_modules"></a>5.2. Available Modules:</h3>
+<div class="sect4">
+<h5 id="_arquillian_cube_api"><a class="anchor" href="#_arquillian_cube_api"></a>Arquillian Cube API</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml">    <span class="tag">&lt;dependency&gt;</span>
+        <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+        <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-api<span class="tag">&lt;/artifactId&gt;</span>
+        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+    <span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_spi"><a class="anchor" href="#_arquillian_cube_spi"></a>5.2.2. Arquillian Cube SPI</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-spi<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_core"><a class="anchor" href="#_arquillian_cube_core"></a>5.2.3. Arquillian Cube Core</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-core<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_containerless"><a class="anchor" href="#_arquillian_cube_containerless"></a>5.2.4. Arquillian Cube Containerless</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-containerless<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_requirement"><a class="anchor" href="#_arquillian_cube_requirement"></a>5.2.5. Arquillian Cube Requirement</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-requirement<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker"><a class="anchor" href="#_arquillian_cube_docker"></a>5.2.6. Arquillian Cube Docker</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_drone"><a class="anchor" href="#_arquillian_cube_docker_drone"></a>5.2.7. Arquillian Cube Docker Drone</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-drone<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_restassured"><a class="anchor" href="#_arquillian_cube_docker_restassured"></a>5.2.8. Arquillian Cube Docker Restassured</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-restassured<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_recorder"><a class="anchor" href="#_arquillian_cube_docker_recorder"></a>5.2.9. Arquillian Cube Docker Recorder</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-recorder<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_docker_java_assertj"><a class="anchor" href="#_docker_java_assertj"></a>5.2.10. Docker Java AssertJ</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>assertj-docker-java<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_kubernetes"><a class="anchor" href="#_arquillian_cube_kubernetes"></a>5.2.11. Arquillian Cube Kubernetes</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>5.2.12. Arquillian Cube Kubernetes Reporter</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-reporter<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_kubernetes_fabric8"><a class="anchor" href="#_arquillian_cube_kubernetes_fabric8"></a>5.2.13. Arquillian Cube Kubernetes Fabric8</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-fabric8<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_openshift"><a class="anchor" href="#_arquillian_cube_openshift"></a>5.2.14. Arquillian Cube Openshift</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-openshift<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration"><a class="anchor" href="#_configuration"></a>6. Configuration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong>Arquillian Cube</strong> requires some parameters to be configured, some related with <em>Docker</em> server and others related on the image that is being used.
@@ -1303,7 +1542,7 @@ But if you want you can avoid using this property by simply creating a file call
 </div>
 </div>
 <div class="sect2">
-<h3 id="_networks"><a class="anchor" href="#_networks"></a>5.1. Networks</h3>
+<h3 id="_networks"><a class="anchor" href="#_networks"></a>6.1. Networks</h3>
 <div class="paragraph">
 <p>You can define networks using cube format (Docker Compose v1 (the one supported by Cube) does not have support to networks.
 For defining them you only need to use the reserved word <code>networks</code>.</p>
@@ -1357,7 +1596,7 @@ For defining them you only need to use the reserved word <code>networks</code>.<
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cube_environment"><a class="anchor" href="#_cube_environment"></a>5.2. cube.environment</h3>
+<h3 id="_cube_environment"><a class="anchor" href="#_cube_environment"></a>6.2. cube.environment</h3>
 <div class="paragraph">
 <p>In case you use the <code>dockerContainersFile</code> to configure a YAML file (Cube format or Compose format) for loading the definition of your containers, you can use <code>cube.environment</code> system property to append a prefix to the file you want to load.</p>
 </div>
@@ -1369,7 +1608,7 @@ For defining them you only need to use the reserved word <code>networks</code>.<
 </div>
 </div>
 <div class="sect2">
-<h3 id="_await"><a class="anchor" href="#_await"></a>5.3. Await</h3>
+<h3 id="_await"><a class="anchor" href="#_await"></a>6.3. Await</h3>
 <div class="paragraph">
 <p>After a container is started, it starts booting up the defined services/commands.
 Depending on the nature of service, the lifecycle of these services are linked to start up or not.
@@ -1608,7 +1847,7 @@ By default if you use <em>ss</em> strategy but ss command is not installed into 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_inferring_exposedports_from_portbinding"><a class="anchor" href="#_inferring_exposedports_from_portbinding"></a>5.4. Inferring exposedPorts from portBinding</h3>
+<h3 id="_inferring_exposedports_from_portbinding"><a class="anchor" href="#_inferring_exposedports_from_portbinding"></a>6.4. Inferring exposedPorts from portBinding</h3>
 <div class="paragraph">
 <p>When you are using <em>Docker</em> you can set two different parameters, exposedPort and portBinding.
 exposedPorts are ports that are available inside <em>Docker</em> infrastructure and they are used for communication between <em>Docker</em> containers but not from outside.
@@ -1641,7 +1880,7 @@ Notice that you need to add double-quotes to stringify the value.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_allow_connecting_to_a_running_container"><a class="anchor" href="#_allow_connecting_to_a_running_container"></a>5.5. Allow connecting to a running container</h3>
+<h3 id="_allow_connecting_to_a_running_container"><a class="anchor" href="#_allow_connecting_to_a_running_container"></a>6.5. Allow connecting to a running container</h3>
 <div class="paragraph">
 <p>With the configuration option connectionMode you can bypass
 the Create/Start Cube commands if the a <em>Docker</em> Container with the same name is already
@@ -1693,7 +1932,7 @@ run. This assumes you are not changing the actual definition of the <em>Docker</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_before_stop_events"><a class="anchor" href="#_before_stop_events"></a>5.6. Before Stop Events</h3>
+<h3 id="_before_stop_events"><a class="anchor" href="#_before_stop_events"></a>6.6. Before Stop Events</h3>
 <div class="paragraph">
 <p>Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
 In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.</p>
@@ -1749,7 +1988,7 @@ log <em>Docker</em> command can receive some configuration paramters and you can
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cubespecificproperties"><a class="anchor" href="#_cubespecificproperties"></a>5.7. CubeSpecificProperties</h3>
+<h3 id="_cubespecificproperties"><a class="anchor" href="#_cubespecificproperties"></a>6.7. CubeSpecificProperties</h3>
 <div class="paragraph">
 <p>In case you are using COMPOSE format, you cannot configure cube custom properties like <code>await</code> or <code>beforeStop</code>.
 You can use a property called <code>cubeSpecificProperties</code> allows you to add them in already defined containers.</p>
@@ -1786,7 +2025,7 @@ This property only overrides custom properties defined by CUBE format.
 </div>
 </div>
 <div class="sect2">
-<h3 id="automatic-resolution"><a class="anchor" href="#automatic-resolution"></a>5.8. Automatic serverUri resolution</h3>
+<h3 id="automatic-resolution"><a class="anchor" href="#automatic-resolution"></a>6.8. Automatic serverUri resolution</h3>
 <div class="paragraph">
 <p>serverUri parameter is where you configure the Uri of <em>Docker</em> server.
 This parameter is not mandatory and in case you don&#8217;t set it, <em>Arquillian Cube</em> will use next values:</p>
@@ -1819,7 +2058,7 @@ This parameter is not mandatory and in case you don&#8217;t set it, <em>Arquilli
 </div>
 </div>
 <div class="sect1">
-<h2 id="boot2docker"><a class="anchor" href="#boot2docker"></a>6. Boot2Docker and Docker Machine</h2>
+<h2 id="boot2docker"><a class="anchor" href="#boot2docker"></a>7. Boot2Docker and Docker Machine</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>If you are using <em>boot2docker</em> or <em>docker machine</em> there are some parameters that depends on the local installation.
@@ -1859,7 +2098,7 @@ In case of using docker machine with only one machine <strong>running</strong>, 
 </table>
 </div>
 <div class="sect2">
-<h3 id="_boot2docker"><a class="anchor" href="#_boot2docker"></a>6.1. Boot2Docker</h3>
+<h3 id="_boot2docker"><a class="anchor" href="#_boot2docker"></a>7.1. Boot2Docker</h3>
 <div class="paragraph">
 <p>In case of <em>boot2docker</em> it will run the command boot2docker ip to get the ip and substitute the <em>dockerHost</em> keyword to the ip returned by that command.</p>
 </div>
@@ -1874,7 +2113,7 @@ If this property is not set and the serverUri contains dockerHost, then this pro
 </div>
 </div>
 <div class="sect2">
-<h3 id="_docker_machine"><a class="anchor" href="#_docker_machine"></a>6.2. Docker Machine</h3>
+<h3 id="_docker_machine"><a class="anchor" href="#_docker_machine"></a>7.2. Docker Machine</h3>
 <div class="paragraph">
 <p>In case of <em>docker-machine</em> it will run the command docker-machine ip &lt;machineName&gt; to get the ip and substitute the <em>dockerHost</em> keyword to the ip returned by that command.</p>
 </div>
@@ -1917,7 +2156,7 @@ If this property is not set and <em>docker-machine</em> is run, then this proper
 </div>
 </div>
 <div class="sect1">
-<h2 id="_building_containers"><a class="anchor" href="#_building_containers"></a>7. Building containers</h2>
+<h2 id="_building_containers"><a class="anchor" href="#_building_containers"></a>8. Building containers</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>To build a container <em>Docker</em> uses a file called Dockerfile <a href="http://docs.docker.com/reference/builder/" class="bare">http://docs.docker.com/reference/builder/</a>.
@@ -2007,7 +2246,7 @@ CMD [&quot;/tomcat/bin/catalina.sh&quot;,&quot;run&quot;]</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="docker-compose-format"><a class="anchor" href="#docker-compose-format"></a>8. Docker-Compose Format</h2>
+<h2 id="docker-compose-format"><a class="anchor" href="#docker-compose-format"></a>9. Docker-Compose Format</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Instead of using Arquillian Cube format, you can use Docker Compose format to define containers layout. This means that you can use the same Docker Compose file for running your tests with Arquillian Cube and without any change run <code>docker-compose up</code> command from terminal and get the same result.</p>
@@ -2134,7 +2373,7 @@ You can see the full example at: <a href="https://github.com/arquillian/arquilli
 </div>
 </div>
 <div class="sect1">
-<h2 id="_enrichers"><a class="anchor" href="#_enrichers"></a>9. Enrichers</h2>
+<h2 id="_enrichers"><a class="anchor" href="#_enrichers"></a>10. Enrichers</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong>Arquillian Cube</strong> comes with a few enrichers.</p>
@@ -2194,8 +2433,22 @@ CubeController cubeController;</code></pre>
 <span class="predefined-type">String</span> ip;</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>When running Arquillian Cube with Standalone you can enrich the test with URL.</p>
+</div>
+<div class="listingblock">
+<div class="title">DockerUrlProvider.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@DockerUrl</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>, exposedPort = <span class="integer">8080</span>) <span class="comment">// resolves bind port</span>
+<span class="annotation">@ArquillianResource</span>
+<span class="directive">private</span> <span class="predefined-type">URL</span> url;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>URL will be <code><a href="http://&lt;docker_host&gt;:&lt;bind_port&gt;/" class="bare">http://&lt;docker_host&gt;:&lt;bind_port&gt;/</a></code></p>
+</div>
 <div class="sect2">
-<h3 id="_docker_inside_docker_docker_on_docker"><a class="anchor" href="#_docker_inside_docker_docker_on_docker"></a>9.1. Docker Inside Docker / Docker On Docker</h3>
+<h3 id="_docker_inside_docker_docker_on_docker"><a class="anchor" href="#_docker_inside_docker_docker_on_docker"></a>10.1. Docker Inside Docker / Docker On Docker</h3>
 <div class="paragraph">
 <p>If you are running your tests inside your continuous integration/delivery server (for example in Jenkins) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
 So you effectively face the Docker inside Docker problem.</p>
@@ -2214,7 +2467,7 @@ Basically it ignores any <code>SERVER_URI</code>, <code>Boot2Docker</code> or <c
 <p>In next sections, some minor information is provided on how to run Docker inside/on Docker. Keep in mind that you need to configure continuous integration/delivery correctly.</p>
 </div>
 <div class="sect3">
-<h4 id="_docker_inside_docker"><a class="anchor" href="#_docker_inside_docker"></a>9.1.1. Docker Inside Docker</h4>
+<h4 id="_docker_inside_docker"><a class="anchor" href="#_docker_inside_docker"></a>10.1.1. Docker Inside Docker</h4>
 <div class="paragraph">
 <p>You can find more information about Docker Inside Docker at: <a href="https://github.com/jpetazzo/dind" class="bare">https://github.com/jpetazzo/dind</a></p>
 </div>
@@ -2223,7 +2476,7 @@ Basically it ignores any <code>SERVER_URI</code>, <code>Boot2Docker</code> or <c
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_on_docker"><a class="anchor" href="#_docker_on_docker"></a>9.1.2. Docker On Docker</h4>
+<h4 id="_docker_on_docker"><a class="anchor" href="#_docker_on_docker"></a>10.1.2. Docker On Docker</h4>
 <div class="paragraph">
 <p>If instead of running Docker inside Docker, you want to use the Docker instance/host of the "parent" Docker, you can map as volume the Docker CLI, Docker socket and <code>apparmor</code> library from parent to child container.</p>
 </div>
@@ -2233,7 +2486,7 @@ Basically it ignores any <code>SERVER_URI</code>, <code>Boot2Docker</code> or <c
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cubecontroller"><a class="anchor" href="#_cubecontroller"></a>9.2. CubeController</h3>
+<h3 id="_cubecontroller"><a class="anchor" href="#_cubecontroller"></a>10.2. CubeController</h3>
 <div class="paragraph">
 <p><code>CubeController</code> is facade class that let&#8217;s you interact with any cube container.
  It offers some operations like creating and destroying <em>Cubes</em> (in case of Docker, it is Docker containers), copy a directory to local directory, get a log with all the changes that happened to Cube filesystem, execute a <code>Top</code> command or copy the logs to local file.</p>
@@ -2291,7 +2544,7 @@ Basically it ignores any <code>SERVER_URI</code>, <code>Boot2Docker</code> or <c
 </div>
 </div>
 <div class="sect2">
-<h3 id="_auto_starting_cubes_outside_of_arquillian_containers"><a class="anchor" href="#_auto_starting_cubes_outside_of_arquillian_containers"></a>9.3. Auto starting Cubes outside of Arquillian Containers</h3>
+<h3 id="_auto_starting_cubes_outside_of_arquillian_containers"><a class="anchor" href="#_auto_starting_cubes_outside_of_arquillian_containers"></a>10.3. Auto starting Cubes outside of Arquillian Containers</h3>
 <div class="paragraph">
 <p>Probably any application you may write will need an application/servlet container but also other servers like database server or mail server.
 Each one will be placed on one <em>Docker Container</em>.
@@ -2440,7 +2693,7 @@ To make it so, first you need to implement <code>org.arquillian.cube.spi.AutoSta
 </div>
 </div>
 <div class="sect2">
-<h3 id="_auto_remapping"><a class="anchor" href="#_auto_remapping"></a>9.4. Auto-Remapping</h3>
+<h3 id="_auto_remapping"><a class="anchor" href="#_auto_remapping"></a>10.4. Auto-Remapping</h3>
 <div class="paragraph">
 <p><strong>Arquillian Cube</strong> can automatically configure default ports of container in case of port forwarding.</p>
 </div>
@@ -2509,7 +2762,7 @@ Automapping only works in case you want to change the default server port to a <
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dockerserverip_and_containers"><a class="anchor" href="#_dockerserverip_and_containers"></a>9.5. DockerServerIp and Containers</h3>
+<h3 id="_dockerserverip_and_containers"><a class="anchor" href="#_dockerserverip_and_containers"></a>10.5. DockerServerIp and Containers</h3>
 <div class="paragraph">
 <p>If you are using a remote docker server (not on <em>localhost</em>) or for example <em>boot2docker</em> you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test.
 In these cases you can hardcode this ip to Arquillian container adapter configuration or you can use the special tag dockerServerIp.
@@ -2591,7 +2844,7 @@ In case you are running in <em>MACOS</em> or <em>Windows</em> with boot2docker, 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_parallel_execution"><a class="anchor" href="#_parallel_execution"></a>10. Parallel Execution</h2>
+<h2 id="_parallel_execution"><a class="anchor" href="#_parallel_execution"></a>11. Parallel Execution</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Soemtimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
@@ -2613,7 +2866,7 @@ So when you start the second test (in parallel) you will get a failure regarding
 </ul>
 </div>
 <div class="sect2">
-<h3 id="_star_operator"><a class="anchor" href="#_star_operator"></a>10.1. Star Operator</h3>
+<h3 id="_star_operator"><a class="anchor" href="#_star_operator"></a>11.1. Star Operator</h3>
 <div class="paragraph">
 <p>Star operator let&#8217;s you indicate to Arquillian Cube that you want to generate cube names randomly and adapt links as well.
 In this way when you execute your tests in parallel there will be no conflicts because of names or binding ports.</p>
@@ -2699,47 +2952,49 @@ You can use the same approach for <em>docker-compose</em> files not only with <e
 </div>
 </div>
 <div class="sect1">
-<h2 id="_container_object_pattern"><a class="anchor" href="#_container_object_pattern"></a>11. Container Object pattern</h2>
+<h2 id="_container_object_pattern"><a class="anchor" href="#_container_object_pattern"></a>12. Container Object pattern</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you search for a description of what <strong>Page Object</strong> is, you’ll find that The Page Object Pattern gives us a common sense way to model content in a reusable and maintainable way.</p>
+<p>If you search for a description of what <strong>Page Object</strong> is, you&#8217;ll find that it describes a pattern that allows you to model content in a reusable and maintainable way.
+The description also points that within your web app&#8217;s UI, there are areas that your tests interact with, and a Page Object simply models those areas as objects within the test code.
+Using the Page Object pattern reduces the amount of duplicated code. If the UI changes, only the Page Object will need to be updated for the test cases to run.</p>
 </div>
 <div class="paragraph">
-<p>And also points that: Within your web app’s UI there are areas that your tests interact with. A Page Object simply models these as objects within the test code. This reduces the amount of duplicated code and means that if the UI changes, the fix need only be applied in one place.</p>
-</div>
-<div class="paragraph">
-<p>As you can see, Page Object applies to UI elements. We (the Arquillian community) has coined a new pattern following Page Object pattern called <strong>Container Object</strong> pattern. You can think about Container Object as areas of a container (for now Docker container) that your test might interact with. For example some of these areas could be:</p>
+<p>As you can see, the Page Object pattern applies to UI elements. We (the Arquillian community) have coined a new pattern following Page Object that we call the <strong>Container Object</strong> pattern.
+You can think of a Container Object as a mechanism to encapsulate areas (data and actions) related to a container (for now only Docker containers) that your test might interact with.
+For example:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>to get the host IP where container is running</p>
+<p>the host IP where the container is running</p>
 </li>
 <li>
 <p>the bounded port for a given exposed port</p>
 </li>
 <li>
-<p>any parameter configured inside the configuration file (Dockerfile) like a user or password to access to the service which the container exposes.</p>
+<p>any parameter configured inside the configuration file (Dockerfile), like a user or password to access the service running in the container.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>In case of running a MySQL database in the container, it could be the user and password to access to database. Notice that nothing prevents you to generate the correct URL for accessing to the service from the test, or execute commands against container like retrieving an internal file.</p>
+<p>For example, if running a MySQL database in a container, it could be the user and password to access the database.
+Notice that nothing prevents you from generating the correct URL to access the service directly from your test, or executing commands against the container, for example retrieving an internal file.</p>
 </div>
 <div class="paragraph">
-<p>And of course as Page Object does, Container Object gives you a way to build a model content that can be reused for several projects.</p>
+<p>As is the case with Page Objects, the Container Object pattern gives you a mechanism to build a model that can be reused on several projects.</p>
 </div>
 <div class="paragraph">
-<p>Before looking at how this pattern is implemented in Cube, let’s go thorough an example:</p>
+<p>Before looking at how this pattern is implemented in Cube, let&#8217;s go through an example:</p>
 </div>
 <div class="paragraph">
-<p>Suppose all of your applications need to send a file to an FTP server.
-To write an integration/component test you might need a FTP server to send the file and check that the file was correctly sent.
-One way to do this is using Docker to start a FTP server just before executing the test, then execute the test using this docker container for FTP server, before stopping the container check that the file is there, and finally stop the container.</p>
+<p>Suppose all your applications need to send a file to an FTP server.
+To write an integration/component test for your apps, you might need an FTP server to send the file to, and then check that the file was correctly sent.
+One way to implement such test is (i) by using Docker to start an FTP server just before executing the test, then (ii) execute the test using this docker container as the receiving FTP server, (iii) before stopping the container check that the file is present, and finally (iv) stop and destroy the container.</p>
 </div>
 <div class="paragraph">
-<p>So all these operations that involves the FTP server and container could be joined inside a Container Object.
-This container object might contain information of:</p>
+<p>All these operations that involve the FTP server and container could be encapsulated inside a Container Object.
+This container object might contain the following information:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2747,29 +3002,29 @@ This container object might contain information of:</p>
 <p>which image is used</p>
 </li>
 <li>
-<p>IP and bounded port of host where this FTP server is running</p>
+<p>IP and port bound to the host where the FTP server is running</p>
 </li>
 <li>
-<p>user and password to access to the FTP server</p>
+<p>user and password required to access the FTP server</p>
 </li>
 <li>
-<p>methods for asserting the existence of a file</p>
+<p>methods for asserting the existence of a file inside the container</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Then from the point of view of test, it only communicate with this object instead of directly hard coding all information inside the test.
-Again as in Page Object, any change on the container only affects the Container Object and not the test itself.</p>
+<p>Test code will only interact with this object instead of directly hard coding all required information inside the test.
+Again, as in the Page Object pattern, any change on the container only affects the Container Object and not the test itself.</p>
 </div>
 <div class="paragraph">
-<p>Now let’s see how <em>Arquillian Cube</em> implements Container Object pattern.</p>
+<p>Now let&#8217;s see how <em>Arquillian Cube</em> implements the Container Object pattern.</p>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_and_container_object"><a class="anchor" href="#_arquillian_cube_and_container_object"></a>11.1. Arquillian Cube and Container Object</h3>
+<h3 id="_arquillian_cube_and_container_object"><a class="anchor" href="#_arquillian_cube_and_container_object"></a>12.1. Arquillian Cube and Container Object</h3>
 <div class="paragraph">
-<p>Let’s see a simple example on how you can implement a Container Object in <em>Cube</em>.
+<p>Let&#8217;s see a simple example of how you can implement a Container Object in <em>Cube</em>.
 Suppose you want to create a container object that encapsulates a ping pong server running inside Docker.
-The Container Object will be like a simple POJO with special annotations:</p>
+The Container Object will be a simple POJO with special annotations:</p>
 </div>
 <div class="listingblock">
 <div class="title">PingPongContainer.java</div>
@@ -2788,7 +3043,7 @@ The Container Object will be like a simple POJO with special annotations:</p>
 
   <span class="directive">public</span> <span class="predefined-type">URL</span> getConnectionUrl() { <i class="conum" data-value="3"></i><b>(3)</b>
     <span class="keyword">try</span> {
-      <span class="keyword">return</span> <span class="keyword">new</span> <span class="predefined-type">URL</span>(<span class="error">“</span>http:<span class="comment">//” + dockerHost + “:” + port);</span>
+      <span class="keyword">return</span> <span class="keyword">new</span> <span class="predefined-type">URL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">http://</span><span class="delimiter">&quot;</span></span> + dockerHost + <span class="string"><span class="delimiter">&quot;</span><span class="content">:</span><span class="delimiter">&quot;</span></span> + port);
           } <span class="keyword">catch</span> (<span class="exception">MalformedURLException</span> e) {
                   <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalArgumentException</span>(e);
           }
@@ -2800,7 +3055,7 @@ The Container Object will be like a simple POJO with special annotations:</p>
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td><code>@Cube</code> annotation configures Container Object</td>
+<td>The <code>@Cube</code> annotation configures the Container Object</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -2808,20 +3063,20 @@ The Container Object will be like a simple POJO with special annotations:</p>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Container Object hides how to connect to PingPong server.</td>
+<td>The Container Object hides how to connect to the PingPong server</td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p><code>@Cube</code> annotation is used to configure this Container Object.
-Initially you set that the started container will be named <code>pingpong</code> and the port binding information for the container instance, in this case <code>5000&#8594;8080/tcp</code>.
-Notice that this can be an array to set more than one port binding definition.</p>
+<p>The <code>@Cube</code> annotation is used to configure a Container Object.
+Its <code>value</code> property is used to specify how the started container will be named (in this example <code>pingpong</code>) while the <code>portBinding</code> property can be used to specify the port binding information for the container instance (in this case <code>5000&#8594;8080/tcp</code>).
+Notice that <code>portBinding</code> can also accept an array, in which case more than one port binding definitions can be specified.</p>
 </div>
 <div class="paragraph">
-<p>Next annotation is <code>@CubeDockerFile</code> which configure how Container is created.
-In this case using a Dockerfile located at default class path location.
-The default location is the <em>package+classname</em>, so for example in previous case, <code>Dockerfile</code> should be placed at <code>org/superbiz/containerobject/PingPongContainer</code>.
-Of course you can set any other class path location by passing as value of the annotation.</p>
+<p>The next annotation is <code>@CubeDockerFile</code>, which configures how the container is created.
+This example will use a Dockerfile located at the default class path location.
+As the default location is the <em>package+classname</em>, in our example the <code>Dockerfile</code> should be placed at <code>org/superbiz/containerobject/PingPongContainer</code>.
+It is possible to set any other class path location by passing it as the <code>value</code> property of the <code>@CubeDockerFile</code> annotation.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -2830,20 +3085,21 @@ Of course you can set any other class path location by passing as value of the a
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-<code>CubeDockerFile</code> annotation sets the location where the <code>Dockerfile</code> is found and not the file itself. Also this location should be reachable from ClassLoader, so it means it should be loaded in class path in order to find it.
+The <code>@CubeDockerFile</code> annotation defines the <em>location</em> where the <code>Dockerfile</code> is found, not the file itself.
+This location must be reachable from the ClassLoader creating the container object, which means it should be on the class path for the class loader to be able to find it.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Any Cube can be enriched with any client side enricher, in this case with <code>@HostIp</code> enricher, but it could be enriched with <code>DockerClient</code> using <code>@ArquillianResource</code> as well.</p>
+<p>Any Cube can be enriched with any client side enricher. In the previous example a <code>@HostIp</code> enricher is used, but it could be enriched similarly with <code>@CubeIp</code> (which works similar to <code>@HostPort</code>), or a <code>DockerClient</code> instance if the field is annotated with <code>@ArquillianResource</code>.</p>
 </div>
 <div class="paragraph">
-<p>Finally the <code>@HostPort</code> is used to translate the exposed port to bound port.
-So in this example port value will be 5000. You are going to lean briefly why this annotation is important.</p>
+<p>Finally the <code>@HostPort</code> is used to translate the exposed port to the bound port.
+In this example the port value will be 5000. Later you will learn briefly why this annotation is important.</p>
 </div>
 <div class="paragraph">
-<p>And then you can start using this container object in your test:</p>
+<p>After creating the container object, you can start using it in your test:</p>
 </div>
 <div class="listingblock">
 <div class="title">PingPongTest.java</div>
@@ -2864,11 +3120,11 @@ So in this example port value will be 5000. You are going to lean briefly why th
 </div>
 </div>
 <div class="paragraph">
-<p>The most important thing here is that you need to set Container Object as a field of the class and annotate with <code>@Cube</code>.
-It is very important to annotate the field with <code>Cube</code>, so before Arquillian runs the test, it can detect that it needs to  start a new Cube (Docker container), create the Container Object and inject it in the test.
-Notice that this annotation is exactly the same as used when you defined the Container Object.
-And it is in this way because you can override any property of the Container Object from the test side.
-This is why <code>@HostPort</code> annotation is important, since port can be changed from the test definition, you need to find a way to inject the correct port inside the container object.</p>
+<p>The most important step in that test example is setting the Container Object as a field of the test class, and annotating it with <code>@Cube</code>.
+Before running a test, Arquillian will detect that it needs to (i) start a new Cube (Docker container), (ii) create the Container Object and (iii) inject it in the test.
+Notice that this <code>@Cube</code> annotation is exactly the same as the one used when you defined the Container Object.
+Placing a <code>@Cube</code> annotation on the field will allow you to override any property of the Container Object from the test side.
+Due to the override mechanism, it is important to use the <code>@HostPort</code> annotation when the bound port is needed, since it can be changed from the test definition.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -2877,13 +3133,13 @@ This is why <code>@HostPort</code> annotation is important, since port can be ch
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Container Object pattern only works in Client mode or Arquillian standalone.
+The Container Object pattern only works in Client mode or Arquillian Standalone.
 </td>
 </tr>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_shrinkwrap_dockerfile_descriptor"><a class="anchor" href="#_shrinkwrap_dockerfile_descriptor"></a>11.1.1. ShrinkWrap Dockerfile Descriptor</h4>
+<h4 id="_shrinkwrap_dockerfile_descriptor"><a class="anchor" href="#_shrinkwrap_dockerfile_descriptor"></a>12.1.1. ShrinkWrap Dockerfile Descriptor</h4>
 <div class="paragraph">
 <p>If you want you can use <strong>ShrinkWrap Dockerfile</strong> descriptor to create the <code>Dockerfile</code> file.
 First thing you need to do is adding <code>shrinkwrap-descriptord-api-docker dependencies</code>:</p>
@@ -2939,16 +3195,16 @@ First thing you need to do is adding <code>shrinkwrap-descriptord-api-docker dep
 </table>
 </div>
 <div class="paragraph">
-<p>In Arquillian Cube we are providing a <code>org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset</code> asset.
-This asset is like <code>org.jboss.shrinkwrap.api.asset.UrlAsset</code> but it caches to disk for an amount of time the content that has been downloaded from the URL.
-By default this expiration time is 1 hour but it is configurable by using proper constructor.</p>
+<p>As part of Arquillian Cube, we are providing a <code>org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset</code> asset.
+This asset is similar to <code>org.jboss.shrinkwrap.api.asset.UrlAsset</code>, but the former caches to disk for an amount of time the content that has been downloaded from the URL.
+By default this expiration time is 1 hour, and it is configurable by using the proper constructor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_links"><a class="anchor" href="#_links"></a>11.1.2. Links</h4>
+<h4 id="_links"><a class="anchor" href="#_links"></a>12.1.2. Links</h4>
 <div class="paragraph">
-<p>A Container Object can contain more Container Objects inside.
-So effectively a Container Object can be an aggregation of other Container Objects:</p>
+<p>A Container Object can reference more Container Objects from inside of it.
+Effectively, a Container Object can be an aggregation of other Container Objects:</p>
 </div>
 <div class="listingblock">
 <div class="title">FirstContainerObject.java</div>
@@ -2974,7 +3230,7 @@ So effectively a Container Object can be an aggregation of other Container Objec
 <p>In this case Arquillian Cube will create a link from <code>FirstContainerObject</code> to <code>LinkContainerObject</code> with link value <code>inner:inner</code>.</p>
 </div>
 <div class="paragraph">
-<p>But of course you can override the link value using <code>@Link</code> annotation.</p>
+<p>Of course you can override the link value using <code>@Link</code> annotation.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2985,37 +3241,124 @@ TestLinkContainerObject linkContainerObject;</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_image"><a class="anchor" href="#_image"></a>11.1.3. Image</h4>
+<h4 id="_image"><a class="anchor" href="#_image"></a>12.1.3. Image</h4>
 <div class="paragraph">
-<p>So far, you’ve seen that the Container Object creates a Container object from a <code>Dockerfile</code> using <code>@CubeDockerFile</code> annotation, but you can also creates a Container Object from an image by using <code>@Image</code> annotation:</p>
+<p>So far, you&#8217;ve seen that a Container Object creates an instance from a <code>Dockerfile</code> using <code>@CubeDockerFile</code> annotation. You can also create a Container Object from an image by using <code>@Image</code> annotation:</p>
 </div>
 <div class="listingblock">
 <div class="title">ImageContainerObject.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>(<span class="error">“</span>tomme<span class="error">”</span>)
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Cube</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">tomme</span><span class="delimiter">&quot;</span></span>)
 <span class="annotation">@Image</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">tomee:8-jre-1.7.2-webprofile</span><span class="delimiter">&quot;</span></span>)
 <span class="directive">public</span> <span class="directive">static</span> <span class="type">class</span> <span class="class">ImageContainerObject</span> {
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>So in this case Arquillian Cube starts and stops the image defined in the annotation.</p>
+<p>In this case Arquillian Cube will create containers based on the image defined in the annotation.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_environment"><a class="anchor" href="#_environment"></a>12.1.4. Environment</h4>
+<div class="paragraph">
+<p>You can set environment variables using <code>@Environment</code> annotation at field or object level:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Environment</span>(key = <span class="string"><span class="delimiter">&quot;</span><span class="content">C</span><span class="delimiter">&quot;</span></span>, value = <span class="string"><span class="delimiter">&quot;</span><span class="content">D</span><span class="delimiter">&quot;</span></span>)
+<span class="annotation">@Environment</span>(key = <span class="string"><span class="delimiter">&quot;</span><span class="content">A</span><span class="delimiter">&quot;</span></span>, value = <span class="string"><span class="delimiter">&quot;</span><span class="content">B</span><span class="delimiter">&quot;</span></span>)
+<span class="annotation">@Image</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">tomee:8-jre-1.7.2-webprofile</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">ImageContainer</span> {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_volume"><a class="anchor" href="#_volume"></a>12.1.5. Volume</h4>
+<div class="paragraph">
+<p>You can set environment variables using <code>@Volume</code> annotation at field or object level:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Image</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">tomee:8-jre-1.7.2-webprofile</span><span class="delimiter">&quot;</span></span>)
+<span class="annotation">@Volume</span>(hostPath = <span class="string"><span class="delimiter">&quot;</span><span class="content">/mypath</span><span class="delimiter">&quot;</span></span>, containerPath = <span class="string"><span class="delimiter">&quot;</span><span class="content">/containerPath</span><span class="delimiter">&quot;</span></span>)
+<span class="annotation">@Volume</span>(hostPath = <span class="string"><span class="delimiter">&quot;</span><span class="content">/mypath2</span><span class="delimiter">&quot;</span></span>, containerPath = <span class="string"><span class="delimiter">&quot;</span><span class="content">/containerPath2</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">ImageContainer</span> {
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_creating_container_objects_dynamically"><a class="anchor" href="#_creating_container_objects_dynamically"></a>12.1.6. Creating container objects dynamically</h4>
+<div class="paragraph">
+<p>Up to this point you have seen how to automatically inject Container Objects in tests.
+Arquillian Cube also allows creating container objects from code.
+In the next example, the original <code>PingPongTest</code> has been rewritten to create the Container Object inside the test method.</p>
+</div>
+<div class="listingblock">
+<div class="title">PingPongTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(Arquillian.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongTest</span> {
+
+    <span class="annotation">@ArquillianResource</span>
+    ContainerObjectFactory factory; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    <span class="annotation">@ArquillianResource</span>
+    CubeController cubeController;
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> shouldReturnOkAsPong() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        PingPongContainer pingPongContainer =
+            factory.createContainer(PingPongContainer.class); <i class="conum" data-value="2"></i><b>(2)</b>
+        <span class="keyword">try</span> {
+            <span class="predefined-type">String</span> pong = ping();
+            assertThat(pong, containsString(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>));
+            assertThat(pingPongContainer.getConnectionPort(), is(<span class="integer">5000</span>));
+        } <span class="keyword">finally</span> {
+            cubeController.stop(<span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>); <i class="conum" data-value="3"></i><b>(3)</b>
+            cubeController.destroy(<span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>);
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>A <code>ContainerObjectFactory</code> instance is injected into the test.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The injectect factory instance is used to instantiate a container object.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>A <code>CubeController</code> could be used to stop the associated docker container.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Although declaring container objects as fields of a test class is preffered, as it offers better control of the lifecycle of the container, creating container objects dynamically allows controlling exactly in which moment in time and in which order the containers are created.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_arquillian_standalone_and_cube"><a class="anchor" href="#_arquillian_standalone_and_cube"></a>12. Arquillian Standalone and Cube</h2>
+<h2 id="_arquillian_standalone_and_cube"><a class="anchor" href="#_arquillian_standalone_and_cube"></a>13. Arquillian Standalone and Cube</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>You can use Arquillian Standalone with Arquillian Cube too.
 Arquillian Standalone is a mode of Arquillian which allows you to use Arquillian but without deploying any application.
-Basically it means no <code>@Deployment</code> static method and tests runs as client implicitly.</p>
+Basically it means no <code>@Deployment</code> static method, and tests runs as client implicitly.</p>
 </div>
 <div class="paragraph">
 <p>Running Arquillian Cube in Standalone mode means that Arquillian Cube starts all defined containers in the correct order.
-Internally Arquillian Cube registers a <code>autostartContainers`property (in case you have not registered any) with `regexp:.*</code> expression.</p>
+Internally Arquillian Cube implicitly defines the <code>autostartContainers</code> property (unless you define it), with <code>regexp:.*</code> expression, which means all containers will be created/started.
+If you want to avoid this behavior, you can set this property to <code>[none]</code>.
+As a result, Arquilian Cube will not auto-start any container and you will be responsible of starting manually each instance (using for example, the CubeController class) by your own.</p>
 </div>
 <div class="paragraph">
 <p>Dependencies you need to set for Standalone mode are:</p>
@@ -3045,14 +3388,10 @@ Internally Arquillian Cube registers a <code>autostartContainers`property (in ca
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Notice that in case of Standalone mode, Arquillian Cube registers automatically <code>autostartContainers</code> property to <code>regexp:.*</code>.
-If you want to avoid this, you can set yourself this property to <code>[none]</code>. Then Arquilian Cube will not touch anything and you will be the responsible of starting manually each instance using for example CubeController class by your own.</p>
-</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_requirements_module"><a class="anchor" href="#_requirements_module"></a>13. Requirements Module</h2>
+<h2 id="_requirements_module"><a class="anchor" href="#_requirements_module"></a>14. Requirements Module</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Arquillian Cube tries to adapt to docker installation you have.
@@ -3073,7 +3412,7 @@ For this use case Arquillian Cube and other ones, Cube implements the <strong>re
 This module makes skip tests instead of failing in case of not meeting some environment expectations.</p>
 </div>
 <div class="sect2">
-<h3 id="_example_of_environment_requirements"><a class="anchor" href="#_example_of_environment_requirements"></a>13.1. Example of environment requirements</h3>
+<h3 id="_example_of_environment_requirements"><a class="anchor" href="#_example_of_environment_requirements"></a>14.1. Example of environment requirements</h3>
 <div class="paragraph">
 <p>With Requirements you can set if you want to skip tests if some environment or property variables are not set.
 This is useful for example if you require that <code>DOCKER_HOST</code>, <code>DOCKER_TLS_VERIFY</code> or <code>DOCKER_CERT_PATH</code> system or environment variable must be set.</p>
@@ -3164,7 +3503,7 @@ If you use Rule, the scope of annotations are only a test class, if you use the 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_example_with_docker"><a class="anchor" href="#_example_with_docker"></a>13.2. Example with Docker</h3>
+<h3 id="_example_with_docker"><a class="anchor" href="#_example_with_docker"></a>14.2. Example with Docker</h3>
 <div class="paragraph">
 <p>But also there is an annotation in docker module for checking the environment against docker machine.</p>
 </div>
@@ -3194,7 +3533,7 @@ If you use Rule, the scope of annotations are only a test class, if you use the 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_customizing_requirements"><a class="anchor" href="#_customizing_requirements"></a>13.3. Customizing Requirements</h3>
+<h3 id="_customizing_requirements"><a class="anchor" href="#_customizing_requirements"></a>14.3. Customizing Requirements</h3>
 <div class="paragraph">
 <p>You can also implement your own requirement annotations.
 To do it you only need to do two things.</p>
@@ -3272,7 +3611,7 @@ To do it you only need to do two things.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_containerless_server_and_docker"><a class="anchor" href="#_containerless_server_and_docker"></a>14. Containerless Server and Docker</h2>
+<h2 id="_containerless_server_and_docker"><a class="anchor" href="#_containerless_server_and_docker"></a>15. Containerless Server and Docker</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In all previous sections we have seen that the application is deployed inside a container.
@@ -3287,7 +3626,7 @@ Some examples can be <em>Spring Boot</em>, <em>Netty</em>, <em>SparkJava</em> or
 <p>If you are using some of these technologies with <em>Docker</em>, you can still use <strong>Arquillian Cube</strong> to write your tests.</p>
 </div>
 <div class="sect2">
-<h3 id="_java_embedded_servers"><a class="anchor" href="#_java_embedded_servers"></a>14.1. Java Embedded Servers</h3>
+<h3 id="_java_embedded_servers"><a class="anchor" href="#_java_embedded_servers"></a>15.1. Java Embedded Servers</h3>
 <div class="paragraph">
 <p>Let&#8217;s suppose we are writing a service which should return as text the current day and time.
 To serve this service to the world we decide to use <em>undertow</em> embedded server.</p>
@@ -3545,10 +3884,10 @@ If containerless definition only contains only one image, it is not necessary to
 </div>
 </div>
 <div class="sect1">
-<h2 id="_cube_docker_drone_graphene_integration"><a class="anchor" href="#_cube_docker_drone_graphene_integration"></a>15. Cube Docker Drone/Graphene Integration</h2>
+<h2 id="_cube_docker_drone_graphene_integration"><a class="anchor" href="#_cube_docker_drone_graphene_integration"></a>16. Cube Docker Drone/Graphene Integration</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_drone"><a class="anchor" href="#_drone"></a>15.1. Drone</h3>
+<h3 id="_drone"><a class="anchor" href="#_drone"></a>16.1. Drone</h3>
 <div class="paragraph">
 <p>The Arquillian Drone extension for Arquillian provides a simple way how to include functional tests for your application with a web-based user interface.
 Arquillian Drone brings the power of WebDriver into the Arquillian framework.</p>
@@ -3591,7 +3930,7 @@ Arquillian Drone brings the power of WebDriver into the Arquillian framework.</p
 <p>You can read more about Drone at <a href="https://docs.jboss.org/author/display/ARQ/Drone" class="bare">https://docs.jboss.org/author/display/ARQ/Drone</a></p>
 </div>
 <div class="sect3">
-<h4 id="_integration_with_cube_docker"><a class="anchor" href="#_integration_with_cube_docker"></a>15.1.1. Integration with Cube Docker</h4>
+<h4 id="_integration_with_cube_docker"><a class="anchor" href="#_integration_with_cube_docker"></a>16.1.1. Integration with Cube Docker</h4>
 <div class="paragraph">
 <p>Arquillian Cube Docker is the Arquillian extension for managing Docker containers from your test.</p>
 </div>
@@ -3600,7 +3939,7 @@ Arquillian Drone brings the power of WebDriver into the Arquillian framework.</p
 You can check available the images at <a href="https://github.com/SeleniumHQ/docker-selenium" class="bare">https://github.com/SeleniumHQ/docker-selenium</a>.</p>
 </div>
 <div class="paragraph">
-<p>With these images and using Selenium WebDriver you can run your functional tests for web IU applications without having to install any browser.</p>
+<p>With these images and using Selenium WebDriver you can run your functional tests for web UI applications without having to install any browser.</p>
 </div>
 <div class="paragraph">
 <p>It seems logic an integration of Arquillian Drone with Cube, so you can use all powerful features of Drone, and let Cube configure Docker things for you.</p>
@@ -3620,13 +3959,13 @@ You can check available the images at <a href="https://github.com/SeleniumHQ/doc
 <p>Provides a WebDriver that is able to connect to this container</p>
 </li>
 <li>
-<p>If configured (by default it is) a VNC recorder container is started so each test is recorded in a <code>flv</code> file.</p>
+<p>If configured (by default it is) a VNC recorder container is started so each test is recorded in a <code>mp4</code> file.</p>
 </li>
 </ol>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>15.1.2. Configuration</h4>
+<h4 id="_configuration_2"><a class="anchor" href="#_configuration_2"></a>16.1.2. Configuration</h4>
 <div class="paragraph">
 <p>Apart from using Drone configuration properties for configuring browser, Cube Docker can be customized with some specific attributes:</p>
 </div>
@@ -3638,7 +3977,7 @@ You can check available the images at <a href="https://github.com/SeleniumHQ/doc
 </dd>
 <dt class="hdlist1">videoOutput</dt>
 <dd>
-<p>Directory where video is stored. By default is <code>target/reports/videos</code> or if target does not exists <code>build/reports/videos</code> and if not creates a <code>target/reports/videos</code> by default.</p>
+<p>Directory where videos are stored. By default is <code>target/reports/videos</code> or if target does not exists <code>build/reports/videos</code> and if not creates a <code>target/reports/videos</code> by default.</p>
 </dd>
 <dt class="hdlist1">browserImage</dt>
 <dd>
@@ -3677,7 +4016,7 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example"><a class="anchor" href="#_example"></a>15.1.3. Example</h4>
+<h4 id="_example"><a class="anchor" href="#_example"></a>16.1.3. Example</h4>
 <div class="paragraph">
 <p>For adding Drone Cube integration you only need a Cube project with a <code>docker-compose</code> or <code>cube</code> file only specifying business containers.</p>
 </div>
@@ -3759,7 +4098,7 @@ Your custom images must expose the webdriver port <code>4444</code> and if you p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_graphene"><a class="anchor" href="#_graphene"></a>15.2. Graphene</h3>
+<h3 id="_graphene"><a class="anchor" href="#_graphene"></a>16.2. Graphene</h3>
 <div class="paragraph">
 <p>Arquillian Graphene is a set of extensions for the WebDriver API, focused on rapid development and usability in a Java environment.
 Its API encourages people to write tests for AJAX-based web applications in a concise and maintainable way.
@@ -3767,7 +4106,7 @@ Graphene strives for reusable tests by simplifying the use of web page abstracti
 You will get a taste of the Graphene API in just a minute!</p>
 </div>
 <div class="sect3">
-<h4 id="_integration_with_docker_cube"><a class="anchor" href="#_integration_with_docker_cube"></a>15.2.1. Integration with Docker Cube</h4>
+<h4 id="_integration_with_docker_cube"><a class="anchor" href="#_integration_with_docker_cube"></a>16.2.1. Integration with Docker Cube</h4>
 <div class="paragraph">
 <p>Arquillian Graphene depends on Drone to provide an instance of WebDriver, so everything that is valid in <a href="#_integration_with_cube_docker">Integration with Cube Docker</a> is also valid for Cube Graphene.</p>
 </div>
@@ -3802,8 +4141,7 @@ But in case of using <strong>Standalone</strong> mode, since it doesn&#8217;t kn
 <div class="title">arquillian.xml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">scheme</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
-  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>localhost:8080/myapp<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://localhost:8080/myapp<span class="tag">&lt;/property&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
 <span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
@@ -3811,10 +4149,6 @@ But in case of using <strong>Standalone</strong> mode, since it doesn&#8217;t kn
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Optional parameter to set the scheme</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>Base URL of WebDriver</td>
 </tr>
 </table>
@@ -3825,21 +4159,17 @@ And this is where Docker Cube can help you when using <strong>Standalone</strong
 </div>
 </div>
 <div class="sect3">
-<h4 id="_url_configuration_in_standalone_mode"><a class="anchor" href="#_url_configuration_in_standalone_mode"></a>15.2.2. URL configuration in Standalone mode</h4>
+<h4 id="_url_configuration_in_standalone_mode"><a class="anchor" href="#_url_configuration_in_standalone_mode"></a>16.2.2. URL configuration in Standalone mode</h4>
 <div class="paragraph">
 <p>As noted in <a href="#graphene-configuration">Graphene Configuration</a> you need to configure the <code>url</code> parameter in case of using Graphene in Standalone mode.
 This is quite difficult to do it with Docker Cube because you need to set the docker host address and you might not know at configuration time.
 For this reason Docker Cube Graphene integration helps you on this following next rules:</p>
 </div>
 <div class="paragraph">
-<p><code>scheme</code> is set to <code>http</code> if not set.</p>
-</div>
-<div class="paragraph">
 <p><code>url</code> can use the <em>dockerHost</em> special word which will be replaced at runtime by docker host ip.</p>
 </div>
 <div class="paragraph">
-<p>If <code>url</code> property starts with relative path, <em>dockerHost</em> resolution will be appended automatically at the start of the <code>url</code>.
-If <code>url</code> property starts with absolute path (<code>/</code>), then you need to add explicitly <em>dockerHost</em>.</p>
+<p>If <code>url</code> property starts with <em>dockerHost</em> resolution will be appended automatically at the start of the <code>url</code>.</p>
 </div>
 <div class="paragraph">
 <p>Some examples (for now don&#8217;t think about ports since it is going to touch later):</p>
@@ -3850,19 +4180,13 @@ If <code>url</code> property starts with absolute path (<code>/</code>), then yo
 <p>An empty or not present of both properties: <code>scheme</code> and <code>url</code> will result in <code><a href="http://ipOfDockerhost" class="bare">http://ipOfDockerhost</a></code>.</p>
 </li>
 <li>
-<p>If <code>url</code> is <em>/192.168.99.100/context</em> (absolute path) the result will be <code><a href="http://192.168.99.100/context" class="bare">http://192.168.99.100/context</a></code>.</p>
+<p>If <code>url</code> is <em><a href="http://192.168.99.100/context" class="bare">http://192.168.99.100/context</a></em>  the result will be <code><a href="http://192.168.99.100/context" class="bare">http://192.168.99.100/context</a></code>.</p>
 </li>
 <li>
-<p>If <code>url</code> is <em>context</em> (relative path) then the result will be <code><a href="http://ipOfContainer/context" class="bare">http://ipOfContainer/context</a></code>.</p>
+<p>If <code>url</code> is <em><a href="http://dockerHost/context" class="bare">http://dockerHost/context</a></em>  then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
 </li>
 <li>
-<p>If <code>url</code> is <em>/dockerHost/context</em> (absolute path) then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
-</li>
-<li>
-<p>If <code>url</code> is <em>dockerHost/context</em> (relative path) then the result will be <code><a href="http://ipOfDockerHost/context" class="bare">http://ipOfDockerHost/context</a></code>.</p>
-</li>
-<li>
-<p>if <code>url</code> is <em>/containerName/context</em> (absolute path) which means it is not an IP nor <code>dockerHost</code>, then Cube will find the internal IP of container with given name.</p>
+<p>if <code>url</code> is <em><a href="http://containerName/context" class="bare">http://containerName/context</a></em> which means it is not an IP nor <code>dockerHost</code>, then Cube will find the internal IP of container with given name.</p>
 </li>
 </ul>
 </div>
@@ -3876,55 +4200,30 @@ The next thing to resolve is the port of the URL which in this case and since br
 <div class="ulist">
 <ul>
 <li>
-<p>If <code>url</code> is <strong>relative</strong>, Cube will find among all cubes if there is only one bounded port. If it is the case, it will return the exposed one, if there is not bound port or there are more than one then an exception is thrown.</p>
+<p>If <code>url</code> contains a port, that port is used. Notice that this port should be an exposed port.</p>
 </li>
 <li>
-<p>If <code>url</code> has a port (for example dockerHost:8080), Cube will use this port as exposed port.</p>
-</li>
-<li>
-<p>If <code>url</code> is absolute but no port is set, 8080 is used.</p>
+<p>If <code>url</code> has no port then <em>80</em> is used.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>For example having a service with 9090:8080 port configuration and <code>url</code> set to /dockerHost:8080/context, then the result will be <code><a href="http://ipOfDockerHost:8080/context" class="bare">http://ipOfDockerHost:8080/context</a></code>.
-Another example, having a service with 9090:8080 port configuration and <code>url</code> set to context, then the result will be <code><a href="http://ipOfContainer:8080/context" class="bare">http://ipOfContainer:8080/context</a></code>.</p>
-</div>
-<div class="paragraph">
-<p>In most cases you would only need two different kind of configurations:</p>
+<p>In most cases you are going to use:</p>
 </div>
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>myapp<span class="tag">&lt;/property&gt;</span>
+  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://helloworld:8080/myapp<span class="tag">&lt;/property&gt;</span>
 <span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>In previous snippet works if you have several containers but only one binds a port to host.
-In that case you only need to specify the context of the application.
-That configuration would be translated to: <code><a href="http://cubeIp:exposedPort/myapp" class="bare">http://cubeIp:exposedPort/myapp</a></code> and Graphene will use it as base for all WebDriver calls.</p>
-</div>
-<div class="paragraph">
-<p>The other configuration might be:</p>
-</div>
-<div class="listingblock">
-<div class="title">arquillian.xml</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-  <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>dockerHost:8080/myapp<span class="tag">&lt;/property&gt;</span>
-<span class="tag">&lt;/extension&gt;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In later example works if you have several containers binding different ports but only one is binding the exposed 8080 port.
-That configuration would be translated to <code><a href="http://ipOfDockerHost:8080/myapp" class="bare">http://ipOfDockerHost:8080/myapp</a></code> as well and Graphene will use it as base for all WebDriver calls.
-Notice that this late case is useful only if you have more than one bind port.</p>
+<p>That configuration would be translated to <code><a href="http://&lt;internalIpOfhelloworldContainer:8080/myapp" class="bare">http://&lt;internalIpOfhelloworldContainer:8080/myapp</a></code> and Graphene will use it as base for all WebDriver calls.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_2"><a class="anchor" href="#_example_2"></a>15.2.3. Example</h4>
+<h4 id="_example_2"><a class="anchor" href="#_example_2"></a>16.2.3. Example</h4>
 <div class="paragraph">
 <p>Apart from adding <code>arquillian</code>, <code>arquillian-drone</code>, <code>selenium-bom</code> and <code>arquillian-cube-docker-drone</code>, obviously you also need to add the dependencies of Graphene.</p>
 </div>
@@ -3957,7 +4256,7 @@ Notice that this late case is useful only if you have more than one bind port.</
 </div>
 </div>
 <div class="sect1">
-<h2 id="_rest_assured_integration"><a class="anchor" href="#_rest_assured_integration"></a>16. Rest-Assured integration</h2>
+<h2 id="_rest_assured_integration"><a class="anchor" href="#_rest_assured_integration"></a>17. Rest-Assured integration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Rest-Assured is a Java DSL for easy testing of REST services.
@@ -4001,7 +4300,7 @@ RestAssured.port = 5000;</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_integration_with_cube"><a class="anchor" href="#_why_integration_with_cube"></a>16.1. Why integration with Cube?</h3>
+<h3 id="_why_integration_with_cube"><a class="anchor" href="#_why_integration_with_cube"></a>17.1. Why integration with Cube?</h3>
 <div class="paragraph">
 <p>Previous approach works but it has some problems:</p>
 </div>
@@ -4023,9 +4322,9 @@ RestAssured.port = 5000;</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuration_3"><a class="anchor" href="#_configuration_3"></a>16.2. Configuration</h3>
+<h3 id="_configuration_3"><a class="anchor" href="#_configuration_3"></a>17.2. Configuration</h3>
 <div class="sect3">
-<h4 id="_dependencies"><a class="anchor" href="#_dependencies"></a>16.2.1. Dependencies</h4>
+<h4 id="_dependencies"><a class="anchor" href="#_dependencies"></a>17.2.1. Dependencies</h4>
 <div class="paragraph">
 <p>To use Arquillian Cube RestAssured integration you only need to add as dependency.</p>
 </div>
@@ -4041,7 +4340,7 @@ RestAssured.port = 5000;</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuration_parameters"><a class="anchor" href="#_configuration_parameters"></a>16.2.2. Configuration Parameters</h4>
+<h4 id="_configuration_parameters"><a class="anchor" href="#_configuration_parameters"></a>17.2.2. Configuration Parameters</h4>
 <div class="paragraph">
 <p>By default, if your scenario is not complex you don&#8217;t need to configure anything else, but this extension also contains some configuration parameters that can be used.</p>
 </div>
@@ -4140,9 +4439,19 @@ You can set any extension property using system properties or environment variab
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>You can also use <code>@DockerUrl</code> enrichment for configuring the <code>RequestSpecBuilder</code> instead of relaying to <code>arquillian.xml</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@DockerUrl</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>, exposedPort = <span class="integer">8080</span>)
+<span class="annotation">@ArquillianResource</span>
+RequestSpecBuilder requestSpecBuilder;</code></pre>
+</div>
+</div>
 </div>
 <div class="sect3">
-<h4 id="_example_3"><a class="anchor" href="#_example_3"></a>16.2.3. Example</h4>
+<h4 id="_example_3"><a class="anchor" href="#_example_3"></a>17.2.3. Example</h4>
 <div class="paragraph">
 <p>After setting the dependency and configuring the extension if required you can write your Arquillian Cube test as usually and use RestAssured without configuring it:</p>
 </div>
@@ -4168,6 +4477,7 @@ You can set any extension property using system properties or environment variab
 <span class="directive">public</span> <span class="type">class</span> <span class="class">PingPongTest</span> {
 
     <span class="annotation">@ArquillianResource</span>
+    <span class="annotation">@DockerUrl</span>(containerName = <span class="string"><span class="delimiter">&quot;</span><span class="content">helloworld</span><span class="delimiter">&quot;</span></span>, exposedPort = <span class="integer">8080</span>)
     RequestSpecBuilder requestSpecBuilder;
 
     <span class="annotation">@Test</span>
@@ -4195,7 +4505,7 @@ You can set any extension property using system properties or environment variab
 </div>
 </div>
 <div class="sect1">
-<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>17. Arquillian Recorder Reporter integration</h2>
+<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>18. Arquillian Recorder Reporter integration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Arquillian Recorder (<a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a>) project brings neat reports of your Arquillian tests.</p>
@@ -4228,7 +4538,7 @@ Cubes are elements that are deployed into a system, for example a Pod or a Docke
 <p>For example in case of a Docker Cube it will report start and stop duration time, if it has failed or not and some container properties like ports, links, image name, entrypoint, network &#8230;&#8203;.</p>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>17.1. Arquillian Cube Docker Reporter</h3>
+<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>18.1. Arquillian Cube Docker Reporter</h3>
 <div class="paragraph">
 <p>In previous section you&#8217;ve read that by just adding recorder reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
 </div>
@@ -4254,7 +4564,7 @@ For this reason there is a docker cube reporter integration that adds on the rep
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>17.2. Arquillian Cube Docker Drone Integration</h3>
+<h3 id="_arquillian_cube_docker_drone_integration"><a class="anchor" href="#_arquillian_cube_docker_drone_integration"></a>18.2. Arquillian Cube Docker Drone Integration</h3>
 <div class="paragraph">
 <p>In <a href="#_cube_docker_drone_graphene_integration">Cube Docker Drone/Graphene Integration</a> you&#8217;ve read that you can execute web UI tests inside a docker container which contains the browser.
 Also an screencast is recorded so you can review lately what has happened inside the container.</p>
@@ -4264,13 +4574,13 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>17.3. Arquillian Cube Docker RestAssured Integration</h3>
+<h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>18.3. Arquillian Cube Docker RestAssured Integration</h3>
 <div class="paragraph">
 <p>If you add <code>arquillian-cube-docker-recorder</code> and <code>arquillian-recorder-reporter-impl</code> in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>17.4. Arquillian Cube Kubernetes Reporter</h3>
+<h3 id="_arquillian_cube_kubernetes_reporter_2"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter_2"></a>18.4. Arquillian Cube Kubernetes Reporter</h3>
 <div class="paragraph">
 <p>There is a arquillian cube kubernetes reporter integration that give report information about resources configuration and kubernetes session i.e. Namespace, Master URL, Replication Controllers, Pods, Services etc.</p>
 </div>
@@ -4295,7 +4605,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>17.5. Examples</h3>
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>18.5. Examples</h3>
 <div class="paragraph">
 <p>Arquillian Cube Docker Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter</a></p>
 </div>
@@ -4312,7 +4622,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 </div>
 </div>
 <div class="sect1">
-<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>18. Polyglot Applications</h2>
+<h2 id="_polyglot_applications"><a class="anchor" href="#_polyglot_applications"></a>19. Polyglot Applications</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In previous section we have seen that we can test any <em>java</em> <em>CLI</em> application that offers a socket connection.
@@ -4499,13 +4809,13 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect1">
-<h2 id="_kubernetes"><a class="anchor" href="#_kubernetes"></a>19. Kubernetes</h2>
+<h2 id="_kubernetes"><a class="anchor" href="#_kubernetes"></a>20. Kubernetes</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The kubernetes extension helps you write and run integration tests for your Kubernetes/Openshift application.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview"><a class="anchor" href="#_overview"></a>19.1. Overview</h3>
+<h3 id="_overview"><a class="anchor" href="#_overview"></a>20.1. Overview</h3>
 <div class="paragraph">
 <p>This extension, wll create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests. The tests will be enriched with resources required to access services. Finally when testing is over it will cleanup everything.</p>
 </div>
@@ -4514,7 +4824,7 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>19.2. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>20.2. Modules</h3>
 <div class="paragraph">
 <p>The main modules of this extension are the following:</p>
 </div>
@@ -4533,7 +4843,7 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect2">
-<h3 id="_features"><a class="anchor" href="#_features"></a>19.3. Features</h3>
+<h3 id="_features"><a class="anchor" href="#_features"></a>20.3. Features</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -4579,7 +4889,7 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>19.4. Configuring the extension</h3>
+<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.4. Configuring the extension</h3>
 <div class="paragraph">
 <p>The plugin can be configured using the traditional arquillian.xml, via system properties or evnironment variables (in that particular order).
 Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn&#8217;t contain an entry, the system properties will be used.
@@ -4749,7 +5059,7 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 </table>
 </div>
 <div class="sect2">
-<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>19.5. Namespaces</h3>
+<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.5. Namespaces</h3>
 <div class="paragraph">
 <p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
 For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> to false and keep the namespace around.</p>
@@ -4761,12 +5071,12 @@ used to prevent the extension from modifying the environment.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>19.6. Creating the environment</h3>
+<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.6. Creating the environment</h3>
 <div class="paragraph">
 <p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.</p>
 </div>
 <div class="sect3">
-<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>19.6.1. How to run kubernetes with multiple configuration files?</h4>
+<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.6.1. How to run kubernetes with multiple configuration files?</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -4812,7 +5122,7 @@ To do it, Cube reads from <code>~/.kube/config</code> user information (token, p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>19.7. Readiness and waiting</h3>
+<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.7. Readiness and waiting</h3>
 <div class="paragraph">
 <p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
 Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything is ready.</p>
@@ -4824,7 +5134,7 @@ In this case it will not just wait for the service to ready, but also to be usab
 </div>
 </div>
 <div class="sect2">
-<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>19.8. Immutable infrastructure and integration testing</h3>
+<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>20.8. Immutable infrastructure and integration testing</h3>
 <div class="paragraph">
 <p>As mentioned in the overview, this extension will not try to deploy your tests, inside an application container.
 It doesn&#8217;t need nor want to know what runs inside your docker containers, nor will try to mess with it.
@@ -4841,7 +5151,7 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="sect2">
-<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>19.9. Resource Providers</h3>
+<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>20.9. Resource Providers</h3>
 <div class="paragraph">
 <p>The resource providers available, can be used to inject to your test cases the following resources:</p>
 </div>
@@ -4854,13 +5164,29 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <p>Session object that contains information (e.g. the namespace) or the uuid of the test session.</p>
 </li>
 <li>
+<p>Deployments <strong>(by id or as a list of all deployments created during the session)</strong></p>
+</li>
+<li>
 <p>Pods <strong>(by id or as a list of all pods created during the session)</strong></p>
 </li>
 <li>
 <p>Replication Controllers <strong>(by id or as a list of all replication controllers created during the session)</strong></p>
 </li>
 <li>
+<p>Replica Sets <strong>(by id or as a list of all replica sets created during the session)</strong></p>
+</li>
+<li>
 <p>Services <strong>(by id or as a list of all services created during the session)</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Openshift extension also provides:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Deployment Configs <strong>(by id or as a list of all deployment configs created during the session)</strong></p>
 </li>
 </ul>
 </div>
@@ -4946,13 +5272,13 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="sect1">
-<h2 id="_fabric8"><a class="anchor" href="#_fabric8"></a>20. Fabric8</h2>
+<h2 id="_fabric8"><a class="anchor" href="#_fabric8"></a>21. Fabric8</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the <a href="https://fabric8.io/guide/fabric8DevOps.html">Fabric8 Microservices Platform</a></p>
 </div>
 <div class="sect2">
-<h3 id="_additional_features"><a class="anchor" href="#_additional_features"></a>20.1. Additional Features</h3>
+<h3 id="_additional_features"><a class="anchor" href="#_additional_features"></a>21.1. Additional Features</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -4976,7 +5302,7 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="sect1">
-<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>21. Future work</h2>
+<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>22. Future work</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Some configuration parameters will be modified to fix any possible requirements.
@@ -4990,7 +5316,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-11-11 15:25:11 CET
+Last updated 2017-02-09 19:10:40 CET
 </div>
 </div>
 </body>
