@@ -99,43 +99,10 @@
 
     <profiles>
         <profile>
-            <id>tomcat-7</id>
+            <id>tomcat-7-jre8-dockerfile</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <arquillian.launch>tomcat</arquillian.launch>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-tomcat-remote-7</artifactId>
-                    <version>${version.tomcat}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>tomcat-7-default-ports</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <arquillian.launch>tomcat_default</arquillian.launch>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-tomcat-remote-7</artifactId>
-                    <version>${version.tomcat}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>tomcat-7-dockerfile</id>
             <properties>
                 <arquillian.launch>tomcat_dockerfile</arquillian.launch>
             </properties>
