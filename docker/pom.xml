@@ -53,6 +53,7 @@
         <module>ftest-docker-machine-network</module>
         <module>ftest-docker-containerobject</module>
         <module>ftest-standalone-autostart</module>
+        <module>ftest-standalone-star-operator</module>
         <module>ftest-docker-compose-v2-git-context</module>
     </modules>
 

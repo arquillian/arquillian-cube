@@ -1,6 +1,6 @@
 == Parallel Execution
 
-Soemtimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
+Sometimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
 This means that same `docker-compose` file is executed for all tests.
 The problem is that probably _docker host_ is the same.
 So when you start the second test (in parallel) you will get a failure regarding that a container with same name is already started in that docker host.
@@ -64,3 +64,7 @@ So for example the result file could look like:
 Since now the ports are unique and names are unique, you can run tests using same orchestration in parallel against same docker host.
 
 NOTE: You can use the same approach for _docker-compose_ files not only with _cube_ format. But then your _docker-compose_ will be tight to Arquillian Cube. The best approach if you want to use docker-compose format is using `extends`.
+
+NOTE: Star operator must also used on enrichers for example:
+`@HostPort(containerName = "tomcat*", value = 8080)` or
+`@DockerUrl(containerName = "tomcat*", exposedPort = 8080)`
