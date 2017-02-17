@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
@@ -18,9 +19,13 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -39,7 +44,7 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
     private static final String DEFAULT_PATH = "/";
 
     private static final String POD = "Pod";
-    private static final String LOCALHOST = "localhost";
+    private static final String LOCALHOST = "127.0.0.1";
 
     private static final Random RANDOM = new Random();
 
@@ -62,7 +67,7 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
         if (isPortForwardingEnabled(qualifiers)) {
             Pod pod = getRandomPod(getClient(), name, namespace);
             int containerPort = getContainerPort(service, qualifiers);
-            port = portForward(getClient(), getSession(), pod.getMetadata().getName(), containerPort);
+            port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
             ip = LOCALHOST;
         } else {
             port = getPort(service, qualifiers);
@@ -79,17 +84,18 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
         }
     }
 
-    private int portForward(KubernetesClient client, Session session, String podName, int targetPort) {
-        return portForward(client, session, podName, findRandomFreeLocalPort(), targetPort);
+    private int portForward(Session session, String podName, int targetPort) {
+        return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
     }
 
-    private int portForward(KubernetesClient client, Session session, String podName, int sourcePort, int targetPort) {
+    private int portForward(Session session, String podName, int sourcePort, int targetPort) {
         try {
-            final PortForwarder portForwarder = new PortForwarder(getClient().getConfiguration(), podName);
-            portForwarder.forwardPort(sourcePort, targetPort);
+            final PortForwarder portForwarder = new PortForwarder(new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
+            final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
             session.addListener(new SessionListener() {
                 @Override
                 public void onClose() {
+                    server.close();
                     portForwarder.close();
                 }
             });
@@ -98,7 +104,6 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
             throw new RuntimeException(e);
         }
     }
-
 
     /**
      * @param qualifiers    The qualifiers

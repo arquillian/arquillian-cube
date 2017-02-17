@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public interface DependencyResolver {
+public interface DependencyResolver extends WithToImmutable<DependencyResolver> {
 
     /**
      * Resolves dependencies to additional kubernetes resources.

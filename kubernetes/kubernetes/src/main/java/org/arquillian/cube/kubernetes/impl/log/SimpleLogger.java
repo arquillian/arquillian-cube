@@ -23,4 +23,8 @@ public class SimpleLogger implements Logger {
         System.out.println(msg);
     }
 
+    @Override
+    public Logger toImmutable() {
+        return this;
+    }
 }

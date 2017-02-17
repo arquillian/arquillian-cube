@@ -26,4 +26,9 @@ public class DefaultKubernetesResouceLocator implements KubernetesResourceLocato
     URL getResource(String resource) {
         return KubernetesResourceLocator.class.getResource(resource.startsWith(ROOT) ? resource : ROOT + resource);
     }
+
+    @Override
+    public KubernetesResourceLocator toImmutable() {
+        return this;
+    }
 }
