@@ -3,9 +3,8 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.builder.TypedVisitor;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.client.OpenShiftConfig;
 
+import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -18,13 +17,11 @@ public class OpenShiftClientCreator {
     @ApplicationScoped
     private InstanceProducer<OpenShiftClient> openShiftClientProducer;
 
-    public void createClient(@Observes CubeOpenShiftConfiguration cubeConfiguration) {
-        // System.setProperty(Configs.OPENSHIFT_CONFIG_FILE_PROPERTY,
-        // "./src/test/resources/config.yaml");
+    public void createClient(@Observes AfterStart afterStart, CubeOpenShiftConfiguration cubeConfiguration) {
         System.setProperty("KUBERNETES_TRUST_CERT", "true");
         // override defaults for master and namespace
         final Config config = new ConfigBuilder()
-                .withMasterUrl(cubeConfiguration.getOriginServer().toString())
+                .withMasterUrl(cubeConfiguration.getMasterUrl().toString())
                 .withNamespace(cubeConfiguration.getNamespace())
                 .withTrustCerts(true)
                 .accept(new TypedVisitor<ConfigBuilder>() {

@@ -3,6 +3,8 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
+
+import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.openshift.impl.model.BuildablePodCube;
 import org.arquillian.cube.openshift.impl.model.ServiceCube;
 import org.arquillian.cube.spi.CubeRegistry;
