@@ -6,9 +6,12 @@ import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 
+import java.util.Map;
+
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.ProjectRequest;
 import io.fabric8.openshift.api.model.ProjectRequestBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
@@ -82,6 +85,23 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
                 }
             } else {
                 return super.exists(namespace);
+            }
+        }
+
+        @Override
+        public Namespace annotate(String namespace, Map<String, String> annotations) {
+            if (client.isAdaptable(OpenShiftClient.class)) {
+                OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                openShiftClient.projects().withName(namespace)
+                        .edit()
+                            .editMetadata()
+                                .addToAnnotations(annotations)
+                            .endMetadata()
+                        .done();
+
+                return openShiftClient.namespaces().withName(namespace).get();
+            } else {
+                return super.annotate(namespace, annotations);
             }
         }
 
