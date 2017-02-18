@@ -29,4 +29,8 @@ public class AnsiLogger implements Logger {
         System.out.println(ansi().fg(GREEN).a(msg).reset());
     }
 
+    @Override
+    public Logger toImmutable() {
+        return this;
+    }
 }

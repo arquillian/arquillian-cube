@@ -1,6 +1,8 @@
 package org.arquillian.cube.openshift.impl;
 
+import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.impl.enricher.UrlResourceProvider;
 import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfigurator;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftRegistrar;
@@ -24,7 +26,8 @@ public class CubeOpenshiftExtension implements LoadableExtension {
                 .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
                 .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
 
-               .override(NamespaceService.class, DefaultNamespaceService.class, OpenshiftNamespaceService.class);
+                .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class, UrlResourceProvider.class)
+                .override(NamespaceService.class, DefaultNamespaceService.class, OpenshiftNamespaceService.class);
     }
 
 }

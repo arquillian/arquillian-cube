@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.api;
 
-public interface Logger {
+public interface Logger extends WithToImmutable<Logger> {
 
     void info(String msg);
     void warn(String msg);

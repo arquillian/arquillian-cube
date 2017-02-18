@@ -1,5 +1,24 @@
 package org.arquillian.cube.kubernetes.impl;
 
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
+import org.jboss.arquillian.core.spi.Validate;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -9,68 +28,47 @@ import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.impl.event.AfterStart;
-import org.arquillian.cube.kubernetes.impl.event.Start;
-import org.arquillian.cube.kubernetes.impl.event.Stop;
-import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
-import org.jboss.arquillian.core.api.Event;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.core.spi.ServiceLoader;
+public class SessionManager implements SessionCreatedListener {
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+    private final Session session;
+    private final KubernetesClient client;
+    private final Configuration configuration;
+    private final AnnotationProvider annotationProvider;
+    private final NamespaceService namespaceService;
+    private final KubernetesResourceLocator kubernetesResourceLocator;
+    private final DependencyResolver dependencyResolver;
+    private final List<Visitor> visitors;
 
-public class SessionCreatedListener {
+    private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
 
-    @Inject
-    Instance<KubernetesClient> kubernetesClient;
+    public SessionManager(Session session, KubernetesClient client, Configuration configuration,
+                          AnnotationProvider annotationProvider, NamespaceService namespaceService,
+                          KubernetesResourceLocator kubernetesResourceLocator,
+                          DependencyResolver dependencyResolver, List<Visitor> visitors) {
+        Validate.notNull(session, "A Session instance is required.");
+        Validate.notNull(client, "A KubernetesClient instance is required.");
+        Validate.notNull(configuration, "Configuration is required.");
+        Validate.notNull(annotationProvider, "An AnnotationProvider instance is required.");
+        Validate.notNull(namespaceService, "A NamespaceService instance is required.");
+        Validate.notNull(dependencyResolver, "A DependencyResolver instance is required.");
+        Validate.notNull(kubernetesResourceLocator, "A KubernetesResourceLocator instance is required.");
+        this.session = session;
+        this.client = client;
+        this.configuration = configuration;
+        this.annotationProvider = annotationProvider;
+        this.namespaceService = namespaceService;
+        this.kubernetesResourceLocator = kubernetesResourceLocator;
+        this.dependencyResolver = dependencyResolver;
+        this.visitors = visitors;
+    }
 
-    @Inject
-    Instance<Configuration> configuration;
-
-    @Inject
-    Instance<AnnotationProvider> annotationProvider;
-
-    @Inject
-    Instance<NamespaceService> namespaceService;
-
-    @Inject
-    Instance<KubernetesResourceLocator> kubernetesResourceLocator;
-
-    @Inject
-    Instance<DependencyResolver> dependencyResolver;
-
-    @Inject
-    Instance<ServiceLoader> serviceLoader;
-
-    @Inject
-    Event<AfterStart> afterStartEvent;
-
-    private ShutdownHook shutdownHook;
-
-    public void start(final @Observes Start event) throws Exception {
-        final KubernetesClient kubernetesClient = this.kubernetesClient.get();
-        final ServiceLoader serviceLoader = this.serviceLoader.get();
-        final Configuration configuration = this.configuration.get();
-        final NamespaceService namespaceService = this.namespaceService.get();
-        final Session session = event.getSession();
+    @Override
+    public void start() {
+        ShutdownHook hook = null;
         Logger log = session.getLogger();
         String namespace = session.getNamespace();
 
-        log.status("Using Kubernetes at: " + kubernetesClient.getMasterUrl());
+        log.status("Using Kubernetes at: " + client.getMasterUrl());
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
@@ -87,89 +85,85 @@ public class SessionCreatedListener {
             throw new IllegalStateException("Namespace [" + session.getNamespace() + "] doesn't exists");
         }
 
-        shutdownHook = new ShutdownHook(new Runnable() {
+        hook = new ShutdownHook(new Runnable() {
             @Override
             public void run() {
-                SessionCreatedListener.this.cleanupSession(session, Constants.ABORTED_STATUS);
+                SessionManager.this.clean(Constants.ABORTED_STATUS);
             }
         });
 
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
-        List<Visitor> visitors = new ArrayList<>(serviceLoader.all(Visitor.class));
+        Runtime.getRuntime().addShutdownHook(hook);
+        shutdownHookRef.set(hook);
         CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
         List<HasMetadata> all = new ArrayList<>();
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
-            List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.get().resolve(session);
+            List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.resolve(session);
 
             if (configuration.isEnvironmentInitEnabled()) {
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
                     try (InputStream is = dependencyUrl.openStream()) {
-                        all.addAll(kubernetesClient.load(is).accept(compositeVisitor).createOrReplace());
+                        all.addAll(client.load(is).accept(compositeVisitor).createOrReplace());
                     }
                 }
 
                 if (configUrl == null) {
-                    configUrl = kubernetesResourceLocator.get().locate();
+                    configUrl = kubernetesResourceLocator.locate();
                 }
 
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
-                        all.addAll(kubernetesClient.load(is).get());
+                        all.addAll(client.load(is).get());
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
                 }
             }
 
-            if (configuration.isEnvironmentInitEnabled() ) {
+            if (configuration.isEnvironmentInitEnabled() && !all.isEmpty()) {
                 try {
-                    kubernetesClient.resourceList(all).createOrReplaceAnd().waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                    client.resourceList(all).createOrReplaceAnd().waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                 } catch (KubernetesClientTimeoutException t) {
                     log.warn("The are resources in not ready state.");
                     for (HasMetadata r : t.getResourcesNotReady()) {
-                        log.error(r.getKind() + " name: " + r.getMetadata().getName()+ " namespace:" + r.getMetadata().getNamespace());
+                        log.error(r.getKind() + " name: " + r.getMetadata().getName() + " namespace:" + r.getMetadata().getNamespace());
                     }
                     throw new IllegalStateException("Environment not initialized in time.", t);
                 }
             }
-            displaySessionStatus(session);
-            afterStartEvent.fire(new AfterStart(session));
+            display();
         } catch (Exception e) {
             try {
-                cleanupSession(session, Constants.ERROR_STATUS);
+                clean(Constants.ERROR_STATUS);
             } catch (Exception me) {
-                throw e;
+                throw new RuntimeException(e);
             } finally {
-                if (shutdownHook != null) {
-                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                if (hook != null) {
+                    Runtime.getRuntime().removeShutdownHook(hook);
                 }
             }
             throw new RuntimeException(e);
         }
     }
 
-    public void stop(@Observes Stop event, Configuration configuration) throws Exception {
+    @Override
+    public void stop() {
         try {
-            Session session = event.getSession();
-            cleanupSession(session, getSessionStatus(session));
+            clean(getSessionStatus(session));
         } finally {
-            if (shutdownHook != null) {
-                Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            ShutdownHook hook = shutdownHookRef.get();
+            if (hook != null) {
+                Runtime.getRuntime().removeShutdownHook(hook);
             }
         }
     }
 
-
-    private void cleanupSession(Session session, String status)  {
-        NamespaceService namespaceService = this.namespaceService.get();
-        AnnotationProvider annotationProvider = this.annotationProvider.get();
-        Configuration configuration = this.configuration.get();
+    @Override
+    public void clean(String status) {
         String namespace = session.getNamespace();
-
         if (configuration.isNamespaceCleanupEnabled()) {
             namespaceService.destroy(namespace);
         } else {
@@ -177,16 +171,16 @@ public class SessionCreatedListener {
         }
     }
 
-    private void displaySessionStatus(Session session) throws Exception {
-        KubernetesClient kubernetesClient = this.kubernetesClient.get();
-        for (ReplicationController replicationController : kubernetesClient.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
+    @Override
+    public void display() {
+        for (ReplicationController replicationController : client.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
             session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName()+ "]");
         }
 
-        for (Pod pod : kubernetesClient.pods().inNamespace(session.getNamespace()).list().getItems()) {
+        for (Pod pod : client.pods().inNamespace(session.getNamespace()).list().getItems()) {
             session.getLogger().info("Pod: [" + pod.getMetadata().getName() + "] Status: [" + pod.getStatus().getPhase() +"]");
         }
-        for (Service service : kubernetesClient.services().inNamespace(session.getNamespace()).list().getItems()) {
+        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
 
             StringBuilder sb = new StringBuilder();
             sb.append("Service: [").append(service.getMetadata().getName()).append("]")
@@ -199,9 +193,7 @@ public class SessionCreatedListener {
             sb.append("]");
             session.getLogger().info(sb.toString());
         }
-
     }
-
 
     private String getSessionStatus(Session session) {
         if (session.getFailed().get() > 0) {
@@ -210,4 +202,5 @@ public class SessionCreatedListener {
             return "PASSED";
         }
     }
+
 }

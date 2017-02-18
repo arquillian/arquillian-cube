@@ -2,7 +2,7 @@ package org.arquillian.cube.kubernetes.api;
 
 import java.net.URL;
 
-public interface KubernetesResourceLocator {
+public interface KubernetesResourceLocator extends WithToImmutable<KubernetesResourceLocator> {
 
     /**
      * Locates the kubernetes resource.

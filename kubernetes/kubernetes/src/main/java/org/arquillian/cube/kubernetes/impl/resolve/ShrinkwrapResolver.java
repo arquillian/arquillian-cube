@@ -81,4 +81,9 @@ public class ShrinkwrapResolver implements DependencyResolver {
         }
         return false;
     }
+
+    @Override
+    public DependencyResolver toImmutable() {
+        return this;
+    }
 }

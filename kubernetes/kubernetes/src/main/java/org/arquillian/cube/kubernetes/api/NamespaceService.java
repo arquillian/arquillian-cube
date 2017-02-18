@@ -4,7 +4,7 @@ import io.fabric8.kubernetes.api.model.Namespace;
 
 import java.util.Map;
 
-public interface NamespaceService {
+public interface NamespaceService extends WithToImmutable<NamespaceService> {
 
     /**
      * Creates a {@link Namespace} with the specified name.
