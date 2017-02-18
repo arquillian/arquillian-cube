@@ -42,6 +42,23 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
             super(client, configuration, labelProvider, logger);
         }
 
+        @Override
+        public Namespace create(String namespace, Map<String, String> annotations) {
+            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+            ProjectRequest projectRequest = new ProjectRequestBuilder()
+                    .withNewMetadata()
+                    .withName(namespace)
+                    .withAnnotations(annotations)
+                    .addToLabels(labelProvider.getLabels())
+                    .addToLabels(PROJECT_LABEL, client.getNamespace())
+                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                    .endMetadata()
+                    .build();
+
+            ProjectRequest request = openShiftClient.projectrequests().create(projectRequest);
+            return openShiftClient.namespaces().withName(request.getMetadata().getName()).get();
+        }
 
         @Override
         public Namespace create(String namespace) {

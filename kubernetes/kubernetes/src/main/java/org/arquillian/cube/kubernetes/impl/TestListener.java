@@ -18,9 +18,13 @@ package org.arquillian.cube.kubernetes.impl;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.Session;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestResult;
+import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterTestLifecycleEvent;
+import org.jboss.arquillian.test.spi.event.suite.Before;
 import org.jboss.arquillian.test.spi.event.suite.BeforeTestLifecycleEvent;
 
 import java.util.HashMap;
@@ -32,19 +36,34 @@ import static org.arquillian.cube.kubernetes.api.AnnotationProvider.MAX_ANNOTATI
 
 public class TestListener {
 
+    @Inject
+    Instance<DefaultSession> session;
 
-    public void start(@Observes(precedence = Integer.MIN_VALUE) BeforeTestLifecycleEvent event, NamespaceService namespaceService, Session session) {
+    @Inject
+    Instance<NamespaceService> namespaceService;
+
+    public void start(@Observes(precedence = Integer.MIN_VALUE) Before event) {
+        Session session = this.session.get();
+        NamespaceService namespaceService = this.namespaceService.get();
         String pkg = event.getTestClass().getJavaClass().getPackage().getName();
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
 
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);
-        annotations.put(String.format(TEST_CASE_STATUS_FORMAT, testCase), "RUNNING");
-        namespaceService.annotate(session.getNamespace(), annotations);
+        annotations.put(String.format(TEST_CASE_STATUS_FORMAT, testCase), Constants.RUNNING_STATUS);
+        try {
+            namespaceService.annotate(session.getNamespace(), annotations);
+        } catch (Throwable t) {
+            session.getLogger().warn("Could not annotate namespace:[" + session.getNamespace() +
+                    "] with test: [" + className + "] method: [" + methodName + "] state:[" + Constants.RUNNING_STATUS + "]");
+        }
     }
 
-    public void stop(@Observes(precedence = Integer.MIN_VALUE) AfterTestLifecycleEvent event, TestResult result, NamespaceService namespaceService, Session session) {
+    public void stop(@Observes(precedence = Integer.MIN_VALUE) After event, TestResult result) {
+        Session session = this.session.get();
+        NamespaceService namespaceService = this.namespaceService.get();
+
         String pkg = event.getTestClass().getJavaClass().getPackage().getName();
         String className = event.getTestClass().getJavaClass().getSimpleName();
         String methodName = event.getTestMethod().getName();
@@ -52,7 +71,12 @@ public class TestListener {
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);
         annotations.put(String.format(TEST_CASE_STATUS_FORMAT, testCase), result.getStatus().name());
-        namespaceService.annotate(session.getNamespace(), annotations);
+        try {
+            namespaceService.annotate(session.getNamespace(), annotations);
+        } catch (Throwable t) {
+            session.getLogger().warn("Could not annotate namespace:[" + session.getNamespace() +
+                    "] with test: [" + className + "] method: [" + methodName + "] result:[" + result.getStatus().name() + "]");
+        }
 
         switch (result.getStatus()) {
             case PASSED:
