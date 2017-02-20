@@ -22,7 +22,6 @@ public class CubeOpenshiftExtension implements LoadableExtension {
                .observer(CubeOpenShiftConfigurator.class)
                .observer(CubeOpenShiftRegistrar.class)
                .observer(OpenShiftSuiteLifecycleController.class)
-
                 .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
                 .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
 
