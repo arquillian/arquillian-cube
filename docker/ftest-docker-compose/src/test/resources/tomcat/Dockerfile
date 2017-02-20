@@ -1,4 +1,4 @@
-FROM tomcat:jre8
+FROM tomcat:7.0.75-jre8
 
 ADD tomcat-users.xml conf/
 
