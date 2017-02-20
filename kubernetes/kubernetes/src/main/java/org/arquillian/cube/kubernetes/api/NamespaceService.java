@@ -14,6 +14,14 @@ public interface NamespaceService extends WithToImmutable<NamespaceService> {
     Namespace create(String namespace);
 
     /**
+     * Creates a {@link Namespace} with the specified name.
+     * @param namespace The name of the {@link Namespace}.
+     * @param annotations   A map containing the annotations.
+     * @return          The created {@link Namespace}.
+     */
+    Namespace create(String namespace, Map<String, String> annotations);
+
+    /**
      * Adds the specified annotations to the {@link Namespace}.
      * @param namespace     The {@link Namespace} to annotate.
      * @param annotations   A map containing the annotations.

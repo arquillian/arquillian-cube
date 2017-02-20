@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -74,13 +75,14 @@ public class SessionManager implements SessionCreatedListener {
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
 
 
+        Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         String namespaceToUse = configuration.getNamespace();
         if (Strings.isNullOrEmpty(namespaceToUse)) {
-            namespaceService.create(session.getNamespace());
+            namespaceService.create(session.getNamespace(), namespaceAnnotations);
         } else if (namespaceService.exists(session.getNamespace())) {
             //namespace exists
         } else if (configuration.isNamespaceLazyCreateEnabled()) {
-            namespaceService.create(session.getNamespace());
+            namespaceService.create(session.getNamespace(), namespaceAnnotations);
         } else {
             throw new IllegalStateException("Namespace [" + session.getNamespace() + "] doesn't exists");
         }
@@ -167,7 +169,11 @@ public class SessionManager implements SessionCreatedListener {
         if (configuration.isNamespaceCleanupEnabled()) {
             namespaceService.destroy(namespace);
         } else {
-            namespaceService.annotate(session.getNamespace(), annotationProvider.create(session.getId(), status));
+            try {
+                namespaceService.annotate(session.getNamespace(), annotationProvider.create(session.getId(), status));
+            } catch (Throwable t) {
+                session.getLogger().warn("Could not annotate namespace: [" + namespace + "] with status: [" + status + "].");
+            }
         }
     }
 

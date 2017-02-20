@@ -13,6 +13,7 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.spi.Validate;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 public class DefaultNamespaceService implements NamespaceService {
@@ -56,6 +57,11 @@ public class DefaultNamespaceService implements NamespaceService {
     @Override
     public Namespace create(String namespace) {
         return toImmutable().create(namespace);
+    }
+
+    @Override
+    public Namespace create(String namespace, Map<String, String> annotations) {
+        return toImmutable().create(namespace, annotations);
     }
 
     @Override
@@ -104,8 +110,14 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Namespace create(String namespace) {
+            return create(namespace, Collections.emptyMap());
+        }
+
+        @Override
+        public Namespace create(String namespace, Map<String, String> annotations) {
             return client.namespaces().createNew().withNewMetadata()
                     .withName(namespace)
+                    .withAnnotations(annotations)
                     .addToLabels(labelProvider.getLabels())
                     .addToLabels(PROJECT_LABEL, client.getNamespace())
                     .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
