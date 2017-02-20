@@ -1,5 +1,5 @@
 version: '2'
-services:
+services: |
   pingpong:
     build:
       context: https://github.com/lordofthejars/pingpongdockerfile.git
