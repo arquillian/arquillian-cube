@@ -23,7 +23,6 @@ import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -93,8 +92,8 @@ public class TakeDockerEnvironmentTest {
 
     private void configureCube() throws IOException {
         cubeRegistry = new LocalCubeRegistry();
-        cubeRegistry.addCube(cube);
         when(cube.getId()).thenReturn(CUBE_ID);
+        cubeRegistry.addCube(cube);
         when(statistics.getNetworks()).thenReturn(getNetworks());
         when(statistics.getMemoryStats()).thenReturn(getMemory());
         when(statistics.getBlkioStats()).thenReturn(getIOStats());
