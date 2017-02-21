@@ -15,21 +15,26 @@
  */
 package org.arquillian.cube.kubernetes.impl;
 
+import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.TestResult;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterTestLifecycleEvent;
 import org.jboss.arquillian.test.spi.event.suite.Before;
 import org.jboss.arquillian.test.spi.event.suite.BeforeTestLifecycleEvent;
+import org.jboss.arquillian.test.spi.event.suite.TestLifecycleEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 
+
+import io.fabric8.kubernetes.api.model.Event;
 
 import static org.arquillian.cube.kubernetes.api.AnnotationProvider.TEST_CASE_STATUS_FORMAT;
 import static org.arquillian.cube.kubernetes.api.AnnotationProvider.MAX_ANNOTATION_KEY_LENGTH;
@@ -45,9 +50,10 @@ public class TestListener {
     public void start(@Observes(precedence = Integer.MIN_VALUE) Before event) {
         Session session = this.session.get();
         NamespaceService namespaceService = this.namespaceService.get();
-        String pkg = event.getTestClass().getJavaClass().getPackage().getName();
-        String className = event.getTestClass().getJavaClass().getSimpleName();
-        String methodName = event.getTestMethod().getName();
+
+        String pkg = getPackage(event);
+        String className = getClassName(event);
+        String methodName = getMethodName(event);
 
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);
@@ -64,9 +70,9 @@ public class TestListener {
         Session session = this.session.get();
         NamespaceService namespaceService = this.namespaceService.get();
 
-        String pkg = event.getTestClass().getJavaClass().getPackage().getName();
-        String className = event.getTestClass().getJavaClass().getSimpleName();
-        String methodName = event.getTestMethod().getName();
+        String pkg = getPackage(event);
+        String className = getClassName(event);
+        String methodName = getMethodName(event);
 
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);
@@ -90,9 +96,37 @@ public class TestListener {
         }
     }
 
+    static String getPackage(TestLifecycleEvent event) {
+        if (event.getTestClass() == null) {
+            return "";
+        } else if (event.getTestClass().getJavaClass() == null) {
+            return "";
+        } else if (event.getTestClass().getJavaClass().getPackage() == null) {
+            return "";
+        } else return event.getTestClass().getJavaClass().getPackage().getName();
+    }
+
+    static String getClassName(TestLifecycleEvent event) {
+        if (event.getTestClass() == null) {
+            throw new IllegalArgumentException("TestLifecycleEvent does not have a valid test class");
+        } else if (event.getTestClass().getJavaClass() == null) {
+            throw new IllegalArgumentException("TestLifecycleEvent does not have a valid test class");
+        } else return event.getTestClass().getJavaClass().getName();
+    }
+
+    static String getMethodName(TestLifecycleEvent event) {
+        if (event.getTestMethod() == null) {
+            throw new IllegalArgumentException("TestLifecycleEvent does not have a valid method name");
+        } else return event.getTestMethod().getName();
+    }
+
     static String trimName(String packageName, String className, String methodName) {
         StringBuilder sb = new StringBuilder();
-        sb.append(trimPackage(packageName)).append(".").append(className).append(".").append(methodName);
+        String trimmedPackage = trimPackage(packageName);
+        if (Strings.isNotNullOrEmpty(packageName)) {
+            sb.append(trimmedPackage).append(".");
+        }
+        sb.append(className).append(".").append(methodName);
         String result = sb.toString();
         int prefixLength = AnnotationProvider.TEST_CASE_STATUS_FORMAT.length() - 1;
         if (prefixLength + result.length() > MAX_ANNOTATION_KEY_LENGTH) {
@@ -105,6 +139,10 @@ public class TestListener {
     }
 
     static String trimPackage(String pkg) {
+        if (Strings.isNullOrEmpty(pkg)) {
+            return pkg;
+        }
+
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (String part : pkg.split("\\.")) {

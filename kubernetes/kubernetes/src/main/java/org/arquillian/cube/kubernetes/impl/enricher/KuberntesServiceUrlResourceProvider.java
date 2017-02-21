@@ -8,12 +8,18 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+
+import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.annotations.Scheme;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionListener;
+import org.arquillian.cube.kubernetes.impl.DefaultSession;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -27,14 +33,16 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
  * It refers to services that have been created during the current session.
  */
-public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
+public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResourceProvider {
 
 
     private static final String SERVICE_PATH = "api.service.kubernetes.io/path";
@@ -48,6 +56,11 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
 
     private static final Random RANDOM = new Random();
 
+    @Inject
+    private Instance<ServiceLoader> serviceLoader;
+
+    private ResourceProvider next;
+
     @Override
     public boolean canProvide(Class<?> type) {
         return URL.class.isAssignableFrom(type);
@@ -56,6 +69,12 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        if (Strings.isNullOrEmpty(name)) {
+            ResourceProvider delegate = getNext();
+            if (delegate != null) {
+               return delegate.lookup(resource, qualifiers);
+            }
+        }
         String namespace = getSession().getNamespace();
         Service service = getClient().services().inNamespace(namespace).withName(name).get();
         String scheme = getScheme(service, qualifiers);
@@ -82,6 +101,23 @@ public class UrlResourceProvider extends AbstractKubernetesResourceProvider {
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Cannot resolve URL for service: [" + name + "] in namespace:[" + namespace + "].");
         }
+    }
+
+    private ResourceProvider getNext() {
+        if (next != null) {
+            return next;
+        }
+
+        synchronized (this) {
+            Collection<ResourceProvider> providers = serviceLoader.get().all(ResourceProvider.class);
+            for (ResourceProvider provider : providers) {
+                if (!(provider instanceof KuberntesServiceUrlResourceProvider) && provider.canProvide(URL.class)) {
+                    this.next = provider;
+                    break;
+                }
+            }
+        }
+        return next;
     }
 
     private int portForward(Session session, String podName, int targetPort) {

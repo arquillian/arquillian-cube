@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
+import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 
 import java.io.File;
 import java.net.URI;
@@ -21,14 +21,14 @@ public class GitServer {
     private static final String GIT_SERVICE = "git";
     private static final String GIT_LOCALPORT = "10001";
     private static final String GIT_REMOTEPORT = "8080";
-    private NamespacedKubernetesClient client;
+    private NamespacedOpenShiftClient client;
     private String namespace;
     private Pod server;
     private PortForwarder forwarder;
     private Config config;
     private Service service;
 
-    public GitServer(NamespacedKubernetesClient client, Config config, String namespace) {
+    public GitServer(NamespacedOpenShiftClient client, Config config, String namespace) {
         this.client = client;
         this.config = config;
         this.namespace = namespace;

@@ -8,9 +8,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.NamespacedKubernetesClient;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
 import io.fabric8.openshift.api.model.BuildConfigBuilder;
@@ -18,7 +15,8 @@ import io.fabric8.openshift.api.model.BuildRequest;
 import io.fabric8.openshift.api.model.BuildRequestBuilder;
 import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamBuilder;
-import io.fabric8.openshift.client.OpenShiftConfig;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 
 import java.io.File;
 import java.net.URI;
@@ -36,12 +34,12 @@ public class OpenShiftClient {
 
     private String namespace;
 
-    private NamespacedKubernetesClient kubernetes;
+    private NamespacedOpenShiftClient kubernetes;
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
     public OpenShiftClient(Config config, String namespace, boolean keepAliveGitServer) {
-        this.kubernetes = new DefaultKubernetesClient(config);
+        this.kubernetes = new DefaultOpenShiftClient(config);
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
         this.gitserver = new GitServer(this.getClient(), config, namespace);
@@ -79,7 +77,7 @@ public class OpenShiftClient {
 	        String runID = ref.getContainerName();
 
 	        try {
-                /*
+
 	            ImageStream is = new ImageStreamBuilder()
 	                    .withNewMetadata()
 	                        .withName(runID)
@@ -98,9 +96,11 @@ public class OpenShiftClient {
 	                        .endMetadata()
 	                    .withNewSpec()
 	                        .withNewSource()
-	                            .withNewGit(null, null, "master", repoUri.toString())
-	                            .withType("Git")
-	                            .endSource()
+                                .withNewGit()
+                                    .withUri(repoUri.toString())
+                                    .withRef("master")
+                                .endGit()
+                            .endSource()
 	                        .withNewStrategy()
 	                            .withType("Docker")
 	                            .withNewDockerStrategy()
@@ -141,7 +141,7 @@ public class OpenShiftClient {
 
 	            String imageRef = is.getStatus().getTags().get(0).getItems().get(0).getDockerImageReference();
 	            template.resolve(ref,  imageRef);
-*/
+
                 Pod service = createStartablePod(template, defaultLabels);
 	            holder.setPod(service);
 	        } catch(Exception e) {
@@ -193,11 +193,11 @@ public class OpenShiftClient {
 		}
 	}
 
-	public NamespacedKubernetesClient getClient() {
+	public NamespacedOpenShiftClient getClient() {
 		return kubernetes;
 	}
 
-	public io.fabric8.kubernetes.client.KubernetesClient getClientExt() {
+	public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
 		return kubernetes;
 	}
 
