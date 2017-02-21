@@ -7,6 +7,7 @@ import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
 import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
@@ -20,12 +21,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
@@ -38,14 +39,15 @@ public class SessionManager implements SessionCreatedListener {
     private final NamespaceService namespaceService;
     private final KubernetesResourceLocator kubernetesResourceLocator;
     private final DependencyResolver dependencyResolver;
-    private final List<Visitor> visitors;
+    private final ResourceInstaller resourceInstaller;
 
     private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
 
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
                           AnnotationProvider annotationProvider, NamespaceService namespaceService,
                           KubernetesResourceLocator kubernetesResourceLocator,
-                          DependencyResolver dependencyResolver, List<Visitor> visitors) {
+                          DependencyResolver dependencyResolver, ResourceInstaller resourceInstaller) {
+
         Validate.notNull(session, "A Session instance is required.");
         Validate.notNull(client, "A KubernetesClient instance is required.");
         Validate.notNull(configuration, "Configuration is required.");
@@ -53,6 +55,7 @@ public class SessionManager implements SessionCreatedListener {
         Validate.notNull(namespaceService, "A NamespaceService instance is required.");
         Validate.notNull(dependencyResolver, "A DependencyResolver instance is required.");
         Validate.notNull(kubernetesResourceLocator, "A KubernetesResourceLocator instance is required.");
+        Validate.notNull(resourceInstaller, "A ResourceInstaller instance is required.");
         this.session = session;
         this.client = client;
         this.configuration = configuration;
@@ -60,7 +63,7 @@ public class SessionManager implements SessionCreatedListener {
         this.namespaceService = namespaceService;
         this.kubernetesResourceLocator = kubernetesResourceLocator;
         this.dependencyResolver = dependencyResolver;
-        this.visitors = visitors;
+        this.resourceInstaller = resourceInstaller;
     }
 
     @Override
@@ -96,7 +99,6 @@ public class SessionManager implements SessionCreatedListener {
 
         Runtime.getRuntime().addShutdownHook(hook);
         shutdownHookRef.set(hook);
-        CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
         List<HasMetadata> all = new ArrayList<>();
 
         try {
@@ -106,9 +108,7 @@ public class SessionManager implements SessionCreatedListener {
             if (configuration.isEnvironmentInitEnabled()) {
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
-                    try (InputStream is = dependencyUrl.openStream()) {
-                        all.addAll(client.load(is).accept(compositeVisitor).createOrReplace());
-                    }
+                    all.addAll(resourceInstaller.install(dependencyUrl));
                 }
 
                 if (configUrl == null) {
@@ -118,22 +118,22 @@ public class SessionManager implements SessionCreatedListener {
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
-                        all.addAll(client.load(is).get());
+                        all.addAll(resourceInstaller.install(configUrl));
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
                 }
-            }
 
-            if (configuration.isEnvironmentInitEnabled() && !all.isEmpty()) {
-                try {
-                    client.resourceList(all).createOrReplaceAnd().waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
-                } catch (KubernetesClientTimeoutException t) {
-                    log.warn("The are resources in not ready state.");
-                    for (HasMetadata r : t.getResourcesNotReady()) {
-                        log.error(r.getKind() + " name: " + r.getMetadata().getName() + " namespace:" + r.getMetadata().getNamespace());
+                if (!all.isEmpty()) {
+                    try {
+                        client.resourceList(all).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                    } catch (KubernetesClientTimeoutException t) {
+                        log.warn("The are resources in not ready state.");
+                        for (HasMetadata r : t.getResourcesNotReady()) {
+                            log.error(r.getKind() + " name: " + r.getMetadata().getName() + " namespace:" + r.getMetadata().getNamespace());
+                        }
+                        throw new IllegalStateException("Environment not initialized in time.", t);
                     }
-                    throw new IllegalStateException("Environment not initialized in time.", t);
                 }
             }
             display();

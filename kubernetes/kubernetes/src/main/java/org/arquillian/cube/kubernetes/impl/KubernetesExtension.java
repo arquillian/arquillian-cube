@@ -17,16 +17,20 @@ package org.arquillian.cube.kubernetes.impl;
 
 
 import io.fabric8.kubernetes.api.builder.Visitor;
+
+import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.impl.annotation.AnnotationProviderRegistar;
 import org.arquillian.cube.kubernetes.impl.annotation.DefaultAnnotationProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ClientResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.DeploymentListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.DeploymentResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.PodListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.PodResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ReplicaSetListResourceProvider;
@@ -36,7 +40,8 @@ import org.arquillian.cube.kubernetes.impl.enricher.ReplicationControllerResourc
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.SessionResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider;
+import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.install.ResourceInstallerRegistar;
 import org.arquillian.cube.kubernetes.impl.label.DefaultLabelProvider;
 import org.arquillian.cube.kubernetes.impl.label.LabelProviderRegistar;
 import org.arquillian.cube.kubernetes.impl.locator.KubernetesResourceLocatorRegistar;
@@ -65,12 +70,14 @@ public class KubernetesExtension implements LoadableExtension {
                 .observer(DependencyResolverRegistar.class)
                 .observer(AnnotationProviderRegistar.class)
                 .observer(LoggerRegistar.class)
+                .observer(ResourceInstallerRegistar.class)
                 .observer(getClientCreator())
                 .observer(SuiteListener.class)
                 .observer(TestListener.class)
                 .observer(SessionManagerLifecycle.class);
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
+                .service(ResourceInstaller.class, DefaultResourceInstaller.class)
                 .service(LabelProvider.class, DefaultLabelProvider.class)
                 .service(DependencyResolver.class, ShrinkwrapResolver.class)
                 .service(AnnotationProvider.class, DefaultAnnotationProvider.class)
@@ -90,7 +97,8 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
                 .service(ResourceProvider.class, ServiceResourceProvider.class)
                 .service(ResourceProvider.class, SessionResourceProvider.class)
-                .service(ResourceProvider.class, KuberntesServiceUrlResourceProvider.class);
+
+                .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class, KuberntesServiceUrlResourceProvider.class);
     }
 
     private Class getClientCreator() {

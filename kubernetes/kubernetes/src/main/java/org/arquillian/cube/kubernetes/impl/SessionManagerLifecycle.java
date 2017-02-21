@@ -5,6 +5,7 @@ import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
@@ -43,7 +44,7 @@ public class SessionManagerLifecycle {
     Instance<DependencyResolver> dependencyResolver;
 
     @Inject
-    Instance<ServiceLoader> serviceLoader;
+    Instance<ResourceInstaller> resourceInstaller;
 
     @Inject
     Event<AfterStart> afterStartEvent;
@@ -51,14 +52,13 @@ public class SessionManagerLifecycle {
     AtomicReference<SessionManager> sessionManagerRef = new AtomicReference<>();
 
     public void start(final @Observes Start event) throws Exception {
-        List<Visitor> visitors = new ArrayList<>(serviceLoader.get().all(Visitor.class));
 
         Session session = event.getSession();
         SessionManager sessionManager = new SessionManager(session, kubernetesClient.get(), configuration.get(),
                 annotationProvider.get(),
                 namespaceService.get().toImmutable(),
                 kubernetesResourceLocator.get().toImmutable(),
-                dependencyResolver.get().toImmutable(), visitors);
+                dependencyResolver.get().toImmutable(), resourceInstaller.get());
 
         sessionManagerRef.set(sessionManager);
         sessionManager.start();
