@@ -1,0 +1,144 @@
+{
+  "Id": "sha256:c39809b152582230d5c06cf05bd4c1e2699aa5d75e04244e6309e5927bb26f27",
+  "RepoTags": [
+    "cienv_jenkins-server:latest"
+  ],
+  "RepoDigests": [],
+  "Parent": "sha256:a478ad312f65d76323fe6ac81c882f1e07734da9f96b5f3f49249b9c2e914eb1",
+  "Comment": "",
+  "Created": "2017-02-26T21:21:10.352947595Z",
+  "Container": "4176547d90e72a52352566ff4e7f55229918569a1b63ea593d8e21a5900e7601",
+  "ContainerConfig": {
+    "Hostname": "33842653d6db",
+    "Domainname": "",
+    "User": "jenkins",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "ExposedPorts": {
+      "50000/tcp": {},
+      "8080/tcp": {}
+    },
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "LANG=C.UTF-8",
+      "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+      "JAVA_VERSION=8u121",
+      "JAVA_DEBIAN_VERSION=8u121-b13-1~bpo8+1",
+      "CA_CERTIFICATES_JAVA_VERSION=20161107~bpo8+1",
+      "JENKINS_HOME=/var/jenkins_home",
+      "JENKINS_SLAVE_AGENT_PORT=50000",
+      "TINI_VERSION=0.13.2",
+      "TINI_SHA=afbf8de8a63ce8e4f18cb3f34dfdbbd354af68a1",
+      "JENKINS_VERSION=2.47",
+      "JENKINS_UC=https://updates.jenkins.io",
+      "COPY_REFERENCE_FILE_LOG=/var/jenkins_home/copy_reference_file.log"
+    ],
+    "Cmd": [
+      "/bin/sh",
+      "-c",
+      "/usr/local/bin/install-plugins.sh slack:2.1  pipeline-model-definition:1.0.2 junit:1.20 jacoco:2.1.0 gradle:1.26 gitlab-plugin:1.4.5 github-branch-source:2.0.3 docker-traceability:1.2 docker-workflow:1.10 dockerhub-notification:2.2.0 docker-custom-build-environment:1.6.5 docker-build-publish:1.3.2 cloudbees-bitbucket-branch-source:2.1.0 checkstyle:3.47 disk-usage:0.28 findbugs:4.69 cloudbees-folder:5.18 github-organization-folder:1.6 matrix-auth:1.4 matrix-project:1.8 role-strategy:2.3.2 sonar:2.5 kubernetes:0.11 hipchat:2.1.1"
+    ],
+    "ArgsEscaped": true,
+    "Image": "sha256:a478ad312f65d76323fe6ac81c882f1e07734da9f96b5f3f49249b9c2e914eb1",
+    "Volumes": {
+      "/var/jenkins_home": {}
+    },
+    "WorkingDir": "",
+    "Entrypoint": [
+      "/bin/tini",
+      "--",
+      "/usr/local/bin/jenkins.sh"
+    ],
+    "OnBuild": [],
+    "Labels": {
+      "jenkins.version": "2.47",
+      "maintainer": "Eddú Meléndez"
+    }
+  },
+  "DockerVersion": "17.03.0-ce-rc1",
+  "Author": "",
+  "Config": {
+    "Hostname": "33842653d6db",
+    "Domainname": "",
+    "User": "jenkins",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "ExposedPorts": {
+      "50000/tcp": {},
+      "8080/tcp": {}
+    },
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "LANG=C.UTF-8",
+      "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+      "JAVA_VERSION=8u121",
+      "JAVA_DEBIAN_VERSION=8u121-b13-1~bpo8+1",
+      "CA_CERTIFICATES_JAVA_VERSION=20161107~bpo8+1",
+      "JENKINS_HOME=/var/jenkins_home",
+      "JENKINS_SLAVE_AGENT_PORT=50000",
+      "TINI_VERSION=0.13.2",
+      "TINI_SHA=afbf8de8a63ce8e4f18cb3f34dfdbbd354af68a1",
+      "JENKINS_VERSION=2.47",
+      "JENKINS_UC=https://updates.jenkins.io",
+      "COPY_REFERENCE_FILE_LOG=/var/jenkins_home/copy_reference_file.log"
+    ],
+    "Cmd": null,
+    "ArgsEscaped": true,
+    "Image": "sha256:a478ad312f65d76323fe6ac81c882f1e07734da9f96b5f3f49249b9c2e914eb1",
+    "Volumes": {
+      "/var/jenkins_home": {}
+    },
+    "WorkingDir": "",
+    "Entrypoint": [
+      "/bin/tini",
+      "--",
+      "/usr/local/bin/jenkins.sh"
+    ],
+    "OnBuild": [],
+    "Labels": {
+      "jenkins.version": "2.47",
+      "maintainer": "Eddú Meléndez"
+    }
+  },
+  "Architecture": "amd64",
+  "Os": "linux",
+  "Size": 818233370,
+  "VirtualSize": 818233370,
+  "GraphDriver": {
+    "Name": "aufs",
+    "Data": null
+  },
+  "RootFS": {
+    "Type": "layers",
+    "Layers": [
+      "sha256:a2ae92ffcd29f7ededa0320f4a4fd709a723beae9a4e681696874932db7aee2c",
+      "sha256:0eb22bfb707db44a8e5ba46a21b2ac59c83dfa946228f04be511aba313bdc090",
+      "sha256:30339f20ced009fc394410ac3360f387351641ed40d6b2a44b0d39098e2e2c40",
+      "sha256:ce6c8756685b2bff514e0b28f78eedb671380084555af2b3833e54bb191b262a",
+      "sha256:a3483ce177ce1278dd26f992b7c0cfe8b8175dd45bc28fee2628ff2cf063604c",
+      "sha256:6ed1a81ba5b6811a62563b80ea12a405ed442a297574de7440beeafe8512a00a",
+      "sha256:993b9c3a0738e2893508425e64ebde8b34bdb14bedd013d44f5ff46e757172a1",
+      "sha256:485b31116264022929da945b15bb49c7abc2703fc123f20d3fea7608e9d72ecd",
+      "sha256:8f4775de0ad50ca015eed87ae3a68fd19efcf8d3747b577d9c489ffbfb772e5d",
+      "sha256:a3205346e12a214bc0bb0578bbc6f68c56433d42799ff799f825662582206dee",
+      "sha256:b00a389b3b959fba2fe93eaeb9412c92848defa2ae24e30253c1a334eb5b784a",
+      "sha256:0a9143d162c6481eac074ad1e61460bc83283bb96961502063ed8d181e6397e4",
+      "sha256:9f483c97df0d01e7ad2cca2015bd79ba3dad2f71d9e7560523f9ea2454aee647",
+      "sha256:52af2e1d31bd28a0cb7556458b51a1e347928e2e16b97ea11301fdbc3f48b695",
+      "sha256:ec2c4eee23575048bd28816c609f4e0fcbfee6025f077ef2119f0ef57dcdcd9a",
+      "sha256:02066551a75fbb354c23e98182ddd82c0b43705733f1fe31bd4c309f221dab7b",
+      "sha256:62892bd9a23d103423defbefa0ec3abfbd4d7538defcbd856229d79a71235ebb",
+      "sha256:9df39cc32ee829df9faeb268157d670a80580f51c1d617625226eeeb63338b4e",
+      "sha256:1c8f24e56d68795ce3d8ce8b6d22613fd6237e55a354787e36424950c00a7f82",
+      "sha256:7f17f51c97c3d73f281fc3ee3e54055d95c184b9d17e1b43a4b9c7b4808c6bc0"
+    ]
+  }
+}
