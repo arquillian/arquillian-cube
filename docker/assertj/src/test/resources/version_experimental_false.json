@@ -1,0 +1,12 @@
+{
+  "Version": "17.03.0-ce-rc1",
+  "ApiVersion": "1.26",
+  "MinAPIVersion": "1.12",
+  "GitCommit": "ce07fb6",
+  "GoVersion": "go1.7.5",
+  "Os": "linux",
+  "Arch": "amd64",
+  "KernelVersion": "4.9.11-moby",
+  "Experimental": false,
+  "BuildTime": "2017-02-20T10:12:38.576960226+00:00"
+}

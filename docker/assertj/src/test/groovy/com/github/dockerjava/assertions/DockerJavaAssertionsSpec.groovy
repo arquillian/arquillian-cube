@@ -1,9 +1,11 @@
 package com.github.dockerjava.assertions
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerCmd
 import com.github.dockerjava.api.command.InspectContainerResponse
 import com.github.dockerjava.api.command.ListImagesCmd
+import com.github.dockerjava.api.command.VersionCmd
 import com.github.dockerjava.api.model.ContainerConfig
 import com.github.dockerjava.api.model.ExposedPort
 import com.github.dockerjava.api.model.HostConfig
@@ -11,6 +13,7 @@ import com.github.dockerjava.api.model.Image
 import com.github.dockerjava.api.model.InternetProtocol
 import com.github.dockerjava.api.model.PortBinding
 import com.github.dockerjava.api.model.Ports
+import com.github.dockerjava.api.model.Version
 import spock.lang.Specification
 
 import static com.github.dockerjava.assertions.DockerJavaAssertions.assertThat
@@ -462,6 +465,34 @@ class DockerJavaAssertionsSpec extends Specification {
         then:
             AssertionError er = thrown()
             er.message == "Expected container's mounts size to be 3 but was 2"
+    }
+
+    def "docker version has experimental flag enabled"() {
+        setup:
+            def cmd = Mock(VersionCmd)
+            def version = new ObjectMapper().readValue(new File("src/test/resources/version.json"), Version.class);
+
+        when:
+            this.client.versionCmd() >> cmd
+            this.client.versionCmd().exec() >> version
+
+        then:
+            assertThat(this.client).version().hasApiVersion("1.26")
+            assertThat(this.client).version().hasVersion("17.03.0-ce-rc1")
+            assertThat(this.client).version().isExperimental()
+    }
+
+    def "docker version has experimental flag disabled"() {
+        setup:
+            def cmd = Mock(VersionCmd)
+            def version = new ObjectMapper().readValue(new File("src/test/resources/version_experimental_false.json"), Version.class);
+
+        when:
+            this.client.versionCmd() >> cmd
+            this.client.versionCmd().exec() >> version
+
+        then:
+            assertThat(this.client).version().isExperimental(false)
     }
 
 }
