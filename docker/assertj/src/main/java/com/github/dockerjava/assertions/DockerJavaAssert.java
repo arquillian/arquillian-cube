@@ -41,6 +41,7 @@ public class DockerJavaAssert {
       InspectImageResponse imageInfo =  this.client.inspectImageCmd(image).exec();
 
       return new ImageAssert(imageInfo);
+   }
   
    public VersionAssert version() {
       Version version = this.client.versionCmd().exec();
