@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.command.InspectContainerCmd
 import com.github.dockerjava.api.command.InspectContainerResponse
+import com.github.dockerjava.api.command.InspectImageCmd
+import com.github.dockerjava.api.command.InspectImageResponse
 import com.github.dockerjava.api.command.ListImagesCmd
 import com.github.dockerjava.api.command.VersionCmd
 import com.github.dockerjava.api.model.ContainerConfig
@@ -465,6 +467,34 @@ class DockerJavaAssertionsSpec extends Specification {
         then:
             AssertionError er = thrown()
             er.message == "Expected container's mounts size to be 3 but was 2"
+    }
+
+    def "image should have custom labels"() {
+        setup:
+            def cmd = Mock(InspectImageCmd)
+            def imageInfo = new ObjectMapper().readValue(new File("src/test/resources/image.json"), InspectImageResponse)
+
+        when:
+            this.client.inspectImageCmd("my_jenkins_image") >> cmd
+            this.client.inspectImageCmd("my_jenkins_image").exec() >> imageInfo
+
+        then:
+            assertThat(this.client).image("my_jenkins_image").hasLabels("maintainer", "jenkins.version")
+            assertThat(this.client).image("my_jenkins_image").hasLabel("jenkins.version", "2.47")
+    }
+
+    def "container should have custom labels"() {
+        setup:
+            def cmd = Mock(InspectContainerCmd)
+            def containerInfo = new ObjectMapper().readValue(new File("src/test/resources/container.json"), InspectContainerResponse)
+
+        when:
+            this.client.inspectContainerCmd("my_jenkins_container") >> cmd
+            this.client.inspectContainerCmd("my_jenkins_container").exec() >> containerInfo
+
+        then:
+            assertThat(this.client).container("my_jenkins_container").hasLabels("jenkins.environment", "maintainer", "jenkins.version")
+            assertThat(this.client).container("my_jenkins_container").hasLabel("jenkins.environment", "ci")
     }
 
     def "docker version has experimental flag enabled"() {

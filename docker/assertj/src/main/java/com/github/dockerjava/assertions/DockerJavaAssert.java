@@ -3,6 +3,7 @@ package com.github.dockerjava.assertions;
 import com.github.dockerjava.CubeOutput;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
@@ -36,10 +37,17 @@ public class DockerJavaAssert {
       return new ContainerAssert(container);
    }
 
+   public ImageAssert image(String image) {
+      InspectImageResponse imageInfo =  this.client.inspectImageCmd(image).exec();
+
+      return new ImageAssert(imageInfo);
+   }
+  
    public VersionAssert version() {
       Version version = this.client.versionCmd().exec();
 
       return new VersionAssert(version);
+
    }
 
    public CubeOutputAssert withContainer(String name) {

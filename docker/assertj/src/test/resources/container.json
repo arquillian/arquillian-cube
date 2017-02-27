@@ -1,0 +1,229 @@
+{
+  "Id": "8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564",
+  "Created": "2017-02-26T21:21:11.031900004Z",
+  "Path": "/bin/tini",
+  "Args": [
+    "--",
+    "/usr/local/bin/jenkins.sh"
+  ],
+  "State": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 8034,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2017-02-26T23:27:37.355110692Z",
+    "FinishedAt": "2017-02-26T22:18:21.766162552Z"
+  },
+  "Image": "sha256:c39809b152582230d5c06cf05bd4c1e2699aa5d75e04244e6309e5927bb26f27",
+  "ResolvConfPath": "/var/lib/docker/containers/8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564/resolv.conf",
+  "HostnamePath": "/var/lib/docker/containers/8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564/hostname",
+  "HostsPath": "/var/lib/docker/containers/8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564/hosts",
+  "LogPath": "/var/lib/docker/containers/8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564/8c0df5f3c863620dade501cc41e36b5a0bc2e4255dd89b45495731044032e564-json.log",
+  "Name": "/cienv_jenkins-server_1",
+  "RestartCount": 0,
+  "Driver": "aufs",
+  "MountLabel": "",
+  "ProcessLabel": "",
+  "AppArmorProfile": "",
+  "ExecIDs": null,
+  "HostConfig": {
+    "Binds": [
+      "/Users/eddumelendez/docker-repository/ci_env/jenkins:/var/jenkins_home:rw"
+    ],
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {}
+    },
+    "NetworkMode": "cienv_default",
+    "PortBindings": {
+      "8080/tcp": [
+        {
+          "HostIp": "",
+          "HostPort": "8080"
+        }
+      ]
+    },
+    "RestartPolicy": {
+      "Name": "",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": [],
+    "CapAdd": null,
+    "CapDrop": null,
+    "Dns": null,
+    "DnsOptions": null,
+    "DnsSearch": null,
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": false,
+    "SecurityOpt": null,
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 0,
+    "NanoCpus": 0,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": null,
+    "BlkioDeviceReadBps": null,
+    "BlkioDeviceWriteBps": null,
+    "BlkioDeviceReadIOps": null,
+    "BlkioDeviceWriteIOps": null,
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": null,
+    "DiskQuota": 0,
+    "KernelMemory": 0,
+    "MemoryReservation": 0,
+    "MemorySwap": 0,
+    "MemorySwappiness": -1,
+    "OomKillDisable": false,
+    "PidsLimit": 0,
+    "Ulimits": null,
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0
+  },
+  "GraphDriver": {
+    "Name": "aufs",
+    "Data": null
+  },
+  "Mounts": [
+    {
+      "Type": "bind",
+      "Source": "/Users/eddumelendez/docker-repository/ci_env/jenkins",
+      "Destination": "/var/jenkins_home",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "Config": {
+    "Hostname": "8c0df5f3c863",
+    "Domainname": "",
+    "User": "jenkins",
+    "AttachStdin": false,
+    "AttachStdout": false,
+    "AttachStderr": false,
+    "ExposedPorts": {
+      "50000/tcp": {},
+      "8080/tcp": {}
+    },
+    "Tty": false,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Env": [
+      "no_proxy=*.local, 169.254/16",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "LANG=C.UTF-8",
+      "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+      "JAVA_VERSION=8u121",
+      "JAVA_DEBIAN_VERSION=8u121-b13-1~bpo8+1",
+      "CA_CERTIFICATES_JAVA_VERSION=20161107~bpo8+1",
+      "JENKINS_HOME=/var/jenkins_home",
+      "JENKINS_SLAVE_AGENT_PORT=50000",
+      "TINI_VERSION=0.13.2",
+      "TINI_SHA=afbf8de8a63ce8e4f18cb3f34dfdbbd354af68a1",
+      "JENKINS_VERSION=2.47",
+      "JENKINS_UC=https://updates.jenkins.io",
+      "COPY_REFERENCE_FILE_LOG=/var/jenkins_home/copy_reference_file.log"
+    ],
+    "Cmd": null,
+    "ArgsEscaped": true,
+    "Image": "cienv_jenkins-server",
+    "Volumes": {
+      "/var/jenkins_home": {}
+    },
+    "WorkingDir": "",
+    "Entrypoint": [
+      "/bin/tini",
+      "--",
+      "/usr/local/bin/jenkins.sh"
+    ],
+    "OnBuild": null,
+    "Labels": {
+      "com.docker.compose.config-hash": "8f87d7eff697bd3301401d13b0b7415749ef105177a7d95249c029e45d07ac82",
+      "com.docker.compose.container-number": "1",
+      "com.docker.compose.oneoff": "False",
+      "com.docker.compose.project": "cienv",
+      "com.docker.compose.service": "jenkins-server",
+      "com.docker.compose.version": "1.11.1",
+      "jenkins.environment": "ci",
+      "jenkins.version": "2.47",
+      "maintainer": "Eddú Meléndez"
+    }
+  },
+  "NetworkSettings": {
+    "Bridge": "",
+    "SandboxID": "532c491e2ff802dda81aa9f7a3d3843b019381544f7d88dd476f9dca1fa38b9f",
+    "HairpinMode": false,
+    "LinkLocalIPv6Address": "",
+    "LinkLocalIPv6PrefixLen": 0,
+    "Ports": {
+      "50000/tcp": null,
+      "8080/tcp": [
+        {
+          "HostIp": "0.0.0.0",
+          "HostPort": "8080"
+        }
+      ]
+    },
+    "SandboxKey": "/var/run/docker/netns/532c491e2ff8",
+    "SecondaryIPAddresses": null,
+    "SecondaryIPv6Addresses": null,
+    "EndpointID": "",
+    "Gateway": "",
+    "GlobalIPv6Address": "",
+    "GlobalIPv6PrefixLen": 0,
+    "IPAddress": "",
+    "IPPrefixLen": 0,
+    "IPv6Gateway": "",
+    "MacAddress": "",
+    "Networks": {
+      "cienv_default": {
+        "IPAMConfig": null,
+        "Links": null,
+        "Aliases": [
+          "jenkins-server",
+          "8c0df5f3c863"
+        ],
+        "NetworkID": "505a483233d4628a8027d93caf5402329cfc2d297501a7c6f44f1533498086f9",
+        "EndpointID": "06a889c5041ebbed636975a02e38537981c88217fc7c1f8d912b2f10087902fa",
+        "Gateway": "172.18.0.1",
+        "IPAddress": "172.18.0.2",
+        "IPPrefixLen": 16,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "MacAddress": "02:42:ac:12:00:02"
+      }
+    }
+  }
+}

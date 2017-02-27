@@ -5,6 +5,7 @@ import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.data.MapEntry;
 import org.assertj.core.util.Objects;
 
 import java.util.ArrayList;
@@ -159,6 +160,26 @@ public class ContainerAssert extends AbstractAssert<ContainerAssert, InspectCont
       if (this.actual.getMounts().size() != size) {
          failWithMessage("Expected container's mounts size to be %s but was %s", size, this.actual.getMounts().size());
       }
+
+      return this;
+   }
+
+   public ContainerAssert hasLabels(String... labels) {
+   	  isNotNull();
+
+	   assertThat(getContainerConfig().getLabels())
+			   .overridingErrorMessage("%nExpecting:%n <%s>%nto contain:%n <%s>", getContainerConfig().getLabels().keySet(), Arrays.asList(labels))
+			   .containsKeys(labels);
+
+   	  return this;
+   }
+
+   public ContainerAssert hasLabel(String label, String value) {
+      isNotNull();
+
+      assertThat(getContainerConfig().getLabels())
+              .overridingErrorMessage("%nExpecting:%n <%s>%nto contain:%n <%s>", getContainerConfig().getLabels(), MapEntry.entry(label, value))
+              .containsEntry(label, value);
 
       return this;
    }
