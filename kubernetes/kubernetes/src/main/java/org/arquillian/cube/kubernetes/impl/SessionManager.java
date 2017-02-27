@@ -1,6 +1,5 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -10,7 +9,6 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
-import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
 import org.jboss.arquillian.core.spi.Validate;
 
 import java.io.InputStream;
@@ -26,7 +24,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
@@ -77,12 +74,8 @@ public class SessionManager implements SessionCreatedListener {
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
         log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
 
-
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
-        String namespaceToUse = configuration.getNamespace();
-        if (Strings.isNullOrEmpty(namespaceToUse)) {
-            namespaceService.create(session.getNamespace(), namespaceAnnotations);
-        } else if (namespaceService.exists(session.getNamespace())) {
+        if (namespaceService.exists(session.getNamespace())) {
             //namespace exists
         } else if (configuration.isNamespaceLazyCreateEnabled()) {
             namespaceService.create(session.getNamespace(), namespaceAnnotations);
