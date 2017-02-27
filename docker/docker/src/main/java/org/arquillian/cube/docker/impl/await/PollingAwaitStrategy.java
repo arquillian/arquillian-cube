@@ -112,8 +112,20 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                         }
                     } catch (UnsupportedOperationException e) {
                         // In case of not having ss command installed on container, it automatically fall back to waitforit approach
-                        if (!executeWaitForIt(portBindings.getInternalIP(), port)) {
-                            return false;
+                        try {
+                            if (!executeWaitForIt(portBindings.getInternalIP(), port)) {
+                                return false;
+                            }
+                        } catch (UnsupportedOperationException ex) {
+                            PortAddress mapping = portBindings.getMappedAddress(port);
+                            if (mapping == null) {
+                                throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + port);
+                            }
+                            log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(), this.type));
+                            if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
+                                    this.getTimeUnit())) {
+                                return false;
+                            }
                         }
                     }
                 }
@@ -147,6 +159,11 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
             String command = resolveWaitForItCommand(containerIp, port);
             final String[] commands = {"sh", "-c", command};
             CubeOutput result = dockerClientExecutor.execStart(cube.getId(), commands);
+
+            if (result.getError() != null && result.getError().contains("can't execute")) {
+                throw new UnsupportedOperationException(result.getError());
+            }
+
             return result.getStandard() != null && result.getStandard().trim().contains(MESSAGE);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
