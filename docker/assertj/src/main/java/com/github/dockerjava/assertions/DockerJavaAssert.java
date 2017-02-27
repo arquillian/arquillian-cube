@@ -4,6 +4,7 @@ import com.github.dockerjava.CubeOutput;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +34,12 @@ public class DockerJavaAssert {
       InspectContainerResponse container = getContainerInformation(name);
 
       return new ContainerAssert(container);
+   }
+
+   public VersionAssert version() {
+      Version version = this.client.versionCmd().exec();
+
+      return new VersionAssert(version);
    }
 
    public CubeOutputAssert withContainer(String name) {
