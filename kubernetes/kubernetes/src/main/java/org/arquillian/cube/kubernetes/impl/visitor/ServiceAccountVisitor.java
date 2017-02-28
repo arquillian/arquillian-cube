@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.Logger;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
@@ -16,26 +17,38 @@ public class ServiceAccountVisitor implements Visitor {
     @Inject
     Instance<Configuration> configuration;
 
+    @Inject
+    protected Instance<Logger> logger;
+
     @Override
     public void visit(Object element) {
         if (element instanceof PodSpecBuilder) {
             PodSpecBuilder builder = (PodSpecBuilder) element;
             String serviceAccount = builder.getServiceAccountName();
-            if (Strings.isNotNullOrEmpty(serviceAccount)) {
-                createServiceAccount(serviceAccount);
+            if (Strings.isNotNullOrEmpty(serviceAccount) && !serviceAccountExists(serviceAccount)) {
+                try {
+                    createServiceAccount(serviceAccount);
+                } catch (Throwable t) {
+                    logger.get().warn("Failed to create ServiceAccount with name:[" + serviceAccount + "].");
+                }
             }
         }
+    }
+
+    private boolean serviceAccountExists(String serviceAccount) {
+        KubernetesClient client = this.client.get();
+        Configuration configuration = this.configuration.get();
+        return client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).get() != null;
     }
 
     private void createServiceAccount(String serviceAccount) {
         KubernetesClient client = this.client.get();
         Configuration configuration = this.configuration.get();
-        if (client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).get() == null) {
-            client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
-                    .withNewMetadata()
-                    .withName(serviceAccount)
-                    .endMetadata()
-                    .done();
-        }
+        client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
+                .withNewMetadata()
+                .withName(serviceAccount)
+                .endMetadata()
+                .done();
+
     }
- }
+}
