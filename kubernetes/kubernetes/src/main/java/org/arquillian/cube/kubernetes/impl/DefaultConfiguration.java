@@ -25,6 +25,12 @@ public class DefaultConfiguration implements Configuration {
     private final URL masterUrl;
     private final URL environmentConfigUrl;
     private final List<URL> environmentDependencies;
+
+    public void setDefinitionsFileURL(URL definitionsFileURL) {
+        this.definitionsFileURL = definitionsFileURL;
+    }
+
+    private URL definitionsFileURL; // To get definitionFile property from openshift.
     private final boolean namespaceLazyCreateEnabled;
     private final boolean namespaceCleanupEnabled;
     private final long namespaceCleanupTimeout;
@@ -119,6 +125,11 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public URL getEnvironmentConfigUrl() {
         return environmentConfigUrl;
+    }
+
+    @Override
+    public URL getDefinitionsFileURL() {
+        return definitionsFileURL;
     }
 
     @Override

@@ -1,59 +1,90 @@
 {
-  "kind": "Pod",
+  "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "hello-openshift",
-    "creationTimestamp": null,
-    "labels": {
-      "name": "hello-openshift"
-    }
+    "name": "hello-openshift"
   },
-  "spec": {
-    "containers": [
-      {
-        "name": "hello-openshift",
-        "image": "openshift/hello-openshift",
+  "labels": {
+    "template": "hello-openshift"
+  },
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hello-openshift"
+      },
+      "spec": {
         "ports": [
           {
-            "containerPort": 8080,
-            "protocol": "TCP"
+            "name": "hello-openshift",
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
-        "resources": {
+        "selector": {
+          "name": "hello-openshift"
+        }
+      }
+    },
+    {
+      "kind": "Pod",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hello-openshift",
+        "creationTimestamp": null,
+        "labels": {
+          "name": "hello-openshift"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "hello-openshift",
+            "image": "openshift/hello-openshift",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {
 
-        },
-        "volumeMounts": [
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "capabilities": {
+
+            },
+            "securityContext": {
+              "capabilities": {
+
+              },
+              "privileged": false
+            }
+          }
+        ],
+        "volumes": [
           {
             "name": "tmp",
-            "mountPath": "/tmp"
+            "emptyDir": {
+
+            }
           }
         ],
-        "terminationMessagePath": "/dev/termination-log",
-        "imagePullPolicy": "IfNotPresent",
-        "capabilities": {
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccount": ""
+      },
+      "status": {
 
-        },
-        "securityContext": {
-          "capabilities": {
-
-          },
-          "privileged": false
-        }
       }
-    ],
-    "volumes": [
-      {
-        "name": "tmp",
-        "emptyDir": {
-
-        }
-      }
-    ],
-    "restartPolicy": "Always",
-    "dnsPolicy": "ClusterFirst",
-    "serviceAccount": ""
-  },
-  "status": {
-
-  }
+    }
+  ]
 }

@@ -5,9 +5,7 @@
 
 
     <extension qualifier="openshift">
-        <property name="autoStartContainers">hello-openshift</property>
-        <property name="definitionsFile">src/test/resources/hello-test.json</property>
-
+        <property name="definitionsFile">src/test/resources/hello-openshift.json</property>
     </extension>
 
 </arquillian>

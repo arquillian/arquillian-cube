@@ -1,15 +1,13 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import java.util.Map;
-
 import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
-import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+
+import java.util.Map;
 
 public class CubeOpenShiftConfigurator {
 
@@ -24,8 +22,10 @@ public class CubeOpenShiftConfigurator {
             //It has been already configured, no need to do it again.
             return;
         }
+
         Map<String, String> properties = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         CubeOpenShiftConfiguration cubeConfiguration = CubeOpenShiftConfiguration.fromMap(configuration, properties);
         configurationProducer.set(cubeConfiguration);
+
     }
 }
