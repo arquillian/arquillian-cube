@@ -38,10 +38,10 @@ public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
         try (InputStream is = url.openStream()) {
             KubernetesList list;
             String templateParametersFile = SystemEnvironmentVariables.getPropertyOrEnvironmentVariable(PARAMETERS_FILE);
-            if (templateParametersFile == null || !(new File(templateParametersFile).exists())) {
+            if (templateParametersFile != null && new File(templateParametersFile).exists()) {
                 list = openShiftClient.templates().load(is).processLocally(new File(templateParametersFile));
             } else {
-                list = openShiftClient.templates().load(is).process();
+                list = openShiftClient.templates().load(is).processLocally();
             }
             return openShiftClient.resourceList(list).accept(compositeVisitor).createOrReplace();
         } catch (Throwable t) {
