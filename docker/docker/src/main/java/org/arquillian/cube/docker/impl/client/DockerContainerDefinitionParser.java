@@ -154,9 +154,9 @@ public class DockerContainerDefinitionParser {
 
     private static URI checkRoot(String filename) {
         final Path rootPath = Paths.get(filename);
-        Path finalPath;
+        final Path finalPath = resolveDockerDefinition(rootPath);
 
-        if ((finalPath = exists(rootPath)) != null) {
+        if (finalPath != null) {
             return finalPath.toUri();
         }
 
@@ -165,9 +165,9 @@ public class DockerContainerDefinitionParser {
 
     private static URI checkDistributionDirectory(String filename) {
         final Path rootPath = Paths.get("src", "distribution", filename);
-        Path finalPath;
+        final Path finalPath = resolveDockerDefinition(rootPath);
 
-        if ((finalPath = exists(rootPath)) != null) {
+        if (finalPath != null) {
             return finalPath.toUri();
         }
 
@@ -176,27 +176,33 @@ public class DockerContainerDefinitionParser {
     }
 
     /**
-     * Checks if given file is at src/{test, main}/outterDirectory/filename exists or not.
+     * Checks if given file is at src/{test, main}/outerDirectory/filename exists or not.
      * @param filename to search
-     * @param outterDirectory to append after test or main
+     * @param outerDirectory to append after test or main
      * @return Location of searched file
      */
-    static URI checkSrcTestAndMainResources(String filename, String outterDirectory) {
-        final Path testPath = Paths.get("src", "test", outterDirectory, filename);
-        Path finalPath;
-        if ((finalPath = exists(testPath)) != null) {
-            return finalPath.toUri();
+    static URI checkSrcTestAndMainResources(String filename, String outerDirectory) {
+        final Path testPath = Paths.get("src", "test", outerDirectory, filename);
+        final Path testDefinitionPath = resolveDockerDefinition(testPath);
+        if (testDefinitionPath != null) {
+            return testDefinitionPath.toUri();
         } else {
-            final Path mainPath = Paths.get("src", "main", outterDirectory, filename);
-            if ((finalPath = exists(mainPath)) != null) {
-                return finalPath.toUri();
+            final Path mainPath = Paths.get("src", "main", outerDirectory, filename);
+            final Path mainDefinitionPath = resolveDockerDefinition(mainPath);
+            if (mainDefinitionPath != null) {
+                return mainDefinitionPath.toUri();
             }
         }
 
         return null;
     }
 
-    private static Path exists(Path fullpath) {
+    /**
+     * Resolves current full path with .yml and .yaml extensions
+     * @param fullpath without extension.
+     * @return Path of existing definition or null
+     */
+    private static Path resolveDockerDefinition(Path fullpath) {
         final Path ymlPath = fullpath.resolveSibling(fullpath.getFileName() + ".yml");
         if (Files.exists(ymlPath)) {
             return ymlPath;
