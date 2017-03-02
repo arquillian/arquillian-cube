@@ -44,8 +44,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final Set<String> proxiedContainerPorts;
     private final String portForwardBindAddress;
 
-    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts, String portForwardBindAddress) {
-        super(sessionId, masterUrl, namespace, environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled, namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, waitTimeout, waitPollInterval, waitForServiceConnectionEnabled, waitForServiceList, waitForServiceConnectionTimeout, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
+    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled,boolean namespaceDestroyEnabled, long namespaceDestroyTimeout, boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts, String portForwardBindAddress) {
+        super(sessionId, masterUrl, namespace, environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled, namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled, namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval, waitForServiceConnectionEnabled, waitForServiceList, waitForServiceConnectionTimeout, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -114,6 +114,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     .withNamespaceCleanupEnabled(c.isNamespaceCleanupEnabled())
                     .withNamespaceCleanupConfirmationEnabled(c.isNamespaceCleanupConfirmationEnabled())
                     .withNamespaceCleanupTimeout(c.getNamespaceCleanupTimeout())
+
+                    .withNamespaceDestroyEnabled(c.isNamespaceDestroyEnabled())
+                    .withNamespaceDestroyConfirmationEnabled(c.isNamespaceDestroyConfirmationEnabled())
+                    .withNamespaceDestroyTimeout(c.getNamespaceDestroyTimeout())
+
                     .withWaitTimeout(c.getWaitTimeout())
                     .withWaitPollInterval(c.getWaitPollInterval())
                     .withWaitForServiceList(c.getWaitForServiceList())

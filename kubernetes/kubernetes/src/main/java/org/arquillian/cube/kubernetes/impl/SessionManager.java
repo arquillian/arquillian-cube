@@ -25,6 +25,8 @@ public class SessionManager implements SessionCreatedListener {
     private final DependencyResolver dependencyResolver;
     private final ResourceInstaller resourceInstaller;
 
+    private final List<HasMetadata> resources = new ArrayList<>();
+
     private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
 
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
@@ -79,7 +81,6 @@ public class SessionManager implements SessionCreatedListener {
 
         Runtime.getRuntime().addShutdownHook(hook);
         shutdownHookRef.set(hook);
-        List<HasMetadata> all = new ArrayList<>();
 
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -88,7 +89,7 @@ public class SessionManager implements SessionCreatedListener {
             if (configuration.isEnvironmentInitEnabled()) {
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
-                    all.addAll(resourceInstaller.install(dependencyUrl));
+                    resources.addAll(resourceInstaller.install(dependencyUrl));
                 }
 
                 if (configUrl == null) {
@@ -98,7 +99,7 @@ public class SessionManager implements SessionCreatedListener {
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
-                        all.addAll(resourceInstaller.install(configUrl));
+                        resources.addAll(resourceInstaller.install(configUrl));
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
@@ -106,14 +107,14 @@ public class SessionManager implements SessionCreatedListener {
                     if (definitionsFileURL != null) {
                         log.status("Applying openshift configuration from: " + definitionsFileURL);
                         try (InputStream is = definitionsFileURL.openStream()) {
-                            all.addAll(resourceInstaller.install(definitionsFileURL));
+                            resources.addAll(resourceInstaller.install(definitionsFileURL));
                         }
                     }
                 }
 
-                if (!all.isEmpty()) {
+                if (!resources.isEmpty()) {
                     try {
-                        client.resourceList(all).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                        client.resourceList(resources).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
                         log.warn("The are resources in not ready state.");
                         for (HasMetadata r : t.getResourcesNotReady()) {
@@ -154,6 +155,8 @@ public class SessionManager implements SessionCreatedListener {
     public void clean(String status) {
         String namespace = session.getNamespace();
         if (configuration.isNamespaceCleanupEnabled()) {
+            resourceInstaller.uninstall(resources);
+        } else if(configuration.isNamespaceDestroyEnabled()) {
             namespaceService.destroy(namespace);
         } else {
             try {

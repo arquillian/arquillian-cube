@@ -36,6 +36,10 @@ public class DefaultConfiguration implements Configuration {
     private final long namespaceCleanupTimeout;
     private final boolean namespaceCleanupConfirmationEnabled;
 
+    private final boolean namespaceDestroyEnabled;
+    private final boolean namespaceDestroyConfirmationEnabled;
+    private final long namespaceDestroyTimeout;
+
     private final long waitTimeout;
     private final long waitPollInterval;
     private final boolean waitForServiceConnectionEnabled;
@@ -66,6 +70,11 @@ public class DefaultConfiguration implements Configuration {
                     .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, namespace.contains(sessionId)))
                     .withNamespaceCleanupConfirmationEnabled(getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                     .withNamespaceCleanupTimeout(getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+
+                    .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, namespace.contains(sessionId)))
+                    .withNamespaceDestroyConfirmationEnabled(getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
+                    .withNamespaceDestroyTimeout(getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
+
                     .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                     .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                     .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
@@ -85,7 +94,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
 
-    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
+    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
         this.environmentDependencies = environmentDependencies;
         this.environmentConfigUrl = environmentConfigUrl;
@@ -95,6 +104,9 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceCleanupEnabled = namespaceCleanupEnabled;
         this.namespaceCleanupTimeout = namespaceCleanupTimeout;
         this.namespaceCleanupConfirmationEnabled = namespaceCleanupConfirmationEnabled;
+        this.namespaceDestroyEnabled = namespaceDestroyEnabled;
+        this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
+        this.namespaceDestroyTimeout = namespaceDestroyTimeout;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
         this.waitForServiceConnectionEnabled = waitForServiceConnectionEnabled;
@@ -155,6 +167,21 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isNamespaceCleanupConfirmationEnabled() {
         return namespaceCleanupConfirmationEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceDestroyEnabled() {
+        return namespaceDestroyEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceDestroyConfirmationEnabled() {
+        return namespaceDestroyConfirmationEnabled;
+    }
+
+    @Override
+    public long getNamespaceDestroyTimeout() {
+        return namespaceDestroyTimeout;
     }
 
     @Override

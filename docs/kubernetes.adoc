@@ -54,14 +54,17 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | namespace.use.existing              | String         | Any | Don't generate a namespace use the specified one instead                         |
 | namespace.prefix                    | String (itest) | Any | If you don't specify a namespace, a random one will be created, with this prefix |
 | namespace.lazy.enabled              | Bool (true)    | Any | Should the specified namespace be created if not exists, or throw exception?     |
-| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to destroy the namespace after the end of the test suite                    |
-| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the namespace                             |
+| namespace.destroy.enabled           | Bool (true)    | Any | Flag to destroy the namespace after the end of the test suite                    |
+| namespace.destroy.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the namespace                             |
+| namespace.destroy.timeout           | Long           | Any | Time to wait before destroying the namespace                                     |
+| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to clean (delete resources) the namespace after the end of the test suite   |
+| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the namespace                              |
 | namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the namespace                                      |
 | env.init.enabled                    | Bool (true)    | Any | Flag to initialize the environment (apply kubernetes resources)                  |
 | env.config.url                      | URL            | Any | URL to the Kubernetes JSON (defaults to classpath resource kubernetes.json)      |
 | env.config.resource.name            | String         | Any | Option to select a different classpath resource (other than kubernetes.json)     |
 | env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency kubernetes.json             |
-| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready                         |
+| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready                          |
 | wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment is ready                |
 | wait.for.service.list               | Long (5secs)   | Any | Explicitly specify a list of service to wait upon                                |
 | wait.for.service.connection.enabled | Bool (false)   | Any | Flag to specify if we should wait for an actual connection to the service        |

@@ -15,6 +15,7 @@ import org.jboss.arquillian.core.spi.Validate;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Scanner;
 
 public class DefaultNamespaceService implements NamespaceService {
 
@@ -162,36 +163,26 @@ public class DefaultNamespaceService implements NamespaceService {
             Logger logger = this.logger;
             Configuration configuration = this.configuration;
             try {
-                if (configuration.isNamespaceCleanupConfirmationEnabled()) {
+                if (configuration.isNamespaceDestroyConfirmationEnabled()) {
                     showErrors();
                     logger.info("");
                     logger.info("Waiting to destroy the namespace.");
-                    logger.info("Please type: [Q] to terminate the namespace.");
+                    logger.info("Please press <enter> to cleanup the namespace.");
 
-                    while (true) {
-                        try {
-                            int ch = System.in.read();
-                            if (ch < 0 || ch == 'Q') {
-                                logger.info("Stopping...");
-                                break;
-                            } else {
-                                logger.info("Found character: " + Character.toString((char) ch));
-                            }
-                        } catch (IOException e) {
-                            logger.warn("Failed to read from input. " + e);
-                            break;
-                        }
-                    }
+                    Scanner scanner = new Scanner(System.in);
+                    scanner.nextLine();
+                    logger.info("Cleaning up...");
+                    return;
                 } else {
-                    long timeout = configuration.getNamespaceCleanupTimeout();
+                    long timeout = configuration.getNamespaceDestroyTimeout();
                     if (timeout > 0L) {
                         showErrors();
                         logger.info("");
-                        logger.info("Sleeping for " + timeout + " seconds until destroying the namespace");
+                        logger.info("Waiting for " + timeout + " seconds before destroying the namespace");
                         try {
                             Thread.sleep(timeout * 1000);
                         } catch (InterruptedException e) {
-                            logger.info("Interupted sleeping to GC the namespace: " + e);
+                            logger.info("Interrupted waiting to GC the namespace: " + e);
                         }
                     }
                 }

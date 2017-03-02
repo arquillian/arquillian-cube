@@ -28,6 +28,9 @@ public interface Configuration {
     String NAMESPACE_CLEANUP_TIMEOUT = "namespace.cleanup.timeout";
     String NAMESPACE_CLEANUP_CONFIRM_ENABLED = "namespace.cleanup.confirm.enabled";
     String NAMESPACE_CLEANUP_ENABLED = "namespace.cleanup.enabled";
+    String NAMESPACE_DESTROY_ENABLED = "namespace.destroy.enabled";
+    String NAMESPACE_DESTROY_CONFIRM_ENABLED = "namespace.destroy.confirm.enabled";
+    String NAMESPACE_DESTROY_TIMEOUT = "namespace.destroy.timeout";
     String NAMESPACE_TO_USE = "namespace.use.existing";
     String NAMESPACE_PREFIX = "namespace.prefix";
 
@@ -57,6 +60,7 @@ public interface Configuration {
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
     Long DEFAULT_NAMESPACE_CLEANUP_TIMEOUT = 0L;
+    Long DEFAULT_NAMESPACE_DESTROY_TIMEOUT = 0L;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
 
     Config FALLBACK_CLIENT_CONFIG = new ConfigBuilder().build();
@@ -81,6 +85,12 @@ public interface Configuration {
     long getNamespaceCleanupTimeout();
 
     boolean isNamespaceCleanupConfirmationEnabled();
+
+    boolean isNamespaceDestroyEnabled();
+
+    boolean isNamespaceDestroyConfirmationEnabled();
+
+    long getNamespaceDestroyTimeout();
 
     long getWaitTimeout();
 
