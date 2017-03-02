@@ -94,6 +94,18 @@ Moreover you can set as Java system properties (-D...) as well.
 |DOCKER_MACHINE_NAME
 |===
 
+
+[IMPORTANT]
+====
+If `dockerContainers`, `dockerContainersFile` or `dockerContainersFiles` are not set Arquillian Cube automatically search a file named `docker-compose.y(a)ml` into next places and in following order:
+
+. `src/{test, main}/docker` having more priority `test location than `main` location.
+. `Root` directory of project
+. `src/distribution`
+. `src/{test, main}/resources/docker` having more priority `test location than `main` location.
+. `src/{test, main}/resources` having more priority `test location than `main` location.
+====
+
 In the next example you can see a whole YAML document with configuration properties.
 Keep in mind that almost all of them are configuration parameters provided by _Docker_ remote API.
 In this example we are going to explain the attributes that are most used and special cases.
@@ -107,7 +119,6 @@ NOTE: In YAML adding brackets ("[" "]") is for setting a list.
 tomcat: # <1>
   image: tutum/tomcat:7.0 # <2>
   exposedPorts: [8089/tcp] # <3>
-  await: # <4>
     strategy: polling # <5>
   workingDir: .
   alwaysPull: false
