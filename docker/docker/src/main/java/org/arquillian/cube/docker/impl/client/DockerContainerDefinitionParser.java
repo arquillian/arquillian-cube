@@ -7,10 +7,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.logging.Logger;
 
+import com.sun.jndi.toolkit.url.Uri;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.compose.DockerComposeConverter;
 import org.arquillian.cube.docker.impl.docker.cube.CubeConverter;
@@ -21,7 +24,7 @@ public class DockerContainerDefinitionParser {
     private static final Logger logger = Logger.getLogger(DockerContainerDefinitionParser.class.getName());
 
     private static final String DEFAULT_CUBE_DEFINITION_FILE = "cube";
-    private static final String DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE = "docker-compose.yml";
+    private static final String DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE = "docker-compose";
 
     private DockerContainerDefinitionParser() {
         super();
@@ -98,36 +101,119 @@ public class DockerContainerDefinitionParser {
 
     public static DockerCompositions convertDefault(DefinitionFormat definitionFormat) throws IOException {
         URI defaultUri = null;
-        try {
             switch (definitionFormat) {
                 case COMPOSE: {
-                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
-                    if (resource != null) {
-                        defaultUri = resource.toURI();
-                    }
+                    defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
                     break;
                 }
                 case CUBE: {
-                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE);
-                    if (resource != null) {
-                        defaultUri = resource.toURI();
-                    }
+                    defaultUri = getDefaultFileLocation(DEFAULT_CUBE_DEFINITION_FILE);
                     break;
                 }
                 default: {
-                    final URL resource = DockerContainerDefinitionParser.class.getResource("/" + DEFAULT_CUBE_DEFINITION_FILE);
-                    if (resource != null) {
-                        defaultUri = resource.toURI();
-                    }
+                    defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
                 }
             }
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
-        }
         if (defaultUri == null) {
             logger.fine("No Docker container definitions has been found. Probably you have defined some Containers using Container Object pattern and @Cube annotation");
             return new DockerCompositions();
         }
-        return convert(Paths.get(defaultUri), definitionFormat);
+        return convert(defaultUri, definitionFormat);
     }
+
+    private static URI getDefaultFileLocation(String filename) {
+
+        // src/{test/main}/docker
+        URI docker = checkSrcTestAndMainResources(filename, "docker");
+
+        if (docker == null) {
+
+            // .
+            docker = checkRoot(filename);
+
+            if (docker == null) {
+                // src/distribution
+                docker = checkDistributionDirectory(filename);
+
+                if (docker == null) {
+                    // src/{test, main}/resources/docker
+                    docker = checkSrcTestAndMainResources(filename, "resources/docker");
+
+                    if (docker == null) {
+
+                        // src/{test, main}/resources
+                        docker = checkSrcTestAndMainResources(filename, "resources");
+                    }
+                }
+            }
+        }
+
+        return docker;
+
+    }
+
+    private static URI checkRoot(String filename) {
+        final Path rootPath = Paths.get(filename);
+        final Path finalPath = resolveDockerDefinition(rootPath);
+
+        if (finalPath != null) {
+            return finalPath.toUri();
+        }
+
+        return null;
+    }
+
+    private static URI checkDistributionDirectory(String filename) {
+        final Path rootPath = Paths.get("src", "distribution", filename);
+        final Path finalPath = resolveDockerDefinition(rootPath);
+
+        if (finalPath != null) {
+            return finalPath.toUri();
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Checks if given file is at src/{test, main}/outerDirectory/filename exists or not.
+     * @param filename to search
+     * @param outerDirectory to append after test or main
+     * @return Location of searched file
+     */
+    static URI checkSrcTestAndMainResources(String filename, String outerDirectory) {
+        final Path testPath = Paths.get("src", "test", outerDirectory, filename);
+        final Path testDefinitionPath = resolveDockerDefinition(testPath);
+        if (testDefinitionPath != null) {
+            return testDefinitionPath.toUri();
+        } else {
+            final Path mainPath = Paths.get("src", "main", outerDirectory, filename);
+            final Path mainDefinitionPath = resolveDockerDefinition(mainPath);
+            if (mainDefinitionPath != null) {
+                return mainDefinitionPath.toUri();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolves current full path with .yml and .yaml extensions
+     * @param fullpath without extension.
+     * @return Path of existing definition or null
+     */
+    private static Path resolveDockerDefinition(Path fullpath) {
+        final Path ymlPath = fullpath.resolveSibling(fullpath.getFileName() + ".yml");
+        if (Files.exists(ymlPath)) {
+            return ymlPath;
+        } else {
+            final Path yamlPath = fullpath.resolveSibling(fullpath.getFileName() + ".yaml");
+            if (Files.exists(yamlPath)) {
+                return yamlPath;
+            }
+        }
+        
+        return null;
+    }
+
 }

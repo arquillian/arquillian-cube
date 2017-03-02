@@ -1,6 +1,6 @@
 tomcat:
   env_file: envs
-  image: tutum/tomcat:7.0
+  build: ./src/test/resources/tomcat
   ports:
       - "8089:8089"
       - "8088:8088"
