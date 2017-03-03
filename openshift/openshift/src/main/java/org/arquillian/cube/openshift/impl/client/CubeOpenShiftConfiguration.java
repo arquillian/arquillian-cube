@@ -8,6 +8,8 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -100,6 +102,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
     public static CubeOpenShiftConfiguration fromMap(Configuration c, Map<String, String> map) {
         try {
+            setDefinitionsFile(c, map);
             return new CubeOpenShiftConfigurationBuilder()
                     .withSessionId(c.getSessionId())
                     .withNamespace(c.getNamespace())
@@ -133,6 +136,23 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
             } else {
                 throw new RuntimeException(t);
             }
+        }
+    }
+
+    private static void setDefinitionsFile(Configuration c, Map<String, String> map) throws MalformedURLException {
+        final String stringProperty = getStringProperty(DEFINITIONS_FILE, map, null);
+        URL configResource = findConfigResource(stringProperty);
+
+        if (configResource == null) {
+            final File file = new File(stringProperty);
+            if (file.exists()) {
+                configResource = file.toURI().toURL();
+            }
+        }
+
+        if (c instanceof DefaultConfiguration && configResource != null) {
+            DefaultConfiguration defaultConfiguration = (DefaultConfiguration) c;
+            defaultConfiguration.setDefinitionsFileURL(configResource);
         }
     }
 }

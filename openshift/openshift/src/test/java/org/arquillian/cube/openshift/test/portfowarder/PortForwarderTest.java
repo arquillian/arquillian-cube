@@ -10,9 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by fspolti on 5/3/16.
- */
 public class PortForwarderTest {
 
     private final String[] portsToForwardStringBackward = {"test:1234", "test:9999", "test:9990", "test:8080"};

@@ -2,7 +2,6 @@ package org.arquillian.cube.kubernetes.api;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 
 import java.net.URL;
 import java.util.List;
@@ -66,6 +65,8 @@ public interface Configuration {
     URL getMasterUrl();
 
     URL getEnvironmentConfigUrl();
+
+    URL getDefinitionsFileURL();
 
     List<URL> getEnvironmentDependencies();
 

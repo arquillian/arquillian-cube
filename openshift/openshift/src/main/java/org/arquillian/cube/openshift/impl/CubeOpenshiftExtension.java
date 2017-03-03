@@ -22,9 +22,9 @@ public class CubeOpenshiftExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(OpenShiftClientCreator.class)
-               .observer(CubeOpenShiftConfigurator.class)
-               .observer(CubeOpenShiftRegistrar.class)
-               .observer(OpenShiftSuiteLifecycleController.class)
+                .observer(CubeOpenShiftConfigurator.class)
+                .observer(CubeOpenShiftRegistrar.class)
+                .observer(OpenShiftSuiteLifecycleController.class)
 
                 .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
                 .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)

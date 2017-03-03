@@ -1,11 +1,10 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import org.arquillian.cube.spi.CubeConfiguration;
 import org.arquillian.cube.spi.event.CreateCube;
 import org.arquillian.cube.spi.event.CubeControlEvent;
-import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.arquillian.cube.spi.event.DestroyCube;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -17,7 +16,7 @@ public class OpenShiftSuiteLifecycleController {
     @Inject
     private Event<CubeControlEvent> controlEvent;
 
-    public void startAutoContainers(@Observes(precedence = 99) BeforeSuite event, CubeConfiguration cubeConfiguration, CubeOpenShiftConfiguration openshiftConfiguration) {
+    public void startAutoContainers(@Observes(precedence = 99) BeforeSuite event, CubeOpenShiftConfiguration openshiftConfiguration) {
         for(String cubeId : openshiftConfiguration.getAutoStartContainers()) {
             controlEvent.fire(new CreateCube(cubeId));
             controlEvent.fire(new StartCube(cubeId));

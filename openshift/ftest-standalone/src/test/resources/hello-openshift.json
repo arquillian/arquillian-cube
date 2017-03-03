@@ -1,0 +1,90 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "hello-openshift"
+  },
+  "labels": {
+    "template": "hello-openshift"
+  },
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hello-openshift-service"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "hello-openshift-service",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "name": "hello-openshift-service"
+        }
+      }
+    },
+    {
+      "kind": "Pod",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hello-openshift",
+        "creationTimestamp": null,
+        "labels": {
+          "name": "hello-openshift-service"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "hello-openshift",
+            "image": "openshift/hello-openshift",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {
+
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "imagePullPolicy": "IfNotPresent",
+            "capabilities": {
+
+            },
+            "securityContext": {
+              "capabilities": {
+
+              },
+              "privileged": false
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccount": ""
+      },
+      "status": {
+
+      }
+    }
+  ]
+}

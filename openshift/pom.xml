@@ -22,6 +22,7 @@
         <module>openshift</module>
         <module>ftest</module>
         <module>ftest-containerless</module>
+        <module>ftest-standalone</module>
     </modules>
 
 </project>

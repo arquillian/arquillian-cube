@@ -1,14 +1,9 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.api.ResourceInstaller;
-import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
+import org.arquillian.cube.kubernetes.api.*;
 import org.jboss.arquillian.core.spi.Validate;
 
 import java.io.InputStream;
@@ -18,14 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
 public class SessionManager implements SessionCreatedListener {
 
@@ -115,6 +102,13 @@ public class SessionManager implements SessionCreatedListener {
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
+                    final URL definitionsFileURL = configuration.getDefinitionsFileURL();
+                    if (definitionsFileURL != null) {
+                        log.status("Applying openshift configuration from: " + definitionsFileURL);
+                        try (InputStream is = definitionsFileURL.openStream()) {
+                            all.addAll(resourceInstaller.install(definitionsFileURL));
+                        }
+                    }
                 }
 
                 if (!all.isEmpty()) {
