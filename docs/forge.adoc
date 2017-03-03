@@ -1,0 +1,39 @@
+== JBoss Forge Arquillian Addon
+
+http://forge.jboss.org[Forge] Arquillian Addon offers an integration with Arquillian Cube.
+
+==== How to use it?
+* Install JBoss-Forge from https://forge.jboss.org/download[here].
+* Install arquillian add-on. To install arquillian-addon, in the Forge CLI, run command:
+ `addon-install-from-git --url https://github.com/forge/arquillian-addon.git --coordinate org.arquillian.forge:arquillian-addon`
+
+
+Create project using:
+
+`project-new --named compose`
+
+To add Arquillian & Framework dependencies run command:
+
+`arquillian-setup --standalone --test-framework junit`
+
+To add Arquillian Cube dependencies run command:
+
+`arquillian-cube-setup --type docker-compose --file-path docker-compose.yml`
+
+Before running above command make sure that file provided with file-path is exists.
+
+Now create a test using command:
+
+`arquillian-create-test --named MyDockerComposeTest --target-package org.arquillian.cube`
+
+After that you can enrich a given Arquillian test with respective annotations depending on selected type:
+
+`arquillian-cube-create-test --test-class org.cube.docker.MyDockerComposeTest`
+
+Same way you can create a test for Kubernetes, Docker,Openshift.
+
+See above example in next terminal cast:
+
+image::https://asciinema.org/a/105913.png[link="https://asciinema.org/a/105913"]
+
+
