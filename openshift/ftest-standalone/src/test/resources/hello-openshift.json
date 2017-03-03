@@ -12,18 +12,18 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "hello-openshift"
+        "name": "hello-openshift-service"
       },
       "spec": {
         "ports": [
           {
-            "name": "hello-openshift",
+            "name": "hello-openshift-service",
             "port": 8080,
             "targetPort": 8080
           }
         ],
         "selector": {
-          "name": "hello-openshift"
+          "name": "hello-openshift-service"
         }
       }
     },
@@ -34,7 +34,7 @@
         "name": "hello-openshift",
         "creationTimestamp": null,
         "labels": {
-          "name": "hello-openshift"
+          "name": "hello-openshift-service"
         }
       },
       "spec": {

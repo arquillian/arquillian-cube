@@ -30,16 +30,20 @@ The main modules of this extension are the following:
     - link:https://fabric8.io/guide/fabric8DevOps.html[Microservices Platform]
 - "Bring your own client" support
 
+=== Pre-requisites
+- To use kubernetes extension, your host should have running kubernetes cluster.
+- To use openshift extension, your host should have running openshift cluster.
 
 === Configuring the extension
 
-The plugin can be configured using the traditional arquillian.xml, via system properties or evnironment variables (in that particular order).
+The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables (in that particular order).
 Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn't contain an entry, the system properties will be used.
 If no result has been found so far the environment variables will be used.
 
 **Note:** When checking for environment variables, property names will get capitalized, and symbols like "." will be converted to "_".
 For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 
+==== Kubernetes
 
 [width="80%"]
 |===============================================================================================================================================
@@ -64,6 +68,16 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | wait.for.service.connection.timeout | Long (10secs)  | Any | The amount of time we should wait for each socket connection.                    |
 | ansi.logger.enabled                 | Bool (true)    | Any | Flag to enable colorful output                                                   |
 | kubernetes.client.creator.class.name| Bool (true)    | Any | Fully qualified class name of a kubernetes client creator class (byon)           |
+|===============================================================================================================================================
+
+==== Openshift
+
+[width="80%"]
+|===============================================================================================================================================
+| Option                              | Type           | Env | Description                                                                      |
+| autoStartContainers                 | List           | Any | Comma Separated List of Pods which you want to auto start                       |
+| definitionsFile                     | String         | Any | Definitions file path                                                            |
+| proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort |                                        |
 |===============================================================================================================================================
 
 === Namespaces
@@ -212,3 +226,32 @@ The next example is intended to how you can inject a resource list.
       }
     }
 ----
+
+Now let's see how can you inject openshiftclient, Service.
+
+[source, java]
+.OpenshiftExample.java
+----
+public class HelloWorldTest {
+
+
+    @Named("hello-openshift-service")
+    @PortForward
+    @ArquillianResource
+    Service service;
+
+    @Named("hello-openshift-service")
+    @PortForward
+    @ArquillianResource
+    URL url;
+
+    @Test
+    public void service_instance_should_not_be_null() throws Exception {
+        assertThat(service).isNotNull();
+    }
+
+    @Test
+    public void testStuff() throws Exception {
+        //Do stuff...
+    }
+}

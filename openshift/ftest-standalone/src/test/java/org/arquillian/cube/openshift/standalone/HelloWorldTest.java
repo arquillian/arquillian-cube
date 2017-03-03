@@ -15,42 +15,40 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.net.URL;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 public class HelloWorldTest {
 
-    @Named("hello-openshift")
+    @Named("hello-openshift-service")
     @PortForward
     @ArquillianResource
     Service service;
 
-    @Named("hello-openshift")
+    @Named("hello-openshift-service")
     @PortForward
     @ArquillianResource
     URL url;
 
     @Test
-    public void pod_instance_should_not_be_null() throws IOException {
-        assertNotNull(service);
-        assertNotNull(service.getSpec());
-        assertNotNull(service.getSpec().getPorts());
-        assertFalse(service.getSpec().getPorts().isEmpty());
+    public void service_instance_should_not_be_null() throws IOException {
+        assertThat(service).isNotNull();
+        assertThat(service.getSpec()).isNotNull();
+        assertThat(service.getSpec().getPorts()).isNotNull();
+        assertThat(service.getSpec().getPorts()).isNotEmpty();
     }
 
     @Test
-    public void shouldShowHelloWorld() throws IOException {
-        assertNotNull(url);
+    public void should_show_hello_world() throws IOException {
+        assertThat(url).isNotNull();
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(url).build();
         Response response = okHttpClient.newCall(request).execute();
-        assertNotNull(response);
-        assertEquals(200, response.code());
-        assertTrue(response.body().string().contains("Hello OpenShift!"));
+
+        assertThat(response).isNotNull();
+        assertThat(response.code()).isEqualTo(200);
+        assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
     }
 }
