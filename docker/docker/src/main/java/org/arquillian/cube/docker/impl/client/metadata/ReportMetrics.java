@@ -1,17 +1,17 @@
 package org.arquillian.cube.docker.impl.client.metadata;
 
+import static org.arquillian.cube.impl.reporter.DockerReportKey.*;
+
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.metadata.CanReportMetrics;
-import org.arquillian.recorder.reporter.Reportable;
-import org.arquillian.recorder.reporter.model.entry.GroupEntry;
-import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
+import org.arquillian.reporter.api.builder.Reporter;
+import org.arquillian.reporter.api.builder.report.ReportBuilder;
+import org.arquillian.reporter.api.builder.report.ReportInSectionBuilder;
+import org.arquillian.reporter.api.event.TestSuiteConfigurationSection;
+import org.arquillian.reporter.api.model.report.ConfigurationReport;
 
-import java.security.Key;
-import java.util.Collection;
 import java.util.EnumSet;
 
 /**
@@ -26,71 +26,56 @@ public class ReportMetrics implements CanReportMetrics {
     }
 
     @Override
-    public Reportable report() {
-
-        GroupEntry groupEntry = new GroupEntry(dockerCube.getId());
+    public ReportInSectionBuilder report() {
 
         boolean error = EnumSet.of(Cube.State.START_FAILED, Cube.State.CREATE_FAILED,
-                                    Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
-                                .contains(dockerCube.state());
+                Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
+                .contains(dockerCube.state());
 
-        KeyValueEntry errorKeyValue = new KeyValueEntry("Error during lifecycle", Boolean.toString(error));
-        groupEntry.getPropertyEntries().add(errorKeyValue);
+        final ReportBuilder reportBuilder = Reporter.createReport(new ConfigurationReport(CONTAINER_SECTION_NAME))
+                .addKeyValueEntry(CONTAINER_NAME, dockerCube.getId())
+                .addKeyValueEntry(ERROR_DURING_LIFECYCLE, Boolean.toString(error))
+                .addKeyValueEntry(STARTING_TIME, String.format("%s ms", dockerCube.getStartingTimeInMillis()))
+                .addKeyValueEntry(STOPPING_TIME, String.format("%s ms", dockerCube.getStoppingTimeInMillis()));
 
-        KeyValueEntry startingTime = new KeyValueEntry("Starting Time", String.format("%s ms", dockerCube.getStartingTimeInMillis()));
-        KeyValueEntry stoppingTime = new KeyValueEntry("Stopping Time", String.format("%s ms", dockerCube.getStoppingTimeInMillis()));
+        final CubeContainer configuration = dockerCube.configuration();
 
-        groupEntry.getPropertyEntries().add(startingTime);
-        groupEntry.getPropertyEntries().add(stoppingTime);
+        if (configuration.getImage() != null) {
+            reportBuilder.addKeyValueEntry(IMAGE_NAME, configuration.getImage().toString());
+        } else {
+            reportBuilder.addKeyValueEntry(BUILD_LOCATION, configuration.getBuildImage().getDockerfileLocation());
+        }
 
-        groupEntry.getPropertyEntries().add(writeProperties(dockerCube.getId(), dockerCube.configuration()));
-        return groupEntry;
+        if (configuration.getExposedPorts() != null) {
+            reportBuilder.addKeyValueEntry(EXPOSED_PORTS, configuration.getExposedPorts().toString());
+        }
+
+        if (configuration.getPortBindings() != null) {
+            reportBuilder.addKeyValueEntry(PORT_BINDING, configuration.getPortBindings().toString());
+        }
+
+        if (configuration.getLinks() != null)  {
+            reportBuilder.addKeyValueEntry(LINKS, configuration.getLinks().toString());
+        }
+
+        if (configuration.getVolumes() != null) {
+            reportBuilder.addKeyValueEntry(VOLUMES, configuration.getVolumes().toString());
+        }
+
+        if (configuration.getBinds() != null) {
+            reportBuilder.addKeyValueEntry(BINDS, configuration.getBinds().toString());
+        }
+
+        if (configuration.getEntryPoint() != null) {
+            reportBuilder.addKeyValueEntry(ENTRY_POINT, configuration.getEntryPoint().toString());
+        }
+
+        if (configuration.getNetworkMode() != null) {
+            reportBuilder.addKeyValueEntry(NETWORK_MODE, configuration.getNetworkMode());
+        }
+
+        return reportBuilder.inSection(new TestSuiteConfigurationSection(dockerCube.getId()));
+
     }
 
-
-    private GroupEntry writeProperties(String containerId, CubeContainer cubeContainer) {
-        final GroupEntry row = new GroupEntry("Docker Cube Properties");
-        row.getPropertyEntries().add(cell("Container Name", containerId));
-
-        KeyValueEntry image = cubeContainer.getImage() != null ? cell("Image", cubeContainer.getImage().toString()) : cell("Build", cubeContainer.getBuildImage().getDockerfileLocation());
-        row.getPropertyEntries().add(image);
-
-        if (cubeContainer.getExposedPorts() != null) {
-            row.getPropertyEntries().add(cell("Exposed Ports", cubeContainer.getExposedPorts()));
-        }
-
-        if (cubeContainer.getPortBindings() != null) {
-            row.getPropertyEntries().add(cell("Port Binding", cubeContainer.getPortBindings()));
-        }
-
-        if (cubeContainer.getLinks() != null)  {
-            row.getPropertyEntries().add(cell("Links", cubeContainer.getLinks()));
-        }
-
-        if (cubeContainer.getVolumes() != null) {
-            row.getPropertyEntries().add(cell("Volumes", cubeContainer.getVolumes()));
-        }
-
-        if (cubeContainer.getBinds() != null) {
-            row.getPropertyEntries().add(cell("Binds", cubeContainer.getBinds()));
-        }
-
-        if (cubeContainer.getEntryPoint() != null) {
-            row.getPropertyEntries().add(cell("Entrypoint", cubeContainer.getEntryPoint()));
-        }
-
-        if (cubeContainer.getNetworkMode() != null) {
-            row.getPropertyEntries().add(cell("Network Mode", cubeContainer.getNetworkMode()));
-        }
-
-        return row;
-    }
-
-    private static KeyValueEntry cell(String key, String content) {
-        return new KeyValueEntry(key, content);
-    }
-
-    private static KeyValueEntry cell(String key, Collection content) {
-        return new KeyValueEntry(key, content.toString());
-    }
 }

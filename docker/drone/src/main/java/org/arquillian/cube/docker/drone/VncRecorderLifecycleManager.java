@@ -68,7 +68,7 @@ public class VncRecorderLifecycleManager {
             vnc.stop();
             vnc.destroy();
 
-            this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(finalLocation));
+            this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(afterTestMethod, finalLocation));
         }
     }
 
