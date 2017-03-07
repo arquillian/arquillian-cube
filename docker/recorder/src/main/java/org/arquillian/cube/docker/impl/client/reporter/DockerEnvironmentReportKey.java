@@ -6,7 +6,7 @@ import org.arquillian.reporter.api.model.StringKey;
 
 public class DockerEnvironmentReportKey extends AbstractStringKey {
 
-    //section nme
+    //section name
     public static final StringKey DOCKER_ENVIRONMENT_SECTION_NAME = new DockerEnvironmentReportKey();
     public static final StringKey DOCKER_INFO_SECTION_NAME = new DockerEnvironmentReportKey();
 
@@ -31,5 +31,7 @@ public class DockerEnvironmentReportKey extends AbstractStringKey {
 
     public static final StringKey LOG_PATH = new DockerReportKey();
     public static final StringKey VIDEO_PATH = new DockerReportKey();
+    public static final StringKey REST_REQUEST_LOG = new DockerReportKey();
+    public static final StringKey REST_RESPONSE_LOG = new DockerReportKey();
 
 }
