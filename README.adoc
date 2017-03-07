@@ -61,6 +61,8 @@ include::{asciidoctor-source}/kubernetes.adoc[]
 
 include::{asciidoctor-source}/fabric8.adoc[]
 
+include::{asciidoctor-source}/forge.adoc[]
+
 == Future work
 
 Some configuration parameters will be modified to fix any possible requirements.
