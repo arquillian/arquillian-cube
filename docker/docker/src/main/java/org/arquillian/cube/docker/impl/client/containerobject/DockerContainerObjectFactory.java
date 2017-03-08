@@ -48,7 +48,7 @@ public class DockerContainerObjectFactory implements ContainerObjectFactory {
             throw new IllegalArgumentException("configuration cannot be null");
         }
         try {
-            return new DockerContainerObjectBuilder<T>(dockerClientExecutorInstance.get(), cubeControllerInstance.get())
+            return new DockerContainerObjectBuilder<T>(dockerClientExecutorInstance.get(), cubeControllerInstance.get(), cubeRegistryInstance.get())
                     .withEnrichers(serviceLoaderInstance.get().all(TestEnricher.class))
                     .withContainerObjectClass(containerObjectClass)
                     .withContainerObjectConfiguration(configuration)

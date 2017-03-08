@@ -38,6 +38,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.impl.util.ReflectionUtil;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -60,11 +61,13 @@ public class DockerContainerObjectBuilderTest {
     private DockerClientExecutor dockerClientExecutor;
     private CubeContainerObjectTestEnricher cubeContainerObjectTestEnricher;
     private Collection<TestEnricher> enrichers;
+    private CubeRegistry cubeRegistry;
 
     @Before
     public void initMocks() {
         cubeController = mock(CubeController.class);
         dockerClientExecutor = mock(DockerClientExecutor.class);
+        cubeRegistry = mock(CubeRegistry.class);
         cubeContainerObjectTestEnricher = mock(CubeContainerObjectTestEnricher.class);
         doAnswer(DockerContainerObjectBuilderTest::objectContainerEnricherMockEnrich)
                 .when(cubeContainerObjectTestEnricher).enrich(any());
@@ -85,7 +88,7 @@ public class DockerContainerObjectBuilderTest {
     public void shouldStartAContainerObjectDefinedUsingDockerfile() {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
-            TestContainerObjectDefinedUsingDockerfile containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingDockerfile>(dockerClientExecutor, cubeController)
+            TestContainerObjectDefinedUsingDockerfile containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingDockerfile>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingDockerfile.class)
                     .onCubeCreated(cubeRef::set)
                     .build();
@@ -108,7 +111,7 @@ public class DockerContainerObjectBuilderTest {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
             TestContainerObjectDefinedUsingDescriptor containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingDescriptor>(
-                        dockerClientExecutor, cubeController)
+                        dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingDescriptor.class)
                     .onCubeCreated(cubeRef::set)
                     .build();
@@ -135,7 +138,7 @@ public class DockerContainerObjectBuilderTest {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
             TestContainerObjectWithAnnotatedLink containerObject = new DockerContainerObjectBuilder<TestContainerObjectWithAnnotatedLink>(
-                        dockerClientExecutor, cubeController)
+                        dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectWithAnnotatedLink.class)
                     .withEnrichers(enrichers)
                     .onCubeCreated(cubeRef::set)
@@ -165,7 +168,7 @@ public class DockerContainerObjectBuilderTest {
     public void shouldLinkInnerContainersWithoutLink() {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
-            TestContainerObjectWithNonAnnotatedLink containerObject = new DockerContainerObjectBuilder<TestContainerObjectWithNonAnnotatedLink>(dockerClientExecutor, cubeController)
+            TestContainerObjectWithNonAnnotatedLink containerObject = new DockerContainerObjectBuilder<TestContainerObjectWithNonAnnotatedLink>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectWithNonAnnotatedLink.class)
                     .withEnrichers(enrichers)
                     .onCubeCreated(cubeRef::set)
@@ -195,7 +198,7 @@ public class DockerContainerObjectBuilderTest {
     public void shouldStartAContainerObjectDefinedUsingImage() {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
-            TestContainerObjectDefinedUsingImage containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImage>(dockerClientExecutor, cubeController)
+            TestContainerObjectDefinedUsingImage containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImage>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingImage.class)
                     .onCubeCreated(cubeRef::set)
                     .build();
@@ -221,7 +224,7 @@ public class DockerContainerObjectBuilderTest {
             CubeContainer ccconfig = new CubeContainer();
             ccconfig.setEnv(Collections.singleton("e=f"));
             CubeContainerObjectConfiguration ccoconfig = new CubeContainerObjectConfiguration(ccconfig);
-            TestContainerObjectDefinedUsingImageAndEnvironmentVariables containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImageAndEnvironmentVariables>(dockerClientExecutor, cubeController)
+            TestContainerObjectDefinedUsingImageAndEnvironmentVariables containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImageAndEnvironmentVariables>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingImageAndEnvironmentVariables.class)
                     .withContainerObjectConfiguration(ccoconfig)
                     .onCubeCreated(cubeRef::set)
@@ -249,7 +252,7 @@ public class DockerContainerObjectBuilderTest {
             CubeContainer ccconfig = new CubeContainer();
             ccconfig.setBinds(Collections.singleton("/mypath3:/containerPath3:rw"));
             CubeContainerObjectConfiguration ccoconfig = new CubeContainerObjectConfiguration(ccconfig);
-            TestContainerObjectDefinedUsingImageAndVolumes containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImageAndVolumes>(dockerClientExecutor, cubeController)
+            TestContainerObjectDefinedUsingImageAndVolumes containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImageAndVolumes>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingImageAndVolumes.class)
                     .withContainerObjectConfiguration(ccoconfig)
                     .onCubeCreated(cubeRef::set)
@@ -280,7 +283,7 @@ public class DockerContainerObjectBuilderTest {
         }).when(cubeController).start("containerWithCubeIp");
         try {
             TestContainerObjectWithCubeIp containerObject = new DockerContainerObjectBuilder<TestContainerObjectWithCubeIp>(
-                        dockerClientExecutor, cubeController)
+                        dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectWithCubeIp.class)
                     .onCubeCreated(cubeRef::set)
                     .build();
@@ -310,7 +313,7 @@ public class DockerContainerObjectBuilderTest {
         }).when(cubeController).start("containerWithHostPort");
         try {
             TestContainerObjectWithHostPort containerObject = new DockerContainerObjectBuilder<TestContainerObjectWithHostPort>(
-                    dockerClientExecutor, cubeController)
+                    dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectWithHostPort.class)
                     .onCubeCreated(cubeRef::set)
                     .build();
