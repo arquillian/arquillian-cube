@@ -13,11 +13,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.arquillian.extension</groupId>
-      <artifactId>arquillian-recorder-reporter-spi</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-client</artifactId>
     </dependency>
@@ -29,6 +24,16 @@
       <groupId>org.arquillian.extension</groupId>
       <artifactId>arquillian-recorder-reporter-api</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.arquillian.reporter</groupId>
+          <artifactId>arquillian-core-reporter-api</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.arquillian.reporter</groupId>
+          <artifactId>arquillian-reporter-impl</artifactId>
+          <scope>provided</scope>
+      </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.core</groupId>
       <artifactId>arquillian-core-spi</artifactId>
