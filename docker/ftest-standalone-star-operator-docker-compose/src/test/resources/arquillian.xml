@@ -6,6 +6,11 @@
 
     <extension qualifier="docker">
         <property name="machineName">dev</property>
+        <property name="cubeSpecificProperties">
+          pingpong*:
+            await:
+              strategy: polling
+        </property>
     </extension>
 
 </arquillian>

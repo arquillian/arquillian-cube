@@ -132,7 +132,7 @@ public class DockerCompositions {
                 }
 
             } else {
-                logger.warning(String.format("Overriding Container %s are not defined in main definition of containers."));
+                logger.warning(String.format("Overriding Container %s are not defined in main definition of containers.", containerId));
             }
         }
     }
