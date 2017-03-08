@@ -29,7 +29,6 @@ public class PingPongTest {
         assertThat(pingPongContainer.getConnectionPort(), is(5000));
     }
 
-
     public String ping() throws IOException {
         URL url = new URL("http://" + pingPongContainer.getDockerHost() + ":" + pingPongContainer.getConnectionPort());
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

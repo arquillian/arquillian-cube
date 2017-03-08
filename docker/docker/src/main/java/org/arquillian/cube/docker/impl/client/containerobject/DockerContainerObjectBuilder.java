@@ -40,6 +40,7 @@ import org.arquillian.cube.docker.impl.util.DockerFileUtil;
 import org.arquillian.cube.impl.client.enricher.CubeIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.util.ReflectionUtil;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -63,6 +64,7 @@ public class DockerContainerObjectBuilder<T> {
     // parameters received
     private final DockerClientExecutor dockerClientExecutor;
     private final CubeController cubeController;
+    private final CubeRegistry cubeRegistry;
     private Class<T> containerObjectClass;
     private Object containerObjectContainer;
     private CubeContainer providedConfiguration;
@@ -84,9 +86,10 @@ public class DockerContainerObjectBuilder<T> {
     private T containerObjectInstance;
     private DockerCube dockerCube;
 
-    public DockerContainerObjectBuilder(DockerClientExecutor dockerClientExecutor, CubeController cubeController) {
+    public DockerContainerObjectBuilder(DockerClientExecutor dockerClientExecutor, CubeController cubeController, CubeRegistry cubeRegistry) {
         this.dockerClientExecutor = dockerClientExecutor;
         this.cubeController = cubeController;
+        this.cubeRegistry = cubeRegistry;
     }
 
     /**
@@ -402,15 +405,23 @@ public class DockerContainerObjectBuilder<T> {
     }
 
     private void initializeCube() {
-        dockerCube = new DockerCube(containerName, mergedConfiguration, dockerClientExecutor);
-        Class<?> containerObjectContainerClass = containerObjectContainer != null ? containerObjectContainer.getClass() : null;
-        dockerCube.addMetadata(IsContainerObject.class, new IsContainerObject(containerObjectContainerClass));
-        logger.finer(String.format("Created Cube with name %s and configuration %s", containerName, dockerCube.configuration()));
-        if (cubeCreatedCallback != null) {
-            cubeCreatedCallback.accept(dockerCube);
+
+        if (isNotInitialized()) {
+
+            dockerCube = new DockerCube(containerName, mergedConfiguration, dockerClientExecutor);
+            Class<?> containerObjectContainerClass = containerObjectContainer != null ? containerObjectContainer.getClass() : null;
+            dockerCube.addMetadata(IsContainerObject.class, new IsContainerObject(containerObjectContainerClass));
+            logger.finer(String.format("Created Cube with name %s and configuration %s", containerName, dockerCube.configuration()));
+            if (cubeCreatedCallback != null) {
+                cubeCreatedCallback.accept(dockerCube);
+            }
+            cubeController.create(containerName);
+            cubeController.start(containerName);
         }
-        cubeController.create(containerName);
-        cubeController.start(containerName);
+    }
+
+    private boolean isNotInitialized() {
+        return cubeRegistry.getCube(containerName) == null;
     }
 
     private void enrichContainerObjectWithCube() throws IllegalAccessException {
