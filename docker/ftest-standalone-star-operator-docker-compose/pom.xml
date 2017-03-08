@@ -7,8 +7,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Arquillian Cube Docker Functional Test Standalone With Star Operator</name>
-    <artifactId>arquillian-cube-docker-ftest-standalone-star-operator</artifactId>
+    <name>Arquillian Cube Docker Functional Test Standalone With Star Operator Compose</name>
+    <artifactId>arquillian-cube-docker-ftest-standalone-star-operator-compose</artifactId>
 
     <dependencies>
         <dependency>
