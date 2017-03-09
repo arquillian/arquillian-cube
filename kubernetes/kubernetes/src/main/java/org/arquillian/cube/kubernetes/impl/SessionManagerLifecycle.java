@@ -58,7 +58,7 @@ public class SessionManagerLifecycle {
                 annotationProvider.get(),
                 namespaceService.get().toImmutable(),
                 kubernetesResourceLocator.get().toImmutable(),
-                dependencyResolver.get().toImmutable(), resourceInstaller.get());
+                dependencyResolver.get().toImmutable(), resourceInstaller.get().toImmutable());
 
         sessionManagerRef.set(sessionManager);
         sessionManager.start();

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
-public interface ResourceInstaller {
+public interface ResourceInstaller extends WithToImmutable<ResourceInstaller> {
 
     /**
      * Installs the resources found in the specified URL.
