@@ -35,6 +35,9 @@ public interface Configuration {
     String NAMESPACE_PREFIX = "namespace.prefix";
 
     String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";
+
+    String ENVIRONMENT_SETUP_SCRIPT_URL = "env.setup.script.url";
+    String ENVIRONMENT_TEARDOWN_SCRIPT_URL = "env.teardown.script.url";
     String ENVIRONMENT_CONFIG_URL = "env.config.url";
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
@@ -67,6 +70,10 @@ public interface Configuration {
 
 
     URL getMasterUrl();
+
+    URL getEnvironmentSetupScriptUrl();
+
+    URL getEnvironmentTeardownScriptUrl();
 
     URL getEnvironmentConfigUrl();
 

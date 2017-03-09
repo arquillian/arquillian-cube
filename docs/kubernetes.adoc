@@ -61,7 +61,7 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the namespace                              |
 | namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the namespace                                      |
 | env.init.enabled                    | Bool (true)    | Any | Flag to initialize the environment (apply kubernetes resources)                  |
-| env.config.url                      | URL            | Any | URL to the Kubernetes JSON (defaults to classpath resource kubernetes.json)      |
+| env.config.url                      | URL            | Any | URL to the Kubernetes JSON/YAML (defaults to classpath resource kubernetes.json) |
 | env.config.resource.name            | String         | Any | Option to select a different classpath resource (other than kubernetes.json)     |
 | env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency kubernetes.json             |
 | wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready                          |
