@@ -21,7 +21,6 @@
         <dependency>
             <groupId>org.arquillian.reporter</groupId>
             <artifactId>arquillian-core-reporter-api</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

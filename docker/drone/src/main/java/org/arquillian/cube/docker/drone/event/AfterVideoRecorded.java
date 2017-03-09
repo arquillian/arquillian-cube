@@ -11,6 +11,7 @@ public class AfterVideoRecorded implements Event {
     private After after;
 
     public AfterVideoRecorded(After after, Path videoLocation) {
+        this.after = after;
         this.videoLocation = videoLocation;
     }
 

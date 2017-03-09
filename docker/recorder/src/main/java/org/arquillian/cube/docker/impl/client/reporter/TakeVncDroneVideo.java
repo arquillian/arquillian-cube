@@ -29,7 +29,6 @@ public class TakeVncDroneVideo {
 
             videoLocation = Paths.get(videoLocation.toString().replace("flv", "mp4"));
 
-
             final Path rootDir = Paths.get(reporterConfiguration.getRootDirectory());
             final Path relativize = rootDir.relativize(videoLocation);
 
