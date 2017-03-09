@@ -34,6 +34,13 @@
           <artifactId>arquillian-reporter-impl</artifactId>
           <scope>provided</scope>
       </dependency>
+      <dependency>
+          <groupId>org.arquillian.reporter</groupId>
+          <artifactId>arquillian-reporter-impl</artifactId>
+          <version>${version.arquillian.reporter}</version>
+          <classifier>tests</classifier>
+          <scope>test</scope>
+      </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.core</groupId>
       <artifactId>arquillian-core-spi</artifactId>

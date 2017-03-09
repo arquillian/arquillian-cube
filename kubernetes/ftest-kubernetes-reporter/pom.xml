@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.arquillian.reporter</groupId>
             <artifactId>arquillian-reporter-depchain</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${version.arquillian.reporter}</version>
             <type>pom</type>
         </dependency>
         <dependency>

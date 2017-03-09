@@ -29,7 +29,7 @@ import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.*;
 public class TakeKubernetesResourcesInformation {
 
     @Inject
-    Event<SectionEvent> reportEvent;
+    Event<SectionEvent> sectionEvent;
 
     @Inject
     Instance<DependencyResolver> dependencyResolver;
@@ -41,9 +41,9 @@ public class TakeKubernetesResourcesInformation {
             reportBuilder.addEntries(getFilesForResourcesConfiguration(session, configuration, reporterConfiguration));
         }
 
-        Reporter.createReport()
+        Reporter.createReport(KUBERNETES_SECTION_NAME)
                 .addReport(reportBuilder)
-                .inSection(new KubernetesSection()).fire(reportEvent);
+                .inSection(new KubernetesSection()).fire(sectionEvent);
     }
 
     public void reportSessionStatus(@Observes AfterStart afterStart, KubernetesClient kubernetesClient) {
@@ -51,12 +51,14 @@ public class TakeKubernetesResourcesInformation {
         Session session = afterStart.getSession();
         if (session != null) {
             String namespace = session.getNamespace();
+
             final ReportBuilder reportBuilder = Reporter.createReport(SESSION_STATUS)
                     .addKeyValueEntry(NAMESPACE, namespace)
                     .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()));
-            Reporter.createReport(KUBERNETES_SECTION_NAME)
+
+            Reporter.createReport()
                     .addReport(reportBuilder)
-                    .inSection(new KubernetesSection()).fire(reportEvent);
+                    .inSection(new KubernetesSection()).fire(sectionEvent);
 
         }
     }
