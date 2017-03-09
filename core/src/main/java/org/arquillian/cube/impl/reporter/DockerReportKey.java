@@ -5,7 +5,7 @@ import org.arquillian.reporter.api.model.StringKey;
 
 public class DockerReportKey extends AbstractStringKey {
 
-    //section nme
+    //section name
     public static final StringKey CONTAINER_SECTION_NAME = new DockerReportKey();
 
     //elements

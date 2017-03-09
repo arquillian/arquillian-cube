@@ -28,10 +28,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.arquillian.extension</groupId>
-            <artifactId>arquillian-recorder-reporter-impl</artifactId>
-            <version>${version.arquillian.recorder}</version>
-            <scope>test</scope>
+            <groupId>org.arquillian.reporter</groupId>
+            <artifactId>arquillian-reporter-depchain</artifactId>
+            <version>${version.arquillian.reporter}</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.arquillian.cube</groupId>
