@@ -23,8 +23,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
@@ -195,25 +198,35 @@ public class SessionManager implements SessionCreatedListener {
 
     @Override
     public void display() {
-        for (ReplicationController replicationController : client.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
-            session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName()+ "]");
-        }
-
-        for (Pod pod : client.pods().inNamespace(session.getNamespace()).list().getItems()) {
-            session.getLogger().info("Pod: [" + pod.getMetadata().getName() + "] Status: [" + pod.getStatus().getPhase() +"]");
-        }
-        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("Service: [").append(service.getMetadata().getName()).append("]")
-                    .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
-                    .append(" Ports: [ ");
-
-            for (ServicePort servicePort : service.getSpec().getPorts()) {
-                sb.append(servicePort.getPort()).append(" ");
+        ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(session.getNamespace()).list();
+        if (replicationControllerList.getItems() != null) {
+            for (ReplicationController replicationController :replicationControllerList.getItems()){
+                session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName() + "]");
             }
-            sb.append("]");
-            session.getLogger().info(sb.toString());
+        }
+
+        PodList podList = client.pods().inNamespace(session.getNamespace()).list();
+        if (podList != null) {
+            for (Pod pod : podList.getItems()) {
+                session.getLogger().info("Pod: [" + pod.getMetadata().getName() + "] Status: [" + pod.getStatus().getPhase() + "]");
+            }
+        }
+
+        ServiceList serviceList = client.services().inNamespace(session.getNamespace()).list();
+        if (serviceList != null) {
+            for (Service service : serviceList.getItems()) {
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Service: [").append(service.getMetadata().getName()).append("]")
+                        .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
+                        .append(" Ports: [ ");
+
+                for (ServicePort servicePort : service.getSpec().getPorts()) {
+                    sb.append(servicePort.getPort()).append(" ");
+                }
+                sb.append("]");
+                session.getLogger().info(sb.toString());
+            }
         }
     }
 
