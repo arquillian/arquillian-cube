@@ -47,8 +47,8 @@ import java.util.logging.Logger;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT_SECTION_NAME;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_INFO_SECTION_NAME;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT_NAME;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_INFO_NAME;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
@@ -71,7 +71,7 @@ public class TakeDockerEnvironment {
 
     public void reportDockerEnvironment(@Observes AfterAutoStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
 
-        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_ENVIRONMENT_SECTION_NAME)
+        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_ENVIRONMENT_NAME)
                 .addReport(createDockerInfoGroup(executor));
 
         reportBuilder.addKeyValueEntry(DOCKER_COMPOSITION_SCHEMA, createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration));
@@ -372,7 +372,7 @@ public class TakeDockerEnvironment {
     private ReportBuilder createDockerInfoGroup(DockerClientExecutor executor) {
         Version version = executor.dockerHostVersion();
 
-        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_INFO_SECTION_NAME)
+        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_INFO_NAME)
                 .addKeyValueEntry(DOCKER_VERSION, version.getVersion())
                 .addKeyValueEntry(DOCKER_OS, version.getOperatingSystem())
                 .addKeyValueEntry(DOCKER_KERNEL, version.getKernelVersion())

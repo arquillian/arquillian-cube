@@ -7,8 +7,8 @@
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <name>Arquillian Cube Docker Recorder</name>
-    <artifactId>arquillian-cube-docker-recorder</artifactId>
+    <name>Arquillian Cube Docker Reporter</name>
+    <artifactId>arquillian-cube-docker-reporter</artifactId>
 
     <properties>
         <version.jgraphx>3.4.1.3</version.jgraphx>

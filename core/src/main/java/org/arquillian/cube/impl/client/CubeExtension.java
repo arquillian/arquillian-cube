@@ -53,7 +53,7 @@ public class CubeExtension implements LoadableExtension {
             builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
         }
 
-        // Only if recorder-reporter is in classpath we should provide reporting capabilities.
+        // Only if reporter is in classpath we should provide reporting capabilities.
         if (Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension")) {
             builder.observer(TakeCubeInformation.class)
             .service(StringKey.class, DockerReportKey.class);

@@ -3,12 +3,12 @@ package org.arquillian.cube.docker.impl.client.reporter;
 import org.arquillian.reporter.api.model.StringKey;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
-public class CubeDockerRecorderExtension implements LoadableExtension {
+public class CubeDockerReporterExtension implements LoadableExtension {
 
     @Override
     public void register(ExtensionBuilder builder) {
 
-        // Only if recorder-reporter is in classpath we should provide reporting capabilities.
+        // Only if reporter is in classpath we should provide reporting capabilities.
         final boolean reportedInClasspath = Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension");
         if (reportedInClasspath) {
             builder.observer(TakeDockerEnvironment.class);

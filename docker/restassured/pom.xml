@@ -36,12 +36,6 @@
             <artifactId>arquillian-core-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.arquillian.extension</groupId>
-            <artifactId>arquillian-recorder-reporter-spi</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.jboss.arquillian.test</groupId>
             <artifactId>arquillian-test-spi</artifactId>
         </dependency>

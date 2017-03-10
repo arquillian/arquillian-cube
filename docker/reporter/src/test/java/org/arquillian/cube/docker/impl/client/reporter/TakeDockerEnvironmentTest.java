@@ -123,7 +123,7 @@ public class TakeDockerEnvironmentTest {
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(DOCKER_INFO_SECTION_NAME)
+                .hasName(DOCKER_INFO_NAME)
                 .hasNumberOfEntries(5)
                 .hasEntriesContaining(
                         new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
@@ -149,7 +149,7 @@ public class TakeDockerEnvironmentTest {
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(DOCKER_ENVIRONMENT_SECTION_NAME)
+                .hasName(DOCKER_ENVIRONMENT_NAME)
                 .hasNumberOfSubReports(1)
                 .hasEntriesContaining(
                         new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports/schemas/docker_composition.png")),
