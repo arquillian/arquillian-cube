@@ -23,14 +23,13 @@ public class DefaultConfiguration implements Configuration {
     private final String sessionId;
     private final String namespace;
     private final URL masterUrl;
+
+    private final URL environmentSetupScriptUrl;
+    private final URL environmentTeardownScriptUrl;
+
     private final URL environmentConfigUrl;
     private final List<URL> environmentDependencies;
 
-    public void setDefinitionsFileURL(URL definitionsFileURL) {
-        this.definitionsFileURL = definitionsFileURL;
-    }
-
-    private URL definitionsFileURL; // To get definitionFile property from openshift.
     private final boolean namespaceLazyCreateEnabled;
     private final boolean namespaceCleanupEnabled;
     private final long namespaceCleanupTimeout;
@@ -64,6 +63,8 @@ public class DefaultConfiguration implements Configuration {
                     .withNamespace(namespace)
                     .withMasterUrl(new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                     .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
+                    .withEnvironmentSetupScriptUrl(asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
+                    .withEnvironmentTeardownScriptUrl(asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
                     .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                     .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
                     .withNamespaceLazyCreateEnabled(getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
@@ -94,8 +95,10 @@ public class DefaultConfiguration implements Configuration {
     }
 
 
-    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
+    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl, URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
+        this.environmentSetupScriptUrl = environmentSetupScriptUrl;
+        this.environmentTeardownScriptUrl = environmentTeardownScriptUrl;
         this.environmentDependencies = environmentDependencies;
         this.environmentConfigUrl = environmentConfigUrl;
         this.sessionId = sessionId;
@@ -134,14 +137,18 @@ public class DefaultConfiguration implements Configuration {
         return masterUrl;
     }
 
-    @Override
-    public URL getEnvironmentConfigUrl() {
-        return environmentConfigUrl;
+    public URL getEnvironmentSetupScriptUrl() {
+        return environmentSetupScriptUrl;
     }
 
     @Override
-    public URL getDefinitionsFileURL() {
-        return definitionsFileURL;
+    public URL getEnvironmentTeardownScriptUrl() {
+        return environmentTeardownScriptUrl;
+    }
+
+    @Override
+    public URL getEnvironmentConfigUrl() {
+        return environmentConfigUrl;
     }
 
     @Override
@@ -271,7 +278,34 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
+    /**
+     * Returns the URL of a classpath resource.
+     * @param resourceName  The name of the resource.
+     * @return              The URL.
+     */
     public static URL findConfigResource(String resourceName) {
+        if (Strings.isNullOrEmpty(resourceName)) {
+            return null;
+        }
         return resourceName.startsWith("/") ? DefaultConfiguration.class.getResource(resourceName) : DefaultConfiguration.class.getResource("/" + resourceName);
+    }
+
+
+    /**
+     * Convert a string to a URL and fallback to classpath resource, if not convertible.
+     * @param s The string to convert.
+     * @return  The URL.
+     */
+    public static URL asUrlOrResource(String s) {
+        if (Strings.isNullOrEmpty(s)) {
+            return null;
+        }
+
+        try {
+            return new URL(s);
+        } catch (MalformedURLException e) {
+            //If its not a valid URL try to treat it as a local resource.
+            return findConfigResource(s);
+        }
     }
 }

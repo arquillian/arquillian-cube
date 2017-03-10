@@ -1,5 +1,6 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 
@@ -15,7 +16,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+
+import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
+import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false, refs = {
@@ -44,8 +49,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final Set<String> proxiedContainerPorts;
     private final String portForwardBindAddress;
 
-    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled,boolean namespaceDestroyEnabled, long namespaceDestroyTimeout, boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts, String portForwardBindAddress) {
-        super(sessionId, masterUrl, namespace, environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled, namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled, namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval, waitForServiceConnectionEnabled, waitForServiceList, waitForServiceConnectionTimeout, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
+    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl, URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled,boolean namespaceDestroyEnabled, long namespaceDestroyTimeout, boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions, String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts, String portForwardBindAddress) {
+        super(sessionId, masterUrl, namespace, environmentSetupScriptUrl, environmentTeardownScriptUrl, environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled, namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled, namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval, waitForServiceConnectionEnabled, waitForServiceList, waitForServiceConnectionTimeout, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -100,64 +105,53 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         }
     }
 
-    public static CubeOpenShiftConfiguration fromMap(Configuration c, Map<String, String> map) {
+    public static CubeOpenShiftConfiguration fromMap(Map<String , String> map) {
+        String sessionId = UUID.randomUUID().toString();
+        String namespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+        if (Strings.isNullOrEmpty(namespace)) {
+            namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
+        }
         try {
-            setDefinitionsFile(c, map);
-            return new CubeOpenShiftConfigurationBuilder()
-                    .withSessionId(c.getSessionId())
-                    .withNamespace(c.getNamespace())
-                    .withMasterUrl(c.getMasterUrl())
-                    .withEnvironmentInitEnabled(c.isEnvironmentInitEnabled())
-                    .withEnvironmentConfigUrl(c.getEnvironmentConfigUrl())
-                    .withEnvironmentDependencies(c.getEnvironmentDependencies())
-                    .withNamespaceLazyCreateEnabled(c.isNamespaceLazyCreateEnabled())
-                    .withNamespaceCleanupEnabled(c.isNamespaceCleanupEnabled())
-                    .withNamespaceCleanupConfirmationEnabled(c.isNamespaceCleanupConfirmationEnabled())
-                    .withNamespaceCleanupTimeout(c.getNamespaceCleanupTimeout())
+        return new CubeOpenShiftConfigurationBuilder()
+                .withSessionId(sessionId)
+                .withNamespace(namespace)
+                .withMasterUrl(new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
+                .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
+                .withEnvironmentSetupScriptUrl(asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
+                .withEnvironmentTeardownScriptUrl(asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
+                .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
+                .withNamespaceLazyCreateEnabled(getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
+                .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, namespace.contains(sessionId)))
+                .withNamespaceCleanupConfirmationEnabled(getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
+                .withNamespaceCleanupTimeout(getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
 
-                    .withNamespaceDestroyEnabled(c.isNamespaceDestroyEnabled())
-                    .withNamespaceDestroyConfirmationEnabled(c.isNamespaceDestroyConfirmationEnabled())
-                    .withNamespaceDestroyTimeout(c.getNamespaceDestroyTimeout())
+                .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, namespace.contains(sessionId)))
+                .withNamespaceDestroyConfirmationEnabled(getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
+                .withNamespaceDestroyTimeout(getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
-                    .withWaitTimeout(c.getWaitTimeout())
-                    .withWaitPollInterval(c.getWaitPollInterval())
-                    .withWaitForServiceList(c.getWaitForServiceList())
-                    .withWaitForServiceConnectionEnabled(c.isWaitForServiceConnectionEnabled())
-                    .withWaitForServiceConnectionTimeout(c.getWaitForServiceConnectionTimeout())
-                    .withAnsiLoggerEnabled(c.isAnsiLoggerEnabled())
-                    .withKubernetesDomain(c.getKubernetesDomain())
-                    .withDockerRegistry(c.getDockerRegistry())
-                    //Local properties
-                    .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, false))
-                    .withDefinitions(getStringProperty(DEFINITIONS, map, null))
-                    .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
-                    .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
-                    .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
-                    .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
-                    .build();
+                .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
+                .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
+                .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
+                .withWaitForServiceConnectionEnabled(getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION_ENABLED, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED))
+                .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT))
+                .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
+                .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
+                .withDockerRegistry(getDockerRegistry(map))
+                //Local properties
+                .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, false))
+                .withDefinitions(getStringProperty(DEFINITIONS, map, null))
+                .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
+                .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
+                .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
+                .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
+                .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             } else {
                 throw new RuntimeException(t);
             }
-        }
-    }
-
-    private static void setDefinitionsFile(Configuration c, Map<String, String> map) throws MalformedURLException {
-        final String stringProperty = getStringProperty(DEFINITIONS_FILE, map, null);
-        URL configResource = findConfigResource(stringProperty);
-
-        if (configResource == null) {
-            final File file = new File(stringProperty);
-            if (file.exists()) {
-                configResource = file.toURI().toURL();
-            }
-        }
-
-        if (c instanceof DefaultConfiguration && configResource != null) {
-            DefaultConfiguration defaultConfiguration = (DefaultConfiguration) c;
-            defaultConfiguration.setDefinitionsFileURL(configResource);
         }
     }
 }

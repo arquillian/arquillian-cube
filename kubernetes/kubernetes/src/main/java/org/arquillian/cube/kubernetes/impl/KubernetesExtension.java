@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.builder.Visitor;
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
@@ -97,6 +98,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
                 .service(ResourceProvider.class, ServiceResourceProvider.class)
                 .service(ResourceProvider.class, SessionResourceProvider.class)
+                .service(ConfigurationFactory.class, DefaultConfigurationFactory.class)
 
                 .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class, KuberntesServiceUrlResourceProvider.class);
     }

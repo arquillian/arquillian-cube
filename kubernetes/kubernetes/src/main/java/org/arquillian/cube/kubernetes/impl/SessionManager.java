@@ -1,18 +1,38 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
-import org.arquillian.cube.kubernetes.api.*;
+import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
 import org.jboss.arquillian.core.spi.Validate;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
+
+import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
 
@@ -87,6 +107,11 @@ public class SessionManager implements SessionCreatedListener {
             List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.resolve(session);
 
             if (configuration.isEnvironmentInitEnabled()) {
+
+                if (configuration.getEnvironmentSetupScriptUrl() != null) {
+                    setupEnvironment();
+                }
+
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
                     resources.addAll(resourceInstaller.install(dependencyUrl));
@@ -103,13 +128,6 @@ public class SessionManager implements SessionCreatedListener {
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
-                    final URL definitionsFileURL = configuration.getDefinitionsFileURL();
-                    if (definitionsFileURL != null) {
-                        log.status("Applying openshift configuration from: " + definitionsFileURL);
-                        try (InputStream is = definitionsFileURL.openStream()) {
-                            resources.addAll(resourceInstaller.install(definitionsFileURL));
-                        }
-                    }
                 }
 
                 if (!resources.isEmpty()) {
@@ -154,49 +172,96 @@ public class SessionManager implements SessionCreatedListener {
     @Override
     public void clean(String status) {
         String namespace = session.getNamespace();
-        if (configuration.isNamespaceCleanupEnabled()) {
-            resourceInstaller.uninstall(resources);
-        } else if(configuration.isNamespaceDestroyEnabled()) {
-            namespaceService.destroy(namespace);
-        } else {
-            try {
-                namespaceService.annotate(session.getNamespace(), annotationProvider.create(session.getId(), status));
-            } catch (Throwable t) {
-                session.getLogger().warn("Could not annotate namespace: [" + namespace + "] with status: [" + status + "].");
+        try {
+            if (configuration.isNamespaceCleanupEnabled()) {
+                resourceInstaller.uninstall(resources);
+            } else if (configuration.isNamespaceDestroyEnabled()) {
+                namespaceService.destroy(namespace);
+            } else {
+                try {
+                    namespaceService.annotate(session.getNamespace(), annotationProvider.create(session.getId(), status));
+                } catch (Throwable t) {
+                    session.getLogger().warn("Could not annotate namespace: [" + namespace + "] with status: [" + status + "].");
+                }
             }
+        } finally {
+            tearDownEnvironment();
         }
     }
 
     @Override
     public void display() {
-        for (ReplicationController replicationController : client.replicationControllers().inNamespace(session.getNamespace()).list().getItems()) {
-            session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName()+ "]");
-        }
-
-        for (Pod pod : client.pods().inNamespace(session.getNamespace()).list().getItems()) {
-            session.getLogger().info("Pod: [" + pod.getMetadata().getName() + "] Status: [" + pod.getStatus().getPhase() +"]");
-        }
-        for (Service service : client.services().inNamespace(session.getNamespace()).list().getItems()) {
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("Service: [").append(service.getMetadata().getName()).append("]")
-                    .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
-                    .append(" Ports: [ ");
-
-            for (ServicePort servicePort : service.getSpec().getPorts()) {
-                sb.append(servicePort.getPort()).append(" ");
+        ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(session.getNamespace()).list();
+        if (replicationControllerList.getItems() != null) {
+            for (ReplicationController replicationController :replicationControllerList.getItems()){
+                session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName() + "]");
             }
-            sb.append("]");
-            session.getLogger().info(sb.toString());
+        }
+
+        PodList podList = client.pods().inNamespace(session.getNamespace()).list();
+        if (podList != null) {
+            for (Pod pod : podList.getItems()) {
+                session.getLogger().info("Pod: [" + pod.getMetadata().getName() + "] Status: [" + pod.getStatus().getPhase() + "]");
+            }
+        }
+
+        ServiceList serviceList = client.services().inNamespace(session.getNamespace()).list();
+        if (serviceList != null) {
+            for (Service service : serviceList.getItems()) {
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Service: [").append(service.getMetadata().getName()).append("]")
+                        .append(" IP: [").append(service.getSpec().getClusterIP()).append("]")
+                        .append(" Ports: [ ");
+
+                for (ServicePort servicePort : service.getSpec().getPorts()) {
+                    sb.append(servicePort.getPort()).append(" ");
+                }
+                sb.append("]");
+                session.getLogger().info(sb.toString());
+            }
         }
     }
 
-    private String getSessionStatus(Session session) {
+    private void setupEnvironment()  {
+        Logger log = session.getLogger();
+        log.info("Executing environment setup script from:" + configuration.getEnvironmentSetupScriptUrl());
+        try {
+            runCommand(log, configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), true);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void tearDownEnvironment() {
+        if (configuration.getEnvironmentTeardownScriptUrl() != null) {
+            try {
+                session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentSetupScriptUrl());
+                runCommand(session.getLogger(), configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), false);
+            } catch (IOException ex) {
+                session.getLogger().warn("Failed to execute teardown script, due to: " + ex.getMessage());
+            }
+        }
+    }
+
+    private static String getSessionStatus(Session session) {
         if (session.getFailed().get() > 0) {
             return "FAILED";
         } else {
             return "PASSED";
         }
+    }
+
+    private static boolean isYaml(String s) {
+        return s.endsWith(".yml") || s.endsWith(".yaml");
+    }
+
+    private static boolean isJson(String s) {
+        return s.endsWith(".json");
+    }
+
+    private static boolean isShellScript(String s) {
+        return s.endsWith(".sh") || s.endsWith(".bash");
     }
 
 }

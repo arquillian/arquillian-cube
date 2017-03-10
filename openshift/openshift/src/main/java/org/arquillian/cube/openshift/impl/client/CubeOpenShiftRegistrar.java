@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 
+import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.openshift.impl.model.BuildablePodCube;
 import org.arquillian.cube.openshift.impl.model.ServiceCube;
@@ -20,7 +21,12 @@ import java.nio.charset.StandardCharsets;
 
 public class CubeOpenShiftRegistrar {
 
-    public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final CubeOpenShiftConfiguration configuration, final Injector injector) {
+    public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final Configuration conf, final Injector injector) {
+        if (!(conf instanceof CubeOpenShiftConfiguration)) {
+            return;
+        }
+
+        CubeOpenShiftConfiguration configuration = (CubeOpenShiftConfiguration) conf;
         if (!hasDefinitionStream(configuration)) {
             return;
         }
