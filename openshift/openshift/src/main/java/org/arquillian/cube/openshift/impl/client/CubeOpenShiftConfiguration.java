@@ -30,7 +30,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     // }
 
     private static final String KEEP_ALIVE_GIT_SERVER = "keepAliveGitServer";
-    private static final String DEFINITIONS_FILE = "definitionsFile";
+    private static final String ENV_CONFIG_URL = "env.config.url";
     private static final String DEFINITIONS = "definitions";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
@@ -130,7 +130,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     //Local properties
                     .withKeepAliveGitServer(getBooleanProperty(KEEP_ALIVE_GIT_SERVER, map, false))
                     .withDefinitions(getStringProperty(DEFINITIONS, map, null))
-                    .withDefinitionsFile(getStringProperty(DEFINITIONS_FILE, map, null))
+                    .withDefinitionsFile(getStringProperty(ENV_CONFIG_URL, map, null))
                     .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
                     .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
                     .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
@@ -145,19 +145,22 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     }
 
     private static void setDefinitionsFile(Configuration c, Map<String, String> map) throws MalformedURLException {
-        final String stringProperty = getStringProperty(DEFINITIONS_FILE, map, null);
-        URL configResource = findConfigResource(stringProperty);
+        final String stringProperty = getStringProperty(ENV_CONFIG_URL, map, null);
 
-        if (configResource == null) {
-            final File file = new File(stringProperty);
-            if (file.exists()) {
-                configResource = file.toURI().toURL();
+        if (stringProperty != null) {
+            URL configResource = findConfigResource(stringProperty);
+
+            if (configResource == null) {
+                final File file = new File(stringProperty);
+                if (file.exists()) {
+                    configResource = file.toURI().toURL();
+                }
             }
-        }
 
-        if (c instanceof DefaultConfiguration && configResource != null) {
-            DefaultConfiguration defaultConfiguration = (DefaultConfiguration) c;
-            defaultConfiguration.setDefinitionsFileURL(configResource);
+            if (c instanceof DefaultConfiguration && configResource != null) {
+                DefaultConfiguration defaultConfiguration = (DefaultConfiguration) c;
+                defaultConfiguration.setDefinitionsFileURL(configResource);
+            }
         }
     }
 }

@@ -109,6 +109,8 @@ public class SessionManager implements SessionCreatedListener {
                         try (InputStream is = definitionsFileURL.openStream()) {
                             resources.addAll(resourceInstaller.install(definitionsFileURL));
                         }
+                    } else {
+                        throw new IllegalStateException("Did not find any k8s or openshift resources configuration file.");
                     }
                 }
 

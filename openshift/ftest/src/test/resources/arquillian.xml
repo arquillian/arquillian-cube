@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
 	<extension qualifier="openshift">
-		<property name="definitionsFile">src/test/resources/hello_pod.json</property>
+		<property name="env.config.url">src/test/resources/hello_pod.json</property>
 		<property name="proxiedContainerPorts">hello-openshift:9990</property>
 	</extension>
 
