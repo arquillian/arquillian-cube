@@ -2,8 +2,11 @@ package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.client.container.DockerServerIPConfigurator;
 import org.arquillian.cube.docker.impl.client.containerobject.AfterClassContainerObjectObserver;
+import org.arquillian.cube.docker.impl.client.containerobject.AfterContainerObjectObserver;
 import org.arquillian.cube.docker.impl.client.containerobject.ContainerObjectFactoryProvider;
 import org.arquillian.cube.docker.impl.client.containerobject.CubeContainerObjectTestEnricher;
+import org.arquillian.cube.docker.impl.client.containerobject.dsl.AfterClassNetworkContainerObserver;
+import org.arquillian.cube.docker.impl.client.containerobject.dsl.ContainerNetworkObjectDslTestEnricher;
 import org.arquillian.cube.docker.impl.client.enricher.CubeResourceProvider;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -23,6 +26,8 @@ public class CubeDockerExtension implements LoadableExtension {
                .observer(Boot2DockerCreator.class)
                .observer(DockerMachineCreator.class)
                .observer(AfterClassContainerObjectObserver.class)
+               .observer(AfterContainerObjectObserver.class)
+               .observer(AfterClassNetworkContainerObserver.class)
                .observer(StopDockerMachineAfterSuiteObserver.class)
                .observer(NetworkRegistrar.class)
                .observer(NetworkLifecycleController.class)
@@ -32,6 +37,7 @@ public class CubeDockerExtension implements LoadableExtension {
         builder.service(ResourceProvider.class, CubeResourceProvider.class);
         builder.service(ResourceProvider.class, ContainerObjectFactoryProvider.class);
         builder.service(TestEnricher.class, CubeContainerObjectTestEnricher.class);
+        builder.service(TestEnricher.class, ContainerNetworkObjectDslTestEnricher.class);
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath

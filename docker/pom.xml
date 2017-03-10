@@ -52,6 +52,7 @@
         <module>ftest-docker-machine</module>
         <module>ftest-docker-machine-network</module>
         <module>ftest-docker-containerobject</module>
+        <module>ftest-docker-containerobject-dsl</module>
         <module>ftest-standalone-autostart</module>
         <module>ftest-standalone-star-operator</module>
         <module>ftest-standalone-star-operator-docker-compose</module>

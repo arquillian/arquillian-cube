@@ -1,9 +1,12 @@
 package org.arquillian.cube.docker.impl.model;
 
 import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.spi.Cube;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,5 +32,16 @@ public class LocalDockerNetworkRegistry implements NetworkRegistry {
     @Override
     public void removeNetwork(String id) {
         this.networks.remove(id);
+    }
+
+    @Override
+    public Network getNetwork(String id) {
+        return networks.get(id);
+    }
+
+    @Override
+    public List<Network> getNetworks() {
+        List<Network> cubeList = new ArrayList<>(this.networks.values());
+        return Collections.unmodifiableList(cubeList);
     }
 }

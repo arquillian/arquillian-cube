@@ -11,11 +11,14 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Cube {
 
-    public static final String DEFAULT_VALUE = "";
-    public static final String[] DEFAULT_PORT_BINDING = new String[] {};
-    public static final int[] DEFAULT_AWAIT_PORT_BINDING = new int[] {};
+    String DEFAULT_VALUE = "";
+    String[] DEFAULT_PORT_BINDING = new String[] {};
+    int[] DEFAULT_AWAIT_PORT_BINDING = new int[] {};
 
     String value() default DEFAULT_VALUE;
     String[] portBinding() default {};
     int[] awaitPorts() default {};
+
+    ConnectionMode connectionMode() default ConnectionMode.START_AND_STOP_AROUND_CLASS;
+
 }
