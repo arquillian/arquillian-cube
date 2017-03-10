@@ -128,13 +128,6 @@ public class SessionManager implements SessionCreatedListener {
                     }
                 } else {
                     log.warn("Did not find any kubernetes configuration.");
-                    final URL definitionsFileURL = configuration.getDefinitionsFileURL();
-                    if (definitionsFileURL != null) {
-                        log.status("Applying openshift configuration from: " + definitionsFileURL);
-                        try (InputStream is = definitionsFileURL.openStream()) {
-                            resources.addAll(resourceInstaller.install(definitionsFileURL));
-                        }
-                    }
                 }
 
                 if (!resources.isEmpty()) {
