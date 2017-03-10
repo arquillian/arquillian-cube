@@ -29,6 +29,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
@@ -191,9 +193,16 @@ public class SessionManager implements SessionCreatedListener {
 
     @Override
     public void display() {
+        ReplicaSetList replicaSetList = client.extensions().replicaSets().inNamespace(session.getNamespace()).list();
+        if (replicaSetList.getItems() != null) {
+            for (ReplicaSet replicaSet : replicaSetList.getItems()){
+                session.getLogger().info("ReplicaSet: [" + replicaSet.getMetadata().getName() + "]");
+            }
+        }
+
         ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(session.getNamespace()).list();
         if (replicationControllerList.getItems() != null) {
-            for (ReplicationController replicationController :replicationControllerList.getItems()){
+            for (ReplicationController replicationController : replicationControllerList.getItems()){
                 session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName() + "]");
             }
         }
