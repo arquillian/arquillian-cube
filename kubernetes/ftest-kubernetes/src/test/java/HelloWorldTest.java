@@ -23,12 +23,12 @@ import static org.junit.Assert.assertTrue;
 @RequiresKubernetes
 public class HelloWorldTest {
 
-    @Named("hello-world-service")
+    @Named("hello-world")
     @ArquillianResource
     Service helloWorld;
 
 
-    @Named("hello-world-service")
+    @Named("hello-world")
     @PortForward
     @ArquillianResource
     URL url;
