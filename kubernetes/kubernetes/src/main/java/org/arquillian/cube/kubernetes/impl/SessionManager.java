@@ -227,7 +227,7 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.info("Executing environment setup script from:" + configuration.getEnvironmentSetupScriptUrl());
         try {
-            runCommand(log, configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), true);
+            runCommand(log, configuration.getEnvironmentSetupScriptUrl());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -236,8 +236,8 @@ public class SessionManager implements SessionCreatedListener {
     private void tearDownEnvironment() {
         if (configuration.getEnvironmentTeardownScriptUrl() != null) {
             try {
-                session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentSetupScriptUrl());
-                runCommand(session.getLogger(), configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), false);
+                session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentTeardownScriptUrl());
+                runCommand(session.getLogger(), configuration.getEnvironmentTeardownScriptUrl());
             } catch (IOException ex) {
                 session.getLogger().warn("Failed to execute teardown script, due to: " + ex.getMessage());
             }

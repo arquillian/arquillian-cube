@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -37,23 +38,20 @@ import java.util.function.Function;
  */
 public class ProcessUtil {
 
-    public static int runCommand(final Logger log, File command, List<String> args) throws IOException {
-        return runCommand(log, command, args, false);
-    }
-
-    public static int runCommand(final Logger log, URL scriptUrl, List<String> args, boolean withShutdownHook) throws IOException {
-        File scriptFile = File.createTempFile("arquillian-cube-script", ".tmp");
+    public static int runCommand(final Logger log, URL scriptUrl) throws IOException {
+        File scriptFile = File.createTempFile("arquillian-cube-script", getSuffix());
         FileUtils.copyURLToFile(scriptUrl, scriptFile);
-        return runCommand(log, scriptFile, args, withShutdownHook);
+        scriptFile.setExecutable(true, false);
+        return runCommand(log, getCommand(), Arrays.asList(new String[]{scriptFile.getAbsolutePath()}), true);
     }
 
-    public static int runCommand(final Logger log, File command, List<String> args, boolean withShutdownHook) throws IOException {
-        String[] commandWithArgs = prepareCommandArray(command.getAbsolutePath(), args);
+    public static int runCommand(final Logger log, String command, List<String> args, boolean withShutdownHook) throws IOException {
+        String[] commandWithArgs = prepareCommandArray(command, args);
         Process process = Runtime.getRuntime().exec(commandWithArgs);
         if (withShutdownHook) {
             addShutdownHook(log, process, command);
         }
-        List<Thread> threads = startLoggingThreads(process, log, command.getName() + " " + Strings.join(args, " "));
+        List<Thread> threads = startLoggingThreads(process, log, command + " " + Strings.join(args, " "));
         try {
             int answer = process.waitFor();
             joinThreads(threads, log);
@@ -76,8 +74,8 @@ public class ProcessUtil {
 
     // ==========================================================================================================
 
-    private static void addShutdownHook(final Logger log, final Process process, final File command) {
-        Runtime.getRuntime().addShutdownHook(new Thread(command.getName()) {
+    private static void addShutdownHook(final Logger log, final Process process, final String command) {
+        Runtime.getRuntime().addShutdownHook(new Thread(command) {
             @Override
             public void run() {
                 if (process != null) {
@@ -93,11 +91,15 @@ public class ProcessUtil {
     }
 
     private static String[] prepareCommandArray(String command, List<String> args) {
+        List<String> nCmd = Strings.splitAndTrimAsList(command, " ");
         List<String> nArgs = args != null ? args : new ArrayList<String>();
-        String[] commandWithArgs = new String[nArgs.size() + 1];
-        commandWithArgs[0] = command;
+        String[] commandWithArgs = new String[nCmd.size() + nArgs.size()];
+        for (int i = 0; i < nCmd.size(); i++) {
+            commandWithArgs[i] = nCmd.get(i);
+        }
+
         for (int i = 0; i < nArgs.size(); i++) {
-            commandWithArgs[i+1] = nArgs.get(i);
+            commandWithArgs[i + nCmd.size()] = nArgs.get(i);
         }
         return commandWithArgs;
     }
@@ -168,5 +170,27 @@ public class ProcessUtil {
                 return null;
             }
         };
+    }
+
+
+    public static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("windows");
+    }
+
+    private static final String getCommand() {
+        if (isWindows()) {
+            return "cmd /c start";
+        } else {
+            return "/bin/sh -c";
+        }
+    }
+
+
+    private static final String getSuffix() {
+        if (isWindows()) {
+            return ".bat";
+        } else {
+            return ".sh";
+        }
     }
 }
