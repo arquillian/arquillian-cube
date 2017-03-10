@@ -5,7 +5,7 @@
 
 
     <extension qualifier="openshift">
-        <property name="definitionsFile">src/test/resources/hello-openshift.json</property>
+        <property name="env.config.resource.name">hello-openshift.json</property>
     </extension>
 
 </arquillian>
