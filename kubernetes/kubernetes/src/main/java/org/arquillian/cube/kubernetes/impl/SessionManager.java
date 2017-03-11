@@ -84,7 +84,7 @@ public class SessionManager implements SessionCreatedListener {
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
-        log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
+        log.info("if you use kubernetes then type this to switch namespaces: kubectl config set-context `kubectl config current-context` --namespace=" + namespace);
 
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         if (namespaceService.exists(session.getNamespace())) {
