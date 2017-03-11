@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +35,7 @@ import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
+import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
 import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
@@ -247,7 +248,7 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.info("Executing environment setup script from:" + configuration.getEnvironmentSetupScriptUrl());
         try {
-            runCommand(log, configuration.getEnvironmentSetupScriptUrl());
+            runCommand(log, configuration.getEnvironmentSetupScriptUrl(), createScriptEnvironment());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -257,11 +258,25 @@ public class SessionManager implements SessionCreatedListener {
         if (configuration.getEnvironmentTeardownScriptUrl() != null) {
             try {
                 session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentTeardownScriptUrl());
-                runCommand(session.getLogger(), configuration.getEnvironmentTeardownScriptUrl());
+                runCommand(session.getLogger(), configuration.getEnvironmentTeardownScriptUrl(), createScriptEnvironment());
             } catch (IOException ex) {
                 session.getLogger().warn("Failed to execute teardown script, due to: " + ex.getMessage());
             }
         }
+    }
+
+    /**
+     * Creates the environment variables, that will be passed to the shell script (startup, teardown).
+     * @return
+     */
+    private Map<String, String> createScriptEnvironment() {
+        Map<String, String> env = new HashMap<>();
+        env.putAll(System.getenv());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_NAMESPACE), configuration.getNamespace());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_DOMAIN), configuration.getKubernetesDomain());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_MASTER), configuration.getMasterUrl().toString());
+        env.put(propertyToEnvironmentVariableName(Configuration.DOCKER_REGISTY), configuration.getDockerRegistry());
+        return env;
     }
 
     private static String getSessionStatus(Session session) {

@@ -27,7 +27,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 
@@ -39,15 +41,20 @@ import java.util.function.Function;
 public class ProcessUtil {
 
     public static int runCommand(final Logger log, URL scriptUrl) throws IOException {
+        return runCommand(log, scriptUrl, Collections.emptyMap());
+    }
+
+    public static int runCommand(final Logger log, URL scriptUrl, Map<String, String> env) throws IOException {
         File scriptFile = File.createTempFile("arquillian-cube-script", getSuffix());
         FileUtils.copyURLToFile(scriptUrl, scriptFile);
         scriptFile.setExecutable(true, false);
-        return runCommand(log, getCommand(), Arrays.asList(new String[]{scriptFile.getAbsolutePath()}), true);
+        return runCommand(log, getCommand(), Arrays.asList(new String[]{scriptFile.getAbsolutePath()}), env, true);
     }
 
-    public static int runCommand(final Logger log, String command, List<String> args, boolean withShutdownHook) throws IOException {
+    public static int runCommand(final Logger log, String command, List<String> args, Map<String, String> env, boolean withShutdownHook) throws IOException {
         String[] commandWithArgs = prepareCommandArray(command, args);
-        Process process = Runtime.getRuntime().exec(commandWithArgs);
+        String[] envp = prepareEnvp(env);
+        Process process = Runtime.getRuntime().exec(commandWithArgs, envp);
         if (withShutdownHook) {
             addShutdownHook(log, process, command);
         }
@@ -102,6 +109,16 @@ public class ProcessUtil {
             commandWithArgs[i + nCmd.size()] = nArgs.get(i);
         }
         return commandWithArgs;
+    }
+
+
+    private static String[] prepareEnvp(Map<String, String> env) {;
+        String[] envp = new String[env.size()];
+        int i=0;
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            envp[i++] = entry.getKey() + "=" + entry.getValue();
+        }
+        return envp;
     }
 
     private static void processOutput(InputStream inputStream, Function<String, Void> function) throws IOException {
