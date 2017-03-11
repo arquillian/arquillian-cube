@@ -14,6 +14,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.api.model.WatchEvent;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSetBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -177,6 +178,8 @@ public class MockTest {
                 .done().always();
 
         MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/endpoints/test-service").andReturn(200, "").always();
+
+        MOCK.expect().get().withPath("/apis/extensions/v1beta1/namespaces/arquillian/replicasets").andReturn(200, new ReplicaSetBuilder().build()).always();
 
         MOCK.init();
 
