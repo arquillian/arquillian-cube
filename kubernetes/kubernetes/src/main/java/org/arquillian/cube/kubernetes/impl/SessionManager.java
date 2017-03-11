@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -132,9 +133,19 @@ public class SessionManager implements SessionCreatedListener {
                     log.warn("Did not find any kubernetes configuration.");
                 }
 
-                if (!resources.isEmpty()) {
+                List<HasMetadata> resourcesToWait = new ArrayList<>(resources);
+
+                //Also handle services externally specified
+                for (String service : configuration.getWaitForServiceList()) {
+                    Endpoints endpoints = client.endpoints().inNamespace(session.getNamespace()).withName(service).get();
+                    if (endpoints != null) {
+                        resourcesToWait.add(endpoints);
+                    }
+                }
+
+                if (!resourcesToWait.isEmpty()) {
                     try {
-                        client.resourceList(resources).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                        client.resourceList(resourcesToWait).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
                         log.warn("The are resources in not ready state.");
                         for (HasMetadata r : t.getResourcesNotReady()) {
@@ -260,17 +271,4 @@ public class SessionManager implements SessionCreatedListener {
             return "PASSED";
         }
     }
-
-    private static boolean isYaml(String s) {
-        return s.endsWith(".yml") || s.endsWith(".yaml");
-    }
-
-    private static boolean isJson(String s) {
-        return s.endsWith(".json");
-    }
-
-    private static boolean isShellScript(String s) {
-        return s.endsWith(".sh") || s.endsWith(".bash");
-    }
-
 }
