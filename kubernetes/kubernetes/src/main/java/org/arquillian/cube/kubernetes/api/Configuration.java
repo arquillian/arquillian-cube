@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 public interface Configuration {
 
@@ -46,18 +47,9 @@ public interface Configuration {
     String WAIT_POLL_INTERVAL = "wait.poll.interval";
 
     String WAIT_FOR_SERVICE_LIST = "wait.for.service.list";
-    String WAIT_FOR_SERVICE_CONNECTION_ENABLED = "wait.for.service.connection.enabled";
-    String WAIT_FOR_SERVICE_CONNECTION_TIMEOUT = "wait.for.service.connection.timeout";
 
     String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
 
-
-    /**
-     * We often won't be able to connect to the services from the JUnit test case
-     * unless the user explicitly knows its OK and allows it. (e.g. there may not be a network route)
-     */
-    Boolean DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED = false;
-    Long DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT = 10 * 1000L;
     Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
@@ -101,11 +93,7 @@ public interface Configuration {
 
     long getWaitPollInterval();
 
-    boolean isWaitForServiceConnectionEnabled();
-
     List<String> getWaitForServiceList();
-
-    long getWaitForServiceConnectionTimeout();
 
     boolean isAnsiLoggerEnabled();
 

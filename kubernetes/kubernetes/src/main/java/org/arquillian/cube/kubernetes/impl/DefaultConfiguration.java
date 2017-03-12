@@ -41,9 +41,7 @@ public class DefaultConfiguration implements Configuration {
 
     private final long waitTimeout;
     private final long waitPollInterval;
-    private final boolean waitForServiceConnectionEnabled;
     private final List<String> waitForServiceList;
-    private final long waitForServiceConnectionTimeout;
 
     private final boolean ansiLoggerEnabled;
     private final boolean environmentInitEnabled;
@@ -79,8 +77,6 @@ public class DefaultConfiguration implements Configuration {
                     .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                     .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                     .withWaitForServiceList(Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
-                    .withWaitForServiceConnectionEnabled(getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION_ENABLED, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_ENABLED))
-                    .withWaitForServiceConnectionTimeout(getLongProperty(WAIT_FOR_SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_WAIT_FOR_SERVICE_CONNECTION_TIMEOUT))
                     .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                     .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                     .withDockerRegistry(getDockerRegistry(map))
@@ -95,7 +91,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
 
-    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl, URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout, long waitPollInterval, boolean waitForServiceConnectionEnabled, List<String> waitForServiceList, long waitForServiceConnectionTimeout, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
+    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl, URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout, long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
         this.environmentTeardownScriptUrl = environmentTeardownScriptUrl;
@@ -112,9 +108,7 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
-        this.waitForServiceConnectionEnabled = waitForServiceConnectionEnabled;
         this.waitForServiceList = waitForServiceList;
-        this.waitForServiceConnectionTimeout = waitForServiceConnectionTimeout;
         this.ansiLoggerEnabled = ansiLoggerEnabled;
         this.environmentInitEnabled = environmentInitEnabled;
         this.kubernetesDomain = kubernetesDomain;
@@ -202,18 +196,8 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isWaitForServiceConnectionEnabled() {
-        return waitForServiceConnectionEnabled;
-    }
-
-    @Override
     public List<String> getWaitForServiceList() {
         return waitForServiceList;
-    }
-
-    @Override
-    public long getWaitForServiceConnectionTimeout() {
-        return waitForServiceConnectionTimeout;
     }
 
     @Override

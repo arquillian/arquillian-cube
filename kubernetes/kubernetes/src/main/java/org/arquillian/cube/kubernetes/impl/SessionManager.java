@@ -15,12 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -29,9 +30,12 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 
+import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
 import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
@@ -81,7 +85,7 @@ public class SessionManager implements SessionCreatedListener {
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
-        log.info("if you use kubernetes then type this to switch namespaces: kubectl namespace " + namespace);
+        log.info("if you use kubernetes then type this to switch namespaces: kubectl config set-context `kubectl config current-context` --namespace=" + namespace);
 
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         if (namespaceService.exists(session.getNamespace())) {
@@ -130,9 +134,19 @@ public class SessionManager implements SessionCreatedListener {
                     log.warn("Did not find any kubernetes configuration.");
                 }
 
-                if (!resources.isEmpty()) {
+                List<HasMetadata> resourcesToWait = new ArrayList<>(resources);
+
+                //Also handle services externally specified
+                for (String service : configuration.getWaitForServiceList()) {
+                    Endpoints endpoints = client.endpoints().inNamespace(session.getNamespace()).withName(service).get();
+                    if (endpoints != null) {
+                        resourcesToWait.add(endpoints);
+                    }
+                }
+
+                if (!resourcesToWait.isEmpty()) {
                     try {
-                        client.resourceList(resources).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
+                        client.resourceList(resourcesToWait).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
                         log.warn("The are resources in not ready state.");
                         for (HasMetadata r : t.getResourcesNotReady()) {
@@ -191,9 +205,16 @@ public class SessionManager implements SessionCreatedListener {
 
     @Override
     public void display() {
+        ReplicaSetList replicaSetList = client.extensions().replicaSets().inNamespace(session.getNamespace()).list();
+        if (replicaSetList.getItems() != null) {
+            for (ReplicaSet replicaSet : replicaSetList.getItems()){
+                session.getLogger().info("ReplicaSet: [" + replicaSet.getMetadata().getName() + "]");
+            }
+        }
+
         ReplicationControllerList replicationControllerList = client.replicationControllers().inNamespace(session.getNamespace()).list();
         if (replicationControllerList.getItems() != null) {
-            for (ReplicationController replicationController :replicationControllerList.getItems()){
+            for (ReplicationController replicationController : replicationControllerList.getItems()){
                 session.getLogger().info("Replication controller: [" + replicationController.getMetadata().getName() + "]");
             }
         }
@@ -227,7 +248,7 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.info("Executing environment setup script from:" + configuration.getEnvironmentSetupScriptUrl());
         try {
-            runCommand(log, configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), true);
+            runCommand(log, configuration.getEnvironmentSetupScriptUrl(), createScriptEnvironment());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -236,12 +257,26 @@ public class SessionManager implements SessionCreatedListener {
     private void tearDownEnvironment() {
         if (configuration.getEnvironmentTeardownScriptUrl() != null) {
             try {
-                session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentSetupScriptUrl());
-                runCommand(session.getLogger(), configuration.getEnvironmentSetupScriptUrl(), Collections.emptyList(), false);
+                session.getLogger().info("Executing environment teardown script from:" + configuration.getEnvironmentTeardownScriptUrl());
+                runCommand(session.getLogger(), configuration.getEnvironmentTeardownScriptUrl(), createScriptEnvironment());
             } catch (IOException ex) {
                 session.getLogger().warn("Failed to execute teardown script, due to: " + ex.getMessage());
             }
         }
+    }
+
+    /**
+     * Creates the environment variables, that will be passed to the shell script (startup, teardown).
+     * @return
+     */
+    private Map<String, String> createScriptEnvironment() {
+        Map<String, String> env = new HashMap<>();
+        env.putAll(System.getenv());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_NAMESPACE), configuration.getNamespace());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_DOMAIN), configuration.getKubernetesDomain());
+        env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_MASTER), configuration.getMasterUrl().toString());
+        env.put(propertyToEnvironmentVariableName(Configuration.DOCKER_REGISTY), configuration.getDockerRegistry());
+        return env;
     }
 
     private static String getSessionStatus(Session session) {
@@ -251,17 +286,4 @@ public class SessionManager implements SessionCreatedListener {
             return "PASSED";
         }
     }
-
-    private static boolean isYaml(String s) {
-        return s.endsWith(".yml") || s.endsWith(".yaml");
-    }
-
-    private static boolean isJson(String s) {
-        return s.endsWith(".json");
-    }
-
-    private static boolean isShellScript(String s) {
-        return s.endsWith(".sh") || s.endsWith(".bash");
-    }
-
 }
