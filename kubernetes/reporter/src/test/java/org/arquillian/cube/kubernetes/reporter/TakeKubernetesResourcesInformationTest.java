@@ -1,6 +1,15 @@
 package org.arquillian.cube.kubernetes.reporter;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceListBuilder;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -11,16 +20,18 @@ import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.cube.kubernetes.impl.log.SimpleLogger;
 import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
-import org.arquillian.recorder.reporter.PropertyEntry;
-import org.arquillian.recorder.reporter.ReporterConfiguration;
-import org.arquillian.recorder.reporter.event.PropertyReportEvent;
-import org.arquillian.recorder.reporter.model.entry.FileEntry;
-import org.arquillian.recorder.reporter.model.entry.GroupEntry;
-import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableEntry;
+import org.arquillian.reporter.api.builder.BuilderLoader;
+import org.arquillian.reporter.api.event.SectionEvent;
+import org.arquillian.reporter.api.model.StringKey;
+import org.arquillian.reporter.api.model.UnknownStringKey;
+import org.arquillian.reporter.api.model.entry.FileEntry;
+import org.arquillian.reporter.api.model.entry.KeyValueEntry;
+import org.arquillian.reporter.api.model.report.BasicReport;
+import org.arquillian.reporter.api.model.report.Report;
+import org.arquillian.reporter.config.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,26 +45,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.arquillian.cube.kubernetes.reporter.TakeKubernetesResourcesInformation.CONFIGURATION;
-import static org.arquillian.cube.kubernetes.reporter.TakeKubernetesResourcesInformation.REPLICATION_CONTROLLER;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.*;
+import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
+import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TakeKubernetesResourcesInformationTest {
 
     private static final KubernetesMockServer server = new KubernetesMockServer();
-
+/*
     private static final String TABLE_ENTRY = "TableEntry";
-    private static final String KEY_VALUE_ENTRY = "KeyValueEntry";
-    private static final String FILE_ENTRY = "FileEntry";
     private static final String TABLE_HEAD = "tableHead";
     private static final String TABLE_BODY = "tableBody";
     private static final String CELLS = "cells";
     private static final String ROW = "row";
-    private static final String ROWS = "rows";
-    private static final String GET_CONTENT = "getContent";
-    private static final String CONTENT_TYPE = "application/json";
+    private static final String ROWS = "rows";*/
     private static final String TEST_CLASSES = "test-classes/";
     private static final String FILE_NAME = "kubernetes1.json";
     private static final String RELATIVE_PATH = TEST_CLASSES + Configuration.DEFAULT_CONFIG_FILE_NAME;
@@ -63,10 +70,10 @@ public class TakeKubernetesResourcesInformationTest {
     private static final String REPLICATION_CONTROLLER_PATH = "http://foo.com/replication_controller.json";
 
     @Mock
-    Event<PropertyReportEvent> propertyReportEvent;
+    Event<SectionEvent> sectionEvent;
 
     @Captor
-    ArgumentCaptor<PropertyReportEvent> propertyReportEventArgumentCaptor;
+    ArgumentCaptor<SectionEvent> reportEventArgumentCaptor;
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -139,34 +146,34 @@ public class TakeKubernetesResourcesInformationTest {
                 .build()).always();
     }
 
+    @Before
+    public void setUp() {
+        BuilderLoader.load();
+    }
+
     @Test
     public void should_report_environment_configuration_file_from_test_resources() throws IOException {
         //given
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentConfigUrl(getConfig(), FILE_NAME));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
-        takeKubernetesResourcesInformation.propertyReportEventEvent = propertyReportEvent;
+        takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration , new ReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
 
         //then
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
+        final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
+        final Report report = sectionEvent.getReport();
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
-        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertSectionEvent(sectionEvent, KUBERNETES_SECTION_NAME);
 
-        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
-        GroupEntry parent = (GroupEntry) propertyEntry;
-
-        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
-
-        final PropertyEntry configFile = rootEntries.get(0);
-        assertThat(configFile).isInstanceOf(FileEntry.class);
-        assertThat(configFile).extracting("path", "message", "type").containsExactly(
-                TEST_CLASSES + FILE_NAME, CONFIGURATION, CONTENT_TYPE);
-
+        final List<Report> subReports = report.getSubReports();
+        assertThatReport(subReports.get(0))
+                .hasName(CONFIGURATION)
+                .hasNumberOfEntries(1)
+                .hasEntriesContaining(new FileEntry(TEST_CLASSES + FILE_NAME));
     }
 
     @Test
@@ -174,29 +181,24 @@ public class TakeKubernetesResourcesInformationTest {
         //given
         Configuration configuration = getConfiguration();
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
-        takeKubernetesResourcesInformation.propertyReportEventEvent = propertyReportEvent;
+        takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, new ReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
 
         //then
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
+        final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
+        final Report report = sectionEvent.getReport();
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
-        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertSectionEvent(sectionEvent, KUBERNETES_SECTION_NAME);
 
-        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
-        GroupEntry parent = (GroupEntry) propertyEntry;
-
-        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(1);
-
-        final PropertyEntry configFile = rootEntries.get(0);
-        assertThat(configFile).isInstanceOf(FileEntry.class);
-        assertThat(configFile).extracting("path", "message", "type").containsExactly(
-                RELATIVE_PATH, CONFIGURATION, CONTENT_TYPE);
-
+        final List<Report> subReports = report.getSubReports();
+        assertThatReport(subReports.get(0))
+                .hasName(CONFIGURATION)
+                .hasNumberOfEntries(1)
+                .hasEntriesContaining(new FileEntry(RELATIVE_PATH));
     }
 
     @Test
@@ -205,61 +207,57 @@ public class TakeKubernetesResourcesInformationTest {
         String resourceName = SERVICE_PATH + " " + REPLICATION_CONTROLLER_PATH;
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resourceName));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
-        takeKubernetesResourcesInformation.propertyReportEventEvent = propertyReportEvent;
+        takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, new ReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
 
         //then
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
+        final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
+        final Report report = sectionEvent.getReport();
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
-        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        assertSectionEvent(sectionEvent, KUBERNETES_SECTION_NAME);
 
-        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
-        GroupEntry parent = (GroupEntry) propertyEntry;
-
-        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(3);
-
-        assertThat(rootEntries).extracting("class.simpleName").containsExactly(FILE_ENTRY, FILE_ENTRY, FILE_ENTRY);
-        assertThat(rootEntries).flatExtracting("path", "message", "type").containsExactly(
-                RELATIVE_PATH, CONFIGURATION, CONTENT_TYPE,
-                SERVICE_PATH, CONFIGURATION, CONTENT_TYPE,
-                REPLICATION_CONTROLLER_PATH, CONFIGURATION, CONTENT_TYPE);
+        final List<Report> subReports = report.getSubReports();
+        assertThatReport(subReports.get(0))
+                .hasName(CONFIGURATION)
+                .hasNumberOfEntries(3)
+                .hasEntriesContaining(
+                        new FileEntry(RELATIVE_PATH),
+                        new FileEntry(SERVICE_PATH),
+                        new FileEntry(REPLICATION_CONTROLLER_PATH));
     }
 
     @Test
     public void should_report_environment_dependencies_from_file_url_and_configuration_from_default_location() throws IOException {
         //given
         String resouceName = getResourceURL(SERVICES_FILE_NAME) + " " + getResourceURL(REPLICATION_CONTROLLER_FILE_NAME);
-        System.out.println(resouceName);
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resouceName));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
-        takeKubernetesResourcesInformation.propertyReportEventEvent = propertyReportEvent;
+        takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = (() -> new ShrinkwrapResolver("pom.xml", false));
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, new ReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
 
         //then
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
-        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
+        final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
+        final Report report = sectionEvent.getReport();
 
-        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
-        GroupEntry parent = (GroupEntry) propertyEntry;
+        assertSectionEvent(sectionEvent, KUBERNETES_SECTION_NAME);
 
-        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-        assertThat(rootEntries).hasSize(3);
-
-        assertThat(rootEntries).extracting("class.simpleName").containsExactly(FILE_ENTRY, FILE_ENTRY, FILE_ENTRY);
-        assertThat(rootEntries).flatExtracting("path", "message", "type").containsExactly(
-                RELATIVE_PATH, CONFIGURATION, CONTENT_TYPE,
-                TEST_CLASSES + SERVICES_FILE_NAME, CONFIGURATION, CONTENT_TYPE,
-                TEST_CLASSES + REPLICATION_CONTROLLER_FILE_NAME, CONFIGURATION, CONTENT_TYPE);
+        final List<Report> subReports = report.getSubReports();
+        assertThatReport(subReports.get(0))
+                .hasName(CONFIGURATION)
+                .hasNumberOfEntries(3)
+                .hasEntriesContaining(
+                        new FileEntry(RELATIVE_PATH),
+                        new FileEntry(TEST_CLASSES + SERVICES_FILE_NAME),
+                        new FileEntry(TEST_CLASSES + REPLICATION_CONTROLLER_FILE_NAME));
     }
 
     @Test
@@ -268,26 +266,30 @@ public class TakeKubernetesResourcesInformationTest {
         String masterURL = "http://" + server.getHostName() + ":" + server.getPort() + "/";
         configureTakeKubernetesInformation();
 
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
+        final Report report = sectionEvent.getReport();
 
-        List<PropertyEntry> rootEntries = assertPropertyEntryAndGetAllEntries(propertyReportEvent);
+        assertSectionEvent(sectionEvent, new UnknownStringKey(""));
 
-        assertSizeAndType(rootEntries);
+        final List<Report> subReports = report.getSubReports();
 
-        assertKeyValueForPropertEntry(rootEntries.get(0), TakeKubernetesResourcesInformation.NAMESPACE, "arquillian");
-        assertKeyValueForPropertEntry(rootEntries.get(1), TakeKubernetesResourcesInformation.MASTER_URL, masterURL);
-
+        assertThatReport(subReports.get(0))
+                .hasName(SESSION_STATUS)
+                .hasNumberOfEntries(2)
+                .hasEntriesContaining(
+                        new KeyValueEntry(NAMESPACE, "arquillian"),
+                        new KeyValueEntry(MASTER_URL, masterURL));
     }
 
-    @Test
+    /*@Test
     public void should_report_replication_controllers() {
         configureTakeKubernetesInformation();
 
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyReportEvent propertyReportEvent = reportEventArgumentCaptor.getValue();
 
         List<PropertyEntry> rootEntries = assertPropertyEntryAndGetAllEntries(propertyReportEvent);
         assertSizeAndType(rootEntries);
@@ -309,9 +311,9 @@ public class TakeKubernetesResourcesInformationTest {
     public void should_report_services() {
         configureTakeKubernetesInformation();
 
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyReportEvent propertyReportEvent = reportEventArgumentCaptor.getValue();
 
         List<PropertyEntry> rootEntries = assertPropertyEntryAndGetAllEntries(propertyReportEvent);
 
@@ -335,9 +337,9 @@ public class TakeKubernetesResourcesInformationTest {
     public void should_report_pods() {
         configureTakeKubernetesInformation();
 
-        verify(propertyReportEvent).fire(propertyReportEventArgumentCaptor.capture());
+        verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
 
-        final PropertyReportEvent propertyReportEvent = propertyReportEventArgumentCaptor.getValue();
+        final PropertyReportEvent propertyReportEvent = reportEventArgumentCaptor.getValue();
 
         List<PropertyEntry> rootEntries = assertPropertyEntryAndGetAllEntries(propertyReportEvent);
         assertSizeAndType(rootEntries);
@@ -355,23 +357,20 @@ public class TakeKubernetesResourcesInformationTest {
                 .containsExactly("test-pod", "Running");
     }
 
-    private void assertKeyValueForPropertEntry(PropertyEntry propertyEntry, String key, String value) {
-        KeyValueEntry keyValueEntry = (KeyValueEntry) propertyEntry;
+*/
+    private void assertSectionEvent(SectionEvent sectionEvent, StringKey name) {
+        assertThatSection(sectionEvent).hasSectionId("k8s").hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
-        assertThat(keyValueEntry).extracting("key", "value").containsExactly(key, value);
-    }
-
-    private void assertSizeAndType(List<PropertyEntry> propertyEntries) {
-        assertThat(propertyEntries).hasSize(5);
-        assertThat(propertyEntries).extracting("class.simpleName").containsExactly(
-                KEY_VALUE_ENTRY, KEY_VALUE_ENTRY, TABLE_ENTRY, TABLE_ENTRY, TABLE_ENTRY);
+        assertThatReport(sectionEvent.getReport())
+                .hasName(name)
+                .hasNumberOfEntries(0).hasNumberOfSubReports(1);
     }
 
     private TakeKubernetesResourcesInformation configureTakeKubernetesInformation() {
         Configuration configuration = getConfiguration();
 
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
-        takeKubernetesResourcesInformation.propertyReportEventEvent = propertyReportEvent;
+        takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.reportSessionStatus(new AfterStart(getDefaultSession(configuration)), server.createClient());
 
         return takeKubernetesResourcesInformation;
@@ -409,19 +408,11 @@ public class TakeKubernetesResourcesInformationTest {
         return config;
     }
 
-    private List<PropertyEntry> assertPropertyEntryAndGetAllEntries(PropertyReportEvent propertyReportEvent) {
-        final PropertyEntry propertyEntry = propertyReportEvent.getPropertyEntry();
-
-        assertThat(propertyEntry).isInstanceOf(GroupEntry.class);
-        GroupEntry parent = (GroupEntry) propertyEntry;
-
-        final List<PropertyEntry> rootEntries = parent.getPropertyEntries();
-
-        return rootEntries;
-    }
-
     private Instance<DependencyResolver> getDependencyResolverInstance() {
         return () -> new ShrinkwrapResolver("pom.xml", false);
     }
 
+    public ReporterConfiguration getReporterConfiguration() {
+        return ReporterConfiguration.fromMap(new LinkedHashMap<>());
+    }
 }

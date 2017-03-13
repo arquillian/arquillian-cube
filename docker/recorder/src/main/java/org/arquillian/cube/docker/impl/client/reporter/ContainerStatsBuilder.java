@@ -10,22 +10,23 @@ import java.util.Map;
 
 public class ContainerStatsBuilder {
 
-    public static void getStats(Statistics statistics, CubeStatistics stats) {
+    public static CubeStatistics updateStats(Statistics statistics) {
 
-        if (statistics != null){
+        CubeStatistics stats = new CubeStatistics();
 
-            Map<String, Long> blkio = extractIORW(statistics.getBlkioStats());
-            Map<String, Long> memory = extractMemoryStats(statistics.getMemoryStats(), "usage", "max_usage", "limit");
+        Map<String, Long> blkio = extractIORW(statistics.getBlkioStats());
+        Map<String, Long> memory = extractMemoryStats(statistics.getMemoryStats(), "usage", "max_usage", "limit");
 
-            stats.setIoBytesRead(blkio.get("io_bytes_read"));
-            stats.setIoBytesWrite(blkio.get("io_bytes_write"));
+        stats.setIoBytesRead(blkio.get("io_bytes_read"));
+        stats.setIoBytesWrite(blkio.get("io_bytes_write"));
+        stats.setMaxUsage(memory.get("max_usage"));
+        stats.setUsage(memory.get("usage"));
+        stats.setLimit(memory.get("limit"));
 
-            stats.setMaxUsage(memory.get("max_usage"));
-            stats.setUsage(memory.get("usage"));
-            stats.setLimit(memory.get("limit"));
+        stats.setNetworks(extractNetworksStats(statistics.getNetworks()));
 
-            stats.setNetworks(extractNetworksStats(statistics.getNetworks()));
-        }
+
+        return stats;
     }
 
     private static Map<String, Map<String, Long>> extractNetworksStats(Map<String, Object> map) {

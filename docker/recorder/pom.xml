@@ -15,8 +15,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.arquillian.extension</groupId>
-            <artifactId>arquillian-recorder-reporter-spi</artifactId>
+            <groupId>org.arquillian.reporter</groupId>
+            <artifactId>arquillian-core-reporter-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.arquillian.reporter</groupId>
+            <artifactId>arquillian-reporter-impl</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

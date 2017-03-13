@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import org.arquillian.reporter.api.model.StringKey;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
 public class CubeDockerRecorderExtension implements LoadableExtension {
@@ -8,9 +9,10 @@ public class CubeDockerRecorderExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
 
         // Only if recorder-reporter is in classpath we should provide reporting capabilities.
-        final boolean reportedInClasspath = Validate.classExists("org.arquillian.recorder.reporter.ReporterExtension");
+        final boolean reportedInClasspath = Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension");
         if (reportedInClasspath) {
             builder.observer(TakeDockerEnvironment.class);
+            builder.service(StringKey.class, DockerEnvironmentReportKey.class);
         }
 
         // Only if drone is in classpath we should provide reporting capabilities for videos.
