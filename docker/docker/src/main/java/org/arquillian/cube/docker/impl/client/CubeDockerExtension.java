@@ -2,7 +2,6 @@ package org.arquillian.cube.docker.impl.client;
 
 import org.arquillian.cube.docker.impl.client.container.DockerServerIPConfigurator;
 import org.arquillian.cube.docker.impl.client.containerobject.AfterClassContainerObjectObserver;
-import org.arquillian.cube.docker.impl.client.containerobject.AfterContainerObjectObserver;
 import org.arquillian.cube.docker.impl.client.containerobject.ContainerObjectFactoryProvider;
 import org.arquillian.cube.docker.impl.client.containerobject.CubeContainerObjectTestEnricher;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.AfterClassNetworkContainerObserver;
@@ -26,7 +25,6 @@ public class CubeDockerExtension implements LoadableExtension {
                .observer(Boot2DockerCreator.class)
                .observer(DockerMachineCreator.class)
                .observer(AfterClassContainerObjectObserver.class)
-               .observer(AfterContainerObjectObserver.class)
                .observer(AfterClassNetworkContainerObserver.class)
                .observer(StopDockerMachineAfterSuiteObserver.class)
                .observer(NetworkRegistrar.class)

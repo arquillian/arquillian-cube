@@ -8,6 +8,8 @@ import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.jboss.arquillian.test.spi.TestClass;
+import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
 
 import java.util.List;
@@ -23,17 +25,33 @@ public class AfterClassContainerObjectObserver {
     @Inject Instance<CubeRegistry> cubeRegistryInstance;
     @Inject Instance<CubeController> cubeControllerInstance;
 
+
+    public void stopContainerObjects(@Observes(precedence = 100) After afterClass) {
+
+        final ConnectionMode connectionMode = ConnectionMode.START_AND_STOP_AROUND_METHOD;
+        final TestClass testClass = afterClass.getTestClass();
+
+        stopAndDestroyCubes(connectionMode, testClass);
+    }
+
     public void stopContainerObjects(@Observes(precedence = 100) AfterClass afterClass) {
 
+        final ConnectionMode connectionMode = ConnectionMode.START_AND_STOP_AROUND_CLASS;
+        final TestClass testClass = afterClass.getTestClass();
+
+        stopAndDestroyCubes(connectionMode, testClass);
+    }
+
+    private void stopAndDestroyCubes(ConnectionMode connectionMode, TestClass testClass) {
         final CubeController cubeController = cubeControllerInstance.get();
         final List<Cube<?>> byMetadata = cubeRegistryInstance.get().getByMetadata(IsContainerObject.class);
         byMetadata.stream()
                 .filter( cube -> {
                     // To support fork tests
-                    final Class<?> testJavaClass = afterClass.getTestClass().getJavaClass();
+                    final Class<?> testJavaClass = testClass.getJavaClass();
                     return testJavaClass.equals(cube.getMetadata(IsContainerObject.class).getTestClass());
                 })
-                .filter(cube -> cube.getMetadata(IsContainerObject.class).getConnectionMode() == ConnectionMode.START_AND_STOP_AROUND_CLASS)
+                .filter(cube -> cube.getMetadata(IsContainerObject.class).getConnectionMode() == connectionMode)
                 .forEach(cube -> {
                     logger.fine(String.format("Stopping Container Object %s", cube.getId()));
                     cubeController.stop(cube.getId());
