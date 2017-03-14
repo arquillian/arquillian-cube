@@ -3,12 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+    <!--<parent>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-parent</artifactId>
         <version>1.0.0.Final-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
-    </parent>
+    </parent>-->
 
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-bom</artifactId>
@@ -18,6 +18,11 @@
     <name>Arquillian Cube Universe Agreegator</name>
     <url>http://arquillian.org/arquillian-cube</url>
     <description>Centralized dependencyManagement for the Arquillian Cube Project</description>
+
+    <properties>
+        <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
+        <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
+    </properties>
 
     <developers>
         <developer>
@@ -147,5 +152,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Releases Repository</name>
+            <url>${jboss.releases.repo.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>jboss-snapshots-repository</id>
+            <name>JBoss Snapshots Repository</name>
+            <url>${jboss.snapshots.repo.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
