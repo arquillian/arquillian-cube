@@ -562,6 +562,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_container_object_pattern">12. Container Object pattern</a>
 <ul class="sectlevel2">
 <li><a href="#_arquillian_cube_and_container_object">12.1. Arquillian Cube and Container Object</a></li>
+<li><a href="#_arquillian_cube_and_container_object_dsl">12.2. Arquillian Cube and Container Object DSL</a></li>
 </ul>
 </li>
 <li><a href="#_arquillian_standalone_and_cube">13. Arquillian Standalone and Cube</a></li>
@@ -589,7 +590,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_configuration_3">17.2. Configuration</a></li>
 </ul>
 </li>
-<li><a href="#_arquillian_recorder_reporter_integration">18. Arquillian Recorder Reporter integration</a>
+<li><a href="#_arquillian_reporter_integration">18. Arquillian Reporter integration</a>
 <ul class="sectlevel2">
 <li><a href="#_arquillian_cube_docker_reporter">18.1. Arquillian Cube Docker Reporter</a></li>
 <li><a href="#_arquillian_cube_docker_drone_integration">18.2. Arquillian Cube Docker Drone Integration</a></li>
@@ -604,20 +605,15 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_overview">20.1. Overview</a></li>
 <li><a href="#_modules">20.2. Modules</a></li>
 <li><a href="#_features">20.3. Features</a></li>
-<li><a href="#_configuring_the_extension">20.4. Configuring the extension</a></li>
-<li><a href="#_namespaces">20.5. Namespaces</a></li>
-<li><a href="#_creating_the_environment">20.6. Creating the environment</a></li>
-<li><a href="#_readiness_and_waiting">20.7. Readiness and waiting</a></li>
-<li><a href="#_immutable_infrastructure_and_integration_testing">20.8. Immutable infrastructure and integration testing</a></li>
-<li><a href="#_resource_providers">20.9. Resource Providers</a></li>
+<li><a href="#_pre_requisites">20.4. Pre-requisites</a></li>
+<li><a href="#_configuring_the_extension">20.5. Configuring the extension</a></li>
+<li><a href="#_namespaces">20.6. Namespaces</a></li>
+<li><a href="#_creating_the_environment">20.7. Creating the environment</a></li>
+<li><a href="#_readiness_and_waiting">20.8. Readiness and waiting</a></li>
+<li><a href="#_immutable_infrastructure_and_integration_testing">20.9. Immutable infrastructure and integration testing</a></li>
+<li><a href="#_resource_providers">20.10. Resource Providers</a></li>
 </ul>
 </li>
-<li><a href="#_fabric8">21. Fabric8</a>
-<ul class="sectlevel2">
-<li><a href="#_additional_features">21.1. Additional Features</a></li>
-</ul>
-</li>
-<li><a href="#_future_work">22. Future work</a></li>
 </ul>
 </div>
 </div>
@@ -1083,8 +1079,8 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 <div class="sect2">
 <h3 id="_available_modules"><a class="anchor" href="#_available_modules"></a>5.2. Available Modules:</h3>
-<div class="sect4">
-<h5 id="_arquillian_cube_api"><a class="anchor" href="#_arquillian_cube_api"></a>Arquillian Cube API</h5>
+<div class="sect3">
+<h4 id="_arquillian_cube_api"><a class="anchor" href="#_arquillian_cube_api"></a>5.2.1. Arquillian Cube API</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml">    <span class="tag">&lt;dependency&gt;</span>
@@ -1192,7 +1188,7 @@ This test basically validates that the image can be started, and finally that fr
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-recorder<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-reporter<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
     <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
@@ -1402,6 +1398,39 @@ Moreover you can set as Java system properties (-D&#8230;&#8203;) as well.</p>
 </tr>
 </tbody>
 </table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If <code>dockerContainers</code>, <code>dockerContainersFile</code> or <code>dockerContainersFiles</code> are not set Arquillian Cube automatically search a file named <code>docker-compose.y(a)ml</code> into next places and in following order:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>src/{test, main}/docker</code> having more priority <code>test location than `main</code> location.</p>
+</li>
+<li>
+<p><code>Root</code> directory of project</p>
+</li>
+<li>
+<p><code>src/distribution</code></p>
+</li>
+<li>
+<p><code>src/{test, main}/resources/docker</code> having more priority <code>test location than `main</code> location.</p>
+</li>
+<li>
+<p><code>src/{test, main}/resources</code> having more priority <code>test location than `main</code> location.</p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>In the next example you can see a whole YAML document with configuration properties.
 Keep in mind that almost all of them are configuration parameters provided by <em>Docker</em> remote API.
@@ -2847,7 +2876,7 @@ In case you are running in <em>MACOS</em> or <em>Windows</em> with boot2docker, 
 <h2 id="_parallel_execution"><a class="anchor" href="#_parallel_execution"></a>11. Parallel Execution</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Soemtimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
+<p>Sometimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
 This means that same <code>docker-compose</code> file is executed for all tests.
 The problem is that probably <em>docker host</em> is the same.
 So when you start the second test (in parallel) you will get a failure regarding that a container with same name is already started in that docker host.</p>
@@ -2944,6 +2973,20 @@ In this way when you execute your tests in parallel there will be no conflicts b
 </td>
 <td class="content">
 You can use the same approach for <em>docker-compose</em> files not only with <em>cube</em> format. But then your <em>docker-compose</em> will be tight to Arquillian Cube. The best approach if you want to use docker-compose format is using <code>extends</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Star operator must also used on enrichers for example:
+<code>@HostPort(containerName = "tomcat*", value = 8080)</code> or
+<code>@DockerUrl(containerName = "tomcat*", exposedPort = 8080)</code>
 </td>
 </tr>
 </table>
@@ -3341,6 +3384,106 @@ In the next example, the original <code>PingPongTest</code> has been rewritten t
 </div>
 <div class="paragraph">
 <p>Although declaring container objects as fields of a test class is preffered, as it offers better control of the lifecycle of the container, creating container objects dynamically allows controlling exactly in which moment in time and in which order the containers are created.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_arquillian_cube_and_container_object_dsl"><a class="anchor" href="#_arquillian_cube_and_container_object_dsl"></a>12.2. Arquillian Cube and Container Object DSL</h3>
+<div class="paragraph">
+<p>Another option is using a generic container objects provided by Arquillian Cube to generate cube instances.
+Using this approach you gain in velocity at time of writing the definition, but on the other side it is harder to reuse them or providing custom operations like you can do in custom container objects.</p>
+</div>
+<div class="paragraph">
+<p>With DSL you can generate container objects or network objects as well.</p>
+</div>
+<div class="sect3">
+<h4 id="_container_objects_dsl"><a class="anchor" href="#_container_objects_dsl"></a>12.2.1. Container Objects DSL</h4>
+<div class="paragraph">
+<p>To create a generic container object you only need to create a field of type <code>org.arquillian.cube.docker.impl.client.containerobject.dsl.Container</code> and annotate it with <code>@DockerContainer</code>.
+Now you need to provide the full definition of the container using the DSL.
+Let&#8217;s see how to use it following the previous Ping Pong example.</p>
+</div>
+<div class="listingblock">
+<div class="title">PingPongTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@DockerContainer</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="predefined-type">Container</span> pingpong = <span class="predefined-type">Container</span>.withContainerName(<span class="string"><span class="delimiter">&quot;</span><span class="content">pingpong</span><span class="delimiter">&quot;</span></span>) <i class="conum" data-value="2"></i><b>(2)</b>
+                        .fromImage(<span class="string"><span class="delimiter">&quot;</span><span class="content">jonmorehouse/ping-pong</span><span class="delimiter">&quot;</span></span>)
+                        .withPortBinding(<span class="integer">8080</span>)
+                        .build();
+
+<span class="annotation">@Test</span>
+<span class="directive">public</span> <span class="type">void</span> should_return_ok_as_pong() <span class="directive">throws</span> <span class="exception">IOException</span> {
+   <span class="predefined-type">String</span> response = ping(pingpong.getIpAddress(), pingpong.getBindPort(<span class="integer">8080</span>)); <i class="conum" data-value="3"></i><b>(3)</b>
+    assertThat(response).containsSequence(<span class="string"><span class="delimiter">&quot;</span><span class="content">OK</span><span class="delimiter">&quot;</span></span>);
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Annotate field with <code>DockerContainer</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Start the DSL using <code>withContainerName</code> method</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>You can get Docker Host Ip address and binding port for given exposed port</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+In case you define more than one generic container and want to start them in a specfic order, there is <code>order</code> attribute in annotation to specify it. The higher the number, the sooner the container is started.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Container objects by default are started and stopped in class scope. To change it to method scope you can use <code>.withConnectionMode</code> call.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_network_objects_dsl"><a class="anchor" href="#_network_objects_dsl"></a>12.2.2. Network Objects DSL</h4>
+<div class="paragraph">
+<p>To create a network using DSL approach you only need to create a field of type <code>org.arquillian.cube.docker.impl.client.containerobject.dsl.Network</code> and annotate it with <code>org.arquillian.cube.docker.impl.client.containerobject.dsl.DockerNetwork</code>.
+Let&#8217;s see how to create a new network with default driver.</p>
+</div>
+<div class="listingblock">
+<div class="title">NetworkTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@DockerNetwork</span> <i class="conum" data-value="1"></i><b>(1)</b>
+Network network = Network.withDefaultDriver(<span class="string"><span class="delimiter">&quot;</span><span class="content">mynetwork</span><span class="delimiter">&quot;</span></span>).build(); <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Annotate field with <code>DockerNetwork</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Start the DSL using <code>withDefaultDriver</code> method</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -4505,28 +4648,28 @@ RequestSpecBuilder requestSpecBuilder;</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_arquillian_recorder_reporter_integration"><a class="anchor" href="#_arquillian_recorder_reporter_integration"></a>18. Arquillian Recorder Reporter integration</h2>
+<h2 id="_arquillian_reporter_integration"><a class="anchor" href="#_arquillian_reporter_integration"></a>18. Arquillian Reporter integration</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Arquillian Recorder (<a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a>) project brings neat reports of your Arquillian tests.</p>
+<p>Arquillian Reporter (<a href="https://github.com/arquillian/arquillian-reporter" class="bare">https://github.com/arquillian/arquillian-reporter</a>) project brings neat reports of your Arquillian tests.</p>
 </div>
 <div class="paragraph">
-<p>Check Arquillian Recorder website to see the kind of reports you can generate and how to configure it.</p>
+<p>Check Arquillian Reporter website to see the kind of reports you can generate and how to configure it.</p>
 </div>
 <div class="paragraph">
-<p>Arquillian Cube integrates with Arquillian Recorder Reporter to provide in these reports some information about Cube environment.</p>
+<p>Arquillian Cube integrates with Arquillian Reporter to provide in these reports some information about Cube environment.</p>
 </div>
 <div class="paragraph">
-<p>To integrate Cube with Reporter, you only need to add arquillian recorder dependency:</p>
+<p>To integrate Cube with Reporter, you only need to add arquillian reporter&#8217;s depchain dependency:</p>
 </div>
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
-    <span class="tag">&lt;groupId&gt;</span>org.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>arquillian-recorder-reporter-impl<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;version&gt;</span>${version.arquillian.recorder}<span class="tag">&lt;/version&gt;</span>
-    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.reporter<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-reporter-depchain<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>${version.arquillian.reporter}<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -4540,7 +4683,7 @@ Cubes are elements that are deployed into a system, for example a Pod or a Docke
 <div class="sect2">
 <h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>18.1. Arquillian Cube Docker Reporter</h3>
 <div class="paragraph">
-<p>In previous section you&#8217;ve read that by just adding recorder reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
+<p>In previous section you&#8217;ve read that by just adding reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
 </div>
 <div class="paragraph">
 <p>But sometimes you need more information about the system and not each cube individually.
@@ -4554,7 +4697,7 @@ For this reason there is a docker cube reporter integration that adds on the rep
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-recorder<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-reporter<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
@@ -4570,13 +4713,13 @@ For this reason there is a docker cube reporter integration that adds on the rep
 Also an screencast is recorded so you can review lately what has happened inside the container.</p>
 </div>
 <div class="paragraph">
-<p>If you add previous dependency  <code>arquillian-cube-docker-recorder</code> and <code>arquillian-recorder-reporter-impl</code> in a cube docker drone project, then the report will contain the screencasts as well in the report, so you can play from the report the recordings as well.</p>
+<p>If you add previous dependency  <code>arquillian-cube-docker-reporter</code> and <code>arquillian-reporter-depchain</code> in a cube docker drone project, then the report will contain the screencasts as well in the report, so you can play from the report the recordings as well.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_arquillian_cube_docker_restassured_integration"><a class="anchor" href="#_arquillian_cube_docker_restassured_integration"></a>18.3. Arquillian Cube Docker RestAssured Integration</h3>
 <div class="paragraph">
-<p>If you add <code>arquillian-cube-docker-recorder</code> and <code>arquillian-recorder-reporter-impl</code> in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.</p>
+<p>If you add <code>arquillian-cube-docker-reporter</code> and <code>arquillian-reporter-depchain</code> in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.</p>
 </div>
 </div>
 <div class="sect2">
@@ -4590,17 +4733,17 @@ Also an screencast is recorded so you can review lately what has happened inside
 <div class="listingblock">
 <div class="title">pom.xml</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml">    <span class="tag">&lt;dependency&gt;</span>
-      <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-      <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-reporter<span class="tag">&lt;/artifactId&gt;</span>
-      <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;/dependency&gt;</span>
-    <span class="tag">&lt;dependency&gt;</span>
-        <span class="tag">&lt;groupId&gt;</span>org.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
-        <span class="tag">&lt;artifactId&gt;</span>arquillian-recorder-reporter-impl<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>${version.arquillian.recorder}<span class="tag">&lt;/version&gt;</span>
-        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;/dependency&gt;</span></code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-reporter<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.reporter<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-reporter-depchain<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>${version.arquillian.reporter}<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
@@ -4616,7 +4759,7 @@ Also an screencast is recorded so you can review lately what has happened inside
 <p>Arquillian Cube Kubernetes Reports: <a href="https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter</a></p>
 </div>
 <div class="paragraph">
-<p>Arquillian Recorder Reporter website for more information: <a href="https://github.com/arquillian/arquillian-recorder" class="bare">https://github.com/arquillian/arquillian-recorder</a></p>
+<p>Arquillian Reporter for more information: <a href="https://github.com/arquillian/arquillian-reporter" class="bare">https://github.com/arquillian/arquillian-reporter</a></p>
 </div>
 </div>
 </div>
@@ -4889,9 +5032,22 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.4. Configuring the extension</h3>
+<h3 id="_pre_requisites"><a class="anchor" href="#_pre_requisites"></a>20.4. Pre-requisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>To use kubernetes extension, your host should have running kubernetes cluster.</p>
+</li>
+<li>
+<p>To use openshift extension, your host should have running openshift cluster.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.5. Configuring the extension</h3>
 <div class="paragraph">
-<p>The plugin can be configured using the traditional arquillian.xml, via system properties or evnironment variables (in that particular order).
+<p>The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables (in that particular order).
 Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn&#8217;t contain an entry, the system properties will be used.
 If no result has been found so far the environment variables will be used.</p>
 </div>
@@ -4899,6 +5055,8 @@ If no result has been found so far the environment variables will be used.</p>
 <p><strong>Note:</strong> When checking for environment variables, property names will get capitalized, and symbols like "." will be converted to "_".
 For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BAZ</strong>.</p>
 </div>
+<div class="sect3">
+<h4 id="_kubernetes_2"><a class="anchor" href="#_kubernetes_2"></a>20.5.1. Kubernetes</h4>
 <table class="tableblock frame-all grid-all" style="width: 80%;">
 <colgroup>
 <col style="width: 20%;">
@@ -4958,17 +5116,38 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Flag to destroy the namespace after the end of the test suite</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.confirm.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.confirm.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to delete the namespace</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.timeout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time to wait before destroying the namespace</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to clean (delete resources) the namespace after the end of the test suite</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.confirm.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to clean the namespace</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
@@ -4989,14 +5168,14 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.config.url</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the Kubernetes JSON (defaults to classpath resource kubernetes.json)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the Kubernetes JSON/YAML (defaults to classpath resource kubernetes.json)</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.config.resource.name</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a different classpath resource (ohter than kubernetes.json)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a different classpath resource (other than kubernetes.json)</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
@@ -5010,7 +5189,7 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.timeout</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long (5mins)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The total ammount of time to wait until the env is ready</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The total amount of time to wait until the env is ready</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
@@ -5058,8 +5237,51 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 </tbody>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_openshift"><a class="anchor" href="#_openshift"></a>20.5.2. Openshift</h4>
+<table class="tableblock frame-all grid-all" style="width: 80%;">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Env</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">autoStartContainers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List of Pods which you want to auto start</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">definitionsFile</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Definitions file path</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">proxiedContainerPorts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div class="sect2">
-<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.5. Namespaces</h3>
+<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.6. Namespaces</h3>
 <div class="paragraph">
 <p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
 For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> to false and keep the namespace around.</p>
@@ -5071,12 +5293,12 @@ used to prevent the extension from modifying the environment.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.6. Creating the environment</h3>
+<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.7. Creating the environment</h3>
 <div class="paragraph">
 <p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.</p>
 </div>
 <div class="sect3">
-<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.6.1. How to run kubernetes with multiple configuration files?</h4>
+<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.7.1. How to run kubernetes with multiple configuration files?</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -5122,7 +5344,7 @@ To do it, Cube reads from <code>~/.kube/config</code> user information (token, p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.7. Readiness and waiting</h3>
+<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.8. Readiness and waiting</h3>
 <div class="paragraph">
 <p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
 Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything is ready.</p>
@@ -5134,7 +5356,7 @@ In this case it will not just wait for the service to ready, but also to be usab
 </div>
 </div>
 <div class="sect2">
-<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>20.8. Immutable infrastructure and integration testing</h3>
+<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>20.9. Immutable infrastructure and integration testing</h3>
 <div class="paragraph">
 <p>As mentioned in the overview, this extension will not try to deploy your tests, inside an application container.
 It doesn&#8217;t need nor want to know what runs inside your docker containers, nor will try to mess with it.
@@ -5151,7 +5373,7 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="sect2">
-<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>20.9. Resource Providers</h3>
+<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>20.10. Resource Providers</h3>
 <div class="paragraph">
 <p>The resource providers available, can be used to inject to your test cases the following resources:</p>
 </div>
@@ -5268,55 +5490,102 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
     }</code></pre>
 </div>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_fabric8"><a class="anchor" href="#_fabric8"></a>21. Fabric8</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the <a href="https://fabric8.io/guide/fabric8DevOps.html">Fabric8 Microservices Platform</a></p>
+<p>Now let&#8217;s see how can you inject openshiftclient, Service.</p>
 </div>
-<div class="sect2">
-<h3 id="_additional_features"><a class="anchor" href="#_additional_features"></a>21.1. Additional Features</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Integration with <a href="https://fabric8.io/guide/cdelivery.html">Fabric8 CI/CID</a></p>
-</li>
-<li>
-<p>Management of Secrets via <a href="https://fabric8.io/guide/secretAnnotations.html">Secret Annotations</a></p>
-</li>
-<li>
-<p>Integration with Fabric8 Modules:</p>
-</li>
-<li>
-<p><a href="https://fabric8.io/guide/mavenPlugin.html">Fabric8 Maven Plugin</a></p>
-</li>
-<li>
-<p><a href="https://fabric8.io/guide/fabric8DevOps.html">Microservices Platform</a></p>
-</li>
-</ul>
+<div class="listingblock">
+<div class="title">OpenshiftExample.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldTest</span> {
+
+
+    <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-openshift-service</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@PortForward</span>
+    <span class="annotation">@ArquillianResource</span>
+    Service service;
+
+    <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-openshift-service</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@PortForward</span>
+    <span class="annotation">@ArquillianResource</span>
+    <span class="predefined-type">URL</span> url;
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> service_instance_should_not_be_null() <span class="directive">throws</span> <span class="exception">Exception</span> {
+        assertThat(service).isNotNull();
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+        <span class="comment">//Do stuff...</span>
+    }
+}
+
+== Fabric8
+
+The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the link:https:<span class="comment">//fabric8.io/guide/fabric8DevOps.html[Fabric8 Microservices Platform]</span>
+
+=== Additional Features
+- Integration with link:https:<span class="comment">//fabric8.io/guide/cdelivery.html[Fabric8 CI/CID]</span>
+- Management of Secrets via link:https:<span class="comment">//fabric8.io/guide/secretAnnotations.html[Secret Annotations]</span>
+- Integration with Fabric8 Modules:
+    - link:https:<span class="comment">//fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]</span>
+    - link:https:<span class="comment">//fabric8.io/guide/fabric8DevOps.html[Microservices Platform]</span>
+
+== JBoss Forge Arquillian Addon
+
+http:<span class="comment">//forge.jboss.org[Forge] Arquillian Addon offers an integration with Arquillian Cube.</span>
+
+==== How to use it?
+* Install JBoss-Forge from https:<span class="comment">//forge.jboss.org/download[here].</span>
+* Install arquillian add-on. To install arquillian-addon, in the Forge CLI, run command:
+ <span class="error">`</span>addon-install-from-git --url https:<span class="comment">//github.com/forge/arquillian-addon.git --coordinate org.arquillian.forge:arquillian-addon`</span>
+
+
+Create project using:
+
+<span class="error">`</span>project-<span class="keyword">new</span> --named compose<span class="error">`</span>
+
+To add Arquillian &amp; Framework dependencies run command:
+
+<span class="error">`</span>arquillian-setup --standalone --test-framework junit<span class="error">`</span>
+
+To add Arquillian Cube dependencies run command:
+
+<span class="error">`</span>arquillian-cube-setup --type docker-compose --file-path docker-compose.yml<span class="error">`</span>
+
+Before running above command make sure that file provided with file-path is exists.
+
+Now create a test using command:
+
+<span class="error">`</span>arquillian-create-test --named MyDockerComposeTest --target-<span class="keyword">package</span> <span class="namespace">org.arquillian.cube</span><span class="error">`</span>
+
+<span class="namespace">After</span> <span class="namespace">that</span> <span class="namespace">you</span> <span class="namespace">can</span> <span class="namespace">enrich</span> <span class="namespace">a</span> <span class="namespace">given</span> <span class="namespace">Arquillian</span> <span class="namespace">test</span> <span class="namespace">with</span> <span class="namespace">respective</span> <span class="namespace">annotations</span> <span class="namespace">depending</span> <span class="namespace">on</span> <span class="namespace">selected</span> <span class="namespace">type</span>:
+
+<span class="error">`</span><span class="namespace">arquillian</span>-<span class="namespace">cube</span>-<span class="namespace">create</span>-<span class="namespace">test</span> --<span class="namespace">test</span>-<span class="namespace">class</span> <span class="namespace">org.cube.docker.MyDockerComposeTest</span><span class="error">`</span>
+
+<span class="namespace">Same</span> <span class="namespace">way</span> <span class="namespace">you</span> <span class="namespace">can</span> <span class="namespace">create</span> <span class="namespace">a</span> <span class="namespace">test</span> <span class="namespace">for</span> <span class="namespace">Kubernetes</span>, <span class="namespace">Docker</span>,<span class="namespace">Openshift</span>.
+
+<span class="namespace">See</span> <span class="namespace">above</span> <span class="namespace">example</span> <span class="namespace">in</span> <span class="namespace">next</span> <span class="namespace">terminal</span> <span class="namespace">cast</span>:
+
+<span class="namespace">image</span>::<span class="namespace">https</span>:<span class="comment">//asciinema.org/a/105913.png[link=&quot;https://asciinema.org/a/105913&quot;]</span>
+
+
+
+== <span class="namespace">Future</span> <span class="namespace">work</span>
+
+<span class="namespace">Some</span> <span class="namespace">configuration</span> <span class="namespace">parameters</span> <span class="namespace">will</span> <span class="namespace">be</span> <span class="namespace">modified</span> <span class="namespace">to</span> <span class="namespace">fix</span> <span class="namespace">any</span> <span class="namespace">possible</span> <span class="namespace">requirements</span>.
+<span class="namespace">Although</span> <span class="namespace">we</span> <span class="namespace">are</span> <span class="namespace">going</span> <span class="namespace">to</span> <span class="namespace">try</span> <span class="namespace">to</span> <span class="namespace">not</span> <span class="namespace">break</span> <span class="namespace">compatibility</span> <span class="namespace">with</span> <span class="namespace">previous</span> <span class="namespace">versions</span>, <span class="namespace">we</span> <span class="namespace">cannot</span> <span class="namespace">guarantee</span> <span class="namespace">until</span> <span class="namespace">_beta_</span> <span class="namespace">stage</span>.
+
+<span class="namespace">Feel</span> <span class="namespace">free</span> <span class="namespace">to</span> <span class="namespace">use</span> <span class="namespace">it</span> <span class="namespace">and</span> <span class="namespace">any</span> <span class="namespace">missing</span> <span class="namespace">feature</span>, <span class="namespace">bug</span> <span class="namespace">or</span> <span class="namespace">anything</span> <span class="namespace">you</span> <span class="namespace">see</span> , <span class="namespace">feel</span> <span class="namespace">free</span> <span class="namespace">to</span> <span class="namespace">add</span> <span class="namespace">a</span> <span class="namespace">new</span> <span class="namespace">issue</span>.</code></pre>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>22. Future work</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Some configuration parameters will be modified to fix any possible requirements.
-Although we are going to try to not break compatibility with previous versions, we cannot guarantee until <em>beta</em> stage.</p>
-</div>
-<div class="paragraph">
-<p>Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-02-09 19:10:40 CET
+Last updated 2017-03-08 10:41:01 CET
 </div>
 </div>
 </body>
