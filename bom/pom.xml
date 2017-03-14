@@ -98,7 +98,7 @@
             </dependency>
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-docker-recorder</artifactId>
+                <artifactId>arquillian-cube-docker-reporter</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
             </dependency>

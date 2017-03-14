@@ -4,9 +4,8 @@ import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStop;
 import org.arquillian.cube.spi.metadata.CanReportMetrics;
-import org.arquillian.recorder.reporter.PropertyEntry;
-import org.arquillian.recorder.reporter.Reportable;
-import org.arquillian.recorder.reporter.event.PropertyReportEvent;
+import org.arquillian.reporter.api.builder.report.ReportInSectionBuilder;
+import org.arquillian.reporter.api.event.SectionEvent;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -19,9 +18,9 @@ import java.util.List;
 public class TakeCubeInformation {
 
     @Inject
-    Event<PropertyReportEvent> propertyReportEvent;
+    Event<SectionEvent> reportEvent;
 
-    public void generatReportEntries(@Observes AfterAutoStop event, CubeRegistry cubeRegistry) {
+    public void generateReportEntries(@Observes AfterAutoStop event, CubeRegistry cubeRegistry) {
 
         if (cubeRegistry == null) {
             return;
@@ -31,11 +30,9 @@ public class TakeCubeInformation {
 
         for (Cube cube: reportableCubes) {
             final CanReportMetrics metadata = (CanReportMetrics) cube.getMetadata(CanReportMetrics.class);
-            final Reportable report = metadata.report();
+            final ReportInSectionBuilder sectionBuilder = metadata.report();
 
-            if (report instanceof PropertyEntry) {
-                propertyReportEvent.fire(new PropertyReportEvent((PropertyEntry) report));
-            }
+            sectionBuilder.fire(reportEvent);
         }
 
     }

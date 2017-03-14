@@ -76,7 +76,7 @@
         <version.undertow>1.3.24.Final</version.undertow>
         <version.arquillian_spacelift>1.0.0.Alpha8</version.arquillian_spacelift>
         <version.assertj>3.6.1</version.assertj>
-        <version.arquillian.recorder>1.1.5.Final</version.arquillian.recorder>
+        <version.arquillian.reporter>0.0.2</version.arquillian.reporter>
         <version.restassured>3.0.0</version.restassured>
         <version.jgit>4.5.0.201609210915-r</version.jgit>
     </properties>
@@ -131,7 +131,7 @@
             </dependency>
             <dependency>
                 <groupId>org.arquillian.cube</groupId>
-                <artifactId>arquillian-cube-docker-recorder</artifactId>
+                <artifactId>arquillian-cube-docker-reporter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -169,17 +169,15 @@
                 <artifactId>arquillian-spacelift</artifactId>
                 <version>${version.arquillian_spacelift}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.arquillian.extension</groupId>
-                <artifactId>arquillian-recorder-reporter-api</artifactId>
-                <version>${version.arquillian.recorder}</version>
+                <groupId>org.arquillian.reporter</groupId>
+                <artifactId>arquillian-core-reporter-api</artifactId>
+                <version>${version.arquillian.reporter}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.arquillian.extension</groupId>
-                <artifactId>arquillian-recorder-reporter-spi</artifactId>
-                <version>${version.arquillian.recorder}</version>
+                <groupId>org.arquillian.reporter</groupId>
+                <artifactId>arquillian-reporter-impl</artifactId>
+                <version>${version.arquillian.reporter}</version>
             </dependency>
 
             <dependency>
@@ -193,6 +191,13 @@
                 <groupId>org.jboss.arquillian.core</groupId>
                 <artifactId>arquillian-core-impl-base</artifactId>
                 <version>${version.arquillian_core}</version>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.arquillian.reporter</groupId>
+                <artifactId>arquillian-reporter-impl</artifactId>
+                <version>${version.arquillian.reporter}</version>
                 <classifier>tests</classifier>
                 <scope>test</scope>
             </dependency>

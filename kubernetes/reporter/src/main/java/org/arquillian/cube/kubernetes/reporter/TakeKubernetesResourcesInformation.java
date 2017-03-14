@@ -1,31 +1,22 @@
 package org.arquillian.cube.kubernetes.reporter;
 
 
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import org.apache.commons.io.FilenameUtils;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
-import org.arquillian.recorder.reporter.PropertyEntry;
-import org.arquillian.recorder.reporter.ReporterConfiguration;
-import org.arquillian.recorder.reporter.event.PropertyReportEvent;
-import org.arquillian.recorder.reporter.model.entry.FileEntry;
-import org.arquillian.recorder.reporter.model.entry.GroupEntry;
-import org.arquillian.recorder.reporter.model.entry.KeyValueEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableCellEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableEntry;
-import org.arquillian.recorder.reporter.model.entry.table.TableRowEntry;
+import org.arquillian.reporter.api.builder.Reporter;
+import org.arquillian.reporter.api.builder.report.ReportBuilder;
+import org.arquillian.reporter.api.event.SectionEvent;
+import org.arquillian.reporter.api.model.entry.FileEntry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -33,35 +24,26 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.*;
+
 public class TakeKubernetesResourcesInformation {
 
-    static final String REPLICAS = "Replicas";
-    static final String STATUS = "Status";
-    static final String CLUSTER_IP = "Cluster-IP";
-    static final String PORTS = "Ports";
-    static final String SERVICE = "Service";
-    static final String REPLICATION_CONTROLLER = "Replication Controller";
-    static final String POD = "Pod";
-    static final String NAMESPACE = "Namespace";
-    static final String MASTER_URL = "Master URL";
-    static final String SESSION_STATUS = "Session Status";
-    static final String CONFIGURATION = "Resources Configuration";
-
     @Inject
-    Event<PropertyReportEvent> propertyReportEventEvent;
+    Event<SectionEvent> sectionEvent;
 
     @Inject
     Instance<DependencyResolver> dependencyResolver;
 
-    public void reportKubernetesConfiguration(@Observes Start start, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
-        GroupEntry groupEntry = new GroupEntry(CONFIGURATION);
+    public void reportKubernetesConfiguration(@Observes Start start, Configuration configuration, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
+        final ReportBuilder reportBuilder = Reporter.createReport(CONFIGURATION);
         Session session = start.getSession();
-
         if (configuration != null) {
-            addFileEntries(groupEntry, getFilesForResourcesConfiguration(session, configuration, reporterConfiguration));
+            reportBuilder.addEntries(getFilesForResourcesConfiguration(session, configuration, reporterConfiguration));
         }
 
-        propertyReportEventEvent.fire(new PropertyReportEvent(groupEntry));
+        Reporter.createReport(KUBERNETES_SECTION_NAME)
+                .addReport(reportBuilder)
+                .inSection(new KubernetesSection()).fire(sectionEvent);
     }
 
     public void reportSessionStatus(@Observes AfterStart afterStart, KubernetesClient kubernetesClient) {
@@ -70,19 +52,15 @@ public class TakeKubernetesResourcesInformation {
         if (session != null) {
             String namespace = session.getNamespace();
 
-            GroupEntry groupEntry = new GroupEntry(SESSION_STATUS);
-
-            addEntry(groupEntry, getKeyValueEntry(NAMESPACE, namespace));
-            addEntry(groupEntry, getKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl())));
-
-            addEntry(groupEntry, getTableForReplicationControllers(kubernetesClient, namespace));
-            addEntry(groupEntry, getTableForPods(kubernetesClient, namespace));
-            addEntry(groupEntry, getTableForServices(kubernetesClient, namespace));
-
-            propertyReportEventEvent.fire(new PropertyReportEvent(groupEntry));
+            Reporter.createReport(SESSION_STATUS)
+                    .addKeyValueEntry(NAMESPACE, namespace)
+                    .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()))
+                    .inSection(new KubernetesSection())
+                    .asSubReport()
+                    .fire(sectionEvent);
         }
     }
-
+/*
     private TableEntry getTableForReplicationControllers(KubernetesClient kubernetesClient, String namespace) {
 
         TableEntry tableEntry = createTableEntryWithTHead(REPLICATION_CONTROLLER, REPLICATION_CONTROLLER, REPLICAS);
@@ -137,9 +115,9 @@ public class TakeKubernetesResourcesInformation {
         }
 
         return tableEntry;
-    }
+    }*/
 
-    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, ReporterConfiguration reporterConfiguration) throws IOException {
+    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
         final List<FileEntry> fileEntries = new ArrayList<>();
         URL environmentConfigUrl = configuration.getEnvironmentConfigUrl();
 
@@ -158,26 +136,25 @@ public class TakeKubernetesResourcesInformation {
         return fileEntries;
     }
 
-    private FileEntry getFileForResourcesConfiguration(URL url, ReporterConfiguration reporterConfiguration) throws IOException {
+    private FileEntry getFileForResourcesConfiguration(URL url, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
 
-
-        final Path rootDir = Paths.get(reporterConfiguration.getRootDir().getAbsolutePath());
+        final Path rootDir = Paths.get(reporterConfiguration.getRootDirectory());
         final String filePath = relativizePath(url, rootDir);
 
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setPath(filePath);
-        fileEntry.setMessage(CONFIGURATION);
-        fileEntry.setType(getFileType(filePath));
+        return new org.arquillian.reporter.api.model.entry.FileEntry(filePath);
 
-        return fileEntry;
     }
 
     private String relativizePath(URL url, Path rootDir) {
         String filePath;
         final String pathURL = url.toString();
+        final String absoluteRootDir = new File(rootDir.toString()).getAbsolutePath();
 
-        if (pathURL.contains(rootDir.toString())) {
-            final Path relativize = rootDir.relativize(Paths.get(url.getFile()));
+        if (pathURL.contains(absoluteRootDir)) {
+            final Path rootDirPath = Paths.get(absoluteRootDir);
+            final Path configFilePath = Paths.get(url.getFile());
+
+            final Path relativize = rootDirPath.relativize(configFilePath);
             filePath = relativize.toString();
         } else {
             filePath = pathURL;
@@ -186,11 +163,7 @@ public class TakeKubernetesResourcesInformation {
         return filePath;
     }
 
-    private KeyValueEntry getKeyValueEntry(String key, String value) {
-        return new KeyValueEntry(key, value);
-    }
-
-    private String getPortsForService(Service service) {
+    /*private String getPortsForService(Service service) {
         StringBuilder sb = new StringBuilder();
 
         for (ServicePort servicePort : service.getSpec().getPorts()) {
@@ -199,23 +172,7 @@ public class TakeKubernetesResourcesInformation {
 
         return sb.toString();
     }
+*/
 
-    private void addEntry(GroupEntry groupEntry, PropertyEntry propertyEntry) {
-        groupEntry.getPropertyEntries().add(propertyEntry);
-    }
 
-    private void addFileEntries(GroupEntry groupEntry, List<FileEntry> propertyEntries) {
-        groupEntry.getPropertyEntries().addAll(propertyEntries);
-    }
-
-    private String getFileType(String path) throws IOException {
-        String extension = FilenameUtils.getExtension(path);
-        String type = "";
-        if ("json".equals(extension)) {
-            type = "application/json";
-        } else if ("yml".equals(extension) || "yaml".equals(extension)) {
-            type = "application/x-yaml";
-        }
-        return type;
-    }
 }

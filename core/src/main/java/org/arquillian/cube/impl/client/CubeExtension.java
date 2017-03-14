@@ -11,7 +11,9 @@ import org.arquillian.cube.impl.client.enricher.CubeIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
+import org.arquillian.cube.impl.reporter.DockerReportKey;
 import org.arquillian.cube.impl.reporter.TakeCubeInformation;
+import org.arquillian.reporter.api.model.StringKey;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -51,9 +53,10 @@ public class CubeExtension implements LoadableExtension {
             builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
         }
 
-        // Only if recorder-reporter is in classpath we should provide reporting capabilities.
-        if (Validate.classExists("org.arquillian.recorder.reporter.ReporterExtension")) {
-            builder.observer(TakeCubeInformation.class);
+        // Only if reporter is in classpath we should provide reporting capabilities.
+        if (Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension")) {
+            builder.observer(TakeCubeInformation.class)
+            .service(StringKey.class, DockerReportKey.class);
         }
     }
 

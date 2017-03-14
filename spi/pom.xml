@@ -19,8 +19,8 @@
             <artifactId>arquillian-core-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.arquillian.extension</groupId>
-            <artifactId>arquillian-recorder-reporter-api</artifactId>
+            <groupId>org.arquillian.reporter</groupId>
+            <artifactId>arquillian-core-reporter-api</artifactId>
         </dependency>
     </dependencies>
 </project>

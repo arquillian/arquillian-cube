@@ -143,7 +143,7 @@ Then include the individual modules as you see fit, by simply depending on the u
 ----
 <dependency>
     <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-docker-recorder</artifactId>
+    <artifactId>arquillian-cube-docker-reporter</artifactId>
     <scope>test</scope>
     <type>pom</type>
 </dependency>
