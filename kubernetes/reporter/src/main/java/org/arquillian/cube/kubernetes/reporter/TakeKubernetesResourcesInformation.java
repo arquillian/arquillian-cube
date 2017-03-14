@@ -52,14 +52,12 @@ public class TakeKubernetesResourcesInformation {
         if (session != null) {
             String namespace = session.getNamespace();
 
-            final ReportBuilder reportBuilder = Reporter.createReport(SESSION_STATUS)
+            Reporter.createReport(SESSION_STATUS)
                     .addKeyValueEntry(NAMESPACE, namespace)
-                    .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()));
-
-            Reporter.createReport()
-                    .addReport(reportBuilder)
-                    .inSection(new KubernetesSection()).fire(sectionEvent);
-
+                    .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()))
+                    .inSection(new KubernetesSection())
+                    .asSubReport()
+                    .fire(sectionEvent);
         }
     }
 /*

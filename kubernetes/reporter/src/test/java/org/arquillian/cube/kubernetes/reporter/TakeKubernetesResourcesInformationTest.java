@@ -1,15 +1,15 @@
 package org.arquillian.cube.kubernetes.reporter;
 
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceListBuilder;
+import io.fabric8.kubernetes.api.model.PodListBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.PodListBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -23,7 +23,6 @@ import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
 import org.arquillian.reporter.api.builder.BuilderLoader;
 import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.model.StringKey;
-import org.arquillian.reporter.api.model.UnknownStringKey;
 import org.arquillian.reporter.api.model.entry.FileEntry;
 import org.arquillian.reporter.api.model.entry.KeyValueEntry;
 import org.arquillian.reporter.api.model.report.BasicReport;
@@ -271,16 +270,14 @@ public class TakeKubernetesResourcesInformationTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
         final Report report = sectionEvent.getReport();
 
-        assertSectionEvent(sectionEvent, new UnknownStringKey(""));
+        assertThatSection(sectionEvent).hasSectionId("k8s").hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
-        final List<Report> subReports = report.getSubReports();
+        assertThatReport(sectionEvent.getReport())
+                .hasNumberOfEntries(2);
 
-        assertThatReport(subReports.get(0))
-                .hasName(SESSION_STATUS)
-                .hasNumberOfEntries(2)
-                .hasEntriesContaining(
-                        new KeyValueEntry(NAMESPACE, "arquillian"),
-                        new KeyValueEntry(MASTER_URL, masterURL));
+        assertThatReport(report).hasEntriesContaining(
+                new KeyValueEntry(NAMESPACE, "arquillian"),
+                new KeyValueEntry(MASTER_URL, masterURL));
     }
 
     /*@Test

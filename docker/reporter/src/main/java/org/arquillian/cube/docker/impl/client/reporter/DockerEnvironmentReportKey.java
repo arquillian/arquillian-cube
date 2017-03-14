@@ -7,8 +7,8 @@ import org.arquillian.reporter.api.model.StringKey;
 public class DockerEnvironmentReportKey extends AbstractStringKey {
 
     //section name
-    public static final StringKey DOCKER_ENVIRONMENT_NAME = new DockerEnvironmentReportKey();
-    public static final StringKey DOCKER_INFO_NAME = new DockerEnvironmentReportKey();
+    public static final StringKey DOCKER_ENVIRONMENT = new DockerEnvironmentReportKey();
+    public static final StringKey DOCKER_HOST_INFORMATION = new DockerEnvironmentReportKey();
 
     //elements
     public static final StringKey DOCKER_VERSION = new DockerReportKey();

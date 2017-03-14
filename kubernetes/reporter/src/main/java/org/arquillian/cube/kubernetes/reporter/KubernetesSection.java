@@ -5,15 +5,23 @@ import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.event.TestSuiteSection;
 import org.arquillian.reporter.api.model.report.BasicReport;
 
-public class KubernetesSection extends SectionEvent<KubernetesSection, BasicReport, TestSuiteSection>{
+class KubernetesSection extends SectionEvent<KubernetesSection, BasicReport, TestSuiteSection>{
 
-    public KubernetesSection() {
-        super("k8s");
+    private static final String KUBERNETES_ID = "k8s";
+    private String testSuiteId;
+
+    KubernetesSection() {
+        super(KUBERNETES_ID);
+    }
+
+    KubernetesSection(String testSuiteId) {
+        super(KUBERNETES_ID);
+        this.testSuiteId = testSuiteId;
     }
 
     @Override
     public TestSuiteSection getParentSectionThisSectionBelongsTo() {
-        return new TestSuiteSection() ;
+        return new TestSuiteSection(this.testSuiteId) ;
     }
 
     @Override

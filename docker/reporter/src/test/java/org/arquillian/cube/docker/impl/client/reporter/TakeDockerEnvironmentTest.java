@@ -16,7 +16,6 @@ import org.arquillian.reporter.api.event.Standalone;
 import org.arquillian.reporter.api.model.entry.FileEntry;
 import org.arquillian.reporter.api.model.entry.KeyValueEntry;
 import org.arquillian.reporter.api.model.report.BasicReport;
-import org.arquillian.reporter.api.model.report.ConfigurationReport;
 import org.arquillian.reporter.api.model.report.Report;
 import org.arquillian.reporter.config.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Event;
@@ -117,13 +116,13 @@ public class TakeDockerEnvironmentTest {
 
         assertThatSection(sectionEvent)
                 .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(ConfigurationReport.class);
+                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(DOCKER_INFO_NAME)
+                .hasName(DOCKER_HOST_INFORMATION)
                 .hasNumberOfEntries(5)
                 .hasEntriesContaining(
                         new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
@@ -144,12 +143,12 @@ public class TakeDockerEnvironmentTest {
 
         assertThatSection(sectionEvent)
                 .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(ConfigurationReport.class);
+                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(DOCKER_ENVIRONMENT_NAME)
+                .hasName(DOCKER_ENVIRONMENT)
                 .hasNumberOfSubReports(1)
                 .hasEntriesContaining(
                         new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports/schemas/docker_composition.png")),
@@ -167,13 +166,12 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId("DockerLog")
+                .hasSectionId(CUBE_ID)
                 .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(CUBE_ID)
                 .hasNumberOfEntries(1)
                 .hasEntriesContaining(new KeyValueEntry(LOG_PATH, new FileEntry("reports/logs/tomcat.log")));
     }

@@ -4,15 +4,23 @@ import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.event.TestSuiteSection;
 import org.arquillian.reporter.api.model.report.BasicReport;
 
-public class DockerLogSection extends SectionEvent<DockerLogSection, BasicReport, TestSuiteSection> {
+class DockerLogSection extends SectionEvent<DockerLogSection, BasicReport, TestSuiteSection> {
+    private static final String DOCKER_LOG_ID = "DockerLog";
 
-    public DockerLogSection() {
-        super("DockerLog");
+    private String testSuiteId;
+
+    DockerLogSection() {
+        super(DOCKER_LOG_ID);
+    }
+
+    DockerLogSection(String testSuiteId) {
+        super(DOCKER_LOG_ID);
+        this.testSuiteId = testSuiteId;
     }
 
     @Override
     public TestSuiteSection getParentSectionThisSectionBelongsTo() {
-        return new TestSuiteSection();
+        return new TestSuiteSection(this.testSuiteId);
     }
 
     @Override

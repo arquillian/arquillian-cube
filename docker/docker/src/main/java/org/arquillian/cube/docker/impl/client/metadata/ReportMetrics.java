@@ -1,18 +1,17 @@
 package org.arquillian.cube.docker.impl.client.metadata;
 
-import static org.arquillian.cube.impl.reporter.DockerReportKey.*;
-
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.docker.impl.reporter.DockerContainerSection;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.metadata.CanReportMetrics;
 import org.arquillian.reporter.api.builder.Reporter;
 import org.arquillian.reporter.api.builder.report.ReportBuilder;
 import org.arquillian.reporter.api.builder.report.ReportInSectionBuilder;
-import org.arquillian.reporter.api.event.TestSuiteConfigurationSection;
-import org.arquillian.reporter.api.model.report.ConfigurationReport;
 
 import java.util.EnumSet;
+
+import static org.arquillian.cube.impl.reporter.DockerReportKey.*;
 
 /**
  * Reporting metrics capabilities for Docker Cube.
@@ -32,7 +31,7 @@ public class ReportMetrics implements CanReportMetrics {
                 Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
                 .contains(dockerCube.state());
 
-        final ReportBuilder reportBuilder = Reporter.createReport(new ConfigurationReport(CONTAINER_SECTION_NAME))
+        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_CONTAINER_CONFIGURATION)
                 .addKeyValueEntry(CONTAINER_NAME, dockerCube.getId())
                 .addKeyValueEntry(ERROR_DURING_LIFECYCLE, Boolean.toString(error))
                 .addKeyValueEntry(STARTING_TIME, String.format("%s ms", dockerCube.getStartingTimeInMillis()))
@@ -74,7 +73,7 @@ public class ReportMetrics implements CanReportMetrics {
             reportBuilder.addKeyValueEntry(NETWORK_MODE, configuration.getNetworkMode());
         }
 
-        return reportBuilder.inSection(new TestSuiteConfigurationSection(dockerCube.getId()));
+        return reportBuilder.inSection(new DockerContainerSection(dockerCube.getId()));
 
     }
 

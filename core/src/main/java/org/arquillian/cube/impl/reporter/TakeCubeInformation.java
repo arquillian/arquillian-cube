@@ -20,7 +20,7 @@ public class TakeCubeInformation {
     @Inject
     Event<SectionEvent> reportEvent;
 
-    public void generatReportEntries(@Observes AfterAutoStop event, CubeRegistry cubeRegistry) {
+    public void generateReportEntries(@Observes AfterAutoStop event, CubeRegistry cubeRegistry) {
 
         if (cubeRegistry == null) {
             return;

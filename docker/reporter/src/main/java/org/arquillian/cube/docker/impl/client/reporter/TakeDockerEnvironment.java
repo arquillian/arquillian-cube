@@ -13,12 +13,12 @@ import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.reporter.DockerContainerSection;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
 import org.arquillian.reporter.api.builder.Reporter;
 import org.arquillian.reporter.api.builder.report.ReportBuilder;
 import org.arquillian.reporter.api.event.SectionEvent;
-import org.arquillian.reporter.api.event.TestSuiteConfigurationSection;
 import org.arquillian.reporter.api.model.entry.FileEntry;
 import org.arquillian.reporter.config.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Event;
@@ -44,16 +44,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT_NAME;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_INFO_NAME;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.*;
 
 /**
  * Class that reports generic Docker information like orchestration or docker version.
@@ -71,14 +62,14 @@ public class TakeDockerEnvironment {
 
     public void reportDockerEnvironment(@Observes AfterAutoStart event, CubeDockerConfiguration cubeDockerConfiguration, DockerClientExecutor executor, ReporterConfiguration reporterConfiguration) {
 
-        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_ENVIRONMENT_NAME)
+        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_ENVIRONMENT)
                 .addReport(createDockerInfoGroup(executor));
 
         reportBuilder.addKeyValueEntry(DOCKER_COMPOSITION_SCHEMA, createDockerCompositionSchema(cubeDockerConfiguration, reporterConfiguration));
         reportBuilder.addKeyValueEntry(NETWORK_TOPOLOGY_SCHEMA, createNetworkTopologyGraph(cubeDockerConfiguration, executor, reporterConfiguration));
 
         reportBuilder
-                .inSection(TestSuiteConfigurationSection.standalone())
+                .inSection(DockerContainerSection.standalone())
                 .fire(reportEvent);
     }
 
@@ -99,11 +90,10 @@ public class TakeDockerEnvironment {
 
             executor.copyLog(beforeStop.getCubeId(), false, true, true, true, -1, new FileOutputStream(logFile));
 
-            Reporter.createReport(cubeId)
+            Reporter.createReport()
                     .addKeyValueEntry(LOG_PATH, new FileEntry(relativePath))
-                    .inSection(new DockerLogSection())
+                    .inSection(new DockerContainerSection(cubeId))
                     .fire(reportEvent);
-
         }
     }
 
@@ -372,7 +362,7 @@ public class TakeDockerEnvironment {
     private ReportBuilder createDockerInfoGroup(DockerClientExecutor executor) {
         Version version = executor.dockerHostVersion();
 
-        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_INFO_NAME)
+        final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_HOST_INFORMATION)
                 .addKeyValueEntry(DOCKER_VERSION, version.getVersion())
                 .addKeyValueEntry(DOCKER_OS, version.getOperatingSystem())
                 .addKeyValueEntry(DOCKER_KERNEL, version.getKernelVersion())
