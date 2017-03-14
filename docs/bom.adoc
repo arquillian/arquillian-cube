@@ -42,7 +42,7 @@ Then include the individual modules as you see fit, by simply depending on the u
 
 === Available Modules:
 
-===== Arquillian Cube API
+==== Arquillian Cube API
 
 [source, xml]
 ----

@@ -119,6 +119,7 @@ NOTE: In YAML adding brackets ("[" "]") is for setting a list.
 tomcat: # <1>
   image: tutum/tomcat:7.0 # <2>
   exposedPorts: [8089/tcp] # <3>
+  await: # <4>
     strategy: polling # <5>
   workingDir: .
   alwaysPull: false
