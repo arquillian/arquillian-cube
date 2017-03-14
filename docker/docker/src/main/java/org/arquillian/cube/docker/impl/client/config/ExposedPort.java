@@ -75,6 +75,10 @@ public class ExposedPort {
         return new ExposedPort(exposed, type);
     }
 
+    public static ExposedPort valueOf(int port) {
+        return new ExposedPort(port, null);
+    }
+
     public static Collection<ExposedPort> valuesOf(Collection<String> ports) {
         if (ports == null) {
             return null;

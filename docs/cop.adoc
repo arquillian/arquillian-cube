@@ -269,6 +269,58 @@ public class PingPongTest {
 
 Although declaring container objects as fields of a test class is preffered, as it offers better control of the lifecycle of the container, creating container objects dynamically allows controlling exactly in which moment in time and in which order the containers are created.
 
+
+=== Arquillian Cube and Container Object DSL
+
+Another option is using a generic container objects provided by Arquillian Cube to generate cube instances.
+Using this approach you gain in velocity at time of writing the definition, but on the other side it is harder to reuse them or providing custom operations like you can do in custom container objects.
+
+With DSL you can generate container objects or network objects as well.
+
+==== Container Objects DSL
+
+To create a generic container object you only need to create a field of type `org.arquillian.cube.docker.impl.client.containerobject.dsl.Container` and annotate it with `@DockerContainer`.
+Now you need to provide the full definition of the container using the DSL.
+Let's see how to use it following the previous Ping Pong example.
+
+[source, java]
+.PingPongTest.java
+----
+@DockerContainer // <1>
+Container pingpong = Container.withContainerName("pingpong") // <2>
+                        .fromImage("jonmorehouse/ping-pong")
+                        .withPortBinding(8080)
+                        .build();
+
+@Test
+public void should_return_ok_as_pong() throws IOException {
+   String response = ping(pingpong.getIpAddress(), pingpong.getBindPort(8080)); // <3>
+    assertThat(response).containsSequence("OK");
+}
+----
+<1> Annotate field with `DockerContainer`
+<2> Start the DSL using `withContainerName` method
+<3> You can get Docker Host Ip address and binding port for given exposed port
+
+TIP: In case you define more than one generic container and want to start them in a specfic order, there is `order` attribute in annotation to specify it. The higher the number, the sooner the container is started.
+
+IMPORTANT: Container objects by default are started and stopped in class scope. To change it to method scope you can use `.withConnectionMode` call.
+
+==== Network Objects DSL
+
+To create a network using DSL approach you only need to create a field of type `org.arquillian.cube.docker.impl.client.containerobject.dsl.Network` and annotate it with `org.arquillian.cube.docker.impl.client.containerobject.dsl.DockerNetwork`.
+Let's see how to create a new network with default driver.
+
+[source, java]
+.NetworkTest.java
+----
+@DockerNetwork // <1>
+Network network = Network.withDefaultDriver("mynetwork").build(); // <2>
+----
+<1> Annotate field with `DockerNetwork`
+<2> Start the DSL using `withDefaultDriver` method
+
+
 == Arquillian Standalone and Cube
 
 You can use Arquillian Standalone with Arquillian Cube too.

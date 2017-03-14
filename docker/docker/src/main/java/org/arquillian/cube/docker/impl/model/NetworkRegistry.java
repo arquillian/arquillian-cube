@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.model;
 
 import org.arquillian.cube.docker.impl.client.config.Network;
 
+import java.util.List;
 import java.util.Set;
 
 public interface NetworkRegistry {
@@ -10,5 +11,7 @@ public interface NetworkRegistry {
     void addNetwork(String id, Network network);
     Set<String> getNetworkIds();
     void removeNetwork(String id);
+    Network getNetwork(String id);
+    List<Network> getNetworks();
 
 }
