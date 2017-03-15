@@ -4,7 +4,7 @@ import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 import java.net.URL;
 
-public class DefaultKubernetesResouceLocator implements KubernetesResourceLocator {
+public class DefaultKubernetesResourceLocator implements KubernetesResourceLocator {
 
     private static final String ROOT = "/";
     private static final String[] RESOURCE_NAMES = new String[] { "kubernetes", "META-INF/fabric8/kubernetes" };
@@ -12,8 +12,8 @@ public class DefaultKubernetesResouceLocator implements KubernetesResourceLocato
 
     @Override
     public URL locate() {
-        for (String suffix : ALLOWED_SUFFIXES) {
-            for (String resource : RESOURCE_NAMES) {
+        for (String suffix : getAllowedSuffixes()) {
+            for (String resource : getResourceNames()) {
                 URL candidate = getResource(resource + suffix);
                 if (candidate != null) {
                     return candidate;
@@ -21,6 +21,14 @@ public class DefaultKubernetesResouceLocator implements KubernetesResourceLocato
             }
         }
         return null;
+    }
+
+    protected String[] getResourceNames() {
+        return RESOURCE_NAMES;
+    }
+
+    protected String[] getAllowedSuffixes() {
+        return getAllowedSuffixes();
     }
 
     URL getResource(String resource) {
