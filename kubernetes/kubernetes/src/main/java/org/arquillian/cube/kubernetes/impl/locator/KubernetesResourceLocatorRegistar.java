@@ -18,7 +18,7 @@ public class KubernetesResourceLocatorRegistar {
     InstanceProducer<KubernetesResourceLocator> kubernetesResourceLocator;
 
     public void install(@Observes(precedence = 100) Configuration configuration) {
-        kubernetesResourceLocator.set(serviceLoader.get().onlyOne(KubernetesResourceLocator.class, DefaultKubernetesResouceLocator.class));
+        kubernetesResourceLocator.set(serviceLoader.get().onlyOne(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class));
 
     }
 }
