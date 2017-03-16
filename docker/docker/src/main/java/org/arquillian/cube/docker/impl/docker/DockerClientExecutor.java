@@ -161,7 +161,9 @@ public class DockerClientExecutor {
         dockerUri = URI.create(dockerServerUri);
         dockerServerIp = cubeConfiguration.getDockerServerIp();
 
-        configBuilder.withApiVersion(cubeConfiguration.getDockerServerVersion()).withDockerHost(dockerUri.toString());
+        configBuilder.withApiVersion(cubeConfiguration.getDockerServerVersion())
+                .withDockerHost(dockerUri.toString());
+
         if (cubeConfiguration.getUsername() != null) {
             configBuilder.withRegistryUsername(cubeConfiguration.getUsername());
         }
@@ -172,6 +174,10 @@ public class DockerClientExecutor {
 
         if (cubeConfiguration.getEmail() != null) {
             configBuilder.withRegistryEmail(cubeConfiguration.getEmail());
+        }
+
+        if (cubeConfiguration.getDockerRegistry() != null) {
+            configBuilder.withRegistryUrl(cubeConfiguration.getDockerRegistry());
         }
 
         if (cubeConfiguration.getCertPath() != null) {
@@ -711,10 +717,6 @@ public class DockerClientExecutor {
             final Image image = Image.valueOf(imageName);
 
             PullImageCmd pullImageCmd = this.dockerClient.pullImageCmd(image.getName());
-
-            if (this.cubeConfiguration.getDockerRegistry() != null) {
-                pullImageCmd.withRegistry(this.cubeConfiguration.getDockerRegistry());
-            }
 
             String tag = image.getTag();
             if (tag != null && !"".equals(tag)) {
