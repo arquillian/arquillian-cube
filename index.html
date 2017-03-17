@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="generator" content="Asciidoctor 1.5.5">
 <title>Arquillian Cube</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -17,7 +17,6 @@ audio:not([controls]){display:none;height:0}
 [hidden],template{display:none}
 script{display:none!important}
 html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
-body{margin:0}
 a{background:transparent}
 a:focus{outline:thin dotted}
 a:active,a:hover{outline:0}
@@ -52,7 +51,7 @@ textarea{overflow:auto;vertical-align:top}
 table{border-collapse:collapse;border-spacing:0}
 *,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
 html,body{font-size:100%}
-body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
 a:hover{cursor:pointer}
 img,object,embed{max-width:100%;height:auto}
 object,embed{height:100%}
@@ -64,7 +63,6 @@ img{-ms-interpolation-mode:bicubic}
 .text-center{text-align:center!important}
 .text-justify{text-align:justify!important}
 .hide{display:none}
-body{-webkit-font-smoothing:antialiased}
 img,object,svg{display:inline-block;vertical-align:middle}
 textarea{height:auto;min-height:50px}
 select{width:100%}
@@ -119,13 +117,16 @@ table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:
 table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
 table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
 table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
-body{tab-size:4}
 h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
 h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
 .clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
 .clearfix:after,.float-group:after{clear:both}
-*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
 pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
 .keyseq{color:rgba(51,51,51,.8)}
 kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
 .keyseq kbd:first-child{margin-left:0}
@@ -416,7 +417,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 <style>
 /* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
 /*pre.CodeRay {background-color:#f7f7f8;}*/
@@ -620,15 +621,6 @@ table.CodeRay td.code>pre{padding:0}
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
-<div class="paragraph">
-<p>Documentation for version Alpha6 can be found here: <a href="https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha6/README.adoc" class="bare">https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha6/README.adoc</a></p>
-</div>
-<div class="paragraph">
-<p>Documentation for version Alpha5 can be found here: <a href="https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha5/README.adoc" class="bare">https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha5/README.adoc</a></p>
-</div>
-<div class="paragraph">
-<p>Documentation for version Alpha4 can be found here: <a href="https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha4/README.adoc" class="bare">https://github.com/arquillian/arquillian-cube/blob/1.0.0.Alpha4/README.adoc</a></p>
-</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -5056,7 +5048,7 @@ If no result has been found so far the environment variables will be used.</p>
 For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BAZ</strong>.</p>
 </div>
 <div class="sect3">
-<h4 id="_kubernetes_2"><a class="anchor" href="#_kubernetes_2"></a>20.5.1. Kubernetes</h4>
+<h4 id="_kubernetes_configuration_parameters"><a class="anchor" href="#_kubernetes_configuration_parameters"></a>20.5.1. Kubernetes Configuration Parameters</h4>
 <table class="tableblock frame-all grid-all" style="width: 80%;">
 <colgroup>
 <col style="width: 20%;">
@@ -5179,6 +5171,20 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">env.setup.script.url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script that will setup the environment</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">env.teardown.script.url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script to tear down / cleanup the environment</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.dependencies</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
@@ -5201,23 +5207,9 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.for.service.list</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Long (5secs)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Explicitly specify a list of service to wait upon</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wait.for.service.connection.enabled</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to specify if we should wait for an actual connection to the service</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wait.for.service.connection.timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Long (10secs)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of time we should wait for each socket connection.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicitly specify a list of services to wait upon</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
@@ -5238,7 +5230,7 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 </table>
 </div>
 <div class="sect3">
-<h4 id="_openshift"><a class="anchor" href="#_openshift"></a>20.5.2. Openshift</h4>
+<h4 id="_openshift_configuration_parameters"><a class="anchor" href="#_openshift_configuration_parameters"></a>20.5.2. Openshift Configuration Parameters</h4>
 <table class="tableblock frame-all grid-all" style="width: 80%;">
 <colgroup>
 <col style="width: 20%;">
@@ -5284,7 +5276,7 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.6. Namespaces</h3>
 <div class="paragraph">
 <p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
-For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> to false and keep the namespace around.</p>
+For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> and <strong>namespace.destroy.enabled</strong>  to false and keep the namespace around.</p>
 </div>
 <div class="paragraph">
 <p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>arquillian</strong> do that for you.
@@ -5308,6 +5300,10 @@ Of course it is also possible to specify an external resource by URL using the <
 <li>
 <p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
 To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
+</li>
+<li>
+<p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup the environment. For those case you can use the <strong>env.setup.script.url</strong> / <strong>env.teardown.script.url</strong> to pass the
+scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the namespace is created and cleaned up respectively.</p>
 </li>
 </ol>
 </div>
@@ -5585,7 +5581,7 @@ Now create a test using command:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-08 10:41:01 CET
+Last updated 2017-03-17 16:53:46 CET
 </div>
 </div>
 </body>
