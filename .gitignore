@@ -35,8 +35,10 @@ infinitest.filters
 
 # Libreoffice leftovers (XLS)
 .~lock*
+
+# asciidoctor generation and gh-pages
 index.html
 README.html
-
+gh-pages/
 
 atlassian-ide-plugin.xml
