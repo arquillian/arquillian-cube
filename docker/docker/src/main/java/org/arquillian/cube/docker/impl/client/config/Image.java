@@ -61,36 +61,41 @@ public class Image {
         String name = null;
         String tag = null;
 
-        // <repositoryurl>:<port>/<organization_namespace>/<image_name>:<tag>
-        String[] parts = image.split("/");
-
+        // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>:<tag>
+        String[] parts = image.split(":");
         switch(parts.length) {
-            case 1: // <image_name>[:<tag>]
-            case 2: // <organization_namespace>/<image_name>[:tag]
-            {
-                String imageName = image;
-                final int colonIndex = imageName.indexOf(':');
-                if (colonIndex > -1) {
-                    name = imageName.substring(0, colonIndex);
-                    tag = imageName.substring(colonIndex + 1);
+            case 1: {
+                // <image_name>
+                // <organization_namespace>(/*)/<image_name>
+                // <repositoryurl>/<organization_namespace>(/*)/<image_name>[:<tag>]
+                name = image;
+                break;
+            }
+            case 2: {
+                // <image_name>[:<tag>]
+                // <organization_namespace>(/*)/<image_name>[:<tag>]
+                // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>
+
+                if (isPort(parts[1])) {
+                    name = parts[0] + ":" + parts[1];
                 } else {
-                    name = imageName;
+                    name = parts[0];
+                    tag = parts[1];
                 }
                 break;
             }
-            case 3:  // <repositoryurl>[:<port>]/<organization_namespace>/<image_name>[:<tag>]
-            {
-                String imageName = parts[2];
-                final int colonIndex = imageName.indexOf(':');
-                if (colonIndex > -1) {
-                    name = parts[0] + "/" + parts[1] + "/" + imageName.substring(0, colonIndex);
-                    tag = imageName.substring(colonIndex + 1);
-                } else {
-                    name = image;
-                }
+            case 3: {
+                // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>:tag
+                name = parts[0] + ":" + parts[1];
+                tag = parts[2];
+                break;
             }
         }
 
         return new Image(name, tag);
+    }
+
+    private static boolean isPort(String postColonPart) {
+        return  postColonPart.contains("/");
     }
 }

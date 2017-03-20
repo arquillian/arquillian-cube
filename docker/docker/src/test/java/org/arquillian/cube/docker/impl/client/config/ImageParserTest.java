@@ -45,9 +45,23 @@ public class ImageParserTest {
     }
 
     @Test
+    public void shouldParseRepositoryImagesAndSeveralOrganizationLevels() {
+        final Image image = Image.valueOf("localhost:5000/organization/organization2/my_image");
+        assertThat(image.getName(), is("localhost:5000/organization/organization2/my_image"));
+        assertThat(image.getTag(), is(nullValue()));
+    }
+
+    @Test
     public void shouldParseRepositoryImagesWithTag() {
         final Image image = Image.valueOf("localhost:5000/organization/my_image:tag");
         assertThat(image.getName(), is("localhost:5000/organization/my_image"));
+        assertThat(image.getTag(), is("tag"));
+    }
+
+    @Test
+    public void shouldParseRepositoryImagesWithTagAndSeveralOrganizationLevels() {
+        final Image image = Image.valueOf("localhost:5000/organization/organization2/my_image:tag");
+        assertThat(image.getName(), is("localhost:5000/organization/organization2/my_image"));
         assertThat(image.getTag(), is("tag"));
     }
 }
