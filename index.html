@@ -615,6 +615,17 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_resource_providers">20.10. Resource Providers</a></li>
 </ul>
 </li>
+<li><a href="#_fabric8">21. Fabric8</a>
+<ul class="sectlevel2">
+<li><a href="#_additional_features">21.1. Additional Features</a></li>
+</ul>
+</li>
+<li><a href="#_jboss_forge_arquillian_addon">22. JBoss Forge Arquillian Addon</a>
+<ul class="sectlevel3">
+<li><a href="#_how_to_use_it">22.1. How to use it?</a></li>
+</ul>
+</li>
+<li><a href="#_future_work">23. Future work</a></li>
 </ul>
 </div>
 </div>
@@ -5487,7 +5498,7 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s see how can you inject openshiftclient, Service.</p>
+<p>Now let&#8217;s see how can you inject OpenShift Client Service.</p>
 </div>
 <div class="listingblock">
 <div class="title">OpenshiftExample.java</div>
@@ -5514,74 +5525,124 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
     <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
         <span class="comment">//Do stuff...</span>
     }
-}
-
-== Fabric8
-
-The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the link:https:<span class="comment">//fabric8.io/guide/fabric8DevOps.html[Fabric8 Microservices Platform]</span>
-
-=== Additional Features
-- Integration with link:https:<span class="comment">//fabric8.io/guide/cdelivery.html[Fabric8 CI/CID]</span>
-- Management of Secrets via link:https:<span class="comment">//fabric8.io/guide/secretAnnotations.html[Secret Annotations]</span>
-- Integration with Fabric8 Modules:
-    - link:https:<span class="comment">//fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]</span>
-    - link:https:<span class="comment">//fabric8.io/guide/fabric8DevOps.html[Microservices Platform]</span>
-
-== JBoss Forge Arquillian Addon
-
-http:<span class="comment">//forge.jboss.org[Forge] Arquillian Addon offers an integration with Arquillian Cube.</span>
-
-==== How to use it?
-* Install JBoss-Forge from https:<span class="comment">//forge.jboss.org/download[here].</span>
-* Install arquillian add-on. To install arquillian-addon, in the Forge CLI, run command:
- <span class="error">`</span>addon-install-from-git --url https:<span class="comment">//github.com/forge/arquillian-addon.git --coordinate org.arquillian.forge:arquillian-addon`</span>
-
-
-Create project using:
-
-<span class="error">`</span>project-<span class="keyword">new</span> --named compose<span class="error">`</span>
-
-To add Arquillian &amp; Framework dependencies run command:
-
-<span class="error">`</span>arquillian-setup --standalone --test-framework junit<span class="error">`</span>
-
-To add Arquillian Cube dependencies run command:
-
-<span class="error">`</span>arquillian-cube-setup --type docker-compose --file-path docker-compose.yml<span class="error">`</span>
-
-Before running above command make sure that file provided with file-path is exists.
-
-Now create a test using command:
-
-<span class="error">`</span>arquillian-create-test --named MyDockerComposeTest --target-<span class="keyword">package</span> <span class="namespace">org.arquillian.cube</span><span class="error">`</span>
-
-<span class="namespace">After</span> <span class="namespace">that</span> <span class="namespace">you</span> <span class="namespace">can</span> <span class="namespace">enrich</span> <span class="namespace">a</span> <span class="namespace">given</span> <span class="namespace">Arquillian</span> <span class="namespace">test</span> <span class="namespace">with</span> <span class="namespace">respective</span> <span class="namespace">annotations</span> <span class="namespace">depending</span> <span class="namespace">on</span> <span class="namespace">selected</span> <span class="namespace">type</span>:
-
-<span class="error">`</span><span class="namespace">arquillian</span>-<span class="namespace">cube</span>-<span class="namespace">create</span>-<span class="namespace">test</span> --<span class="namespace">test</span>-<span class="namespace">class</span> <span class="namespace">org.cube.docker.MyDockerComposeTest</span><span class="error">`</span>
-
-<span class="namespace">Same</span> <span class="namespace">way</span> <span class="namespace">you</span> <span class="namespace">can</span> <span class="namespace">create</span> <span class="namespace">a</span> <span class="namespace">test</span> <span class="namespace">for</span> <span class="namespace">Kubernetes</span>, <span class="namespace">Docker</span>,<span class="namespace">Openshift</span>.
-
-<span class="namespace">See</span> <span class="namespace">above</span> <span class="namespace">example</span> <span class="namespace">in</span> <span class="namespace">next</span> <span class="namespace">terminal</span> <span class="namespace">cast</span>:
-
-<span class="namespace">image</span>::<span class="namespace">https</span>:<span class="comment">//asciinema.org/a/105913.png[link=&quot;https://asciinema.org/a/105913&quot;]</span>
-
-
-
-== <span class="namespace">Future</span> <span class="namespace">work</span>
-
-<span class="namespace">Some</span> <span class="namespace">configuration</span> <span class="namespace">parameters</span> <span class="namespace">will</span> <span class="namespace">be</span> <span class="namespace">modified</span> <span class="namespace">to</span> <span class="namespace">fix</span> <span class="namespace">any</span> <span class="namespace">possible</span> <span class="namespace">requirements</span>.
-<span class="namespace">Although</span> <span class="namespace">we</span> <span class="namespace">are</span> <span class="namespace">going</span> <span class="namespace">to</span> <span class="namespace">try</span> <span class="namespace">to</span> <span class="namespace">not</span> <span class="namespace">break</span> <span class="namespace">compatibility</span> <span class="namespace">with</span> <span class="namespace">previous</span> <span class="namespace">versions</span>, <span class="namespace">we</span> <span class="namespace">cannot</span> <span class="namespace">guarantee</span> <span class="namespace">until</span> <span class="namespace">_beta_</span> <span class="namespace">stage</span>.
-
-<span class="namespace">Feel</span> <span class="namespace">free</span> <span class="namespace">to</span> <span class="namespace">use</span> <span class="namespace">it</span> <span class="namespace">and</span> <span class="namespace">any</span> <span class="namespace">missing</span> <span class="namespace">feature</span>, <span class="namespace">bug</span> <span class="namespace">or</span> <span class="namespace">anything</span> <span class="namespace">you</span> <span class="namespace">see</span> , <span class="namespace">feel</span> <span class="namespace">free</span> <span class="namespace">to</span> <span class="namespace">add</span> <span class="namespace">a</span> <span class="namespace">new</span> <span class="namespace">issue</span>.</code></pre>
+}</code></pre>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_fabric8"><a class="anchor" href="#_fabric8"></a>21. Fabric8</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Fabric8 extension can be used along with the Kubernetes extension to provide a tighter integration with the <a href="https://fabric8.io/guide/fabric8DevOps.html">Fabric8 Microservices Platform</a></p>
+</div>
+<div class="sect2">
+<h3 id="_additional_features"><a class="anchor" href="#_additional_features"></a>21.1. Additional Features</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Integration with <a href="https://fabric8.io/guide/cdelivery.html">Fabric8 CI/CID</a></p>
+</li>
+<li>
+<p>Management of Secrets via <a href="https://fabric8.io/guide/secretAnnotations.html">Secret Annotations</a></p>
+</li>
+<li>
+<p>Integration with Fabric8 Modules:</p>
+</li>
+<li>
+<p><a href="https://fabric8.io/guide/mavenPlugin.html">Fabric8 Maven Plugin</a></p>
+</li>
+<li>
+<p><a href="https://fabric8.io/guide/fabric8DevOps.html">Microservices Platform</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jboss_forge_arquillian_addon"><a class="anchor" href="#_jboss_forge_arquillian_addon"></a>22. JBoss Forge Arquillian Addon</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="http://forge.jboss.org">Forge</a> Arquillian Addon offers an integration with Arquillian Cube.</p>
+</div>
+<div class="sect3">
+<h4 id="_how_to_use_it"><a class="anchor" href="#_how_to_use_it"></a>22.1. How to use it?</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Install JBoss-Forge from <a href="https://forge.jboss.org/download">here</a>.</p>
+</li>
+<li>
+<p>Install arquillian add-on. To install arquillian-addon, in the Forge CLI, run command:
+<code>addon-install-from-git --url <a href="https://github.com/forge/arquillian-addon.git" class="bare">https://github.com/forge/arquillian-addon.git</a> --coordinate org.arquillian.forge:arquillian-addon</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Create project using:</p>
+</div>
+<div class="paragraph">
+<p><code>project-new --named compose</code></p>
+</div>
+<div class="paragraph">
+<p>To add Arquillian &amp; Framework dependencies run command:</p>
+</div>
+<div class="paragraph">
+<p><code>arquillian-setup --standalone --test-framework junit</code></p>
+</div>
+<div class="paragraph">
+<p>To add Arquillian Cube dependencies run command:</p>
+</div>
+<div class="paragraph">
+<p><code>arquillian-cube-setup --type docker-compose --file-path docker-compose.yml</code></p>
+</div>
+<div class="paragraph">
+<p>Before running above command make sure that file provided with file-path is exists.</p>
+</div>
+<div class="paragraph">
+<p>Now create a test using command:</p>
+</div>
+<div class="paragraph">
+<p><code>arquillian-create-test --named MyDockerComposeTest --target-package org.arquillian.cube</code></p>
+</div>
+<div class="paragraph">
+<p>After that you can enrich a given Arquillian test with respective annotations depending on selected type:</p>
+</div>
+<div class="paragraph">
+<p><code>arquillian-cube-create-test --test-class org.cube.docker.MyDockerComposeTest</code></p>
+</div>
+<div class="paragraph">
+<p>Same way you can create a test for Kubernetes, Docker,Openshift.</p>
+</div>
+<div class="paragraph">
+<p>See above example in next terminal cast:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://asciinema.org/a/105913"><img src="https://asciinema.org/a/105913.png" alt="105913"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_future_work"><a class="anchor" href="#_future_work"></a>23. Future work</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some configuration parameters will be modified to fix any possible requirements.
+Although we are going to try to not break compatibility with previous versions, we cannot guarantee until <em>beta</em> stage.</p>
+</div>
+<div class="paragraph">
+<p>Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-21 18:06:52 UTC
+Last updated 2017-03-21 18:21:55 UTC
 </div>
 </div>
 </body>
