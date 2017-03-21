@@ -233,7 +233,7 @@ The next example is intended to how you can inject a resource list.
     }
 ----
 
-Now let's see how can you inject openshiftclient, Service.
+Now let's see how can you inject OpenShift Client Service.
 
 [source, java]
 .OpenshiftExample.java
@@ -261,3 +261,4 @@ public class HelloWorldTest {
         //Do stuff...
     }
 }
+----
