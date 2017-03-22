@@ -23,6 +23,7 @@ import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
@@ -41,6 +42,8 @@ import org.arquillian.cube.kubernetes.impl.enricher.ReplicationControllerResourc
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceListResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.ServiceResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.SessionResourceProvider;
+import org.arquillian.cube.kubernetes.impl.feedback.DefaultFeedbackProvider;
+import org.arquillian.cube.kubernetes.impl.feedback.FeedbackProviderServiceRegistar;
 import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
 import org.arquillian.cube.kubernetes.impl.install.ResourceInstallerRegistar;
 import org.arquillian.cube.kubernetes.impl.label.DefaultLabelProvider;
@@ -72,6 +75,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .observer(AnnotationProviderRegistar.class)
                 .observer(LoggerRegistar.class)
                 .observer(ResourceInstallerRegistar.class)
+                .observer(FeedbackProviderServiceRegistar.class)
                 .observer(getClientCreator())
                 .observer(SuiteListener.class)
                 .observer(TestListener.class)
@@ -82,6 +86,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(LabelProvider.class, DefaultLabelProvider.class)
                 .service(DependencyResolver.class, ShrinkwrapResolver.class)
                 .service(AnnotationProvider.class, DefaultAnnotationProvider.class)
+                .service(FeedbackProvider.class, DefaultFeedbackProvider.class)
                 .service(Visitor.class, LoggingVisitor.class)
                 .service(Visitor.class, DockerRegistryVisitor.class)
                 .service(Visitor.class, ServiceAccountVisitor.class)

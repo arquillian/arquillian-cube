@@ -3,6 +3,7 @@ package org.arquillian.cube.kubernetes.impl;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
@@ -14,13 +15,9 @@ import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.core.spi.ServiceLoader;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 public class SessionManagerLifecycle {
@@ -47,6 +44,9 @@ public class SessionManagerLifecycle {
     Instance<ResourceInstaller> resourceInstaller;
 
     @Inject
+    Instance<FeedbackProvider> feedbackProvider;
+
+    @Inject
     Event<AfterStart> afterStartEvent;
 
     AtomicReference<SessionManager> sessionManagerRef = new AtomicReference<>();
@@ -58,7 +58,7 @@ public class SessionManagerLifecycle {
                 annotationProvider.get(),
                 namespaceService.get().toImmutable(),
                 kubernetesResourceLocator.get().toImmutable(),
-                dependencyResolver.get().toImmutable(), resourceInstaller.get().toImmutable());
+                dependencyResolver.get().toImmutable(), resourceInstaller.get().toImmutable(), feedbackProvider.get().toImmutable());
 
         sessionManagerRef.set(sessionManager);
         sessionManager.start();
