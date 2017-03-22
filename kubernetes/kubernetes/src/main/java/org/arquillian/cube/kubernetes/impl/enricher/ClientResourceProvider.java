@@ -1,5 +1,6 @@
 package org.arquillian.cube.kubernetes.impl.enricher;
 
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -13,7 +14,7 @@ public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return KubernetesClient.class.isAssignableFrom(type);
+        return type.isAssignableFrom(KubernetesClient.class);
     }
 
     @Override
