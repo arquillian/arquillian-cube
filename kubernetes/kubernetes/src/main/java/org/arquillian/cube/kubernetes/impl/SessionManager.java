@@ -3,6 +3,7 @@ package org.arquillian.cube.kubernetes.impl;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
@@ -48,6 +49,7 @@ public class SessionManager implements SessionCreatedListener {
     private final KubernetesResourceLocator kubernetesResourceLocator;
     private final DependencyResolver dependencyResolver;
     private final ResourceInstaller resourceInstaller;
+    private final FeedbackProvider feedbackProvider;
 
     private final List<HasMetadata> resources = new ArrayList<>();
 
@@ -56,7 +58,7 @@ public class SessionManager implements SessionCreatedListener {
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
                           AnnotationProvider annotationProvider, NamespaceService namespaceService,
                           KubernetesResourceLocator kubernetesResourceLocator,
-                          DependencyResolver dependencyResolver, ResourceInstaller resourceInstaller) {
+                          DependencyResolver dependencyResolver, ResourceInstaller resourceInstaller, FeedbackProvider feedbackProvider) {
 
         Validate.notNull(session, "A Session instance is required.");
         Validate.notNull(client, "A KubernetesClient instance is required.");
@@ -66,6 +68,7 @@ public class SessionManager implements SessionCreatedListener {
         Validate.notNull(dependencyResolver, "A DependencyResolver instance is required.");
         Validate.notNull(kubernetesResourceLocator, "A KubernetesResourceLocator instance is required.");
         Validate.notNull(resourceInstaller, "A ResourceInstaller instance is required.");
+        Validate.notNull(feedbackProvider, "A FeedbackProvider instance is required.");
         this.session = session;
         this.client = client;
         this.configuration = configuration;
@@ -74,6 +77,7 @@ public class SessionManager implements SessionCreatedListener {
         this.kubernetesResourceLocator = kubernetesResourceLocator;
         this.dependencyResolver = dependencyResolver;
         this.resourceInstaller = resourceInstaller;
+        this.feedbackProvider = feedbackProvider;
     }
 
     @Override
@@ -148,9 +152,10 @@ public class SessionManager implements SessionCreatedListener {
                     try {
                         client.resourceList(resourcesToWait).waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
-                        log.warn("The are resources in not ready state.");
+                        log.warn("There are resources in not ready state:");
                         for (HasMetadata r : t.getResourcesNotReady()) {
                             log.error(r.getKind() + " name: " + r.getMetadata().getName() + " namespace:" + r.getMetadata().getNamespace());
+                            feedbackProvider.onResourceNotReady(r);
                         }
                         throw new IllegalStateException("Environment not initialized in time.", t);
                     }
@@ -287,3 +292,4 @@ public class SessionManager implements SessionCreatedListener {
         }
     }
 }
+
