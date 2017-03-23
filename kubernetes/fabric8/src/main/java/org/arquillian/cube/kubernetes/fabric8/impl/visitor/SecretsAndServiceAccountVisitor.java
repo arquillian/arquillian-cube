@@ -10,7 +10,7 @@ import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
-import org.arquillian.cube.kubernetes.impl.utils.Secrets;
+import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
