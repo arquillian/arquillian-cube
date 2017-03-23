@@ -46,9 +46,13 @@ public class HelloWorldTest {
         assertNotNull(url);
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(url).build();
-        Response response = okHttpClient.newCall(request).execute();
-        assertNotNull(response);
-        assertEquals(200, response.code());
-        assertTrue(response.body().string().contains("Hello world!"));
+
+        //#641 mentions issues on repeated calls to the portforwarded service.
+        for (int i = 0; i < 5; i++) {
+            Response response = okHttpClient.newCall(request).execute();
+            assertNotNull(response);
+            assertEquals(200, response.code());
+            assertTrue(response.body().string().contains("Hello world!"));
+        }
     }
 }
