@@ -1,6 +1,8 @@
 package org.arquillian.cube.openshift.standalone;
 
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -31,6 +33,14 @@ public class HelloWorldTest {
     @PortForward
     @ArquillianResource
     URL url;
+
+    @ArquillianResource
+    OpenShiftClient client;
+
+    @Test
+    public void client_should_not_be_null() throws IOException {
+        assertThat(client).isNotNull();
+    }
 
     @Test
     public void service_instance_should_not_be_null() throws IOException {

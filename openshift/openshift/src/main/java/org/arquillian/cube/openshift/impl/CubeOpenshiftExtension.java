@@ -18,6 +18,7 @@ import org.arquillian.cube.openshift.impl.client.OpenShiftClientCreator;
 import org.arquillian.cube.openshift.impl.client.OpenShiftSuiteLifecycleController;
 import org.arquillian.cube.openshift.impl.enricher.DeploymentConfigListResourceProvider;
 import org.arquillian.cube.openshift.impl.enricher.DeploymentConfigResourceProvider;
+import org.arquillian.cube.openshift.impl.enricher.OpenshiftClientResourceProvider;
 import org.arquillian.cube.openshift.impl.feedback.OpenshiftFeedbackProvider;
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
@@ -33,6 +34,7 @@ public class CubeOpenshiftExtension implements LoadableExtension {
                 .observer(CubeOpenShiftRegistrar.class)
                 .observer(OpenShiftSuiteLifecycleController.class)
 
+                .service(ResourceProvider.class, OpenshiftClientResourceProvider.class)
                 .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
                 .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
 
