@@ -262,3 +262,16 @@ public class HelloWorldTest {
     }
 }
 ----
+
+In case of OpenShift, test can be enriched with `OpenShiftClient`.
+
+[source, java]
+.OpenshiftExample.java
+----
+public class HelloWorldTest {
+
+    @ArquillianResource
+    OpenShiftClient client;
+
+}
+----
