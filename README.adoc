@@ -14,8 +14,11 @@ WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some case
 
 IMPORTANT: 1.0.0.Alpha13 changes default format from Cube to Docker Compose. In case you are using Cube format you need to update arquillian.xml with `<property name="definitionFormat">CUBE</property>`
 
-Documentation generated with Asciidoctor: http://arquillian.org/arquillian-cube/
+ifndef::generated-doc[]
+To read complete documentation visit http://arquillian.org/arquillian-cube/
+endif::generated-doc[]
 
+ifdef::generated-doc[]
 include::{asciidoctor-source}/what-is-this.adoc[]
 
 include::{asciidoctor-source}/preliminaries.adoc[]
@@ -55,6 +58,8 @@ include::{asciidoctor-source}/kubernetes.adoc[]
 include::{asciidoctor-source}/fabric8.adoc[]
 
 include::{asciidoctor-source}/forge.adoc[]
+
+endif::generated-doc[]
 
 == Future work
 
