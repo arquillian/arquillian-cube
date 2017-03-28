@@ -1063,7 +1063,13 @@ public class DockerClientExecutor {
 
         int i = 0;
         for (String volume : volumesList) {
-            volumes[i] = new Volume(volume);
+            String[] volumeSection = volume.split(":");
+
+            if (volumeSection.length == 2) {
+                volumes[i] = new Volume(volumeSection[1]);
+            } else {
+                volumes[i] = new Volume(volumeSection[0]);
+            }
             i++;
         }
 
@@ -1071,6 +1077,7 @@ public class DockerClientExecutor {
     }
 
     private static final VolumesFrom[] toVolumesFrom(Collection<String> volumesFromList) {
+
         VolumesFrom[] volumesFrom = new VolumesFrom[volumesFromList.size()];
 
         int i = 0;

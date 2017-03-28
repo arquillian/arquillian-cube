@@ -19,6 +19,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
@@ -70,8 +71,43 @@ public class CubeConfigurationTest {
             "        from: /test\n"+
             "        to: /tmp";
 
+
+    private static final String VERSION_2_WITH_VOLUMES = "version: '2'\n" +
+            "services:\n" +
+            "  nginx:\n" +
+            "    image: \"nginx:alpine\"\n" +
+            "    ports:\n" +
+            "    - \"80\"\n" +
+            "    volumes:\n" +
+            "    - \"/tmp/www:/usr/share/nginx/html\"";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_load_volumes_from_docker_compose_version_2() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", VERSION_2_WITH_VOLUMES);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer ngnix = dockerContainersContent.get("nginx");
+        final Collection<String> volumes = ngnix.getVolumes();
+        final String volume = volumes.iterator().next();
+
+        assertThat(volume, is("/tmp/www:/usr/share/nginx/html"));
+
+        final Collection<String> binds = ngnix.getBinds();
+        final String bind = volumes.iterator().next();
+
+        assertThat(bind, is("/tmp/www:/usr/share/nginx/html"));
+
+    }
 
     @Test
     public void shouldChangeNamesInParallelizeStarCubes() {

@@ -176,6 +176,7 @@ public class ContainerBuilder {
         }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES)) {
             this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
+            this.addBinds(asListOfString(dockerComposeContainerDefinition, VOLUMES));
         }
         if(dockerComposeContainerDefinition.containsKey(LABELS)) {
             this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
@@ -468,8 +469,19 @@ public class ContainerBuilder {
             Collection<String> oldVolumes = configuration.getVolumes();
             oldVolumes.addAll(volumes);
         } else {
-            configuration.setVolumes(new HashSet<String>(volumes));
+            configuration.setVolumes(new HashSet<>(volumes));
         }
+        return this;
+    }
+
+    public ContainerBuilder addBinds(Collection<String> volumes) {
+        if (configuration.getBinds() != null) {
+            Collection<String> oldBinds = configuration.getBinds();
+            oldBinds.addAll(volumes);
+        } else {
+            configuration.setBinds(new HashSet<>(volumes));
+        }
+
         return this;
     }
 
