@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -10,8 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,8 +84,36 @@ public class CubeConfigurationTest {
             "    volumes:\n" +
             "    - \"/tmp/www:/usr/share/nginx/html\"";
 
+    private static final String VERSION_2_WITH_PORT_RANGE = "version: '2'\n" +
+            "services:\n" +
+            "  nginx:\n" +
+            "    image: \"nginx:alpine\"\n" +
+            "    ports:\n" +
+            "    - \"80-84:90-94\"\n" +
+            "    volumes:\n" +
+            "    - \"/tmp/www:/usr/share/nginx/html\"";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_expand_ports_from_docker_compose_version_2() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", VERSION_2_WITH_PORT_RANGE);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer ngnix = dockerContainersContent.get("nginx");
+        final Collection<PortBinding> portBindings = ngnix.getPortBindings();
+
+        assertThat(portBindings, containsInAnyOrder(PortBinding.valueOf("80->90"), PortBinding.valueOf("81->91"),
+                PortBinding.valueOf("82->92"), PortBinding.valueOf("83->93"), PortBinding.valueOf("84->94")));
+    }
 
     @Test
     public void should_load_volumes_from_docker_compose_version_2() {
