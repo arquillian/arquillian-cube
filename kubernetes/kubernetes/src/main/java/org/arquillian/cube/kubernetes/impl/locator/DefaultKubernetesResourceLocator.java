@@ -28,7 +28,7 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
     }
 
     protected String[] getAllowedSuffixes() {
-        return getAllowedSuffixes();
+        return ALLOWED_SUFFIXES;
     }
 
     URL getResource(String resource) {
