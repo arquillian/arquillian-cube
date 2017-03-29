@@ -194,7 +194,15 @@ public class SessionManager implements SessionCreatedListener {
         try {
             if (configuration.isNamespaceCleanupEnabled()) {
                 resourceInstaller.uninstall(resources);
-            } else if (configuration.isNamespaceDestroyEnabled()) {
+            }
+
+            /*
+             * While it does make perfect sense to either clean or destroy,
+             * in some cases clean is implicit-ly defined. That can implict-ly disable namespace destruction.
+             * So, its more clean if we check of both conditions (double if vs if/else).
+             *
+             */
+            if (configuration.isNamespaceDestroyEnabled()) {
                 namespaceService.destroy(namespace);
             } else {
                 try {
