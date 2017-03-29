@@ -1065,7 +1065,7 @@ public class DockerClientExecutor {
         for (String volume : volumesList) {
             String[] volumeSection = volume.split(":");
 
-            if (volumeSection.length == 2) {
+            if (volumeSection.length == 2 || volumeSection.length == 3) {
                 volumes[i] = new Volume(volumeSection[1]);
             } else {
                 volumes[i] = new Volume(volumeSection[0]);
