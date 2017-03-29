@@ -108,8 +108,16 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     public static CubeOpenShiftConfiguration fromMap(Map<String , String> map) {
         String sessionId = UUID.randomUUID().toString();
         String namespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+
+        //When a namespace is provided we want to cleanup our stuff...
+        // ... without destroying pre-existing stuff.
+        Boolean shouldCleanupNamespace = true;
+        Boolean shouldDestroyNamespace = false;
         if (Strings.isNullOrEmpty(namespace)) {
+            //When we generate a namespace ourselves we to completely destroy it, so cleaning makes no sense.
             namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
+            shouldDestroyNamespace = true;
+            shouldCleanupNamespace = false;
         }
         try {
         return new CubeOpenShiftConfigurationBuilder()
@@ -122,11 +130,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
                 .withNamespaceLazyCreateEnabled(getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
-                .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, namespace.contains(sessionId)))
+                .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, shouldCleanupNamespace))
                 .withNamespaceCleanupConfirmationEnabled(getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                 .withNamespaceCleanupTimeout(getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
 
-                .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, namespace.contains(sessionId)))
+                .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, shouldDestroyNamespace))
                 .withNamespaceDestroyConfirmationEnabled(getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
                 .withNamespaceDestroyTimeout(getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
