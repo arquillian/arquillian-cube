@@ -13,7 +13,7 @@
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-bom</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0.Final-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>Arquillian Cube Universe Agreegator</name>
     <url>http://arquillian.org/arquillian-cube</url>

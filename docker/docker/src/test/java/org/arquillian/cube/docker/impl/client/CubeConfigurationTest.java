@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -10,8 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +22,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
@@ -70,8 +74,71 @@ public class CubeConfigurationTest {
             "        from: /test\n"+
             "        to: /tmp";
 
+
+    private static final String VERSION_2_WITH_VOLUMES = "version: '2'\n" +
+            "services:\n" +
+            "  nginx:\n" +
+            "    image: \"nginx:alpine\"\n" +
+            "    ports:\n" +
+            "    - \"80\"\n" +
+            "    volumes:\n" +
+            "    - \"/tmp/www:/usr/share/nginx/html\"";
+
+    private static final String VERSION_2_WITH_PORT_RANGE = "version: '2'\n" +
+            "services:\n" +
+            "  nginx:\n" +
+            "    image: \"nginx:alpine\"\n" +
+            "    ports:\n" +
+            "    - \"80-84:90-94\"\n" +
+            "    volumes:\n" +
+            "    - \"/tmp/www:/usr/share/nginx/html\"";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void should_expand_ports_from_docker_compose_version_2() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", VERSION_2_WITH_PORT_RANGE);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer ngnix = dockerContainersContent.get("nginx");
+        final Collection<PortBinding> portBindings = ngnix.getPortBindings();
+
+        assertThat(portBindings, containsInAnyOrder(PortBinding.valueOf("80->90"), PortBinding.valueOf("81->91"),
+                PortBinding.valueOf("82->92"), PortBinding.valueOf("83->93"), PortBinding.valueOf("84->94")));
+    }
+
+    @Test
+    public void should_load_volumes_from_docker_compose_version_2() {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", VERSION_2_WITH_VOLUMES);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer ngnix = dockerContainersContent.get("nginx");
+        final Collection<String> volumes = ngnix.getVolumes();
+        final String volume = volumes.iterator().next();
+
+        assertThat(volume, is("/tmp/www:/usr/share/nginx/html"));
+
+        final Collection<String> binds = ngnix.getBinds();
+        final String bind = volumes.iterator().next();
+
+        assertThat(bind, is("/tmp/www:/usr/share/nginx/html"));
+
+    }
 
     @Test
     public void shouldChangeNamesInParallelizeStarCubes() {

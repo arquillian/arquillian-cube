@@ -25,6 +25,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -176,6 +178,7 @@ public class ContainerBuilder {
         }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES)) {
             this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
+            this.addBinds(asListOfString(dockerComposeContainerDefinition, VOLUMES));
         }
         if(dockerComposeContainerDefinition.containsKey(LABELS)) {
             this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
@@ -424,17 +427,32 @@ public class ContainerBuilder {
             switch (elements.length) {
                 case 1: {
                     //random host port
-                    listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
+                    if (port.contains("-")) {
+                        getExpandedPorts(port).stream()
+                                .forEach(expandedPort -> listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + expandedPort)));
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
+                    }
                     break;
                 }
                 case 2: {
                     //hostport:containerport
-                    listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
+                    if (port.contains("-")) {
+
+                        listOfPorts.addAll(addPairPortRange(elements[0], elements[1], null));
+
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
+                    }
                     break;
                 }
                 case 3: {
                     //host:hostport:containerport
-                    listOfPorts.add(PortBinding.valueOf(elements[0] + ":" + elements[1] + "->" + elements[2]));
+                    if (port.contains("-")) {
+                        listOfPorts.addAll(addPairPortRange(elements[1], elements[2], elements[0]));
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(elements[0] + ":" + elements[1] + "->" + elements[2]));
+                    }
                     break;
                 }
             }
@@ -447,6 +465,42 @@ public class ContainerBuilder {
             configuration.setPortBindings(listOfPorts);
         }
         return this;
+    }
+
+    private Collection<PortBinding> addPairPortRange(String hostRangePorts, String containerRangePorts, String host) {
+        Collection<PortBinding> listOfPorts = new ArrayList<>();
+        final List<String> expandedHostPorts = getExpandedPorts(hostRangePorts);
+        final List<String> expandedContainerPorts = getExpandedPorts(containerRangePorts);
+
+        if (expandedContainerPorts.size() != expandedHostPorts.size()) {
+            throw new IllegalArgumentException("Port ranges from host and container side should contain same number of ports");
+        }
+
+        for (int i=0; i < expandedHostPorts.size(); i++) {
+            if (host == null) {
+                listOfPorts.add(PortBinding.valueOf(expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
+            } else {
+                listOfPorts.add(PortBinding.valueOf(host + ":" + expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
+            }
+        }
+
+        return listOfPorts;
+    }
+
+    private List<String> getExpandedPorts(String expression) {
+        String[] portRange = expression.split("-");
+
+        if (portRange.length != 2) {
+            throw new IllegalArgumentException("Expected Port Range expression but found " + expression);
+        }
+
+        int initialPort = Integer.parseInt(portRange[0].trim());
+        int endPort = Integer.parseInt(portRange[1].trim()) + 1;
+
+        return IntStream.range(initialPort, endPort).boxed()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
     }
 
     public ContainerBuilder addExpose(Collection<String> exposes) {
@@ -468,8 +522,19 @@ public class ContainerBuilder {
             Collection<String> oldVolumes = configuration.getVolumes();
             oldVolumes.addAll(volumes);
         } else {
-            configuration.setVolumes(new HashSet<String>(volumes));
+            configuration.setVolumes(new HashSet<>(volumes));
         }
+        return this;
+    }
+
+    public ContainerBuilder addBinds(Collection<String> volumes) {
+        if (configuration.getBinds() != null) {
+            Collection<String> oldBinds = configuration.getBinds();
+            oldBinds.addAll(volumes);
+        } else {
+            configuration.setBinds(new HashSet<>(volumes));
+        }
+
         return this;
     }
 
