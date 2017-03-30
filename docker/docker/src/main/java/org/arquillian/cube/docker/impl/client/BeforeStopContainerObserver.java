@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
+import org.arquillian.cube.docker.impl.beforeStop.BeforeStopStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.BeforeStop;
 import org.arquillian.cube.docker.impl.client.config.Copy;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -41,8 +42,17 @@ public class BeforeStopContainerObserver {
                         executeLogAction(dockerClientExecutor, beforeStop.getCubeId(), logConfiguration);
                     }
                 }
+              if(map.getCustomBeforeStopStrategy() != null) {
+                  String customBeforeStopStrategy = map.getCustomBeforeStopStrategy();
+                  executeCustomBeforeStopAction(dockerClientExecutor,beforeStop.getCubeId(),customBeforeStopStrategy);
+              }
             }
         }
+    }
+
+    private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId, String customBeforeStopStrategy) {
+        BeforeStopStrategyFactory.create(dockerClientExecutor, containerId,customBeforeStopStrategy);
+
     }
 
     private void executeLogAction(DockerClientExecutor dockerClientExecutor, String containerId, Log configurationParameters) throws IOException {
