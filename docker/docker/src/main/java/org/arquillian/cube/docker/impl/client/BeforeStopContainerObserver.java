@@ -51,7 +51,7 @@ public class BeforeStopContainerObserver {
     }
 
     private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId, String customBeforeStopStrategy) {
-        BeforeStopStrategyFactory.create(dockerClientExecutor, containerId,customBeforeStopStrategy);
+        BeforeStopStrategyFactory.create(dockerClientExecutor, containerId,customBeforeStopStrategy).doBeforeStop();
 
     }
 
