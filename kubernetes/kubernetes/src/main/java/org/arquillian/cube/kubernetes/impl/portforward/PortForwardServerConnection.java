@@ -14,12 +14,10 @@ import io.undertow.server.SSLSessionInfo;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.util.StringReadChannelListener;
-
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
-
 import org.xnio.ChainedChannelListener;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
@@ -30,7 +28,7 @@ import org.xnio.conduits.StreamSinkConduit;
 
 /**
  * PortForwardServerConnection
- * 
+ *
  * @author Rob Cernich
  */
 public class PortForwardServerConnection extends AbstractServerConnection {
@@ -40,13 +38,9 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 
     /**
      * Create a new PortForwardServerConnection.
-     * 
-     * @param channel
-     * @param bufferPool
-     * @param undertowOptions
-     * @param bufferSize
      */
-    public PortForwardServerConnection(StreamConnection channel, ByteBufferPool bufferPool, OptionMap undertowOptions, int bufferSize) {
+    public PortForwardServerConnection(StreamConnection channel, ByteBufferPool bufferPool, OptionMap undertowOptions,
+        int bufferSize) {
         super(channel, bufferPool, null, undertowOptions, bufferSize);
     }
 
@@ -110,7 +104,8 @@ public class PortForwardServerConnection extends AbstractServerConnection {
     protected void setConnectListener(HttpUpgradeListener connectListener) {
     }
 
-    public void startForwarding(final ClientConnection clientConnection, final String urlPath, final int targetPort, final int requestId) throws IOException {
+    public void startForwarding(final ClientConnection clientConnection, final String urlPath, final int targetPort,
+        final int requestId) throws IOException {
         try {
             // initiate the streams
             openErrorStream(clientConnection, urlPath, targetPort, requestId);
@@ -133,14 +128,15 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         }
     }
 
-    private void openErrorStream(final ClientConnection clientConnection, final String urlPath, final int targetPort, final int requestId) throws IOException {
+    private void openErrorStream(final ClientConnection clientConnection, final String urlPath, final int targetPort,
+        final int requestId) throws IOException {
         ClientRequest request = new ClientRequest()
-                .setMethod(Methods.POST)
-                .setPath(urlPath);
+            .setMethod(Methods.POST)
+            .setPath(urlPath);
         request.getRequestHeaders()
-                .put(new HttpString("streamType"), "error")
-                .put(new HttpString("port"), targetPort)
-                .put(new HttpString("requestID"), requestId);
+            .put(new HttpString("streamType"), "error")
+            .put(new HttpString("port"), targetPort)
+            .put(new HttpString("requestID"), requestId);
         final CountDownLatch latch = new CountDownLatch(1);
         final IOException[] holder = new IOException[1];
         clientConnection.sendRequest(request, new ClientCallback<ClientExchange>() {
@@ -188,22 +184,23 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         }
     }
 
-    private void openDataStream(final ClientConnection clientConnection, final String urlPath, final int targetPort, final int requestId) throws IOException {
+    private void openDataStream(final ClientConnection clientConnection, final String urlPath, final int targetPort,
+        final int requestId) throws IOException {
         ClientRequest request = new ClientRequest()
-                .setMethod(Methods.POST)
-                .setPath(urlPath);
+            .setMethod(Methods.POST)
+            .setPath(urlPath);
         request.getRequestHeaders()
-                .put(new HttpString("streamType"), "data")
-                .put(new HttpString("port"), targetPort)
-                .put(new HttpString("requestID"), requestId);
+            .put(new HttpString("streamType"), "data")
+            .put(new HttpString("port"), targetPort)
+            .put(new HttpString("requestID"), requestId);
         final CountDownLatch latch = new CountDownLatch(1);
         final IOException[] holder = new IOException[1];
         final Timer timer = new Timer("SPDY Keep Alive", true);
 
         getChannel().getCloseSetter()
-                .set(new ChainedChannelListener<CloseableChannel>(
-                        new CancelTimerChannelListener(timer),
-                        new LatchReleaseChannelListener(requestComplete)));
+            .set(new ChainedChannelListener<CloseableChannel>(
+                new CancelTimerChannelListener(timer),
+                new LatchReleaseChannelListener(requestComplete)));
 
         clientConnection.sendRequest(request, new ClientCallback<ClientExchange>() {
             @Override
@@ -219,16 +216,18 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 result.setResponseListener(new ClientCallback<ClientExchange>() {
                     @Override
                     public void completed(final ClientExchange result) {
-                        result.getResponseChannel().getCloseSetter().set(new LatchReleaseChannelListener(requestComplete));
+                        result.getResponseChannel()
+                            .getCloseSetter()
+                            .set(new LatchReleaseChannelListener(requestComplete));
                         getIoThread().execute(new Runnable() {
                             @Override
                             public void run() {
                                 // read from remote
                                 ChannelUtils.initiateTransfer(
-                                        Long.MAX_VALUE,
-                                        result.getResponseChannel(),
-                                        getChannel().getSinkChannel(),
-                                        getBufferPool());
+                                    Long.MAX_VALUE,
+                                    result.getResponseChannel(),
+                                    getChannel().getSinkChannel(),
+                                    getBufferPool());
                             }
                         });
                     }
@@ -241,14 +240,14 @@ public class PortForwardServerConnection extends AbstractServerConnection {
 
                 // write to remote
                 ChannelUtils.initiateTransfer(
-                        Long.MAX_VALUE,
-                        getChannel().getSourceChannel(),
-                        result.getRequestChannel(),
-                        getBufferPool());
+                    Long.MAX_VALUE,
+                    getChannel().getSourceChannel(),
+                    result.getRequestChannel(),
+                    getBufferPool());
 
                 // keep alive
                 timer.scheduleAtFixedRate(new PingSpdyStream((SpdyStreamStreamSinkChannel) result.getRequestChannel()),
-                        15000, 15000); // OSE times out after 30s
+                    15000, 15000); // OSE times out after 30s
 
                 // need to wait for the client to close the request channel
                 try {
@@ -269,9 +268,38 @@ public class PortForwardServerConnection extends AbstractServerConnection {
     }
 
     private void setError(String error) {
-        if (error != null && !error.trim().equals(""))
+        if (error != null && !error.trim().equals("")) {
             System.err.println("Port forwarding error: " + error);
+        }
         errorComplete.countDown();
+    }
+
+    private static final class CancelTimerChannelListener implements ChannelListener<CloseableChannel> {
+
+        private final Timer timer;
+
+        private CancelTimerChannelListener(Timer timer) {
+            this.timer = timer;
+        }
+
+        @Override
+        public void handleEvent(CloseableChannel channel) {
+            timer.cancel();
+        }
+    }
+
+    private static final class LatchReleaseChannelListener implements ChannelListener<CloseableChannel> {
+
+        private final CountDownLatch latch;
+
+        private LatchReleaseChannelListener(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void handleEvent(CloseableChannel channel) {
+            latch.countDown();
+        }
     }
 
     private final class PingSpdyStream extends TimerTask {
@@ -294,35 +322,5 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 }
             });
         }
-    }
-
-    private static final class CancelTimerChannelListener implements ChannelListener<CloseableChannel> {
-
-        private final Timer timer;
-
-        private CancelTimerChannelListener(Timer timer) {
-            this.timer = timer;
-        }
-
-        @Override
-        public void handleEvent(CloseableChannel channel) {
-            timer.cancel();
-        }
-
-    }
-
-    private static final class LatchReleaseChannelListener implements ChannelListener<CloseableChannel> {
-
-        private final CountDownLatch latch;
-
-        private LatchReleaseChannelListener(CountDownLatch latch) {
-            this.latch = latch;
-        }
-
-        @Override
-        public void handleEvent(CloseableChannel channel) {
-            latch.countDown();
-        }
-
     }
 }

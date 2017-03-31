@@ -20,6 +20,7 @@ public class SeleniumVersionExtractor {
 
     /**
      * Returns current selenium version from JAR set in classpath.
+     *
      * @return Version of Selenium.
      */
     public static String fromClassPath() {
@@ -52,11 +53,11 @@ public class SeleniumVersionExtractor {
                         }
                     }
                 }
-
             }
-
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Exception {0} occurred while resolving selenium version and latest image is going to be used.", e.getMessage());
+            logger.log(Level.WARNING,
+                "Exception {0} occurred while resolving selenium version and latest image is going to be used.",
+                e.getMessage());
             return SELENIUM_VERSION;
         }
 
@@ -67,11 +68,10 @@ public class SeleniumVersionExtractor {
 
         String foundVersion = versions.iterator().next();
         if (versions.size() > 1) {
-            logger.log(Level.WARNING, "Multiple versions of Selenium found in classpath. Using the first one found {0}.", foundVersion);
+            logger.log(Level.WARNING, "Multiple versions of Selenium found in classpath. Using the first one found {0}.",
+                foundVersion);
         }
 
         return foundVersion;
     }
-
-
 }

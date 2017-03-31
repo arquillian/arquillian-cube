@@ -60,7 +60,6 @@ public class Machine {
 
         if (name != null ? !name.equals(machine.name) : machine.name != null) return false;
         return !(url != null ? !url.equals(machine.url) : machine.url != null);
-
     }
 
     @Override

@@ -1,16 +1,15 @@
 package org.arquillian.cube.impl.client;
 
+import java.util.List;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
-
-import java.util.List;
 
 public class ForceStopDockerContainersShutdownHook {
 
-    public void attachShutDownHookForceStopDcokerContainers(@Observes(precedence = 200) BeforeSuite event, final CubeRegistry cubeRegistry) {
+    public void attachShutDownHookForceStopDcokerContainers(@Observes(precedence = 200) BeforeSuite event,
+        final CubeRegistry cubeRegistry) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -24,9 +23,7 @@ public class ForceStopDockerContainersShutdownHook {
                         cube.destroy();
                     }
                 }
-
             }
         });
     }
-
 }

@@ -1,7 +1,6 @@
 package org.arquillian.cube.persistence;
 
 import java.util.UUID;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -13,7 +12,8 @@ public class User {
 
     private String name;
 
-    protected User() {}
+    protected User() {
+    }
 
     public User(String name) {
         this.id = UUID.randomUUID().toString();

@@ -16,7 +16,6 @@ import static org.junit.Assert.assertThat;
 
 public class CubeIpTestEnricherTest {
 
-
     @Test
     public void should_enrich_test_with_container_ip() {
         CubeIpTestEnricher cubeIpTestEnricher = new CubeIpTestEnricher();
@@ -98,10 +97,10 @@ public class CubeIpTestEnricherTest {
         };
 
         final CubeIpTestEnricherTest.MyTest testCase = new CubeIpTestEnricherTest.MyTest();
-        final Object[] myMethods = cubeIpTestEnricher.resolve(testCase.getClass().getMethod("myMethod", String.class, String.class));
-        assertThat((String)myMethods[1], Is.is("192.168.99.100"));
+        final Object[] myMethods =
+            cubeIpTestEnricher.resolve(testCase.getClass().getMethod("myMethod", String.class, String.class));
+        assertThat((String) myMethods[1], Is.is("192.168.99.100"));
     }
-
 
     public static class MyTest {
         @CubeIp(containerName = "test")

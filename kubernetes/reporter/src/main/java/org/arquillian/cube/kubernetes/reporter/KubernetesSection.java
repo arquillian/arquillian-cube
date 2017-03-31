@@ -1,11 +1,10 @@
 package org.arquillian.cube.kubernetes.reporter;
 
-
 import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.event.TestSuiteSection;
 import org.arquillian.reporter.api.model.report.BasicReport;
 
-class KubernetesSection extends SectionEvent<KubernetesSection, BasicReport, TestSuiteSection>{
+class KubernetesSection extends SectionEvent<KubernetesSection, BasicReport, TestSuiteSection> {
 
     private static final String KUBERNETES_ID = "k8s";
     private String testSuiteId;
@@ -21,7 +20,7 @@ class KubernetesSection extends SectionEvent<KubernetesSection, BasicReport, Tes
 
     @Override
     public TestSuiteSection getParentSectionThisSectionBelongsTo() {
-        return new TestSuiteSection(this.testSuiteId) ;
+        return new TestSuiteSection(this.testSuiteId);
     }
 
     @Override

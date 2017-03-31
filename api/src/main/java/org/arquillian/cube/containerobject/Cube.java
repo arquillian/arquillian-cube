@@ -16,9 +16,10 @@ public @interface Cube {
     int[] DEFAULT_AWAIT_PORT_BINDING = new int[] {};
 
     String value() default DEFAULT_VALUE;
+
     String[] portBinding() default {};
+
     int[] awaitPorts() default {};
 
     ConnectionMode connectionMode() default ConnectionMode.START_AND_STOP_AROUND_CLASS;
-
 }

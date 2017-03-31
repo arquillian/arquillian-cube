@@ -39,7 +39,7 @@ public class SystemEnvironmentVariables {
 
     public static String getPropertyOrEnvironmentVariable(String property, String variable, String defaultValue) {
         String answer = System.getProperty(property);
-        if(Strings.isNotNullOrEmpty(answer)) {
+        if (Strings.isNotNullOrEmpty(answer)) {
             return answer;
         } else {
             answer = System.getenv(variable);
@@ -73,5 +73,4 @@ public class SystemEnvironmentVariables {
     public static String propertyToEnvironmentVariableName(String property) {
         return property.toUpperCase().replaceAll(DOT_OR_DASH, UNDERSCORE);
     }
-
 }

@@ -6,12 +6,10 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
-
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.eclipse.jgit.api.Git;
@@ -89,46 +87,47 @@ public class GitServer {
         forwarder.forwardPort(Integer.valueOf(GIT_LOCALPORT), Integer.valueOf(GIT_REMOTEPORT));
     }
 
-	private Pod getSpec() {
-		Map<String, String> labels = new HashMap<String, String>();
-		labels.put("generatedby", "arquillian");
-		labels.put("pod", "arquillian-gitserver");
+    private Pod getSpec() {
+        Map<String, String> labels = new HashMap<String, String>();
+        labels.put("generatedby", "arquillian");
+        labels.put("pod", "arquillian-gitserver");
 
-		return new PodBuilder()
-				.withNewMetadata()
-				.withName("arquillian-gitserver")
-				.withLabels(labels)
-				.endMetadata()
-			.withNewSpec()
-				.addNewContainer()
-					.withName("arquillian-gitserver")
-					.withImage("aslakknutsen/openshift-arquillian-gitserver")
-					.addNewPort()
-						.withContainerPort(Integer.valueOf(GIT_REMOTEPORT))
-						.endPort()
-					.addNewEnv()
-						.withName("GIT_HOME")
-						.withValue("/var/lib/git")
-					.endEnv()
-                    // This volume is necessary in order to override the image volume, otherwise
-                    // we wouldn't have permission to write in that directory
-                    .addNewVolumeMount()
-                        .withName("git-repo")
-                        .withMountPath("/var/lib/git")
-                        .withReadOnly(false)
-                    .endVolumeMount()
-				.endContainer()
-			.addNewVolume()
-			    .withName("git-repo")
-			    .withNewEmptyDir("Memory")
-			    .endVolume()
-				.endSpec()
-			.build();
-	}
+        return new PodBuilder()
+            .withNewMetadata()
+            .withName("arquillian-gitserver")
+            .withLabels(labels)
+            .endMetadata()
+            .withNewSpec()
+            .addNewContainer()
+            .withName("arquillian-gitserver")
+            .withImage("aslakknutsen/openshift-arquillian-gitserver")
+            .addNewPort()
+            .withContainerPort(Integer.valueOf(GIT_REMOTEPORT))
+            .endPort()
+            .addNewEnv()
+            .withName("GIT_HOME")
+            .withValue("/var/lib/git")
+            .endEnv()
+            // This volume is necessary in order to override the image volume, otherwise
+            // we wouldn't have permission to write in that directory
+            .addNewVolumeMount()
+            .withName("git-repo")
+            .withMountPath("/var/lib/git")
+            .withReadOnly(false)
+            .endVolumeMount()
+            .endContainer()
+            .addNewVolume()
+            .withName("git-repo")
+            .withNewEmptyDir("Memory")
+            .endVolume()
+            .endSpec()
+            .build();
+    }
 
     private void createService() {
-        if (service != null)
+        if (service != null) {
             return;
+        }
 
         Map<String, String> labels = new HashMap<String, String>();
         labels.put("generatedby", "arquillian");
@@ -136,16 +135,16 @@ public class GitServer {
         Service svc = client.services().inNamespace(namespace).withName(GIT_SERVICE).get();
         if (svc == null) {
             svc = new ServiceBuilder()
-                    .withNewMetadata()
-                    .withName(GIT_SERVICE)
-                    .withLabels(labels)
-                    .endMetadata()
+                .withNewMetadata()
+                .withName(GIT_SERVICE)
+                .withLabels(labels)
+                .endMetadata()
                 .withNewSpec()
-                    .addNewPort()
-                        .withPort(Integer.valueOf(GIT_REMOTEPORT))
-                        .withNewTargetPort(Integer.valueOf(GIT_REMOTEPORT))
-                        .endPort()
-                    .addToSelector("pod", "arquillian-gitserver")
+                .addNewPort()
+                .withPort(Integer.valueOf(GIT_REMOTEPORT))
+                .withNewTargetPort(Integer.valueOf(GIT_REMOTEPORT))
+                .endPort()
+                .addToSelector("pod", "arquillian-gitserver")
                 .and()
                 .build();
             client.services().inNamespace(namespace).create(svc);

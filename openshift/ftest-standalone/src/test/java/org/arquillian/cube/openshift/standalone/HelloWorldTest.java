@@ -1,8 +1,9 @@
 package org.arquillian.cube.openshift.standalone;
 
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+import java.io.IOException;
+import java.net.URL;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -14,11 +15,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.URL;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift

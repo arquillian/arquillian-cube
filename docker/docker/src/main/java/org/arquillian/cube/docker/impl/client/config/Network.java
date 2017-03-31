@@ -1,11 +1,9 @@
 package org.arquillian.cube.docker.impl.client.config;
 
-import org.arquillian.cube.spi.metadata.CubeMetadata;
-import org.arquillian.cube.spi.metadata.NetworkMetadata;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import org.arquillian.cube.spi.metadata.NetworkMetadata;
 
 public class Network {
 
@@ -19,12 +17,12 @@ public class Network {
         return driver;
     }
 
-    public IPAM getIpam() {
-        return ipam;
-    }
-
     public void setDriver(String driver) {
         this.driver = driver;
+    }
+
+    public IPAM getIpam() {
+        return ipam;
     }
 
     public void setIpam(IPAM ipam) {

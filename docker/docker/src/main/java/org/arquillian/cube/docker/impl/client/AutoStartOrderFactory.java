@@ -15,5 +15,4 @@ public class AutoStartOrderFactory {
             throw new IllegalArgumentException(String.format("Class %s is not found in classpath.", clazz));
         }
     }
-
 }

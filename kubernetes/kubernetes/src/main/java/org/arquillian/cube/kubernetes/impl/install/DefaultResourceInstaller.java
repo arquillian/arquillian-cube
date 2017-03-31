@@ -1,5 +1,16 @@
 package org.arquillian.cube.kubernetes.impl.install;
 
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
@@ -8,19 +19,6 @@ import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.spi.ServiceLoader;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-
-import io.fabric8.kubernetes.api.builder.Visitor;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 
 public class DefaultResourceInstaller implements ResourceInstaller {
 
@@ -38,7 +36,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
     protected ResourceInstaller delegate;
 
-
     @Override
     public ResourceInstaller toImmutable() {
         if (delegate != null) {
@@ -47,8 +44,8 @@ public class DefaultResourceInstaller implements ResourceInstaller {
         synchronized (this) {
             if (delegate == null) {
                 delegate = new DefaultResourceInstaller.ImmutableResourceInstaller(client.get(), configuration.get(),
-                        logger.get().toImmutable(),
-                        new ArrayList<>(serviceLoader.get().all(Visitor.class)));
+                    logger.get().toImmutable(),
+                    new ArrayList<>(serviceLoader.get().all(Visitor.class)));
             }
         }
         return delegate;
@@ -71,14 +68,13 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
     public static class ImmutableResourceInstaller implements ResourceInstaller, WithToImmutable<ResourceInstaller> {
 
-
         private final KubernetesClient client;
         private final Configuration configuration;
         private final Logger logger;
         private final List<Visitor> visitors;
 
-
-        public ImmutableResourceInstaller(KubernetesClient client, Configuration configuration, Logger logger,  List<Visitor> visitors) {
+        public ImmutableResourceInstaller(KubernetesClient client, Configuration configuration, Logger logger,
+            List<Visitor> visitors) {
             this.client = client;
             this.configuration = configuration;
             this.logger = logger;

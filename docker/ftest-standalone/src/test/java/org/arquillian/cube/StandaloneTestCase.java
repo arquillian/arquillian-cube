@@ -2,7 +2,6 @@ package org.arquillian.cube;
 
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Assert;

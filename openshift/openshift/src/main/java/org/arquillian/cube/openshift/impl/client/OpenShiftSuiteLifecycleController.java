@@ -2,9 +2,9 @@ package org.arquillian.cube.openshift.impl.client;
 
 import org.arquillian.cube.spi.event.CreateCube;
 import org.arquillian.cube.spi.event.CubeControlEvent;
+import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
-import org.arquillian.cube.spi.event.DestroyCube;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -16,16 +16,18 @@ public class OpenShiftSuiteLifecycleController {
     @Inject
     private Event<CubeControlEvent> controlEvent;
 
-    public void startAutoContainers(@Observes(precedence = 99) BeforeSuite event, CubeOpenShiftConfiguration openshiftConfiguration) {
-        for(String cubeId : openshiftConfiguration.getAutoStartContainers()) {
+    public void startAutoContainers(@Observes(precedence = 99) BeforeSuite event,
+        CubeOpenShiftConfiguration openshiftConfiguration) {
+        for (String cubeId : openshiftConfiguration.getAutoStartContainers()) {
             controlEvent.fire(new CreateCube(cubeId));
             controlEvent.fire(new StartCube(cubeId));
         }
     }
 
-    public void stopAutoContainers(@Observes(precedence = -99) AfterSuite event, CubeOpenShiftConfiguration openshiftConfiguration) {
+    public void stopAutoContainers(@Observes(precedence = -99) AfterSuite event,
+        CubeOpenShiftConfiguration openshiftConfiguration) {
         String[] autostart = openshiftConfiguration.getAutoStartContainers();
-        for(int i = autostart.length-1; i > -1; i--) {
+        for (int i = autostart.length - 1; i > -1; i--) {
             String cubeId = autostart[i];
             controlEvent.fire(new StopCube(cubeId));
             controlEvent.fire(new DestroyCube(cubeId));

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.metadata.HasPortBindings;

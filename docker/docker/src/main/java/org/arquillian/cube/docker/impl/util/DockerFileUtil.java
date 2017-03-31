@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.util;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.containerobject.CubeDockerFile;
 import org.arquillian.cube.impl.util.Which;
@@ -22,7 +20,8 @@ public class DockerFileUtil {
         super();
     }
 
-    public static void copyDockerfileDirectory(Class<?> containerObject, CubeDockerFile cubeDockerFile, File output) throws IOException {
+    public static void copyDockerfileDirectory(Class<?> containerObject, CubeDockerFile cubeDockerFile, File output)
+        throws IOException {
         if (cubeDockerFile == null) {
             throw new IllegalArgumentException("No CubeDockerFile annotation is provided");
         }
@@ -34,9 +33,9 @@ public class DockerFileUtil {
     private static File createTemporaryFolder(Class<?> containerObject) throws IOException {
         File dir = File.createTempFile(containerObject.getSimpleName(), "Dockerfile");
         dir.delete();
-        if(!dir.mkdirs()) {
+        if (!dir.mkdirs()) {
             throw new IllegalStateException(
-                    String.format("Directory %s for storing Dockerfile cannot be created.", dir));
+                String.format("Directory %s for storing Dockerfile cannot be created.", dir));
         }
 
         return dir;
@@ -44,7 +43,7 @@ public class DockerFileUtil {
 
     private static String resolveDockerfileLocation(Class<?> containerObject, CubeDockerFile cubeDockerFile) {
         String prefix = null;
-        if(isSpecificDockerfileLocationSet(cubeDockerFile)) {
+        if (isSpecificDockerfileLocationSet(cubeDockerFile)) {
             prefix = cubeDockerFile.value();
         } else {
             prefix = containerObject.getName();
@@ -56,7 +55,8 @@ public class DockerFileUtil {
         return !cubeDockerFile.value().isEmpty();
     }
 
-    private static void copyDockerfileDirectoryFromClasspath(Class<?> containerObject, String dockerfileLocation, File dir) throws IOException {
+    private static void copyDockerfileDirectoryFromClasspath(Class<?> containerObject, String dockerfileLocation,
+        File dir) throws IOException {
         File jar = null;
         try {
             jar = Which.jarFile(containerObject);
@@ -64,7 +64,7 @@ public class DockerFileUtil {
             throw new IllegalArgumentException(e);
         }
 
-        if (jar!=null && jar.isFile()) {
+        if (jar != null && jar.isFile()) {
             // files are packaged into a jar/war. extract them
             dockerfileLocation += "/";
             copyDockerfileDirectoryFromPackaged(jar, dockerfileLocation, dir);
@@ -74,7 +74,8 @@ public class DockerFileUtil {
         }
     }
 
-    private static void copyDockerfileDirectoryFromPackaged(File jar, String location, File outputDirectory) throws IOException {
+    private static void copyDockerfileDirectoryFromPackaged(File jar, String location, File outputDirectory)
+        throws IOException {
         try (JarFile j = new JarFile(jar)) {
             Enumeration<JarEntry> e = j.entries();
             while (e.hasMoreElements()) {
@@ -99,7 +100,7 @@ public class DockerFileUtil {
 
         if (resourceDir == null) {
             throw new IllegalArgumentException(
-                    String.format("No location found at %s", location)
+                String.format("No location found at %s", location)
             );
         }
         copyFile(outputDirectory, resourceDir);
@@ -114,5 +115,4 @@ public class DockerFileUtil {
         }
         FileUtils.copyDirectory(dockerFileDir, outputDirectory);
     }
-
 }

@@ -1,11 +1,10 @@
 package org.arquillian.cube.docker.drone;
 
+import java.util.List;
+import java.util.Map;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
 import org.jboss.arquillian.core.api.annotation.Observes;
-
-import java.util.List;
-import java.util.Map;
 
 public class DroneOverwriteConfigurator {
 
@@ -23,7 +22,6 @@ public class DroneOverwriteConfigurator {
             if (!extensionProperties.containsKey("browser")) {
                 webdriver.property("browser", "firefox");
             }
-
         }
     }
 }

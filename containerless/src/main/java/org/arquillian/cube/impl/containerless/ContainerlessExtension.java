@@ -9,5 +9,4 @@ public class ContainerlessExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
         builder.service(DeployableContainer.class, ContainerlessDockerDeployableContainer.class);
     }
-
 }

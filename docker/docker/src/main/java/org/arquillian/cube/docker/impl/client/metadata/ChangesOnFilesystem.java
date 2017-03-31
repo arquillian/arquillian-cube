@@ -1,7 +1,6 @@
 package org.arquillian.cube.docker.impl.client.metadata;
 
 import java.util.List;
-
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.metadata.CanSeeChangesOnFilesystem;
@@ -20,5 +19,4 @@ public class ChangesOnFilesystem implements CanSeeChangesOnFilesystem {
     public List<ChangeLog> changes() {
         return executor.inspectChangesOnContainerFilesystem(cubeId);
     }
-
 }

@@ -1,16 +1,13 @@
 package org.arquillian.cube.openshift.impl.model;
 
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
-
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.spi.BaseCube;
@@ -18,15 +15,16 @@ import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
+
 public class ServiceCube extends BaseCube<Void> {
 
+    private final PortBindings portBindings;
     private String id;
     private Service resource;
     private State state;
     private CubeOpenShiftConfiguration configuration;
     private OpenShiftClient client;
-
-    private final PortBindings portBindings;
 
     public ServiceCube(Service resource, OpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         this.id = resource.getMetadata().getName();
@@ -109,6 +107,7 @@ public class ServiceCube extends BaseCube<Void> {
     public Void configuration() {
         return null;
     }
+
     private final class PortBindings implements HasPortBindings {
 
         private final Map<Integer, PortAddress> mappedPorts;

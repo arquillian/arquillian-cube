@@ -11,11 +11,10 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class NamespaceServiceRegistar {
 
-    @Inject
-    private Instance<ServiceLoader> serviceLoader;
-
     @Inject @ApplicationScoped
     InstanceProducer<NamespaceService> namespaceService;
+    @Inject
+    private Instance<ServiceLoader> serviceLoader;
 
     public void install(@Observes(precedence = 100) Configuration configuration) {
         namespaceService.set(serviceLoader.get().onlyOne(NamespaceService.class, OpenshiftNamespaceService.class));

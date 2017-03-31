@@ -1,20 +1,17 @@
 package org.arquillian.cube.openshift.impl.namespace;
 
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.ProjectRequest;
+import io.fabric8.openshift.api.model.ProjectRequestBuilder;
+import io.fabric8.openshift.client.OpenShiftClient;
+import java.util.Map;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
-
-import java.util.Map;
-
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.openshift.api.model.Project;
-import io.fabric8.openshift.api.model.ProjectRequest;
-import io.fabric8.openshift.api.model.ProjectRequestBuilder;
-import io.fabric8.openshift.client.OpenShiftClient;
 
 public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
@@ -23,12 +20,12 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
         if (delegate != null) {
             return delegate;
         }
-        synchronized(this) {
+        synchronized (this) {
             if (delegate == null) {
                 delegate = new ImmutableOpenshiftNamespaceService(client.get(),
-                        configuration.get(),
-                        labelProvider.get().toImmutable(),
-                        logger.get().toImmutable()
+                    configuration.get(),
+                    labelProvider.get().toImmutable(),
+                    logger.get().toImmutable()
                 );
             }
         }
@@ -37,8 +34,8 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
     public static class ImmutableOpenshiftNamespaceService extends DefaultNamespaceService.ImmutableNamespaceService {
 
-
-        public ImmutableOpenshiftNamespaceService(KubernetesClient client, Configuration configuration, LabelProvider labelProvider, Logger logger) {
+        public ImmutableOpenshiftNamespaceService(KubernetesClient client, Configuration configuration,
+            LabelProvider labelProvider, Logger logger) {
             super(client, configuration, labelProvider, logger);
         }
 
@@ -46,15 +43,15 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
         public Namespace create(String namespace, Map<String, String> annotations) {
             OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
             ProjectRequest projectRequest = new ProjectRequestBuilder()
-                    .withNewMetadata()
-                    .withName(namespace)
-                    .withAnnotations(annotations)
-                    .addToLabels(labelProvider.getLabels())
-                    .addToLabels(PROJECT_LABEL, client.getNamespace())
-                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                    .endMetadata()
-                    .build();
+                .withNewMetadata()
+                .withName(namespace)
+                .withAnnotations(annotations)
+                .addToLabels(labelProvider.getLabels())
+                .addToLabels(PROJECT_LABEL, client.getNamespace())
+                .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                .endMetadata()
+                .build();
 
             ProjectRequest request = openShiftClient.projectrequests().create(projectRequest);
             return openShiftClient.namespaces().withName(request.getMetadata().getName()).get();
@@ -65,14 +62,14 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 ProjectRequest projectRequest = new ProjectRequestBuilder()
-                        .withNewMetadata()
-                        .withName(namespace)
-                        .addToLabels(labelProvider.getLabels())
-                        .addToLabels(PROJECT_LABEL, client.getNamespace())
-                        .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                        .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                        .endMetadata()
-                        .build();
+                    .withNewMetadata()
+                    .withName(namespace)
+                    .addToLabels(labelProvider.getLabels())
+                    .addToLabels(PROJECT_LABEL, client.getNamespace())
+                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                    .endMetadata()
+                    .build();
 
                 ProjectRequest request = openShiftClient.projectrequests().create(projectRequest);
                 return openShiftClient.namespaces().withName(request.getMetadata().getName()).get();
@@ -110,11 +107,11 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 openShiftClient.projects().withName(namespace)
-                        .edit()
-                            .editMetadata()
-                                .addToAnnotations(annotations)
-                            .endMetadata()
-                        .done();
+                    .edit()
+                    .editMetadata()
+                    .addToAnnotations(annotations)
+                    .endMetadata()
+                    .done();
 
                 return openShiftClient.namespaces().withName(namespace).get();
             } else {

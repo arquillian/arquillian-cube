@@ -1,5 +1,14 @@
 package org.arquillian.cube.docker.impl.client;
 
+import java.io.File;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -13,23 +22,9 @@ import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.task.net.DownloadTool;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static org.arquillian.cube.docker.impl.client.CubeDockerConfigurator.DOCKER_HOST;
 
 public class CubeDockerConfigurationResolver {
-
-    private static Random random = new Random();
-    private static Logger log = Logger.getLogger(CubeDockerConfigurationResolver.class.getName());
-
 
     private static final String UNIX_SOCKET_SCHEME = "unix";
     private static final String TCP_SCHEME = "tcp";
@@ -37,13 +32,15 @@ public class CubeDockerConfigurationResolver {
     private static final String HTTPS_SCHEME = "https";
     private static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
     private static final String DOCKER_MACHINE_NAME = "DOCKER_MACHINE_NAME";
-
+    private static Random random = new Random();
+    private static Logger log = Logger.getLogger(CubeDockerConfigurationResolver.class.getName());
     private final Top top;
     private final DockerMachine dockerMachine;
     private final Boot2Docker boot2Docker;
     private final OperatingSystemFamily operatingSystemFamily;
 
-    public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker, OperatingSystemFamily operatingSystemFamily) {
+    public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
+        OperatingSystemFamily operatingSystemFamily) {
         this.top = top;
         this.dockerMachine = dockerMachine;
         this.boot2Docker = boot2Docker;
@@ -52,8 +49,11 @@ public class CubeDockerConfigurationResolver {
 
     /**
      * Resolves the configuration.
-     * @param config    The specified configuration.
-     * @return          The resolved configuration.
+     *
+     * @param config
+     *     The specified configuration.
+     *
+     * @return The resolved configuration.
      */
     public Map<String, String> resolve(Map<String, String> config) {
         config = resolveSystemEnvironmentVariables(config);
@@ -69,9 +69,12 @@ public class CubeDockerConfigurationResolver {
 
     private Map<String, String> resolveDockerInsideDocker(Map<String, String> cubeConfiguration) {
         // if DIND_RESOLUTION property is not set, since by default is enabled, we need to go inside code.
-        if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
+        if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DIND_RESOLUTION) || Boolean.parseBoolean(
+            cubeConfiguration.get(CubeDockerConfiguration.DIND_RESOLUTION))) {
             if (top.isSpinning()) {
-                log.fine(String.format("Your Cube tests are going to run inside a running Docker container. %s property is replaced to %s", CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
+                log.fine(String.format(
+                    "Your Cube tests are going to run inside a running Docker container. %s property is replaced to %s",
+                    CubeDockerConfiguration.DOCKER_URI, OperatingSystemFamily.DIND.getServerUri()));
                 String serverUri = OperatingSystemFamily.DIND.getServerUri();
                 cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
             }
@@ -96,10 +99,10 @@ public class CubeDockerConfigurationResolver {
                 if (!dockerMachineFileExist) {
                     dockerMachineFile.getParentFile().mkdirs();
                     Spacelift.task(DownloadTool.class)
-                            .from(machineUrl)
-                            .to(dockerMachineFile)
-                            .execute()
-                            .await();
+                        .from(machineUrl)
+                        .to(dockerMachineFile)
+                        .execute()
+                        .await();
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachinePath);
 
                     dockerMachine.grantPermissionToDockerMachine(dockerMachinePath);
@@ -128,11 +131,14 @@ public class CubeDockerConfigurationResolver {
                         dockerMachine.startDockerMachine(cliPathExec, machineName);
                     }
                 } else {
-                    log.log(Level.SEVERE, String.format("You are trying to run containers in Docker Machine %s but %s Docker Machines instances are installed.", config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), machines));
+                    log.log(Level.SEVERE, String.format(
+                        "You are trying to run containers in Docker Machine %s but %s Docker Machines instances are installed.",
+                        config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), machines));
                 }
-
             } else {
-                log.log(Level.SEVERE, String.format("You are trying to run containers in Docker Machine %s but no docker-machine installed.", config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME)));
+                log.log(Level.SEVERE, String.format(
+                    "You are trying to run containers in Docker Machine %s but no docker-machine installed.",
+                    config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME)));
             }
         }
         return config;
@@ -142,16 +148,20 @@ public class CubeDockerConfigurationResolver {
 
         // if user has not specified Docker URI host not a docker machine
         // setting DOCKER_URI to avoid using docker machine although it is installed
-        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-            log.fine("No DockerUri or DockerMachine has been set, let's see if there is only one Docker Machine Running.");
+        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(
+            CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
+            log.fine(
+                "No DockerUri or DockerMachine has been set, let's see if there is only one Docker Machine Running.");
             if (dockerMachine.isDockerMachineInstalled(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH))) {
                 // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
-                Set<Machine> machines = this.dockerMachine.list(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH), "state", "Running");
+                Set<Machine> machines =
+                    this.dockerMachine.list(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH), "state", "Running");
 
                 // if there is only one machine running we can use that one.
                 // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
                 if (machines.size() == 1) {
-                    log.fine(String.format("One Docker Machine is running (%s) and it is going to be used for tests", machines.iterator().next().getName()));
+                    log.fine(String.format("One Docker Machine is running (%s) and it is going to be used for tests",
+                        machines.iterator().next().getName()));
                     config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, getFirstMachine(machines).getName());
                 }
             }
@@ -185,15 +195,19 @@ public class CubeDockerConfigurationResolver {
 
         if (containsDockerHostTag(dockerServerUri)) {
             if (isDockerMachineSet(config)) {
-                dockerServerUri = resolveDockerMachine(dockerServerUri, config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH));
+                dockerServerUri =
+                    resolveDockerMachine(dockerServerUri, config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME),
+                        config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH));
             } else {
-                dockerServerUri = resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
+                dockerServerUri =
+                    resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
             }
         }
 
         config.put(CubeDockerConfiguration.DOCKER_URI, dockerServerUri);
         if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
-            config.put(CubeDockerConfiguration.CERT_PATH, HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
+            config.put(CubeDockerConfiguration.CERT_PATH,
+                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
         }
 
         resolveDockerServerIp(config, dockerServerUri);
@@ -228,12 +242,11 @@ public class CubeDockerConfigurationResolver {
                 if (isDockerMachineSet(config)) {
 
                     if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
-                            || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
+                        || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                     } else {
                         config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
                     }
-
                 } else {
                     config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
                 }
@@ -258,7 +271,7 @@ public class CubeDockerConfigurationResolver {
     }
 
     private boolean isDockerHostSet() {
-        return  Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST));
+        return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_HOST));
     }
 
     private boolean isDockerCertPathSet() {
@@ -275,17 +288,26 @@ public class CubeDockerConfigurationResolver {
 
     private String resolveDockerMachine(String tag, String machineName, String dockerMachinePath) {
         dockerMachine.setMachineName(machineName);
-        return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG, dockerMachine.ip(dockerMachinePath, false));
+        return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG,
+            dockerMachine.ip(dockerMachinePath, false));
     }
 
     private String resolveBoot2Docker(String tag,
-                                      String boot2DockerPath) {
+        String boot2DockerPath) {
         return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG, boot2Docker.ip(boot2DockerPath, false));
     }
 
     private String getDefaultTlsDirectory(Map<String, String> config) {
         if (isDockerMachineSet(config)) {
-            return "~" + File.separator + ".docker" + File.separator + "machine" + File.separator + "machines" + File.separator + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
+            return "~"
+                + File.separator
+                + ".docker"
+                + File.separator
+                + "machine"
+                + File.separator
+                + "machines"
+                + File.separator
+                + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
         } else {
             return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
         }

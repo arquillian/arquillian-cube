@@ -6,7 +6,8 @@ public class BuildImage {
     private boolean noCache = false;
     private boolean remove = false;
 
-    protected BuildImage() {}
+    protected BuildImage() {
+    }
 
     public BuildImage(String dockerfileLocation, String dockerfileName, boolean noCache, boolean remove) {
         this.dockerfileLocation = dockerfileLocation;

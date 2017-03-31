@@ -10,12 +10,10 @@ import io.undertow.connector.ByteBufferPool;
 import io.undertow.server.ConnectorStatistics;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.OpenListener;
-
+import io.undertow.server.XnioByteBufferPool;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.undertow.server.XnioByteBufferPool;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 import org.xnio.Options;
@@ -25,20 +23,22 @@ import org.xnio.StreamConnection;
 
 /**
  * PortForwardOpenListener
- * 
+ *
  * @author Rob Cernich
  */
 public class PortForwardOpenListener implements OpenListener {
 
     private final ByteBufferPool bufferPool;
     private final int bufferSize;
-    private volatile OptionMap undertowOptions;
-    private ClientConnection masterPortForwardConnection;
     private final String urlPath;
     private final int targetPort;
     private final AtomicInteger requestId;
+    private volatile OptionMap undertowOptions;
+    private ClientConnection masterPortForwardConnection;
 
-    public PortForwardOpenListener(ClientConnection masterPortForwardConnection, final String urlPath, final int targetPort, final AtomicInteger requestId, final Pool<ByteBuffer> pool, final OptionMap undertowOptions) {
+    public PortForwardOpenListener(ClientConnection masterPortForwardConnection, final String urlPath,
+        final int targetPort, final AtomicInteger requestId, final Pool<ByteBuffer> pool,
+        final OptionMap undertowOptions) {
         this.masterPortForwardConnection = masterPortForwardConnection;
         this.urlPath = urlPath;
         this.targetPort = targetPort;
@@ -62,7 +62,9 @@ public class PortForwardOpenListener implements OpenListener {
                 readTimeout = Math.min(readTimeout, idleTimeout);
             }
             if (readTimeout != null && readTimeout > 0) {
-                channel.getSourceChannel().setConduit(new ReadTimeoutStreamSourceConduit(channel.getSourceChannel().getConduit(), channel, this));
+                channel.getSourceChannel()
+                    .setConduit(
+                        new ReadTimeoutStreamSourceConduit(channel.getSourceChannel().getConduit(), channel, this));
             }
             Integer writeTimeout = channel.getOption(Options.WRITE_TIMEOUT);
             if ((writeTimeout == null || writeTimeout <= 0) && idleTimeout != null) {
@@ -71,19 +73,22 @@ public class PortForwardOpenListener implements OpenListener {
                 writeTimeout = Math.min(writeTimeout, idleTimeout);
             }
             if (writeTimeout != null && writeTimeout > 0) {
-                channel.getSinkChannel().setConduit(new WriteTimeoutStreamSinkConduit(channel.getSinkChannel().getConduit(), channel, this));
+                channel.getSinkChannel()
+                    .setConduit(new WriteTimeoutStreamSinkConduit(channel.getSinkChannel().getConduit(), channel, this));
             }
         } catch (IOException e) {
             IoUtils.safeClose(channel);
             UndertowLogger.REQUEST_IO_LOGGER.ioException(e);
         }
 
-        final PortForwardServerConnection connection = new PortForwardServerConnection(channel, bufferPool, undertowOptions, bufferSize);
+        final PortForwardServerConnection connection =
+            new PortForwardServerConnection(channel, bufferPool, undertowOptions, bufferSize);
         connection.getWorker().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    connection.startForwarding(masterPortForwardConnection, urlPath, targetPort, requestId.getAndIncrement());
+                    connection.startForwarding(masterPortForwardConnection, urlPath, targetPort,
+                        requestId.getAndIncrement());
                 } catch (IOException e) {
                 } finally {
                     IoUtils.safeClose(connection);
@@ -123,5 +128,4 @@ public class PortForwardOpenListener implements OpenListener {
     public ConnectorStatistics getConnectorStatistics() {
         return null;
     }
-
 }

@@ -2,7 +2,6 @@ package org.arquillian.cube;
 
 import java.io.Serializable;
 
-
 public class TopContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -18,6 +17,7 @@ public class TopContainer implements Serializable {
     public String[] getTitles() {
         return this.titles;
     }
+
     public String[][] getProcesses() {
         return this.processes;
     }

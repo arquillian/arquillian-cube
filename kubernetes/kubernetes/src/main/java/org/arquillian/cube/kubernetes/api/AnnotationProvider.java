@@ -8,6 +8,5 @@ public interface AnnotationProvider extends WithToImmutable<AnnotationProvider> 
     String TEST_CASE_STATUS_FORMAT = "fabric8.io/test-status-%s";
     int MAX_ANNOTATION_KEY_LENGTH = 63;
 
-
     Map<String, String> create(String sessionId, String status);
 }

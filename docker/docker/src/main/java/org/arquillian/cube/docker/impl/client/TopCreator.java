@@ -9,7 +9,6 @@ import org.jboss.arquillian.core.api.event.ManagerStarted;
 
 public class TopCreator {
 
-
     @Inject
     @ApplicationScoped
     private InstanceProducer<Top> topInstanceProducer;

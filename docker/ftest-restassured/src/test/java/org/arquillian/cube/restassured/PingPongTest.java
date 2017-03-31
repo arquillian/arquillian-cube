@@ -2,14 +2,13 @@ package org.arquillian.cube.restassured;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import java.net.MalformedURLException;
 import org.arquillian.cube.DockerUrl;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.net.MalformedURLException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -24,12 +23,11 @@ public class PingPongTest {
     @Test
     public void should_receive_ok_message() throws MalformedURLException, InterruptedException {
         RestAssured
-                .given()
-                    .spec(requestSpecBuilder.build())
-                .when()
-                    .get()
-                .then()
-                    .assertThat().body("status", equalTo("OK"));
+            .given()
+            .spec(requestSpecBuilder.build())
+            .when()
+            .get()
+            .then()
+            .assertThat().body("status", equalTo("OK"));
     }
-
 }
