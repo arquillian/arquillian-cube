@@ -1,23 +1,15 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -27,7 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Device;
@@ -38,6 +29,13 @@ import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
 import org.yaml.snakeyaml.Yaml;
 
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 public class ContainerBuilder {
 
@@ -49,7 +47,7 @@ public class ContainerBuilder {
     private static final String LABELS = "labels";
     private static final String LOG_DRIVER = "log_driver";
     private static final String SECURITY_OPT = "security_opt";
-    private static final String DOCKERFILE= "dockerfile";
+    private static final String DOCKERFILE = "dockerfile";
     private static final String READ_ONLY = "read_only";
     private static final String EXTENDS = "extends";
     private static final String PORTS = "ports";
@@ -85,19 +83,17 @@ public class ContainerBuilder {
     private static final String DEPENDS_ON = "depends_on";
     private static final String CONTEXT = "context";
     private static final String NETWORKS = "networks";
-
-    private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
+    private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
+    private static List<String> AVAILABLE_COMMANDS =
+        Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
             DNS_SEARCH, WORKING_DIR, ENTRYPOINT, USER, HOSTNAME, MEM_LIMIT, PRIVILEGED, RESTART, STDIN_OPEN, TTY,
-            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE, NETWORKS);
-
-    private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
-
+            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE,
+            NETWORKS);
+    GitOperations gitOperations;
     private Random random = new Random();
-
     private CubeContainer configuration;
     private Path dockerComposeRootLocation;
-    GitOperations gitOperations;
 
     public ContainerBuilder(Path dockerComposeRootLocation) {
         this(dockerComposeRootLocation, new CubeContainer());
@@ -114,7 +110,7 @@ public class ContainerBuilder {
 
     @SuppressWarnings("unchecked")
     public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition, String version) {
-        if(dockerComposeContainerDefinition.containsKey(EXTENDS)) {
+        if (dockerComposeContainerDefinition.containsKey(EXTENDS)) {
             Map<String, Object> extendsDefinition = asMap(dockerComposeContainerDefinition, EXTENDS);
             this.extend(Paths.get(asString(extendsDefinition, "file")), asString(extendsDefinition, "service"));
         }
@@ -125,36 +121,45 @@ public class ContainerBuilder {
             if (DockerComposeConverter.DOCKER_COMPOSE_VERSION_2_VALUE.equals(version)) {
                 Object o = dockerComposeContainerDefinition.get(BUILD);
                 if (o instanceof String) {
-                    String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                    String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(
+                        dockerComposeContainerDefinition, DOCKERFILE) : null;
                     this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
                 } else if (o instanceof Map) {
                     Map<String, Object> buildDefinition = asMap(dockerComposeContainerDefinition, BUILD);
 
                     String context = buildDefinition.containsKey(CONTEXT) ? asString(buildDefinition, CONTEXT) : null;
 
-                    final String dockerfile = buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
+                    final String dockerfile =
+                        buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
                     if (context != null) {
                         File directory = new File(context);
                         if (directory.isDirectory()) {
                             this.addBuild(asString(buildDefinition, CONTEXT),
-                                    dockerfile);
+                                dockerfile);
                         } else {
                             // Make GitOperations lazy because it will help for testing purposes and to avoid instantiate JGit classes when Git is not required-
                             // In this way, if you don't need Git, you don't need to add jgit dependency
                             if (gitOperations == null) {
-                                log.log(Level.INFO, String.format("Starting cloning git repository %s defined in docker-compose", context));
+                                log.log(Level.INFO,
+                                    String.format("Starting cloning git repository %s defined in docker-compose",
+                                        context));
                                 GitOperations gitOperations = new GitOperations();
                                 File clonedDirectory = gitOperations.cloneRepo(context);
-                                log.log(Level.INFO, String.format("Finished cloning git repository %s defined in docker-compose", context));
+                                log.log(Level.INFO,
+                                    String.format("Finished cloning git repository %s defined in docker-compose",
+                                        context));
                                 this.addBuild(clonedDirectory.getParentFile().getAbsolutePath(), dockerfile);
                             }
                         }
                     } else {
-                        log.log(Level.WARNING, "build configuration is provided as object but no context definition is found.");
+                        log.log(Level.WARNING,
+                            "build configuration is provided as object but no context definition is found.");
                     }
                 }
             } else {
-                String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                String dockerfile =
+                    dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition,
+                        DOCKERFILE) : null;
                 this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
             }
         }
@@ -180,7 +185,7 @@ public class ContainerBuilder {
             this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
             this.addBinds(asListOfString(dockerComposeContainerDefinition, VOLUMES));
         }
-        if(dockerComposeContainerDefinition.containsKey(LABELS)) {
+        if (dockerComposeContainerDefinition.containsKey(LABELS)) {
             this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
         }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES_FROM)) {
@@ -190,7 +195,7 @@ public class ContainerBuilder {
             this.addEnvironment(asListOfString(dockerComposeContainerDefinition, ENVIRONMENT));
         }
         if (dockerComposeContainerDefinition.containsKey(ENV_FILE)) {
-            if(dockerComposeContainerDefinition.get(ENV_FILE) instanceof List) {
+            if (dockerComposeContainerDefinition.get(ENV_FILE) instanceof List) {
                 this.addEnvFile(asListOfString(dockerComposeContainerDefinition, ENV_FILE));
             } else {
                 this.addEnvFile(Arrays.asList(asString(dockerComposeContainerDefinition, ENV_FILE)));
@@ -270,7 +275,7 @@ public class ContainerBuilder {
             this.addDevices(asListOfString(dockerComposeContainerDefinition, DEVICES));
         }
         if (dockerComposeContainerDefinition.containsKey(DOMAINNAME)) {
-           this.addDomainName(asString(dockerComposeContainerDefinition, DOMAINNAME));
+            this.addDomainName(asString(dockerComposeContainerDefinition, DOMAINNAME));
         }
         if (dockerComposeContainerDefinition.containsKey(READ_ONLY)) {
             this.addReadOnly(asBoolean(dockerComposeContainerDefinition, READ_ONLY));
@@ -287,7 +292,6 @@ public class ContainerBuilder {
                 Map<String, Object> networks = asMap(dockerComposeContainerDefinition, NETWORKS);
                 this.addNetworks(networks.keySet());
             }
-
         }
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
@@ -314,13 +318,12 @@ public class ContainerBuilder {
         return this;
     }
 
-
     private ContainerBuilder addDevices(Collection<String> devices) {
         Collection<Device> devicesDefinition = new HashSet<Device>();
         for (String device : devices) {
             String[] deviceSplitted = device.split(":");
             Device def = new Device();
-            switch(deviceSplitted.length) {
+            switch (deviceSplitted.length) {
                 case 3: {
                     ///dev/ttyUSB0:/dev/ttyUSB0:rw
                     def.setcGroupPermissions(deviceSplitted[2]);
@@ -332,7 +335,9 @@ public class ContainerBuilder {
                     break;
                 }
                 default: {
-                    throw new IllegalArgumentException(String.format("Device definition %s is incorrect. It should follow the format <hostPath>:<containerPath>:(optional)<permissions>", device));
+                    throw new IllegalArgumentException(String.format(
+                        "Device definition %s is incorrect. It should follow the format <hostPath>:<containerPath>:(optional)<permissions>",
+                        device));
                 }
             }
             devicesDefinition.add(def);
@@ -429,7 +434,8 @@ public class ContainerBuilder {
                     //random host port
                     if (port.contains("-")) {
                         getExpandedPorts(port).stream()
-                                .forEach(expandedPort -> listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + expandedPort)));
+                            .forEach(expandedPort -> listOfPorts.add(
+                                PortBinding.valueOf(getRandomPort() + "->" + expandedPort)));
                     } else {
                         listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
                     }
@@ -440,7 +446,6 @@ public class ContainerBuilder {
                     if (port.contains("-")) {
 
                         listOfPorts.addAll(addPairPortRange(elements[0], elements[1], null));
-
                     } else {
                         listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
                     }
@@ -473,14 +478,16 @@ public class ContainerBuilder {
         final List<String> expandedContainerPorts = getExpandedPorts(containerRangePorts);
 
         if (expandedContainerPorts.size() != expandedHostPorts.size()) {
-            throw new IllegalArgumentException("Port ranges from host and container side should contain same number of ports");
+            throw new IllegalArgumentException(
+                "Port ranges from host and container side should contain same number of ports");
         }
 
-        for (int i=0; i < expandedHostPorts.size(); i++) {
+        for (int i = 0; i < expandedHostPorts.size(); i++) {
             if (host == null) {
                 listOfPorts.add(PortBinding.valueOf(expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
             } else {
-                listOfPorts.add(PortBinding.valueOf(host + ":" + expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
+                listOfPorts.add(
+                    PortBinding.valueOf(host + ":" + expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
             }
         }
 
@@ -498,14 +505,13 @@ public class ContainerBuilder {
         int endPort = Integer.parseInt(portRange[1].trim()) + 1;
 
         return IntStream.range(initialPort, endPort).boxed()
-                .map(String::valueOf)
-                .collect(Collectors.toList());
-
+            .map(String::valueOf)
+            .collect(Collectors.toList());
     }
 
     public ContainerBuilder addExpose(Collection<String> exposes) {
         Collection<ExposedPort> ports = new HashSet<ExposedPort>();
-        for(String exposed : exposes) {
+        for (String exposed : exposes) {
             ports.add(ExposedPort.valueOf(exposed));
         }
         if (configuration.getExposedPorts() != null) {
@@ -674,7 +680,7 @@ public class ContainerBuilder {
 
     public ContainerBuilder extend(Path location, String service) {
         File extendLocation = this.dockerComposeRootLocation.resolve(location).toFile();
-        try(FileInputStream inputStream = new FileInputStream(extendLocation)) {
+        try (FileInputStream inputStream = new FileInputStream(extendLocation)) {
             // resolve parameters
             String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
             Map<String, Object> extendedDockerComposeFile = (Map<String, Object>) new Yaml().load(content);
@@ -682,10 +688,10 @@ public class ContainerBuilder {
             ContainerBuilder containerBuilder = new ContainerBuilder(dockerComposeRootLocation, configuration);
             configuration = containerBuilder.build(serviceDockerComposeConfiguration);
 
-            if(serviceDockerComposeConfiguration == null) {
-                throw new IllegalArgumentException(String.format("Service name %s is not present at %s", service, extendLocation.getAbsolutePath()));
+            if (serviceDockerComposeConfiguration == null) {
+                throw new IllegalArgumentException(
+                    String.format("Service name %s is not present at %s", service, extendLocation.getAbsolutePath()));
             }
-
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -704,7 +710,8 @@ public class ContainerBuilder {
                     restartPolicy.setName(element[0]);
                     restartPolicy.setMaximumRetryCount(Integer.parseInt(element[1]));
                 } else {
-                    throw new IllegalArgumentException("on-failure restart should be on-failure or with optional retries on-failure:retries");
+                    throw new IllegalArgumentException(
+                        "on-failure restart should be on-failure or with optional retries on-failure:retries");
                 }
             }
         } else {
@@ -766,7 +773,8 @@ public class ContainerBuilder {
         Properties allProperties = new Properties();
         for (String property : properties) {
             int keySeparator = property.indexOf("=");
-            allProperties.put(property.substring(0, keySeparator), property.substring(keySeparator + 1, property.length()));
+            allProperties.put(property.substring(0, keySeparator),
+                property.substring(keySeparator + 1, property.length()));
         }
         return allProperties;
     }
@@ -782,7 +790,7 @@ public class ContainerBuilder {
 
     private void logUnsupportedOperations(Set<String> keys) {
         for (String key : keys) {
-            if(!AVAILABLE_COMMANDS.contains(key)) {
+            if (!AVAILABLE_COMMANDS.contains(key)) {
                 log.info(String.format("Key: %s is not implemented in Cube.", keys));
             }
         }

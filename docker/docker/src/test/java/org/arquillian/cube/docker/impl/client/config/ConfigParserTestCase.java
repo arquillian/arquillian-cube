@@ -1,7 +1,6 @@
 package org.arquillian.cube.docker.impl.client.config;
 
 import java.util.Iterator;
-
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,7 +8,7 @@ import org.junit.Test;
 public class ConfigParserTestCase {
 
     private static final String CONTENT =
-            "tomcat:\n" +
+        "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  buildImage:\n" +
             "      dockerfileLocation: src/test/resources/undertow\n" +

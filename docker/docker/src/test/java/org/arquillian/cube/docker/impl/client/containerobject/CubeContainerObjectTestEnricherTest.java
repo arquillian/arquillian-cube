@@ -1,22 +1,10 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
@@ -43,6 +31,15 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class CubeContainerObjectTestEnricherTest {
 
     private CubeRegistry cubeRegistry;
@@ -55,6 +52,34 @@ public class CubeContainerObjectTestEnricherTest {
     @AfterClass
     public static void cleanEnvironment() {
         deleteTestDirectory();
+    }
+
+    private static void deleteTestDirectory() {
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
+        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
+        for (File testDirectory : testsDirectories) {
+            try {
+                FileUtils.deleteDirectory(testDirectory);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    private static File findGeneratedDirectory() {
+        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
+        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
+        if (testsDirectories.length > 0) {
+            return testsDirectories[0];
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean testDirectoryFilter(File dir, String name) {
+        return dir.isDirectory()
+            && name.startsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_PREFIX)
+            && name.endsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_SUFFIX);
     }
 
     @Before
@@ -89,11 +114,11 @@ public class CubeContainerObjectTestEnricherTest {
         final org.arquillian.cube.spi.Cube<?> mycontainer = cubeRegistry.getCube("mycontainer");
         assertThat(mycontainer, is(notNullValue()));
         assertThat(mycontainer.hasMetadata(IsContainerObject.class), is(true));
-        assertThat(mycontainer.getMetadata(IsContainerObject.class).getTestClass().getName(), is(InjectableTest.class.getName()));
+        assertThat(mycontainer.getMetadata(IsContainerObject.class).getTestClass().getName(),
+            is(InjectableTest.class.getName()));
 
         verify(cubeController, times(1)).start("mycontainer");
         verify(cubeController, times(1)).create("mycontainer");
-
     }
 
     @Test
@@ -129,7 +154,8 @@ public class CubeContainerObjectTestEnricherTest {
         assertThat(outterContainer, is(notNullValue()));
 
         DockerCube dockerCube = (DockerCube) outterContainer;
-        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links = dockerCube.configuration().getLinks();
+        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links =
+            dockerCube.configuration().getLinks();
         assertThat(links.size(), is(1));
         assertThat(links, hasItem(org.arquillian.cube.docker.impl.client.config.Link.valueOf("db:db")));
 
@@ -156,7 +182,8 @@ public class CubeContainerObjectTestEnricherTest {
         assertThat(outterContainer, is(notNullValue()));
 
         DockerCube dockerCube = (DockerCube) outterContainer;
-        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links = dockerCube.configuration().getLinks();
+        final Collection<org.arquillian.cube.docker.impl.client.config.Link> links =
+            dockerCube.configuration().getLinks();
         assertThat(links.size(), is(1));
         assertThat(links, hasItem(org.arquillian.cube.docker.impl.client.config.Link.valueOf("inner:inner")));
 
@@ -182,14 +209,14 @@ public class CubeContainerObjectTestEnricherTest {
         final org.arquillian.cube.spi.Cube<?> image = cubeRegistry.getCube("image");
         assertThat(image, is(notNullValue()));
         assertThat(image.hasMetadata(IsContainerObject.class), is(true));
-        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(), is(FourthInjectableTest.class.getName()));
+        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(),
+            is(FourthInjectableTest.class.getName()));
 
         verify(cubeController, times(1)).start("image");
         verify(cubeController, times(1)).create("image");
 
         DockerCube dockerCube = (DockerCube) image;
         assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
-
     }
 
     @Test
@@ -204,7 +231,8 @@ public class CubeContainerObjectTestEnricherTest {
         final org.arquillian.cube.spi.Cube<?> image = cubeRegistry.getCube("image");
         assertThat(image, is(notNullValue()));
         assertThat(image.hasMetadata(IsContainerObject.class), is(true));
-        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(), is(FifthInjectableTest.class.getName()));
+        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(),
+            is(FifthInjectableTest.class.getName()));
 
         verify(cubeController, times(1)).start("image");
         verify(cubeController, times(1)).create("image");
@@ -212,7 +240,6 @@ public class CubeContainerObjectTestEnricherTest {
         DockerCube dockerCube = (DockerCube) image;
         assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
         assertThat(dockerCube.configuration().getEnv(), hasItems("a=b", "c=d"));
-
     }
 
     @Test
@@ -227,15 +254,16 @@ public class CubeContainerObjectTestEnricherTest {
         final org.arquillian.cube.spi.Cube<?> image = cubeRegistry.getCube("image");
         assertThat(image, is(notNullValue()));
         assertThat(image.hasMetadata(IsContainerObject.class), is(true));
-        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(), is(SixthInjectableTest.class.getName()));
+        assertThat(image.getMetadata(IsContainerObject.class).getTestClass().getName(),
+            is(SixthInjectableTest.class.getName()));
 
         verify(cubeController, times(1)).start("image");
         verify(cubeController, times(1)).create("image");
 
         DockerCube dockerCube = (DockerCube) image;
         assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
-        assertThat(dockerCube.configuration().getBinds(), hasItems("/mypath:/containerPath:rw", "/mypath2:/containerPath2:rw"));
-
+        assertThat(dockerCube.configuration().getBinds(),
+            hasItems("/mypath:/containerPath:rw", "/mypath2:/containerPath2:rw"));
     }
 
     private static class InjectableTest {
@@ -262,10 +290,12 @@ public class CubeContainerObjectTestEnricherTest {
         @Cube("image")
         ImageContainerObject imageContainerObject;
     }
+
     private static class FifthInjectableTest {
         @Cube("image")
         ImageWithEnvContainerObject imageContainerObject;
     }
+
     private static class SixthInjectableTest {
         @Cube("image")
         @Volume(hostPath = "/mypath2", containerPath = "/containerPath2")
@@ -283,37 +313,35 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
     }
 
     public static class TestLinkedContainerObject {
 
-        @CubeDockerFile
-        public static Archive<?> createDockerfile() {
-            String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
-            return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
-        }
-
         @Cube("inner")
         @Link("db:db")
         TestLinkContainerObject linkContainerObject;
 
+        @CubeDockerFile
+        public static Archive<?> createDockerfile() {
+            String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
+            return ShrinkWrap.create(GenericArchive.class)
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
+        }
     }
 
     public static class TestLinkedContainerObjectNoLink {
+
+        @Cube("inner")
+        TestLinkContainerObject linkContainerObject;
 
         @CubeDockerFile
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
-
-        @Cube("inner")
-        TestLinkContainerObject linkContainerObject;
-
     }
 
     @Image("tomee:8-jre-1.7.2-webprofile")
@@ -322,13 +350,13 @@ public class CubeContainerObjectTestEnricherTest {
 
     @Image("tomee:8-jre-1.7.2-webprofile")
     @Environment(key = "a", value = "b")
-    @Environment(key = "c",  value = "d")
+    @Environment(key = "c", value = "d")
     public static class ImageWithEnvContainerObject {
     }
 
     @Image("tomee:8-jre-1.7.2-webprofile")
     @Volume(hostPath = "/mypath", containerPath = "/containerPath")
-    public static class VolumesContainerObject{
+    public static class VolumesContainerObject {
     }
 
     public static class TestLinkContainerObject {
@@ -336,35 +364,7 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("mysql").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
-    }
-
-    private static void deleteTestDirectory() {
-        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
-        for (File testDirectory: testsDirectories) {
-            try {
-                FileUtils.deleteDirectory(testDirectory);
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-    }
-
-    private static File findGeneratedDirectory() {
-        File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-        final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
-        if (testsDirectories.length > 0) {
-            return testsDirectories[0];
-        } else {
-            return null;
-        }
-    }
-
-    private static boolean testDirectoryFilter(File dir, String name) {
-        return dir.isDirectory()
-                && name.startsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_PREFIX)
-                && name.endsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_SUFFIX);
     }
 }

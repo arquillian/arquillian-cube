@@ -26,17 +26,17 @@ package org.arquillian.cube.impl.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
-import java.net.JarURLConnection;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.util.zip.ZipFile;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipFile;
 
 /**
  * Locates where a given class is loaded from.
@@ -44,19 +44,24 @@ import java.util.logging.Level;
  * @author Kohsuke Kawaguchi
  */
 public class Which {
+    private static final Logger LOGGER = Logger.getLogger(Which.class.getName());
+
     /**
      * Returns the URL of the class file where the given class has been loaded from.
      *
-     * @throws IllegalArgumentException if failed to determine.
+     * @throws IllegalArgumentException
+     *     if failed to determine.
      * @since 2.24
      */
     public static URL classFileUrl(Class<?> clazz) throws IOException {
         ClassLoader cl = clazz.getClassLoader();
-        if (cl == null)
+        if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
+        }
         URL res = cl.getResource(clazz.getName().replace('.', '/') + ".class");
-        if (res == null)
+        if (res == null) {
             throw new IllegalArgumentException("Unable to locate class file for " + clazz);
+        }
         return res;
     }
 
@@ -75,7 +80,8 @@ public class Which {
      * Note that jar files are not always loaded from {@link File},
      * so for diagnostics purposes {@link #jarURL(Class)} is preferrable.
      *
-     * @throws IllegalArgumentException if failed to determine.
+     * @throws IllegalArgumentException
+     *     if failed to determine.
      */
     public static File jarFile(Class<?> clazz) throws IOException {
         return jarFile(classFileUrl(clazz), clazz.getName().replace('.', '/') + ".class");
@@ -84,24 +90,31 @@ public class Which {
     /**
      * Locates the jar file that contains the given resource
      *
-     * @param res           The URL that points to the location of the resource.
-     * @param qualifiedName Fully qualified resource name of the resource being looked up,
-     *                      such as "pkg/Outer$Inner.class" or "abc/def/msg.properties".
-     *                      This is normally a part of the {@code res} parameter, but some
-     *                      VFS makes it necessary to get this information from outside to figure out what the jar file is.
+     * @param res
+     *     The URL that points to the location of the resource.
+     * @param qualifiedName
+     *     Fully qualified resource name of the resource being looked up,
+     *     such as "pkg/Outer$Inner.class" or "abc/def/msg.properties".
+     *     This is normally a part of the {@code res} parameter, but some
+     *     VFS makes it necessary to get this information from outside to figure out what the jar file is.
+     *
      * @return never null
-     * @throws IllegalArgumentException If the URL is not in a jar file.
+     *
+     * @throws IllegalArgumentException
+     *     If the URL is not in a jar file.
      */
     /*package*/
     static File jarFile(URL res, String qualifiedName) throws IOException {
         String resURL = res.toExternalForm();
         String originalURL = resURL;
-        if (resURL.startsWith("jar:file:") || resURL.startsWith("wsjar:file:"))
+        if (resURL.startsWith("jar:file:") || resURL.startsWith("wsjar:file:")) {
             return fromJarUrlToFile(resURL);
+        }
 
         if (resURL.startsWith("code-source:/")) {
             // OC4J apparently uses this. See http://www.nabble.com/Hudson-on-OC4J-tt16702113.html
-            resURL = resURL.substring("code-source:/".length(), resURL.lastIndexOf('!')); // cut off jar: and the file name portion
+            resURL = resURL.substring("code-source:/".length(),
+                resURL.lastIndexOf('!')); // cut off jar: and the file name portion
             return new File(decode(new URL("file:/" + resURL).getPath()));
         }
 
@@ -215,7 +228,8 @@ public class Which {
     }
 
     private static File fromJarUrlToFile(String resURL) throws MalformedURLException {
-        resURL = resURL.substring(resURL.indexOf(':') + 1, resURL.lastIndexOf('!')); // cut off "scheme:" and the file name portion
+        resURL = resURL.substring(resURL.indexOf(':') + 1,
+            resURL.lastIndexOf('!')); // cut off "scheme:" and the file name portion
         return new File(decode(new URL(resURL).getPath()));
     }
 
@@ -243,6 +257,4 @@ public class Which {
     private static int hexToInt(int ch) {
         return Character.getNumericValue(ch);
     }
-
-    private static final Logger LOGGER = Logger.getLogger(Which.class.getName());
 }

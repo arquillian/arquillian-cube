@@ -1,22 +1,20 @@
 package org.arquillian.cube.openshift.impl.install;
 
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
-import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
-import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
-import org.jboss.arquillian.core.spi.ServiceLoader;
-
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.openshift.client.OpenShiftClient;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
+import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
+import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
 

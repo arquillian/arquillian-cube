@@ -1,16 +1,15 @@
 package org.arquillian.cube.docker.impl.reporter;
 
-
 import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.event.Standalone;
 import org.arquillian.reporter.api.event.TestSuiteConfigurationSection;
 import org.arquillian.reporter.api.model.report.BasicReport;
 
-public class DockerContainerSection extends SectionEvent<DockerContainerSection, BasicReport, TestSuiteConfigurationSection> implements Standalone {
-
-    private String testSuiteId;
+public class DockerContainerSection
+    extends SectionEvent<DockerContainerSection, BasicReport, TestSuiteConfigurationSection> implements Standalone {
 
     private static final String CONFIGURATION_ID = "Docker Containers";
+    private String testSuiteId;
 
     public DockerContainerSection(String configurationId) {
         super(configurationId);
@@ -22,7 +21,7 @@ public class DockerContainerSection extends SectionEvent<DockerContainerSection,
     }
 
     public static DockerContainerSection standalone() {
-       return new DockerContainerSection(Standalone.getStandaloneId());
+        return new DockerContainerSection(Standalone.getStandaloneId());
     }
 
     @Override

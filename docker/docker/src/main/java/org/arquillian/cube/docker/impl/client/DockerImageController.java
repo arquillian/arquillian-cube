@@ -9,7 +9,6 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-
 public class DockerImageController {
 
     private static final String TAG = ":latest";
@@ -21,10 +20,10 @@ public class DockerImageController {
         if (configuration.isCleanBuildImage()) {
             String cubeId = event.getCubeId();
             Cube cube = registry.getCube(cubeId);
-            if(cube == null) {
+            if (cube == null) {
                 throw new IllegalArgumentException("No cube with id " + cubeId + " found in registry");
             }
-            if (cube.configuration() instanceof  CubeContainer) {
+            if (cube.configuration() instanceof CubeContainer) {
                 CubeContainer config = (CubeContainer) cube.configuration();
 
                 // removing image only if it's built by cube

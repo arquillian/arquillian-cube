@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
+import java.util.List;
+import java.util.logging.Logger;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.ConnectionMode;
 import org.arquillian.cube.spi.Cube;
@@ -12,9 +14,6 @@ import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 /**
  * Observer that stops and removes started container objects at the end of class execution.
  */
@@ -24,7 +23,6 @@ public class AfterClassContainerObjectObserver {
 
     @Inject Instance<CubeRegistry> cubeRegistryInstance;
     @Inject Instance<CubeController> cubeControllerInstance;
-
 
     public void stopContainerObjects(@Observes(precedence = 100) After afterClass) {
 
@@ -46,18 +44,17 @@ public class AfterClassContainerObjectObserver {
         final CubeController cubeController = cubeControllerInstance.get();
         final List<Cube<?>> byMetadata = cubeRegistryInstance.get().getByMetadata(IsContainerObject.class);
         byMetadata.stream()
-                .filter( cube -> {
-                    // To support fork tests
-                    final Class<?> testJavaClass = testClass.getJavaClass();
-                    return testJavaClass.equals(cube.getMetadata(IsContainerObject.class).getTestClass());
-                })
-                .filter(cube -> cube.getMetadata(IsContainerObject.class).getConnectionMode() == connectionMode)
-                .forEach(cube -> {
-                    logger.fine(String.format("Stopping Container Object %s", cube.getId()));
-                    cubeController.stop(cube.getId());
-                    cubeController.destroy(cube.getId());
-                    cubeRegistryInstance.get().removeCube(cube.getId());
-                });
+            .filter(cube -> {
+                // To support fork tests
+                final Class<?> testJavaClass = testClass.getJavaClass();
+                return testJavaClass.equals(cube.getMetadata(IsContainerObject.class).getTestClass());
+            })
+            .filter(cube -> cube.getMetadata(IsContainerObject.class).getConnectionMode() == connectionMode)
+            .forEach(cube -> {
+                logger.fine(String.format("Stopping Container Object %s", cube.getId()));
+                cubeController.stop(cube.getId());
+                cubeController.destroy(cube.getId());
+                cubeRegistryInstance.get().removeCube(cube.getId());
+            });
     }
-
 }

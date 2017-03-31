@@ -15,10 +15,6 @@
  */
 package org.arquillian.cube.kubernetes.impl.utils;
 
-import org.apache.commons.io.FileUtils;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.api.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
+import org.apache.commons.io.FileUtils;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.api.Logger;
 
 /**
  * A helper class for running external processes
- *
+ * <p>
  * This class is a cut down version taken from the [Fabric8 Maven Plugin](https://github.com/fabric8io/fabric8-maven-plugin/blob/master/core/src/main/java/io/fabric8/maven/core/util/ProcessUtil.java)
  */
 public class ProcessUtil {
@@ -48,10 +46,11 @@ public class ProcessUtil {
         File scriptFile = File.createTempFile("arquillian-cube-script", getSuffix());
         FileUtils.copyURLToFile(scriptUrl, scriptFile);
         scriptFile.setExecutable(true, false);
-        return runCommand(log, getCommand(), Arrays.asList(new String[]{scriptFile.getAbsolutePath()}), env, true);
+        return runCommand(log, getCommand(), Arrays.asList(new String[] {scriptFile.getAbsolutePath()}), env, true);
     }
 
-    public static int runCommand(final Logger log, String command, List<String> args, Map<String, String> env, boolean withShutdownHook) throws IOException {
+    public static int runCommand(final Logger log, String command, List<String> args, Map<String, String> env,
+        boolean withShutdownHook) throws IOException {
         String[] commandWithArgs = prepareCommandArray(command, args);
         String[] envp = prepareEnvp(env);
         Process process = Runtime.getRuntime().exec(commandWithArgs, envp);
@@ -77,7 +76,6 @@ public class ProcessUtil {
             }
         }
     }
-
 
     // ==========================================================================================================
 
@@ -111,10 +109,10 @@ public class ProcessUtil {
         return commandWithArgs;
     }
 
-
-    private static String[] prepareEnvp(Map<String, String> env) {;
+    private static String[] prepareEnvp(Map<String, String> env) {
+        ;
         String[] envp = new String[env.size()];
-        int i=0;
+        int i = 0;
         for (Map.Entry<String, String> entry : env.entrySet()) {
             envp[i++] = entry.getKey() + "=" + entry.getValue();
         }
@@ -189,7 +187,6 @@ public class ProcessUtil {
         };
     }
 
-
     public static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("windows");
     }
@@ -201,7 +198,6 @@ public class ProcessUtil {
             return "/bin/sh -c";
         }
     }
-
 
     private static final String getSuffix() {
         if (isWindows()) {

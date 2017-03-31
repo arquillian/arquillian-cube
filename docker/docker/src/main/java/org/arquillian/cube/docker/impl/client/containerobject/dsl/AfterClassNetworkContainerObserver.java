@@ -1,5 +1,8 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.NetworkRegistry;
 import org.arquillian.cube.spi.metadata.IsNetworkContainerObject;
@@ -7,10 +10,6 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
-
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Observer that removes network objects after test execution.
@@ -30,9 +29,9 @@ public class AfterClassNetworkContainerObserver {
 
         final NetworkRegistry networkRegistry = networkRegistryInstance.get();
         final List<String> networksToRemove = networkRegistry.getNetworkIds()
-                .stream()
-                .filter(id -> networkRegistry.getNetwork(id).hasMetadata(IsNetworkContainerObject.class))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(id -> networkRegistry.getNetwork(id).hasMetadata(IsNetworkContainerObject.class))
+            .collect(Collectors.toList());
 
         // To avoid Concurrent modification exception
         networksToRemove.stream().forEach(id -> {
@@ -40,7 +39,5 @@ public class AfterClassNetworkContainerObserver {
             dockerClientExecutorInstance.get().removeNetwork(id);
             networkRegistry.removeNetwork(id);
         });
-
     }
-
 }

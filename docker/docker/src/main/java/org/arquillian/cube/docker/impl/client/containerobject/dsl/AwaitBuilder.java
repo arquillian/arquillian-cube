@@ -1,11 +1,10 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
-import org.arquillian.cube.docker.impl.client.config.Await;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.arquillian.cube.docker.impl.client.config.Await;
 
 /**
  * Builder to create await objects. Polling comes by default if not set.
@@ -29,9 +28,8 @@ public class AwaitBuilder {
     }
 
     /**
-     *
-     * @param serviceUrl You can use dockerHost reserved keyword, which is replaced at runtime for real docker host ip.
-     * @return
+     * @param serviceUrl
+     *     You can use dockerHost reserved keyword, which is replaced at runtime for real docker host ip.
      */
     public static HttpAwaitBuilder httpAwait(URL serviceUrl, String messageContent) {
         return new HttpAwaitBuilder(serviceUrl, messageContent);
@@ -94,6 +92,5 @@ public class AwaitBuilder {
         public Await build() {
             return this.await;
         }
-
     }
 }

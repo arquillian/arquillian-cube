@@ -1,5 +1,12 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.arquillian.cube.containerobject.ConnectionMode;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
@@ -10,14 +17,6 @@ import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Builder object to create containers object.
@@ -63,7 +62,7 @@ public class ContainerBuilder {
     private File createTemporalDirectoryForCopyingDockerfile(String containerName) {
         File dir;
         try {
-            dir = File.createTempFile(TEMPORARY_FOLDER_PREFIX+containerName, TEMPORARY_FOLDER_SUFFIX);
+            dir = File.createTempFile(TEMPORARY_FOLDER_PREFIX + containerName, TEMPORARY_FOLDER_SUFFIX);
             dir.delete();
             if (!dir.mkdirs()) {
                 throw new IllegalArgumentException("Temp Dir for storing Dockerfile contents could not be created.");
@@ -86,8 +85,8 @@ public class ContainerBuilder {
 
         public ContainerOptionsBuilder withExposedPorts(Integer... ports) {
             List<ExposedPort> exposedPortList = Arrays.stream(ports)
-                    .map(ExposedPort::valueOf)
-                    .collect(Collectors.toList());
+                .map(ExposedPort::valueOf)
+                .collect(Collectors.toList());
             setExposedPorts(exposedPortList);
 
             return this;
@@ -95,8 +94,8 @@ public class ContainerBuilder {
 
         public ContainerOptionsBuilder withExposedPorts(String... ports) {
             List<ExposedPort> exposedPortList = Arrays.stream(ports)
-                    .map(ExposedPort::valueOf)
-                    .collect(Collectors.toList());
+                .map(ExposedPort::valueOf)
+                .collect(Collectors.toList());
             setExposedPorts(exposedPortList);
 
             return this;
@@ -104,9 +103,9 @@ public class ContainerBuilder {
 
         public ContainerOptionsBuilder withPortBinding(Integer... ports) {
             List<PortBinding> portBindingList = Arrays.stream(ports)
-                    .map(port -> Integer.toString(port))
-                    .map(PortBinding::valueOf)
-                    .collect(Collectors.toList());
+                .map(port -> Integer.toString(port))
+                .map(PortBinding::valueOf)
+                .collect(Collectors.toList());
             setPortBinding(portBindingList);
 
             return this;
@@ -114,14 +113,14 @@ public class ContainerBuilder {
 
         public ContainerOptionsBuilder withPortBinding(String... ports) {
             List<PortBinding> portBindingList = Arrays.stream(ports)
-                    .map(PortBinding::valueOf)
-                    .collect(Collectors.toList());
+                .map(PortBinding::valueOf)
+                .collect(Collectors.toList());
             setPortBinding(portBindingList);
 
             return this;
         }
 
-        public ContainerOptionsBuilder withEnvironment(String key, Object value, Object...keyValues) {
+        public ContainerOptionsBuilder withEnvironment(String key, Object value, Object... keyValues) {
             if (keyValues.length % 2 != 0) {
                 throw new IllegalArgumentException("Key Values should be a pair of key, value");
             }
@@ -175,10 +174,9 @@ public class ContainerBuilder {
 
         public ContainerOptionsBuilder withNetworks(Network... networks) {
             return withNetworks(Arrays.stream(networks)
-                    .map(Network::getId)
-                    .toArray( String[]::new)
+                .map(Network::getId)
+                .toArray(String[]::new)
             );
-
         }
 
         public ContainerOptionsBuilder withPriviledgedMode(boolean mode) {
@@ -257,7 +255,5 @@ public class ContainerBuilder {
                 cubeContainer.getLinks().add(Link.valueOf(link));
             }
         }
-
     }
-
 }

@@ -3,7 +3,6 @@ package org.arquillian.cube.docker.impl.docker.cube;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.arquillian.cube.docker.impl.client.Converter;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;

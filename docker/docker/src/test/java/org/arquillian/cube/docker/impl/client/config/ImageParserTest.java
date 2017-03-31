@@ -8,7 +8,6 @@ import static org.junit.Assert.assertThat;
 
 public class ImageParserTest {
 
-
     @Test
     public void shouldParseSimpleImages() {
         final Image image = Image.valueOf("my_image");

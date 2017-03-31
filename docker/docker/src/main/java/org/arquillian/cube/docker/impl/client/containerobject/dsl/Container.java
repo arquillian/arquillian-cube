@@ -48,6 +48,7 @@ public class Container {
 
     /**
      * Returns the ip where this container can be reachable from outside docker host.
+     *
      * @return Ip.
      */
     public String getIpAddress() {
@@ -56,7 +57,10 @@ public class Container {
 
     /**
      * Returns binding port for given exposed port.
-     * @param exposedPort to resolve.
+     *
+     * @param exposedPort
+     *     to resolve.
+     *
      * @return Binding port.
      */
     public int getBindPort(int exposedPort) {
@@ -76,7 +80,6 @@ public class Container {
             if (mappedAddress != null) {
                 bindPort = mappedAddress.getPort();
             }
-
         }
 
         return bindPort;
@@ -85,5 +88,4 @@ public class Container {
     private Cube getCube(String cubeId) {
         return cubeRegistryInstance.get().getCube(cubeId);
     }
-
 }

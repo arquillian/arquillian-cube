@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -38,7 +37,8 @@ public class SeleniumContainersTest {
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
-        assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(), is("src/test/resources/browser"));
+        assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(),
+            is("src/test/resources/browser"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
     }
 
@@ -50,7 +50,8 @@ public class SeleniumContainersTest {
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
-        assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(), is("src/test/resources/browser"));
+        assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(),
+            is("src/test/resources/browser"));
         assertThat(firefox.getSeleniumContainer().getImage(), is(nullValue()));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
     }
@@ -77,5 +78,4 @@ public class SeleniumContainersTest {
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-chrome-debug:2.53.0"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
     }
-
 }

@@ -9,7 +9,8 @@ public class CubeDockerReporterExtension implements LoadableExtension {
     public void register(ExtensionBuilder builder) {
 
         // Only if reporter is in classpath we should provide reporting capabilities.
-        final boolean reportedInClasspath = Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension");
+        final boolean reportedInClasspath =
+            Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension");
         if (reportedInClasspath) {
             builder.observer(TakeDockerEnvironment.class);
             builder.service(StringKey.class, DockerEnvironmentReportKey.class);
@@ -24,6 +25,5 @@ public class CubeDockerReporterExtension implements LoadableExtension {
         if (reportedInClasspath && Validate.classExists("org.arquillian.cube.docker.restassured.RestAssuredExtension")) {
             builder.observer(TakeRestAssuredContent.class);
         }
-
     }
 }

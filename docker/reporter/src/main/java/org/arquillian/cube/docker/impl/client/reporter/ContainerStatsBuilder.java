@@ -1,12 +1,11 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
 import com.github.dockerjava.api.model.Statistics;
-import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
 
 public class ContainerStatsBuilder {
 
@@ -25,7 +24,6 @@ public class ContainerStatsBuilder {
 
         stats.setNetworks(extractNetworksStats(statistics.getNetworks()));
 
-
         return stats;
     }
 
@@ -34,7 +32,7 @@ public class ContainerStatsBuilder {
         if (map != null) {
             long totalRxBytes = 0, totalTxBytes = 0;
 
-            for (Map.Entry<String, Object> entry: map.entrySet()) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
                 Map<String, Long> nwStats = new LinkedHashMap<>();
                 String adapterName = entry.getKey();
                 if (entry.getValue() instanceof LinkedHashMap) {
@@ -90,7 +88,7 @@ public class ContainerStatsBuilder {
     private static Map<String, Long> extractMemoryStats(Map<String, Object> map, String... fields) {
         Map<String, Long> memory = new LinkedHashMap<>();
         if (map != null) {
-            for (String field: fields) {
+            for (String field : fields) {
                 long usage = NumberConversion.convertToLong(map.get(field));
                 memory.put(field, usage);
             }

@@ -1,5 +1,11 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.logging.Logger;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
@@ -13,15 +19,9 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.logging.Logger;
-
 /**
- * Enricher that starts any networks or containers defined in tests. This enricher must start both because we need to be sure that networks are started before containers.
+ * Enricher that starts any networks or containers defined in tests. This enricher must start both because we need to be
+ * sure that networks are started before containers.
  */
 public class ContainerNetworkObjectDslTestEnricher implements TestEnricher {
 
@@ -48,11 +48,11 @@ public class ContainerNetworkObjectDslTestEnricher implements TestEnricher {
         // And there is no way to order test enrichers.
         startNetworks(testCase);
         startContainers(testCase);
-
     }
 
     private void startContainers(Object testCase) {
-        final List<Field> containerFields = ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), DockerContainer.class);
+        final List<Field> containerFields =
+            ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), DockerContainer.class);
         Collections.sort(containerFields, Comparator.comparingInt(f -> f.getAnnotation(DockerContainer.class).order()));
         Collections.reverse(containerFields);
 
@@ -65,9 +65,10 @@ public class ContainerNetworkObjectDslTestEnricher implements TestEnricher {
                     final Container enrichedContainer = injectorInstance.get().inject(containerObject);
                     field.set(testCase, enrichedContainer);
                     startContainer(enrichedContainer, testCase.getClass());
-
                 } else {
-                    throw new IllegalArgumentException(String.format("Object %s is not assignable to %s.", object.getClass(), Container.class.getName()));
+                    throw new IllegalArgumentException(
+                        String.format("Object %s is not assignable to %s.", object.getClass(),
+                            Container.class.getName()));
                 }
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException(e);
@@ -86,11 +87,10 @@ public class ContainerNetworkObjectDslTestEnricher implements TestEnricher {
                     Network networkObject = (Network) object;
 
                     startNetwork(networkObject);
-
                 } else {
-                    throw new IllegalArgumentException(String.format("Object %s is not assignable to %s.", object.getClass(), Network.class.getName()));
+                    throw new IllegalArgumentException(
+                        String.format("Object %s is not assignable to %s.", object.getClass(), Network.class.getName()));
                 }
-
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -113,9 +113,12 @@ public class ContainerNetworkObjectDslTestEnricher implements TestEnricher {
         String containerName = container.getContainerName();
         if (isNotInitialized(containerName)) {
 
-            DockerCube dockerCube = new DockerCube(containerName, container.getCubeContainer(), dockerClientExecutorInstance.get());
-            dockerCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass, container.getConnectionMode()));
-            logger.finer(String.format("Created Cube with name %s and configuration %s", containerName, dockerCube.configuration()));
+            DockerCube dockerCube =
+                new DockerCube(containerName, container.getCubeContainer(), dockerClientExecutorInstance.get());
+            dockerCube.addMetadata(IsContainerObject.class,
+                new IsContainerObject(testClass, container.getConnectionMode()));
+            logger.finer(String.format("Created Cube with name %s and configuration %s", containerName,
+                dockerCube.configuration()));
             cubeRegistryInstance.get().addCube(injectorInstance.get().inject(dockerCube));
             CubeController cubeController = cubeControllerInstance.get();
             cubeController.create(containerName);

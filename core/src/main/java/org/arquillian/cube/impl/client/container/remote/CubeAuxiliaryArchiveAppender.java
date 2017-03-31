@@ -16,10 +16,10 @@ public class CubeAuxiliaryArchiveAppender implements AuxiliaryArchiveAppender {
     @Override
     public Archive<?> createAuxiliaryArchive() {
         JavaArchive javaArchive = ShrinkWrap.create(JavaArchive.class, "arquillian-cube.jar")
-                .addPackage(CubeController.class.getPackage())
-                .addPackages(true, CubeRemoteExtension.class.getPackage())
-                .addClass(CubeControllerProvider.class)
-                .addAsServiceProvider(RemoteLoadableExtension.class, CubeRemoteExtension.class);
+            .addPackage(CubeController.class.getPackage())
+            .addPackages(true, CubeRemoteExtension.class.getPackage())
+            .addClass(CubeControllerProvider.class)
+            .addAsServiceProvider(RemoteLoadableExtension.class, CubeRemoteExtension.class);
 
         if (LoadableExtension.Validate.classExists("org.arquillian.cube.requirement.ArquillianConditionalRunner")) {
             javaArchive.addPackages(true, ArquillianConditionalRunner.class.getPackage(), Requires.class.getPackage());

@@ -17,6 +17,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface CubeIp {
 
     boolean internal() default true;
-    String containerName() default "";
 
+    String containerName() default "";
 }

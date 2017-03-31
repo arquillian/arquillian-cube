@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.drone;
 
+import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -11,10 +12,9 @@ import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import java.util.Map;
-
 /**
- * Class that modifies the docker composition to add Selenium docker container and if configured the VNC client container too.
+ * Class that modifies the docker composition to add Selenium docker container and if configured the VNC client container
+ * too.
  */
 public class InstallSeleniumCube {
 
@@ -28,17 +28,20 @@ public class InstallSeleniumCube {
     Instance<CubeDroneConfiguration> cubeDroneConfigurationInstance;
 
     // ten less than Cube Q
-    public void install(@Observes(precedence = 90) CubeDockerConfiguration configuration, ArquillianDescriptor arquillianDescriptor) {
+    public void install(@Observes(precedence = 90) CubeDockerConfiguration configuration,
+        ArquillianDescriptor arquillianDescriptor) {
 
         DockerCompositions cubes = configuration.getDockerContainersContent();
 
-        final SeleniumContainers seleniumContainers = SeleniumContainers.create(getBrowser(arquillianDescriptor), cubeDroneConfigurationInstance.get());
+        final SeleniumContainers seleniumContainers =
+            SeleniumContainers.create(getBrowser(arquillianDescriptor), cubeDroneConfigurationInstance.get());
         cubes.add(seleniumContainers.getSeleniumContainerName(), seleniumContainers.getSeleniumContainer());
 
         final boolean recording = cubeDroneConfigurationInstance.get().isRecording();
         if (recording) {
             cubes.add(seleniumContainers.getVncContainerName(), seleniumContainers.getVncContainer());
-            cubes.add(seleniumContainers.getVideoConverterContainerName(), seleniumContainers.getVideoConverterContainer());
+            cubes.add(seleniumContainers.getVideoConverterContainerName(),
+                seleniumContainers.getVideoConverterContainer());
         }
 
         seleniumContainersInstanceProducer.set(seleniumContainers);
@@ -65,6 +68,5 @@ public class InstallSeleniumCube {
         } else {
             return DEFAULT_BROWSER;
         }
-
     }
 }

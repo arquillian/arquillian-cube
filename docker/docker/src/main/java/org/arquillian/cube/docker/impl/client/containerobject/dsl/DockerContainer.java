@@ -17,8 +17,6 @@ public @interface DockerContainer {
 
     /**
      * Order to start the container, the bigger the number, sooner is started.
-     * @return
      */
     int order() default 0;
-
 }

@@ -1,8 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
-import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
-
 import java.util.List;
+import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 
 public class DefaultDockerAutoStartOrder implements DockerAutoStartOrder {
     @Override

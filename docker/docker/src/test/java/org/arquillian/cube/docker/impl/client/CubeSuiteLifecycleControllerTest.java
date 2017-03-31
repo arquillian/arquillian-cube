@@ -1,14 +1,11 @@
 package org.arquillian.cube.docker.impl.client;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.github.dockerjava.api.model.Container;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.ConnectionMode;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -27,7 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.github.dockerjava.api.model.Container;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
@@ -106,7 +104,8 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
 
         CubeDockerConfiguration dockerConfiguration = CubeDockerConfiguration.fromMap(dockerData, null);
-        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionLinksAutoStartParser(Arrays.asList("a"), dockerConfiguration.getDockerContainersContent()));
+        dockerConfiguration.setAutoStartContainers(new AutomaticResolutionLinksAutoStartParser(Arrays.asList("a"),
+            dockerConfiguration.getDockerContainersContent()));
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         ContainerRegistry containerRegistry = mock(ContainerRegistry.class);
@@ -128,7 +127,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         Map<String, String> dockerData = new HashMap<String, String>();
         dockerData.put("autoStartContainers", "regexp:a(.*)");
         dockerData.put("dockerContainers", "a:\n  image: a\nab:\n  image: a\nx:\n" +
-                "  image: a\n");
+            "  image: a\n");
 
         CubeConfiguration cubeConfiguration = CubeConfiguration.fromMap(new HashMap<String, String>());
         bind(ApplicationScoped.class, CubeConfiguration.class, cubeConfiguration);
@@ -202,7 +201,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[]{"a"});
+        when(container.getNames()).thenReturn(new String[] {"a"});
         when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
@@ -232,7 +231,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[]{"alreadyrun"});
+        when(container.getNames()).thenReturn(new String[] {"alreadyrun"});
         when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
@@ -261,7 +260,7 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, CubeDockerConfiguration.class, dockerConfiguration);
 
         Container container = mock(Container.class);
-        when(container.getNames()).thenReturn(new String[]{"alreadyrun"});
+        when(container.getNames()).thenReturn(new String[] {"alreadyrun"});
         when(executor.listRunningContainers()).thenReturn(Arrays.asList(container));
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 

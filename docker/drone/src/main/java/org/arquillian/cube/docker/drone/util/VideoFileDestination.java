@@ -1,14 +1,12 @@
 package org.arquillian.cube.docker.drone.util;
 
-import org.arquillian.cube.docker.drone.CubeDroneConfiguration;
-import org.jboss.arquillian.test.spi.event.suite.After;
-import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.arquillian.cube.docker.drone.CubeDroneConfiguration;
+import org.jboss.arquillian.test.spi.event.suite.After;
 
 public class VideoFileDestination {
 
@@ -59,7 +57,5 @@ public class VideoFileDestination {
         final String methodName = afterTestMethod.getTestMethod().getName();
 
         return className + "_" + methodName + ".flv";
-
     }
-
 }

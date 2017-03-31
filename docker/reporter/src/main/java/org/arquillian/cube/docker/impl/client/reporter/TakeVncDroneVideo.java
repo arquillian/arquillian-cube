@@ -1,5 +1,8 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
 import org.arquillian.reporter.api.builder.Reporter;
 import org.arquillian.reporter.api.event.SectionEvent;
@@ -11,17 +14,14 @@ import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class TakeVncDroneVideo {
 
     @Inject
     Event<SectionEvent> reportEvent;
 
     // Executes after drone recording has finished and file is generated
-    public void reportScreencastRecording(@Observes AfterVideoRecorded event, ReporterConfiguration reporterConfiguration) {
+    public void reportScreencastRecording(@Observes AfterVideoRecorded event,
+        ReporterConfiguration reporterConfiguration) {
 
         Path videoLocation = event.getVideoLocation();
 
@@ -34,10 +34,9 @@ public class TakeVncDroneVideo {
 
             final Method testMethod = getTestMethod(event);
             Reporter.createReport(new TestMethodReport(testMethod.getName()))
-                    .addKeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry(relativize))
-                    .inSection(new TestMethodSection(testMethod))
-                    .fire(reportEvent);
-
+                .addKeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry(relativize))
+                .inSection(new TestMethodSection(testMethod))
+                .fire(reportEvent);
         }
     }
 

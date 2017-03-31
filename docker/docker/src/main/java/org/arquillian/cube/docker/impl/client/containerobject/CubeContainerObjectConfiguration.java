@@ -1,7 +1,6 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
 import java.util.Optional;
-
 import org.arquillian.cube.ContainerObjectConfiguration;
 import org.arquillian.cube.docker.impl.await.PollingAwaitStrategy;
 import org.arquillian.cube.docker.impl.client.config.Await;
@@ -23,12 +22,12 @@ public class CubeContainerObjectConfiguration implements ContainerObjectConfigur
         this.configuration = configuration;
     }
 
-    public CubeContainer getCubeContainerConfiguration() {
-        return configuration;
-    }
-
     public static CubeContainerObjectConfiguration empty() {
         return new CubeContainerObjectConfiguration(null);
+    }
+
+    public CubeContainer getCubeContainerConfiguration() {
+        return configuration;
     }
 
     @Override
@@ -39,37 +38,37 @@ public class CubeContainerObjectConfiguration implements ContainerObjectConfigur
     @Override
     public String[] getPortBindings() {
         return Optional.ofNullable(configuration.getPortBindings())
-                .map(links -> links.stream().map(PortBinding::toString).toArray(String[]::new))
-                .orElse(null);
+            .map(links -> links.stream().map(PortBinding::toString).toArray(String[]::new))
+            .orElse(null);
     }
 
     @Override
     public int[] getAwaitPorts() {
         return Optional.ofNullable(configuration.getAwait())
-                .filter(await -> await.getStrategy().equals(PollingAwaitStrategy.TAG))
-                .map(Await::getPorts)
-                .map(ports -> ports.stream().mapToInt(Integer::intValue).toArray())
-                .orElse(null);
+            .filter(await -> await.getStrategy().equals(PollingAwaitStrategy.TAG))
+            .map(Await::getPorts)
+            .map(ports -> ports.stream().mapToInt(Integer::intValue).toArray())
+            .orElse(null);
     }
 
     @Override
     public String[] getEnvironmentVariables() {
         return Optional.ofNullable(configuration.getEnv())
-                .map(env -> env.stream().toArray(String[]::new))
-                .orElse(null);
+            .map(env -> env.stream().toArray(String[]::new))
+            .orElse(null);
     }
 
     @Override
     public String[] getVolumes() {
         return Optional.ofNullable(configuration.getVolumes())
-                .map(volumes -> volumes.stream().toArray(String[]::new))
-                .orElse(null);
+            .map(volumes -> volumes.stream().toArray(String[]::new))
+            .orElse(null);
     }
 
     @Override
     public String[] getLinks() {
         return Optional.ofNullable(configuration.getLinks())
-                .map(links -> links.stream().map(Link::toString).toArray(String[]::new))
-                .orElse(null);
+            .map(links -> links.stream().map(Link::toString).toArray(String[]::new))
+            .orElse(null);
     }
 }

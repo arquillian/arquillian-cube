@@ -12,5 +12,4 @@ public class CubeRemoteExtension implements RemoteLoadableExtension {
         builder.service(ResourceProvider.class, CubeControllerProvider.class);
         builder.service(ResourceProvider.class, ContainerCubeIDProvider.class);
     }
-
 }

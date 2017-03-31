@@ -14,6 +14,27 @@ public class Link {
         this.alias = alias;
     }
 
+    public static Link valueOf(String links) {
+        String[] link = links.split(":");
+        String name = link[0];
+        String alias = null;
+        if (link.length == 2) {
+            alias = link[1];
+        }
+        return new Link(name, alias);
+    }
+
+    public static Collection<Link> valuesOf(Collection<String> links) {
+        if (links == null) {
+            return null;
+        }
+        List<Link> result = new ArrayList<Link>();
+        for (String link : links) {
+            result.add(valueOf(link));
+        }
+        return result;
+    }
+
     public String getName() {
         return name;
     }
@@ -58,44 +79,30 @@ public class Link {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Link other = (Link) obj;
         if (alias == null) {
-            if (other.alias != null)
+            if (other.alias != null) {
                 return false;
-        } else if (!alias.equals(other.alias))
+            }
+        } else if (!alias.equals(other.alias)) {
             return false;
+        }
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
-    }
-
-    public static Link valueOf(String links) {
-        String[] link = links.split(":");
-        String name = link[0];
-        String alias = null;
-        if (link.length == 2) {
-            alias = link[1];
-        }
-        return new Link(name, alias);
-    }
-
-    public static Collection<Link> valuesOf(Collection<String> links) {
-        if (links == null) {
-            return null;
-        }
-        List<Link> result = new ArrayList<Link>();
-        for (String link : links) {
-            result.add(valueOf(link));
-        }
-        return result;
     }
 }

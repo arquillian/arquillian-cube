@@ -8,6 +8,6 @@ import java.lang.annotation.*;
 public @interface Link {
 
     public static final String DEFAULT_VALUE = "";
-    String value() default DEFAULT_VALUE;
 
+    String value() default DEFAULT_VALUE;
 }

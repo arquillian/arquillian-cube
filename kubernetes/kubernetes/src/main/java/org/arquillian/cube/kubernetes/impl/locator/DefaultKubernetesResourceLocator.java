@@ -1,13 +1,12 @@
 package org.arquillian.cube.kubernetes.impl.locator;
 
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-
 import java.net.URL;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 public class DefaultKubernetesResourceLocator implements KubernetesResourceLocator {
 
     private static final String ROOT = "/";
-    private static final String[] RESOURCE_NAMES = new String[] { "kubernetes", "META-INF/fabric8/kubernetes" };
+    private static final String[] RESOURCE_NAMES = new String[] {"kubernetes", "META-INF/fabric8/kubernetes"};
     private static final String[] ALLOWED_SUFFIXES = {".json", ".yml", ".yaml"};
 
     @Override

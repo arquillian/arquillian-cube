@@ -14,7 +14,7 @@ public class Boot2Docker extends AbstractCliInternetAddressResolver {
 
     @Override
     protected String[] getCommandArguments(String cliPathExec) {
-        return new String[]{createBoot2DockerCommand(cliPathExec) ,"ip"};
+        return new String[] {createBoot2DockerCommand(cliPathExec), "ip"};
     }
 
     @Override
@@ -25,5 +25,4 @@ public class Boot2Docker extends AbstractCliInternetAddressResolver {
     private String createBoot2DockerCommand(String boot2DockerPath) {
         return boot2DockerPath == null ? BOOT2DOCKER_EXEC : boot2DockerPath;
     }
-
 }

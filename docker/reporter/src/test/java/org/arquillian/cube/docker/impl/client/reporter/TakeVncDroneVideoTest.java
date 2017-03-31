@@ -1,5 +1,8 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import java.lang.reflect.Method;
+import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
 import org.arquillian.reporter.api.builder.BuilderLoader;
 import org.arquillian.reporter.api.event.SectionEvent;
@@ -18,10 +21,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.lang.reflect.Method;
-import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
@@ -29,16 +28,15 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class TakeVncDroneVideoTest {
 
+    @Mock
+    Event<SectionEvent> reportEvent;
+    @Captor
+    ArgumentCaptor<SectionEvent> reportEventArgumentCaptor;
+
     @Before
     public void setUp() {
         BuilderLoader.load();
     }
-
-    @Mock
-    Event<SectionEvent> reportEvent;
-
-    @Captor
-    ArgumentCaptor<SectionEvent> reportEventArgumentCaptor;
 
     @Test
     public void should_create_video_from_root_directory() throws NoSuchMethodException {
@@ -47,7 +45,8 @@ public class TakeVncDroneVideoTest {
         takeVncDroneVideo.reportEvent = reportEvent;
 
         final Method method = getMethod("should_create_video_from_root_directory");
-        AfterVideoRecorded afterVideoRecorded = new AfterVideoRecorded(new After(TakeDockerEnvironmentTest.class, method), Paths.get("target/myvideo.flv"));
+        AfterVideoRecorded afterVideoRecorded =
+            new AfterVideoRecorded(new After(TakeDockerEnvironmentTest.class, method), Paths.get("target/myvideo.flv"));
 
         //when
         takeVncDroneVideo.reportScreencastRecording(afterVideoRecorded, getReporterConfiguration());
@@ -59,15 +58,15 @@ public class TakeVncDroneVideoTest {
         final String methodName = method.getName();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(methodName)
-                .hasReportOfTypeThatIsAssignableFrom(TestMethodReport.class);
+            .hasSectionId(methodName)
+            .hasReportOfTypeThatIsAssignableFrom(TestMethodReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(methodName)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("myvideo.mp4")));
+            .hasName(methodName)
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("myvideo.mp4")));
     }
 
     @Test
@@ -77,7 +76,8 @@ public class TakeVncDroneVideoTest {
         takeVncDroneVideo.reportEvent = reportEvent;
 
         final Method method = getMethod("should_create_video_from_surefire_report_directory");
-        AfterVideoRecorded afterVideoRecorded = new AfterVideoRecorded(new After(TakeDockerEnvironmentTest.class, method), Paths.get("target/surefire-report/myvideo.flv"));
+        AfterVideoRecorded afterVideoRecorded = new AfterVideoRecorded(new After(TakeDockerEnvironmentTest.class, method),
+            Paths.get("target/surefire-report/myvideo.flv"));
 
         //when
         takeVncDroneVideo.reportScreencastRecording(afterVideoRecorded, getReporterConfiguration());
@@ -89,15 +89,16 @@ public class TakeVncDroneVideoTest {
         final String methodName = method.getName();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(methodName)
-                .hasReportOfTypeThatIsAssignableFrom(TestMethodReport.class);
+            .hasSectionId(methodName)
+            .hasReportOfTypeThatIsAssignableFrom(TestMethodReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(methodName)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("surefire-report/myvideo.mp4")));
+            .hasName(methodName)
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(
+                new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("surefire-report/myvideo.mp4")));
     }
 
     private ReporterConfiguration getReporterConfiguration() {
@@ -107,5 +108,4 @@ public class TakeVncDroneVideoTest {
     private Method getMethod(String name) throws NoSuchMethodException {
         return TakeVncDroneVideoTest.class.getMethod(name);
     }
-
 }

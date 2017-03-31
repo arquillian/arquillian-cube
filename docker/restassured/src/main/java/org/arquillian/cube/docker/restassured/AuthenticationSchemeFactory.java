@@ -2,8 +2,6 @@ package org.arquillian.cube.docker.restassured;
 
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.Arrays;
 
 public class AuthenticationSchemeFactory {
@@ -16,10 +14,11 @@ public class AuthenticationSchemeFactory {
         String[] parameters = attribute.split(":");
 
         if (parameters.length < 2) {
-            throw new IllegalArgumentException(String.format("Authentication scheme %s doesn't follow the standard format <protocol>:(<value>[:])+"));
+            throw new IllegalArgumentException(
+                String.format("Authentication scheme %s doesn't follow the standard format <protocol>:(<value>[:])+"));
         }
 
-        switch(parameters[0]) {
+        switch (parameters[0]) {
             case "basic": {
                 validateEntry(parameters, 3);
                 return RestAssured.basic(parameters[1], parameters[2]);
@@ -49,14 +48,14 @@ public class AuthenticationSchemeFactory {
                 validateEntry(parameters, 2);
                 return RestAssured.oauth2(parameters[1]);
             }
-            default: throw new IllegalArgumentException(String.format("Unrecognized protocol %s", parameters[0]));
+            default:
+                throw new IllegalArgumentException(String.format("Unrecognized protocol %s", parameters[0]));
         }
-
     }
 
     private static String join(String[] elements) {
         StringBuilder builder = new StringBuilder();
-        for(String s : elements) {
+        for (String s : elements) {
             builder.append(s);
         }
         return builder.toString();
@@ -64,14 +63,15 @@ public class AuthenticationSchemeFactory {
 
     private static void validateEntryBigger(String[] parameters, int numberOfValid) {
         if (parameters.length < numberOfValid) {
-            throw new IllegalArgumentException(String.format("Invalid number of parameters for %s command.", Arrays.toString(parameters)));
+            throw new IllegalArgumentException(
+                String.format("Invalid number of parameters for %s command.", Arrays.toString(parameters)));
         }
     }
 
     private static void validateEntry(String[] parameters, int numberOfValid) {
         if (parameters.length != numberOfValid) {
-            throw new IllegalArgumentException(String.format("Invalid number of parameters for %s command.", Arrays.toString(parameters)));
+            throw new IllegalArgumentException(
+                String.format("Invalid number of parameters for %s command.", Arrays.toString(parameters)));
         }
     }
-
 }

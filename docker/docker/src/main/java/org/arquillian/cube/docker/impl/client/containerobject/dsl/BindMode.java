@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
-
 import com.github.dockerjava.api.model.AccessMode;
 
 /**

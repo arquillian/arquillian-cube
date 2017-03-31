@@ -1,4 +1,6 @@
 import io.fabric8.kubernetes.api.model.Service;
+import java.io.IOException;
+import java.net.URL;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -10,14 +12,9 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.URL;
-
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresKubernetes
@@ -26,7 +23,6 @@ public class HelloWorldTest {
     @Named("hello-world")
     @ArquillianResource
     Service helloWorld;
-
 
     @Named("hello-world")
     @PortForward

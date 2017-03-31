@@ -1,14 +1,12 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.label;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-
+import java.util.HashMap;
+import java.util.Map;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.spi.Validate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Fabric8LabelProvider implements LabelProvider {
 
@@ -19,7 +17,7 @@ public class Fabric8LabelProvider implements LabelProvider {
 
     @Override
     public Map<String, String> getLabels() {
-       return toImmutable().getLabels();
+        return toImmutable().getLabels();
     }
 
     @Override
@@ -27,7 +25,7 @@ public class Fabric8LabelProvider implements LabelProvider {
         if (delegate != null) {
             return delegate;
         }
-        synchronized(this) {
+        synchronized (this) {
             if (delegate == null) {
                 delegate = new ImmutableFabric8LabelProvider(client.get());
             }

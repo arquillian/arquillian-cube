@@ -1,10 +1,6 @@
 package org.arquillian.cube.impl.client;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
-
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
@@ -20,22 +16,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CubeLifecycleControllerTest extends AbstractManagerTestBase {
+
+    public static final String CUBE_ID = "test";
+    public static final String MISSING_CUBE_ID = "_MISSING_";
+    public CubeRegistry cubeRegistry;
+    @Mock
+    public Cube<?> cube;
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeLifecycleController.class);
         super.addExtensions(extensions);
     }
-
-    public static final String CUBE_ID = "test";
-    public static final String MISSING_CUBE_ID = "_MISSING_";
-
-    public CubeRegistry cubeRegistry;
-
-    @Mock
-    public Cube<?> cube;
 
     @Before
     public void setup() {

@@ -1,7 +1,6 @@
 package org.arquillian.cube.impl.client.enricher;
 
 import org.arquillian.cube.HostPort;
-import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -13,7 +12,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class HostPortTestEnricherTest {
@@ -30,7 +28,8 @@ public class HostPortTestEnricherTest {
                     @Override
                     public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                         final HasPortBindings hasPortBindings = Mockito.mock(HasPortBindings.class);
-                        Mockito.when(hasPortBindings.getMappedAddress(99)).thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
+                        Mockito.when(hasPortBindings.getMappedAddress(99))
+                            .thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
                         final Cube<?> cube = Mockito.mock(Cube.class);
                         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(hasPortBindings);
                         return cube;
@@ -56,7 +55,8 @@ public class HostPortTestEnricherTest {
                     @Override
                     public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                         final HasPortBindings hasPortBindings = Mockito.mock(HasPortBindings.class);
-                        Mockito.when(hasPortBindings.getMappedAddress(99)).thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
+                        Mockito.when(hasPortBindings.getMappedAddress(99))
+                            .thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
                         final Cube<?> cube = Mockito.mock(Cube.class);
                         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(hasPortBindings);
                         return cube;
@@ -67,7 +67,7 @@ public class HostPortTestEnricherTest {
         };
         MyTest test = new MyTest();
         Object[] myMethods = hostPortTestEnricher.resolve(test.getClass().getMethod("myMethod", String.class, int.class));
-        assertThat((int)myMethods[1], is(9999));
+        assertThat((int) myMethods[1], is(9999));
     }
 
     @Test
@@ -82,7 +82,8 @@ public class HostPortTestEnricherTest {
                     @Override
                     public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                         final HasPortBindings hasPortBindings = Mockito.mock(HasPortBindings.class);
-                        Mockito.when(hasPortBindings.getMappedAddress(99)).thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
+                        Mockito.when(hasPortBindings.getMappedAddress(99))
+                            .thenReturn(new HasPortBindings.PortAddressImpl("192.168.99.100", 9999));
                         final Cube<?> cube = Mockito.mock(Cube.class);
                         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(hasPortBindings);
                         return cube;
@@ -97,12 +98,11 @@ public class HostPortTestEnricherTest {
     }
 
     public static class MyTest {
-        @HostPort(containerName = "test", value= 99)
+        @HostPort(containerName = "test", value = 99)
         int port;
 
-        public void myMethod(String first, @HostPort(containerName = "test", value= 99) int port) {
+        public void myMethod(String first, @HostPort(containerName = "test", value = 99) int port) {
 
         }
     }
-
 }

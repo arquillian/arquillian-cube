@@ -1,18 +1,17 @@
 package org.arquillian.cube.docker.impl.await;
 
-import org.arquillian.cube.docker.impl.client.config.Await;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.Ping;
-import org.arquillian.cube.docker.impl.util.PingCommand;
-import org.arquillian.cube.impl.util.IOUtil;
-import org.arquillian.cube.spi.Cube;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.Ping;
+import org.arquillian.cube.docker.impl.util.PingCommand;
+import org.arquillian.cube.impl.util.IOUtil;
+import org.arquillian.cube.spi.Cube;
 
 public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
 
@@ -45,7 +44,7 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
         if (params.getUrl() != null) {
             String url = params.getUrl();
 
-            if(url.contains(DOCKER_HOST)) {
+            if (url.contains(DOCKER_HOST)) {
                 url = url.replaceAll(DOCKER_HOST, dockerClientExecutor.getDockerServerIp());
             }
 
@@ -54,7 +53,6 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
-
         } else {
             throw new IllegalArgumentException("Http Await Strategy requires url field");
         }
@@ -115,7 +113,6 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
                             }
                         }
                     }
-
                 } catch (IOException e) {
                     return false;
                 }
@@ -126,7 +123,7 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
     }
 
     public String getUrl() {
-        if (url == null){
+        if (url == null) {
             return "";
         }
         return url.toString();

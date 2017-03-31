@@ -1,21 +1,20 @@
 package org.arquillian.cube.docker.impl.await;
 
-import org.arquillian.cube.spi.await.AwaitStrategy;
-
 import java.util.concurrent.TimeUnit;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
 
     private static final int DEFAULT_SLEEP_TIME = 500;
 
     private int sleepTime;
-    
+
     private TimeUnit timeUnit;
 
     protected SleepingAwaitStrategyBase(Object sleepTime) {
         this(sleepTime, DEFAULT_SLEEP_TIME);
     }
-    
+
     protected SleepingAwaitStrategyBase(Object sleepTime, int defaultSleepTime) {
         configureSleepingTime(sleepTime != null ? sleepTime : defaultSleepTime);
     }
@@ -29,12 +28,10 @@ public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
             if (sleepTimeWithUnit.endsWith("ms")) {
                 this.timeUnit = TimeUnit.MILLISECONDS;
                 this.sleepTime = Integer.parseInt(sleepTimeWithUnit.substring(0, sleepTimeWithUnit.indexOf("ms")).trim());
-            }
-            else if (sleepTimeWithUnit.endsWith("s")) {
+            } else if (sleepTimeWithUnit.endsWith("s")) {
                 this.timeUnit = TimeUnit.SECONDS;
                 this.sleepTime = Integer.parseInt(sleepTimeWithUnit.substring(0, sleepTimeWithUnit.indexOf('s')).trim());
-            }
-            else {
+            } else {
                 this.timeUnit = TimeUnit.MILLISECONDS;
                 this.sleepTime = Integer.parseInt(sleepTimeWithUnit);
             }
@@ -48,5 +45,4 @@ public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
-
 }

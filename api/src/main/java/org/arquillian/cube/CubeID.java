@@ -5,20 +5,20 @@ package org.arquillian.cube;
  * <br/><br/>
  * Usage:
  * <br/><br/>
- *
+ * <p>
  * <pre><code>
  * &#64;ArquillianResource
  * private CubeID cubeId;
  * </code></pre>
- * @author aslak
  *
+ * @author aslak
  */
 public class CubeID {
 
     private String cubeId;
 
     public CubeID(String cubeId) {
-        if(cubeId == null) {
+        if (cubeId == null) {
             throw new IllegalArgumentException("cubeId must be provided");
         }
         this.cubeId = cubeId;

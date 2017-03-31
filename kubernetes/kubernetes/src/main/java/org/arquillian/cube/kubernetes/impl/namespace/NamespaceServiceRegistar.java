@@ -11,14 +11,12 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class NamespaceServiceRegistar {
 
+    @Inject @ApplicationScoped
+    InstanceProducer<NamespaceService> namespaceService;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
 
-    @Inject @ApplicationScoped
-    InstanceProducer<NamespaceService> namespaceService;
-
     public void install(@Observes(precedence = 100) Configuration configuration) {
         namespaceService.set(serviceLoader.get().onlyOne(NamespaceService.class, DefaultNamespaceService.class));
-
     }
 }

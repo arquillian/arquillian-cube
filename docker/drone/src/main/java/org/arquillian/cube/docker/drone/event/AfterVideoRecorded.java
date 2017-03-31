@@ -1,9 +1,8 @@
 package org.arquillian.cube.docker.drone.event;
 
+import java.nio.file.Path;
 import org.jboss.arquillian.core.spi.event.Event;
 import org.jboss.arquillian.test.spi.event.suite.After;
-
-import java.nio.file.Path;
 
 public class AfterVideoRecorded implements Event {
 
