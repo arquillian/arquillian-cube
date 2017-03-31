@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.docker.impl.client.config.CustomBeforeStopAction;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.spi.beforeStop.BeforeStopStrategy;
+import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 
 public class BeforeStopActionFactory {
 
@@ -14,9 +14,8 @@ public class BeforeStopActionFactory {
         super();
     }
 
-    public static final BeforeStopStrategy create(DockerClientExecutor dockerClientExecutor, String containerId, CustomBeforeStopAction beforeStopStrategy) {
+    public static final BeforeStopAction create(DockerClientExecutor dockerClientExecutor, String containerId, CustomBeforeStopAction beforeStopStrategy) {
 
-        String strategy = beforeStopStrategy.getStrategy().toLowerCase();
-        return new CustomBeforeStopActionInstantiator(containerId, dockerClientExecutor, strategy);
+        return new CustomBeforeStopActionInstantiator(containerId, dockerClientExecutor, beforeStopStrategy);
     }
 }

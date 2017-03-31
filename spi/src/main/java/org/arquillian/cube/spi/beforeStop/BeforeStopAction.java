@@ -1,5 +1,5 @@
 package org.arquillian.cube.spi.beforeStop;
 
-public interface BeforeStopStrategy {
+public interface BeforeStopAction {
     void doBeforeStop();
 }
