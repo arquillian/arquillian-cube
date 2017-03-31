@@ -1,62 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <!-- Parent -->
-    <parent>
-        <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-parent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+  <!-- Parent -->
+  <parent>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-parent</artifactId>
+    <version>1.0.2-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <!-- Model Version -->
-    <modelVersion>4.0.0</modelVersion>
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <version.graphene>2.1.0.Final</version.graphene>
-        <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-        <version.selenium>2.53.1</version.selenium>
-    </properties>
+  <properties>
+    <version.graphene>2.1.0.Final</version.graphene>
+    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
+    <version.selenium>2.53.1</version.selenium>
+  </properties>
 
-    <!-- Artifact Configuration -->
-    <artifactId>arquillian-cube-docker-parent</artifactId>
-    <packaging>pom</packaging>
+  <!-- Artifact Configuration -->
+  <artifactId>arquillian-cube-docker-parent</artifactId>
+  <packaging>pom</packaging>
 
-    <name>Arquillian Cube Docker Parent</name>
+  <name>Arquillian Cube Docker Parent</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+  </dependencies>
 
-    <modules>
-        <module>assertj</module>
-        <module>docker</module>
-        <module>drone</module>
-        <module>reporter</module>
-        <module>restassured</module>
-        <module>ftest</module>
-        <module>ftest-standalone</module>
-        <module>ftest-boot2docker</module>
-        <module>ftest-docker-compose</module>
-        <module>ftest-drone</module>
-        <module>ftest-restassured</module>
-        <module>ftest-drone-reporter</module>
-        <module>ftest-drone-custom</module>
-        <module>ftest-graphene</module>
-        <module>ftest-reporter</module>
-        <module>ftest-docker-compose-v2</module>
-        <module>ftest-docker-machine</module>
-        <module>ftest-docker-machine-network</module>
-        <module>ftest-docker-containerobject</module>
-        <module>ftest-docker-containerobject-dsl</module>
-        <module>ftest-standalone-autostart</module>
-        <module>ftest-standalone-star-operator</module>
-        <module>ftest-standalone-star-operator-docker-compose</module>
-        <module>ftest-docker-compose-v2-git-context</module>
-    </modules>
+  <modules>
+    <module>assertj</module>
+    <module>docker</module>
+    <module>drone</module>
+    <module>reporter</module>
+    <module>restassured</module>
+    <module>ftest</module>
+    <module>ftest-standalone</module>
+    <module>ftest-boot2docker</module>
+    <module>ftest-docker-compose</module>
+    <module>ftest-drone</module>
+    <module>ftest-restassured</module>
+    <module>ftest-drone-reporter</module>
+    <module>ftest-drone-custom</module>
+    <module>ftest-graphene</module>
+    <module>ftest-reporter</module>
+    <module>ftest-docker-compose-v2</module>
+    <module>ftest-docker-machine</module>
+    <module>ftest-docker-machine-network</module>
+    <module>ftest-docker-containerobject</module>
+    <module>ftest-docker-containerobject-dsl</module>
+    <module>ftest-standalone-autostart</module>
+    <module>ftest-standalone-star-operator</module>
+    <module>ftest-standalone-star-operator-docker-compose</module>
+    <module>ftest-docker-compose-v2-git-context</module>
+  </modules>
 
 </project>
