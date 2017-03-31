@@ -3,19 +3,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!--<parent>
-        <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-parent</artifactId>
-        <version>1.0.0.Final-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>-->
-
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-bom</artifactId>
     <packaging>pom</packaging>
     <version>1.0.1-SNAPSHOT</version>
 
-    <name>Arquillian Cube Universe Agreegator</name>
+    <name>Arquillian Cube Universe Aggregator</name>
     <url>http://arquillian.org/arquillian-cube</url>
     <description>Centralized dependencyManagement for the Arquillian Cube Project</description>
 
@@ -152,6 +145,38 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Taken from jboss-parent as we don't inherit from it  here.
+
+            This profile can be activated to generate gpg signatures for all build
+            artifacts.  This profile requires that the properties "gpg.keyname"
+            and "gpg.passphrase" are available to the current build.
+        -->
+        <profile>
+            <id>gpg-sign</id>
+            <build>
+                <plugins>
+                    <!-- This will sign the artifact, the POM, and all attached artifacts -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <useAgent>true</useAgent>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <distributionManagement>
         <repository>
