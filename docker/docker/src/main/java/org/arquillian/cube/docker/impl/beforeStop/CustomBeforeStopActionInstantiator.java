@@ -8,15 +8,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.beforeStop.BeforeStopStrategy;
 
-public class CustomBeforeStopStrategyInstantiator implements BeforeStopStrategy {
+public class CustomBeforeStopActionInstantiator implements BeforeStopStrategy {
     private String containerId;
     private DockerClientExecutor dockerClientExecutor;
     private String className;
 
-    public CustomBeforeStopStrategyInstantiator(String containerId, DockerClientExecutor dockerClientExecutor, String className) {
+    public CustomBeforeStopActionInstantiator(String containerId, DockerClientExecutor dockerClientExecutor, String className) {
         this.containerId = containerId;
         this.dockerClientExecutor = dockerClientExecutor;
         this.className = className;
@@ -32,11 +31,10 @@ public class CustomBeforeStopStrategyInstantiator implements BeforeStopStrategy 
 
             // Inject if there is a field of type Cube, DockerClientExecutor
             final Field[] fields = customStrategyInstance.getClass().getDeclaredFields();
-            for (Field field : fields) {
+            for (Field field : fields) { // Inject if there is a field of type Cube, DockerClientExecutor
                 if (field.getType().isAssignableFrom(DockerClientExecutor.class)) {
                     field.setAccessible(true);
                     field.set(customStrategyInstance, this.dockerClientExecutor);
-
                 }
             }
 
@@ -45,10 +43,8 @@ public class CustomBeforeStopStrategyInstantiator implements BeforeStopStrategy 
                 if (writeMethod != null) {
                     if (writeMethod.getParameterTypes()[0].isAssignableFrom(String.class)) {
                         writeMethod.invoke(customStrategyInstance, this.containerId);
-                    } else {
-                        if (writeMethod.getParameterTypes()[0].isAssignableFrom(DockerClientExecutor.class)) {
-                            writeMethod.invoke(customStrategyInstance, this.dockerClientExecutor);
-                        }
+                    } else if (writeMethod.getParameterTypes()[0].isAssignableFrom(DockerClientExecutor.class)) {
+                        writeMethod.invoke(customStrategyInstance, this.dockerClientExecutor);
                     }
                 }
             }

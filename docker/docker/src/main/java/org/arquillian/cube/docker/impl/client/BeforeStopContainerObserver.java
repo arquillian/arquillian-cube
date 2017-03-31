@@ -9,11 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import org.arquillian.cube.docker.impl.beforeStop.BeforeStopStrategyFactory;
-import org.arquillian.cube.docker.impl.client.config.BeforeStop;
-import org.arquillian.cube.docker.impl.client.config.Copy;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.Log;
+import org.arquillian.cube.docker.impl.beforeStop.BeforeStopActionFactory;
+import org.arquillian.cube.docker.impl.client.config.*;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.impl.util.IOUtil;
@@ -42,16 +39,16 @@ public class BeforeStopContainerObserver {
                         executeLogAction(dockerClientExecutor, beforeStop.getCubeId(), logConfiguration);
                     }
                 }
-              if(map.getCustomBeforeStopStrategy() != null) {
-                  String customBeforeStopStrategy = map.getCustomBeforeStopStrategy();
-                  executeCustomBeforeStopAction(dockerClientExecutor,beforeStop.getCubeId(),customBeforeStopStrategy);
+              if(map.getCustomBeforeStopAction() != null) {
+                  CustomBeforeStopAction customBeforeStopAction = map.getCustomBeforeStopAction();
+                  executeCustomBeforeStopAction(dockerClientExecutor,beforeStop.getCubeId(),customBeforeStopAction);
               }
             }
         }
     }
 
-    private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId, String customBeforeStopStrategy) {
-        BeforeStopStrategyFactory.create(dockerClientExecutor, containerId,customBeforeStopStrategy).doBeforeStop();
+    private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId, CustomBeforeStopAction customBeforeStopAction) {
+        BeforeStopActionFactory.create(dockerClientExecutor, containerId,customBeforeStopAction).doBeforeStop();
 
     }
 

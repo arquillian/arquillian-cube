@@ -4,7 +4,7 @@ public class BeforeStop {
 
     private Copy copy;
     private Log log;
-    private String customBeforeStopStrategy;
+    private CustomBeforeStopAction customBeforeStopAction;
 
     public BeforeStop() {
     }
@@ -25,11 +25,11 @@ public class BeforeStop {
         this.log = log;
     }
 
-    public String getCustomBeforeStopStrategy() {
-        return customBeforeStopStrategy;
+    public CustomBeforeStopAction getCustomBeforeStopAction() {
+        return customBeforeStopAction;
     }
 
-    public void setCustomBeforeStopStrategy(String customBeforeStopStrategy) {
-        this.customBeforeStopStrategy = customBeforeStopStrategy;
+    public void setCustomBeforeStopAction(CustomBeforeStopAction customBeforeStopAction) {
+        this.customBeforeStopAction = customBeforeStopAction;
     }
 }
