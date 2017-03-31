@@ -8,8 +8,16 @@ public class ContainerlessConfiguration implements ContainerConfiguration {
     private String containerlessDocker = null;
     private int embeddedPort = 0;
 
+    public void setContainerlessDocker(String containerlessDocker) {
+        this.containerlessDocker = containerlessDocker;
+    }
+
     public boolean isContainerlessDockerSet() {
         return this.containerlessDocker != null;
+    }
+
+    public void setEmbeddedPort(int embeddedPort) {
+        this.embeddedPort = embeddedPort;
     }
 
     public boolean isEmbeddedPortSet() {
@@ -20,19 +28,12 @@ public class ContainerlessConfiguration implements ContainerConfiguration {
         return embeddedPort;
     }
 
-    public void setEmbeddedPort(int embeddedPort) {
-        this.embeddedPort = embeddedPort;
-    }
-
     public String getContainerlessDocker() {
         return containerlessDocker;
-    }
-
-    public void setContainerlessDocker(String containerlessDocker) {
-        this.containerlessDocker = containerlessDocker;
     }
 
     @Override
     public void validate() throws ConfigurationException {
     }
+
 }

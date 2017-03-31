@@ -17,11 +17,9 @@ public enum OperatingSystemFamily {
         this.serverUri = serverUri;
         this.boot2Docker = boot2Docker;
     }
-
     public String getServerUri() {
         return serverUri;
     }
-
     public boolean isBoot2Docker() {
         return this.boot2Docker;
     }

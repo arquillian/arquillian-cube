@@ -1,12 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.SystemUtils;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
@@ -28,42 +21,41 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {
-
-    @Mock
-    CommandLineExecutor commandLineExecutor;
-    @Mock
-    ArquillianDescriptor arquillianDescriptor;
-    @Mock
-    ExtensionDef extensionDef;
-    @Mock
-    Top top;
-
-    private static Matcher<String> defaultDockerMachineCertPath() {
-        return containsString(".docker/machine/machines");
-    }
-
-    private static Matcher<String> defaultBootToDockerCertPath() {
-        return containsString(".boot2docker/certs");
-    }
-
-    private static Matcher<String> pathEndsWith(String suffix) {
-        return new PathStringEndsWithMatcher(suffix);
-    }
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeDockerConfigurator.class);
         super.addExtensions(extensions);
     }
+
+    @Mock
+    CommandLineExecutor commandLineExecutor;
+
+    @Mock
+    ArquillianDescriptor arquillianDescriptor;
+    
+    @Mock
+    ExtensionDef extensionDef;
+    
+    @Mock
+    Top top;
 
     @Before
     public void setup() {
@@ -108,8 +100,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void shouldUseBoot2DockerIfDockerHostIsSetOnServerURIByDefault() {
 
-        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(),
-            is(not(OperatingSystemFamily.LINUX)));
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
@@ -132,9 +123,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-            .thenReturn(Arrays.asList(
-                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     "));
+                .thenReturn(Arrays.asList(
+                        "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " ));
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
@@ -150,9 +141,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-            .thenReturn(Arrays.asList(
-                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                "dev    *        virtualbox   Stopped   tcp://192.168.0.2:222222     "));
+                .thenReturn(Arrays.asList(
+                        "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                        "dev    *        virtualbox   Stopped   tcp://192.168.0.2:222222     " ));
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
 
         fire(new CubeConfiguration());
@@ -168,12 +159,12 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running"))
-            .thenReturn(Arrays.asList(
-                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     "));
+                .thenReturn(Arrays.asList(
+                        "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                        "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     " ));
         // Docker Machine is installed
         when(commandLineExecutor.execCommand("docker-machine"))
-            .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
+                .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
@@ -193,17 +184,18 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.99.100");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "state=Running"))
-            .thenReturn(Arrays.asList(
-                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
-                "dev2   *        virtualbox   Running   tcp://192.168.99.100:2376     "));
+                .thenReturn(Arrays.asList(
+                        "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                        "dev    *        virtualbox   Running   tcp://192.168.99.100:2376     ",
+                        "dev2   *        virtualbox   Running   tcp://192.168.99.100:2376     " ));
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         // Docker-Machine is installed
         when(commandLineExecutor.execCommand("docker-machine"))
-            .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
+                .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
+
     }
 
     // Only works in case of running in MACOS or Windows since by default in
@@ -281,9 +273,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
         when(commandLineExecutor.execCommand("docker-machine", "ip", "dev")).thenReturn("192.168.0.2");
         when(commandLineExecutor.execCommandAsArray("docker-machine", "ls", "--filter", "name=dev"))
-            .thenReturn(Arrays.asList(
-                "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
-                "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     "));
+                .thenReturn(Arrays.asList(
+                        "NAME   ACTIVE   DRIVER       STATE     URL                         SWARM",
+                        "dev    *        virtualbox   Running   tcp://192.168.0.2:222222     " ));
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
@@ -294,8 +286,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfNotSetAndDockerHostTagNotPresent() {
 
-        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(),
-            is(not(OperatingSystemFamily.LINUX)));
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222");
@@ -308,7 +299,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         assertThat(config, hasEntry(CubeDockerConfiguration.TLS_VERIFY, "true"));
         assertThat(config, hasEntry(is(CubeDockerConfiguration.CERT_PATH), defaultBootToDockerCertPath()));
     }
-
+    
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfSetToFalseAndDockerHostTagNotPresent() {
         Map<String, String> config = new HashMap<>();
@@ -343,8 +334,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfNotSetAndDockerHostTagPresent() {
 
-        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(),
-            is(not(OperatingSystemFamily.LINUX)));
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
@@ -362,8 +352,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void tlsVerifyShouldBeTrueInCaseOfCertPathPresent() {
 
-        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(),
-            is(not(OperatingSystemFamily.LINUX)));
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://dockerHost:22222");
@@ -412,16 +401,16 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     public void tlsVerifyShouldBeFalseInCaseOfHttpServerUri() throws Exception {
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "http://192.168.0.2:22222");
-
+        
         when(extensionDef.getExtensionProperties()).thenReturn(config);
         when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
-
+        
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.2:22222"));
         assertThat(config, hasEntry(CubeDockerConfiguration.TLS_VERIFY, "false"));
         assertThat(config, not(hasKey(CubeDockerConfiguration.CERT_PATH)));
     }
-
+    
     @Test
     public void tlsVerifyShouldBeFalseInCaseOfSetToTrueAndHttpServerUri() {
         Map<String, String> config = new HashMap<>();
@@ -440,8 +429,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Test
     public void dockerUriConfigurationParameterShouldTakePrecedenceOverSystemEnv() {
 
-        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(),
-            is(not(OperatingSystemFamily.LINUX)));
+        assumeThat(new OperatingSystemResolver().currentOperatingSystem().getFamily(), is(not(OperatingSystemFamily.LINUX)));
 
         String originalVar = System.getProperty(CubeDockerConfigurator.DOCKER_HOST);
         try {
@@ -491,16 +479,30 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         System.setOut(old);
         assertThat(baos.toString(), containsString("CubeDockerConfiguration:"));
     }
-
+    
+    private static Matcher<String> defaultDockerMachineCertPath() {
+        return containsString(".docker/machine/machines");
+    }
+    
+    private static Matcher<String> defaultBootToDockerCertPath() {
+        return containsString(".boot2docker/certs");
+    }
+    
+    private static Matcher<String> pathEndsWith(String suffix) {
+        return new PathStringEndsWithMatcher(suffix);
+    }
+    
     private static class PathStringEndsWithMatcher extends StringEndsWith {
 
         public PathStringEndsWithMatcher(String suffix) {
             super(suffix);
         }
-
+        
         @Override
         protected boolean evalSubstringOf(String s) {
             return Paths.get(s).endsWith(substring);
         }
+        
     }
+
 }

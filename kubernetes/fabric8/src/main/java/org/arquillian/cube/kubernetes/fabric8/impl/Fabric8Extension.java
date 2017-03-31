@@ -19,8 +19,8 @@ public class Fabric8Extension implements LoadableExtension {
     public void register(LoadableExtension.ExtensionBuilder builder) {
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
-            .override(LabelProvider.class, DefaultLabelProvider.class, Fabric8LabelProvider.class)
-            .override(AnnotationProvider.class, DefaultAnnotationProvider.class, Fabric8AnnotationProvider.class)
-            .override(Visitor.class, ServiceAccountVisitor.class, SecretsAndServiceAccountVisitor.class);
+                .override(LabelProvider.class, DefaultLabelProvider.class, Fabric8LabelProvider.class)
+                .override(AnnotationProvider.class, DefaultAnnotationProvider.class, Fabric8AnnotationProvider.class)
+                .override(Visitor.class, ServiceAccountVisitor.class, SecretsAndServiceAccountVisitor.class);
     }
 }

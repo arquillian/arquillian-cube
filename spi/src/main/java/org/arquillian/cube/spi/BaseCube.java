@@ -2,6 +2,7 @@ package org.arquillian.cube.spi;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.arquillian.cube.spi.metadata.CubeMetadata;
 
 public abstract class BaseCube<T> implements Cube<T> {

@@ -1,22 +1,24 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase {
 
     private static final String CONTENT =
-        "tomcat:\n" +
+            "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -33,6 +35,7 @@ public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase
 
     @Test
     public void shouldInstantiateACustomAutoStartParser() {
+
 
         Map<String, String> parameters = new HashMap<String, String>();
 
@@ -56,13 +59,13 @@ public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase
             }
         };
 
-        final AutoStartParser autoStartParser =
-            AutoStartParserFactory.create("custom:org.arquillian.cube.docker.impl.client.ChangeNameAutoStartParser", null,
-                injector);
+        final AutoStartParser autoStartParser = AutoStartParserFactory.create("custom:org.arquillian.cube.docker.impl.client.ChangeNameAutoStartParser", null, injector);
         assertThat(autoStartParser, instanceOf(CustomAutoStartParser.class));
 
         final Set<String> names = autoStartParser.parse().keySet();
         assertThat(names, hasItem("og"));
         assertThat(names, hasItem("tacmot"));
+
     }
+
 }

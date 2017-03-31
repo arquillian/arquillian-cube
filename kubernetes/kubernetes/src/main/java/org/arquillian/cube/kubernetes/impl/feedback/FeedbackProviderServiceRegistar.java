@@ -11,12 +11,14 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class FeedbackProviderServiceRegistar {
 
-    @Inject @ApplicationScoped
-    InstanceProducer<FeedbackProvider> namespaceService;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
 
+    @Inject @ApplicationScoped
+    InstanceProducer<FeedbackProvider> namespaceService;
+
     public void install(@Observes(precedence = 100) Configuration configuration) {
         namespaceService.set(serviceLoader.get().onlyOne(FeedbackProvider.class, DefaultFeedbackProvider.class));
+
     }
 }

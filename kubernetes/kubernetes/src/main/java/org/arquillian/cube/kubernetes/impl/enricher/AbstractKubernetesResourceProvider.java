@@ -1,14 +1,15 @@
 package org.arquillian.cube.kubernetes.impl.enricher;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.impl.DefaultSession;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public abstract class AbstractKubernetesResourceProvider implements ResourceProvider {
 
@@ -36,9 +37,8 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
 
     /**
      * Get the value() from the specified annotation using reflection.
-     *
-     * @param annotation
-     *     The annotation.
+     * @param annotation    The annotation.
+     * @return
      */
     private String getAnnotationValue(Annotation annotation) {
         Class<? extends Annotation> type = annotation.annotationType();

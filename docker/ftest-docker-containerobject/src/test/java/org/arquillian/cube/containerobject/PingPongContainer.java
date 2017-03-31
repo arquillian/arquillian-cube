@@ -21,11 +21,11 @@ public class PingPongContainer {
     @CubeDockerFile
     public static Archive<?> createContainer() {
         String dockerDescriptor = Descriptors.create(DockerDescriptor.class)
-            .from("jonmorehouse/ping-pong")
-            .expose(8080)
-            .exportAsString();
+                .from("jonmorehouse/ping-pong")
+                .expose(8080)
+                .exportAsString();
         return ShrinkWrap.create(GenericArchive.class)
-            .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
     }
 
     public int getConnectionPort() {

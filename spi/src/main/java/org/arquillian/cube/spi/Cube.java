@@ -5,6 +5,18 @@ import org.arquillian.cube.spi.metadata.HasPortBindings;
 
 public interface Cube<T> {
 
+    public enum State {
+        CREATED,
+        CREATE_FAILED,
+        STARTED,
+        START_FAILED,
+        STOPPED,
+        STOP_FAILED,
+        DESTROYED,
+        DESTORY_FAILED,
+        PRE_RUNNING
+    }
+
     State state();
 
     String getId();
@@ -18,23 +30,21 @@ public interface Cube<T> {
     void destroy() throws CubeControlException;
 
     /**
-     * Check the state of the Cube controller container on the remote server.
-     * This should check the remote state of the Cube regardless of the current Cube.State.
-     */
+    * Check the state of the Cube controller container on the remote server.
+    * This should check the remote state of the Cube regardless of the current Cube.State.
+    */
     boolean isRunningOnRemote();
 
     void changeToPreRunning();
 
     /**
      * @return actual binding of running container
-     *
      * @deprecated See {@link HasPortBindings}
      */
     Binding bindings();
 
     /**
      * @return binding as configured by meta-data, e.g. EXPOSE or pod.json
-     *
      * @deprecated See {@link HasPortBindings}
      */
     Binding configuredBindings();
@@ -46,16 +56,4 @@ public interface Cube<T> {
     <X extends CubeMetadata> void addMetadata(Class<X> type, X impl);
 
     <X extends CubeMetadata> X getMetadata(Class<X> type);
-
-    public enum State {
-        CREATED,
-        CREATE_FAILED,
-        STARTED,
-        START_FAILED,
-        STOPPED,
-        STOP_FAILED,
-        DESTROYED,
-        DESTORY_FAILED,
-        PRE_RUNNING
-    }
 }

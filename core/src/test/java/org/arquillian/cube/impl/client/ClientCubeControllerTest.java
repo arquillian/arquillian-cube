@@ -1,7 +1,10 @@
 package org.arquillian.cube.impl.client;
 
+import static org.mockito.Mockito.when;
+
 import java.util.HashMap;
 import java.util.List;
+
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
@@ -22,23 +25,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ClientCubeControllerTest extends AbstractManagerTestBase {
 
     private static final String CUBE_ID = "x";
     private static final String MISSING_CUBE_ID = "y";
-    @Inject
-    private Instance<CubeController> controllerInst;
-    @Mock
-    private Cube<?> cube;
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(ClientCubeControllerCreator.class);
         super.addExtensions(extensions);
     }
+
+    @Inject
+    private Instance<CubeController> controllerInst;
+
+    @Mock
+    private Cube<?> cube;
 
     @Before
     public void setup() {

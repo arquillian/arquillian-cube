@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.client.metadata;
 
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,6 +9,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
@@ -16,7 +18,7 @@ public class CopyFromContainer implements CanCopyFromContainer {
 
     private final String cubeId;
     private final OpenShiftClient client;
-
+    
     public CopyFromContainer(String cubeId, OpenShiftClient client) {
         this.cubeId = cubeId;
         this.client = client;
@@ -27,10 +29,8 @@ public class CopyFromContainer implements CanCopyFromContainer {
         Path toPath = Paths.get(to);
         File toPathFile = toPath.toFile();
 
-        if (toPathFile.exists() && toPathFile.isFile()) {
-            throw new IllegalArgumentException(String.format(
-                "%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.",
-                "to", toPath.normalize().toString()));
+        if(toPathFile.exists() && toPathFile.isFile()) {
+            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", "to", toPath.normalize().toString()));
         }
 
         try {
@@ -43,11 +43,7 @@ public class CopyFromContainer implements CanCopyFromContainer {
                 fileOrDir = fromPath.getFileName().toString();
                 from = fromPath.getParent().toString();
             }
-            try (ExecWatch watch = client.getClient()
-                .inNamespace(client.getClient().getNamespace())
-                .pods()
-                .withName(cubeId)
-                .exec("tar", "-C", from, "-c", fileOrDir)) {
+            try (ExecWatch watch = client.getClient().inNamespace(client.getClient().getNamespace()).pods().withName(cubeId).exec("tar", "-C", from, "-c", fileOrDir)) {
                 IOUtil.untar(watch.getOutput(), toPathFile);
             }
         } catch (IOException e) {
@@ -57,10 +53,9 @@ public class CopyFromContainer implements CanCopyFromContainer {
 
     @Override
     public void copyLog(boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) {
+            OutputStream outputStream) {
         if (!follow) {
-            String log =
-                client.getClient().inNamespace(client.getClient().getNamespace()).pods().withName(cubeId).getLog();
+            String log = client.getClient().inNamespace(client.getClient().getNamespace()).pods().withName(cubeId).getLog();
             try {
                 outputStream.write(log.getBytes());
             } catch (IOException e) {
@@ -70,4 +65,5 @@ public class CopyFromContainer implements CanCopyFromContainer {
             throw new IllegalArgumentException("log following not supported for pods");
         }
     }
+
 }

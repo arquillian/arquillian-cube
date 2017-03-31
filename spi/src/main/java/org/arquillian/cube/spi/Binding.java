@@ -5,8 +5,10 @@ import java.util.Set;
 
 public class Binding {
 
-    public Set<PortBinding> bindings;
     private String ip;
+
+    public Set<PortBinding> bindings;
+
     private String internalIp;
 
     public Binding(String ip) {
@@ -32,7 +34,7 @@ public class Binding {
     }
 
     public PortBinding getFirstPortBinding() {
-        for (PortBinding binding : this.bindings) {
+        for(PortBinding binding : this.bindings) {
             return binding;
         }
 
@@ -44,11 +46,9 @@ public class Binding {
     }
 
     /**
-     * @param exposedPort
-     *     the port exposed by the container (e.g. EXPOSE or Pod.Spec.Container[].Ports[])
-     * @param bindingPort
-     *     the port to which the container port is bound on this IP (e.g. docker run -p ip:hostPort:exposedPort or
-     *     Pod.Spec.Container[].Ports[].HostPort)
+     * @param exposedPort the port exposed by the container (e.g. EXPOSE or Pod.Spec.Container[].Ports[])
+     * @param bindingPort the port to which the container port is bound on this IP (e.g. docker run -p ip:hostPort:exposedPort or Pod.Spec.Container[].Ports[].HostPort)
+     * @return
      */
     public Binding addPortBinding(Integer exposedPort, Integer bindingPort) {
         this.bindings.add(new PortBinding(exposedPort, bindingPort));
@@ -60,8 +60,8 @@ public class Binding {
     }
 
     public PortBinding getBindingForExposedPort(Integer exposedPort) {
-        for (PortBinding binding : this.bindings) {
-            if (exposedPort.equals(binding.getExposedPort())) {
+        for(PortBinding binding : this.bindings) {
+            if(exposedPort.equals(binding.getExposedPort())) {
                 return binding;
             }
         }
@@ -94,39 +94,33 @@ public class Binding {
             final int prime = 31;
             int result = 1;
             result = prime * result
-                + ((bindingPort == null) ? 0 : bindingPort.hashCode());
+                    + ((bindingPort == null) ? 0 : bindingPort.hashCode());
             result = prime * result
-                + ((exposedPort == null) ? 0 : exposedPort.hashCode());
+                    + ((exposedPort == null) ? 0 : exposedPort.hashCode());
             return result;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
+            if (this == obj)
                 return true;
-            }
-            if (obj == null) {
+            if (obj == null)
                 return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (getClass() != obj.getClass())
                 return false;
-            }
             PortBinding other = (PortBinding) obj;
             if (bindingPort == null) {
-                if (other.bindingPort != null) {
+                if (other.bindingPort != null)
                     return false;
-                }
-            } else if (!bindingPort.equals(other.bindingPort)) {
+            } else if (!bindingPort.equals(other.bindingPort))
                 return false;
-            }
             if (exposedPort == null) {
-                if (other.exposedPort != null) {
+                if (other.exposedPort != null)
                     return false;
-                }
-            } else if (!exposedPort.equals(other.exposedPort)) {
+            } else if (!exposedPort.equals(other.exposedPort))
                 return false;
-            }
             return true;
         }
+
     }
 }

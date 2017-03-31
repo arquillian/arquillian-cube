@@ -30,20 +30,20 @@ public class CubeDockerDroneExtension implements LoadableExtension {
         overrideWebDriver(extensionBuilder, ChromeDriverFactory.class);
         overrideWebDriver(extensionBuilder, HtmlUnitDriverFactory.class);
 
-        if (isGrapheneInStandaloneMode()) {
-            extensionBuilder.override(ResourceProvider.class, CustomizableURLResourceProvider.class,
-                DockerCubeCustomizableURLResourceProvider.class);
+        if(isGrapheneInStandaloneMode()) {
+            extensionBuilder.override(ResourceProvider.class, CustomizableURLResourceProvider.class, DockerCubeCustomizableURLResourceProvider.class);
         }
+
     }
 
     private boolean isGrapheneInStandaloneMode() {
         return Validate.classExists("org.jboss.arquillian.graphene.context.GrapheneContext") &&
-            !Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.URLResourceProvider");
+                ! Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.URLResourceProvider");
     }
 
     private void overrideWebDriver(ExtensionBuilder extensionBuilder, Class override) {
         extensionBuilder.override(Instantiator.class, override, DockerRemoteWebDriverFactory.class)
-            .override(Configurator.class, override, DockerRemoteWebDriverFactory.class)
-            .override(Destructor.class, override, DockerRemoteWebDriverFactory.class);
+                        .override(Configurator.class, override, DockerRemoteWebDriverFactory.class)
+                        .override(Destructor.class, override, DockerRemoteWebDriverFactory.class);
     }
 }

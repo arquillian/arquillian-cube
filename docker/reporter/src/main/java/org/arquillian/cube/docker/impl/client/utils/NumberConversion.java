@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.utils;
 
+
 import org.arquillian.cube.docker.impl.util.NumberType;
 
 public class NumberConversion {
@@ -13,9 +14,9 @@ public class NumberConversion {
             return sign + absBytes + " B";
         }
         int exp = (int) (Math.log(absBytes) / Math.log(unit));
-        String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (decimal ? "" : "i");
+        String pre = (decimal ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (decimal ? "" : "i");
 
-        return String.format("%s %.2f %sB", sign, absBytes / Math.pow(unit, exp), pre).trim();
+        return  String.format("%s %.2f %sB", sign, absBytes / Math.pow(unit, exp), pre).trim();
     }
 
     public static long convertToLong(Object number) {

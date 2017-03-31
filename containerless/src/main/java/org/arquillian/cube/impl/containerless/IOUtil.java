@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Map;
+
 import org.apache.commons.lang.text.StrSubstitutor;
 
 public class IOUtil {
@@ -51,4 +52,5 @@ public class IOUtil {
             throw new RuntimeException(e);
         }
     }
+
 }

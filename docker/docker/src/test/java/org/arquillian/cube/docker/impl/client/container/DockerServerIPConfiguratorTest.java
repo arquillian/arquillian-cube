@@ -1,12 +1,18 @@
 package org.arquillian.cube.docker.impl.client.container;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -24,16 +30,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
 
     public static final String CUBE_ID = "test";
     private static final String CONTENT = "" + "image: tutum/tomcat:7.0\n" + "exposedPorts: [8089/tcp]\n"
-        + "portBindings: [8090->8089/tcp]";
+            + "portBindings: [8090->8089/tcp]";
 
     @Mock
     private Cube cube;
@@ -62,6 +64,23 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
         super.addExtensions(extensions);
     }
 
+    public static class ContainerConfiguration {
+        private int port = 8089;
+        private String myHost = "localhost";
+        public int getPort() {
+            return port;
+        }
+        public void setPort(int port) {
+            this.port = port;
+        }
+        public String getMyHost() {
+            return myHost;
+        }
+        public void setMyHost(String myHost) {
+            this.myHost = myHost;
+        }
+    }
+
     @Before
     public void setup() {
 
@@ -82,6 +101,7 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
 
         bind(ApplicationScoped.class, CubeRegistry.class, registry);
         bind(ApplicationScoped.class, ContainerRegistry.class, containerRegistry);
+
     }
 
     @Test
@@ -114,26 +134,5 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, OperatingSystemFamily.class, OperatingSystemFamily.MAC);
         fire(new BeforeSetup(deployableContainer));
         verify(containerDef, times(0)).overrideProperty("myHost", "192.168.0.1");
-    }
-
-    public static class ContainerConfiguration {
-        private int port = 8089;
-        private String myHost = "localhost";
-
-        public int getPort() {
-            return port;
-        }
-
-        public void setPort(int port) {
-            this.port = port;
-        }
-
-        public String getMyHost() {
-            return myHost;
-        }
-
-        public void setMyHost(String myHost) {
-            this.myHost = myHost;
-        }
     }
 }

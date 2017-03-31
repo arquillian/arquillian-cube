@@ -2,6 +2,7 @@ package org.arquillian.cube.impl.client.container.remote;
 
 import java.io.OutputStream;
 import java.util.List;
+
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
@@ -65,13 +66,13 @@ public class ContainerCubeController implements CubeController {
 
     @Override
     public void copyFileDirectoryFromContainer(String cubeId, String from,
-        String to) {
+            String to) {
         getCommandService().execute(new CopyFileDirectoryCommand(cubeId, from, to));
     }
 
     @Override
     public void copyFileDirectoryFromContainer(CubeID cubeId, String from,
-        String to) {
+            String to) {
         copyFileDirectoryFromContainer(cubeId.get(), from, to);
     }
 
@@ -87,16 +88,15 @@ public class ContainerCubeController implements CubeController {
 
     @Override
     public void copyLog(String containerId, boolean follow,
-        boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) {
-        throw new UnsupportedOperationException(
-            "This operation is only supported for tests running in client mode. https://docs.jboss.org/author/display/ARQ/Test+run+modes");
+            boolean stdout, boolean stderr, boolean timestamps, int tail,
+            OutputStream outputStream) {
+        throw new UnsupportedOperationException("This operation is only supported for tests running in client mode. https://docs.jboss.org/author/display/ARQ/Test+run+modes");
     }
 
     @Override
     public void copyLog(CubeID containerId, boolean follow,
-        boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) {
+            boolean stdout, boolean stderr, boolean timestamps, int tail,
+            OutputStream outputStream) {
         copyLog(containerId.get(), follow, stdout, stderr, timestamps, tail, outputStream);
     }
 
@@ -110,15 +110,19 @@ public class ContainerCubeController implements CubeController {
         return top(cubeId.get());
     }
 
-    private CommandService getCommandService() {
-        ServiceLoader loader = serviceLoader.get();
-        if (loader == null) {
-            throw new IllegalStateException("No " + ServiceLoader.class.getName() + " found in context");
-        }
-        CommandService service = loader.onlyOne(CommandService.class);
-        if (service == null) {
-            throw new IllegalStateException("No " + CommandService.class.getName() + " found in context");
-        }
-        return service;
+    private CommandService getCommandService()
+    {
+       ServiceLoader loader = serviceLoader.get();
+       if(loader == null)
+       {
+          throw new IllegalStateException("No " + ServiceLoader.class.getName() + " found in context");
+       }
+       CommandService service = loader.onlyOne(CommandService.class);
+       if(service == null)
+       {
+          throw new IllegalStateException("No " + CommandService.class.getName() + " found in context");
+       }
+       return service;
     }
+
 }

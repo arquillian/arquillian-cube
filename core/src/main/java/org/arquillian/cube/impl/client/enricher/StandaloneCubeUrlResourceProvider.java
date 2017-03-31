@@ -1,12 +1,5 @@
 package org.arquillian.cube.impl.client.enricher;
 
-import java.lang.annotation.Annotation;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.arquillian.cube.DockerUrl;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.spi.Cube;
@@ -17,82 +10,95 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class StandaloneCubeUrlResourceProvider implements ResourceProvider {
 
-    private static final Logger logger = Logger.getLogger(StandaloneCubeUrlResourceProvider.class.getName());
-    @Inject
-    Instance<HostIpContext> hostUriContext;
-    @Inject
-    Instance<CubeRegistry> cubeRegistryInstance;
+   @Inject
+   Instance<HostIpContext> hostUriContext;
 
-    @Override
-    public boolean canProvide(Class<?> aClass) {
-        return URL.class.isAssignableFrom(aClass);
-    }
+   private static final Logger logger = Logger.getLogger(StandaloneCubeUrlResourceProvider.class.getName());
 
-    @Override
-    public Object lookup(ArquillianResource arquillianResource, Annotation... annotations) {
+   @Inject
+   Instance<CubeRegistry> cubeRegistryInstance;
 
-        final Optional<DockerUrl> optionalDockerUrlAnnotation = getDockerUrlAnnotation(annotations);
-        if (optionalDockerUrlAnnotation.isPresent()) {
+   @Override
+   public boolean canProvide(Class<?> aClass) {
+      return URL.class.isAssignableFrom(aClass);
+   }
 
-            final String host = getHost();
+   @Override
+   public Object lookup(ArquillianResource arquillianResource, Annotation... annotations) {
 
-            final DockerUrl dockerUrl = optionalDockerUrlAnnotation.get();
-            final String containerName = dockerUrl.containerName();
+      final Optional<DockerUrl> optionalDockerUrlAnnotation = getDockerUrlAnnotation(annotations);
+      if (optionalDockerUrlAnnotation.isPresent()) {
 
-            final int exposedPort = dockerUrl.exposedPort();
-            final int bindPort = getBindingPort(containerName, exposedPort);
+         final String host = getHost();
 
-            if (bindPort > 0) {
-                return createUrl(host, dockerUrl, bindPort);
-            } else {
-                logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
-            }
-        }
-        return null;
-    }
+         final DockerUrl dockerUrl = optionalDockerUrlAnnotation.get();
+         final String containerName = dockerUrl.containerName();
 
-    Object createUrl(String host, DockerUrl dockerUrl, int bindPort) {
-        try {
-            return new URL(dockerUrl.protocol(), host, bindPort, dockerUrl.context());
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
+         final int exposedPort = dockerUrl.exposedPort();
+         final int bindPort = getBindingPort(containerName, exposedPort);
 
-    String getHost() {
-        final HostIpContext hostIpContext = hostUriContext.get();
-        return hostIpContext.getHost();
-    }
+         if (bindPort > 0) {
+            return createUrl(host, dockerUrl, bindPort);
+         } else {
+            logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
+         }
 
-    private Optional<DockerUrl> getDockerUrlAnnotation(Annotation[] annotations) {
+      }
+      return null;
+   }
 
-        return Arrays.stream(annotations)
-            .filter(annotation -> DockerUrl.class.equals(annotation.annotationType()))
-            .map(annotation -> (DockerUrl) annotation)
-            .findFirst();
-    }
+   Object createUrl(String host, DockerUrl dockerUrl, int bindPort) {
+      try {
+         return new URL(dockerUrl.protocol(), host, bindPort, dockerUrl.context());
+      } catch (MalformedURLException e) {
+         throw new IllegalArgumentException(e);
+      }
+   }
 
-    private int getBindingPort(String cubeId, int exposedPort) {
+   String getHost() {
+      final HostIpContext hostIpContext = hostUriContext.get();
+      return hostIpContext.getHost();
+   }
 
-        int bindPort = -1;
+   private Optional<DockerUrl> getDockerUrlAnnotation(Annotation[] annotations) {
 
-        final Cube cube = getCube(cubeId);
+      return Arrays.stream(annotations)
+              .filter(annotation -> DockerUrl.class.equals(annotation.annotationType()))
+              .map(annotation -> (DockerUrl) annotation)
+              .findFirst();
 
-        if (cube != null) {
-            final HasPortBindings portBindings = (HasPortBindings) cube.getMetadata(HasPortBindings.class);
-            final HasPortBindings.PortAddress mappedAddress = portBindings.getMappedAddress(exposedPort);
+   }
 
-            if (mappedAddress != null) {
-                bindPort = mappedAddress.getPort();
-            }
-        }
+   private int getBindingPort(String cubeId, int exposedPort) {
 
-        return bindPort;
-    }
+      int bindPort = -1;
 
-    private Cube getCube(String cubeId) {
-        return cubeRegistryInstance.get().getCube(cubeId);
-    }
+      final Cube cube = getCube(cubeId);
+
+      if (cube != null) {
+         final HasPortBindings portBindings = (HasPortBindings) cube.getMetadata(HasPortBindings.class);
+         final HasPortBindings.PortAddress mappedAddress = portBindings.getMappedAddress(exposedPort);
+
+         if (mappedAddress != null) {
+            bindPort = mappedAddress.getPort();
+         }
+
+      }
+
+      return bindPort;
+   }
+
+   private Cube getCube(String cubeId) {
+      return cubeRegistryInstance.get().getCube(cubeId);
+   }
 }

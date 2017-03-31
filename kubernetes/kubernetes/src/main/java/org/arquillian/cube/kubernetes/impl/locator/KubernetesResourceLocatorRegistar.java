@@ -11,13 +11,14 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class KubernetesResourceLocatorRegistar {
 
-    @Inject @ApplicationScoped
-    InstanceProducer<KubernetesResourceLocator> kubernetesResourceLocator;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
 
+    @Inject @ApplicationScoped
+    InstanceProducer<KubernetesResourceLocator> kubernetesResourceLocator;
+
     public void install(@Observes(precedence = 100) Configuration configuration) {
-        kubernetesResourceLocator.set(
-            serviceLoader.get().onlyOne(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class));
+        kubernetesResourceLocator.set(serviceLoader.get().onlyOne(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class));
+
     }
 }

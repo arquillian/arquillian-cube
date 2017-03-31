@@ -451,20 +451,20 @@ public class CubeContainer {
         this.dependsOn = dependsOn;
     }
 
-    public boolean isManual() {
-        return manual;
-    }
-
     public void setManual(boolean manual) {
         this.manual = manual;
     }
 
-    public boolean isKillContainer() {
-        return killContainer;
+    public boolean isManual() {
+        return manual;
     }
 
     public void setKillContainer(boolean killContainer) {
         this.killContainer = killContainer;
+    }
+
+    public boolean isKillContainer() {
+        return killContainer;
     }
 
     public Collection<String> getNetworks() {

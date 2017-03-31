@@ -4,6 +4,8 @@ import org.jboss.arquillian.graphene.page.Location;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Location("/")
 public class HomePage {
 
@@ -12,6 +14,7 @@ public class HomePage {
 
     public void assertOnWelcomePage() {
         assertThat(this.welcomeMessageElement.getText().trim())
-            .isEqualTo("Hello world!");
+                .isEqualTo("Hello world!");
     }
+
 }

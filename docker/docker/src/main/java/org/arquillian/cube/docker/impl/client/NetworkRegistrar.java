@@ -18,4 +18,5 @@ public class NetworkRegistrar {
         NetworkRegistry registry = new LocalDockerNetworkRegistry();
         networkRegistryProducer.set(registry);
     }
+
 }

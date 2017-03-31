@@ -1,12 +1,13 @@
 package org.arquillian.cube.kubernetes.impl.label;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-import java.util.HashMap;
-import java.util.Map;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.spi.Validate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultLabelProvider implements LabelProvider {
 
@@ -41,7 +42,6 @@ public class DefaultLabelProvider implements LabelProvider {
             Validate.notNull(client, "A KubernetesClient instance is required.");
             this.client = client;
         }
-
         @Override
         public Map<String, String> getLabels() {
             Map<String, String> labels = new HashMap<String, String>();

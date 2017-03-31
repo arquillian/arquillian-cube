@@ -1,7 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.Map;
-import java.util.Set;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Network;
@@ -15,6 +13,9 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 
+import java.util.Map;
+import java.util.Set;
+
 public class NetworkLifecycleController {
 
     @Inject
@@ -23,14 +24,13 @@ public class NetworkLifecycleController {
     @Inject
     private Instance<DockerClientExecutor> dockerClientExecutorInstance;
 
-    public void createNetworks(@Observes(precedence = 200) BeforeSuite event, CubeConfiguration cubeConfiguration,
-        CubeDockerConfiguration dockerConfiguration) {
+    public void createNetworks(@Observes(precedence = 200) BeforeSuite event, CubeConfiguration cubeConfiguration, CubeDockerConfiguration dockerConfiguration) {
         final DockerCompositions dockerContainersContent = dockerConfiguration.getDockerContainersContent();
         final Map<String, Network> networks = dockerContainersContent.getNetworks();
         final NetworkRegistry networkRegistry = networkRegistryInstance.get();
         final DockerClientExecutor dockerClientExecutor = dockerClientExecutorInstance.get();
 
-        for (Map.Entry<String, Network> network : networks.entrySet()) {
+        for (Map.Entry<String, Network> network : networks.entrySet() ) {
             final String id = dockerClientExecutor.createNetwork(network.getKey(), network.getValue());
             networkRegistry.addNetwork(id, network.getValue());
         }
@@ -60,4 +60,5 @@ public class NetworkLifecycleController {
             }
         }
     }
+
 }

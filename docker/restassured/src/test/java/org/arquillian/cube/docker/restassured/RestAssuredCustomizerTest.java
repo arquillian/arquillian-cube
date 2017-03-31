@@ -1,16 +1,22 @@
 package org.arquillian.cube.docker.restassured;
 
+import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.jboss.arquillian.core.api.Instance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,9 +24,9 @@ import static org.mockito.Mockito.when;
 public class RestAssuredCustomizerTest {
 
     private static final String SIMPLE_SCENARIO =
-        "helloworld:\n" +
-            "  image: dockercloud/hello-world\n" +
-            "  portBindings: [8080->80/tcp]";
+            "helloworld:\n" +
+                    "  image: dockercloud/hello-world\n" +
+                    "  portBindings: [8080->80/tcp]";
 
     @Mock
     CubeDockerConfiguration cubeDockerConfiguration;
@@ -41,9 +47,9 @@ public class RestAssuredCustomizerTest {
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
 
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
         verify(requestSpecBuilder).setBaseUri("http://192.168.99.100");
+
     }
 
     @Test
@@ -54,8 +60,7 @@ public class RestAssuredCustomizerTest {
         conf.put("schema", "https");
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
         verify(requestSpecBuilder).setBaseUri("https://192.168.99.100");
     }
 
@@ -67,8 +72,7 @@ public class RestAssuredCustomizerTest {
         conf.put("baseUri", "http://localhost");
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         verify(requestSpecBuilder).setBaseUri(("http://localhost"));
     }
@@ -81,8 +85,7 @@ public class RestAssuredCustomizerTest {
         conf.put("baseUri", "http://localhost");
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         verify(requestSpecBuilder).setPort(8080);
     }
@@ -96,8 +99,7 @@ public class RestAssuredCustomizerTest {
         conf.put("port", "80");
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         verify(requestSpecBuilder).setPort(8080);
     }
@@ -111,8 +113,7 @@ public class RestAssuredCustomizerTest {
         conf.put("port", "8081");
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         verify(requestSpecBuilder).setPort(8081);
     }
@@ -127,9 +128,9 @@ public class RestAssuredCustomizerTest {
         conf.put("useRelaxedHttpsValidation", null);
 
         final RestAssuredConfiguration restAssuredConfiguration = RestAssuredConfiguration.fromMap(conf);
-        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration,
-            requestSpecBuilder);
+        restAssuredCustomizer.configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         verify(requestSpecBuilder).setRelaxedHTTPSValidation();
     }
+
 }

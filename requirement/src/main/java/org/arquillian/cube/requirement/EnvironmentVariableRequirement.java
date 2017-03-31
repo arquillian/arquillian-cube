@@ -10,7 +10,7 @@ public class EnvironmentVariableRequirement implements Requirement<RequiresEnvir
         if (context != null) {
             for (String key : context.value()) {
                 if (!System.getenv().containsKey(key)) {
-                    throw new UnsatisfiedRequirementException("No environment variable with key: [" + key + "] found");
+                    throw new UnsatisfiedRequirementException("No environment variable with key: ["+ key +"] found");
                 }
             }
         }

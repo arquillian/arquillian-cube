@@ -1,11 +1,6 @@
 package org.arquillian.cube.docker.restassured;
 
 import io.restassured.builder.RequestSpecBuilder;
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.arquillian.cube.DockerUrl;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.spi.Cube;
@@ -15,6 +10,12 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RequestSpecBuilderResourceProvider implements ResourceProvider {
 
@@ -67,6 +68,7 @@ public class RequestSpecBuilderResourceProvider implements ResourceProvider {
             }
 
             requestSpecBuilder.setBasePath(dockerUrl.context());
+
         }
 
         return requestSpecBuilder;
@@ -75,9 +77,10 @@ public class RequestSpecBuilderResourceProvider implements ResourceProvider {
     private Optional<DockerUrl> getDockerUrlAnnotation(Annotation[] annotations) {
 
         return Arrays.stream(annotations)
-            .filter(annotation -> DockerUrl.class.equals(annotation.annotationType()))
-            .map(annotation -> (DockerUrl) annotation)
-            .findFirst();
+                .filter(annotation -> DockerUrl.class.equals(annotation.annotationType()))
+                .map(annotation -> (DockerUrl) annotation)
+                .findFirst();
+
     }
 
     String getHost() {
@@ -98,6 +101,7 @@ public class RequestSpecBuilderResourceProvider implements ResourceProvider {
             if (mappedAddress != null) {
                 bindPort = mappedAddress.getPort();
             }
+
         }
 
         return bindPort;

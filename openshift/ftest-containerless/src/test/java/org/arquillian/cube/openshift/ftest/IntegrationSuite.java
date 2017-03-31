@@ -8,11 +8,12 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 
 public class IntegrationSuite {
 
-    @Deployment
-    public static WebArchive deploy() {
-        return ShrinkWrap.create(WebArchive.class, "test.war")
-            .addAsWebResource(new StringAsset("weee"), "index.html")
-            .addClass(EnvPrinter.class)
-            .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
+	@Deployment
+	public static WebArchive deploy() {
+		return ShrinkWrap.create(WebArchive.class, "test.war")
+				.addAsWebResource(new StringAsset("weee"), "index.html")
+				.addClass(EnvPrinter.class)
+				.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+	}
+
 }

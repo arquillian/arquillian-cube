@@ -1,13 +1,19 @@
 package org.arquillian.cube.docker.impl.client;
 
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.logging.Logger;
+
+import com.sun.jndi.toolkit.url.Uri;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.compose.DockerComposeConverter;
 import org.arquillian.cube.docker.impl.docker.cube.CubeConverter;
@@ -24,8 +30,7 @@ public class DockerContainerDefinitionParser {
         super();
     }
 
-    public static DockerCompositions convert(Path definitionFilePath, DefinitionFormat definitionFormat)
-        throws IOException {
+    public static DockerCompositions convert(Path definitionFilePath, DefinitionFormat definitionFormat) throws IOException {
         switch (definitionFormat) {
             case COMPOSE: {
                 DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(definitionFilePath);
@@ -56,18 +61,18 @@ public class DockerContainerDefinitionParser {
         try {
             Path definitionFilePath = Paths.get(uri);
             return convert(definitionFilePath, definitionFormat);
-        } catch (FileSystemNotFoundException e) {
+        } catch(FileSystemNotFoundException e) {
             String content = "";
-            if (uri.isAbsolute()) {
+            if(uri.isAbsolute()) {
                 content = IOUtil.asStringPreservingNewLines(uri.toURL().openStream());
             } else {
                 String fileContent = uri.toString();
                 content = IOUtil.asStringPreservingNewLines(new FileInputStream(fileContent));
             }
             return convert(content, definitionFormat);
-        } catch (IllegalArgumentException e) {
+        } catch(IllegalArgumentException e) {
             String content = "";
-            if (uri.isAbsolute()) {
+            if(uri.isAbsolute()) {
                 content = IOUtil.asStringPreservingNewLines(uri.toURL().openStream());
             } else {
                 String fileContent = uri.toString();
@@ -96,22 +101,21 @@ public class DockerContainerDefinitionParser {
 
     public static DockerCompositions convertDefault(DefinitionFormat definitionFormat) throws IOException {
         URI defaultUri = null;
-        switch (definitionFormat) {
-            case COMPOSE: {
-                defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
-                break;
+            switch (definitionFormat) {
+                case COMPOSE: {
+                    defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
+                    break;
+                }
+                case CUBE: {
+                    defaultUri = getDefaultFileLocation(DEFAULT_CUBE_DEFINITION_FILE);
+                    break;
+                }
+                default: {
+                    defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
+                }
             }
-            case CUBE: {
-                defaultUri = getDefaultFileLocation(DEFAULT_CUBE_DEFINITION_FILE);
-                break;
-            }
-            default: {
-                defaultUri = getDefaultFileLocation(DEFAULT_DOCKER_COMPOSE_DEFINITION_FILE);
-            }
-        }
         if (defaultUri == null) {
-            logger.fine(
-                "No Docker container definitions has been found. Probably you have defined some Containers using Container Object pattern and @Cube annotation");
+            logger.fine("No Docker container definitions has been found. Probably you have defined some Containers using Container Object pattern and @Cube annotation");
             return new DockerCompositions();
         }
         return convert(defaultUri, definitionFormat);
@@ -145,6 +149,7 @@ public class DockerContainerDefinitionParser {
         }
 
         return docker;
+
     }
 
     private static URI checkRoot(String filename) {
@@ -167,16 +172,13 @@ public class DockerContainerDefinitionParser {
         }
 
         return null;
+
     }
 
     /**
      * Checks if given file is at src/{test, main}/outerDirectory/filename exists or not.
-     *
-     * @param filename
-     *     to search
-     * @param outerDirectory
-     *     to append after test or main
-     *
+     * @param filename to search
+     * @param outerDirectory to append after test or main
      * @return Location of searched file
      */
     static URI checkSrcTestAndMainResources(String filename, String outerDirectory) {
@@ -197,10 +199,7 @@ public class DockerContainerDefinitionParser {
 
     /**
      * Resolves current full path with .yml and .yaml extensions
-     *
-     * @param fullpath
-     *     without extension.
-     *
+     * @param fullpath without extension.
      * @return Path of existing definition or null
      */
     private static Path resolveDockerDefinition(Path fullpath) {
@@ -213,7 +212,8 @@ public class DockerContainerDefinitionParser {
                 return yamlPath;
             }
         }
-
+        
         return null;
     }
+
 }

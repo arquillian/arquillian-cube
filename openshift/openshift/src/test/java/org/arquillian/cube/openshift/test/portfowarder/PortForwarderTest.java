@@ -1,13 +1,14 @@
 package org.arquillian.cube.openshift.test.portfowarder;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class PortForwarderTest {
 
@@ -94,11 +95,11 @@ public class PortForwarderTest {
             for (int i = 0; i < portsToForwardStringBackward.length; i++) {
                 portsToForward.add(portsToForwardStringBackward[i]);
             }
-        } else if ("aleatoryPort".equals(method)) {
+        } else if ("aleatoryPort".equals(method)){
             for (int i = 0; i < portsToForwardString.length; i++) {
                 portsToForward.add(portsToForwardString[i]);
             }
-        } else if ("samePort".equals(method)) {
+        } else if ("samePort".equals(method)){
             for (int i = 0; i < useSamePortsToForwardString.length; i++) {
                 portsToForward.add(useSamePortsToForwardString[i]);
             }
@@ -114,7 +115,7 @@ public class PortForwarderTest {
                 if (split.length == 3 && "".equals(split[1])) {
                     // pod::port - use the same port than container port
                     mappedPort = allocateLocalPort(Integer.valueOf(split[2]));
-                } else if (split.length == 3 && "0".equals(split[1])) {
+                } else if (split.length == 3 && "0".equals(split[1])){
                     //pod:0:port - use an aleatory port or pod:port:port to map the same port
                     mappedPort = allocateLocalPort(Integer.valueOf(split[1]));
                 } else {

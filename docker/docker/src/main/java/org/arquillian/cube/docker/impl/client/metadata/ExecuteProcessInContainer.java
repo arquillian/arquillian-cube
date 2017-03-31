@@ -3,7 +3,7 @@ package org.arquillian.cube.docker.impl.client.metadata;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.metadata.CanExecuteProcessInContainer;
 
-public class ExecuteProcessInContainer implements CanExecuteProcessInContainer {
+public class ExecuteProcessInContainer implements CanExecuteProcessInContainer{
 
     private String cubeId;
     private DockerClientExecutor executor;
@@ -17,7 +17,7 @@ public class ExecuteProcessInContainer implements CanExecuteProcessInContainer {
     public ExecResult exec(String... command) {
         final DockerClientExecutor.ExecInspection execInspection = this.executor.execStartVerbose(cubeId, command);
         return new ExecResult(execInspection.getOutput(),
-            execInspection.getInspectExecResponse().isRunning(),
-            execInspection.getInspectExecResponse().getExitCode());
+                execInspection.getInspectExecResponse().isRunning(),
+                execInspection.getInspectExecResponse().getExitCode());
     }
 }

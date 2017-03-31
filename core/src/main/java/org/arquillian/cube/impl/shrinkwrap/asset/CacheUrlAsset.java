@@ -1,5 +1,6 @@
 package org.arquillian.cube.impl.shrinkwrap.asset;
 
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
+
 import org.jboss.shrinkwrap.api.asset.UrlAsset;
 
 /**
@@ -26,11 +28,8 @@ public class CacheUrlAsset extends UrlAsset {
     /**
      * Create a new resource with a <code>URL</code> source with default time to live.
      *
-     * @param url
-     *     A valid URL
-     *
-     * @throws IllegalArgumentException
-     *     <Code>URL</code> can not be null
+     * @param url A valid URL
+     * @throws IllegalArgumentException <Code>URL</code> can not be null
      */
     public CacheUrlAsset(URL url) {
         super(url);
@@ -65,7 +64,7 @@ public class CacheUrlAsset extends UrlAsset {
 
         final long currentTime = System.currentTimeMillis();
         final long expirationTime = TimeUnit.MILLISECONDS.convert(this.expirationTime, this.timeUnit);
-        if (to + expirationTime < currentTime) {
+        if (to + expirationTime < currentTime ) {
             return true;
         }
 
@@ -78,8 +77,7 @@ public class CacheUrlAsset extends UrlAsset {
         if (path != null) {
             fileName = path.substring(path.lastIndexOf('/') + 1, path.length());
         } else {
-            throw new IllegalArgumentException(
-                String.format("URL %s does not contain a valid filename to download.", source.toString()));
+            throw new IllegalArgumentException(String.format("URL %s does not contain a valid filename to download.", source.toString()));
         }
         return fileName;
     }

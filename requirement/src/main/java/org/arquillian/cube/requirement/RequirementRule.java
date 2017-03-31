@@ -1,15 +1,17 @@
 package org.arquillian.cube.requirement;
 
-import java.lang.annotation.Annotation;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import static org.arquillian.cube.requirement.Requirements.checkRequirement;
+
 import org.arquillian.cube.spi.requirement.Requires;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import static org.arquillian.cube.requirement.Requirements.checkRequirement;
+import java.lang.annotation.Annotation;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class RequirementRule implements TestRule {
 
@@ -26,10 +28,12 @@ public class RequirementRule implements TestRule {
                 checkRequirement(annotation.annotationType().getAnnotation(Requires.class), annotation);
             }
         } catch (UnsatisfiedRequirementException e) {
-            log.log(Level.WARNING, String.format("Unsatisfied assumption in test class %s. Requirement problem: %s.",
-                description.getTestClass().getName(), e.getMessage()));
+            log.log(Level.WARNING, String.format("Unsatisfied assumption in test class %s. Requirement problem: %s.", description.getTestClass().getName(), e.getMessage()));
             return new UnsatisfiedRequirement(e.getMessage());
         }
         return result;
     }
+
+
+
 }

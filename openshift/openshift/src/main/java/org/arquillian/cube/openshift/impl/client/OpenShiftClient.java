@@ -1,5 +1,6 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.waitForStart;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
@@ -16,6 +17,7 @@ import io.fabric8.openshift.api.model.ImageStream;
 import io.fabric8.openshift.api.model.ImageStreamBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -24,10 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.arquillian.cube.openshift.impl.model.Template;
 import org.arquillian.cube.openshift.impl.model.Template.TemplateImageRef;
-
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.waitForStart;
 
 public class OpenShiftClient {
 
@@ -60,150 +61,151 @@ public class OpenShiftClient {
         return exceptions;
     }
 
-    public ResourceHolder build(Template<Pod> template) throws Exception {
+	public ResourceHolder build(Template<Pod> template) throws Exception {
         ResourceHolder holder = new ResourceHolder();
         Map<String, String> defaultLabels = getDefaultLabels();
 
-        if (template.getRefs().size() == 0) {
+        if(template.getRefs().size() == 0) {
             Pod service = createStartablePod(template, defaultLabels);
             holder.setPod(service);
             return holder;
         }
 
-        for (TemplateImageRef ref : template.getRefs()) {
-            URI repoUri = gitserver.push(new File(ref.getPath()), ref.getContainerName());
+        for(TemplateImageRef ref : template.getRefs()) {
+	        URI repoUri = gitserver.push(new File(ref.getPath()), ref.getContainerName());
 
-            String runID = ref.getContainerName();
+	        String runID = ref.getContainerName();
 
-            try {
+	        try {
 
-                ImageStream is = new ImageStreamBuilder()
-                    .withNewMetadata()
-                    .withName(runID)
-                    .withNamespace(namespace)
-                    .withLabels(defaultLabels)
-                    .endMetadata()
-                    .build();
-                is = getClientExt().imageStreams().createOrReplace(is);
-                holder.addResource(is);
+	            ImageStream is = new ImageStreamBuilder()
+	                    .withNewMetadata()
+	                        .withName(runID)
+	                        .withNamespace(namespace)
+	                        .withLabels(defaultLabels)
+	                        .endMetadata()
+	                    .build();
+	            is = getClientExt().imageStreams().createOrReplace(is);
+	            holder.addResource(is);
 
-                BuildConfig config = new BuildConfigBuilder()
-                    .withNewMetadata()
-                    .withName(runID)
-                    .withNamespace(namespace)
-                    .withLabels(defaultLabels)
-                    .endMetadata()
-                    .withNewSpec()
-                    .withNewSource()
-                    .withNewGit()
-                    .withUri(repoUri.toString())
-                    .withRef("master")
-                    .endGit()
-                    .endSource()
-                    .withNewStrategy()
-                    .withType("Docker")
-                    .withNewDockerStrategy()
-                    .withNoCache(false)
-                    .endDockerStrategy()
-                    .endStrategy()
-                    .withNewOutput()
-                    .withNewTo()
-                    .withKind("ImageStreamTag")
-                    .withName(runID + ":latest")
-                    .endTo()
-                    .endOutput()
-                    .endSpec()
-                    .build();
+	            BuildConfig config = new BuildConfigBuilder()
+	                    .withNewMetadata()
+	                        .withName(runID)
+	                        .withNamespace(namespace)
+	                        .withLabels(defaultLabels)
+	                        .endMetadata()
+	                    .withNewSpec()
+	                        .withNewSource()
+                                .withNewGit()
+                                    .withUri(repoUri.toString())
+                                    .withRef("master")
+                                .endGit()
+                            .endSource()
+	                        .withNewStrategy()
+	                            .withType("Docker")
+	                            .withNewDockerStrategy()
+	                                .withNoCache(false)
+	                                .endDockerStrategy()
+	                            .endStrategy()
+	                        .withNewOutput()
+	                                .withNewTo()
+	                                    .withKind("ImageStreamTag")
+	                                    .withName(runID + ":latest")
+	                                    .endTo()
+	                            .endOutput()
+	                        .endSpec()
+	                    .build();
 
-                config = getClientExt().buildConfigs().createOrReplace(config);
-                holder.addResource(config);
+	            config = getClientExt().buildConfigs().createOrReplace(config);
+	            holder.addResource(config);
 
-                final Long lastBuildVersion = config.getStatus().getLastVersion();
-                BuildRequest br = new BuildRequestBuilder()
-                    .withNewMetadata()
-                    .withName(config.getMetadata().getName())
-                    .withLabels(defaultLabels)
-                    .endMetadata()
-                    .build();
+	            final Long lastBuildVersion = config.getStatus().getLastVersion();
+	            BuildRequest br = new BuildRequestBuilder()
+	                    .withNewMetadata()
+	                        .withName(config.getMetadata().getName())
+	                        .withLabels(defaultLabels)
+	                        .endMetadata()
+	                    .build();
 
                 getClientExt().buildConfigs().inNamespace(namespace).withName(runID).instantiate(br);
                 Build build = ResourceUtil.waitForComplete(
-                    getClientExt(),
-                    getClientExt().builds().inNamespace(namespace)
-                        .withName(String.format("%s-%d", config.getMetadata().getName(), (lastBuildVersion + 1)))
-                        .get());
+                        getClientExt(),
+                        getClientExt().builds().inNamespace(namespace)
+                                .withName(String.format("%s-%d", config.getMetadata().getName(), (lastBuildVersion + 1)))
+                                .get());
 
-                holder.addResource(build);
 
-                is = getClientExt().imageStreams().inNamespace(namespace).withName(is.getMetadata().getName()).get();
+	            holder.addResource(build);
 
-                String imageRef = is.getStatus().getTags().get(0).getItems().get(0).getDockerImageReference();
-                template.resolve(ref, imageRef);
+	            is = getClientExt().imageStreams().inNamespace(namespace).withName(is.getMetadata().getName()).get();
+
+	            String imageRef = is.getStatus().getTags().get(0).getItems().get(0).getDockerImageReference();
+	            template.resolve(ref,  imageRef);
 
                 Pod service = createStartablePod(template, defaultLabels);
-                holder.setPod(service);
-            } catch (Exception e) {
-                holder.setException(e);
-            }
-        }
+	            holder.setPod(service);
+	        } catch(Exception e) {
+	            holder.setException(e);
+	        }
+		}
         return holder;
-    }
+	}
 
     private Pod createStartablePod(Template<Pod> template, Map<String, String> defaultLabels) {
         Map<String, String> allLabels = new HashMap<String, String>();
         allLabels.putAll(defaultLabels);
         allLabels.putAll(template.getTarget().getMetadata().getLabels());
         Pod service = new PodBuilder()
-            .withNewMetadataLike(template.getTarget().getMetadata())
-            .withLabels(allLabels)
-            .endMetadata()
+                .withNewMetadataLike(template.getTarget().getMetadata())
+                    .withLabels(allLabels)
+                .endMetadata()
             .withNewSpecLike(template.getTarget().getSpec())
-            .endSpec()
+                .endSpec()
             .build();
         return service;
     }
 
     public Pod createAndWait(Pod resource) throws Exception {
-        return waitForStart(
-            getClient(),
-            getClient().pods().inNamespace(namespace).create(resource));
-    }
+		return waitForStart(
+				getClient(),
+				getClient().pods().inNamespace(namespace).create(resource));
+	}
 
     public Service create(Service resource) throws Exception {
-        return (Service) getClient().services().inNamespace(namespace).create(resource);
+        return (Service)getClient().services().inNamespace(namespace).create(resource);
     }
 
     public void destroy(Pod resource) throws Exception {
-        getClient().pods().inNamespace(namespace).withName(resource.getMetadata().getName()).delete();
-    }
+		getClient().pods().inNamespace(namespace).withName(resource.getMetadata().getName()).delete();
+	}
 
     public void destroy(Service resource) throws Exception {
         getClient().services().inNamespace(namespace).withName(resource.getMetadata().getName()).delete();
     }
 
     public Pod update(Pod resource) throws Exception {
-        return getClient().resource(resource).createOrReplace();
-    }
+		return getClient().resource(resource).createOrReplace();
+	}
 
-    public void shutdown() throws Exception {
-        if (!keepAliveGitServer) {
-            gitserver.shutdown();
-        }
-    }
+	public void shutdown() throws Exception {
+		if(!keepAliveGitServer) {
+			gitserver.shutdown();
+		}
+	}
 
-    public NamespacedOpenShiftClient getClient() {
-        return kubernetes;
-    }
+	public NamespacedOpenShiftClient getClient() {
+		return kubernetes;
+	}
 
-    public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
-        return kubernetes;
-    }
+	public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
+		return kubernetes;
+	}
 
-    private Map<String, String> getDefaultLabels() {
-        Map<String, String> labels = new HashMap<String, String>();
-        labels.put("generatedby", "arquillian");
-        return labels;
-    }
+	private Map<String, String> getDefaultLabels() {
+		Map<String, String> labels = new HashMap<String, String>();
+		labels.put("generatedby", "arquillian");
+		return labels;
+	}
 
     public static class ResourceHolder {
 
@@ -220,12 +222,16 @@ public class OpenShiftClient {
             this.resources = new HashSet<KubernetesResource>();
         }
 
+        public void setException(Exception exception) {
+            this.exception = exception;
+        }
+
         public Exception getException() {
             return exception;
         }
 
-        public void setException(Exception exception) {
-            this.exception = exception;
+        public void setPod(Pod pod) {
+            this.pod = pod;
         }
 
         public void addResource(KubernetesResource resource) {
@@ -233,7 +239,7 @@ public class OpenShiftClient {
         }
 
         public Set<KubernetesResource> getResources() {
-            if (resources == null) {
+            if(resources == null) {
                 return new HashSet<KubernetesResource>();
             }
             return resources;
@@ -241,10 +247,6 @@ public class OpenShiftClient {
 
         public Pod getPod() {
             return pod;
-        }
-
-        public void setPod(Pod pod) {
-            this.pod = pod;
         }
     }
 }

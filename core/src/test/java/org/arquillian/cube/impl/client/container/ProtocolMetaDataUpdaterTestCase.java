@@ -1,6 +1,7 @@
 package org.arquillian.cube.impl.client.container;
 
 import java.util.List;
+
 import org.arquillian.cube.impl.util.TestPortBindings;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
@@ -77,8 +78,8 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
-            Container.class,
-            new ContainerImpl(CUBE_CONTAINER_NAME, deployableContainer, new ContainerDefImpl("arquillian.xml")));
+             Container.class,
+             new ContainerImpl(CUBE_CONTAINER_NAME, deployableContainer, new ContainerDefImpl("arquillian.xml")));
 
         ProtocolMetaData metadata = new ProtocolMetaData();
         metadata.addContext(new HTTPContext(LOCALHOST, EXPOSED_PORT).add(new Servlet("A", "B")));
@@ -87,7 +88,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         fire(metadata);
 
         ProtocolMetaData updated = getManager().getContext(DeploymentContext.class)
-            .getObjectStore().get(ProtocolMetaData.class);
+                .getObjectStore().get(ProtocolMetaData.class);
 
         Assert.assertEquals(BOUND_PORT.intValue(), updated.getContexts(HTTPContext.class).iterator().next().getPort());
         Assert.assertEquals(LOCALHOST, updated.getContexts(HTTPContext.class).iterator().next().getHost());
@@ -102,8 +103,8 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
-            Container.class,
-            new ContainerImpl(CUBE_CONTAINER_NAME, deployableContainer, new ContainerDefImpl("arquillian.xml")));
+             Container.class,
+             new ContainerImpl(CUBE_CONTAINER_NAME, deployableContainer, new ContainerDefImpl("arquillian.xml")));
 
         ProtocolMetaData metadata = new ProtocolMetaData();
         metadata.addContext(new HTTPContext(LOCALHOST, EXPOSED_PORT).add(new Servlet("A", "B")));
@@ -112,7 +113,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         fire(metadata);
 
         ProtocolMetaData updated = getManager().getContext(DeploymentContext.class)
-            .getObjectStore().get(ProtocolMetaData.class);
+                .getObjectStore().get(ProtocolMetaData.class);
 
         Assert.assertEquals(EXPOSED_PORT.intValue(), updated.getContexts(HTTPContext.class).iterator().next().getPort());
         Assert.assertEquals(GATEWAY_IP, updated.getContexts(HTTPContext.class).iterator().next().getHost());
@@ -126,8 +127,8 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
-            Container.class,
-            new ContainerImpl("_UNMAPPED_", deployableContainer, new ContainerDefImpl("arquillian.xml")));
+             Container.class,
+             new ContainerImpl("_UNMAPPED_", deployableContainer, new ContainerDefImpl("arquillian.xml")));
 
         ProtocolMetaData metadata = new ProtocolMetaData();
         metadata.addContext(new HTTPContext(LOCALHOST, EXPOSED_PORT).add(new Servlet("A", "B")));
@@ -136,10 +137,10 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
         fire(metadata);
 
         ProtocolMetaData updated = getManager().getContext(DeploymentContext.class)
-            .getObjectStore().get(ProtocolMetaData.class);
+                .getObjectStore().get(ProtocolMetaData.class);
 
-        Assert.assertEquals(metadata.getContexts(HTTPContext.class).iterator().next(),
-            updated.getContexts(HTTPContext.class).iterator().next());
+        Assert.assertEquals(metadata.getContexts(HTTPContext.class).iterator().next(), updated.getContexts(HTTPContext.class).iterator().next());
         assertEventFired(ProtocolMetaData.class, 1);
     }
+
 }

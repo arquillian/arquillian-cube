@@ -16,21 +16,21 @@ public class CubeDockerExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(TopCreator.class)
-            .observer(CubeDockerConfigurator.class)
-            .observer(DockerClientCreator.class)
-            .observer(CubeDockerRegistrar.class)
-            .observer(CubeSuiteLifecycleController.class)
-            //.observer(ClientCubeControllerCreator.class)
-            .observer(BeforeStopContainerObserver.class)
-            .observer(Boot2DockerCreator.class)
-            .observer(DockerMachineCreator.class)
-            .observer(AfterClassContainerObjectObserver.class)
-            .observer(AfterClassNetworkContainerObserver.class)
-            .observer(StopDockerMachineAfterSuiteObserver.class)
-            .observer(NetworkRegistrar.class)
-            .observer(NetworkLifecycleController.class)
-            .observer(ContainerObjectFactoryRegistrar.class)
-            .observer(DockerImageController.class);
+               .observer(CubeDockerConfigurator.class)
+               .observer(DockerClientCreator.class)
+               .observer(CubeDockerRegistrar.class)
+               .observer(CubeSuiteLifecycleController.class)
+               //.observer(ClientCubeControllerCreator.class)
+               .observer(BeforeStopContainerObserver.class)
+               .observer(Boot2DockerCreator.class)
+               .observer(DockerMachineCreator.class)
+               .observer(AfterClassContainerObjectObserver.class)
+               .observer(AfterClassNetworkContainerObserver.class)
+               .observer(StopDockerMachineAfterSuiteObserver.class)
+               .observer(NetworkRegistrar.class)
+               .observer(NetworkLifecycleController.class)
+               .observer(ContainerObjectFactoryRegistrar.class)
+               .observer(DockerImageController.class);
 
         builder.service(ResourceProvider.class, CubeResourceProvider.class);
         builder.service(ResourceProvider.class, ContainerObjectFactoryProvider.class);
@@ -39,8 +39,8 @@ public class CubeDockerExtension implements LoadableExtension {
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath
-        if (Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")
-            && doesNotContainStandaloneExtension()) {
+        if(Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")
+                && doesNotContainStandaloneExtension()) {
             builder.observer(DockerServerIPConfigurator.class);
             builder.observer(CubeDockerAutoStartConfigurator.class);
         } else {
@@ -50,13 +50,11 @@ public class CubeDockerExtension implements LoadableExtension {
     }
 
     private boolean doesNotContainStandaloneExtension() {
-        final boolean junitStandalone =
-            Validate.classExists("org.jboss.arquillian.junit.standalone.JUnitStandaloneExtension");
-        final boolean testngStandalone =
-            Validate.classExists("org.jboss.arquillian.testng.standalone.TestNGStandaloneExtension");
-        final boolean spockStandalone =
-            Validate.classExists("org.jboss.arquillian.spock.standalone.SpockStandaloneExtension");
+        final boolean junitStandalone = Validate.classExists("org.jboss.arquillian.junit.standalone.JUnitStandaloneExtension");
+        final boolean testngStandalone = Validate.classExists("org.jboss.arquillian.testng.standalone.TestNGStandaloneExtension");
+        final boolean spockStandalone = Validate.classExists("org.jboss.arquillian.spock.standalone.SpockStandaloneExtension");
 
         return !junitStandalone && !testngStandalone && !spockStandalone;
     }
+
 }

@@ -11,7 +11,7 @@ public class NativeAwaitStrategy implements AwaitStrategy {
     private DockerClientExecutor dockerClientExecutor;
     private String cubeId;
 
-    public NativeAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor) {
+    public NativeAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor ) {
         this.dockerClientExecutor = dockerClientExecutor;
         this.cubeId = cube.getId();
     }
@@ -25,4 +25,5 @@ public class NativeAwaitStrategy implements AwaitStrategy {
             return false;
         }
     }
+
 }

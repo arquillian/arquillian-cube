@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.Ping;
@@ -25,13 +26,16 @@ import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 
 public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
 
-    public static final String TAG = "polling";
-    public static final String CONTAINER_DIRECTORY = "/tmp";
     private static final Logger log = Logger.getLogger(PollingAwaitStrategy.class.getName());
     private static final String MESSAGE = "Service is Up";
     private static final String WAIT_FOR_IT_SCRIPT = "wait-for-it.sh";
+
+    public static final String TAG = "polling";
+
     private static final int DEFAULT_POLL_ITERATIONS = 40;
     private static final String DEFAULT_POLL_TYPE = "sscommand";
+    public static final String CONTAINER_DIRECTORY = "/tmp";
+
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private String type = DEFAULT_POLL_TYPE;
 
@@ -90,13 +94,11 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                 case "ping": {
                     PortAddress mapping = portBindings.getMappedAddress(port);
                     if (mapping == null) {
-                        throw new IllegalArgumentException(
-                            "Can not use polling of type " + type + " on non externally bound port " + port);
+                        throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + port);
                     }
-                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
-                        this.type));
+                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(), this.type));
                     if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
-                        this.getTimeUnit())) {
+                            this.getTimeUnit())) {
                         return false;
                     }
                 }
@@ -105,7 +107,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                 case "sscommand": {
                     try {
                         if (!Ping.ping(dockerClientExecutor, cube.getId(), resolveCommand("ss", port),
-                            this.pollIterations, this.getSleepTime(), this.getTimeUnit())) {
+                                this.pollIterations, this.getSleepTime(), this.getTimeUnit())) {
                             return false;
                         }
                     } catch (UnsupportedOperationException e) {
@@ -117,14 +119,11 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                         } catch (UnsupportedOperationException ex) {
                             PortAddress mapping = portBindings.getMappedAddress(port);
                             if (mapping == null) {
-                                throw new IllegalArgumentException(
-                                    "Can not use polling of type " + type + " on non externally bound port " + port);
+                                throw new IllegalArgumentException("Can not use polling of type " + type + " on non externally bound port " + port);
                             }
-                            log.fine(
-                                String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
-                                    this.type));
+                            log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(), this.type));
                             if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
-                                this.getTimeUnit())) {
+                                    this.getTimeUnit())) {
                                 return false;
                             }
                         }
@@ -137,6 +136,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                     }
                 }
             }
+
         }
 
         return true;
@@ -152,8 +152,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
             if (!alreadyCopiedWaitForIt) {
                 final Path waitForItLocation = copyWaitForItScriptToTempDir();
                 // Then copy this into the container
-                dockerClientExecutor.copyStreamToContainer(cube.getId(), waitForItLocation.toFile(),
-                    new File(CONTAINER_DIRECTORY));
+                dockerClientExecutor.copyStreamToContainer(cube.getId(), waitForItLocation.toFile(), new File(CONTAINER_DIRECTORY));
                 alreadyCopiedWaitForIt = true;
             }
 
@@ -169,14 +168,13 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
+
     }
 
     private Path copyWaitForItScriptToTempDir() throws IOException {
         final Path arquilliancube = Files.createTempDirectory("arquilliancube");
         final Path waitForItLocation = arquilliancube.resolve(Paths.get(WAIT_FOR_IT_SCRIPT));
-        Files.copy(
-            PollingAwaitStrategy.class.getResourceAsStream("/org/arquillian/cube/docker/impl/await/wait-for-it.sh"),
-            waitForItLocation);
+        Files.copy(PollingAwaitStrategy.class.getResourceAsStream("/org/arquillian/cube/docker/impl/await/wait-for-it.sh"), waitForItLocation);
         Files.setPosixFilePermissions(waitForItLocation, getScriptPermissions());
 
         return waitForItLocation;
@@ -193,25 +191,23 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
 
         final Set<PosixFilePermission> perms = new HashSet<>();
         perms.addAll(Arrays.asList(
-            ownerExecute, ownerRead,
-            groupExecute, groupRead,
-            othersExecute, othersRead
-            )
+                ownerExecute, ownerRead,
+                groupExecute, groupRead,
+                othersExecute, othersRead
+                )
         );
 
         return perms;
     }
 
     private String resolveWaitForItCommand(String containerIp, int port) {
-        return String.format("%s/%s %s:%s -s -- echo %s", CONTAINER_DIRECTORY, WAIT_FOR_IT_SCRIPT, containerIp, port,
-            MESSAGE);
+        return String.format("%s/%s %s:%s -s -- echo %s", CONTAINER_DIRECTORY, WAIT_FOR_IT_SCRIPT, containerIp, port, MESSAGE);
     }
 
     private String resolveCommand(String command, int port) {
         Map<String, String> values = new HashMap<String, String>();
         values.put("port", Integer.toString(port));
-        String templateContent =
-            IOUtil.asStringPreservingNewLines(PollingAwaitStrategy.class.getResourceAsStream(command + ".sh"));
+        String templateContent = IOUtil.asStringPreservingNewLines(PollingAwaitStrategy.class.getResourceAsStream(command + ".sh"));
         return IOUtil.replacePlaceholders(templateContent, values);
     }
 }

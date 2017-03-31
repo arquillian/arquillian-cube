@@ -1,13 +1,7 @@
 package org.arquillian.cube.kubernetes.reporter;
 
+
 import io.fabric8.kubernetes.client.KubernetesClient;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.Session;
@@ -22,11 +16,15 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.CONFIGURATION;
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.KUBERNETES_SECTION_NAME;
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.MASTER_URL;
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.NAMESPACE;
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.SESSION_STATUS;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.*;
 
 public class TakeKubernetesResourcesInformation {
 
@@ -36,8 +34,7 @@ public class TakeKubernetesResourcesInformation {
     @Inject
     Instance<DependencyResolver> dependencyResolver;
 
-    public void reportKubernetesConfiguration(@Observes Start start, Configuration configuration,
-        org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
+    public void reportKubernetesConfiguration(@Observes Start start, Configuration configuration, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
         final ReportBuilder reportBuilder = Reporter.createReport(CONFIGURATION);
         Session session = start.getSession();
         if (configuration != null) {
@@ -45,8 +42,8 @@ public class TakeKubernetesResourcesInformation {
         }
 
         Reporter.createReport(KUBERNETES_SECTION_NAME)
-            .addReport(reportBuilder)
-            .inSection(new KubernetesSection()).fire(sectionEvent);
+                .addReport(reportBuilder)
+                .inSection(new KubernetesSection()).fire(sectionEvent);
     }
 
     public void reportSessionStatus(@Observes AfterStart afterStart, KubernetesClient kubernetesClient) {
@@ -56,11 +53,11 @@ public class TakeKubernetesResourcesInformation {
             String namespace = session.getNamespace();
 
             Reporter.createReport(SESSION_STATUS)
-                .addKeyValueEntry(NAMESPACE, namespace)
-                .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()))
-                .inSection(new KubernetesSection())
-                .asSubReport()
-                .fire(sectionEvent);
+                    .addKeyValueEntry(NAMESPACE, namespace)
+                    .addKeyValueEntry(MASTER_URL, String.valueOf(kubernetesClient.getMasterUrl()))
+                    .inSection(new KubernetesSection())
+                    .asSubReport()
+                    .fire(sectionEvent);
         }
     }
 /*
@@ -120,8 +117,7 @@ public class TakeKubernetesResourcesInformation {
         return tableEntry;
     }*/
 
-    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration,
-        org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
+    private List<FileEntry> getFilesForResourcesConfiguration(Session session, Configuration configuration, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
         final List<FileEntry> fileEntries = new ArrayList<>();
         URL environmentConfigUrl = configuration.getEnvironmentConfigUrl();
 
@@ -130,9 +126,7 @@ public class TakeKubernetesResourcesInformation {
         }
 
         if (configuration.isEnvironmentInitEnabled()) {
-            List<URL> dependencyUrls =
-                !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies()
-                    : dependencyResolver.get().resolve(session);
+            List<URL> dependencyUrls = !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies() : dependencyResolver.get().resolve(session);
 
             for (URL dependencyUrl : dependencyUrls) {
                 fileEntries.add(getFileForResourcesConfiguration(dependencyUrl, reporterConfiguration));
@@ -142,13 +136,13 @@ public class TakeKubernetesResourcesInformation {
         return fileEntries;
     }
 
-    private FileEntry getFileForResourcesConfiguration(URL url,
-        org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
+    private FileEntry getFileForResourcesConfiguration(URL url, org.arquillian.reporter.config.ReporterConfiguration reporterConfiguration) throws IOException {
 
         final Path rootDir = Paths.get(reporterConfiguration.getRootDirectory());
         final String filePath = relativizePath(url, rootDir);
 
         return new org.arquillian.reporter.api.model.entry.FileEntry(filePath);
+
     }
 
     private String relativizePath(URL url, Path rootDir) {
@@ -179,4 +173,6 @@ public class TakeKubernetesResourcesInformation {
         return sb.toString();
     }
 */
+
+
 }

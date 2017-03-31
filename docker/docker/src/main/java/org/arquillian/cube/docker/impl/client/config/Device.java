@@ -5,8 +5,7 @@ public class Device {
     private String pathInContainer;
     private String cGroupPermissions;
 
-    public Device() {
-    }
+    public Device() { }
 
     public Device(String pathOnHost, String pathInContainer, String cGroupPermissions) {
         super();

@@ -26,4 +26,5 @@ public class StopDockerMachineAfterSuiteObserver {
             dockerMachineInstance.get().stopDockerMachine(cliPath, machineName);
         }
     }
+
 }

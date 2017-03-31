@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
@@ -28,10 +29,8 @@ public class CopyFromContainer implements CanCopyFromContainer {
         Path toPath = Paths.get(to);
         File toPathFile = toPath.toFile();
 
-        if (toPathFile.exists() && toPathFile.isFile()) {
-            throw new IllegalArgumentException(String.format(
-                "%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.",
-                "to", toPath.normalize().toString()));
+        if(toPathFile.exists() && toPathFile.isFile()) {
+            throw new IllegalArgumentException(String.format("%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.", "to", toPath.normalize().toString()));
         }
 
         try {
@@ -43,8 +42,7 @@ public class CopyFromContainer implements CanCopyFromContainer {
     }
 
     @Override
-    public void copyLog(boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) {
+    public void copyLog(boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail, OutputStream outputStream) {
         try {
             executor.copyLog(cubeId, follow, stdout, stderr, timestamps, tail, outputStream);
         } catch (IOException e) {

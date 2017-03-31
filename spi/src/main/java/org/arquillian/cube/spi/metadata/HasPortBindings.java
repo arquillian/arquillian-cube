@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Port bindings for the container. This includes basic container details (IP,
  * exposed ports) as well as mappings for specific container ports.
- *
+ * 
  * @author Rob Cernich
  */
 public interface HasPortBindings extends CubeMetadata {
@@ -17,20 +17,20 @@ public interface HasPortBindings extends CubeMetadata {
      * specific to what is configured for the container (e.g. EXPOSEd ports).
      * After the container is bound, the ports list may change (e.g. if the
      * container was started with -p &lt;port&gt;:&lt;not-exposed-port&gt;).
-     *
+     * 
      * @return true if the container has been bound.
      */
     boolean isBound();
 
     /**
      * @return the container's IP address, may be null if the container has not
-     * been bound to an IP.
+     *         been bound to an IP.
      */
     String getContainerIP();
 
     /**
      * @return the container's internal IP address, may be null if the container has not
-     * been bound to an IP. The internal ip is as seen by the Host or other containers.
+     *         been bound to an IP. The internal ip is as seen by the Host or other containers.
      */
     String getInternalIP();
 
@@ -41,23 +41,21 @@ public interface HasPortBindings extends CubeMetadata {
 
     /**
      * @return list of all container ports (configured and dynamically bound
-     * (e.g. -p &lt;port&gt;:&lt;not-exposed-port&gt;)
+     *         (e.g. -p &lt;port&gt;:&lt;not-exposed-port&gt;)
      */
     Set<Integer> getBoundPorts();
 
     /**
-     * @param targetPort
-     *     the target port
-     *
+     * @param targetPort the target port
      * @return the mapped address for the target port, may be null if the port
-     * is bound, but not mapped (e.g. no -p :port)
+     *         is bound, but not mapped (e.g. no -p :port)
      */
     PortAddress getMappedAddress(int targetPort);
 
     /**
      * @return the mapped address in the arquillian.xml,defined by the
-     * portForwardBindAddress property.
-     * If null, returns the default - 127.0.0.1.
+     *         portForwardBindAddress property.
+     *         If null, returns the default - 127.0.0.1.
      */
     InetAddress getPortForwardBindAddress();
 
@@ -98,5 +96,7 @@ public interface HasPortBindings extends CubeMetadata {
         public int getPort() {
             return port;
         }
+        
     }
+
 }

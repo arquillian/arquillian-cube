@@ -1,9 +1,10 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.arquillian.cube.docker.impl.client.config.IPAM;
 import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Builder to create a network object.
@@ -33,15 +34,14 @@ public class NetworkBuilder {
     }
 
     public Network build() {
-        final org.arquillian.cube.docker.impl.client.config.Network network =
-            new org.arquillian.cube.docker.impl.client.config.Network();
+        final org.arquillian.cube.docker.impl.client.config.Network network = new org.arquillian.cube.docker.impl.client.config.Network();
         network.setDriver(this.networkDriver);
         return new Network(this.id, network);
+
     }
 
     private Network build(IPAM ipam) {
-        final org.arquillian.cube.docker.impl.client.config.Network network =
-            new org.arquillian.cube.docker.impl.client.config.Network();
+        final org.arquillian.cube.docker.impl.client.config.Network network = new org.arquillian.cube.docker.impl.client.config.Network();
         network.setDriver(this.networkDriver);
         network.setIpam(ipam);
         return new Network(this.id, network);
@@ -61,12 +61,13 @@ public class NetworkBuilder {
         }
 
         public Network build() {
-            if (!configs.isEmpty()) {
+            if (! configs.isEmpty()) {
                 ipam.setIpamConfigs(configs);
             }
 
             return NetworkBuilder.this.build(ipam);
         }
+
     }
 
     public class IpamConfigurationBuilder {
@@ -97,4 +98,5 @@ public class NetworkBuilder {
             return this.ipamBuilder;
         }
     }
+
 }

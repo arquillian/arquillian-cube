@@ -24,24 +24,24 @@ public class CubeExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(CubeConfigurator.class)
-            .observer(CubeRegistrar.class)
-            .observer(CubeLifecycleController.class)
-            //.observer(CubeSuiteLifecycleController.class)
-            .observer(ClientCubeControllerCreator.class)
-            .observer(ForceStopDockerContainersShutdownHook.class);
+               .observer(CubeRegistrar.class)
+               .observer(CubeLifecycleController.class)
+               //.observer(CubeSuiteLifecycleController.class)
+               .observer(ClientCubeControllerCreator.class)
+               .observer(ForceStopDockerContainersShutdownHook.class);
 
         builder.service(ResourceProvider.class, CubeControllerProvider.class)
-            .service(TestEnricher.class, HostIpTestEnricher.class)
-            .service(TestEnricher.class, CubeIpTestEnricher.class)
-            .service(TestEnricher.class, HostPortTestEnricher.class);
+                .service(TestEnricher.class, HostIpTestEnricher.class)
+                .service(TestEnricher.class, CubeIpTestEnricher.class)
+                .service(TestEnricher.class, HostPortTestEnricher.class);
 
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath
         if (Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
             builder.observer(ProtocolMetadataUpdater.class)
-                .observer(CubeContainerLifecycleController.class)
-                .observer(ContainerConfigurationController.class)
-                .observer(CubeRemoteCommandObserver.class);
+                   .observer(CubeContainerLifecycleController.class)
+                   .observer(ContainerConfigurationController.class)
+                   .observer(CubeRemoteCommandObserver.class);
             builder.service(AuxiliaryArchiveAppender.class, CubeAuxiliaryArchiveAppender.class);
         } else {
             // It is standalone
@@ -49,15 +49,15 @@ public class CubeExtension implements LoadableExtension {
         }
 
         // Only register if container-test-impl is on classpath
-        if (Validate.classExists(
-            "org.jboss.arquillian.container.test.impl.enricher.resource.OperatesOnDeploymentAwareProvider")) {
+        if (Validate.classExists("org.jboss.arquillian.container.test.impl.enricher.resource.OperatesOnDeploymentAwareProvider")) {
             builder.service(ResourceProvider.class, CubeIDResourceProvider.class);
         }
 
         // Only if reporter is in classpath we should provide reporting capabilities.
         if (Validate.classExists("org.arquillian.core.reporter.ArquillianCoreReporterExtension")) {
             builder.observer(TakeCubeInformation.class)
-                .service(StringKey.class, DockerReportKey.class);
+            .service(StringKey.class, DockerReportKey.class);
         }
     }
+
 }

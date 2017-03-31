@@ -28,8 +28,10 @@ public class DockerEnvironmentReportKey extends AbstractStringKey {
     public static final StringKey BEFORE = new DockerReportKey();
     public static final StringKey AFTER = new DockerReportKey();
 
+
     public static final StringKey LOG_PATH = new DockerReportKey();
     public static final StringKey VIDEO_PATH = new DockerReportKey();
     public static final StringKey REST_REQUEST_LOG = new DockerReportKey();
     public static final StringKey REST_RESPONSE_LOG = new DockerReportKey();
+
 }

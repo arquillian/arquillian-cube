@@ -11,12 +11,14 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class AnnotationProviderRegistar {
 
-    @Inject @ApplicationScoped
-    InstanceProducer<AnnotationProvider> annotationProvider;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
 
+    @Inject @ApplicationScoped
+    InstanceProducer<AnnotationProvider> annotationProvider;
+
     public void install(@Observes(precedence = 100) Configuration configuration) {
         annotationProvider.set(serviceLoader.get().onlyOne(AnnotationProvider.class, DefaultAnnotationProvider.class));
+
     }
 }

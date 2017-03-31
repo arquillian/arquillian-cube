@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.ftest.test;
 
 import java.net.URL;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -15,16 +16,16 @@ import org.junit.runner.RunWith;
 @RunAsClient
 public class IndexTestCase {
 
-    @Test @InSequence(1)
-    public void shouldBeAbleToInjectURL(@ArquillianResource URL base) throws Exception {
-        System.out.println(base);
-        Assert.assertNotNull(base);
+	@Test @InSequence(1)
+	public void shouldBeAbleToInjectURL(@ArquillianResource URL base) throws Exception {
+		System.out.println(base);
+		Assert.assertNotNull(base);
 
-        IOUtil.copy(base.openStream(), System.out);
-    }
+		IOUtil.copy(base.openStream(), System.out);
+	}
 
-    @Test @InSequence(2)
-    public void debug() {
-        System.out.println("");
-    }
+	@Test @InSequence(2)
+	public void debug() {
+		System.out.println("");
+	}
 }

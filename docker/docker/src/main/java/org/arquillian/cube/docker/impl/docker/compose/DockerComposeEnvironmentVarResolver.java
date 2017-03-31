@@ -1,10 +1,12 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import java.io.InputStream;
-import java.util.Map;
 import org.arquillian.cube.impl.util.IOUtil;
 
+import java.io.InputStream;
+import java.util.Map;
+
 public class DockerComposeEnvironmentVarResolver {
+
 
     private DockerComposeEnvironmentVarResolver() {
         super();
@@ -14,6 +16,8 @@ public class DockerComposeEnvironmentVarResolver {
      * Method that takes an inputstream, read it preserving the end lines, and subtitute using commons-lang-3 calls
      * the variables, first searching as system properties vars and then in environment var list.
      * In case of missing the property is replaced by white space.
+     * @param stream
+     * @return
      */
     public static String replaceParameters(final InputStream stream) {
         String content = IOUtil.asStringPreservingNewLines(stream);
@@ -29,4 +33,5 @@ public class DockerComposeEnvironmentVarResolver {
     private static String resolveSystemProperties(String content) {
         return IOUtil.replacePlaceholdersWithWhiteSpace(content);
     }
+
 }

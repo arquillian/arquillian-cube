@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.client.metadata;
 
-import java.util.EnumSet;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.reporter.DockerContainerSection;
@@ -10,20 +9,9 @@ import org.arquillian.reporter.api.builder.Reporter;
 import org.arquillian.reporter.api.builder.report.ReportBuilder;
 import org.arquillian.reporter.api.builder.report.ReportInSectionBuilder;
 
-import static org.arquillian.cube.impl.reporter.DockerReportKey.BINDS;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.BUILD_LOCATION;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.CONTAINER_NAME;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.DOCKER_CONTAINER_CONFIGURATION;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.ENTRY_POINT;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.ERROR_DURING_LIFECYCLE;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.EXPOSED_PORTS;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.IMAGE_NAME;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.LINKS;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.NETWORK_MODE;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.PORT_BINDING;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.STARTING_TIME;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.STOPPING_TIME;
-import static org.arquillian.cube.impl.reporter.DockerReportKey.VOLUMES;
+import java.util.EnumSet;
+
+import static org.arquillian.cube.impl.reporter.DockerReportKey.*;
 
 /**
  * Reporting metrics capabilities for Docker Cube.
@@ -40,14 +28,14 @@ public class ReportMetrics implements CanReportMetrics {
     public ReportInSectionBuilder report() {
 
         boolean error = EnumSet.of(Cube.State.START_FAILED, Cube.State.CREATE_FAILED,
-            Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
-            .contains(dockerCube.state());
+                Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
+                .contains(dockerCube.state());
 
         final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_CONTAINER_CONFIGURATION)
-            .addKeyValueEntry(CONTAINER_NAME, dockerCube.getId())
-            .addKeyValueEntry(ERROR_DURING_LIFECYCLE, Boolean.toString(error))
-            .addKeyValueEntry(STARTING_TIME, String.format("%s ms", dockerCube.getStartingTimeInMillis()))
-            .addKeyValueEntry(STOPPING_TIME, String.format("%s ms", dockerCube.getStoppingTimeInMillis()));
+                .addKeyValueEntry(CONTAINER_NAME, dockerCube.getId())
+                .addKeyValueEntry(ERROR_DURING_LIFECYCLE, Boolean.toString(error))
+                .addKeyValueEntry(STARTING_TIME, String.format("%s ms", dockerCube.getStartingTimeInMillis()))
+                .addKeyValueEntry(STOPPING_TIME, String.format("%s ms", dockerCube.getStoppingTimeInMillis()));
 
         final CubeContainer configuration = dockerCube.configuration();
 
@@ -65,7 +53,7 @@ public class ReportMetrics implements CanReportMetrics {
             reportBuilder.addKeyValueEntry(PORT_BINDING, configuration.getPortBindings().toString());
         }
 
-        if (configuration.getLinks() != null) {
+        if (configuration.getLinks() != null)  {
             reportBuilder.addKeyValueEntry(LINKS, configuration.getLinks().toString());
         }
 
@@ -86,5 +74,7 @@ public class ReportMetrics implements CanReportMetrics {
         }
 
         return reportBuilder.inSection(new DockerContainerSection(dockerCube.getId()));
+
     }
+
 }

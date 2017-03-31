@@ -22,10 +22,6 @@ public class DockerCompositions {
         return containers;
     }
 
-    public void setContainers(Map<String, CubeContainer> containers) {
-        this.containers = containers;
-    }
-
     public Map<String, CubeContainer> getNoneManualContainers() {
         Map<String, CubeContainer> autoContainers = new HashMap<>();
         for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
@@ -41,16 +37,20 @@ public class DockerCompositions {
         return networks;
     }
 
-    public void setNetworks(Map<String, Network> networks) {
-        this.networks = networks;
-    }
-
     public Set<String> getContainerIds() {
         return containers.keySet();
     }
 
     public Set<String> getNetworkIds() {
         return networks.keySet();
+    }
+
+    public void setNetworks(Map<String, Network> networks) {
+        this.networks = networks;
+    }
+
+    public void setContainers(Map<String, CubeContainer> containers) {
+        this.containers = containers;
     }
 
     public CubeContainer get(String id) {
@@ -102,9 +102,7 @@ public class DockerCompositions {
 
     /**
      * This method only overrides properties that are specific from Cube like await strategy or before stop events.
-     *
-     * @param overrideDockerCompositions
-     *     that contains information to override.
+     * @param overrideDockerCompositions that contains information to override.
      */
     public void overrideCubeProperties(DockerCompositions overrideDockerCompositions) {
         final Set<String> containerIds = overrideDockerCompositions.getContainerIds();
@@ -114,7 +112,7 @@ public class DockerCompositions {
             if (containers.containsKey(containerId)) {
                 final CubeContainer cubeContainer = containers.get(containerId);
                 final CubeContainer overrideCubeContainer = overrideDockerCompositions.get(containerId);
-
+                
                 cubeContainer.setRemoveVolumes(overrideCubeContainer.getRemoveVolumes());
 
                 if (overrideCubeContainer.hasAwait()) {
@@ -132,10 +130,11 @@ public class DockerCompositions {
                 if (overrideCubeContainer.isKillContainer()) {
                     cubeContainer.setKillContainer(overrideCubeContainer.isKillContainer());
                 }
+
             } else {
-                logger.warning(String.format("Overriding Container %s are not defined in main definition of containers.",
-                    containerId));
+                logger.warning(String.format("Overriding Container %s are not defined in main definition of containers.", containerId));
             }
         }
     }
+
 }

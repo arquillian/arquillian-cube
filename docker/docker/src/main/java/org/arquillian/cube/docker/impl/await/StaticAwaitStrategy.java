@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.await;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.util.Ping;
 import org.arquillian.cube.spi.Cube;
@@ -19,7 +20,7 @@ public class StaticAwaitStrategy extends SleepingAwaitStrategyBase {
 
     public StaticAwaitStrategy(Cube<?> cube, Await params) {
         super(params.getSleepPollingTime());
-
+        
         this.ip = params.getIp();
         this.ports.addAll(params.getPorts());
 
@@ -51,4 +52,5 @@ public class StaticAwaitStrategy extends SleepingAwaitStrategyBase {
     public int getPollIterations() {
         return pollIterations;
     }
+
 }

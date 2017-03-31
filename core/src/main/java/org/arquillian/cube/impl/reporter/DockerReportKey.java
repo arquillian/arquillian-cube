@@ -22,4 +22,5 @@ public class DockerReportKey extends AbstractStringKey {
     public static final StringKey BINDS = new DockerReportKey();
     public static final StringKey ENTRY_POINT = new DockerReportKey();
     public static final StringKey NETWORK_MODE = new DockerReportKey();
+
 }

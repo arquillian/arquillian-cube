@@ -1,9 +1,11 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
-import io.fabric8.openshift.api.model.DeploymentConfig;
-import java.lang.annotation.Annotation;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import java.lang.annotation.Annotation;
+
+import io.fabric8.openshift.api.model.DeploymentConfig;
 
 /**
  * A {@link ResourceProvider} for {@link DeploymentConfig}.
@@ -17,9 +19,6 @@ public class DeploymentConfigResourceProvider extends AbstractOpenshiftResourceP
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getOpenshiftClient().deploymentConfigs()
-            .inNamespace(getSession().getNamespace())
-            .withName(getName(qualifiers))
-            .get();
+        return getOpenshiftClient().deploymentConfigs().inNamespace(getSession().getNamespace()).withName(getName(qualifiers)).get();
     }
 }

@@ -1,8 +1,9 @@
 package org.arquillian.cube.kubernetes.impl.annotation;
 
+import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 
 public class DefaultAnnotationProvider implements AnnotationProvider {
 

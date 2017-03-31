@@ -33,7 +33,7 @@ public class CubeLifecycleController {
 
     private Cube<?> validateAndGet(CubeRegistry registry, String cubeId) {
         Cube<?> cube = registry.getCube(cubeId);
-        if (cube == null) {
+        if(cube == null) {
             throw new IllegalArgumentException("No cube with id " + cubeId + " found in registry");
         }
         return cube;

@@ -2,15 +2,17 @@ package org.arquillian.cube.kubernetes.api;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
+
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 public interface Configuration {
 
     //Deprecated Property Names: {
-    String KUBERNETES_MASTER = "kubernetes.master";
-    String KUBERNETES_NAMESPACE = "kubernetes.namespace";
-    String KUBERNETES_DOMAIN = "kubernetes.domain";
+        String KUBERNETES_MASTER = "kubernetes.master";
+        String KUBERNETES_NAMESPACE = "kubernetes.namespace";
+        String KUBERNETES_DOMAIN = "kubernetes.domain";
     // }
 
     String MASTER_URL = "master.url";
@@ -21,6 +23,7 @@ public interface Configuration {
     String DOCKER_REGISTRY_HOST = "DOCKER_REGISTRY_HOST";
     String DOCKER_REGISTRY_PORT = "DOCKER_REGISTRY_PORT";
     String DOCKER_REGISTRY_FORMAT = "%s:%s";
+
 
     String NAMESPACE_LAZY_CREATE_ENABLED = "namespace.lazy.enabled";
     String NAMESPACE_CLEANUP_TIMEOUT = "namespace.cleanup.timeout";
@@ -56,6 +59,7 @@ public interface Configuration {
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
 
     Config FALLBACK_CLIENT_CONFIG = new ConfigBuilder().build();
+
 
     URL getMasterUrl();
 
@@ -98,4 +102,5 @@ public interface Configuration {
     String getKubernetesDomain();
 
     String getDockerRegistry();
+
 }

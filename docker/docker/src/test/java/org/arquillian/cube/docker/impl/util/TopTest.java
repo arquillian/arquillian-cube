@@ -1,16 +1,19 @@
 package org.arquillian.cube.docker.impl.util;
 
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
+
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class TopTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     @Test
     public void shouldStopSpinningIfRunningInsideDocker() throws IOException {
@@ -28,4 +31,5 @@ public class TopTest {
         Top top = new Top(temporaryFolder.getRoot().getAbsolutePath(), temporaryFolder.getRoot().getAbsolutePath());
         assertThat(top.isSpinning(), is(false));
     }
+
 }

@@ -4,8 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Node is a node in a tree/graph structure. It is used to draw the graph dependencies of each containers so they can be
- * started in the correct order and in case it is possible in parallel.
+ * Node is a node in a tree/graph structure. It is used to draw the graph dependencies of each containers so they can be started in the correct order and in case it is possible in parallel.
  */
 public class Node {
 
@@ -19,16 +18,12 @@ public class Node {
         this.children = new HashSet<>();
     }
 
-    public static Node from(String id) {
-        return new Node(id);
-    }
-
     public String getId() {
         return id;
     }
 
     public boolean addAsParentOf(Node node) {
-        if (!this.parents.contains(node)) {
+        if(!this.parents.contains(node)) {
             this.parents.add(node);
             node.addAsChildOf(this);
             return true;
@@ -37,7 +32,7 @@ public class Node {
     }
 
     public boolean addAsChildOf(Node node) {
-        if (!this.children.contains(node)) {
+        if(!this.children.contains(node)) {
             this.children.add(node);
             node.addAsParentOf(this);
             return true;
@@ -53,15 +48,19 @@ public class Node {
         return this.parents.size() > 0;
     }
 
+    public static Node from(String id) {
+        return new Node(id);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Node [id=" + id);
-        if (!parents.isEmpty()) {
+        if(!parents.isEmpty()) {
             sb.append(", parents=" + nodeList(parents));
         }
-        if (!children.isEmpty()) {
-            sb.append(", children=" + nodeList(children));
+        if(!children.isEmpty()) {
+            sb.append(", children="+ nodeList(children));
         }
         sb.append("]");
         return sb.toString();
@@ -69,10 +68,10 @@ public class Node {
 
     public String nodeList(Set<Node> nodes) {
         StringBuilder sb = new StringBuilder();
-        Node[] array = nodes.toArray(new Node[] {});
-        for (int i = 0; i < array.length; i++) {
+        Node[] array = nodes.toArray(new Node[]{});
+        for(int i = 0; i < array.length; i++) {
             sb.append(array[i].getId());
-            if (i < array.length - 1) {
+            if(i < array.length-1) {
                 sb.append(",");
             }
         }
@@ -89,23 +88,18 @@ public class Node {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Node other = (Node) obj;
         if (id == null) {
-            if (other.id != null) {
+            if (other.id != null)
                 return false;
-            }
-        } else if (!id.equals(other.id)) {
+        } else if (!id.equals(other.id))
             return false;
-        }
         return true;
     }
 }

@@ -1,17 +1,19 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+
 import org.arquillian.cube.docker.impl.client.config.IPAM;
 import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
 import org.arquillian.cube.docker.impl.client.config.Network;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfMap;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
 import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfMap;
 
 public class NetworkBuilder {
 
@@ -101,4 +103,5 @@ public class NetworkBuilder {
     public Network build() {
         return this.configuration;
     }
+
 }

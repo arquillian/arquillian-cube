@@ -24,4 +24,5 @@ public class PingPongTest {
     public void shouldDoPingPong() {
         get("http://" + ip + ":" + port).then().assertThat().body("status", equalTo("OK"));
     }
+
 }

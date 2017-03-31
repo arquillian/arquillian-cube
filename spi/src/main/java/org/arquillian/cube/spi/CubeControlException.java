@@ -11,6 +11,10 @@ public class CubeControlException extends RuntimeException {
         this.cubeId = cubeId;
     }
 
+    public String getCubeId() {
+        return cubeId;
+    }
+
     public static CubeControlException failedCreate(String cubeId, Throwable cause) {
         return new CubeControlException(cubeId, "Could not create " + cubeId, cause);
     }
@@ -25,9 +29,5 @@ public class CubeControlException extends RuntimeException {
 
     public static CubeControlException failedDestroy(String cubeId, Throwable cause) {
         return new CubeControlException(cubeId, "Could not destroy " + cubeId, cause);
-    }
-
-    public String getCubeId() {
-        return cubeId;
     }
 }

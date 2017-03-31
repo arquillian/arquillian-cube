@@ -1,5 +1,6 @@
 package com.github.dockerjava;
 
+
 public class CubeOutput {
 
     private String output;

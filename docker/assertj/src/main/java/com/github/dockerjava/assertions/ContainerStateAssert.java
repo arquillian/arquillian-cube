@@ -7,9 +7,10 @@ import org.assertj.core.api.AbstractAssert;
  * @author Eddú Meléndez
  */
 public class ContainerStateAssert extends AbstractAssert<ContainerStateAssert,
-    InspectContainerResponse.ContainerState> {
+        InspectContainerResponse.ContainerState> {
 
-    public ContainerStateAssert(InspectContainerResponse.ContainerState actual) {
-        super(actual, ContainerStateAssert.class);
-    }
+   public ContainerStateAssert(InspectContainerResponse.ContainerState actual) {
+      super(actual, ContainerStateAssert.class);
+   }
+
 }

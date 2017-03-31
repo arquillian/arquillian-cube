@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.restassured;
 
 import io.restassured.authentication.AuthenticationScheme;
+
 import java.util.Map;
 
 public class RestAssuredConfiguration {
@@ -15,54 +16,6 @@ public class RestAssuredConfiguration {
     private AuthenticationScheme authenticationScheme;
     private String useRelaxedHttpsValidation;
     private String[] exclusionContainers = new String[0];
-
-    public static RestAssuredConfiguration fromMap(final Map<String, String> conf) {
-        RestAssuredConfiguration restAssuredConfiguration = new RestAssuredConfiguration();
-
-        if (conf.containsKey("baseUri")) {
-            restAssuredConfiguration.baseUri = conf.get("baseUri");
-        }
-
-        if (conf.containsKey("port")) {
-            restAssuredConfiguration.port = Integer.parseInt(conf.get("port"));
-        }
-
-        if (conf.containsKey("basePath")) {
-            restAssuredConfiguration.basePath = conf.get("basePath");
-        }
-
-        if (conf.containsKey("rootPath")) {
-            restAssuredConfiguration.rootPath = conf.get("rootPath");
-        }
-
-        if (conf.containsKey("authenticationScheme")) {
-            restAssuredConfiguration.authenticationScheme =
-                AuthenticationSchemeFactory.create(conf.get("authenticationScheme"));
-        }
-
-        if (conf.containsKey("schema")) {
-            restAssuredConfiguration.schema = conf.get("schema");
-        }
-
-        if (conf.containsKey("exclusionContainers")) {
-            restAssuredConfiguration.exclusionContainers = conf.get("exclusionContainers").split(",");
-            for (int i = 0; i < restAssuredConfiguration.exclusionContainers.length; i++) {
-                restAssuredConfiguration.exclusionContainers[i] = restAssuredConfiguration.exclusionContainers[i].trim();
-            }
-        }
-
-        if (conf.containsKey("useRelaxedHttpsValidation")) {
-            final String useRelaxedHttpsValidation = conf.get("useRelaxedHttpsValidation");
-
-            if (useRelaxedHttpsValidation == null || useRelaxedHttpsValidation.isEmpty()) {
-                restAssuredConfiguration.useRelaxedHttpsValidation = RELAXED_HTTPS_VALIDATION_ALL_PROTOCOLS;
-            } else {
-                restAssuredConfiguration.useRelaxedHttpsValidation = useRelaxedHttpsValidation;
-            }
-        }
-
-        return restAssuredConfiguration;
-    }
 
     public String getUseRelaxedHttpsValidation() {
         return useRelaxedHttpsValidation;
@@ -114,5 +67,53 @@ public class RestAssuredConfiguration {
 
     public String getSchema() {
         return schema;
+    }
+
+    public static RestAssuredConfiguration fromMap(final Map<String, String> conf) {
+        RestAssuredConfiguration restAssuredConfiguration = new RestAssuredConfiguration();
+
+        if (conf.containsKey("baseUri")) {
+            restAssuredConfiguration.baseUri = conf.get("baseUri");
+        }
+
+        if (conf.containsKey("port")) {
+            restAssuredConfiguration.port= Integer.parseInt(conf.get("port"));
+        }
+
+        if (conf.containsKey("basePath")) {
+            restAssuredConfiguration.basePath = conf.get("basePath");
+        }
+
+        if (conf.containsKey("rootPath")) {
+            restAssuredConfiguration.rootPath = conf.get("rootPath");
+        }
+
+        if (conf.containsKey("authenticationScheme")) {
+            restAssuredConfiguration.authenticationScheme = AuthenticationSchemeFactory.create(conf.get("authenticationScheme"));
+        }
+
+        if (conf.containsKey("schema")) {
+            restAssuredConfiguration.schema = conf.get("schema");
+        }
+
+        if (conf.containsKey("exclusionContainers")) {
+            restAssuredConfiguration.exclusionContainers = conf.get("exclusionContainers").split(",");
+            for(int i=0; i <restAssuredConfiguration.exclusionContainers.length; i++) {
+                restAssuredConfiguration.exclusionContainers[i] = restAssuredConfiguration.exclusionContainers[i].trim();
+            }
+        }
+
+        if( conf.containsKey("useRelaxedHttpsValidation")) {
+            final String useRelaxedHttpsValidation = conf.get("useRelaxedHttpsValidation");
+
+            if (useRelaxedHttpsValidation == null || useRelaxedHttpsValidation.isEmpty()) {
+                restAssuredConfiguration.useRelaxedHttpsValidation = RELAXED_HTTPS_VALIDATION_ALL_PROTOCOLS;
+            } else {
+                restAssuredConfiguration.useRelaxedHttpsValidation = useRelaxedHttpsValidation;
+            }
+
+        }
+
+        return restAssuredConfiguration;
     }
 }

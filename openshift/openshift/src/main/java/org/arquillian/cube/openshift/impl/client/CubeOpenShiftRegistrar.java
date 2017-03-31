@@ -3,23 +3,25 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+
 import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.openshift.impl.model.BuildablePodCube;
 import org.arquillian.cube.openshift.impl.model.ServiceCube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 public class CubeOpenShiftRegistrar {
 
-    public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final Configuration conf,
-        final Injector injector) {
+    public void register(@Observes final OpenShiftClient client, final CubeRegistry registry, final Configuration conf, final Injector injector) {
         if (!(conf instanceof CubeOpenShiftConfiguration)) {
             return;
         }
@@ -35,12 +37,12 @@ public class CubeOpenShiftRegistrar {
             } else if (item instanceof Service) {
                 registry.addCube(injector.inject(new ServiceCube((Service) item, client, configuration)));
             }
+
         }
     }
 
     private boolean hasDefinitionStream(CubeOpenShiftConfiguration conf) {
-        return conf.getDefinitions() != null || (conf.getDefinitionsFile() != null && new File(
-            conf.getDefinitionsFile()).exists());
+        return conf.getDefinitions() != null || (conf.getDefinitionsFile() != null && new File(conf.getDefinitionsFile()).exists());
     }
 
     private InputStream getDefinitionStream(CubeOpenShiftConfiguration conf) {

@@ -27,8 +27,10 @@ public class RestAssuredCustomizer {
      * Method executed before starting a test.
      * It is important to do it in this event because in case of incontainer tests or containerless,
      * this is when the mapped container is started and you might need to inspect the automatic port binding.
-     * <p>
+     *
      * Precedence is set to -100 to execute this after all sarting events.
+     *
+     * @param restAssuredConfiguration
      */
     public void configure(@Observes RestAssuredConfiguration restAssuredConfiguration) {
 
@@ -38,24 +40,23 @@ public class RestAssuredCustomizer {
         configureRequestSpecBuilder(restAssuredConfiguration, cubeDockerConfiguration, requestSpecBuilder);
 
         requestSpecBuilderInstanceProducer.set(requestSpecBuilder);
+
     }
 
-    void configureRequestSpecBuilder(@Observes RestAssuredConfiguration restAssuredConfiguration,
-        CubeDockerConfiguration cubeDockerConfiguration, RequestSpecBuilder requestSpecBuilder) {
+    void configureRequestSpecBuilder(@Observes RestAssuredConfiguration restAssuredConfiguration, CubeDockerConfiguration cubeDockerConfiguration, RequestSpecBuilder requestSpecBuilder) {
         if (restAssuredConfiguration.isBaseUriSet()) {
             requestSpecBuilder.setBaseUri(restAssuredConfiguration.getBaseUri());
         } else {
-            requestSpecBuilder.setBaseUri(
-                restAssuredConfiguration.getSchema() + "://" + cubeDockerConfiguration.getDockerServerIp());
+            requestSpecBuilder.setBaseUri(restAssuredConfiguration.getSchema() + "://" + cubeDockerConfiguration.getDockerServerIp());
         }
 
         if (restAssuredConfiguration.isPortSet()) {
             requestSpecBuilder.setPort(SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration,
-                restAssuredConfiguration.getPort(),
-                restAssuredConfiguration.getExclusionContainers()));
+                    restAssuredConfiguration.getPort(),
+                    restAssuredConfiguration.getExclusionContainers()));
         } else {
             requestSpecBuilder.setPort(SinglePortBindResolver.resolveBindPort(cubeDockerConfiguration,
-                restAssuredConfiguration.getExclusionContainers()));
+                    restAssuredConfiguration.getExclusionContainers()));
         }
 
         if (restAssuredConfiguration.isBasePathSet()) {
@@ -77,8 +78,10 @@ public class RestAssuredCustomizer {
 
     /**
      * Resets RestAssured configuration values to default.
+     * @param event
      */
     public void resetRestAssuredConfiguration(@Observes ManagerStopping event) {
         RestAssured.reset();
     }
+
 }

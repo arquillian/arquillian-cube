@@ -7,7 +7,10 @@ import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.OAuth2Scheme;
 import io.restassured.authentication.OAuthScheme;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
+import org.arquillian.cube.docker.restassured.AuthenticationSchemeFactory;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthenticateSchemeFactoryTest {
 
@@ -31,8 +34,7 @@ public class AuthenticateSchemeFactoryTest {
 
     @Test
     public void should_create_preemptive_auth() {
-        final AuthenticationScheme authenticationScheme =
-            AuthenticationSchemeFactory.create("preemptive:username:password");
+        final AuthenticationScheme authenticationScheme = AuthenticationSchemeFactory.create("preemptive:username:password");
         assertThat(authenticationScheme).isInstanceOf(PreemptiveBasicAuthScheme.class);
         PreemptiveBasicAuthScheme authScheme = (PreemptiveBasicAuthScheme) authenticationScheme;
         assertThat(authScheme.getUserName()).isEqualTo("username");
@@ -41,8 +43,7 @@ public class AuthenticateSchemeFactoryTest {
 
     @Test
     public void should_create_certificate_auth() {
-        final AuthenticationScheme authenticationScheme =
-            AuthenticationSchemeFactory.create("certificate:file:///url:password");
+        final AuthenticationScheme authenticationScheme = AuthenticationSchemeFactory.create("certificate:file:///url:password");
         assertThat(authenticationScheme).isInstanceOf(CertAuthScheme.class);
         CertAuthScheme authScheme = (CertAuthScheme) authenticationScheme;
 
@@ -61,8 +62,7 @@ public class AuthenticateSchemeFactoryTest {
 
     @Test
     public void should_create_oauth_auth() {
-        final AuthenticationScheme authenticationScheme =
-            AuthenticationSchemeFactory.create("oauth:consumerKey:consumerSecret:accessToken:secretToken");
+        final AuthenticationScheme authenticationScheme = AuthenticationSchemeFactory.create("oauth:consumerKey:consumerSecret:accessToken:secretToken");
         assertThat(authenticationScheme).isInstanceOf(OAuthScheme.class);
         OAuthScheme authScheme = (OAuthScheme) authenticationScheme;
 
@@ -80,4 +80,5 @@ public class AuthenticateSchemeFactoryTest {
 
         assertThat(authScheme.getAccessToken()).isEqualTo("accessToken");
     }
+
 }

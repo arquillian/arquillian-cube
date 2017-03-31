@@ -1,21 +1,23 @@
 /**
- * Copyright 2005-2016 Red Hat, Inc.
- * <p>
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ *  Copyright 2005-2016 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
  */
 package org.arquillian.cube.kubernetes.impl;
 
+
 import io.fabric8.kubernetes.api.builder.Visitor;
+
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
@@ -66,54 +68,52 @@ public class KubernetesExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(ConfigurationRegistar.class)
-            .observer(NamespaceServiceRegistar.class)
-            .observer(KubernetesResourceLocatorRegistar.class)
-            .observer(LabelProviderRegistar.class)
-            .observer(DependencyResolverRegistar.class)
-            .observer(AnnotationProviderRegistar.class)
-            .observer(LoggerRegistar.class)
-            .observer(ResourceInstallerRegistar.class)
-            .observer(FeedbackProviderServiceRegistar.class)
-            .observer(getClientCreator())
-            .observer(SuiteListener.class)
-            .observer(TestListener.class)
-            .observer(SessionManagerLifecycle.class);
+                .observer(NamespaceServiceRegistar.class)
+                .observer(KubernetesResourceLocatorRegistar.class)
+                .observer(LabelProviderRegistar.class)
+                .observer(DependencyResolverRegistar.class)
+                .observer(AnnotationProviderRegistar.class)
+                .observer(LoggerRegistar.class)
+                .observer(ResourceInstallerRegistar.class)
+                .observer(FeedbackProviderServiceRegistar.class)
+                .observer(getClientCreator())
+                .observer(SuiteListener.class)
+                .observer(TestListener.class)
+                .observer(SessionManagerLifecycle.class);
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
-            .service(ResourceInstaller.class, DefaultResourceInstaller.class)
-            .service(LabelProvider.class, DefaultLabelProvider.class)
-            .service(DependencyResolver.class, ShrinkwrapResolver.class)
-            .service(AnnotationProvider.class, DefaultAnnotationProvider.class)
-            .service(FeedbackProvider.class, DefaultFeedbackProvider.class)
-            .service(Visitor.class, LoggingVisitor.class)
-            .service(Visitor.class, DockerRegistryVisitor.class)
-            .service(Visitor.class, ServiceAccountVisitor.class)
+                .service(ResourceInstaller.class, DefaultResourceInstaller.class)
+                .service(LabelProvider.class, DefaultLabelProvider.class)
+                .service(DependencyResolver.class, ShrinkwrapResolver.class)
+                .service(AnnotationProvider.class, DefaultAnnotationProvider.class)
+                .service(FeedbackProvider.class, DefaultFeedbackProvider.class)
+                .service(Visitor.class, LoggingVisitor.class)
+                .service(Visitor.class, DockerRegistryVisitor.class)
+                .service(Visitor.class, ServiceAccountVisitor.class)
 
-            .service(ResourceProvider.class, ClientResourceProvider.class)
-            .service(ResourceProvider.class, PodListResourceProvider.class)
-            .service(ResourceProvider.class, PodResourceProvider.class)
-            .service(ResourceProvider.class, DeploymentResourceProvider.class)
-            .service(ResourceProvider.class, DeploymentListResourceProvider.class)
-            .service(ResourceProvider.class, ReplicaSetResourceProvider.class)
-            .service(ResourceProvider.class, ReplicaSetListResourceProvider.class)
-            .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
-            .service(ResourceProvider.class, ReplicationControllerResourceProvider.class)
-            .service(ResourceProvider.class, ServiceListResourceProvider.class)
-            .service(ResourceProvider.class, ServiceResourceProvider.class)
-            .service(ResourceProvider.class, SessionResourceProvider.class)
-            .service(ConfigurationFactory.class, DefaultConfigurationFactory.class)
+                .service(ResourceProvider.class, ClientResourceProvider.class)
+                .service(ResourceProvider.class, PodListResourceProvider.class)
+                .service(ResourceProvider.class, PodResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentListResourceProvider.class)
+                .service(ResourceProvider.class, ReplicaSetResourceProvider.class)
+                .service(ResourceProvider.class, ReplicaSetListResourceProvider.class)
+                .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
+                .service(ResourceProvider.class, ReplicationControllerResourceProvider.class)
+                .service(ResourceProvider.class, ServiceListResourceProvider.class)
+                .service(ResourceProvider.class, ServiceResourceProvider.class)
+                .service(ResourceProvider.class, SessionResourceProvider.class)
+                .service(ConfigurationFactory.class, DefaultConfigurationFactory.class)
 
-            .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class,
-                KuberntesServiceUrlResourceProvider.class);
+                .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class, KuberntesServiceUrlResourceProvider.class);
     }
 
     private Class getClientCreator() {
         Class creatorClass = null;
         String creatorClassName = System.getProperty(Constants.CLIENT_CREATOR_CLASS_NAME);
         try {
-            if (Strings.isNotNullOrEmpty(creatorClassName)) {
+            if (Strings.isNotNullOrEmpty(creatorClassName))
                 creatorClass = KubernetesExtension.class.getClassLoader().loadClass(creatorClassName);
-            }
         } catch (Throwable t) {
             //fallback to default
         }

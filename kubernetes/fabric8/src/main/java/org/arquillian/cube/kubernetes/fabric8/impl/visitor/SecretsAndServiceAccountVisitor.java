@@ -8,6 +8,12 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
+import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,11 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
-import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class SecretsAndServiceAccountVisitor implements Visitor {
 
@@ -42,7 +43,10 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
             serviceAccount = builder.getSpec().getServiceAccountName();
             secrets.addAll(generateSecrets(builder.getMetadata()));
         }
+
     }
+
+
 
     private void createServiceAccount(String serviceAccount, Set<Secret> secrets) {
 
@@ -52,24 +56,25 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
         List<ObjectReference> refs = new ArrayList<>();
         for (Secret secret : secrets) {
             refs.add(
-                new ObjectReferenceBuilder()
-                    .withNamespace(configuration.getNamespace())
-                    .withName(secret.getMetadata().getName())
-                    .build()
+                    new ObjectReferenceBuilder()
+                            .withNamespace(configuration.getNamespace())
+                            .withName(secret.getMetadata().getName())
+                            .build()
             );
         }
 
+
         if (client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).get() == null) {
             client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
-                .withNewMetadata()
-                .withName(serviceAccount)
-                .endMetadata()
-                .withSecrets(refs)
-                .done();
+                    .withNewMetadata()
+                    .withName(serviceAccount)
+                    .endMetadata()
+                    .withSecrets(refs)
+                    .done();
         } else {
             client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).edit()
-                .withSecrets(refs)
-                .done();
+                    .withSecrets(refs)
+                    .done();
         }
     }
 
@@ -101,11 +106,11 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
                             }
 
                             secret = client.secrets().inNamespace(configuration.getNamespace()).createNew()
-                                .withNewMetadata()
-                                .withName(name)
-                                .endMetadata()
-                                .withData(data)
-                                .done();
+                                    .withNewMetadata()
+                                    .withName(name)
+                                    .endMetadata()
+                                    .withData(data)
+                                    .done();
 
                             secrets.add(secret);
                         }

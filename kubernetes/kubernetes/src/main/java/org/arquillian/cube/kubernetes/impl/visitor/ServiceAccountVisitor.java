@@ -12,11 +12,13 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 public class ServiceAccountVisitor implements Visitor {
 
     @Inject
-    protected Instance<Logger> logger;
-    @Inject
     Instance<KubernetesClient> client;
+
     @Inject
     Instance<Configuration> configuration;
+
+    @Inject
+    protected Instance<Logger> logger;
 
     @Override
     public void visit(Object element) {
@@ -43,9 +45,10 @@ public class ServiceAccountVisitor implements Visitor {
         KubernetesClient client = this.client.get();
         Configuration configuration = this.configuration.get();
         client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
-            .withNewMetadata()
-            .withName(serviceAccount)
-            .endMetadata()
-            .done();
+                .withNewMetadata()
+                .withName(serviceAccount)
+                .endMetadata()
+                .done();
+
     }
 }

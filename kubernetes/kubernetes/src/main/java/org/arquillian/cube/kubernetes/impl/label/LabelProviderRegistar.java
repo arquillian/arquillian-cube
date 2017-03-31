@@ -11,10 +11,11 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class LabelProviderRegistar {
 
-    @Inject @ApplicationScoped
-    InstanceProducer<LabelProvider> labelProvider;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
+
+    @Inject @ApplicationScoped
+    InstanceProducer<LabelProvider> labelProvider;
 
     public void install(@Observes(precedence = 100) Configuration configuration) {
         labelProvider.set(serviceLoader.get().onlyOne(LabelProvider.class, DefaultLabelProvider.class));

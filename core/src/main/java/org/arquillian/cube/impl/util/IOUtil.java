@@ -1,5 +1,13 @@
 package org.arquillian.cube.impl.util;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.text.StrLookup;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -19,15 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.text.StrLookup;
-import org.apache.commons.lang3.text.StrSubstitutor;
 
 public class IOUtil {
 
@@ -41,7 +43,7 @@ public class IOUtil {
     public static void tar(File file, File outputPath) throws IOException {
 
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(outputPath));
-        try (TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)) {
+        try(TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)) {
 
             if (file != null && file.exists() && file.isFile()) {
                 TarArchiveEntry tarFile = new TarArchiveEntry(file, file.getName());
@@ -51,11 +53,12 @@ public class IOUtil {
                 tarArchiveOutputStream.closeArchiveEntry();
                 tarArchiveOutputStream.finish();
             } else {
-                throw new IllegalArgumentException(
-                    String.format("File %s is not a file or does not exists.", file.getAbsolutePath()));
+                throw new IllegalArgumentException(String.format("File %s is not a file or does not exists.", file.getAbsolutePath()));
             }
         }
     }
+
+
 
     public static void untar(InputStream tarContent, File destination) throws IOException {
         BufferedInputStream bufferedLogs = new BufferedInputStream(tarContent);
@@ -86,6 +89,7 @@ public class IOUtil {
             }
         }
     }
+
 
     /**
      * Unzips the given input stream of a ZIP to the given directory
@@ -122,8 +126,7 @@ public class IOUtil {
         return sub.replace(templateContent);
     }
 
-    public static String replacePlaceholdersWithWhiteSpace(final String templateContent,
-        final Map<String, String> values) {
+    public static String replacePlaceholdersWithWhiteSpace(final String templateContent, final Map<String, String> values) {
         StrSubstitutor sub = new StrSubstitutor(values);
         sub.setVariableResolver(new StrLookup<Object>() {
             @Override
@@ -166,8 +169,7 @@ public class IOUtil {
         return baos.toString();
     }
 
-    private static void verbosePrintInternal(final PrintStream out, final Object label, final Map map,
-        final Stack lineage, final boolean debug) {
+    private static void verbosePrintInternal(final PrintStream out, final Object label, final Map map, final Stack lineage, final boolean debug) {
 
         printIndent(out, lineage.size());
 
@@ -189,17 +191,17 @@ public class IOUtil {
 
         lineage.push(map);
 
-        for (Iterator it = map.entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Map.Entry) it.next();
             Object childKey = entry.getKey();
             Object childValue = entry.getValue();
             if (childValue instanceof Map && !lineage.contains(childValue)) {
                 verbosePrintInternal(
-                    out,
-                    (childKey == null ? "null" : childKey),
-                    (Map) childValue,
-                    lineage,
-                    debug);
+                        out,
+                        (childKey == null ? "null" : childKey),
+                        (Map) childValue,
+                        lineage,
+                        debug);
             } else {
                 printIndent(out, lineage.size());
                 out.print(childKey);
@@ -212,9 +214,9 @@ public class IOUtil {
                     out.print("(this Map)");
                 } else {
                     out.print(
-                        "(ancestor["
-                            + (lineage.size() - 1 - lineageIndex - 1)
-                            + "] Map)");
+                            "(ancestor["
+                                    + (lineage.size() - 1 - lineageIndex - 1)
+                                    + "] Map)");
                 }
 
                 if (debug && childValue != null) {
@@ -237,12 +239,11 @@ public class IOUtil {
             out.print(INDENT_STRING);
         }
     }
-
     public static final String asString(InputStream response) {
 
         StringWriter logwriter = new StringWriter();
 
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -258,7 +259,7 @@ public class IOUtil {
     public static String asStringPreservingNewLines(InputStream response) {
         StringWriter logwriter = new StringWriter();
 
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -274,7 +275,7 @@ public class IOUtil {
 
     public static String[] asArrayString(InputStream response) {
         List<String> lines = new ArrayList<>();
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
+        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response))) {
 
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -310,14 +311,15 @@ public class IOUtil {
     }
 
     public static void close(Closeable closeable, boolean swallowIOException) throws IOException {
-        if (closeable != null) {
+        if(closeable != null) {
             try {
                 closeable.close();
             } catch (IOException e) {
-                if (!swallowIOException) {
+                if(!swallowIOException) {
                     throw e;
                 }
             }
+
         }
     }
 }

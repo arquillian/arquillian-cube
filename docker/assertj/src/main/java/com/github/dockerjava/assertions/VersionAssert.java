@@ -9,46 +9,46 @@ import org.assertj.core.util.Objects;
  */
 public class VersionAssert extends AbstractAssert<VersionAssert, Version> {
 
-    public VersionAssert(Version actual) {
-        super(actual, VersionAssert.class);
-    }
+	public VersionAssert(Version actual) {
+		super(actual, VersionAssert.class);
+	}
 
-    public VersionAssert isExperimental() {
-        isNotNull();
+	public VersionAssert isExperimental() {
+		isNotNull();
 
-        isExperimental(true);
+		isExperimental(true);
 
-        return this;
-    }
+		return this;
+	}
 
-    public VersionAssert isExperimental(boolean experimental) {
-        isNotNull();
+	public VersionAssert isExperimental(boolean experimental) {
+		isNotNull();
 
-        if (!Objects.areEqual(this.actual.getExperimental(), experimental)) {
-            failWithMessage("Expected docker's experimental to be %s but was %s", experimental,
-                this.actual.getExperimental());
-        }
+		if (!Objects.areEqual(this.actual.getExperimental(), experimental)) {
+			failWithMessage("Expected docker's experimental to be %s but was %s", experimental, this.actual.getExperimental());
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    public VersionAssert hasApiVersion(String apiVersion) {
-        isNotNull();
+	public VersionAssert hasApiVersion(String apiVersion) {
+		isNotNull();
 
-        if (!Objects.areEqual(this.actual.getApiVersion(), apiVersion)) {
-            failWithMessage("Expected docker's apiVersion to be %s but was %s", apiVersion, this.actual.getApiVersion());
-        }
+		if (!Objects.areEqual(this.actual.getApiVersion(), apiVersion)) {
+			failWithMessage("Expected docker's apiVersion to be %s but was %s", apiVersion, this.actual.getApiVersion());
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    public VersionAssert hasVersion(String version) {
-        isNotNull();
+	public VersionAssert hasVersion(String version) {
+		isNotNull();
 
-        if (!Objects.areEqual(this.actual.getVersion(), version)) {
-            failWithMessage("Expected docker's version to be %s but was %s", version, this.actual.getVersion());
-        }
+		if (!Objects.areEqual(this.actual.getVersion(), version)) {
+			failWithMessage("Expected docker's version to be %s but was %s", version, this.actual.getVersion());
+		}
 
-        return this;
-    }
+		return this;
+	}
+
 }

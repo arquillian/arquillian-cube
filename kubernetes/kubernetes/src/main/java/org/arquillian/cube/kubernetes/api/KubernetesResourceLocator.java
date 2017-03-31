@@ -6,8 +6,7 @@ public interface KubernetesResourceLocator extends WithToImmutable<KubernetesRes
 
     /**
      * Locates the kubernetes resource.
-     *
-     * @return Returns the url that points to the resource.
+     * @return  Returns the url that points to the resource.
      */
     URL locate();
 }

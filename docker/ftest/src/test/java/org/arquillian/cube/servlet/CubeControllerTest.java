@@ -1,8 +1,5 @@
 package org.arquillian.cube.servlet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.List;
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
@@ -20,6 +17,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -30,14 +32,16 @@ public class CubeControllerTest {
     private static final String MANUAL_START_CUBE = "database_manual";
 
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder(new File("/tmp"));
-    @ArquillianResource
-    private CubeController cubeController;
+    public TemporaryFolder folder= new TemporaryFolder(new File("/tmp"));
 
     @Deployment
     public static WebArchive create() {
         return ShrinkWrap.create(WebArchive.class).addClass(HelloWorldServlet.class);
     }
+
+    @ArquillianResource
+    private CubeController cubeController;
+
 
     /**
      * This test should run in the tomcat container.  This means the tomcat container is responsible
@@ -52,6 +56,7 @@ public class CubeControllerTest {
         cubeController.start(MANUAL_START_CUBE);
     }
 
+
     /**
      * Ensure that as a different environment we can stop the cube controller.
      */
@@ -64,9 +69,8 @@ public class CubeControllerTest {
         cubeController.destroy(MANUAL_START_CUBE);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void should_get_an_exception_when_getting_logs(@ArquillianResource CubeController cubeController,
-        @ArquillianResource CubeID cubeID) {
+    @Test(expected=UnsupportedOperationException.class)
+    public void should_get_an_exception_when_getting_logs(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
         cubeController.copyLog(cubeID, false, true, true, false, -1, new ByteArrayOutputStream());
     }
 
@@ -80,10 +84,10 @@ public class CubeControllerTest {
     }
 
     @Test
-    public void should_get_changes_on_container(@ArquillianResource CubeController cubeController,
-        @ArquillianResource CubeID cubeID) {
+    public void should_get_changes_on_container(@ArquillianResource CubeController cubeController, @ArquillianResource CubeID cubeID) {
         List<ChangeLog> changesOnFilesystem = cubeController.changesOnFilesystem(cubeID);
         assertThat(changesOnFilesystem, notNullValue());
         assertThat(changesOnFilesystem.size() > 0, is(true));
     }
+
 }

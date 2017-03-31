@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client.containerobject;
 
 import java.lang.annotation.Annotation;
 import java.util.Optional;
+
 import org.arquillian.cube.ContainerObjectFactory;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -21,7 +22,7 @@ public class ContainerObjectFactoryProvider implements ResourceProvider {
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         return Optional.ofNullable(instance.get())
-            .orElseThrow(() -> new IllegalStateException(
-                String.format("%s was not found.", ContainerObjectFactory.class.getSimpleName())));
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("%s was not found.", ContainerObjectFactory.class.getSimpleName())));
     }
 }

@@ -1,11 +1,12 @@
 package org.arquillian.cube.kubernetes.impl;
 
+
+import org.arquillian.cube.kubernetes.api.*;
+import org.arquillian.cube.kubernetes.api.SessionListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.api.SessionListener;
 
 /**
  * Represents a testing session.
@@ -25,7 +26,6 @@ public class DefaultSession implements Session {
         this.logger = logger;
         this.namespace = namespace;
     }
-
     void init() {
         logger.status("Initializing Session:" + id);
     }

@@ -2,12 +2,13 @@ package org.arquillian.cube.kubernetes.impl.visitor;
 
 import io.fabric8.kubernetes.api.builder.TypedVisitor;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DockerRegistryVisitor extends TypedVisitor<ContainerBuilder> {
 
@@ -20,11 +21,19 @@ public class DockerRegistryVisitor extends TypedVisitor<ContainerBuilder> {
     @Inject
     Instance<Configuration> configuration;
 
+    @Override
+    public void visit(ContainerBuilder containerBuilder) {
+        String registry = configuration.get().getDockerRegistry();
+        if (Strings.isNotNullOrEmpty(registry) && !hasRegistry(containerBuilder.getImage())) {
+            containerBuilder.withImage(registry + SEPARATOR + containerBuilder.getImage());
+        }
+    }
+
     /**
      * Checks to see if there's a registry name already provided in the image name
-     * <p>
-     * Code influenced from <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/src/main/java/org/jolokia/docker/maven/util/ImageName.java">docker-maven-plugin</a>
      *
+     * Code influenced from <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/src/main/java/org/jolokia/docker/maven/util/ImageName.java">docker-maven-plugin</a>
+     * @param imageName
      * @return true if the image name contains a registry
      */
     public static boolean hasRegistry(String imageName) {
@@ -42,13 +51,5 @@ public class DockerRegistryVisitor extends TypedVisitor<ContainerBuilder> {
         String part = parts[0];
 
         return part.contains(DOT) || part.contains(COLN);
-    }
-
-    @Override
-    public void visit(ContainerBuilder containerBuilder) {
-        String registry = configuration.get().getDockerRegistry();
-        if (Strings.isNotNullOrEmpty(registry) && !hasRegistry(containerBuilder.getImage())) {
-            containerBuilder.withImage(registry + SEPARATOR + containerBuilder.getImage());
-        }
     }
 }

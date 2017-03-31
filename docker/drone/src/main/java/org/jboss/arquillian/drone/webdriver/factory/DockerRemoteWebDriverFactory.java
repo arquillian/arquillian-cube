@@ -1,11 +1,8 @@
 package org.jboss.arquillian.drone.webdriver.factory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.arquillian.cube.docker.drone.SeleniumContainers;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.drone.spi.Configurator;
@@ -16,12 +13,17 @@ import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Custom Remote WebDriver Factory that generates a RemoteWebDriver pointing to Docker Selenium Docker IP.
  */
 public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<RemoteWebDriver> implements
-    Configurator<RemoteWebDriver, WebDriverConfiguration>, Instantiator<RemoteWebDriver, WebDriverConfiguration>,
-    Destructor<RemoteWebDriver> {
+        Configurator<RemoteWebDriver, WebDriverConfiguration>, Instantiator<RemoteWebDriver, WebDriverConfiguration>,
+        Destructor<RemoteWebDriver> {
 
     private static final Logger log = Logger.getLogger(DockerRemoteWebDriverFactory.class.getName());
 
@@ -35,9 +37,8 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
     public void destroyInstance(RemoteWebDriver remoteWebDriver) {
         try {
             remoteWebDriver.quit();
-        } catch (WebDriverException e) {
-            log.log(Level.WARNING, "@Drone {0} has been already destroyed and can't be destroyed again.",
-                remoteWebDriver.getClass()
+        } catch(WebDriverException e) {
+            log.log(Level.WARNING, "@Drone {0} has been already destroyed and can't be destroyed again.", remoteWebDriver.getClass()
                     .getSimpleName());
         }
     }
@@ -52,13 +53,10 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
 
         final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
         switch (seleniumContainers.getBrowser()) {
-            case "firefox":
-                return DesiredCapabilities.firefox();
-            case "chrome":
-                return DesiredCapabilities.chrome();
-            // Never should happen since it is protected inside selenium containers class
-            default:
-                return DesiredCapabilities.firefox();
+            case "firefox": return DesiredCapabilities.firefox();
+            case "chrome": return DesiredCapabilities.chrome();
+                // Never should happen since it is protected inside selenium containers class
+            default: return DesiredCapabilities.firefox();
         }
     }
 

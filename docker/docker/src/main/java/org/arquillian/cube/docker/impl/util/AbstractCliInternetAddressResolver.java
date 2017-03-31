@@ -19,7 +19,7 @@ public abstract class AbstractCliInternetAddressResolver {
     }
 
     public String ip(String cliPathExec, boolean force) {
-        if (cachedIp == null || force) {
+        if(cachedIp == null || force) {
             cachedIp = getIp(cliPathExec);
         }
         return cachedIp;
@@ -28,19 +28,17 @@ public abstract class AbstractCliInternetAddressResolver {
     private String getIp(String cliPathExec) {
         String output = commandLineExecutor.execCommand(getCommandArguments(cliPathExec));
         Matcher m = getIpPattern().matcher(output);
-        if (m.find()) {
+        if(m.find()) {
             String ip = m.group();
             return ip;
         } else {
-            String errorMessage = String.format(
-                "Cli Internet address resolver executed %s command and does not return a valid ip. It returned %s.",
-                Arrays.toString(getCommandArguments(cliPathExec)), output);
+            String errorMessage = String.format("Cli Internet address resolver executed %s command and does not return a valid ip. It returned %s.",
+                    Arrays.toString(getCommandArguments(cliPathExec)), output);
             log.log(Level.SEVERE, errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
     }
 
     protected abstract String[] getCommandArguments(String cliPathExec);
-
     protected abstract Pattern getIpPattern();
 }

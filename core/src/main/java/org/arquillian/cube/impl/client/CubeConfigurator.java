@@ -1,6 +1,7 @@
 package org.arquillian.cube.impl.client;
 
 import java.util.Map;
+
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.InstanceProducer;

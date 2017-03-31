@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.client.containerobject;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
+
 import org.arquillian.cube.ContainerObjectConfiguration;
 import org.arquillian.cube.ContainerObjectFactory;
 import org.arquillian.cube.CubeController;
@@ -18,8 +19,9 @@ import org.jboss.arquillian.test.spi.TestEnricher;
 /**
  * An implementation of {@link ContainerObjectFactory} for Docker images.
  *
- * @author <a href="mailto:rivasdiaz@gmail.com">Ramon Rivas</a>
  * @see DockerContainerObjectBuilder
+ *
+ * @author <a href="mailto:rivasdiaz@gmail.com">Ramon Rivas</a>
  */
 public class DockerContainerObjectFactory implements ContainerObjectFactory {
 
@@ -33,28 +35,26 @@ public class DockerContainerObjectFactory implements ContainerObjectFactory {
 
     @Override
     public <T> T createContainerObject(Class<T> containerObjectClass) {
-        return createContainerObject(containerObjectClass, CubeContainerObjectConfiguration.empty(), null);
+        return createContainerObject(containerObjectClass, CubeContainerObjectConfiguration.empty(),null);
     }
 
     @Override
     public <T> T createContainerObject(Class<T> containerObjectClass, ContainerObjectConfiguration configuration) {
-        return createContainerObject(containerObjectClass, configuration, null);
+        return createContainerObject(containerObjectClass, configuration,null);
     }
 
-    public <T> T createContainerObject(Class<T> containerObjectClass, ContainerObjectConfiguration configuration,
-        Object containerObjectContainer) {
+    public <T> T createContainerObject(Class<T> containerObjectClass, ContainerObjectConfiguration configuration, Object containerObjectContainer) {
         if (configuration == null) {
             throw new IllegalArgumentException("configuration cannot be null");
         }
         try {
-            return new DockerContainerObjectBuilder<T>(dockerClientExecutorInstance.get(), cubeControllerInstance.get(),
-                cubeRegistryInstance.get())
-                .withEnrichers(serviceLoaderInstance.get().all(TestEnricher.class))
-                .withContainerObjectClass(containerObjectClass)
-                .withContainerObjectConfiguration(configuration)
-                .withContainerObjectContainer(containerObjectContainer)
-                .onCubeCreated(this::onCubeCreated)
-                .build();
+            return new DockerContainerObjectBuilder<T>(dockerClientExecutorInstance.get(), cubeControllerInstance.get(), cubeRegistryInstance.get())
+                    .withEnrichers(serviceLoaderInstance.get().all(TestEnricher.class))
+                    .withContainerObjectClass(containerObjectClass)
+                    .withContainerObjectConfiguration(configuration)
+                    .withContainerObjectContainer(containerObjectContainer)
+                    .onCubeCreated(this::onCubeCreated)
+                    .build();
         } catch (IllegalAccessException | IOException | InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }

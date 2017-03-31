@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.CubeOutput;
 
@@ -22,21 +23,21 @@ public final class Ping {
 
         do {
             result = command.call();
-            if (!result) {
+            if(!result) {
                 iteration++;
                 try {
                     timeUnit.sleep(sleep);
                 } catch (InterruptedException e) {
                 }
             }
-        } while (!result && iteration < totalIterations);
+        } while(!result && iteration < totalIterations);
 
         return result;
     }
-
+    
     public static boolean ping(final DockerClientExecutor dockerClientExecutor, final String containerId,
-        final String command, int totalIterations, long sleep, TimeUnit timeUnit) {
-
+            final String command, int totalIterations, long sleep, TimeUnit timeUnit) {
+        
         return ping(totalIterations, sleep, timeUnit, new PingCommand() {
             @Override
             public boolean call() {
@@ -54,21 +55,20 @@ public final class Ping {
         });
     }
 
-    private static boolean execContainerPing(DockerClientExecutor dockerClientExecutor, String containerId,
-        String command) {
+
+    private static boolean execContainerPing(DockerClientExecutor dockerClientExecutor, String containerId, String command) {
 
         final String[] commands = {"sh", "-c", command};
         CubeOutput result = dockerClientExecutor.execStart(containerId, commands);
 
         if (result.getStandard() == null) {
             throw new IllegalArgumentException(
-                String.format("Command %s in container %s has returned no value.", Arrays.toString(commands),
-                    containerId));
+                    String.format("Command %s in container %s has returned no value.", Arrays.toString(commands), containerId));
         }
 
         if (result.getStandard().contains(COMMAND_NOT_FOUND) || result.getError().contains(COMMAND_NOT_FOUND)) {
             throw new UnsupportedOperationException(
-                String.format("Command %s is not available in container %s.", Arrays.toString(commands), containerId));
+                    String.format("Command %s is not available in container %s.", Arrays.toString(commands), containerId));
         }
 
         try {
@@ -76,7 +76,7 @@ public final class Ping {
             //This number is based in that a port will be opened only as tcp or as udp.
             //We will need another issue to modify cube internals to save if port is udp or tcp.
             return numberOfListenConnectons > 0;
-        } catch (NumberFormatException e) {
+        } catch(NumberFormatException e) {
             return false;
         }
     }
@@ -91,12 +91,7 @@ public final class Ping {
         } catch (IOException e) {
             return false;
         } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
+            if (socket != null) try { socket.close(); } catch(IOException e) {}
         }
     }
 }

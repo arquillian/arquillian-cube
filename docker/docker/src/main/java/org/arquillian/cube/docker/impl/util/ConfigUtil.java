@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.ExposedPort;
@@ -29,24 +30,23 @@ public final class ConfigUtil {
 
     private static final String CONTAINERS = "containers";
 
-    private ConfigUtil() {
-    }
+    private ConfigUtil() {}
 
     public static String[] trim(String[] data) {
         List<String> result = new ArrayList<String>();
-        for (String val : data) {
+        for(String val : data) {
             String trimmed = val.trim();
-            if (!trimmed.isEmpty()) {
+            if(!trimmed.isEmpty()) {
                 result.add(trimmed);
             }
         }
-        return result.toArray(new String[] {});
+        return result.toArray(new String[]{});
     }
 
     public static String[] reverse(String[] cubeIds) {
         String[] result = new String[cubeIds.length];
-        int n = cubeIds.length - 1;
-        for (int i = 0; i < cubeIds.length; i++) {
+        int n = cubeIds.length-1;
+        for(int i = 0; i < cubeIds.length; i++) {
             result[n--] = cubeIds[i];
         }
         return result;
@@ -55,6 +55,31 @@ public final class ConfigUtil {
     public static String dump(DockerCompositions containers) {
         Yaml yaml = new Yaml(new CubeRepresenter());
         return yaml.dump(containers);
+    }
+
+    private static class CubeRepresenter extends Representer {
+        public CubeRepresenter() {
+            this.representers.put(PortBinding.class, new ToStringRepresent());
+            this.representers.put(ExposedPort.class, new ToStringRepresent());
+            this.representers.put(Image.class, new ToStringRepresent());
+            this.representers.put(Link.class, new ToStringRepresent());
+            addClassTag(DockerCompositions.class, Tag.MAP);
+        }
+
+        public class ToStringRepresent implements Represent {
+            @Override
+            public Node representData(Object data) {
+                return representScalar(Tag.STR, data.toString());
+            }
+        }
+
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
+            if(propertyValue == null) {
+                return null;
+            }
+            return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+        }
     }
 
     public static DockerCompositions load(String content) {
@@ -79,59 +104,16 @@ public final class ConfigUtil {
             } else if (CONTAINERS.equals(rawLoadEntry.getKey())) {
                 Map<String, Object> rawContainers = (Map<String, Object>) rawLoadEntry.getValue();
                 for (Map.Entry<String, Object> rawContainerEntry : rawContainers.entrySet()) {
-                    CubeContainer cubeContainer =
-                        yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
+                    CubeContainer cubeContainer = yaml.loadAs(yaml.dump(rawContainerEntry.getValue()), CubeContainer.class);
                     containers.add(rawContainerEntry.getKey(), cubeContainer);
                 }
-            } else {
+            }
+            else {
                 CubeContainer container = yaml.loadAs(yaml.dump(rawLoadEntry.getValue()), CubeContainer.class);
                 containers.add(rawLoadEntry.getKey(), container);
             }
         }
         return applyExtendsRules(containers);
-    }
-
-    private static DockerCompositions applyExtendsRules(DockerCompositions dockerCompositions) {
-
-        for (Map.Entry<String, CubeContainer> containerEntry : dockerCompositions.getContainers().entrySet()) {
-            CubeContainer container = containerEntry.getValue();
-            if (container.getExtends() != null) {
-                String extendsContainer = container.getExtends();
-                if (dockerCompositions.get(extendsContainer) == null) {
-                    throw new IllegalArgumentException(
-                        containerEntry.getKey() + " extends a non existing container definition " + extendsContainer);
-                }
-                CubeContainer extendedContainer = dockerCompositions.get(extendsContainer);
-                container.merge(extendedContainer);
-            }
-        }
-        return dockerCompositions;
-    }
-
-    private static class CubeRepresenter extends Representer {
-        public CubeRepresenter() {
-            this.representers.put(PortBinding.class, new ToStringRepresent());
-            this.representers.put(ExposedPort.class, new ToStringRepresent());
-            this.representers.put(Image.class, new ToStringRepresent());
-            this.representers.put(Link.class, new ToStringRepresent());
-            addClassTag(DockerCompositions.class, Tag.MAP);
-        }
-
-        @Override
-        protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
-            Tag customTag) {
-            if (propertyValue == null) {
-                return null;
-            }
-            return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
-        }
-
-        public class ToStringRepresent implements Represent {
-            @Override
-            public Node representData(Object data) {
-                return representScalar(Tag.STR, data.toString());
-            }
-        }
     }
 
     public static class CubeConstructor extends Constructor {
@@ -143,21 +125,37 @@ public final class ConfigUtil {
 
             @Override
             public Object construct(Node node) {
-                if (node.getType() == PortBinding.class) {
-                    String value = constructScalar((ScalarNode) node).toString();
+                if(node.getType() == PortBinding.class) {
+                    String value = constructScalar((ScalarNode)node).toString();
                     return PortBinding.valueOf(value);
-                } else if (node.getType() == ExposedPort.class) {
-                    String value = constructScalar((ScalarNode) node).toString();
+                } else if(node.getType() == ExposedPort.class) {
+                    String value = constructScalar((ScalarNode)node).toString();
                     return ExposedPort.valueOf(value);
-                } else if (node.getType() == Image.class) {
-                    String value = constructScalar((ScalarNode) node).toString();
+                } else if(node.getType() == Image.class) {
+                    String value = constructScalar((ScalarNode)node).toString();
                     return Image.valueOf(value);
-                } else if (node.getType() == Link.class) {
-                    String value = constructScalar((ScalarNode) node).toString();
+                } else if(node.getType() == Link.class) {
+                    String value = constructScalar((ScalarNode)node).toString();
                     return Link.valueOf(value);
                 }
                 return super.construct(node);
             }
         }
+    }
+
+    private static DockerCompositions applyExtendsRules(DockerCompositions dockerCompositions) {
+
+        for(Map.Entry<String, CubeContainer> containerEntry : dockerCompositions.getContainers().entrySet()) {
+            CubeContainer container = containerEntry.getValue();
+            if(container.getExtends() != null) {
+                String extendsContainer = container.getExtends();
+                if(dockerCompositions.get(extendsContainer) == null) {
+                    throw new IllegalArgumentException(containerEntry.getKey() + " extends a non existing container definition " + extendsContainer);
+                }
+                CubeContainer extendedContainer = dockerCompositions.get(extendsContainer);
+                container.merge(extendedContainer);
+            }
+        }
+        return dockerCompositions;
     }
 }

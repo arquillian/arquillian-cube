@@ -2,9 +2,7 @@ package org.arquillian.cube.kubernetes.impl.namespace;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Scanner;
+
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -13,6 +11,11 @@ import org.arquillian.cube.kubernetes.api.WithToImmutable;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.spi.Validate;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Scanner;
 
 public class DefaultNamespaceService implements NamespaceService {
 
@@ -45,8 +48,8 @@ public class DefaultNamespaceService implements NamespaceService {
         synchronized (this) {
             if (delegate == null) {
                 delegate = new ImmutableNamespaceService(client.get(), configuration.get(),
-                    labelProvider.get().toImmutable(),
-                    logger.get().toImmutable());
+                        labelProvider.get().toImmutable(),
+                        logger.get().toImmutable());
             }
         }
         return delegate;
@@ -83,6 +86,7 @@ public class DefaultNamespaceService implements NamespaceService {
         toImmutable().clean(namespace);
     }
 
+
     public void destroy(String namespace) {
         toImmutable().destroy(namespace);
     }
@@ -94,8 +98,7 @@ public class DefaultNamespaceService implements NamespaceService {
         protected final Logger logger;
         protected final Configuration configuration;
 
-        public ImmutableNamespaceService(KubernetesClient client, Configuration configuration,
-            LabelProvider labelProvider, Logger logger) {
+        public ImmutableNamespaceService(KubernetesClient client, Configuration configuration, LabelProvider labelProvider, Logger logger) {
             Validate.notNull(client, "A KubernetesClient instance is required.");
             Validate.notNull(labelProvider, "A LabelProvider  instance is required.");
             Validate.notNull(logger, "A Logger instance is required.");
@@ -114,22 +117,22 @@ public class DefaultNamespaceService implements NamespaceService {
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
             return client.namespaces().createNew().withNewMetadata()
-                .withName(namespace)
-                .withAnnotations(annotations)
-                .addToLabels(labelProvider.getLabels())
-                .addToLabels(PROJECT_LABEL, client.getNamespace())
-                .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                .endMetadata()
-                .done();
+                    .withName(namespace)
+                    .withAnnotations(annotations)
+                    .addToLabels(labelProvider.getLabels())
+                    .addToLabels(PROJECT_LABEL, client.getNamespace())
+                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                    .endMetadata()
+                    .done();
         }
 
         @Override
         public Namespace annotate(String namespace, Map<String, String> annotations) {
             return client.namespaces().withName(namespace).edit()
-                .editMetadata()
-                .addToAnnotations(annotations)
-                .endMetadata().done();
+                    .editMetadata()
+                    .addToAnnotations(annotations)
+                    .endMetadata().done();
         }
 
         @Override
@@ -154,6 +157,7 @@ public class DefaultNamespaceService implements NamespaceService {
             client.services().inNamespace(namespace).delete();
             client.securityContextConstraints().withName(namespace).delete();
         }
+
 
         public void destroy(String namespace) {
             Logger logger = this.logger;
@@ -187,8 +191,10 @@ public class DefaultNamespaceService implements NamespaceService {
             }
         }
 
+
         private void showErrors() {
         }
+
 
         @Override
         public NamespaceService toImmutable() {

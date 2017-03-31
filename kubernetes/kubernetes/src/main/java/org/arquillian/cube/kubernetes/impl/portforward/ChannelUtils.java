@@ -1,9 +1,12 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
+import static org.xnio._private.Messages.msg;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
+
 import org.xnio.ChannelExceptionHandler;
 import org.xnio.ChannelListener;
 import org.xnio.ChannelListeners;
@@ -13,58 +16,38 @@ import org.xnio.channels.Channels;
 import org.xnio.channels.StreamSinkChannel;
 import org.xnio.channels.StreamSourceChannel;
 
-import static org.xnio._private.Messages.msg;
-
 public final class ChannelUtils {
 
-    private ChannelUtils() {
-    }
-
-    public static <I extends StreamSourceChannel, O extends StreamSinkChannel> void initiateTransfer(long count,
-        final I source, final O sink, Pool<ByteBuffer> pool) {
+    public static <I extends StreamSourceChannel, O extends StreamSinkChannel> void initiateTransfer(long count, final I source, final O sink, Pool<ByteBuffer> pool) {
         ChannelUtils.initiateTransfer(
-            count,
-            source,
-            sink,
-            ChannelListeners.closingChannelListener(),
-            ChannelListeners.<StreamSinkChannel>writeShutdownChannelListener(
+                count,
+                source,
+                sink,
                 ChannelListeners.closingChannelListener(),
-                ChannelListeners.closingChannelExceptionHandler()),
-            ChannelListeners.closingChannelExceptionHandler(),
-            ChannelListeners.closingChannelExceptionHandler(),
-            pool);
+                ChannelListeners.<StreamSinkChannel> writeShutdownChannelListener(
+                        ChannelListeners.closingChannelListener(),
+                        ChannelListeners.closingChannelExceptionHandler()),
+                ChannelListeners.closingChannelExceptionHandler(),
+                ChannelListeners.closingChannelExceptionHandler(),
+                pool);
     }
 
     /**
-     * This is basically a copy of ChannelListeners.initiateTransfer(), but invokes a flush() on the sink after writing is
-     * complete.
-     * <p>
+     * This is basically a copy of ChannelListeners.initiateTransfer(), but invokes a flush() on the sink after writing is complete.
+     * 
      * Initiate a low-copy transfer between two stream channels.  The pool should be a direct buffer pool for best
      * performance.
      *
-     * @param count
-     *     the number of bytes to transfer, or {@link Long#MAX_VALUE} to transfer all remaining bytes
-     * @param source
-     *     the source channel
-     * @param sink
-     *     the target channel
-     * @param sourceListener
-     *     the source listener to set and call when the transfer is complete, or {@code null} to clear the listener at
-     *     that time
-     * @param sinkListener
-     *     the target listener to set and call when the transfer is complete, or {@code null} to clear the listener at
-     *     that time
-     * @param readExceptionHandler
-     *     the read exception handler to call if an error occurs during a read operation
-     * @param writeExceptionHandler
-     *     the write exception handler to call if an error occurs during a write operation
-     * @param pool
-     *     the pool from which the transfer buffer should be allocated
+     * @param count the number of bytes to transfer, or {@link Long#MAX_VALUE} to transfer all remaining bytes
+     * @param source the source channel
+     * @param sink the target channel
+     * @param sourceListener the source listener to set and call when the transfer is complete, or {@code null} to clear the listener at that time
+     * @param sinkListener the target listener to set and call when the transfer is complete, or {@code null} to clear the listener at that time
+     * @param readExceptionHandler the read exception handler to call if an error occurs during a read operation
+     * @param writeExceptionHandler the write exception handler to call if an error occurs during a write operation
+     * @param pool the pool from which the transfer buffer should be allocated
      */
-    public static <I extends StreamSourceChannel, O extends StreamSinkChannel> void initiateTransfer(long count,
-        final I source, final O sink, final ChannelListener<? super I> sourceListener,
-        final ChannelListener<? super O> sinkListener, final ChannelExceptionHandler<? super I> readExceptionHandler,
-        final ChannelExceptionHandler<? super O> writeExceptionHandler, Pool<ByteBuffer> pool) {
+    public static <I extends StreamSourceChannel, O extends StreamSinkChannel> void initiateTransfer(long count, final I source, final O sink, final ChannelListener<? super I> sourceListener, final ChannelListener<? super O> sinkListener, final ChannelExceptionHandler<? super I> readExceptionHandler, final ChannelExceptionHandler<? super O> writeExceptionHandler, Pool<ByteBuffer> pool) {
         if (pool == null) {
             throw msg.nullParameter("pool");
         }
@@ -73,7 +56,7 @@ public final class ChannelUtils {
         try {
             final ByteBuffer buffer = allocated.getResource();
             long transferred;
-            for (; ; ) {
+            for(;;) {
                 try {
                     transferred = source.transferTo(count, buffer, sink);
                 } catch (IOException e) {
@@ -118,20 +101,16 @@ public final class ChannelUtils {
                     }
                     if (res == 0) {
                         // write first listener
-                        final TransferListener<I, O> listener =
-                            new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener,
-                                writeExceptionHandler, readExceptionHandler, 1);
+                        final TransferListener<I, O> listener = new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener, writeExceptionHandler, readExceptionHandler, 1);
                         source.suspendReads();
                         source.getReadSetter().set(listener);
                         // flush the write channel
-                        sink.getWriteSetter()
-                            .set(ChannelListeners.flushingChannelListener(listener,
-                                new ChannelExceptionHandler<Channel>() {
-                                    @Override
-                                    public void handleException(Channel channel, IOException exception) {
-                                        listener.writeFailed(exception);
-                                    }
-                                }));
+                        sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(listener, new ChannelExceptionHandler<Channel>() {
+                            @Override
+                            public void handleException(Channel channel, IOException exception) {
+                                listener.writeFailed(exception);
+                            }
+                        }));
                         sink.resumeWrites();
                         free = false;
                         return;
@@ -162,19 +141,16 @@ public final class ChannelUtils {
             try {
                 // TODO: think about checking to see if a flush has already been issued sink.isReadyForFlush()
                 if (!sink.flush()) {
-                    final TransferListener<I, O> listener =
-                        new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener,
-                            writeExceptionHandler, readExceptionHandler, 1);
+                    final TransferListener<I, O> listener = new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener, writeExceptionHandler, readExceptionHandler, 1);
                     source.suspendReads();
                     source.getReadSetter().set(listener);
                     // flush the write channel
-                    sink.getWriteSetter()
-                        .set(ChannelListeners.flushingChannelListener(listener, new ChannelExceptionHandler<Channel>() {
-                            @Override
-                            public void handleException(Channel channel, IOException exception) {
-                                listener.writeFailed(exception);
-                            }
-                        }));
+                    sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(listener, new ChannelExceptionHandler<Channel>() {
+                        @Override
+                        public void handleException(Channel channel, IOException exception) {
+                            listener.writeFailed(exception);
+                        }
+                    }));
                     sink.resumeWrites();
                     free = false;
                     return;
@@ -185,9 +161,7 @@ public final class ChannelUtils {
             }
 
             // read first listener
-            final TransferListener<I, O> listener =
-                new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener,
-                    writeExceptionHandler, readExceptionHandler, 0);
+            final TransferListener<I, O> listener = new TransferListener<I, O>(count, allocated, source, sink, sourceListener, sinkListener, writeExceptionHandler, readExceptionHandler, 0);
             sink.suspendWrites();
             sink.getWriteSetter().set(listener);
             source.getReadSetter().set(listener);
@@ -199,8 +173,7 @@ public final class ChannelUtils {
         }
     }
 
-    static final class TransferListener<I extends StreamSourceChannel, O extends StreamSinkChannel>
-        implements ChannelListener<Channel> {
+    static final class TransferListener<I extends StreamSourceChannel, O extends StreamSinkChannel> implements ChannelListener<Channel> {
         private final Pooled<ByteBuffer> pooledBuffer;
         private final I source;
         private final O sink;
@@ -211,10 +184,7 @@ public final class ChannelUtils {
         private long count;
         private volatile int state;
 
-        TransferListener(final long count, final Pooled<ByteBuffer> pooledBuffer, final I source, final O sink,
-            final ChannelListener<? super I> sourceListener, final ChannelListener<? super O> sinkListener,
-            final ChannelExceptionHandler<? super O> writeExceptionHandler,
-            final ChannelExceptionHandler<? super I> readExceptionHandler, final int state) {
+        TransferListener(final long count, final Pooled<ByteBuffer> pooledBuffer, final I source, final O sink, final ChannelListener<? super I> sourceListener, final ChannelListener<? super O> sinkListener, final ChannelExceptionHandler<? super O> writeExceptionHandler, final ChannelExceptionHandler<? super I> readExceptionHandler, final int state) {
             this.count = count;
             this.pooledBuffer = pooledBuffer;
             this.source = source;
@@ -236,7 +206,7 @@ public final class ChannelUtils {
             switch (state) {
                 case 0: {
                     // read listener
-                    for (; ; ) {
+                    for (;;) {
                         boolean needsFlush = false;
                         try {
                             lres = source.transferTo(count, buffer, sink);
@@ -279,14 +249,12 @@ public final class ChannelUtils {
                                 // flush the write channel
                                 try {
                                     if (needsFlush && !sink.flush()) {
-                                        sink.getWriteSetter()
-                                            .set(ChannelListeners.flushingChannelListener(this,
-                                                new ChannelExceptionHandler<Channel>() {
-                                                    @Override
-                                                    public void handleException(Channel channel, IOException exception) {
-                                                        writeFailed(exception);
-                                                    }
-                                                }));
+                                        sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(this, new ChannelExceptionHandler<Channel>() {
+                                            @Override
+                                            public void handleException(Channel channel, IOException exception) {
+                                                writeFailed(exception);
+                                            }
+                                        }));
                                     }
                                 } catch (IOException e) {
                                     writeFailed(e);
@@ -304,18 +272,16 @@ public final class ChannelUtils {
                             done();
                             return;
                         }
-
+                        
                         // flush the write channel
                         try {
                             if (needsFlush && !sink.flush()) {
-                                sink.getWriteSetter()
-                                    .set(ChannelListeners.flushingChannelListener(this,
-                                        new ChannelExceptionHandler<Channel>() {
-                                            @Override
-                                            public void handleException(Channel channel, IOException exception) {
-                                                writeFailed(exception);
-                                            }
-                                        }));
+                                sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(this, new ChannelExceptionHandler<Channel>() {
+                                    @Override
+                                    public void handleException(Channel channel, IOException exception) {
+                                        writeFailed(exception);
+                                    }
+                                }));
                                 this.count = count;
                                 this.state = 1;
                                 source.suspendReads();
@@ -331,7 +297,7 @@ public final class ChannelUtils {
                 case 1: {
                     // write listener
                     boolean needsFlush = false;
-                    for (; ; ) {
+                    for (;;) {
                         while (buffer.hasRemaining()) {
                             try {
                                 ires = sink.write(buffer);
@@ -347,14 +313,12 @@ public final class ChannelUtils {
                                 // flush the write channel
                                 try {
                                     if (!sink.flush()) {
-                                        sink.getWriteSetter()
-                                            .set(ChannelListeners.flushingChannelListener(this,
-                                                new ChannelExceptionHandler<Channel>() {
-                                                    @Override
-                                                    public void handleException(Channel channel, IOException exception) {
-                                                        writeFailed(exception);
-                                                    }
-                                                }));
+                                        sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(this, new ChannelExceptionHandler<Channel>() {
+                                            @Override
+                                            public void handleException(Channel channel, IOException exception) {
+                                                writeFailed(exception);
+                                            }
+                                        }));
                                     }
                                 } catch (IOException e) {
                                     writeFailed(e);
@@ -375,14 +339,12 @@ public final class ChannelUtils {
                             // flush the write channel
                             try {
                                 if (needsFlush && !sink.flush()) {
-                                    sink.getWriteSetter()
-                                        .set(ChannelListeners.flushingChannelListener(this,
-                                            new ChannelExceptionHandler<Channel>() {
-                                                @Override
-                                                public void handleException(Channel channel, IOException exception) {
-                                                    writeFailed(exception);
-                                                }
-                                            }));
+                                    sink.getWriteSetter().set(ChannelListeners.flushingChannelListener(this, new ChannelExceptionHandler<Channel>() {
+                                        @Override
+                                        public void handleException(Channel channel, IOException exception) {
+                                            writeFailed(exception);
+                                        }
+                                    }));
                                     this.count = count;
                                     this.state = 1;
                                     source.suspendReads();
@@ -471,15 +433,11 @@ public final class ChannelUtils {
         }
 
         public String toString() {
-            return "Transfer channel listener ("
-                + source
-                + " to "
-                + sink
-                + ") -> ("
-                + sourceListener
-                + " and "
-                + sinkListener
-                + ")";
+            return "Transfer channel listener (" + source + " to " + sink + ") -> (" + sourceListener + " and " + sinkListener + ")";
         }
     }
+
+    private ChannelUtils() {
+    }
+
 }

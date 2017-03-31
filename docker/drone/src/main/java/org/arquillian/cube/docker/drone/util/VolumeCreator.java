@@ -1,10 +1,11 @@
 package org.arquillian.cube.docker.drone.util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.apache.commons.io.FileUtils;
 
 /**
  * Volume utils.
@@ -18,10 +19,7 @@ public class VolumeCreator {
     /**
      * Creates a new temporary folder with password file for VNC server.
      * The folder is relative to the root of the project.
-     *
-     * @param password
-     *     value to generate password file.
-     *
+     * @param password value to generate password file.
      * @return Path of generated file.
      */
     public static final Path createTemporaryVolume(String password) {
@@ -49,4 +47,6 @@ public class VolumeCreator {
 
         return temp;
     }
+
+
 }

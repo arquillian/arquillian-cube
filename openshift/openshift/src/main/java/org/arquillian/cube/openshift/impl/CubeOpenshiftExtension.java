@@ -31,21 +31,19 @@ public class CubeOpenshiftExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(OpenShiftClientCreator.class)
-            .observer(CubeOpenShiftRegistrar.class)
-            .observer(OpenShiftSuiteLifecycleController.class)
+                .observer(CubeOpenShiftRegistrar.class)
+                .observer(OpenShiftSuiteLifecycleController.class)
 
-            .service(ResourceProvider.class, OpenshiftClientResourceProvider.class)
-            .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
-            .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
+                .service(ResourceProvider.class, OpenshiftClientResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
+                .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
 
-            .override(ConfigurationFactory.class, DefaultConfigurationFactory.class,
-                CubeOpenshiftConfigurationFactory.class)
-            .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class,
-                KuberntesServiceUrlResourceProvider.class)
-            .override(ResourceInstaller.class, DefaultResourceInstaller.class, OpenshiftResourceInstaller.class)
-            .override(FeedbackProvider.class, DefaultFeedbackProvider.class, OpenshiftFeedbackProvider.class)
-            .override(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class,
-                OpenshiftKubernetesResourceLocator.class)
-            .override(NamespaceService.class, DefaultNamespaceService.class, OpenshiftNamespaceService.class);
+                .override(ConfigurationFactory.class, DefaultConfigurationFactory.class, CubeOpenshiftConfigurationFactory.class)
+                .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class, KuberntesServiceUrlResourceProvider.class)
+                .override(ResourceInstaller.class, DefaultResourceInstaller.class, OpenshiftResourceInstaller.class)
+                .override(FeedbackProvider.class, DefaultFeedbackProvider.class, OpenshiftFeedbackProvider.class)
+                .override(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class, OpenshiftKubernetesResourceLocator.class)
+                .override(NamespaceService.class, DefaultNamespaceService.class, OpenshiftNamespaceService.class);
     }
+
 }

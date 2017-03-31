@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.CreateCube;
@@ -16,8 +17,8 @@ import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
-import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.arquillian.cube.spi.metadata.IsBuildable;
+import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
@@ -39,7 +40,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
     private static final String DOCKERFILE_TEMPLATE = "DockerfileTemplate";
     private static final Logger log = Logger.getLogger(ContainerlessDockerDeployableContainer.class.getName());
-
+    
     private ContainerlessConfiguration configuration;
 
     @Inject
@@ -79,7 +80,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
         Cube<?> cube = resolveMainCube(cubeRegistry);
 
-        if (cube.hasMetadata(IsBuildable.class)) {
+        if(cube.hasMetadata(IsBuildable.class)) {
             File location = new File(cube.getMetadata(IsBuildable.class).getTemplatePath());
             if (location.isDirectory()) {
                 //Because ShrinkWrap may create different jar files depending on what we are testing in this case
@@ -92,42 +93,41 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
                     return createProtocolMetadata(cube, archive);
                 } catch (FileNotFoundException e) {
                     throw new IllegalArgumentException("Containerless Docker container requires a file named "
-                        + DOCKERFILE_TEMPLATE);
+                            + DOCKERFILE_TEMPLATE);
                 }
             } else {
                 throw new IllegalArgumentException(
-                    "Dockerfile Template of containerless Docker container must be in a directory.");
+                        "Dockerfile Template of containerless Docker container must be in a directory.");
             }
         } else {
             throw new IllegalArgumentException(
-                "Containerless container should be built using a Dockerfile, and no templatePath property found for container.");
+                    "Containerless container should be built using a Dockerfile, and no templatePath property found for container.");
         }
     }
 
     private Cube<?> resolveMainCube(CubeRegistry cubeRegistry) {
         Cube<?> cube = null;
-        if (this.configuration.isContainerlessDockerSet()) {
+        if(this.configuration.isContainerlessDockerSet()) {
             String containerlessDocker = this.configuration.getContainerlessDocker();
             cube = cubeRegistry.getCube(containerlessDocker);
             if (cube == null) {
                 // Is there a way to ignore it? Or we should throw an exception?
                 throw new IllegalArgumentException("No Containerless Docker container configured in extension with id "
-                    + containerlessDocker);
+                        + containerlessDocker);
             }
         } else {
             List<Cube<?>> cubes = cubeRegistry.getCubes();
-            if (cubes.size() == 1) {
+            if(cubes.size() == 1) {
                 cube = cubes.get(0);
             } else {
-                throw new IllegalArgumentException(
-                    "More than one container eligible for being the main instance. Use containerlessDocker property to set one.");
+                throw new IllegalArgumentException("More than one container eligible for being the main instance. Use containerlessDocker property to set one.");
             }
         }
         return cube;
     }
 
     private void createDockerfileFromTemplate(Archive<?> archive, File location)
-        throws FileNotFoundException {
+            throws FileNotFoundException {
         File templateDockerfile = new File(location, DOCKERFILE_TEMPLATE);
         String deployableFilename = archive.getName();
         Map<String, String> values = new HashMap<String, String>();
@@ -137,8 +137,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         String dockerfileContent = IOUtil.replacePlaceholders(templateContent, values);
         File dockerfile = new File(location, "Dockerfile");
         if (dockerfile.exists()) {
-            log.fine(
-                "Dockerfile file is already found in current build directory and is going to be renamed to Dockerfile.old.");
+            log.fine("Dockerfile file is already found in current build directory and is going to be renamed to Dockerfile.old.");
             dockerfile.renameTo(new File(location, "Dockerfile.old"));
             dockerfile = new File(location, "Dockerfile");
         }
@@ -148,7 +147,7 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         File deployableOutputFile = new File(location, deployableFilename);
         deployableOutputFile.deleteOnExit();
         //file is saved to Dockerfile directory so can be copied inside image.
-        if (archive instanceof GenericArchive) {
+        if(archive instanceof GenericArchive) {
             //In case of generic archives a tgz exporter should be used so Docker can uncompress it automatically.
             archive.as(TarExporter.class).exportTo(deployableOutputFile, true);
         } else {
@@ -164,11 +163,11 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
         //ProtocolMetadataUpdater will adjust the port to the exposed ones.
 
         HTTPContext httpContext = null;
-        if (this.configuration.isEmbeddedPortSet()) {
+        if(this.configuration.isEmbeddedPortSet()) {
             httpContext = new HTTPContext(portBindings.getContainerIP(), this.configuration.getEmbeddedPort());
         } else {
             final Set<Integer> boundPorts = portBindings.getBoundPorts();
-            if (boundPorts.size() == 1) {
+            if(boundPorts.size() == 1) {
                 final int port = boundPorts.iterator().next();
                 final PortAddress portMapping = portBindings.getMappedAddress(port);
                 if (portMapping == null) {
@@ -176,13 +175,12 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
                 }
                 httpContext = new HTTPContext(portMapping.getIP(), portMapping.getPort());
             } else {
-                throw new IllegalArgumentException(
-                    "More than one port binding eligible. Set one using embeddedPort property");
+                throw new IllegalArgumentException("More than one port binding eligible. Set one using embeddedPort property");
             }
         }
 
         // TEMP HACK to allow in-container testing without communicating with the Server mgm api
-        if (containsArquillianServletProtocol(deployment)) {
+        if(containsArquillianServletProtocol(deployment)) {
             addArquillianTestServlet(deployment, httpContext);
         }
         return new ProtocolMetaData().addContext(httpContext);
@@ -190,17 +188,17 @@ public class ContainerlessDockerDeployableContainer implements DeployableContain
 
     private boolean containsArquillianServletProtocol(Archive<?> deployment) {
         return deployment.getContent(Filters.include(".*arquillian-protocol.jar")).size() > 0;
-    }
+	}
 
-    private void addArquillianTestServlet(Archive<?> deployment, HTTPContext httpContext) {
+	private void addArquillianTestServlet(Archive<?> deployment, HTTPContext httpContext) {
         httpContext.add(new Servlet("ArquillianServletRunner", extractContextName(deployment)));
-    }
+	}
 
-    private String extractContextName(Archive<?> deployment) {
+	private String extractContextName(Archive<?> deployment) {
         String name = deployment.getName();
         name = name.substring(0, name.lastIndexOf("."));
         return name;
-    }
+	}
 
     @Override
     public void undeploy(Archive<?> archive) throws DeploymentException {

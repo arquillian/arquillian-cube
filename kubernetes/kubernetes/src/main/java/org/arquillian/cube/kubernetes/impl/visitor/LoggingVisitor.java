@@ -13,6 +13,6 @@ public class LoggingVisitor extends TypedVisitor<HasMetadata> {
 
     @Override
     public void visit(HasMetadata item) {
-        logger.get().info("Applying " + item.getKind() + ":" + item.getMetadata().getName());
+        logger.get().info("Applying "+item.getKind()+":"+item.getMetadata().getName());
     }
 }

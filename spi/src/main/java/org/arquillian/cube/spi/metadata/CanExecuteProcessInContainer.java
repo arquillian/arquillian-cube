@@ -4,7 +4,7 @@ import org.arquillian.cube.spi.CubeOutput;
 
 public interface CanExecuteProcessInContainer extends CubeMetadata {
 
-    ExecResult exec(String... command);
+    ExecResult exec(String...command);
 
     public static class ExecResult {
         private CubeOutput output;
@@ -29,4 +29,5 @@ public interface CanExecuteProcessInContainer extends CubeMetadata {
             return isRunning;
         }
     }
+
 }

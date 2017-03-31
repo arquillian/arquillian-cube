@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
+
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -17,4 +18,5 @@ public class DockerMachineCreator {
     public void configure(@Observes(precedence = 100) ManagerStarted managerStarted) {
         dockerMachineInstanceProducer.set(new DockerMachine(new CommandLineExecutor()));
     }
+
 }

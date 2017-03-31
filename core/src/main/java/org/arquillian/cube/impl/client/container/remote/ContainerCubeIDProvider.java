@@ -1,6 +1,7 @@
 package org.arquillian.cube.impl.client.container.remote;
 
 import java.lang.annotation.Annotation;
+
 import org.arquillian.cube.CubeID;
 import org.arquillian.cube.impl.client.container.remote.command.CubeIDCommand;
 import org.jboss.arquillian.container.test.spi.command.CommandService;
@@ -22,7 +23,7 @@ public class ContainerCubeIDProvider implements ResourceProvider {
 
     @Override
     public Object lookup(ArquillianResource resource,
-        Annotation... qualifiers) {
+            Annotation... qualifiers) {
         return getCubeID();
     }
 
@@ -32,14 +33,17 @@ public class ContainerCubeIDProvider implements ResourceProvider {
     }
 
     private CommandService getCommandService() {
-        ServiceLoader loader = serviceLoader.get();
-        if (loader == null) {
-            throw new IllegalStateException("No " + ServiceLoader.class.getName() + " found in context");
-        }
-        CommandService service = loader.onlyOne(CommandService.class);
-        if (service == null) {
-            throw new IllegalStateException("No " + CommandService.class.getName() + " found in context");
-        }
-        return service;
+       ServiceLoader loader = serviceLoader.get();
+       if(loader == null)
+       {
+          throw new IllegalStateException("No " + ServiceLoader.class.getName() + " found in context");
+       }
+       CommandService service = loader.onlyOne(CommandService.class);
+       if(service == null)
+       {
+          throw new IllegalStateException("No " + CommandService.class.getName() + " found in context");
+       }
+       return service;
     }
+
 }

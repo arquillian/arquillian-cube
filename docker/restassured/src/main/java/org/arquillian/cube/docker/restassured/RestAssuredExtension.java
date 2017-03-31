@@ -8,7 +8,7 @@ public class RestAssuredExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.observer(RestAssuredConfigurator.class)
-            .observer(RestAssuredCustomizer.class)
-            .service(ResourceProvider.class, RequestSpecBuilderResourceProvider.class);
+                .observer(RestAssuredCustomizer.class)
+                .service(ResourceProvider.class, RequestSpecBuilderResourceProvider.class);
     }
 }

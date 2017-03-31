@@ -13,12 +13,12 @@ public class IPAM {
         return ipamConfigs;
     }
 
-    public void setIpamConfigs(List<IPAMConfig> ipamConfigs) {
-        this.ipamConfigs = ipamConfigs;
-    }
-
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    public void setIpamConfigs(List<IPAMConfig> ipamConfigs) {
+        this.ipamConfigs = ipamConfigs;
     }
 
     public void setOptions(Map<String, String> options) {

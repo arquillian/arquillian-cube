@@ -1,14 +1,15 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.arquillian.cube.spi.Node;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ChangeNameAutoStartParser implements AutoStartParser {
 
@@ -17,8 +18,7 @@ public class ChangeNameAutoStartParser implements AutoStartParser {
 
     @Override
     public Map<String, Node> parse() {
-        final DockerCompositions dockerContainersContent =
-            cubeDockerConfigurationInstance.get().getDockerContainersContent();
+        final DockerCompositions dockerContainersContent = cubeDockerConfigurationInstance.get().getDockerContainersContent();
 
         final Map<String, Node> nodes = new HashMap<>();
         final Set<String> containersNames = new TreeSet<>(dockerContainersContent.getNoneManualContainers().keySet());

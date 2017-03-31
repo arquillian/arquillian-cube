@@ -1,8 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.LocalDockerNetworkRegistry;
@@ -15,8 +12,13 @@ import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
@@ -27,25 +29,26 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         super.addExtensions(extensions);
     }
 
+
     @Test
     public void shouldStartNetworks() {
 
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
 
         String config =
-            "networks:\n" +
-                "  mynetwork:\n " +
-                "    driver: bridge\n" +
-                "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
-                "  exposedPorts: [8089/tcp]\n" +
-                "  await:\n" +
-                "    strategy: static\n" +
-                "    ip: localhost\n" +
-                "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "networks:\n" +
+                        "  mynetwork:\n " +
+                        "    driver: bridge\n" +
+                        "tomcat6:\n" +
+                        "  image: tutum/tomcat:6.0\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "  await:\n" +
+                        "    strategy: static\n" +
+                        "    ip: localhost\n" +
+                        "    ports: [8080, 8089]\n" +
+                        "tomcat7:\n" +
+                        "  extends: tomcat6\n" +
+                        "  image: tutum/tomcat:7.0\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
@@ -71,19 +74,19 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
 
         String config =
-            "networks:\n" +
-                "  mynetwork:\n " +
-                "    driver: bridge\n" +
-                "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
-                "  exposedPorts: [8089/tcp]\n" +
-                "  await:\n" +
-                "    strategy: static\n" +
-                "    ip: localhost\n" +
-                "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "networks:\n" +
+                        "  mynetwork:\n " +
+                        "    driver: bridge\n" +
+                        "tomcat6:\n" +
+                        "  image: tutum/tomcat:6.0\n" +
+                        "  exposedPorts: [8089/tcp]\n" +
+                        "  await:\n" +
+                        "    strategy: static\n" +
+                        "    ip: localhost\n" +
+                        "    ports: [8080, 8089]\n" +
+                        "tomcat7:\n" +
+                        "  extends: tomcat6\n" +
+                        "  image: tutum/tomcat:7.0\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);

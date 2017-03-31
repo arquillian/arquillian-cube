@@ -2,12 +2,14 @@ package org.arquillian.cube.impl.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.CubeMetadata;
+
 
 public class LocalCubeRegistry implements CubeRegistry {
 
@@ -21,7 +23,7 @@ public class LocalCubeRegistry implements CubeRegistry {
     public void addCube(Cube<?> cube) {
         CubeId cubeId = CubeIdFactory.get().create(cube.getId());
 
-        if (cubeId instanceof StarredCubeId) {
+        if(cubeId instanceof StarredCubeId){
             throw new IllegalArgumentException("Starred cube id cannot be added.");
         }
 
@@ -32,7 +34,7 @@ public class LocalCubeRegistry implements CubeRegistry {
     public void removeCube(String id) {
         CubeId cubeId = CubeIdFactory.get().create(id);
 
-        if (cubeId instanceof StarredCubeId) {
+        if(cubeId instanceof StarredCubeId){
             throw new IllegalArgumentException("Starred cube id cannot be removed.");
         }
 
@@ -53,9 +55,9 @@ public class LocalCubeRegistry implements CubeRegistry {
     @Override
     public Cube<?> getCube(String id) {
         CubeId cubeId = CubeIdFactory.get().create(id);
-        for (Map.Entry<CubeId, Cube<?>> cubeEntry : this.cubes.entrySet()) {
+        for(Map.Entry<CubeId,Cube<?>> cubeEntry : this.cubes.entrySet()) {
             CubeId internalCubeId = cubeEntry.getKey();
-            if (internalCubeId.isMatching(cubeId)) {
+            if(internalCubeId.isMatching(cubeId)) {
                 return cubeEntry.getValue();
             }
         }
@@ -72,4 +74,5 @@ public class LocalCubeRegistry implements CubeRegistry {
         List<Cube<?>> cubeList = new ArrayList<>(this.cubes.values());
         return Collections.unmodifiableList(cubeList);
     }
+
 }

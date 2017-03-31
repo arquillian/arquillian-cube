@@ -1,9 +1,11 @@
 package org.arquillian.cube.kubernetes.impl.enricher;
 
-import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
-import java.lang.annotation.Annotation;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import java.lang.annotation.Annotation;
+
+import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
 
 /**
  * A {@link ResourceProvider} for {@link DeploymentList}.

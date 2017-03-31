@@ -1,13 +1,14 @@
 package org.arquillian.cube.impl.model;
 
-import java.util.Arrays;
-import java.util.List;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LocalCubeRegistryTest {
 
@@ -95,4 +96,5 @@ public class LocalCubeRegistryTest {
         // then:
         Assert.assertSame(cube, resolvedCube);
     }
+
 }

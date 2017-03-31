@@ -11,12 +11,14 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 
 public class DependencyResolverRegistar {
 
-    @Inject @ApplicationScoped
-    InstanceProducer<DependencyResolver> dependencyResolver;
     @Inject
     private Instance<ServiceLoader> serviceLoader;
 
+    @Inject @ApplicationScoped
+    InstanceProducer<DependencyResolver> dependencyResolver;
+
     public void install(@Observes(precedence = 100) Configuration configuration) {
         dependencyResolver.set(serviceLoader.get().onlyOne(DependencyResolver.class, ShrinkwrapResolver.class));
+
     }
 }

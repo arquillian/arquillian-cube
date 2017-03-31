@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +32,7 @@ public class HelloWorldServlet extends HttpServlet {
 
         int responseCode = con.getResponseCode();
         BufferedReader in = new BufferedReader(
-            new InputStreamReader(con.getInputStream()));
+                new InputStreamReader(con.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -40,7 +41,11 @@ public class HelloWorldServlet extends HttpServlet {
         }
         in.close();
 
+
         PrintWriter writer = resp.getWriter();
         writer.println(response.toString());
+
+
+        
     }
 }

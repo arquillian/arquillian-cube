@@ -1,5 +1,14 @@
 package org.arquillian.cube.kubernetes.impl.feedback;
 
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.WithToImmutable;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.annotation.Inject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.Event;
@@ -17,13 +26,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
-import java.util.HashMap;
-import java.util.Map;
-import org.arquillian.cube.kubernetes.api.FeedbackProvider;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.WithToImmutable;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class DefaultFeedbackProvider implements FeedbackProvider {
 
@@ -34,6 +36,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
 
     @Inject
     protected Instance<Logger> logger;
+
 
     @Override
     public <T extends HasMetadata> void onResourceNotReady(T resource) {
@@ -48,7 +51,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
         synchronized (this) {
             if (delegate == null) {
                 delegate = new ImmutableFeedbackProvider(client.get(),
-                    logger.get().toImmutable());
+                        logger.get().toImmutable());
             }
         }
         return delegate;
@@ -66,6 +69,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
             this.client = client;
             this.logger = logger;
         }
+
 
         @Override
         public <T extends HasMetadata> void onResourceNotReady(T resource) {
@@ -94,18 +98,14 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
 
         protected void displayContainerLogs(Pod pod, Container container) {
             try {
-                logger.warn("Tailing logs of matching pod: ["
-                    + pod.getMetadata().getName()
-                    + "], container: ["
-                    + container.getName()
-                    + "]");
+                logger.warn("Tailing logs of matching pod: [" + pod.getMetadata().getName() + "], container: [" + container.getName() + "]");
                 logger.info(client.pods()
-                    .inNamespace(pod.getMetadata().getNamespace())
-                    .withName(pod.getMetadata().getName())
-                    .inContainer(container.getName())
-                    .tailingLines(100)
-                    .withPrettyOutput()
-                    .getLog());
+                        .inNamespace(pod.getMetadata().getNamespace())
+                        .withName(pod.getMetadata().getName())
+                        .inContainer(container.getName())
+                        .tailingLines(100)
+                        .withPrettyOutput()
+                        .getLog());
             } catch (Throwable t) {
                 logger.error("Failed to read logs, due to:" + t.getMessage());
             } finally {
@@ -137,48 +137,36 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
 
         /**
          * Finds the pod that correspond to the specified resource.
-         *
-         * @param resource
-         *     The resource.
-         *
-         * @return The podList with the matching pods.
+         * @param resource      The resource.
+         * @param <T>
+         * @return              The podList with the matching pods.
          */
         public <T extends HasMetadata> PodList podsOf(T resource) {
             if (resource instanceof Pod) {
                 return new PodListBuilder().withItems((Pod) resource).build();
             } else if (resource instanceof Endpoints) {
-                return podsOf(client.services()
-                    .inNamespace(resource.getMetadata().getNamespace())
-                    .withName(resource.getMetadata().getName())
-                    .get());
+                return podsOf(client.services().inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).get());
             } else if (resource instanceof Service) {
-                return client.pods()
-                    .inNamespace(resource.getMetadata().getNamespace())
-                    .withLabels(((Service) resource).getSpec().getSelector())
-                    .list();
+                return client.pods().inNamespace(resource.getMetadata().getNamespace()).withLabels(((Service)resource).getSpec().getSelector()).list();
             } else if (resource instanceof ReplicationController) {
-                return client.pods()
-                    .inNamespace(resource.getMetadata().getNamespace())
-                    .withLabels(((ReplicationController) resource).getSpec().getSelector())
-                    .list();
+                return client.pods().inNamespace(resource.getMetadata().getNamespace()).withLabels(((ReplicationController)resource).getSpec().getSelector()).list();
             } else if (resource instanceof ReplicaSet) {
                 return findMatching((ReplicaSet) resource);
-            } else if (resource instanceof Deployment) {
+            } else if (resource instanceof Deployment){
                 return findMatching((Deployment) resource);
             } else {
                 return new PodListBuilder().build();
             }
         }
 
+
         /**
          * Returns the {@link PodList} that match the specified {@link Deployment}.
-         *
-         * @param deployment
-         *     The {@link Deployment}
+         * @param deployment    The {@link Deployment}
+         * @return
          */
         public PodList findMatching(Deployment deployment) {
-            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
-                client.pods().inNamespace(deployment.getMetadata().getNamespace());
+            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =  client.pods().inNamespace(deployment.getMetadata().getNamespace());
             if (deployment.getSpec().getSelector().getMatchLabels() != null) {
                 podLister.withLabels(deployment.getSpec().getSelector().getMatchLabels());
             }
@@ -186,10 +174,10 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 for (LabelSelectorRequirement req : deployment.getSpec().getSelector().getMatchExpressions()) {
                     switch (req.getOperator()) {
                         case "In":
-                            podLister.withLabelIn(req.getKey(), req.getValues().toArray(new String[] {}));
+                            podLister.withLabelIn(req.getKey(), req.getValues().toArray(new String[]{}));
                             break;
                         case "NotIn":
-                            podLister.withLabelNotIn(req.getKey(), req.getValues().toArray(new String[] {}));
+                            podLister.withLabelNotIn(req.getKey(), req.getValues().toArray(new String[]{}));
                             break;
                         case "DoesNotExist":
                             podLister.withoutLabel(req.getKey());
@@ -205,13 +193,11 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
 
         /**
          * Returns the {@link PodList} that match the specified {@link ReplicaSet}.
-         *
-         * @param replicaSet
-         *     The {@link ReplicaSet}
+         * @param replicaSet    The {@link ReplicaSet}
+         * @return
          */
         public PodList findMatching(ReplicaSet replicaSet) {
-            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
-                client.pods().inNamespace(replicaSet.getMetadata().getNamespace());
+            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =  client.pods().inNamespace(replicaSet.getMetadata().getNamespace());
             if (replicaSet.getSpec().getSelector().getMatchLabels() != null) {
                 podLister.withLabels(replicaSet.getSpec().getSelector().getMatchLabels());
             }
@@ -219,10 +205,10 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 for (LabelSelectorRequirement req : replicaSet.getSpec().getSelector().getMatchExpressions()) {
                     switch (req.getOperator()) {
                         case "In":
-                            podLister.withLabelIn(req.getKey(), req.getValues().toArray(new String[] {}));
+                            podLister.withLabelIn(req.getKey(), req.getValues().toArray(new String[]{}));
                             break;
                         case "NotIn":
-                            podLister.withLabelNotIn(req.getKey(), req.getValues().toArray(new String[] {}));
+                            podLister.withLabelNotIn(req.getKey(), req.getValues().toArray(new String[]{}));
                             break;
                         case "DoesNotExist":
                             podLister.withoutLabel(req.getKey());
@@ -236,9 +222,11 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
             return podLister.list();
         }
 
+
         @Override
         public FeedbackProvider toImmutable() {
             return this;
         }
     }
+
 }
