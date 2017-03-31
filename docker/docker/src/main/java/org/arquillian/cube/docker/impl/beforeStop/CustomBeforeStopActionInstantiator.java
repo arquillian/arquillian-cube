@@ -37,6 +37,9 @@ public class CustomBeforeStopActionInstantiator implements BeforeStopAction {
                 if (field.getType().isAssignableFrom(DockerClientExecutor.class)) {
                     field.setAccessible(true);
                     field.set(customStrategyInstance, this.dockerClientExecutor);
+                } else if(field.getType().isAssignableFrom(String.class)) {
+                    field.setAccessible(true);
+                    field.set(customStrategyInstance, this.containerId);
                 }
             }
 
