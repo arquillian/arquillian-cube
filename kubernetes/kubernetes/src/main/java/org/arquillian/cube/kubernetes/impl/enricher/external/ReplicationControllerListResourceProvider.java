@@ -1,7 +1,9 @@
-package org.arquillian.cube.kubernetes.impl.enricher;
+package org.arquillian.cube.kubernetes.impl.enricher.external;
 
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.v2_2.ReplicationControllerList;
 import java.lang.annotation.Annotation;
+
+import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -13,11 +15,11 @@ public class ReplicationControllerListResourceProvider extends AbstractKubernete
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return ReplicationControllerList.class.isAssignableFrom(type);
+        return internalToUserType(ReplicationControllerList.class.getName()).equals(type.getName());
     }
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().replicationControllers().inNamespace(getSession().getNamespace()).list();
+        return toUsersResource(getClient().replicationControllers().inNamespace(getSession().getNamespace()).list());
     }
 }

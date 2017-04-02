@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.v2_2.Namespace;
 import java.util.Map;
 
 public interface NamespaceService extends WithToImmutable<NamespaceService> {

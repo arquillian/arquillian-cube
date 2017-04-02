@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v2_2.Config;
+import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
 import java.net.URL;
 import java.util.List;
 

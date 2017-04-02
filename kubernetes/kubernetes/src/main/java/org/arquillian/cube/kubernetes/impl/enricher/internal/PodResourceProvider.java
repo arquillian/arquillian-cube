@@ -1,12 +1,15 @@
-package org.arquillian.cube.kubernetes.impl.enricher;
+package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
-import io.fabric8.kubernetes.api.model.Pod;
-import java.lang.annotation.Annotation;
+import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
+import java.lang.annotation.Annotation;
+
+import io.fabric8.kubernetes.api.model.v2_2.Pod;
+
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.PodList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_2.PodList}.
  * It refers to pods that have been created during the current session.
  */
 public class PodResourceProvider extends AbstractKubernetesResourceProvider {

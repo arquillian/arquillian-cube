@@ -29,11 +29,6 @@
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-kubernetes</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>

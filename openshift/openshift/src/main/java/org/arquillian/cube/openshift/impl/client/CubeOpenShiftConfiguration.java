@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v2_2.Config;
+import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import java.net.URL;
