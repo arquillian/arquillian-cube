@@ -1,13 +1,13 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.Visitor;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.api.builder.v2_2.Visitor;
+import io.fabric8.kubernetes.api.model.v2_2.ObjectMeta;
+import io.fabric8.kubernetes.api.model.v2_2.ObjectReference;
+import io.fabric8.kubernetes.api.model.v2_2.ObjectReferenceBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.PodBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.Secret;
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
 import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;

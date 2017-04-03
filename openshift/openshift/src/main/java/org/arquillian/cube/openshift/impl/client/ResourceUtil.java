@@ -1,17 +1,17 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodCondition;
-import io.fabric8.kubernetes.api.model.PodStatus;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.openshift.api.model.Build;
+import io.fabric8.kubernetes.api.model.v2_2.Container;
+import io.fabric8.kubernetes.api.model.v2_2.ContainerPort;
+import io.fabric8.kubernetes.api.model.v2_2.Pod;
+import io.fabric8.kubernetes.api.model.v2_2.PodCondition;
+import io.fabric8.kubernetes.api.model.v2_2.PodStatus;
+import io.fabric8.kubernetes.api.model.v2_2.Service;
+import io.fabric8.kubernetes.api.model.v2_2.ServicePort;
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClientException;
+import io.fabric8.kubernetes.clnt.v2_2.Watch;
+import io.fabric8.kubernetes.clnt.v2_2.Watcher;
+import io.fabric8.openshift.api.model.v2_2.Build;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.spi.Binding;
@@ -67,7 +67,7 @@ public final class ResourceUtil {
         return true;
     }
 
-    public static Build waitForComplete(io.fabric8.openshift.client.OpenShiftClient kubernetes, Build resource)
+    public static Build waitForComplete(io.fabric8.openshift.clnt.v2_2.OpenShiftClient kubernetes, Build resource)
         throws Exception {
         final AtomicReference<Build> holder = new AtomicReference<Build>();
         final CountDownLatch latch = new CountDownLatch(1);

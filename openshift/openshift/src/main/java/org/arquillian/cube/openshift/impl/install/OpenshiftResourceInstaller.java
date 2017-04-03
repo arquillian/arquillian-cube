@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.install;
 
-import io.fabric8.kubernetes.api.builder.Visitor;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.kubernetes.api.builder.v2_2.Visitor;
+import io.fabric8.kubernetes.api.model.v2_2.HasMetadata;
+import io.fabric8.kubernetes.api.model.v2_2.KubernetesList;
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClientException;
+import io.fabric8.openshift.clnt.v2_2.OpenShiftClient;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;

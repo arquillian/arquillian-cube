@@ -37,7 +37,8 @@
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
+      <artifactId>kubernetes-openshift-uberjar</artifactId>
+      <classifier>versioned</classifier>
     </dependency>
 
     <dependency>
@@ -80,17 +81,16 @@
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-      <type>test-jar</type>
+      <artifactId>mockwebserver</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>mockwebserver</artifactId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
 

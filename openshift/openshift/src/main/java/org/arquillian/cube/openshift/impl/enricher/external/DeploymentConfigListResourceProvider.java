@@ -1,9 +1,13 @@
-package org.arquillian.cube.openshift.impl.enricher;
+package org.arquillian.cube.openshift.impl.enricher.external;
 
-import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
-import java.lang.annotation.Annotation;
+import org.arquillian.cube.openshift.impl.enricher.AbstractOpenshiftResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import java.lang.annotation.Annotation;
+
+import io.fabric8.kubernetes.api.model.v2_2.extensions.DeploymentList;
+import io.fabric8.openshift.api.model.v2_2.DeploymentConfigList;
 
 /**
  * A {@link ResourceProvider} for {@link DeploymentList}.
@@ -13,11 +17,11 @@ public class DeploymentConfigListResourceProvider extends AbstractOpenshiftResou
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return DeploymentList.class.isAssignableFrom(type);
+        return internalToUserType(DeploymentConfigList.class.getName()).equals(type.getName());
     }
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getOpenshiftClient().deploymentConfigs().inNamespace(getSession().getNamespace()).list();
+        return toUsersResource(getOpenshiftClient().deploymentConfigs().inNamespace(getSession().getNamespace()).list());
     }
 }

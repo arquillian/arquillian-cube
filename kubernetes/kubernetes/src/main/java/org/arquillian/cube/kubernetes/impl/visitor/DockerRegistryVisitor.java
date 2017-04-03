@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.TypedVisitor;
-import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.builder.v2_2.TypedVisitor;
+import io.fabric8.kubernetes.api.model.v2_2.ContainerBuilder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.Strings;

@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.v2_2.HasMetadata;
 
 public interface FeedbackProvider extends WithToImmutable<FeedbackProvider> {
 

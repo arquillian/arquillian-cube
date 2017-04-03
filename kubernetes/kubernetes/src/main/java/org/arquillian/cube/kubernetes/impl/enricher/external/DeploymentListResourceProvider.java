@@ -1,7 +1,9 @@
-package org.arquillian.cube.kubernetes.impl.enricher;
+package org.arquillian.cube.kubernetes.impl.enricher.external;
 
-import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
+import io.fabric8.kubernetes.api.model.v2_2.extensions.DeploymentList;
 import java.lang.annotation.Annotation;
+
+import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -13,11 +15,11 @@ public class DeploymentListResourceProvider extends AbstractKubernetesResourcePr
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return DeploymentList.class.isAssignableFrom(type);
+        return internalToUserType(DeploymentList.class.getName()).equals(type.getName());
     }
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().extensions().deployments().inNamespace(getSession().getNamespace()).list();
+        return toUsersResource(getClient().extensions().deployments().inNamespace(getSession().getNamespace()).list());
     }
 }
