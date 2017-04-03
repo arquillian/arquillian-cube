@@ -1,6 +1,6 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.builder.TypedVisitor;
+import io.fabric8.kubernetes.api.builder.v2_2.TypedVisitor;
 import io.fabric8.kubernetes.clnt.v2_2.Config;
 import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
 import org.arquillian.cube.kubernetes.api.Configuration;

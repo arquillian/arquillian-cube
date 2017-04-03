@@ -18,7 +18,7 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false, refs = {
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_2", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
 })
 public class CubeOpenShiftConfiguration extends DefaultConfiguration {
