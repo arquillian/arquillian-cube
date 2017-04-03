@@ -604,6 +604,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_readiness_and_waiting">20.8. Readiness and waiting</a></li>
 <li><a href="#_immutable_infrastructure_and_integration_testing">20.9. Immutable infrastructure and integration testing</a></li>
 <li><a href="#_resource_providers">20.10. Resource Providers</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.11. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -5534,6 +5535,22 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.11. Dealing with version conflicts</h3>
+<div class="paragraph">
+<p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
+This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
+</div>
+<div class="paragraph">
+<p>To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned package (with major and minor version).</p>
+</div>
+<div class="paragraph">
+<p>All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with whatever version of the client that is found in the classpath.</p>
+</div>
+<div class="paragraph">
+<p>Note: If your existing tests don&#8217;t have a dependency to the kubernetes-client, you will either need to add kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -5647,7 +5664,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-03-31 12:07:21 UTC
+Last updated 2017-04-03 17:42:47 UTC
 </div>
 </div>
 </body>
