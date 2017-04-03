@@ -275,3 +275,13 @@ public class HelloWorldTest {
 
 }
 ----
+
+=== Dealing with version conflicts
+Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
+This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.
+
+To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned package (with major and minor version).
+
+All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with whatever version of the client that is found in the classpath.
+
+Note: If your existing tests don't have a dependency to the kubernetes-client, you will either need to add kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.
