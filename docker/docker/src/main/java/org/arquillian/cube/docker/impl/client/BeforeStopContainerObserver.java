@@ -9,9 +9,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
+import org.arquillian.cube.docker.impl.beforeStop.BeforeStopActionFactory;
 import org.arquillian.cube.docker.impl.client.config.BeforeStop;
 import org.arquillian.cube.docker.impl.client.config.Copy;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.CustomBeforeStopAction;
 import org.arquillian.cube.docker.impl.client.config.Log;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
@@ -22,9 +24,8 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class BeforeStopContainerObserver {
 
-    public void processCommands(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop,
-        CubeRegistry cubeRegistry,
-        DockerClientExecutor dockerClientExecutor) throws IOException {
+    public void processCommands(@Observes org.arquillian.cube.spi.event.lifecycle.BeforeStop beforeStop, CubeRegistry cubeRegistry,
+            DockerClientExecutor dockerClientExecutor) throws IOException {
 
         Cube<CubeContainer> cube = cubeRegistry.getCube(beforeStop.getCubeId(), DockerCube.class);
         CubeContainer configuration = cube.configuration();
@@ -42,16 +43,16 @@ public class BeforeStopContainerObserver {
                         executeLogAction(dockerClientExecutor, beforeStop.getCubeId(), logConfiguration);
                     }
                 }
-              if(map.getCustomBeforeStopAction() != null) {
-                  CustomBeforeStopAction customBeforeStopAction = map.getCustomBeforeStopAction();
-                  executeCustomBeforeStopAction(dockerClientExecutor,beforeStop.getCubeId(),customBeforeStopAction);
-              }
+                if (map.getCustomBeforeStopAction() != null) {
+                    CustomBeforeStopAction customBeforeStopAction = map.getCustomBeforeStopAction();
+                    executeCustomBeforeStopAction(dockerClientExecutor, beforeStop.getCubeId(), customBeforeStopAction);
+                }
             }
         }
     }
 
     private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId, CustomBeforeStopAction customBeforeStopAction) {
-        BeforeStopActionFactory.create(dockerClientExecutor, containerId,customBeforeStopAction).doBeforeStop();
+        BeforeStopActionFactory.create(dockerClientExecutor, containerId, customBeforeStopAction).doBeforeStop();
 
     }
 
@@ -60,8 +61,7 @@ public class BeforeStopContainerObserver {
         if (configurationParameters.getTo() != null) {
             to = configurationParameters.getTo();
         } else {
-            throw new IllegalArgumentException(
-                String.format("to property is mandatory when getting logs from container %s.", containerId));
+            throw new IllegalArgumentException(String.format("to property is mandatory when getting logs from container %s.", containerId));
         }
 
         boolean follow = false;
@@ -93,27 +93,23 @@ public class BeforeStopContainerObserver {
         Path toPath = Paths.get(to);
         File toPathFile = toPath.toFile();
         if (toPathFile.exists() && toPathFile.isDirectory()) {
-            throw new IllegalArgumentException(String.format(
-                "%s parameter should be a file in log operation but you set an already existing directory not a file.",
-                "to"));
+            throw new IllegalArgumentException(
+                    String.format("%s parameter should be a file in log operation but you set an already existing directory not a file.", "to"));
         }
 
         Path toDirectory = toPath.getParent();
         Files.createDirectories(toDirectory);
-        dockerClientExecutor.copyLog(containerId, follow, stdout, stderr, timestamps, tail,
-            new FileOutputStream(toPathFile));
+        dockerClientExecutor.copyLog(containerId, follow, stdout, stderr, timestamps, tail, new FileOutputStream(toPathFile));
     }
 
-    private void executeCopyAction(DockerClientExecutor dockerClientExecutor, String containerId,
-        Copy configurationParameters) throws IOException {
+    private void executeCopyAction(DockerClientExecutor dockerClientExecutor, String containerId, Copy configurationParameters) throws IOException {
         String to = null;
         String from = null;
         if (configurationParameters.getTo() != null && configurationParameters.getFrom() != null) {
             to = configurationParameters.getTo();
             from = configurationParameters.getFrom();
         } else {
-            throw new IllegalArgumentException(
-                String.format("to and from property is mandatory when copying files from container %s.", containerId));
+            throw new IllegalArgumentException(String.format("to and from property is mandatory when copying files from container %s.", containerId));
         }
 
         InputStream response = dockerClientExecutor.getFileOrDirectoryFromContainerAsTar(containerId, from);
@@ -122,8 +118,8 @@ public class BeforeStopContainerObserver {
 
         if (toPathFile.exists() && toPathFile.isFile()) {
             throw new IllegalArgumentException(String.format(
-                "%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.",
-                "to", toPath.normalize().toString()));
+                    "%s parameter should be a directory in copy operation but you set an already existing file not a directory. Check %s in your local directory because currently is a file.",
+                    "to", toPath.normalize().toString()));
         }
 
         Files.createDirectories(toPath);
