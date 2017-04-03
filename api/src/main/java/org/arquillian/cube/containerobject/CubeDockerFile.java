@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 public @interface CubeDockerFile {
 
     String value() default "";
-    boolean remove() default true;
-    boolean nocache() default true;
 
+    boolean remove() default true;
+
+    boolean nocache() default true;
 }

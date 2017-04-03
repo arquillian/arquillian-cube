@@ -15,9 +15,8 @@ public class RestAssuredConfigurator {
     // Need to be executed after CubeDockerConfiguration
     public void configure(@Observes(precedence = -200) ArquillianDescriptor arquillianDescriptor) {
         restAssuredConfigurationInstanceProducer.set(
-                RestAssuredConfiguration.fromMap(arquillianDescriptor
-                        .extension("restassured")
-                        .getExtensionProperties()));
+            RestAssuredConfiguration.fromMap(arquillianDescriptor
+                .extension("restassured")
+                .getExtensionProperties()));
     }
-
 }

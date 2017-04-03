@@ -1,16 +1,14 @@
 package org.arquillian.cube.impl.client.enricher;
 
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostIpContext;
 import org.jboss.arquillian.core.api.Instance;
 import org.junit.Test;
 
-public class HostIpTestEnricherTest {
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
+public class HostIpTestEnricherTest {
 
     @Test
     public void shouldEnrichTest() {
@@ -36,8 +34,9 @@ public class HostIpTestEnricherTest {
             }
         };
         MyTest test = new MyTest();
-        Object[] myMethods = hostIpTestEnricher.resolve(test.getClass().getMethod("myMethod", String.class, String.class));
-        assertThat((String)myMethods[1], is("192.168.99.100"));
+        Object[] myMethods =
+            hostIpTestEnricher.resolve(test.getClass().getMethod("myMethod", String.class, String.class));
+        assertThat((String) myMethods[1], is("192.168.99.100"));
     }
 
     public static class MyTest {
@@ -48,5 +47,4 @@ public class HostIpTestEnricherTest {
 
         }
     }
-
 }

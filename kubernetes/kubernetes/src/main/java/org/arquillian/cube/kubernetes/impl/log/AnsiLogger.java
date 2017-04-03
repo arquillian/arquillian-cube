@@ -16,7 +16,7 @@ public class AnsiLogger implements Logger {
 
     @Override
     public void warn(String msg) {
-        System.out.println( ansi().fg(YELLOW).a(msg).reset() );
+        System.out.println(ansi().fg(YELLOW).a(msg).reset());
     }
 
     @Override

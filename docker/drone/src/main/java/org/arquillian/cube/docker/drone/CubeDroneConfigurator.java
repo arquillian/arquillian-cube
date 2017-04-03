@@ -14,11 +14,9 @@ public class CubeDroneConfigurator {
 
     public void configure(@Observes ArquillianDescriptor arquillianDescriptor) {
         cubeDroneConfigurationInstanceProducer.set(
-                CubeDroneConfiguration.fromMap(
-                        arquillianDescriptor.extension("cubedrone").getExtensionProperties()
-                )
+            CubeDroneConfiguration.fromMap(
+                arquillianDescriptor.extension("cubedrone").getExtensionProperties()
+            )
         );
     }
-
-
 }

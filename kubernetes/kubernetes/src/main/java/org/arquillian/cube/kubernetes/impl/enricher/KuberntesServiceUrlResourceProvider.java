@@ -8,14 +8,21 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.ServerSocket;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.annotations.Scheme;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionListener;
-import org.arquillian.cube.kubernetes.impl.DefaultSession;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -23,27 +30,11 @@ import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResourceProvider {
-
 
     private static final String SERVICE_PATH = "api.service.kubernetes.io/path";
     private static final String SERVICE_SCHEME = "api.service.kubernetes.io/scheme";
@@ -61,89 +52,11 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
 
     private ResourceProvider next;
 
-    @Override
-    public boolean canProvide(Class<?> type) {
-        return URL.class.isAssignableFrom(type);
-    }
-
-    @Override
-    public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        String name = getName(qualifiers);
-        if (Strings.isNullOrEmpty(name)) {
-            ResourceProvider delegate = getNext();
-            if (delegate != null) {
-               return delegate.lookup(resource, qualifiers);
-            }
-        }
-        String namespace = getSession().getNamespace();
-        Service service = getClient().services().inNamespace(namespace).withName(name).get();
-        String scheme = getScheme(service, qualifiers);
-        String path = getPath(service, qualifiers);
-
-        String ip = service.getSpec().getClusterIP();
-        int port = 0;
-
-        if (isPortForwardingEnabled(qualifiers)) {
-            Pod pod = getRandomPod(getClient(), name, namespace);
-            int containerPort = getContainerPort(service, qualifiers);
-            port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
-            ip = LOCALHOST;
-        } else {
-            port = getPort(service, qualifiers);
-        }
-
-        try {
-            if (port > 0) {
-                return new URL(scheme, ip, port, path);
-            } else {
-                return new URL(scheme, ip, path);
-            }
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("Cannot resolve URL for service: [" + name + "] in namespace:[" + namespace + "].");
-        }
-    }
-
-    private ResourceProvider getNext() {
-        if (next != null) {
-            return next;
-        }
-
-        synchronized (this) {
-            Collection<ResourceProvider> providers = serviceLoader.get().all(ResourceProvider.class);
-            for (ResourceProvider provider : providers) {
-                if (!(provider instanceof KuberntesServiceUrlResourceProvider) && provider.canProvide(URL.class)) {
-                    this.next = provider;
-                    break;
-                }
-            }
-        }
-        return next;
-    }
-
-    private int portForward(Session session, String podName, int targetPort) {
-        return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
-    }
-
-    private int portForward(Session session, String podName, int sourcePort, int targetPort) {
-        try {
-            final PortForwarder portForwarder = new PortForwarder(new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
-            final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
-            session.addListener(new SessionListener() {
-                @Override
-                public void onClose() {
-                    server.close();
-                    portForwarder.close();
-                }
-            });
-            return sourcePort;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
-     * @param qualifiers    The qualifiers
-     * @return              true if qualifiers contain the `PortForward` qualifier.
+     * @param qualifiers
+     *     The qualifiers
+     *
+     * @return true if qualifiers contain the `PortForward` qualifier.
      */
     private static boolean isPortForwardingEnabled(Annotation... qualifiers) {
         for (Annotation q : qualifiers) {
@@ -156,9 +69,11 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
 
     /**
      * Returns the {@link ServicePort} of the {@link Service} that matches the qualifiers
-     * @param service       The target service.
-     * @param qualifiers    The qualifiers.
-     * @return
+     *
+     * @param service
+     *     The target service.
+     * @param qualifiers
+     *     The qualifiers.
      */
     private static ServicePort findQualifiedServicePort(Service service, Annotation... qualifiers) {
         Port port = null;
@@ -185,9 +100,13 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     /**
      * Find the the qualified container port of the target service
      * Uses java annotations first or returns the container port.
-     * @param service       The target service.
-     * @param qualifiers    The set of qualifiers.
-     * @return              Returns the resolved containerPort of '0' as a fallback.
+     *
+     * @param service
+     *     The target service.
+     * @param qualifiers
+     *     The set of qualifiers.
+     *
+     * @return Returns the resolved containerPort of '0' as a fallback.
      */
     private static int getPort(Service service, Annotation... qualifiers) {
         for (Annotation q : qualifiers) {
@@ -209,9 +128,13 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     /**
      * Find the the qualfied container port of the target service
      * Uses java annotations first or returns the container port.
-     * @param service       The target service.
-     * @param qualifiers    The set of qualifiers.
-     * @return              Returns the resolved containerPort of '0' as a fallback.
+     *
+     * @param service
+     *     The target service.
+     * @param qualifiers
+     *     The set of qualifiers.
+     *
+     * @return Returns the resolved containerPort of '0' as a fallback.
      */
     private static int getContainerPort(Service service, Annotation... qualifiers) {
         for (Annotation q : qualifiers) {
@@ -233,9 +156,13 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     /**
      * Find the scheme to use to connect to the service.
      * Uses java annotations first and if not found, uses kubernetes annotations on the service object.
-     * @param service       The target service.
-     * @param qualifiers    The set of qualifiers.
-     * @return              Returns the resolved scheme of 'http' as a fallback.
+     *
+     * @param service
+     *     The target service.
+     * @param qualifiers
+     *     The set of qualifiers.
+     *
+     * @return Returns the resolved scheme of 'http' as a fallback.
      */
     private static String getScheme(Service service, Annotation... qualifiers) {
         for (Annotation q : qualifiers) {
@@ -257,9 +184,13 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     /**
      * Find the path to use .
      * Uses java annotations first and if not found, uses kubernetes annotations on the service object.
-     * @param service       The target service.
-     * @param qualifiers    The set of qualifiers.
-     * @return              Returns the resolved path of '/' as a fallback.
+     *
+     * @param service
+     *     The target service.
+     * @param qualifiers
+     *     The set of qualifiers.
+     *
+     * @return Returns the resolved path of '/' as a fallback.
      */
     private static String getPath(Service service, Annotation... qualifiers) {
         for (Annotation q : qualifiers) {
@@ -279,10 +210,15 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
 
     /**
      * Get a random pod that provides the specified service in the specified namespace.
-     * @param client           The client instance to use.
-     * @param name             The name of the service.
-     * @param namespace        The namespace of the service.
-     * @return                 The pod or null if no pod matches.
+     *
+     * @param client
+     *     The client instance to use.
+     * @param name
+     *     The name of the service.
+     * @param namespace
+     *     The namespace of the service.
+     *
+     * @return The pod or null if no pod matches.
      */
     private static Pod getRandomPod(KubernetesClient client, String name, String namespace) {
         Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(name).get();
@@ -311,10 +247,92 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
      * @return A random free local port.
      */
     private static final int findRandomFreeLocalPort() {
-            try (ServerSocket socket = new ServerSocket(0)) {
-                return socket.getLocalPort();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean canProvide(Class<?> type) {
+        return URL.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
+        String name = getName(qualifiers);
+        if (Strings.isNullOrEmpty(name)) {
+            ResourceProvider delegate = getNext();
+            if (delegate != null) {
+                return delegate.lookup(resource, qualifiers);
             }
+        }
+        String namespace = getSession().getNamespace();
+        Service service = getClient().services().inNamespace(namespace).withName(name).get();
+        String scheme = getScheme(service, qualifiers);
+        String path = getPath(service, qualifiers);
+
+        String ip = service.getSpec().getClusterIP();
+        int port = 0;
+
+        if (isPortForwardingEnabled(qualifiers)) {
+            Pod pod = getRandomPod(getClient(), name, namespace);
+            int containerPort = getContainerPort(service, qualifiers);
+            port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
+            ip = LOCALHOST;
+        } else {
+            port = getPort(service, qualifiers);
+        }
+
+        try {
+            if (port > 0) {
+                return new URL(scheme, ip, port, path);
+            } else {
+                return new URL(scheme, ip, path);
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(
+                "Cannot resolve URL for service: [" + name + "] in namespace:[" + namespace + "].");
+        }
+    }
+
+    private ResourceProvider getNext() {
+        if (next != null) {
+            return next;
+        }
+
+        synchronized (this) {
+            Collection<ResourceProvider> providers = serviceLoader.get().all(ResourceProvider.class);
+            for (ResourceProvider provider : providers) {
+                if (!(provider instanceof KuberntesServiceUrlResourceProvider) && provider.canProvide(URL.class)) {
+                    this.next = provider;
+                    break;
+                }
+            }
+        }
+        return next;
+    }
+
+    private int portForward(Session session, String podName, int targetPort) {
+        return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
+    }
+
+    private int portForward(Session session, String podName, int sourcePort, int targetPort) {
+        try {
+            final PortForwarder portForwarder = new PortForwarder(
+                new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
+            final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
+            session.addListener(new SessionListener() {
+                @Override
+                public void onClose() {
+                    server.close();
+                    portForwarder.close();
+                }
+            });
+            return sourcePort;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

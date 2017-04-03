@@ -13,14 +13,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface DockerUrl {
 
-   /**
-    * Sets the cube name where you want to get the exposed port. Only useful in case of not using Container Object pattern.
-    * @return Cube Name
-    */
-   String containerName();
-   int exposedPort();
+    /**
+     * Sets the cube name where you want to get the exposed port. Only useful in case of not using Container Object
+     * pattern.
+     *
+     * @return Cube Name
+     */
+    String containerName();
 
-   String protocol() default "http";
-   String context() default "/";
+    int exposedPort();
 
+    String protocol() default "http";
+
+    String context() default "/";
 }

@@ -17,6 +17,7 @@ public class ChangeLog implements Serializable {
     public String getPath() {
         return this.path;
     }
+
     public int getKind() {
         return this.kind;
     }

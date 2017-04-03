@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Repeatable(Volumes.class)
 public @interface Volume {
 
-   String hostPath();
-   String containerPath();
+    String hostPath();
 
+    String containerPath();
 }

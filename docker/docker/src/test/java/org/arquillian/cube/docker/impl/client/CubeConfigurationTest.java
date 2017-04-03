@@ -1,41 +1,33 @@
 package org.arquillian.cube.docker.impl.client;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
-import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.Network;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.util.ConfigUtil;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.yaml.snakeyaml.Yaml;
-
 public class CubeConfigurationTest {
 
-    private static final String CONTENT = 
-            "tomcat:\n" +
+    private static final String CONTENT =
+        "tomcat:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -43,8 +35,8 @@ public class CubeConfigurationTest {
             "    ip: localhost\n" +
             "    ports: [8080, 8089]";
 
-    private static final String CONTENT2 = 
-            "tomcat2:\n" +
+    private static final String CONTENT2 =
+        "tomcat2:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
@@ -52,8 +44,8 @@ public class CubeConfigurationTest {
             "    ip: localhost\n" +
             "    ports: [8080, 8089]";
 
-    private static final String DOCKER_COMPOSE_CONTENT = 
-            "web:\n" +
+    private static final String DOCKER_COMPOSE_CONTENT =
+        "web:\n" +
             "  build: .\n" +
             "  ports:\n" +
             "   - \"5000:5000\"\n" +
@@ -65,33 +57,32 @@ public class CubeConfigurationTest {
             "  image: redis";
 
     private static final String OVERRIDE_CUSTOM =
-            "tomcat:\n" +
+        "tomcat:\n" +
             "  image: tutum/tomcat:8.0\n" +
             "  await:\n" +
             "    strategy: polling\n" +
-            "  beforeStop: \n"+
-            "    - copy:\n"+
-            "        from: /test\n"+
+            "  beforeStop: \n" +
+            "    - copy:\n" +
+            "        from: /test\n" +
             "        to: /tmp";
 
-
     private static final String VERSION_2_WITH_VOLUMES = "version: '2'\n" +
-            "services:\n" +
-            "  nginx:\n" +
-            "    image: \"nginx:alpine\"\n" +
-            "    ports:\n" +
-            "    - \"80\"\n" +
-            "    volumes:\n" +
-            "    - \"/tmp/www:/usr/share/nginx/html\"";
+        "services:\n" +
+        "  nginx:\n" +
+        "    image: \"nginx:alpine\"\n" +
+        "    ports:\n" +
+        "    - \"80\"\n" +
+        "    volumes:\n" +
+        "    - \"/tmp/www:/usr/share/nginx/html\"";
 
     private static final String VERSION_2_WITH_PORT_RANGE = "version: '2'\n" +
-            "services:\n" +
-            "  nginx:\n" +
-            "    image: \"nginx:alpine\"\n" +
-            "    ports:\n" +
-            "    - \"80-84:90-94\"\n" +
-            "    volumes:\n" +
-            "    - \"/tmp/www:/usr/share/nginx/html\"";
+        "services:\n" +
+        "  nginx:\n" +
+        "    image: \"nginx:alpine\"\n" +
+        "    ports:\n" +
+        "    - \"80-84:90-94\"\n" +
+        "    volumes:\n" +
+        "    - \"/tmp/www:/usr/share/nginx/html\"";
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -112,7 +103,7 @@ public class CubeConfigurationTest {
         final Collection<PortBinding> portBindings = ngnix.getPortBindings();
 
         assertThat(portBindings, containsInAnyOrder(PortBinding.valueOf("80->90"), PortBinding.valueOf("81->91"),
-                PortBinding.valueOf("82->92"), PortBinding.valueOf("83->93"), PortBinding.valueOf("84->94")));
+            PortBinding.valueOf("82->92"), PortBinding.valueOf("83->93"), PortBinding.valueOf("84->94")));
     }
 
     @Test
@@ -137,30 +128,29 @@ public class CubeConfigurationTest {
         final String bind = volumes.iterator().next();
 
         assertThat(bind, is("/tmp/www:/usr/share/nginx/html"));
-
     }
 
     @Test
     public void shouldChangeNamesInParallelizeStarCubes() {
         String content =
-                "tomcat*:\n" +
-                        "  image: tutum/tomcat:8.0\n" +
-                        "  portBindings: [8080/tcp]\n" +
-                        "  links:\n" +
-                        "    - ping*\n" +
-                        "ping*:\n" +
-                        "  image: jonmorehouse/ping-pong\n" +
-                        "  exposedPorts: [8089/tcp]\n" +
-                        "storage:\n" +
-                        "  image: tutum/mongodb";
+            "tomcat*:\n" +
+                "  image: tutum/tomcat:8.0\n" +
+                "  portBindings: [8080/tcp]\n" +
+                "  links:\n" +
+                "    - ping*\n" +
+                "ping*:\n" +
+                "  image: jonmorehouse/ping-pong\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "storage:\n" +
+                "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
-        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
-
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
         final String tomcat = findElementStartingWith(containerIds, "tomcat");
@@ -168,30 +158,29 @@ public class CubeConfigurationTest {
 
         final String ping = findElementStartingWith(containerIds, "ping");
         assertThat(ping.length(), is(greaterThan(4)));
-
     }
 
     @Test
     public void shouldAddEnvVarsWithHostNameInParallelizeStarCubes() {
         String content =
-                "tomcat*:\n" +
-                        "  image: tutum/tomcat:8.0\n" +
-                        "  portBindings: [8080/tcp]\n" +
-                        "  links:\n" +
-                        "    - ping*\n" +
-                        "ping*:\n" +
-                        "  image: jonmorehouse/ping-pong\n" +
-                        "  exposedPorts: [8089/tcp]\n" +
-                        "storage:\n" +
-                        "  image: tutum/mongodb";
+            "tomcat*:\n" +
+                "  image: tutum/tomcat:8.0\n" +
+                "  portBindings: [8080/tcp]\n" +
+                "  links:\n" +
+                "    - ping*\n" +
+                "ping*:\n" +
+                "  image: jonmorehouse/ping-pong\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "storage:\n" +
+                "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
-        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
-
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
 
@@ -200,22 +189,21 @@ public class CubeConfigurationTest {
 
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         assertThat(getFirst(tomcatContainer.getEnv()), is("PING_HOSTNAME=" + ping));
-
     }
 
     @Test
     public void shouldChangePortBindingToPrivatePortsInParallelizeStarCubes() {
         String content =
-                "tomcat*:\n" +
-                        "  image: tutum/tomcat:8.0\n" +
-                        "  portBindings: [8080/tcp]\n" +
-                        "  links:\n" +
-                        "    - ping*\n" +
-                        "ping*:\n" +
-                        "  image: jonmorehouse/ping-pong\n" +
-                        "  exposedPorts: [8089/tcp]\n" +
-                        "storage:\n" +
-                        "  image: tutum/mongodb";
+            "tomcat*:\n" +
+                "  image: tutum/tomcat:8.0\n" +
+                "  portBindings: [8080/tcp]\n" +
+                "  links:\n" +
+                "    - ping*\n" +
+                "ping*:\n" +
+                "  image: jonmorehouse/ping-pong\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "storage:\n" +
+                "  image: tutum/mongodb";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
@@ -223,38 +211,37 @@ public class CubeConfigurationTest {
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
-        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
-
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
         final String tomcat = findElementStartingWith(containerIds, "tomcat");
 
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         assertThat(getFirst(tomcatContainer.getPortBindings()).getBound(), is(greaterThan(49152)));
-
     }
 
     @Test
     public void shouldChangeStarLinksInParallelizeStarCubes() {
         String content =
-                "tomcat*:\n" +
-                        "  image: tutum/tomcat:8.0\n" +
-                        "  portBindings: [8080/tcp]\n" +
-                        "  links:\n" +
-                        "    - ping*\n" +
-                        "ping*:\n" +
-                        "  image: jonmorehouse/ping-pong\n" +
-                        "  exposedPorts: [8089/tcp]\n" +
-                        "storage:\n" +
-                        "  image: tutum/mongodb";
+            "tomcat*:\n" +
+                "  image: tutum/tomcat:8.0\n" +
+                "  portBindings: [8080/tcp]\n" +
+                "  links:\n" +
+                "    - ping*\n" +
+                "ping*:\n" +
+                "  image: jonmorehouse/ping-pong\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "storage:\n" +
+                "  image: tutum/mongodb";
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
-        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
-
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
 
@@ -263,22 +250,21 @@ public class CubeConfigurationTest {
 
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         assertThat(getFirst(tomcatContainer.getLinks()).getName(), is(ping));
-
     }
 
     @Test
     public void shouldParallelizeStarCubesUsingRemappingAlias() {
         String content =
-                "tomcat*:\n" +
-                        "  image: tutum/tomcat:8.0\n" +
-                        "  portBindings: [8080/tcp]\n" +
-                        "  links:\n" +
-                        "    - ping*:bb\n" +
-                        "ping*:\n" +
-                        "  image: jonmorehouse/ping-pong\n" +
-                        "  exposedPorts: [8089/tcp]\n" +
-                        "storage:\n" +
-                        "  image: tutum/mongodb";
+            "tomcat*:\n" +
+                "  image: tutum/tomcat:8.0\n" +
+                "  portBindings: [8080/tcp]\n" +
+                "  links:\n" +
+                "    - ping*:bb\n" +
+                "ping*:\n" +
+                "  image: jonmorehouse/ping-pong\n" +
+                "  exposedPorts: [8089/tcp]\n" +
+                "storage:\n" +
+                "  image: tutum/mongodb";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", content);
@@ -286,8 +272,8 @@ public class CubeConfigurationTest {
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
         CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
-        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
-
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
         final Set<String> containerIds = cubeDockerConfiguration.getDockerContainersContent().getContainerIds();
         final String tomcat = findElementStartingWith(containerIds, "tomcat");
@@ -299,7 +285,6 @@ public class CubeConfigurationTest {
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         Link link = getFirst(tomcatContainer.getLinks());
         assertThat(link.getAlias(), is("bb_" + uuid));
-
     }
 
     private <T> T getFirst(Collection<T> collection) {
@@ -337,7 +322,6 @@ public class CubeConfigurationTest {
         assertThat(tomcat.getImage().getTag(), is("7.0"));
         assertThat(tomcat.getAwait().getStrategy(), is("polling"));
         assertThat(tomcat.getBeforeStop().size(), is(1));
-
     }
 
     @Test
@@ -426,7 +410,8 @@ public class CubeConfigurationTest {
     }
 
     @Test
-    public void should_parse_and_load_configuration_file_from_container_configuration_file_and_property_set_file() throws IOException {
+    public void should_parse_and_load_configuration_file_from_container_configuration_file_and_property_set_file()
+        throws IOException {
 
         File newFile = testFolder.newFile("config.yml");
         Files.write(Paths.get(newFile.toURI()), CONTENT.getBytes());
@@ -482,7 +467,7 @@ public class CubeConfigurationTest {
     @Test
     public void should_be_able_to_extend_and_override_toplevel() throws Exception {
         String config =
-                "tomcat6:\n" +
+            "tomcat6:\n" +
                 "  image: tutum/tomcat:6.0\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "  await:\n" +
@@ -507,7 +492,7 @@ public class CubeConfigurationTest {
     @Test
     public void should_be_able_to_read_network_configuration() {
         String config =
-                "networks:\n" +
+            "networks:\n" +
                 "  mynetwork:\n " +
                 "    driver: bridge\n" +
                 "tomcat6:\n" +
@@ -530,52 +515,50 @@ public class CubeConfigurationTest {
         assertThat(mynetwork, is(notNullValue()));
         assertThat(mynetwork.getDriver(), is("bridge"));
     }
-    
+
     @Test
     public void should_set_global_removeVolumes_option_if_not_set_on_container_level() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", CONTENT);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
-        
+
         CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
         assertThat(containerConfig.getRemoveVolumes(), is(true));
-        
+
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "true");
         cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
         assertThat(containerConfig.getRemoveVolumes(), is(true));
-
     }
-    
+
     @Test
     public void should_container_level_removeVolumes_option_overwrite_global_value() {
         String config1 =
-                "tomcat:\n" +
+            "tomcat:\n" +
                 "  image: tutum/tomcat:6.0\n" +
                 "  removeVolumes: false";
-        
+
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "true");
         parameters.put("dockerContainers", config1);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
-        
+
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         CubeContainer containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
         assertThat(containerConfig.getRemoveVolumes(), is(false));
-        
+
         String config2 =
-                "tomcat:\n" +
+            "tomcat:\n" +
                 "  image: tutum/tomcat:6.0\n" +
                 "  removeVolumes: true";
 
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");
         parameters.put("dockerContainers", config2);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
-        
+
         cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         containerConfig = cubeConfiguration.getDockerContainersContent().get("tomcat");
         assertThat(containerConfig.getRemoveVolumes(), is(true));
     }
-    
 }

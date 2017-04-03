@@ -10,20 +10,20 @@ public class IPAMConfig {
         return gateway;
     }
 
-    public String getIpRange() {
-        return ipRange;
-    }
-
-    public String getSubnet() {
-        return subnet;
-    }
-
     public void setGateway(String gateway) {
         this.gateway = gateway;
     }
 
+    public String getIpRange() {
+        return ipRange;
+    }
+
     public void setIpRange(String ipRange) {
         this.ipRange = ipRange;
+    }
+
+    public String getSubnet() {
+        return subnet;
     }
 
     public void setSubnet(String subnet) {

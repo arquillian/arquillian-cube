@@ -27,6 +27,28 @@ public class CubeDroneConfiguration {
      */
     private String browserDockerfileLocation = null;
 
+    public static CubeDroneConfiguration fromMap(Map<String, String> config) {
+        CubeDroneConfiguration cubeDroneConfiguration = new CubeDroneConfiguration();
+
+        if (config.containsKey("recordingMode")) {
+            cubeDroneConfiguration.recordMode = RecordMode.valueOf(config.get("recordingMode"));
+        }
+
+        if (config.containsKey("videoOutput")) {
+            cubeDroneConfiguration.finalDirectory = config.get("videoOutput");
+        }
+
+        if (config.containsKey("browserImage")) {
+            cubeDroneConfiguration.browserImage = config.get("browserImage");
+        }
+
+        if (config.containsKey("browserDockerfileLocation")) {
+            cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
+        }
+
+        return cubeDroneConfiguration;
+    }
+
     public boolean isRecordOnFailure() {
         return recordMode == RecordMode.ONLY_FAILING;
     }
@@ -66,27 +88,4 @@ public class CubeDroneConfiguration {
     public static enum RecordMode {
         ALL, ONLY_FAILING, NONE;
     }
-
-    public static CubeDroneConfiguration fromMap(Map<String, String> config) {
-        CubeDroneConfiguration cubeDroneConfiguration = new CubeDroneConfiguration();
-
-        if (config.containsKey("recordingMode")) {
-            cubeDroneConfiguration.recordMode = RecordMode.valueOf(config.get("recordingMode"));
-        }
-
-        if (config.containsKey("videoOutput")) {
-            cubeDroneConfiguration.finalDirectory = config.get("videoOutput");
-        }
-
-        if (config.containsKey("browserImage")) {
-            cubeDroneConfiguration.browserImage = config.get("browserImage");
-        }
-
-        if (config.containsKey("browserDockerfileLocation")) {
-            cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
-        }
-
-        return cubeDroneConfiguration;
-    }
-
 }

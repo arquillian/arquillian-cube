@@ -1,14 +1,12 @@
 package org.arquillian.cube.docker.impl.model;
 
-import org.arquillian.cube.docker.impl.client.config.Network;
-import org.arquillian.cube.spi.Cube;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.arquillian.cube.docker.impl.client.config.Network;
 
 public class LocalDockerNetworkRegistry implements NetworkRegistry {
 

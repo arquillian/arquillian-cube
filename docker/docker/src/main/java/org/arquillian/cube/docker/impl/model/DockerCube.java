@@ -1,5 +1,7 @@
 package org.arquillian.cube.docker.impl.model;
 
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -9,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import com.github.dockerjava.api.exception.NotModifiedException;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
@@ -45,20 +45,14 @@ import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-import com.github.dockerjava.api.exception.NotFoundException;
-
 public class DockerCube extends BaseCube<CubeContainer> {
 
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
-
+    private final PortBindings portBindings;
     private State state = State.DESTROYED;
     private String id;
     private Binding binding = null;
-
     private CubeContainer configuration;
-
-    private final PortBindings portBindings;
-
     private long startingTimeInMillis = 0;
     private long stoppingTimeInMillis = 0;
 
@@ -84,9 +78,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
         addMetadata(HasPortBindings.class, portBindings);
         addMetadata(CanReportMetrics.class, new ReportMetrics(this));
 
-        if(configuration.getBuildImage() !=null) {
+        if (configuration.getBuildImage() != null) {
             String path = configuration.getBuildImage().getDockerfileLocation();
-            if(path != null) {
+            if (path != null) {
                 addMetadata(IsBuildable.class, new IsBuildable(path));
             }
         }
@@ -104,7 +98,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void create() throws CubeControlException {
-        if(state != State.DESTROYED) {
+        if (state != State.DESTROYED) {
             return;
         }
         try {
@@ -118,7 +112,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
             state = State.CREATED;
             lifecycle.fire(new AfterCreate(id));
-        } catch(Exception e) {
+        } catch (Exception e) {
             state = State.CREATE_FAILED;
             throw CubeControlException.failedCreate(id, e);
         }
@@ -126,7 +120,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void start() throws CubeControlException {
-        if(state == State.STARTED || state == State.PRE_RUNNING) {
+        if (state == State.STARTED || state == State.PRE_RUNNING) {
             return;
         }
         try {
@@ -139,11 +133,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
             state = State.STARTED;
             portBindings.containerStarted();
-            if(!AwaitStrategyFactory.create(executor, this, configuration).await()) {
+            if (!AwaitStrategyFactory.create(executor, this, configuration).await()) {
                 throw new IllegalArgumentException(String.format("Cannot connect to %s container", id));
             }
             lifecycle.fire(new AfterStart(id));
-        } catch(Exception e) {
+        } catch (Exception e) {
             state = State.START_FAILED;
             throw CubeControlException.failedStart(id, e);
         }
@@ -151,7 +145,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void stop() throws CubeControlException {
-        if(state == State.STOPPED || state == State.PRE_RUNNING) {
+        if (state == State.STOPPED || state == State.PRE_RUNNING) {
             return;
         }
         try {
@@ -164,13 +158,14 @@ public class DockerCube extends BaseCube<CubeContainer> {
                 } else {
                     executor.stopContainer(id);
                 }
-            } catch(NotFoundException e) {
-            } catch (NotModifiedException e) {}
+            } catch (NotFoundException e) {
+            } catch (NotModifiedException e) {
+            }
             this.stoppingTimeInMillis = System.currentTimeMillis() - currentTime;
 
             state = State.STOPPED;
             lifecycle.fire(new AfterStop(id));
-        } catch(Exception e) {
+        } catch (Exception e) {
             state = State.STOP_FAILED;
             throw CubeControlException.failedStop(id, e);
         }
@@ -178,7 +173,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void destroy() throws CubeControlException {
-        if(state != State.STOPPED) {
+        if (state != State.STOPPED) {
             return;
         }
         try {
@@ -188,13 +183,14 @@ public class DockerCube extends BaseCube<CubeContainer> {
             try {
                 executor.removeContainer(id, configuration.getRemoveVolumes());
             } catch (NotFoundException e) {
-            } catch (NotModifiedException e) {}
+            } catch (NotModifiedException e) {
+            }
             long partialDuration = System.currentTimeMillis() - currentTime;
             this.stoppingTimeInMillis = this.stoppingTimeInMillis + partialDuration;
 
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
-        } catch(Exception e) {
+        } catch (Exception e) {
             state = State.DESTORY_FAILED;
             throw CubeControlException.failedDestroy(id, e);
         }
@@ -202,11 +198,18 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public Binding bindings() {
-        if(binding != null) {
+        if (binding != null) {
             return binding;
         }
-        if(state != State.STARTED && state != State.PRE_RUNNING) {
-            throw new IllegalStateException("Can't get binding for cube " + id + " when status not " + State.STARTED + " or " + State.PRE_RUNNING + ". Status is " + state);
+        if (state != State.STARTED && state != State.PRE_RUNNING) {
+            throw new IllegalStateException("Can't get binding for cube "
+                + id
+                + " when status not "
+                + State.STARTED
+                + " or "
+                + State.PRE_RUNNING
+                + ". Status is "
+                + state);
         }
         binding = BindingUtil.binding(executor, id);
         return binding;
@@ -219,20 +222,21 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public boolean isRunningOnRemote() {
-       // TODO should we create an adapter class so we don't expose client classes in this part?
-       List<com.github.dockerjava.api.model.Container> runningContainers = executor.listRunningContainers();
-       for (com.github.dockerjava.api.model.Container container : runningContainers) {
-           for (String name : container.getNames()) {
-               if (name.startsWith("/"))
-                   name = name.substring(1); // Names array adds an slash to the docker name container.
-               if (name.equals(getId())) { // cube id is the container name in docker0 Id in docker is the hash
-                                                // that identifies it.
-                   return true;
-               }
-           }
-       }
+        // TODO should we create an adapter class so we don't expose client classes in this part?
+        List<com.github.dockerjava.api.model.Container> runningContainers = executor.listRunningContainers();
+        for (com.github.dockerjava.api.model.Container container : runningContainers) {
+            for (String name : container.getNames()) {
+                if (name.startsWith("/")) {
+                    name = name.substring(1); // Names array adds an slash to the docker name container.
+                }
+                if (name.equals(getId())) { // cube id is the container name in docker0 Id in docker is the hash
+                    // that identifies it.
+                    return true;
+                }
+            }
+        }
 
-       return false;
+        return false;
     }
 
     @Override
@@ -242,7 +246,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void changeToPreRunning() {
-        if(state != State.DESTROYED && state != State.STARTED) {
+        if (state != State.DESTROYED && state != State.STARTED) {
             return;
         }
 
@@ -319,7 +323,6 @@ public class DockerCube extends BaseCube<CubeContainer> {
         public InetAddress getPortForwardBindAddress() {
             return null;
         }
-
 
         /*
          * Initialize bound ports and regenerate port mappings

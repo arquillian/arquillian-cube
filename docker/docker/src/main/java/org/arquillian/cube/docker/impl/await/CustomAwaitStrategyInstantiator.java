@@ -1,16 +1,15 @@
 package org.arquillian.cube.docker.impl.await;
 
-import org.arquillian.cube.docker.impl.client.config.Await;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.spi.Cube;
-import org.arquillian.cube.spi.await.AwaitStrategy;
-
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public class CustomAwaitStrategyInstantiator implements AwaitStrategy {
 
@@ -52,8 +51,8 @@ public class CustomAwaitStrategyInstantiator implements AwaitStrategy {
             }
 
             // Inject if there is a setter for Cube, DockerClientExecutor or Await
-            for(PropertyDescriptor propertyDescriptor :
-                    Introspector.getBeanInfo(customStrategyInstance.getClass()).getPropertyDescriptors()){
+            for (PropertyDescriptor propertyDescriptor :
+                Introspector.getBeanInfo(customStrategyInstance.getClass()).getPropertyDescriptors()) {
                 final Method writeMethod = propertyDescriptor.getWriteMethod();
                 if (writeMethod != null) {
                     if (writeMethod.getParameterTypes()[0].isAssignableFrom(Cube.class)) {
@@ -75,6 +74,5 @@ public class CustomAwaitStrategyInstantiator implements AwaitStrategy {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IntrospectionException | InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
-
     }
 }

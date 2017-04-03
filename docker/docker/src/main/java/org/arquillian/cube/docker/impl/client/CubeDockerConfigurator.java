@@ -1,38 +1,23 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.GitHubUtil;
-import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
-import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.spi.CubeConfiguration;
-import org.arquillian.spacelift.Spacelift;
-import org.arquillian.spacelift.task.net.DownloadTool;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
@@ -43,12 +28,10 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 public class CubeDockerConfigurator {
 
-    private static Random random = new Random();
-    private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
-
     public static final String DOCKER_HOST = "DOCKER_HOST";
     private static final String EXTENSION_NAME = "docker";
-
+    private static Random random = new Random();
+    private static Logger log = Logger.getLogger(CubeDockerConfigurator.class.getName());
     @Inject
     @ApplicationScoped
     private InstanceProducer<CubeDockerConfiguration> configurationProducer;
@@ -81,9 +64,9 @@ public class CubeDockerConfigurator {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
-                dockerMachineInstance.get(),
-                boot2DockerInstance.get(),
-                operatingSystemFamilyInstanceProducer.get());
+            dockerMachineInstance.get(),
+            boot2DockerInstance.get(),
+            operatingSystemFamilyInstanceProducer.get());
         resolver.resolve(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
         cubeConfiguration = resolveDynamicNames(cubeConfiguration);

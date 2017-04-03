@@ -2,7 +2,6 @@ package org.arquillian.cube.kubernetes.impl.visitor;
 
 import io.fabric8.kubernetes.api.builder.TypedVisitor;
 import io.fabric8.kubernetes.api.builder.Visitor;
-
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -12,15 +11,6 @@ public class CompositeVisitor<T> implements Visitor<T> {
 
     public CompositeVisitor(List<Visitor<T>> visitors) {
         this.visitors = visitors;
-    }
-
-    @Override
-    public void visit(T t) {
-        for (Visitor delegate : visitors) {
-            if (canVisit(delegate, t)) {
-                delegate.visit(t);
-            }
-        }
     }
 
     private static <V, F> Boolean canVisit(V visitor, F fluent) {
@@ -39,5 +29,14 @@ public class CompositeVisitor<T> implements Visitor<T> {
             }
         }
         return false;
+    }
+
+    @Override
+    public void visit(T t) {
+        for (Visitor delegate : visitors) {
+            if (canVisit(delegate, t)) {
+                delegate.visit(t);
+            }
+        }
     }
 }

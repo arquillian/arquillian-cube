@@ -7,5 +7,4 @@ public class OperatingSystemResolver {
     public OperatingSystem currentOperatingSystem() {
         return OperatingSystem.resolve(osNameProperty);
     }
-
 }

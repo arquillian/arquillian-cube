@@ -1,12 +1,11 @@
 package org.arquillian.cube.docker.graphene.location;
 
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.arquillian.cube.docker.drone.SeleniumContainers;
 import org.arquillian.cube.docker.drone.util.IpAddressValidator;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.util.SinglePortBindResolver;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -16,42 +15,41 @@ import org.jboss.arquillian.graphene.spi.configuration.GrapheneConfiguration;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
-import java.lang.annotation.Annotation;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * The DockerCubeCustomizableURLResourceProvider is used in the context of Graphene, if you use
- * the standalone framework integration option (see https://docs.jboss.org/author/display/ARQGRA2/Framework+Integration+Options) with Docker Cube
- * and thus the Arquillian {@link org.jboss.arquillian.container.test.impl.enricher.resource.URLResourceProvider} is not on
+ * the standalone framework integration option (see https://docs.jboss.org/author/display/ARQGRA2/Framework+Integration+Options)
+ * with Docker Cube
+ * and thus the Arquillian {@link org.jboss.arquillian.container.test.impl.enricher.resource.URLResourceProvider} is not
+ * on
  * on the classpath, a way to inject the URL is required.
- *
+ * <p>
  * In this case the URL will be composed with next format:
- *
+ * <p>
  * <i>scheme</i> graphene configuration parameter [http, https, ...] or http if not set.
- *
+ * <p>
  * plus
- *
- * <i>url</i> graphene configuration parameter. This can use the <i>dockerHost</i> special word which will be replaced at runtime by docker host ip.
- * Also if <i>url</i> property starts with relative path, dockerHost resolution will be appended automatically at the start of the <i>url</i>.
- *
- *
+ * <p>
+ * <i>url</i> graphene configuration parameter. This can use the <i>dockerHost</i> special word which will be replaced at
+ * runtime by docker host ip.
+ * Also if <i>url</i> property starts with relative path, dockerHost resolution will be appended automatically at the
+ * start of the <i>url</i>.
+ * <p>
+ * <p>
  * If <i>url</i> is <b>http://192.168.99.100/context</b> the result will be http://192.168.99.100/context
- *
+ * <p>
  * If <i>url</i> is <b>http://dockerHost/context</b> then the result will be http://&lt;ipOfDockerHost&gt;/context
- *
- * If <i>url</i> is <b>http://&lt;containerName&gt;/context</b> so NOT dockerHost and not an IP then the result will be http://&lt;internalIpOfGivenContainer&gt;/context
- *
+ * <p>
+ * If <i>url</i> is <b>http://&lt;containerName&gt;/context</b> so NOT dockerHost and not an IP then the result will be
+ * http://&lt;internalIpOfGivenContainer&gt;/context
+ * <p>
  * The next thing to resolve is the port of the URL.
- *
+ * <p>
  * If <i>url</i> has not port, then 80 port is used.
- *
+ * <p>
  * If <i>url</i> has a port (http://dockerHost:8080), Cube will use 8080 as exposed port.
- *
- * For example <i>url</i> set to <b>http://mycontainer/context</b>, then the result will be http://&lt;ipOfContainer&gt;:8080/context
+ * <p>
+ * For example <i>url</i> set to <b>http://mycontainer/context</b>, then the result will be
+ * http://&lt;ipOfContainer&gt;:8080/context
  *
  * @see org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider
  **/
@@ -98,45 +96,46 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
 
         if (configuredUrl != null && !configuredUrl.isEmpty()) {
 
-                String replacedWithDockerHostUrl = configuredUrl;
+            String replacedWithDockerHostUrl = configuredUrl;
 
-                // resolve dockerHost
-                replacedWithDockerHostUrl = replacedWithDockerHostUrl
-                        .replace("dockerHost", cubeDockerConfiguration.getDockerServerIp());
+            // resolve dockerHost
+            replacedWithDockerHostUrl = replacedWithDockerHostUrl
+                .replace("dockerHost", cubeDockerConfiguration.getDockerServerIp());
 
-                // We need to get the host part, port part and context
-                URL currentUrl = new URL(replacedWithDockerHostUrl);
-                String host = currentUrl.getHost();
+            // We need to get the host part, port part and context
+            URL currentUrl = new URL(replacedWithDockerHostUrl);
+            String host = currentUrl.getHost();
 
-                // check if host is an ip or not. If it is not an ip means that user wants to use internal ip of given container and host is the name of the container
-                if (! IpAddressValidator.validate(host)) {
-                    host = getInternalIp(cubeDockerConfiguration, host);
-                }
+            // check if host is an ip or not. If it is not an ip means that user wants to use internal ip of given container and host is the name of the container
+            if (!IpAddressValidator.validate(host)) {
+                host = getInternalIp(cubeDockerConfiguration, host);
+            }
 
-                urlBuilder.host(host);
-                int port = currentUrl.getPort();
+            urlBuilder.host(host);
+            int port = currentUrl.getPort();
 
-                if (port == NO_PORT) {
-                    port = 80;
-                }
+            if (port == NO_PORT) {
+                port = 80;
+            }
 
-                urlBuilder.port(port);
-                urlBuilder.context(currentUrl.getPath());
-
+            urlBuilder.port(port);
+            urlBuilder.context(currentUrl.getPath());
         } else {
-            throw new IllegalArgumentException("Arquillian Cube Graphene integration should provide a URL in Graphene extension configuration.");
+            throw new IllegalArgumentException(
+                "Arquillian Cube Graphene integration should provide a URL in Graphene extension configuration.");
         }
 
         try {
             return urlBuilder.build();
         } catch (MalformedURLException e) {
-            throw new IllegalStateException("Configured custom URL from Graphene Configuration should be already a valid URL.");
+            throw new IllegalStateException(
+                "Configured custom URL from Graphene Configuration should be already a valid URL.");
         }
     }
 
     private String getInternalIp(CubeDockerConfiguration cubeDockerConfiguration, String containerName) {
         final Cube<?> cube = cubeRegistryInstance.get()
-                .getCube(containerName);
+            .getCube(containerName);
 
         if (cube == null) {
             return cubeDockerConfiguration.getDockerServerIp();
@@ -147,7 +146,6 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
         }
 
         return cubeDockerConfiguration.getDockerServerIp();
-
     }
 
     private static final class UrlBuilder {
@@ -201,7 +199,5 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
 
             return new URL(protocol, host, port, file);
         }
-
-
     }
 }

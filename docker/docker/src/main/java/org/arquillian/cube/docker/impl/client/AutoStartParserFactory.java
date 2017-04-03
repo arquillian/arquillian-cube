@@ -15,9 +15,10 @@ public class AutoStartParserFactory {
             } else {
                 if (isCustomImplementation(expression)) {
                     return new CustomAutoStartParser(injector,
-                            expression.substring(
-                                    expression.indexOf(CustomAutoStartParser.CUSTOM_PREFIX) + CustomAutoStartParser.CUSTOM_PREFIX.length()).trim()
-                            );
+                        expression.substring(
+                            expression.indexOf(CustomAutoStartParser.CUSTOM_PREFIX)
+                                + CustomAutoStartParser.CUSTOM_PREFIX.length()).trim()
+                    );
                 } else {
                     if (isCommaSeparated(expression)) {
                         return new CommaSeparatedAutoStartParser(expression, containersDefinition);
@@ -40,7 +41,6 @@ public class AutoStartParserFactory {
     private static boolean isCommaSeparated(String expression) {
         return expression != null;
     }
-
 
     private static boolean isRegularExpressionBased(String expression) {
         return expression != null && expression.startsWith(RegularExpressionAutoStartParser.REGULAR_EXPRESSION_PREFIX);

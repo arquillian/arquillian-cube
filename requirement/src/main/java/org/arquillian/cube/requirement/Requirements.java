@@ -1,10 +1,9 @@
 package org.arquillian.cube.requirement;
 
+import java.lang.annotation.Annotation;
 import org.arquillian.cube.spi.requirement.Requirement;
 import org.arquillian.cube.spi.requirement.Requires;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
-
-import java.lang.annotation.Annotation;
 
 public class Requirements {
 
@@ -20,9 +19,9 @@ public class Requirements {
             try {
                 Requirement requirement = requirementType.newInstance();
                 requirement.check(context);
-            }  catch (IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
-            }  catch (InstantiationException e) {
+            } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             }
         }

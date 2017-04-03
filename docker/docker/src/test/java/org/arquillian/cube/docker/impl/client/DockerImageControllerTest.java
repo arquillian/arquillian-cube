@@ -1,6 +1,8 @@
 package org.arquillian.cube.docker.impl.client;
 
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.Cube;
@@ -9,16 +11,11 @@ import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
@@ -41,12 +38,12 @@ public class DockerImageControllerTest extends AbstractManagerTestBase {
     public void should_remove_docker_image_if_built_by_cube() {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
         String config = "pingpong:\n" +
-                        "  buildImage:\n" +
-                        "    dockerfileLocation: src/test/resources/tomcat\n" +
-                        "    noCache: true\n" +
-                        "    remove: true\n" +
-                        "  exposedPorts: [8080/tcp]\n" +
-                        "  portBindings: [8080->8080/tcp]\n";
+            "  buildImage:\n" +
+            "    dockerfileLocation: src/test/resources/tomcat\n" +
+            "    noCache: true\n" +
+            "    remove: true\n" +
+            "  exposedPorts: [8080/tcp]\n" +
+            "  portBindings: [8080->8080/tcp]\n";
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("dockerContainers", config);
@@ -73,13 +70,13 @@ public class DockerImageControllerTest extends AbstractManagerTestBase {
     }
 
     @Test
-    public void should_not_remove_docker_image_as_not_built_by_cube(){
+    public void should_not_remove_docker_image_as_not_built_by_cube() {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
 
         String config = "pingpong:\n" +
-                        "  image: jonmorehouse/ping-pong\n"  +
-                        "  exposedPorts: [8080/tcp]\n" +
-                        "  portBindings: [8080->8080/tcp]\n";
+            "  image: jonmorehouse/ping-pong\n" +
+            "  exposedPorts: [8080/tcp]\n" +
+            "  portBindings: [8080->8080/tcp]\n";
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("dockerContainers", config);

@@ -9,5 +9,4 @@ public class TopCommand extends AbstractCubeCommand<TopContainer> {
     public TopCommand(String cubeId) {
         super(cubeId);
     }
-
 }

@@ -10,12 +10,9 @@ import java.util.regex.Pattern;
 
 public class DockerMachine extends AbstractCliInternetAddressResolver {
 
-    private static Logger log = Logger.getLogger(DockerMachine.class.getName());
-
     public static final String DOCKER_MACHINE_EXEC = "docker-machine";
-
     private static final Pattern IP_PATTERN = Pattern.compile("(?:\\d{1,3}\\.){3}\\d{1,3}");
-
+    private static Logger log = Logger.getLogger(DockerMachine.class.getName());
     private String machineName;
     private boolean manuallyStarted = false;
 
@@ -25,11 +22,11 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     @Override
     protected String[] getCommandArguments(String cliPathExec) {
-        if(machineName == null) {
+        if (machineName == null) {
             throw new IllegalArgumentException("Machine Name cannot be null");
         }
 
-        return new String[]{createDockerMachineCommand(cliPathExec), "ip", machineName};
+        return new String[] {createDockerMachineCommand(cliPathExec), "ip", machineName};
     }
 
     @Override
@@ -47,8 +44,11 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Starts given docker machine.
-     * @param cliPathExec location of docker-machine or null if it is on PATH.
-     * @param machineName to be started.
+     *
+     * @param cliPathExec
+     *     location of docker-machine or null if it is on PATH.
+     * @param machineName
+     *     to be started.
      */
     public void startDockerMachine(String cliPathExec, String machineName) {
         commandLineExecutor.execCommand(createDockerMachineCommand(cliPathExec), "start", machineName);
@@ -57,7 +57,9 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Starts given docker machine.
-     * @param machineName to be started.
+     *
+     * @param machineName
+     *     to be started.
      */
     public void startDockerMachine(String machineName) {
         startDockerMachine(null, machineName);
@@ -74,7 +76,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Checks if Docker Machine is installed by running docker-machine and inspect the result.
-     * @param cliPathExec location of docker-machine or null if it is on PATH.
+     *
+     * @param cliPathExec
+     *     location of docker-machine or null if it is on PATH.
+     *
      * @return true if it is installed, false otherwise.
      */
     public boolean isDockerMachineInstalled(String cliPathExec) {
@@ -88,6 +93,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Checks if Docker Machine is installed by running docker-machine and inspect the result.
+     *
      * @return true if it is installed, false otherwise.
      */
     public boolean isDockerMachineInstalled() {
@@ -96,7 +102,10 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Executes docker-machine ls command
-     * @param cliPathExec location of docker-machine or null if it is on PATH.
+     *
+     * @param cliPathExec
+     *     location of docker-machine or null if it is on PATH.
+     *
      * @return set of machines
      */
     public Set<Machine> list(String cliPathExec) {
@@ -114,16 +123,22 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Executes docker-machine ls --filter field=value command
-     * @param cliPathExec location of docker-machine or null if it is on PATH.
-     * @param field to use in condition
-     * @param value value that the field shoudl have
+     *
+     * @param cliPathExec
+     *     location of docker-machine or null if it is on PATH.
+     * @param field
+     *     to use in condition
+     * @param value
+     *     value that the field shoudl have
+     *
      * @return set of machines
      */
     public Set<Machine> list(String cliPathExec, String field, String value) {
         final Set<Machine> machines = new HashSet<>();
-        List<String> output = commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter", field + "=" + value);
+        List<String> output =
+            commandLineExecutor.execCommandAsArray(createDockerMachineCommand(cliPathExec), "ls", "--filter",
+                field + "=" + value);
         output = findHeader(output);
-
 
         if (!output.isEmpty()) {
             final Map<String, Index> headerIndex = calculateStartingFieldsIndex(output.get(0));
@@ -136,7 +151,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     }
 
     private List<String> findHeader(List<String> output) {
-        for (int i = 0 ; i < output.size() ; i++) {
+        for (int i = 0; i < output.size(); i++) {
             if (output.get(i).startsWith("NAME")) {
                 return output.subList(i, output.size());
             }
@@ -151,7 +166,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
         for (int i = 0; i < headers.length; i++) {
             String currentHeader = headers[i];
             int firstIndex = header.indexOf(currentHeader);
-            int lastIndex = (i+1 < headers.length) ? header.indexOf(headers[i+1]) - 1 : -1;
+            int lastIndex = (i + 1 < headers.length) ? header.indexOf(headers[i + 1]) - 1 : -1;
 
             headersIndex.put(currentHeader, new Index(firstIndex, lastIndex));
         }
@@ -160,17 +175,21 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
 
     /**
      * Executes docker-machine ls command
+     *
      * @return set of machines
      */
     public Set<Machine> list() {
         return this.list(null);
     }
 
-
     /**
      * Executes docker-machine ls --filter field=value command
-     * @param field to use in condition
-     * @param value value that the field shoudl have
+     *
+     * @param field
+     *     to use in condition
+     * @param value
+     *     value that the field shoudl have
+     *
      * @return set of machines
      */
     public Set<Machine> list(String field, String value) {
@@ -183,13 +202,14 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     }
 
     public void createMachine(String machinePath, String machineDriver, String machineName) {
-        List<String> create = commandLineExecutor.execCommandAsArray(machinePath, "create", "--driver", machineDriver, machineName);
+        List<String> create =
+            commandLineExecutor.execCommandAsArray(machinePath, "create", "--driver", machineDriver, machineName);
         printOutput(create);
     }
 
     private void printOutput(List<String> lines) {
         StringBuilder output = new StringBuilder();
-        for (String line: lines) {
+        for (String line : lines) {
             output.append(line);
             output.append(System.lineSeparator());
         }

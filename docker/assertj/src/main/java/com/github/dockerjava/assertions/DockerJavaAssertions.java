@@ -8,8 +8,7 @@ import org.assertj.core.api.Assertions;
  */
 public class DockerJavaAssertions extends Assertions {
 
-   public static DockerJavaAssert assertThat(DockerClient client) {
-      return new DockerJavaAssert(client);
-   }
-
+    public static DockerJavaAssert assertThat(DockerClient client) {
+        return new DockerJavaAssert(client);
+    }
 }

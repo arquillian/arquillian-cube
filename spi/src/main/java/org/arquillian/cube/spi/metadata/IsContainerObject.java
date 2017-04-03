@@ -1,6 +1,5 @@
 package org.arquillian.cube.spi.metadata;
 
-
 import org.arquillian.cube.containerobject.ConnectionMode;
 
 public class IsContainerObject implements CubeMetadata {

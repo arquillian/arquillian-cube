@@ -70,12 +70,12 @@ public class Await {
         this.sleepPollingTime = sleepPollingTime;
     }
 
-    public void setCustomProperties(Object customProperties) {
-        this.customProperties = customProperties;
-    }
-
     public Object getCustomProperties() {
         return customProperties;
+    }
+
+    public void setCustomProperties(Object customProperties) {
+        this.customProperties = customProperties;
     }
 
     public Integer getIterations() {
@@ -126,20 +126,20 @@ public class Await {
         this.stdErr = stdErr;
     }
 
-    public void setHeaders(Map<String, Object> headers) {
-        this.headers = headers;
-    }
-
     public Map<String, Object> getHeaders() {
         return headers;
     }
 
-    public void setResponseCode(Integer responseCode) {
-        this.responseCode = responseCode;
+    public void setHeaders(Map<String, Object> headers) {
+        this.headers = headers;
     }
 
     public Integer getResponseCode() {
         return responseCode;
+    }
+
+    public void setResponseCode(Integer responseCode) {
+        this.responseCode = responseCode;
     }
 
     public String getUrl() {

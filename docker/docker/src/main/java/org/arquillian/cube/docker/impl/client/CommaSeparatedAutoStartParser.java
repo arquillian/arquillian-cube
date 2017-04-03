@@ -2,7 +2,6 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;

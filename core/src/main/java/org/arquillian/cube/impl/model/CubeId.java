@@ -5,5 +5,4 @@ public interface CubeId {
     String getId();
 
     boolean isMatching(CubeId other);
-
 }

@@ -3,7 +3,6 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.builder.TypedVisitor;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -26,17 +25,18 @@ public class OpenShiftClientCreator {
         System.setProperty("KUBERNETES_TRUST_CERT", "true");
         // override defaults for master and namespace
         final Config config = new ConfigBuilder()
-                .withMasterUrl(configuration.getMasterUrl().toString())
-                .withNamespace(configuration.getNamespace())
-                .withTrustCerts(true)
-                .accept(new TypedVisitor<ConfigBuilder>() {
-                    @Override
-                    public void visit(ConfigBuilder b) {
-                        b.withNoProxy(b.getNoProxy() == null ? new String[0] : b.getNoProxy());
-                    }
-                }).build();
+            .withMasterUrl(configuration.getMasterUrl().toString())
+            .withNamespace(configuration.getNamespace())
+            .withTrustCerts(true)
+            .accept(new TypedVisitor<ConfigBuilder>() {
+                @Override
+                public void visit(ConfigBuilder b) {
+                    b.withNoProxy(b.getNoProxy() == null ? new String[0] : b.getNoProxy());
+                }
+            }).build();
 
-        openShiftClientProducer.set(createClient(config, configuration.getNamespace(), configuration.shouldKeepAliveGitServer()));
+        openShiftClientProducer.set(
+            createClient(config, configuration.getNamespace(), configuration.shouldKeepAliveGitServer()));
     }
 
     public void clean(@Observes AfterSuite event, OpenShiftClient client) throws Exception {

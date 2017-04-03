@@ -1,7 +1,6 @@
 package org.arquillian.cube.impl.client.container;
 
 import java.util.List;
-
 import org.arquillian.cube.ChangeLog;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.TopContainer;
@@ -68,16 +67,18 @@ public class CubeRemoteCommandObserver {
 
     public void getCubeID(@Observes CubeIDCommand command) {
         Container container = containerInst.get();
-        if(container == null) {
+        if (container == null) {
             throw new IllegalStateException("No Container found in context, can't perform CubeID injection");
         }
         CubeRegistry cubeRegistry = cubeRegistryInst.get();
-        if(cubeRegistry == null) {
+        if (cubeRegistry == null) {
             throw new IllegalStateException("No CubeRegistry found in context, can't perform CubeID injection");
         }
         Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
-        if(cube == null) {
-            throw new IllegalStateException(String.format("No Cube found mapped to current Container[%s] with CubeID[%s]", container.getName(), ContainerUtil.getCubeIDForContainer(container)));
+        if (cube == null) {
+            throw new IllegalStateException(
+                String.format("No Cube found mapped to current Container[%s] with CubeID[%s]", container.getName(),
+                    ContainerUtil.getCubeIDForContainer(container)));
         }
         command.setResult(cube.getId());
     }

@@ -12,10 +12,8 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.openshift.api.model.Build;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.arquillian.cube.spi.Binding;
 
 public final class ResourceUtil {
@@ -27,29 +25,32 @@ public final class ResourceUtil {
             @Override
             public void eventReceived(Action action, Pod pod) {
                 switch (action) {
-                case ADDED:
-                case MODIFIED:
-                    if (pod.getStatus() != null && isRunning(pod.getStatus().getPhase()) && isReady(pod.getStatus())) {
+                    case ADDED:
+                    case MODIFIED:
+                        if (pod.getStatus() != null && isRunning(pod.getStatus().getPhase()) && isReady(
+                            pod.getStatus())) {
+                            holder.compareAndSet(null, pod);
+                            latch.countDown();
+                        }
+                        break;
+                    case DELETED:
+                    case ERROR:
+                        System.err.println("Unexpected action waiting for pod to start: " + action);
                         holder.compareAndSet(null, pod);
                         latch.countDown();
-                    }
-                    break;
-                case DELETED:
-                case ERROR:
-                    System.err.println("Unexpected action waiting for pod to start: " + action);
-                    holder.compareAndSet(null, pod);
-                    latch.countDown();
                 }
             }
 
             @Override
             public void onClose(KubernetesClientException cause) {
             }
-            
         };
 
         System.out.print("waiting for pod " + resource.getMetadata().getName() + " ");
-        Watch watch = kubernetes.pods().inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).watch(watcher);
+        Watch watch = kubernetes.pods()
+            .inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName())
+            .watch(watcher);
         //TODO: use timeout
         latch.await();
         watch.close();
@@ -66,43 +67,48 @@ public final class ResourceUtil {
         return true;
     }
 
-    public static Build waitForComplete(io.fabric8.openshift.client.OpenShiftClient kubernetes, Build resource) throws Exception {
+    public static Build waitForComplete(io.fabric8.openshift.client.OpenShiftClient kubernetes, Build resource)
+        throws Exception {
         final AtomicReference<Build> holder = new AtomicReference<Build>();
         final CountDownLatch latch = new CountDownLatch(1);
         final Watcher<Build> watcher = new Watcher<Build>() {
             @Override
             public void eventReceived(Action action, Build build) {
                 switch (action) {
-                case ADDED:
-                case MODIFIED:
-                    if (!("New".equals(build.getStatus().getPhase()) || "Pending".equals(build.getStatus().getPhase()) || "Running"
+                    case ADDED:
+                    case MODIFIED:
+                        if (!("New".equals(build.getStatus().getPhase())
+                            || "Pending".equals(build.getStatus().getPhase())
+                            || "Running"
                             .equals(build.getStatus().getPhase()))) {
+                            holder.compareAndSet(null, build);
+                            latch.countDown();
+                        }
+                        break;
+                    case DELETED:
+                    case ERROR:
+                        System.err.println("Unexpected action waiting for pod to start: " + action);
                         holder.compareAndSet(null, build);
                         latch.countDown();
-                    }
-                    break;
-                case DELETED:
-                case ERROR:
-                    System.err.println("Unexpected action waiting for pod to start: " + action);
-                    holder.compareAndSet(null, build);
-                    latch.countDown();
                 }
             }
 
             @Override
             public void onClose(KubernetesClientException cause) {
             }
-            
         };
 
         System.out.print("waiting for build " + resource.getMetadata().getName() + " ");
-        Watch watch = kubernetes.builds().inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).watch(watcher);
+        Watch watch = kubernetes.builds()
+            .inNamespace(resource.getMetadata().getNamespace())
+            .withName(resource.getMetadata().getName())
+            .watch(watcher);
         //TODO: use timeout
         latch.await();
         watch.close();
 
         Build build = holder.get();
-        if(isFailed(build) || !isComplete(build)) {
+        if (isFailed(build) || !isComplete(build)) {
             System.out.println(" failed!");
             throw new RuntimeException("Build " + build.getMetadata().getName() + " failed. See log");
         }
@@ -133,7 +139,7 @@ public final class ResourceUtil {
     public static Binding toBinding(Pod pod) {
         Binding binding = null;
         if (pod.getStatus() != null && pod.getStatus().getHostIP() != null) { // Running
-                                                                              // pod
+            // pod
             binding = new Binding(pod.getStatus().getHostIP());
         } else { // Configured pod
             binding = new Binding(null);
@@ -149,7 +155,7 @@ public final class ResourceUtil {
     public static Binding toBinding(Service pod) {
         Binding binding = null;
         if (pod.getStatus() != null && pod.getSpec().getClusterIP() != null) { // Running
-                                                                              // pod
+            // pod
             binding = new Binding(pod.getSpec().getClusterIP());
         } else { // Configured pod
             binding = new Binding(null);

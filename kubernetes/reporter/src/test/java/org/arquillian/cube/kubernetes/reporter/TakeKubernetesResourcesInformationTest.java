@@ -11,6 +11,10 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.Session;
@@ -39,12 +43,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.*;
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.CONFIGURATION;
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.KUBERNETES_SECTION_NAME;
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.MASTER_URL;
+import static org.arquillian.cube.kubernetes.reporter.KubernetesReportKey.NAMESPACE;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
@@ -53,13 +55,13 @@ import static org.mockito.Mockito.verify;
 public class TakeKubernetesResourcesInformationTest {
 
     private static final KubernetesMockServer server = new KubernetesMockServer();
-/*
-    private static final String TABLE_ENTRY = "TableEntry";
-    private static final String TABLE_HEAD = "tableHead";
-    private static final String TABLE_BODY = "tableBody";
-    private static final String CELLS = "cells";
-    private static final String ROW = "row";
-    private static final String ROWS = "rows";*/
+    /*
+        private static final String TABLE_ENTRY = "TableEntry";
+        private static final String TABLE_HEAD = "tableHead";
+        private static final String TABLE_BODY = "tableBody";
+        private static final String CELLS = "cells";
+        private static final String ROW = "row";
+        private static final String ROWS = "rows";*/
     private static final String TEST_CLASSES = "test-classes/";
     private static final String FILE_NAME = "kubernetes1.json";
     private static final String RELATIVE_PATH = TEST_CLASSES + Configuration.DEFAULT_CONFIG_FILE_NAME;
@@ -78,71 +80,80 @@ public class TakeKubernetesResourcesInformationTest {
     public static void setUpClass() throws IOException {
 
         Pod testPod = new PodBuilder()
-                .withNewMetadata()
-                .withName("test-pod")
-                .endMetadata()
-                .withNewStatus()
-                .withPhase("Running")
-                .endStatus()
-                .build();
+            .withNewMetadata()
+            .withName("test-pod")
+            .endMetadata()
+            .withNewStatus()
+            .withPhase("Running")
+            .endStatus()
+            .build();
 
         Service testService = new ServiceBuilder()
-                .withNewMetadata()
-                .withName("test-service")
-                .endMetadata()
-                .withNewSpec()
-                .withClusterIP("10.0.0.1")
-                .addNewPort()
-                .withPort(8080)
-                .endPort()
-                .endSpec()
-                .build();
+            .withNewMetadata()
+            .withName("test-service")
+            .endMetadata()
+            .withNewSpec()
+            .withClusterIP("10.0.0.1")
+            .addNewPort()
+            .withPort(8080)
+            .endPort()
+            .endSpec()
+            .build();
 
         ReplicationController testController = new ReplicationControllerBuilder()
-                .withNewMetadata()
-                .withName("test-controller")
-                .endMetadata()
-                .withNewSpec()
-                .addToSelector("name", "somelabel")
-                .withReplicas(1)
-                .withNewTemplate()
-                .withNewMetadata()
-                .addToLabels("name", "somelabel")
-                .endMetadata()
-                .withNewSpec()
-                .addNewContainer()
-                .withName("test-container2")
-                .withImage("test/image2")
-                .endContainer()
-                .endSpec()
-                .endTemplate()
-                .endSpec()
-                .build();
-
+            .withNewMetadata()
+            .withName("test-controller")
+            .endMetadata()
+            .withNewSpec()
+            .addToSelector("name", "somelabel")
+            .withReplicas(1)
+            .withNewTemplate()
+            .withNewMetadata()
+            .addToLabels("name", "somelabel")
+            .endMetadata()
+            .withNewSpec()
+            .addNewContainer()
+            .withName("test-container2")
+            .withImage("test/image2")
+            .endContainer()
+            .endSpec()
+            .endTemplate()
+            .endSpec()
+            .build();
 
         server.expect().get().withPath("/api/v1/namespaces/arquillian").andReturn(200, new NamespaceBuilder()
-                .withNewMetadata()
-                .withName("arquillian")
-                .and().build()).always();
-
+            .withNewMetadata()
+            .withName("arquillian")
+            .and().build()).always();
 
         //test-controller
-        server.expect().get().withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller").andReturn(200, testController).always();
-        server.expect().get().withPath("/api/v1/namespaces/arquillian/replicationcontrollers").andReturn(200, new ReplicationControllerListBuilder()
+        server.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller")
+            .andReturn(200, testController)
+            .always();
+        server.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/replicationcontrollers")
+            .andReturn(200, new ReplicationControllerListBuilder()
                 .withItems(testController).build())
-                .always();
+            .always();
 
         //test-pod
         server.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(200, testPod).always();
         server.expect().get().withPath("/api/v1/namespaces/arquillian/pods").andReturn(200, new PodListBuilder()
-                .withItems(testPod)
-                .build()).always();
+            .withItems(testPod)
+            .build()).always();
 
         //test-service
-        server.expect().get().withPath("/api/v1/namespaces/arquillian/services/test-service").andReturn(200, testService).always();
+        server.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/services/test-service")
+            .andReturn(200, testService)
+            .always();
         server.expect().get().withPath("/api/v1/namespaces/arquillian/services").andReturn(200, new ServiceListBuilder()
-                .withItems(testService)
-                .build()).always();
+            .withItems(testService)
+            .build()).always();
     }
 
     @Before
@@ -159,7 +170,8 @@ public class TakeKubernetesResourcesInformationTest {
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
+            configuration, getReporterConfiguration());
 
         //then
         verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
@@ -170,9 +182,9 @@ public class TakeKubernetesResourcesInformationTest {
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(CONFIGURATION)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new FileEntry(TEST_CLASSES + FILE_NAME));
+            .hasName(CONFIGURATION)
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(new FileEntry(TEST_CLASSES + FILE_NAME));
     }
 
     @Test
@@ -184,7 +196,8 @@ public class TakeKubernetesResourcesInformationTest {
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
+            configuration, getReporterConfiguration());
 
         //then
         verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
@@ -195,13 +208,14 @@ public class TakeKubernetesResourcesInformationTest {
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(CONFIGURATION)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new FileEntry(RELATIVE_PATH));
+            .hasName(CONFIGURATION)
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(new FileEntry(RELATIVE_PATH));
     }
 
     @Test
-    public void should_report_environment_dependencies_from_http_url_and_configuration_from_default_location() throws IOException {
+    public void should_report_environment_dependencies_from_http_url_and_configuration_from_default_location()
+        throws IOException {
         //given
         String resourceName = SERVICE_PATH + " " + REPLICATION_CONTROLLER_PATH;
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resourceName));
@@ -210,7 +224,8 @@ public class TakeKubernetesResourcesInformationTest {
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
+            configuration, getReporterConfiguration());
 
         //then
         verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
@@ -221,16 +236,17 @@ public class TakeKubernetesResourcesInformationTest {
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(CONFIGURATION)
-                .hasNumberOfEntries(3)
-                .hasEntriesContaining(
-                        new FileEntry(RELATIVE_PATH),
-                        new FileEntry(SERVICE_PATH),
-                        new FileEntry(REPLICATION_CONTROLLER_PATH));
+            .hasName(CONFIGURATION)
+            .hasNumberOfEntries(3)
+            .hasEntriesContaining(
+                new FileEntry(RELATIVE_PATH),
+                new FileEntry(SERVICE_PATH),
+                new FileEntry(REPLICATION_CONTROLLER_PATH));
     }
 
     @Test
-    public void should_report_environment_dependencies_from_file_url_and_configuration_from_default_location() throws IOException {
+    public void should_report_environment_dependencies_from_file_url_and_configuration_from_default_location()
+        throws IOException {
         //given
         String resouceName = getResourceURL(SERVICES_FILE_NAME) + " " + getResourceURL(REPLICATION_CONTROLLER_FILE_NAME);
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resouceName));
@@ -239,7 +255,8 @@ public class TakeKubernetesResourcesInformationTest {
         takeKubernetesResourcesInformation.dependencyResolver = (() -> new ShrinkwrapResolver("pom.xml", false));
 
         //when
-        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)), configuration, getReporterConfiguration());
+        takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
+            configuration, getReporterConfiguration());
 
         //then
         verify(sectionEvent).fire(reportEventArgumentCaptor.capture());
@@ -251,12 +268,12 @@ public class TakeKubernetesResourcesInformationTest {
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(CONFIGURATION)
-                .hasNumberOfEntries(3)
-                .hasEntriesContaining(
-                        new FileEntry(RELATIVE_PATH),
-                        new FileEntry(TEST_CLASSES + SERVICES_FILE_NAME),
-                        new FileEntry(TEST_CLASSES + REPLICATION_CONTROLLER_FILE_NAME));
+            .hasName(CONFIGURATION)
+            .hasNumberOfEntries(3)
+            .hasEntriesContaining(
+                new FileEntry(RELATIVE_PATH),
+                new FileEntry(TEST_CLASSES + SERVICES_FILE_NAME),
+                new FileEntry(TEST_CLASSES + REPLICATION_CONTROLLER_FILE_NAME));
     }
 
     @Test
@@ -273,11 +290,11 @@ public class TakeKubernetesResourcesInformationTest {
         assertThatSection(sectionEvent).hasSectionId("k8s").hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         assertThatReport(sectionEvent.getReport())
-                .hasNumberOfEntries(2);
+            .hasNumberOfEntries(2);
 
         assertThatReport(report).hasEntriesContaining(
-                new KeyValueEntry(NAMESPACE, "arquillian"),
-                new KeyValueEntry(MASTER_URL, masterURL));
+            new KeyValueEntry(NAMESPACE, "arquillian"),
+            new KeyValueEntry(MASTER_URL, masterURL));
     }
 
     /*@Test
@@ -359,8 +376,8 @@ public class TakeKubernetesResourcesInformationTest {
         assertThatSection(sectionEvent).hasSectionId("k8s").hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         assertThatReport(sectionEvent.getReport())
-                .hasName(name)
-                .hasNumberOfEntries(0).hasNumberOfSubReports(1);
+            .hasName(name)
+            .hasNumberOfEntries(0).hasNumberOfSubReports(1);
     }
 
     private TakeKubernetesResourcesInformation configureTakeKubernetesInformation() {
@@ -368,7 +385,8 @@ public class TakeKubernetesResourcesInformationTest {
 
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
-        takeKubernetesResourcesInformation.reportSessionStatus(new AfterStart(getDefaultSession(configuration)), server.createClient());
+        takeKubernetesResourcesInformation.reportSessionStatus(new AfterStart(getDefaultSession(configuration)),
+            server.createClient());
 
         return takeKubernetesResourcesInformation;
     }

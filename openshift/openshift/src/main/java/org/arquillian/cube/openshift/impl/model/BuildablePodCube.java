@@ -3,7 +3,17 @@ package org.arquillian.cube.openshift.impl.model;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.Pod;
-
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
@@ -13,19 +23,21 @@ import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeControlException;
-import org.arquillian.cube.spi.event.lifecycle.*;
+import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
+import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
+import org.arquillian.cube.spi.event.lifecycle.AfterStart;
+import org.arquillian.cube.spi.event.lifecycle.AfterStop;
+import org.arquillian.cube.spi.event.lifecycle.BeforeCreate;
+import org.arquillian.cube.spi.event.lifecycle.BeforeDestroy;
+import org.arquillian.cube.spi.event.lifecycle.BeforeStart;
+import org.arquillian.cube.spi.event.lifecycle.BeforeStop;
+import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.arquillian.cube.spi.metadata.CanCopyFromContainer;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.xnio.IoUtils;
-
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.Map.Entry;
 
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.isRunning;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
@@ -182,7 +194,8 @@ public class BuildablePodCube extends BaseCube<Void> {
         private final Map<Integer, PortAddress> mappedPorts;
         private final Set<Integer> containerPorts;
         private PortForwarder portForwarder;
-        private Map<Integer, PortForwarder.PortForwardServer> portForwardServers = new HashMap<Integer, PortForwarder.PortForwardServer>();
+        private Map<Integer, PortForwarder.PortForwardServer> portForwardServers =
+            new HashMap<Integer, PortForwarder.PortForwardServer>();
 
         public PortBindings() {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
@@ -218,7 +231,8 @@ public class BuildablePodCube extends BaseCube<Void> {
                     continue;
                 }
                 proxiedPorts.put(containerPort, mappedPort);
-                mappedPorts.put(containerPort, new PortAddressImpl(getPortForwardBindAddress().getHostAddress(), mappedPort));
+                mappedPorts.put(containerPort,
+                    new PortAddressImpl(getPortForwardBindAddress().getHostAddress(), mappedPort));
             }
 
             this.containerPorts = new LinkedHashSet<Integer>();
@@ -291,7 +305,7 @@ public class BuildablePodCube extends BaseCube<Void> {
 
         private synchronized void podStarted() throws Exception {
             if (holder.getPod() != null && holder.getPod().getSpec() != null
-                    && holder.getPod().getSpec().getContainers() != null) {
+                && holder.getPod().getSpec().getContainers() != null) {
                 for (Container container : holder.getPod().getSpec().getContainers()) {
                     for (ContainerPort containerPort : container.getPorts()) {
                         if (containerPort.getContainerPort() == null) {
@@ -322,10 +336,11 @@ public class BuildablePodCube extends BaseCube<Void> {
             try {
                 portForwarder.setPortForwardBindAddress(getPortForwardBindAddress());
                 for (Entry<Integer, Integer> mappedPort : proxiedPorts.entrySet()) {
-                    PortForwarder.PortForwardServer server = portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
+                    PortForwarder.PortForwardServer server =
+                        portForwarder.forwardPort(mappedPort.getValue(), mappedPort.getKey());
                     portForwardServers.put(mappedPort.getKey(), server);
                     System.out.println(String.format("Forwarding port %s for %s:%d", server.getLocalAddress(),
-                            getContainerIP(), mappedPort.getKey()));
+                        getContainerIP(), mappedPort.getKey()));
                 }
             } catch (Throwable t) {
                 IoUtils.safeClose(portForwarder);

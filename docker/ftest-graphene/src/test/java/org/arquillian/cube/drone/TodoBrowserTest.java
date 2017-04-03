@@ -19,5 +19,4 @@ public class TodoBrowserTest {
     public void shouldShowHelloWorld(@InitialPage HomePage homePage) {
         homePage.assertOnWelcomePage();
     }
-
 }

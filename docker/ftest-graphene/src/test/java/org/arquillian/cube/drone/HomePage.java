@@ -14,7 +14,6 @@ public class HomePage {
 
     public void assertOnWelcomePage() {
         assertThat(this.welcomeMessageElement.getText().trim())
-                .isEqualTo("Hello world!");
+            .isEqualTo("Hello world!");
     }
-
 }

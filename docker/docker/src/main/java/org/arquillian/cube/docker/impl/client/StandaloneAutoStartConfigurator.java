@@ -14,7 +14,7 @@ public class StandaloneAutoStartConfigurator {
     }
 
     private AutoStartParser resolveNotSetAutoStart(DockerCompositions dockerCompositions) {
-        return new RegularExpressionAutoStartParser(RegularExpressionAutoStartParser.REGULAR_EXPRESSION_PREFIX + ".*", dockerCompositions);
+        return new RegularExpressionAutoStartParser(RegularExpressionAutoStartParser.REGULAR_EXPRESSION_PREFIX + ".*",
+            dockerCompositions);
     }
-
 }
