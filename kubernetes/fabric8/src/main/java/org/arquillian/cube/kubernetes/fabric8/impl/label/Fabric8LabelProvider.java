@@ -35,7 +35,7 @@ public class Fabric8LabelProvider implements LabelProvider {
         return delegate;
     }
 
-    private static class ImmutableFabric8LabelProvider implements LabelProvider {
+    public static class ImmutableFabric8LabelProvider implements LabelProvider {
 
         private final KubernetesClient client;
 

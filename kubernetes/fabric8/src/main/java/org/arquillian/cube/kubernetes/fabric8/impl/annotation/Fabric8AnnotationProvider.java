@@ -51,7 +51,7 @@ public class Fabric8AnnotationProvider implements AnnotationProvider {
         return toImmutable().create(sessionId, status);
     }
 
-    private static class ImmutableFabric8AnnotationProvider implements AnnotationProvider {
+    public static class ImmutableFabric8AnnotationProvider implements AnnotationProvider {
 
         private final Logger logger;
 
