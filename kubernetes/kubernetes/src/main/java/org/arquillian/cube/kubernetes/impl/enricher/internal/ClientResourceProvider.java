@@ -1,18 +1,21 @@
-package org.arquillian.cube.kubernetes.impl.enricher;
+package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
-import java.lang.annotation.Annotation;
+import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
+import java.lang.annotation.Annotation;
+
+import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
+
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.client.KubernetesClient}.
+ * A {@link ResourceProvider} for {@link KubernetesClient}.
  */
 public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return type.isAssignableFrom(KubernetesClient.class);
+        return KubernetesClient.class.isAssignableFrom(type);
     }
 
     @Override
@@ -22,7 +25,7 @@ public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
         if (client == null) {
             throw new IllegalStateException("Unable to inject Kubernetes client into test.");
         }
-
         return client;
     }
+
 }

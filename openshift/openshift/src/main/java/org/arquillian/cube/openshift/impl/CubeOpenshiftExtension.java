@@ -16,9 +16,9 @@ import org.arquillian.cube.openshift.impl.client.CubeOpenShiftRegistrar;
 import org.arquillian.cube.openshift.impl.client.CubeOpenshiftConfigurationFactory;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClientCreator;
 import org.arquillian.cube.openshift.impl.client.OpenShiftSuiteLifecycleController;
-import org.arquillian.cube.openshift.impl.enricher.DeploymentConfigListResourceProvider;
-import org.arquillian.cube.openshift.impl.enricher.DeploymentConfigResourceProvider;
-import org.arquillian.cube.openshift.impl.enricher.OpenshiftClientResourceProvider;
+import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigListResourceProvider;
+import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigResourceProvider;
+import org.arquillian.cube.openshift.impl.enricher.internal.OpenshiftClientResourceProvider;
 import org.arquillian.cube.openshift.impl.feedback.OpenshiftFeedbackProvider;
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
@@ -34,9 +34,16 @@ public class CubeOpenshiftExtension implements LoadableExtension {
             .observer(CubeOpenShiftRegistrar.class)
             .observer(OpenShiftSuiteLifecycleController.class)
 
+            //internal
             .service(ResourceProvider.class, OpenshiftClientResourceProvider.class)
             .service(ResourceProvider.class, DeploymentConfigResourceProvider.class)
             .service(ResourceProvider.class, DeploymentConfigListResourceProvider.class)
+
+            //External
+            .service(ResourceProvider.class, org.arquillian.cube.openshift.impl.enricher.external.OpenshiftClientResourceProvider.class)
+            .service(ResourceProvider.class, org.arquillian.cube.openshift.impl.enricher.external.DeploymentConfigResourceProvider.class)
+            .service(ResourceProvider.class, org.arquillian.cube.openshift.impl.enricher.external.DeploymentConfigListResourceProvider.class)
+
 
             .override(ConfigurationFactory.class, DefaultConfigurationFactory.class,
                 CubeOpenshiftConfigurationFactory.class)

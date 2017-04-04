@@ -1,21 +1,21 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.KubernetesResource;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.api.model.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.BuildRequest;
-import io.fabric8.openshift.api.model.BuildRequestBuilder;
-import io.fabric8.openshift.api.model.ImageStream;
-import io.fabric8.openshift.api.model.ImageStreamBuilder;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
-import io.fabric8.openshift.client.NamespacedOpenShiftClient;
+import io.fabric8.kubernetes.api.model.v2_2.HasMetadata;
+import io.fabric8.kubernetes.api.model.v2_2.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.KubernetesResource;
+import io.fabric8.kubernetes.api.model.v2_2.Pod;
+import io.fabric8.kubernetes.api.model.v2_2.PodBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.Service;
+import io.fabric8.kubernetes.clnt.v2_2.Config;
+import io.fabric8.openshift.api.model.v2_2.Build;
+import io.fabric8.openshift.api.model.v2_2.BuildConfig;
+import io.fabric8.openshift.api.model.v2_2.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.v2_2.BuildRequest;
+import io.fabric8.openshift.api.model.v2_2.BuildRequestBuilder;
+import io.fabric8.openshift.api.model.v2_2.ImageStream;
+import io.fabric8.openshift.api.model.v2_2.ImageStreamBuilder;
+import io.fabric8.openshift.clnt.v2_2.DefaultOpenShiftClient;
+import io.fabric8.openshift.clnt.v2_2.NamespacedOpenShiftClient;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -195,7 +195,7 @@ public class OpenShiftClient {
         return kubernetes;
     }
 
-    public io.fabric8.openshift.client.OpenShiftClient getClientExt() {
+    public io.fabric8.openshift.clnt.v2_2.OpenShiftClient getClientExt() {
         return kubernetes;
     }
 

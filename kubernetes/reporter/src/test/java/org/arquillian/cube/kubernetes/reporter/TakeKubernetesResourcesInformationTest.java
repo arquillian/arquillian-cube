@@ -1,16 +1,16 @@
 package org.arquillian.cube.kubernetes.reporter;
 
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.PodListBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerBuilder;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceListBuilder;
-import io.fabric8.kubernetes.server.mock.KubernetesMockServer;
+import io.fabric8.kubernetes.api.model.v2_2.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.Pod;
+import io.fabric8.kubernetes.api.model.v2_2.PodBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.PodListBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.ReplicationController;
+import io.fabric8.kubernetes.api.model.v2_2.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.ReplicationControllerListBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.Service;
+import io.fabric8.kubernetes.api.model.v2_2.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.v2_2.ServiceListBuilder;
+import io.fabric8.kubernetes.clnt.v2_2.server.mock.KubernetesMockServer;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
