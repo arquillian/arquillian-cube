@@ -8,7 +8,15 @@ import org.arquillian.spacelift.execution.ExecutionException;
 
 public class DockerMachineRequirement implements Requirement<RequiresDockerMachine> {
 
-    private final CommandLineExecutor commandLineExecutor = new CommandLineExecutor();
+    private final CommandLineExecutor commandLineExecutor;
+
+    public DockerMachineRequirement() {
+        commandLineExecutor = new CommandLineExecutor();
+    }
+
+    public DockerMachineRequirement(CommandLineExecutor commandLineExecutor) {
+        this.commandLineExecutor = commandLineExecutor;
+    }
 
     @Override
     public void check(RequiresDockerMachine context) throws UnsatisfiedRequirementException {
