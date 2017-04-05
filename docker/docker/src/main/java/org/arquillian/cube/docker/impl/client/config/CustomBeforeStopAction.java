@@ -11,5 +11,4 @@ public class CustomBeforeStopAction {
     public void setStrategy(String strategy) {
         this.strategy = strategy;
     }
-
 }
