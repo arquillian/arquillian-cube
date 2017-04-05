@@ -226,6 +226,14 @@ public class CubeDockerConfigurationResolver {
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
 
+        if (scheme.equals(HTTP_SCHEME)) {
+            config.remove(CubeDockerConfiguration.TLS_VERIFY);
+        }
+
+        if (scheme.equals(HTTPS_SCHEME)) {
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
+        }
+
         if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME) || scheme.equals(TCP_SCHEME)) {
             if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
                 config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
