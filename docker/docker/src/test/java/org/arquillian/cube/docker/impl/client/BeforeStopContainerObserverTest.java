@@ -51,6 +51,14 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
             "    - log:\n" +
             "        to: ";
 
+
+    private static final String CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION =
+        "tomcat_default:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  beforeStop:\n" +
+            "    - customBeforeStopAction:\n" +
+            "        strategy: org.arquillian.cube.docker.impl.util.CustomBeforeStopActionImplementation";
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -114,4 +122,15 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         verify(dockerClientExecutor, times(1)).copyLog(eq(CUBE_CONTAINER_NAME), eq(false), eq(false), eq(false),
             eq(false), eq(-1), any(OutputStream.class));
     }
+
+    @Test
+    public void shouldExecuteCustomBeforeStopOperationForContainer() throws IOException {
+        DockerCompositions configuration = ConfigUtil.load(CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION);
+        CubeContainer config = configuration.get("tomcat_default");
+        Mockito.when(cube.configuration()).thenReturn(config);
+        fire(new BeforeStop(CUBE_CONTAINER_NAME));
+        verify(dockerClientExecutor, times(1)).getDockerUri();
+    }
+
 }
+
