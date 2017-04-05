@@ -1959,7 +1959,8 @@ run. This assumes you are not changing the actual definition of the <em>Docker</
 <h3 id="_before_stop_events"><a class="anchor" href="#_before_stop_events"></a>6.6. Before Stop Events</h3>
 <div class="paragraph">
 <p>Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
-In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.</p>
+In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.
+Or if your need is more specific, you can provide a custom implementation</p>
 </div>
 <div class="paragraph">
 <p>Next snippet shows how to copy a directory from container to local disk:</p>
@@ -1974,7 +1975,10 @@ In these cases you can configure each container to copy console log or copy a fi
         to: /tmp</span></span>
 
     - <span class="string"><span class="content">log: </span><span class="content"><i class="conum" data-value="3"></i><b>(3)</b>
-        to: /tmp/container.log</span></span></code></pre>
+        to: /tmp/container.log</span></span>
+
+    - <span class="string"><span class="content">customBeforeStopAction: </span><span class="content"><i class="conum" data-value="4"></i><b>(4)</b>
+        strategy: &lt;fullyqualifiedclassname&gt;</span></span></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1990,6 +1994,13 @@ In these cases you can configure each container to copy console log or copy a fi
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
 <td>log is used to notify that we want to copy container log to to local location.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>customBeforeStopAction is used to notify that we provide our own implementation of a stop action. There are
+two rules to follow. The first is that the class must implement 'BeforeStopAction' and the second one is that the class must have a default constructor.
+Optionally fields/setters for types 'DockerClientExecutor' and 'String' for containerId can be used to inject them into
+the custom beforeStop action</td>
 </tr>
 </table>
 </div>
@@ -2008,6 +2019,41 @@ log <em>Docker</em> command can receive some configuration paramters and you can
     <span class="key">stderr</span>: <span class="string"><span class="content">false</span></span>
     <span class="key">timestamps</span>: <span class="string"><span class="content">true</span></span>
     <span class="key">tail</span>: <span class="string"><span class="content">10</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Custom BeforeStop action:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.arquillian.cube.docker.impl.beforeStop</span>;
+
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.docker.impl.docker.DockerClientExecutor</span>;
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.spi.beforeStop.BeforeStopAction</span>;
+
+<span class="directive">public</span> <span class="type">class</span> <span class="class">CustomBeforeStopActionImpl</span> <span class="directive">implements</span> BeforeStopAction {
+
+    <span class="directive">private</span> DockerClientExecutor dockerClientExecutor;
+    <span class="directive">private</span> <span class="predefined-type">String</span> containerID;
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> doBeforeStop() {
+
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and the configuration comes as:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example.yml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">beforeStop</span>:
+    - <span class="string"><span class="content">customBeforeStopAction:</span><span class="content">
+        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl</span></span></code></pre>
 </div>
 </div>
 </div>
@@ -5664,7 +5710,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-03 17:42:47 UTC
+Last updated 2017-04-05 12:18:26 UTC
 </div>
 </div>
 </body>
