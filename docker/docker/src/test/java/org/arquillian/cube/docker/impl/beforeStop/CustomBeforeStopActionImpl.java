@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.impl.beforeStop;
 
-import java.net.URI;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 
