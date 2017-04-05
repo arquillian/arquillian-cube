@@ -33,7 +33,7 @@ public class DefaultLabelProvider implements LabelProvider {
         return delegate;
     }
 
-    private static class ImmutableLabelProvider implements LabelProvider {
+    public static class ImmutableLabelProvider implements LabelProvider {
 
         private final KubernetesClient client;
 
