@@ -30,6 +30,7 @@ public class CubeDockerConfigurationResolver {
     private static final String TCP_SCHEME = "tcp";
     private static final String HTTP_SCHEME = "http";
     private static final String HTTPS_SCHEME = "https";
+    private static final String DOCKER_TLS_VERIFY = "DOCKER_TLS_VERIFY";
     private static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
     private static final String DOCKER_MACHINE_NAME = "DOCKER_MACHINE_NAME";
     private static Random random = new Random();
@@ -187,6 +188,11 @@ public class CubeDockerConfigurationResolver {
             String dockerMachineName = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME);
             config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, dockerMachineName);
         }
+
+        if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY) && isDockerTlsVerifySet()) {
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.TRUE.toString());
+        }
+
         return config;
     }
 
@@ -221,7 +227,9 @@ public class CubeDockerConfigurationResolver {
         String scheme = serverUri.getScheme();
 
         if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME) || scheme.equals(TCP_SCHEME)) {
-            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
+            if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
+                config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
+            }
 
             try {
                 // docker-java supports only tcp and unix schemes
@@ -276,6 +284,10 @@ public class CubeDockerConfigurationResolver {
 
     private boolean isDockerCertPathSet() {
         return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH));
+    }
+
+    private boolean isDockerTlsVerifySet() {
+        return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_TLS_VERIFY));
     }
 
     private boolean isDockerMachineNameSet() {
