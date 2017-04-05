@@ -51,13 +51,12 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
             "    - log:\n" +
             "        to: ";
 
-
     private static final String CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION =
         "tomcat_default:\n" +
             "  image: tutum/tomcat:7.0\n" +
             "  beforeStop:\n" +
             "    - customBeforeStopAction:\n" +
-            "        strategy: org.arquillian.cube.docker.impl.util.CustomBeforeStopActionImplementation";
+            "        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl";
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -131,6 +130,5 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         fire(new BeforeStop(CUBE_CONTAINER_NAME));
         verify(dockerClientExecutor, times(1)).getDockerUri();
     }
-
 }
 
