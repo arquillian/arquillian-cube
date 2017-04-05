@@ -6,7 +6,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import org.arquillian.cube.docker.impl.client.config.CustomBeforeStopAction;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
@@ -16,7 +15,8 @@ public class CustomBeforeStopActionInstantiator implements BeforeStopAction {
     private DockerClientExecutor dockerClientExecutor;
     private CustomBeforeStopAction customBeforeStopAction;
 
-    public CustomBeforeStopActionInstantiator(String containerId, DockerClientExecutor dockerClientExecutor, CustomBeforeStopAction customBeforeStopAction) {
+    public CustomBeforeStopActionInstantiator(String containerId, DockerClientExecutor dockerClientExecutor,
+        CustomBeforeStopAction customBeforeStopAction) {
         this.containerId = containerId;
         this.dockerClientExecutor = dockerClientExecutor;
         this.customBeforeStopAction = customBeforeStopAction;
@@ -28,7 +28,8 @@ public class CustomBeforeStopActionInstantiator implements BeforeStopAction {
         try {
 
             String classname = customBeforeStopAction.getStrategy();
-            Class<? extends BeforeStopAction> customStrategy = (Class<? extends BeforeStopAction>) Class.forName(classname);
+            Class<? extends BeforeStopAction> customStrategy =
+                (Class<? extends BeforeStopAction>) Class.forName(classname);
             BeforeStopAction customStrategyInstance = customStrategy.newInstance();
 
             // Inject if there is a field of type Cube, DockerClientExecutor
@@ -43,7 +44,8 @@ public class CustomBeforeStopActionInstantiator implements BeforeStopAction {
                 }
             }
 
-            for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(customStrategyInstance.getClass()).getPropertyDescriptors()) {
+            for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(customStrategyInstance.getClass())
+                .getPropertyDescriptors()) {
                 final Method writeMethod = propertyDescriptor.getWriteMethod();
                 if (writeMethod != null) {
                     if (writeMethod.getParameterTypes()[0].isAssignableFrom(String.class)) {
