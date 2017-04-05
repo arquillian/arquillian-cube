@@ -462,6 +462,7 @@ STARTORCONNECTANDLEAVE:: it is exactly the same of _STARTORCONNECT_ but if conta
 
 Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
 In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.
+Or if your need is more specific, you can provide a custom implementation
 
 Next snippet shows how to copy a directory from container to local disk:
 
@@ -476,10 +477,18 @@ tomcat_default:
 
     - log: # <3>
         to: /tmp/container.log
+
+    - customBeforeStopAction: # <4>
+        strategy: <fullyqualifiedclassname>
 ----
 <1> +beforeStop+ goes into the container section and may contain a list of +copy+ and +log+ elements.
 <2> +copy+ is used to notify that we want to copy some directories or files form +from+ container location to +to+ local location.
 <3> +log+ is used to notify that we want to copy container log to +to+ local location.
+<4> +customBeforeStopAction+ is used to notify that we provide our own implementation of a stop action. There are
+two rules to follow. The first is that the class must implement 'BeforeStopAction' and the second one is that the class must have a default constructor.
+Optionally fields/setters for types 'DockerClientExecutor' and 'String' for containerId can be used to inject them into
+the custom beforeStop action
+
 
 In case of +log+ command the standard output and the error output are returned.
 +log+ _Docker_ command can receive some configuration paramters and you can set them too in configuration file.
@@ -496,6 +505,41 @@ beforeStop:
     timestamps: true
     tail: 10
 ----
+
+
+Custom BeforeStop action:
+
+[source, java]
+----
+package org.arquillian.cube.docker.impl.beforeStop;
+
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
+
+public class CustomBeforeStopActionImpl implements BeforeStopAction {
+
+    private DockerClientExecutor dockerClientExecutor;
+    private String containerID;
+
+    @Override
+    public void doBeforeStop() {
+
+    }
+}
+----
+
+and the configuration comes as:
+
+[source, yaml]
+.Example.yml
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  beforeStop:
+    - customBeforeStopAction:
+        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl
+----
+
 
 === CubeSpecificProperties
 
