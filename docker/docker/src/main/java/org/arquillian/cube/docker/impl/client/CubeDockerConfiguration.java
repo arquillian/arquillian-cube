@@ -42,6 +42,7 @@ public class CubeDockerConfiguration {
     private static final String EMAIL = "email";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
+    private static final String IGNORE_CONTAINERS_DEFINITION = "ignoreContainersDefinition";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
@@ -63,6 +64,8 @@ public class CubeDockerConfiguration {
     private boolean clean = false;
     private boolean removeVolumes = true;
     private boolean cleanBuildImage = true;
+    private boolean ignoreContainersDefinition = false;
+
     private AutoStartParser autoStartContainers = null;
     private DockerAutoStartOrder dockerAutoStartOrder = null;
 
@@ -123,18 +126,22 @@ public class CubeDockerConfiguration {
             cubeConfiguration.dockerRegistry = map.get(DOCKER_REGISTRY);
         }
 
+        if (map.containsKey(IGNORE_CONTAINERS_DEFINITION)) {
+            cubeConfiguration.ignoreContainersDefinition = Boolean.parseBoolean(map.get(IGNORE_CONTAINERS_DEFINITION));
+        }
+
         if (map.containsKey(DEFINITION_FORMAT)) {
             String definitionContent = map.get(DEFINITION_FORMAT);
             cubeConfiguration.definitionFormat = DefinitionFormat.valueOf(DefinitionFormat.class, definitionContent);
         }
 
-        if (map.containsKey(DOCKER_CONTAINERS)) {
+        if (map.containsKey(DOCKER_CONTAINERS) && !cubeConfiguration.ignoreContainersDefinition) {
             String content = map.get(DOCKER_CONTAINERS);
             cubeConfiguration.dockerContainersContent =
                 DockerContainerDefinitionParser.convert(content, cubeConfiguration.definitionFormat);
         }
 
-        if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
+        if (map.containsKey(DOCKER_CONTAINERS_FILE) && !cubeConfiguration.ignoreContainersDefinition) {
             final String location = map.get(DOCKER_CONTAINERS_FILE);
             final List<URI> resolveUri = new ArrayList<>();
             try {
@@ -156,7 +163,7 @@ public class CubeDockerConfiguration {
             }
         }
 
-        if (map.containsKey(DOCKER_CONTAINERS_FILES)) {
+        if (map.containsKey(DOCKER_CONTAINERS_FILES) && !cubeConfiguration.ignoreContainersDefinition) {
 
             String locations = map.get(DOCKER_CONTAINERS_FILES);
             List<URI> realLocations = getUris(locations);
@@ -169,8 +176,8 @@ public class CubeDockerConfiguration {
             }
         }
 
-        if (!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(
-            DOCKER_CONTAINERS_FILES)) {
+        if ( !map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(
+            DOCKER_CONTAINERS_FILES) && !cubeConfiguration.ignoreContainersDefinition) {
             try {
                 cubeConfiguration.dockerContainersContent =
                     DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);
