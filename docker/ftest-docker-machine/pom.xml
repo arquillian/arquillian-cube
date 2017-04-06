@@ -1,16 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.1.0</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Machine</name>
   <artifactId>arquillian-cube-docker-ftest-machine</artifactId>
 
   <properties>
-    <arquillian.cube.autostart/>
+    <arquillian.cube.autostart />
     <version.javaee_7>1.0.1.Final</version.javaee_7>
     <version.tomcat>1.0.0.CR7</version.tomcat>
     <docker.api.version>1.12</docker.api.version>

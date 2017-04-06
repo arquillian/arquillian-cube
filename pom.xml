@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
     <version>22</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <!-- Model Version -->
@@ -16,7 +15,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-parent</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.1.0</version>
   <packaging>pom</packaging>
 
   <name>Arquillian Cube Extension</name>
@@ -55,7 +54,7 @@
     <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
     <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
     <url>git://github.com/arquillian/arquillian-cube.git</url>
-    <tag>HEAD</tag>
+    <tag>1.1.0</tag>
   </scm>
 
   <issueManagement>
