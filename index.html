@@ -1367,6 +1367,10 @@ Let&#8217;s see valid attributes:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">connectionMode</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. <em>STARTANDSTOP</em> which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. <em>STARTORCONNECT</em> mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is <em>STARTORCONNECTANDLEAVE</em> which is exactly the same of <em>STARTORCONNECT</em> but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions. <strong>This is a Cube property, not a Docker one</strong>, thus it should be inside a &lt;extension qualifier="cube"&gt; tag. See <a href="#allow-connecting-to-a-running-container">here</a> for an example.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ignoreContainersDefinition</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you set to true then Arquillian Cube will ignore definitions set in <code>dockerContainers</code>, <code>dockerContainersFile</code> and <code>dockerContainersFiles</code> as well as default locations. By default is set to false.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -5710,7 +5714,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-05 12:18:26 UTC
+Last updated 2017-04-06 09:45:14 UTC
 </div>
 </div>
 </body>
