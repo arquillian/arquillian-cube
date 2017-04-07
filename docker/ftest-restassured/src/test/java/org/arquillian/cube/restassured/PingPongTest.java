@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import java.net.MalformedURLException;
 import org.arquillian.cube.DockerUrl;
+import org.arquillian.cube.HealthCheck;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -14,6 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@HealthCheck
 public class PingPongTest {
 
     @DockerUrl(containerName = "helloworld", exposedPort = 8080)

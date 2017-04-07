@@ -5,7 +5,7 @@ import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
 
-    private static final int DEFAULT_SLEEP_TIME = 500;
+    private static final int DEFAULT_SLEEP_TIME = 250;
 
     private int sleepTime;
 
