@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.beforeStop;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.model.CubeId;
 import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 
 /**
@@ -10,7 +11,7 @@ import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 public class CustomBeforeStopActionImpl implements BeforeStopAction {
 
     private DockerClientExecutor dockerClientExecutor;
-    private String containerID;
+    private CubeId containerID;
 
     @Override
     public void doBeforeStop() {

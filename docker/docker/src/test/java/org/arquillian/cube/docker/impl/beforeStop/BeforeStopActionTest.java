@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.beforeStop;
 import org.arquillian.cube.docker.impl.client.config.BeforeStop;
 import org.arquillian.cube.docker.impl.client.config.CustomBeforeStopAction;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.model.DefaultCubeId;
 import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ public class BeforeStopActionTest {
         beforeStop.setCustomBeforeStopAction(customBeforeStopAction);
 
         BeforeStopAction beforeStopAction =
-            BeforeStopActionFactory.create(dockerClientExecutor, containerId, customBeforeStopAction);
+            BeforeStopActionFactory.create(dockerClientExecutor, new DefaultCubeId(containerId), customBeforeStopAction);
 
         assertThat(beforeStopAction, instanceOf(CustomBeforeStopActionInstantiator.class));
         CustomBeforeStopActionInstantiator customBeforeStopActionInstantiator =

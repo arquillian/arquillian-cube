@@ -16,6 +16,7 @@ import org.arquillian.cube.docker.impl.client.config.CustomBeforeStopAction;
 import org.arquillian.cube.docker.impl.client.config.Log;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.impl.model.DefaultCubeId;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
@@ -53,7 +54,8 @@ public class BeforeStopContainerObserver {
 
     private void executeCustomBeforeStopAction(DockerClientExecutor dockerClientExecutor, String containerId,
         CustomBeforeStopAction customBeforeStopAction) {
-        BeforeStopActionFactory.create(dockerClientExecutor, containerId, customBeforeStopAction).doBeforeStop();
+        BeforeStopActionFactory.create(dockerClientExecutor, new DefaultCubeId(containerId), customBeforeStopAction)
+            .doBeforeStop();
     }
 
     private void executeLogAction(DockerClientExecutor dockerClientExecutor, String containerId,
