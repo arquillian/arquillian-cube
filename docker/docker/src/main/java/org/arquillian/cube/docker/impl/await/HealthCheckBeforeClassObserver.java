@@ -47,9 +47,10 @@ public class HealthCheckBeforeClassObserver {
         final Long connectTimeout = Timespan.toMilliseconds(healthCheck.timeout());
 
         return Ping.ping(pollIterations, sleepTime, TimeUnit.MILLISECONDS, () -> {
+            HttpURLConnection urlConnection = null;
             try {
 
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod(method);
                 urlConnection.setConnectTimeout(connectTimeout.intValue());
                 urlConnection.setReadTimeout(connectTimeout.intValue());
@@ -62,6 +63,10 @@ public class HealthCheckBeforeClassObserver {
 
             } catch (IOException e) {
                 return false;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
             }
 
             return true;
