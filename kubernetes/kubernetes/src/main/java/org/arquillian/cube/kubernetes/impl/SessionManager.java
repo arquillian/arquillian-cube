@@ -86,13 +86,14 @@ public class SessionManager implements SessionCreatedListener {
         }
     }
 
-    @Override
-    public void start() {
-        ShutdownHook hook = null;
+    /**
+     * Creates a namespace if needed.
+     * @param session   The {@link Session}.
+     */
+    public void createNamespace(Session session) {
         Logger log = session.getLogger();
         String namespace = session.getNamespace();
 
-        log.status("Using Kubernetes at: " + client.getMasterUrl());
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
         log.info(
@@ -107,17 +108,11 @@ public class SessionManager implements SessionCreatedListener {
         } else {
             throw new IllegalStateException("Namespace [" + session.getNamespace() + "] doesn't exists");
         }
+    }
 
-        hook = new ShutdownHook(new Runnable() {
-            @Override
-            public void run() {
-                SessionManager.this.clean(Constants.ABORTED_STATUS);
-            }
-        });
 
-        Runtime.getRuntime().addShutdownHook(hook);
-        shutdownHookRef.set(hook);
-
+    public void createEnvironment(Session session) {
+        Logger log = session.getLogger();
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<URL> dependencyUrls =
@@ -179,13 +174,23 @@ public class SessionManager implements SessionCreatedListener {
             try {
                 clean(Constants.ERROR_STATUS);
             } catch (Exception me) {
-                throw new RuntimeException(e);
-            } finally {
-                if (hook != null) {
-                    Runtime.getRuntime().removeShutdownHook(hook);
-                }
             }
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void start() {
+        Logger log = session.getLogger();
+        log.status("Using Kubernetes at: " + client.getMasterUrl());
+        createNamespace(session);
+
+        addShutdownHook();
+        try {
+            createEnvironment(session);
+        } catch (Throwable t){
+          removeShutdownHook();
+          throw t;
         }
     }
 
@@ -194,10 +199,7 @@ public class SessionManager implements SessionCreatedListener {
         try {
             clean(getSessionStatus(session));
         } finally {
-            ShutdownHook hook = shutdownHookRef.get();
-            if (hook != null) {
-                Runtime.getRuntime().removeShutdownHook(hook);
-            }
+           removeShutdownHook();
         }
     }
 
@@ -310,6 +312,28 @@ public class SessionManager implements SessionCreatedListener {
             configuration.getMasterUrl().toString());
         env.put(propertyToEnvironmentVariableName(Configuration.DOCKER_REGISTY), configuration.getDockerRegistry());
         return env;
+    }
+
+    private void addShutdownHook() {
+        ShutdownHook hook = new ShutdownHook(new Runnable() {
+            @Override
+            public void run() {
+                SessionManager.this.clean(Constants.ABORTED_STATUS);
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(hook);
+        shutdownHookRef.set(hook);
+    }
+
+    /**
+     * Removes the {@link ShutdownHook}.
+     */
+    private void removeShutdownHook() {
+        ShutdownHook hook = shutdownHookRef.get();
+        if (hook != null) {
+            Runtime.getRuntime().removeShutdownHook(hook);
+        }
     }
 }
 
