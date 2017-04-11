@@ -30,7 +30,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
     private static final Logger log = Logger.getLogger(PollingAwaitStrategy.class.getName());
     private static final String MESSAGE = "Service is Up";
     private static final String WAIT_FOR_IT_SCRIPT = "wait-for-it.sh";
-    private static final int DEFAULT_POLL_ITERATIONS = 40;
+    private static final int DEFAULT_POLL_ITERATIONS = 80;
     private static final String DEFAULT_POLL_TYPE = "sscommand";
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
     private String type = DEFAULT_POLL_TYPE;

@@ -397,6 +397,34 @@ tomcat:
     strategy: org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
 ----
 
+==== `@HealthCheck` annotation
+
+Sometimes default `await` strategy because when the service opens the port it does not mean that the service is up and running.
+For example in case of Tomcat, exposed port is opened when the application is deployed so default strategy works perfectly, but in case of Wildfly the port is opened when the server is up and running but not when the application has been deployed.
+
+To avoid this problem and continue using default `await` strategy you can annotate your test class with `@HealthCheck` annotation.
+
+By default annotating your test class with it, next default parameters are used:
+
+----
+context: /
+schema: http
+port: 8080
+method: GET
+containerName: null
+responseCode: 200
+iterations: 40
+interval: 500ms
+timeout: 2s
+----
+
+Each of these attributes are configurable with custom values.
+
+TIP: Time attributes like `timeout` and `interval` uses `docker-compose` durations approach of using timespan format such as `1m30s`.
+
+TIP: If `containerName` is set to null `port` attribute is used, otherwise `port` is considered an exposed port and it is resolved against the given container.
+
+
 === Inferring exposedPorts from portBinding
 
 When you are using _Docker_ you can set two different parameters, +exposedPort+ and +portBinding+.

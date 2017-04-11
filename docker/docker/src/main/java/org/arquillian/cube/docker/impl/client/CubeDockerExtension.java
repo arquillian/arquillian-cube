@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client;
 
+import org.arquillian.cube.docker.impl.await.HealthCheckBeforeClassObserver;
 import org.arquillian.cube.docker.impl.client.container.DockerServerIPConfigurator;
 import org.arquillian.cube.docker.impl.client.containerobject.AfterClassContainerObjectObserver;
 import org.arquillian.cube.docker.impl.client.containerobject.ContainerObjectFactoryProvider;
@@ -30,7 +31,8 @@ public class CubeDockerExtension implements LoadableExtension {
             .observer(NetworkRegistrar.class)
             .observer(NetworkLifecycleController.class)
             .observer(ContainerObjectFactoryRegistrar.class)
-            .observer(DockerImageController.class);
+            .observer(DockerImageController.class)
+            .observer(HealthCheckBeforeClassObserver.class);
 
         builder.service(ResourceProvider.class, CubeResourceProvider.class);
         builder.service(ResourceProvider.class, ContainerObjectFactoryProvider.class);
