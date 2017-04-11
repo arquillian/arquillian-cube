@@ -1873,6 +1873,59 @@ By default if you use <em>ss</em> strategy but ss command is not installed into 
     <span class="key">strategy</span>: <span class="string"><span class="content">org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl</span></span></code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="__code_healthcheck_code_annotation"><a class="anchor" href="#__code_healthcheck_code_annotation"></a>6.3.1. <code>@HealthCheck</code> annotation</h4>
+<div class="paragraph">
+<p>Sometimes default <code>await</code> strategy because when the service opens the port it does not mean that the service is up and running.
+For example in case of Tomcat, exposed port is opened when the application is deployed so default strategy works perfectly, but in case of Wildfly the port is opened when the server is up and running but not when the application has been deployed.</p>
+</div>
+<div class="paragraph">
+<p>To avoid this problem and continue using default <code>await</code> strategy you can annotate your test class with <code>@HealthCheck</code> annotation.</p>
+</div>
+<div class="paragraph">
+<p>By default annotating your test class with it, next default parameters are used:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>context: /
+schema: http
+port: 8080
+method: GET
+containerName: null
+responseCode: 200
+iterations: 40
+interval: 500ms
+timeout: 2s</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each of these attributes are configurable with custom values.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Time attributes like <code>timeout</code> and <code>interval</code> uses <code>docker-compose</code> durations approach of using timespan format such as <code>1m30s</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If <code>containerName</code> is set to null <code>port</code> attribute is used, otherwise <code>port</code> is considered an exposed port and it is resolved against the given container.
+</td>
+</tr>
+</table>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_inferring_exposedports_from_portbinding"><a class="anchor" href="#_inferring_exposedports_from_portbinding"></a>6.4. Inferring exposedPorts from portBinding</h3>
@@ -5714,7 +5767,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-06 10:01:33 UTC
+Last updated 2017-04-11 08:13:18 UTC
 </div>
 </div>
 </body>
