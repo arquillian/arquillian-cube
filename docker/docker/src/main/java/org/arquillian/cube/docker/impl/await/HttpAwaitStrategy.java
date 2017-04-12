@@ -115,6 +115,10 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
                     }
                 } catch (IOException e) {
                     return false;
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
                 }
 
                 return true;
