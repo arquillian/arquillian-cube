@@ -2056,7 +2056,7 @@ Or if your need is more specific, you can provide a custom implementation</p>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
 <td>customBeforeStopAction is used to notify that we provide our own implementation of a stop action. There are
 two rules to follow. The first is that the class must implement 'BeforeStopAction' and the second one is that the class must have a default constructor.
-Optionally fields/setters for types 'DockerClientExecutor' and 'String' for containerId can be used to inject them into
+Optionally fields/setters for types 'DockerClientExecutor' and 'CubeId' for containerId can be used to inject them into
 the custom beforeStop action</td>
 </tr>
 </table>
@@ -2086,12 +2086,13 @@ log <em>Docker</em> command can receive some configuration paramters and you can
 <pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">org.arquillian.cube.docker.impl.beforeStop</span>;
 
 <span class="keyword">import</span> <span class="include">org.arquillian.cube.docker.impl.docker.DockerClientExecutor</span>;
+<span class="keyword">import</span> <span class="include">org.arquillian.cube.impl.model.CubeId</span>;
 <span class="keyword">import</span> <span class="include">org.arquillian.cube.spi.beforeStop.BeforeStopAction</span>;
 
 <span class="directive">public</span> <span class="type">class</span> <span class="class">CustomBeforeStopActionImpl</span> <span class="directive">implements</span> BeforeStopAction {
 
     <span class="directive">private</span> DockerClientExecutor dockerClientExecutor;
-    <span class="directive">private</span> <span class="predefined-type">String</span> containerID;
+    <span class="directive">private</span> CubeId containerID;
 
     <span class="annotation">@Override</span>
     <span class="directive">public</span> <span class="type">void</span> doBeforeStop() {
@@ -5767,7 +5768,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-11 08:13:18 UTC
+Last updated 2017-04-12 09:15:31 UTC
 </div>
 </div>
 </body>
