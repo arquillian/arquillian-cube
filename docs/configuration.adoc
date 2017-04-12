@@ -489,7 +489,7 @@ tomcat_default:
 <3> +log+ is used to notify that we want to copy container log to +to+ local location.
 <4> +customBeforeStopAction+ is used to notify that we provide our own implementation of a stop action. There are
 two rules to follow. The first is that the class must implement 'BeforeStopAction' and the second one is that the class must have a default constructor.
-Optionally fields/setters for types 'DockerClientExecutor' and 'String' for containerId can be used to inject them into
+Optionally fields/setters for types 'DockerClientExecutor' and 'CubeId' for containerId can be used to inject them into
 the custom beforeStop action
 
 
@@ -517,12 +517,13 @@ Custom BeforeStop action:
 package org.arquillian.cube.docker.impl.beforeStop;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.model.CubeId;
 import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
 
 public class CustomBeforeStopActionImpl implements BeforeStopAction {
 
     private DockerClientExecutor dockerClientExecutor;
-    private String containerID;
+    private CubeId containerID;
 
     @Override
     public void doBeforeStop() {
