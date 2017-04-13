@@ -386,7 +386,7 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder addCommand(String command) {
-        configuration.setCmd(Arrays.asList(command));
+        configuration.setCmd(Arrays.asList(command.split("\\ ")));
         return this;
     }
 
