@@ -97,6 +97,12 @@ public class CubeConfigurationTest {
             + "    image: \"jboss/wildfly\"\n"
             + "    command: \"/opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0\"";
 
+    private static final String VERSION_2_WITH_ARRAY_COMMAND = "version: '2'\n"
+            + "services:\n"
+            + "  wildfly:\n"
+            + "    image: \"jboss/wildfly\"\n"
+            + "    command: [\"/opt/jboss/wildfly/bin/standalone.sh\", \"-b\", \"0.0.0.0\", \"-bmanagement\", \"0.0.0.0\"]";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -108,6 +114,11 @@ public class CubeConfigurationTest {
     @Test
     public void shouldSplitCmdWihtQuotesOnSpaces() {
         testCmdSplittedOnSpaces(VERSION_2_WITH_SPACE_AND_QUOTES_SEPERATED_COMMAND, new String[]{"/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"});
+    }
+
+    @Test
+    public void shouldSplitCmdWithArray() {
+        testCmdSplittedOnSpaces(VERSION_2_WITH_ARRAY_COMMAND, new String[]{"/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"});
     }
 
     private void testCmdSplittedOnSpaces(final String composeDefinition, final String[] expectedInOrderCmds) {

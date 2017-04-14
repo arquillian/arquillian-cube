@@ -159,7 +159,11 @@ public class ContainerBuilder {
             }
         }
         if (dockerComposeContainerDefinition.containsKey(COMMAND)) {
-            this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
+            if (List.class.isAssignableFrom(dockerComposeContainerDefinition.get(COMMAND).getClass())) {
+                this.addCommands(asListOfString(dockerComposeContainerDefinition, COMMAND));
+            } else {
+                this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
+            }
         }
         if (dockerComposeContainerDefinition.containsKey(DEPENDS_ON)) {
             this.addDependsOn(asListOfString(dockerComposeContainerDefinition, DEPENDS_ON));
@@ -386,7 +390,12 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder addCommand(String command) {
-        configuration.setCmd(Arrays.asList(command.split("\\ ")));
+        addCommands(Arrays.asList(command.split("\\ ")));
+        return this;
+    }
+
+    public ContainerBuilder addCommands(Collection<String> commands) {
+        configuration.setCmd(commands);
         return this;
     }
 
