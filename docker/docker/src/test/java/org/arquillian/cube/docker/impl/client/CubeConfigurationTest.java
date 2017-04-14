@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import static org.junit.Assert.assertThat;
 
 public class CubeConfigurationTest {
@@ -84,8 +85,47 @@ public class CubeConfigurationTest {
         "    volumes:\n" +
         "    - \"/tmp/www:/usr/share/nginx/html\"";
 
+    private static final String VERSION_2_WITH_SPACE_SEPERATED_COMMAND = "version: '2'\n"
+            + "services:\n"
+            + "  wildfly:\n"
+            + "    image: \"jboss/wildfly\"\n"
+            + "    command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0";
+
+    private static final String VERSION_2_WITH_SPACE_AND_QUOTES_SEPERATED_COMMAND = "version: '2'\n"
+            + "services:\n"
+            + "  wildfly:\n"
+            + "    image: \"jboss/wildfly\"\n"
+            + "    command: \"/opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0\"";
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void shouldSplitCmdOnSpaces() {
+        testCmdSplittedOnSpaces(VERSION_2_WITH_SPACE_SEPERATED_COMMAND, new String[]{"/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"});
+    }
+
+    @Test
+    public void shouldSplitCmdWihtQuotesOnSpaces() {
+        testCmdSplittedOnSpaces(VERSION_2_WITH_SPACE_AND_QUOTES_SEPERATED_COMMAND, new String[]{"/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"});
+    }
+
+    private void testCmdSplittedOnSpaces(final String composeDefinition, final String[] expectedInOrderCmds) {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("dockerContainers", composeDefinition);
+        parameters.put("definitionFormat", DefinitionFormat.COMPOSE.name());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+
+        final CubeContainer wildfly = dockerContainersContent.get("wildfly");
+        final Collection<String> commands = wildfly.getCmd();
+
+        assertThat(commands, IsIterableContainingInOrder.contains(expectedInOrderCmds));
+    }
 
     @Test
     public void should_expand_ports_from_docker_compose_version_2() {
