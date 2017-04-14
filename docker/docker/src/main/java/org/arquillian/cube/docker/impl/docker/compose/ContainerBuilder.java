@@ -159,7 +159,7 @@ public class ContainerBuilder {
             }
         }
         if (dockerComposeContainerDefinition.containsKey(COMMAND)) {
-            if (List.class.isAssignableFrom(dockerComposeContainerDefinition.get(COMMAND).getClass())) {
+            if (dockerComposeContainerDefinition.get(COMMAND) instanceof List) {
                 this.addCommands(asListOfString(dockerComposeContainerDefinition, COMMAND));
             } else {
                 this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
