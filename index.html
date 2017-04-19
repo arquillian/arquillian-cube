@@ -3558,6 +3558,26 @@ Container objects by default are started and stopped in class scope. To change i
 </tr>
 </table>
 </div>
+<div class="sect4">
+<h5 id="_junit_rule"><a class="anchor" href="#_junit_rule"></a>JUnit Rule</h5>
+<div class="paragraph">
+<p>If you are using <code>JUnit</code> and want to use Container DSL builder approach, you can use <code>JUnit Rule</code> instead of <code>Arquillian Runner</code>.</p>
+</div>
+<div class="paragraph">
+<p>To do use it you need to define the container object using an special <code>JUnit Rule</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">RedisTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ClassRule</span>
+<span class="directive">public</span> <span class="directive">static</span> ContainerDslRule redis = <span class="keyword">new</span> ContainerDslRule(<span class="string"><span class="delimiter">&quot;</span><span class="content">redis:3.2.6</span><span class="delimiter">&quot;</span></span>)
+                                               .withPortBinding(<span class="integer">6379</span>);
+
+Jedis jedis = <span class="keyword">new</span> Jedis(redis.getIpAddress(), redis.getBindPort(<span class="integer">6379</span>));
+jedis.set(<span class="string"><span class="delimiter">&quot;</span><span class="content">foo</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">bar</span><span class="delimiter">&quot;</span></span>);</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_network_objects_dsl"><a class="anchor" href="#_network_objects_dsl"></a>12.2.2. Network Objects DSL</h4>
@@ -5768,7 +5788,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-12 09:15:31 UTC
+Last updated 2017-04-19 16:28:00 UTC
 </div>
 </div>
 </body>
