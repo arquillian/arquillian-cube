@@ -1,0 +1,215 @@
+package org.arquillian.cube.docker.junit.rule;
+
+import org.arquillian.cube.HostIpContext;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
+import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.client.containerobject.dsl.BindMode;
+import org.arquillian.cube.docker.impl.client.containerobject.dsl.Container;
+import org.arquillian.cube.docker.impl.client.containerobject.dsl.ContainerBuilder;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
+import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.docker.impl.util.Top;
+import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
+import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Injector;
+import org.jboss.arquillian.core.api.Instance;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.MultipleFailureException;
+import org.junit.runners.model.Statement;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public class ContainerDslRule implements TestRule {
+
+
+    private DockerClientExecutor dockerClientExecutor;
+
+    private ContainerBuilder.ContainerOptionsBuilder containerBuilder;
+    private Container container;
+
+    public ContainerDslRule(String image) {
+        this(image, convertImageToId(image));
+    }
+
+    public ContainerDslRule(String image, String id) {
+        this.containerBuilder = Container.withContainerName(id)
+            .fromImage(image);
+        initializeDockerClient();
+    }
+
+    private static String convertImageToId(String imageId) {
+        return imageId
+                        .replace('/', '_')
+                        .replace(':', '_')
+                        .replace('.', '_');
+    }
+
+    private void initializeDockerClient() {
+
+        Injector injector = new Injector() {
+            @Override
+            public <T> T inject(T t) {
+                return t;
+            }
+        };
+
+        CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
+            new DockerMachine(new CommandLineExecutor()),
+            new Boot2Docker(new CommandLineExecutor()),
+            new OperatingSystemResolver().currentOperatingSystem().getFamily());
+
+        final Map<String, String> config = resolver.resolve(new HashMap<>());
+
+        final CubeDockerConfiguration cubeDockerConfiguration = CubeDockerConfiguration.fromMap(config, injector);
+        this.dockerClientExecutor = new DockerClientExecutor(cubeDockerConfiguration);
+    }
+
+    public ContainerDslRule withExposedPorts(Integer... ports) {
+        containerBuilder.withExposedPorts(ports);
+        return this;
+    }
+
+    public ContainerDslRule withExposedPorts(String... ports) {
+        containerBuilder.withExposedPorts(ports);
+        return this;
+    }
+
+    public ContainerDslRule withPortBinding(Integer... ports) {
+        containerBuilder.withPortBinding(ports);
+        return this;
+    }
+
+    public ContainerDslRule withPortBinding(String... ports) {
+        containerBuilder.withPortBinding(ports);
+        return this;
+    }
+
+    public ContainerDslRule withEnvironment(String key, Object value, Object...keyValues) {
+        containerBuilder.withEnvironment(key, value, keyValues);
+        return this;
+    }
+
+    public ContainerDslRule withCommand(String command) {
+        containerBuilder.withCommand(command);
+        return this;
+    }
+
+    public ContainerDslRule withCommand(String... command) {
+        containerBuilder.withCommand(command);
+        return this;
+    }
+
+    public ContainerDslRule withVolume(String hostPath, String containerPath) {
+        return withVolume(hostPath, containerPath, BindMode.READ_WRITE);
+    }
+
+    public ContainerDslRule withVolume(String hostPath, String containerPath, BindMode bindMode) {
+        containerBuilder.withVolume(hostPath, containerPath, bindMode);
+        return this;
+    }
+
+    public ContainerDslRule withNetworkMode(String networkMode) {
+        containerBuilder.withNetworkMode(networkMode);
+        return this;
+    }
+
+    public ContainerDslRule withNetworks(String... networks) {
+        containerBuilder.withNetworks(networks);
+        return this;
+    }
+
+    public ContainerDslRule withPriviledgedMode(boolean mode) {
+        containerBuilder.withPriviledgedMode(mode);
+        return this;
+    }
+
+    public ContainerDslRule withLink(String link) {
+        containerBuilder.withLink(link);
+        return this;
+    }
+
+    public ContainerDslRule withLink(String service, String alias) {
+        return withLink(service + ":" + alias);
+    }
+
+    public ContainerDslRule withAwaitStrategy(Await awaitStrategy) {
+        containerBuilder.withAwaitStrategy(awaitStrategy);
+        return this;
+    }
+
+    public String getIpAddress() {
+        return this.container.getIpAddress();
+    }
+
+    public int getBindPort(int exposedPort) {
+        return this.container.getBindPort(exposedPort);
+    }
+
+    @Override
+    public Statement apply(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+
+                List<Throwable> errors = new ArrayList<>();
+
+                // Inject Arquillian resources
+                container = containerBuilder.build();
+                final Optional<Field> hostIpContextField = Reflections.findFieldByGenericType(Container.class, Instance.class, HostIpContext.class);
+
+                if (hostIpContextField.isPresent()) {
+                    Reflections.injectObject(container, hostIpContextField.get(), (Instance) () -> new HostIpContext(dockerClientExecutor.getDockerServerIp()));
+                }
+
+                DockerCube dockerCube = new DockerCube(container.getContainerName(), container.getCubeContainer(), dockerClientExecutor);
+                LocalCubeRegistry localCubeRegistry = new LocalCubeRegistry();
+                localCubeRegistry.addCube(dockerCube);
+
+                final Optional<Field> cubeRegistryField = Reflections.findFieldByGenericType(Container.class, Instance.class, CubeRegistry.class);
+
+                if (cubeRegistryField.isPresent()) {
+                    Reflections.injectObject(container, cubeRegistryField.get(), (Instance) () -> localCubeRegistry);
+                }
+
+                final Optional<Field> eventField = Reflections.findFieldByGenericType(DockerCube.class, Event.class, CubeLifecyleEvent.class);
+
+                if (eventField.isPresent()) {
+                    Reflections.injectObject(dockerCube, eventField.get(), (Event) o -> {
+                    });
+                }
+
+
+                try {
+                    dockerCube.create();
+                    dockerCube.start();
+
+                    // Run tests
+                    base.evaluate();
+
+                } catch (Throwable t) {
+                    errors.add(t);
+                } finally {
+                    // stop container
+                    dockerCube.stop();
+                    dockerCube.destroy();
+                }
+
+                MultipleFailureException.assertEmpty(errors);
+
+            }
+        };
+    }
+}

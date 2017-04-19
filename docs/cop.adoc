@@ -306,6 +306,24 @@ TIP: In case you define more than one generic container and want to start them i
 
 IMPORTANT: Container objects by default are started and stopped in class scope. To change it to method scope you can use `.withConnectionMode` call.
 
+===== JUnit Rule
+
+If you are using `JUnit` and want to use Container DSL builder approach, you can use `JUnit Rule` instead of `Arquillian Runner`.
+
+To do use it you need to define the container object using an special `JUnit Rule`.
+
+[source, java]
+.RedisTest.java
+----
+@ClassRule
+public static ContainerDslRule redis = new ContainerDslRule("redis:3.2.6")
+                                               .withPortBinding(6379);
+
+Jedis jedis = new Jedis(redis.getIpAddress(), redis.getBindPort(6379));
+jedis.set("foo", "bar");
+----
+
+
 ==== Network Objects DSL
 
 To create a network using DSL approach you only need to create a field of type `org.arquillian.cube.docker.impl.client.containerobject.dsl.Network` and annotate it with `org.arquillian.cube.docker.impl.client.containerobject.dsl.DockerNetwork`.

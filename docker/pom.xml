@@ -38,6 +38,7 @@
     <module>drone</module>
     <module>reporter</module>
     <module>restassured</module>
+    <module>junit-rule</module>
     <module>ftest</module>
     <module>ftest-standalone</module>
     <module>ftest-boot2docker</module>
@@ -57,6 +58,7 @@
     <module>ftest-standalone-star-operator</module>
     <module>ftest-standalone-star-operator-docker-compose</module>
     <module>ftest-docker-compose-v2-git-context</module>
+    <module>ftest-docker-junit-rule</module>
   </modules>
 
 </project>
