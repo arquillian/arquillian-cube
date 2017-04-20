@@ -424,6 +424,15 @@ TIP: Time attributes like `timeout` and `interval` uses `docker-compose` duratio
 
 TIP: If `containerName` is set to null `port` attribute is used, otherwise `port` is considered an exposed port and it is resolved against the given container.
 
+==== `@Sleep` annotation
+
+Sometimes you need to sleep your execution for some specific amount of time and you have no way to do it using an http health check.
+In this situations a sleep might do the work.
+
+To avoid this problem and continue using default `await` strategy you can annotate your test class with `@Sleep` annotation which receives as value an string that represents a timespan.
+
+By default the time specified is in milliseconds so annotating the test class with `@Sleep("1000")` makes your test class sleeps 1 second before executing all test methods.
+You can also use the timespan format and write something like `@Sleep("1m30s")` which makes your test class sleeps for one minute and a half before executing all test methods.
 
 === Inferring exposedPorts from portBinding
 
