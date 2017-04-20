@@ -1926,6 +1926,20 @@ If <code>containerName</code> is set to null <code>port</code> attribute is used
 </table>
 </div>
 </div>
+<div class="sect3">
+<h4 id="__code_sleep_code_annotation"><a class="anchor" href="#__code_sleep_code_annotation"></a>6.3.2. <code>@Sleep</code> annotation</h4>
+<div class="paragraph">
+<p>Sometimes you need to sleep your execution for some specific amount of time and you have no way to do it using an http health check.
+In this situations a sleep might do the work.</p>
+</div>
+<div class="paragraph">
+<p>To avoid this problem and continue using default <code>await</code> strategy you can annotate your test class with <code>@Sleep</code> annotation which receives as value an string that represents a timespan.</p>
+</div>
+<div class="paragraph">
+<p>By default the time specified is in milliseconds so annotating the test class with <code>@Sleep("1000")</code> makes your test class sleeps 1 second before executing all test methods.
+You can also use the timespan format and write something like <code>@Sleep("1m30s")</code> which makes your test class sleeps for one minute and a half before executing all test methods.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_inferring_exposedports_from_portbinding"><a class="anchor" href="#_inferring_exposedports_from_portbinding"></a>6.4. Inferring exposedPorts from portBinding</h3>
@@ -5788,7 +5802,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-19 16:28:00 UTC
+Last updated 2017-04-20 05:52:37 UTC
 </div>
 </div>
 </body>
