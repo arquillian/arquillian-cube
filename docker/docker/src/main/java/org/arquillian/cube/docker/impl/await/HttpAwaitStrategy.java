@@ -18,7 +18,7 @@ public class HttpAwaitStrategy extends SleepingAwaitStrategyBase {
     public static final String TAG = "http";
 
     private static final String REGEXP_PREFIX = "regexp:";
-    private static final String DOCKER_HOST = "dockerHost";
+    public static final String DOCKER_HOST = "dockerHost";
     private static final int DEFAULT_POLL_ITERATIONS = 10;
 
     private int pollIterations = DEFAULT_POLL_ITERATIONS;
