@@ -1,7 +1,9 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
+import org.arquillian.cube.docker.impl.await.HttpAwaitStrategy;
 import org.arquillian.cube.docker.impl.client.config.Await;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,26 @@ public class AwaitBuilder {
         await.setStdOut(true);
 
         return await;
+    }
+
+    public static HttpAwaitBuilder httpAwait(String path, int port) {
+        URL url = createUrl("http", path, port);
+        return httpAwait(url, null);
+    }
+
+    public static HttpAwaitBuilder httpsAwait(String path, int port) {
+        URL url = createUrl("https", path, port);
+        return httpAwait(url, null);
+    }
+
+    private static URL createUrl(String protocol, String path, int port) {
+        URL url;
+        try {
+            url = new URL(protocol, HttpAwaitStrategy.DOCKER_HOST, port, path);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return url;
     }
 
     /**
