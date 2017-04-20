@@ -87,6 +87,12 @@
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker-junit-rule</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-drone</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
