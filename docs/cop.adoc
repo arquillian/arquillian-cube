@@ -323,6 +323,7 @@ Jedis jedis = new Jedis(redis.getIpAddress(), redis.getBindPort(6379));
 jedis.set("foo", "bar");
 ----
 
+IMPORTANT: You need to add `org.arquillian.cube:rquillian-cube-docker-junit-rule` dependency.
 
 ==== Network Objects DSL
 
