@@ -3630,6 +3630,34 @@ Network network = Network.withDefaultDriver(<span class="string"><span class="de
 </tr>
 </table>
 </div>
+<div class="sect4">
+<h5 id="_junit_rule_2"><a class="anchor" href="#_junit_rule_2"></a>JUnit Rule</h5>
+<div class="paragraph">
+<p>If you are using <code>JUnit</code> and want to use Network DSL builder approach, you can use <code>JUnit Rule</code> instead of <code>Arquillian Runner</code>.</p>
+</div>
+<div class="paragraph">
+<p>To do use it you need to define the network object using an special <code>JUnit Rule</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">NetworkTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ClassRule</span>
+<span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> NetworkDslRule network = <span class="keyword">new</span> NetworkDslRule(<span class="string"><span class="delimiter">&quot;</span><span class="content">mynetwork</span><span class="delimiter">&quot;</span></span>);</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You need to add <code>org.arquillian.cube:rquillian-cube-docker-junit-rule</code> dependency.
+</td>
+</tr>
+</table>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -5814,7 +5842,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-24 16:24:20 UTC
+Last updated 2017-04-26 13:58:30 UTC
 </div>
 </div>
 </body>
