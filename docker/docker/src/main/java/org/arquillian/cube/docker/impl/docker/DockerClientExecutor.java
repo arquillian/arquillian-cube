@@ -1101,6 +1101,15 @@ public class DockerClientExecutor {
         }
     }
 
+    public List<com.github.dockerjava.api.model.Network> getNetworks() {
+        this.readWriteLock.readLock().lock();
+        try {
+            return this.dockerClient.listNetworksCmd().exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     private List<com.github.dockerjava.api.model.Network.Ipam.Config> createIpamConfig(Network network) {
         List<com.github.dockerjava.api.model.Network.Ipam.Config> ipamConfigs = new ArrayList<>();
         List<IPAMConfig> IPAMConfigs = network.getIpam().getIpamConfigs();

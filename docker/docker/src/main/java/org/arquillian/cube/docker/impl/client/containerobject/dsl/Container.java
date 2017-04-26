@@ -1,8 +1,5 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.core.command.LogContainerResultCallback;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.containerobject.ConnectionMode;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -14,8 +11,6 @@ import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class representing a container.
