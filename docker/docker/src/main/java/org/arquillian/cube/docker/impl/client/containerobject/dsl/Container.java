@@ -1,13 +1,21 @@
 package org.arquillian.cube.docker.impl.client.containerobject.dsl;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.containerobject.ConnectionMode;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeOutput;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class representing a container.
@@ -19,6 +27,9 @@ public class Container {
 
     @Inject
     Instance<CubeRegistry> cubeRegistryInstance;
+
+    @Inject
+    Instance<DockerClientExecutor> dockerClientExecutorInstance;
 
     private String containerName;
     private CubeContainer cubeContainer;
@@ -61,6 +72,23 @@ public class Container {
      */
     public int getBindPort(int exposedPort) {
         return getBindingPort(this.containerName, exposedPort);
+    }
+
+    /**
+     * Executes given command inside this container.
+     * @param commands to execute.
+     * @return Output of the execution.
+     */
+    public CubeOutput exec(String...commands) {
+        return this.dockerClientExecutorInstance.get().execStart(this.containerName, commands);
+    }
+
+    /**
+     * Gets current logs of this container.
+     * @return Current logs.
+     */
+    public String getLog() {
+        return this.dockerClientExecutorInstance.get().containerLog(this.containerName);
     }
 
     private int getBindingPort(String cubeId, int exposedPort) {
