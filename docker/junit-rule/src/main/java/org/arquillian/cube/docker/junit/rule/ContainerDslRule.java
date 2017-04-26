@@ -4,6 +4,7 @@ import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.BindMode;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.Container;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.ContainerBuilder;
@@ -21,11 +22,13 @@ import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.shrinkwrap.api.Archive;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +43,20 @@ public class ContainerDslRule implements TestRule {
 
     private ContainerBuilder.ContainerOptionsBuilder containerBuilder;
     private Container container;
+
+    public ContainerDslRule(File directory, String imageId) {
+        this.containerBuilder = Container.withContainerName(imageId)
+            .fromBuildDirectory(directory.getAbsolutePath());
+        initializeDockerClient();
+
+    }
+
+    public ContainerDslRule(Archive<?> buildDirectory, String imageId) {
+        this.containerBuilder = Container.withContainerName(imageId)
+            .fromBuildDirectory(buildDirectory);
+        initializeDockerClient();
+
+    }
 
     public ContainerDslRule(String image) {
         this(image, convertImageToId(image));
