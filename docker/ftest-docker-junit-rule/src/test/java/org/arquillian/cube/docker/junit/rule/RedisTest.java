@@ -38,7 +38,7 @@ public class RedisTest {
     }
 
     @Test
-    public void should_execute_ls() {
+    public void should_execute_uname() {
         assertThat(redis.exec("sh", "-c", "uname").getStandard())
             .isNotBlank()
             .isEqualToIgnoringWhitespace("Linux");
