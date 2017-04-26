@@ -59,23 +59,7 @@ public class ContainerDslRule implements TestRule {
     }
 
     private void initializeDockerClient() {
-
-        Injector injector = new Injector() {
-            @Override
-            public <T> T inject(T t) {
-                return t;
-            }
-        };
-
-        CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(new CommandLineExecutor()),
-            new Boot2Docker(new CommandLineExecutor()),
-            new OperatingSystemResolver().currentOperatingSystem().getFamily());
-
-        final Map<String, String> config = resolver.resolve(new HashMap<>());
-
-        final CubeDockerConfiguration cubeDockerConfiguration = CubeDockerConfiguration.fromMap(config, injector);
-        this.dockerClientExecutor = new DockerClientExecutor(cubeDockerConfiguration);
+        this.dockerClientExecutor = DockerClientInitializer.initialize();
     }
 
     public ContainerDslRule withExposedPorts(Integer... ports) {
@@ -125,6 +109,10 @@ public class ContainerDslRule implements TestRule {
     public ContainerDslRule withNetworkMode(String networkMode) {
         containerBuilder.withNetworkMode(networkMode);
         return this;
+    }
+
+    public ContainerDslRule withNetworkMode(NetworkDslRule networkMode) {
+        return this.withNetworkMode(networkMode.getNetworkName());
     }
 
     public ContainerDslRule withNetworks(String... networks) {

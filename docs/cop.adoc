@@ -340,6 +340,21 @@ Network network = Network.withDefaultDriver("mynetwork").build(); // <2>
 <2> Start the DSL using `withDefaultDriver` method
 
 
+===== JUnit Rule
+
+If you are using `JUnit` and want to use Network DSL builder approach, you can use `JUnit Rule` instead of `Arquillian Runner`.
+
+To do use it you need to define the network object using an special `JUnit Rule`.
+
+[source, java]
+.NetworkTest.java
+----
+@ClassRule
+public static final NetworkDslRule network = new NetworkDslRule("mynetwork");
+----
+
+IMPORTANT: You need to add `org.arquillian.cube:rquillian-cube-docker-junit-rule` dependency.
+
 == Arquillian Standalone and Cube
 
 You can use Arquillian Standalone with Arquillian Cube too.
