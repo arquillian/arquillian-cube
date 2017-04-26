@@ -15,6 +15,7 @@ import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.spi.CubeOutput;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.jboss.arquillian.core.api.Event;
@@ -158,6 +159,14 @@ public class ContainerDslRule implements TestRule {
         return this.container.getBindPort(exposedPort);
     }
 
+    public String getLog() {
+        return this.container.getLog();
+    }
+
+    public CubeOutput exec(String... commands) {
+        return this.container.exec(commands);
+    }
+
     @Override
     public Statement apply(Statement base, Description description) {
         return new Statement() {
@@ -172,6 +181,12 @@ public class ContainerDslRule implements TestRule {
 
                 if (hostIpContextField.isPresent()) {
                     Reflections.injectObject(container, hostIpContextField.get(), (Instance) () -> new HostIpContext(dockerClientExecutor.getDockerServerIp()));
+                }
+
+                final Optional<Field> dockerClientExecutorField = Reflections.findFieldByGenericType(Container.class, Instance.class, DockerClientExecutor.class);
+
+                if (dockerClientExecutorField.isPresent()) {
+                    Reflections.injectObject(container, dockerClientExecutorField.get(), (Instance) () -> dockerClientExecutor);
                 }
 
                 DockerCube dockerCube = new DockerCube(container.getContainerName(), container.getCubeContainer(), dockerClientExecutor);

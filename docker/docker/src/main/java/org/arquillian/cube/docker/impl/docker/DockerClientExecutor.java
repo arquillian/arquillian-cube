@@ -42,6 +42,21 @@ import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import org.apache.http.conn.UnsupportedSchemeException;
+import org.arquillian.cube.TopContainer;
+import org.arquillian.cube.docker.impl.await.StatsLogsResultCallback;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
+import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.util.BindingUtil;
+import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.spi.CubeOutput;
+
+import javax.ws.rs.ProcessingException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,23 +80,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.ProcessingException;
-import org.apache.http.conn.UnsupportedSchemeException;
-import org.arquillian.cube.TopContainer;
-import org.arquillian.cube.docker.impl.await.StatsLogsResultCallback;
-import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
-import org.arquillian.cube.docker.impl.client.config.Image;
-import org.arquillian.cube.docker.impl.client.config.Network;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.util.BindingUtil;
-import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
-import org.arquillian.cube.spi.CubeOutput;
 
 public class DockerClientExecutor {
 
@@ -807,6 +809,55 @@ public class DockerClientExecutor {
             throw new IllegalArgumentException(e);
         }
         return buildImageCmd;
+    }
+
+    public String containerLog(String containerId) {
+        this.readWriteLock.readLock().lock();
+
+        try {
+            return dockerClient.logContainerCmd(containerId)
+                .withStdErr(true)
+                .withStdOut(true)
+                .exec(new LogContainerTestCallback()).awaitCompletion().toString();
+
+        } catch (InterruptedException e) {
+            log.log(Level.SEVERE, e.getMessage());
+            return "";
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
+    public static class LogContainerTestCallback extends LogContainerResultCallback {
+        protected final StringBuilder log = new StringBuilder();
+
+        List<Frame> collectedFrames = new ArrayList<>();
+
+        boolean collectFrames = false;
+
+        public LogContainerTestCallback() {
+            this(false);
+        }
+
+        public LogContainerTestCallback(boolean collectFrames) {
+            this.collectFrames = collectFrames;
+        }
+
+        @Override
+        public void onNext(Frame frame) {
+            if(collectFrames) collectedFrames.add(frame);
+            log.append(new String(frame.getPayload()));
+        }
+
+        @Override
+        public String toString() {
+            return log.toString();
+        }
+
+
+        public List<Frame> getCollectedFrames() {
+            return collectedFrames;
+        }
     }
 
     public void pullImage(String imageName) {
