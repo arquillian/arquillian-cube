@@ -35,7 +35,6 @@ Then include the individual modules as you see fit, by simply depending on the u
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker</artifactId>
         <scope>test</scope>
-        <type>pom</type>
     </dependency>
 </dependencies>
 ----
@@ -46,12 +45,11 @@ Then include the individual modules as you see fit, by simply depending on the u
 
 [source, xml]
 ----
-    <dependency>
-        <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-api</artifactId>
-        <scope>test</scope>
-        <type>pom</type>
-    </dependency>
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-api</artifactId>
+    <scope>test</scope>
+</dependency>
 ----
 
 ==== Arquillian Cube SPI
@@ -62,7 +60,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-spi</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -74,7 +71,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-core</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -86,7 +82,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-containerless</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -98,7 +93,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-requirement</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -110,7 +104,17 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker</artifactId>
     <scope>test</scope>
-    <type>pom</type>
+</dependency>
+----
+
+==== Arquillian Cube Docker Junit Rule
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-junit-rule</artifactId>
+    <version>${project.version}</version>
 </dependency>
 ----
 
@@ -122,7 +126,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-drone</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -133,11 +136,11 @@ Then include the individual modules as you see fit, by simply depending on the u
 <dependency>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-restassured</artifactId>
-    <version>${project.version}</version>
+    <scope>test</scope>
 </dependency>
 ----
 
-==== Arquillian Cube Docker Recorder
+==== Arquillian Cube Docker Reporter
 
 [source, xml]
 ----
@@ -145,7 +148,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-reporter</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -157,7 +159,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>assertj-docker-java</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -169,7 +170,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -181,7 +181,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -193,7 +192,6 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes-fabric8</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----
 
@@ -205,6 +203,5 @@ Then include the individual modules as you see fit, by simply depending on the u
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-openshift</artifactId>
     <scope>test</scope>
-    <type>pom</type>
 </dependency>
 ----

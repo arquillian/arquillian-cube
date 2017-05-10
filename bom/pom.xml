@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -53,49 +54,41 @@
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-api</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-spi</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-core</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-containerless</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-requirement</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-junit-rule</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-drone</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
@@ -106,37 +99,31 @@
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-reporter</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>assertj-docker-java</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes-fabric8</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-openshift</artifactId>
         <version>${project.version}</version>
-        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
