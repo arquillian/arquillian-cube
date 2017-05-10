@@ -584,7 +584,7 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_arquillian_reporter_integration">18. Arquillian Reporter integration</a>
 <ul class="sectlevel2">
-<li><a href="#_arquillian_cube_docker_reporter">18.1. Arquillian Cube Docker Reporter</a></li>
+<li><a href="#_arquillian_cube_docker_reporter_2">18.1. Arquillian Cube Docker Reporter</a></li>
 <li><a href="#_arquillian_cube_docker_drone_integration">18.2. Arquillian Cube Docker Drone Integration</a></li>
 <li><a href="#_arquillian_cube_docker_restassured_integration">18.3. Arquillian Cube Docker RestAssured Integration</a></li>
 <li><a href="#_arquillian_cube_kubernetes_reporter_2">18.4. Arquillian Cube Kubernetes Reporter</a></li>
@@ -1066,7 +1066,6 @@ This test basically validates that the image can be started, and finally that fr
         <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
         <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-        <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
     <span class="tag">&lt;/dependency&gt;</span>
 <span class="tag">&lt;/dependencies&gt;</span></code></pre>
 </div>
@@ -1078,12 +1077,11 @@ This test basically validates that the image can be started, and finally that fr
 <h4 id="_arquillian_cube_api"><a class="anchor" href="#_arquillian_cube_api"></a>5.2.1. Arquillian Cube API</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml">    <span class="tag">&lt;dependency&gt;</span>
-        <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-        <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-api<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-        <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
-    <span class="tag">&lt;/dependency&gt;</span></code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-api<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
@@ -1095,7 +1093,6 @@ This test basically validates that the image can be started, and finally that fr
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-spi<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -1108,7 +1105,6 @@ This test basically validates that the image can be started, and finally that fr
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-core<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -1121,7 +1117,6 @@ This test basically validates that the image can be started, and finally that fr
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-containerless<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -1134,7 +1129,6 @@ This test basically validates that the image can be started, and finally that fr
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-requirement<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -1147,110 +1141,114 @@ This test basically validates that the image can be started, and finally that fr
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_drone"><a class="anchor" href="#_arquillian_cube_docker_drone"></a>5.2.7. Arquillian Cube Docker Drone</h4>
+<h4 id="_arquillian_cube_docker_junit_rule"><a class="anchor" href="#_arquillian_cube_docker_junit_rule"></a>5.2.7. Arquillian Cube Docker Junit Rule</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-drone<span class="tag">&lt;/artifactId&gt;</span>
-    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
-<span class="tag">&lt;/dependency&gt;</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_arquillian_cube_docker_restassured"><a class="anchor" href="#_arquillian_cube_docker_restassured"></a>5.2.8. Arquillian Cube Docker Restassured</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
-    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
-    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-restassured<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-junit-rule<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_recorder"><a class="anchor" href="#_arquillian_cube_docker_recorder"></a>5.2.9. Arquillian Cube Docker Recorder</h4>
+<h4 id="_arquillian_cube_docker_drone"><a class="anchor" href="#_arquillian_cube_docker_drone"></a>5.2.8. Arquillian Cube Docker Drone</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-drone<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_restassured"><a class="anchor" href="#_arquillian_cube_docker_restassured"></a>5.2.9. Arquillian Cube Docker Restassured</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-restassured<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>5.2.10. Arquillian Cube Docker Reporter</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-reporter<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_java_assertj"><a class="anchor" href="#_docker_java_assertj"></a>5.2.10. Docker Java AssertJ</h4>
+<h4 id="_docker_java_assertj"><a class="anchor" href="#_docker_java_assertj"></a>5.2.11. Docker Java AssertJ</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>assertj-docker-java<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes"><a class="anchor" href="#_arquillian_cube_kubernetes"></a>5.2.11. Arquillian Cube Kubernetes</h4>
+<h4 id="_arquillian_cube_kubernetes"><a class="anchor" href="#_arquillian_cube_kubernetes"></a>5.2.12. Arquillian Cube Kubernetes</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>5.2.12. Arquillian Cube Kubernetes Reporter</h4>
+<h4 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>5.2.13. Arquillian Cube Kubernetes Reporter</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-reporter<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes_fabric8"><a class="anchor" href="#_arquillian_cube_kubernetes_fabric8"></a>5.2.13. Arquillian Cube Kubernetes Fabric8</h4>
+<h4 id="_arquillian_cube_kubernetes_fabric8"><a class="anchor" href="#_arquillian_cube_kubernetes_fabric8"></a>5.2.14. Arquillian Cube Kubernetes Fabric8</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-fabric8<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_openshift"><a class="anchor" href="#_arquillian_cube_openshift"></a>5.2.14. Arquillian Cube Openshift</h4>
+<h4 id="_arquillian_cube_openshift"><a class="anchor" href="#_arquillian_cube_openshift"></a>5.2.15. Arquillian Cube Openshift</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-openshift<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
-    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -4854,7 +4852,7 @@ Cubes are elements that are deployed into a system, for example a Pod or a Docke
 <p>For example in case of a Docker Cube it will report start and stop duration time, if it has failed or not and some container properties like ports, links, image name, entrypoint, network &#8230;&#8203;.</p>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>18.1. Arquillian Cube Docker Reporter</h3>
+<h3 id="_arquillian_cube_docker_reporter_2"><a class="anchor" href="#_arquillian_cube_docker_reporter_2"></a>18.1. Arquillian Cube Docker Reporter</h3>
 <div class="paragraph">
 <p>In previous section you&#8217;ve read that by just adding reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.</p>
 </div>
@@ -5842,7 +5840,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-04-26 13:58:30 UTC
+Last updated 2017-05-10 14:20:04 UTC
 </div>
 </div>
 </body>
