@@ -326,11 +326,13 @@ tomcat:
     stdOut: true # <2>
     stdErr: true # <3>
     timeout: 15 # <4>
+    occurrences: 2 # <5>
 ----
 <1> Mandatory parameter to configure the pattern that signals the service started. To use regular expression just prefix the pattern with `regexp:`.
 <2> Optional parameter to enable scanning of _standard output_ log. Default is true.
 <3> Optional parameter to enable scanning of _standard error_ log. Default is false.
 <4> Optional parameter to configure timeout. It is expressed in seconds and by default is 15.
+<5> Optional parameter to configure the number of times that it should match. By default is 1.
 
 [source, yaml]
 .Example http

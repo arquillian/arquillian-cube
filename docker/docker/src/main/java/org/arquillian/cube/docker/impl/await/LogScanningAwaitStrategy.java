@@ -23,6 +23,7 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
     private int timeout = 15;
     private boolean stdOut;
     private boolean stdErr;
+    private int occurrences = 1;
     private Cube<?> cube;
     private DockerClientExecutor dockerClientExecutor;
 
@@ -34,6 +35,8 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
 
         this.stdOut = params.isStdOut();
         this.stdErr = params.isStdErr();
+
+        this.occurrences = params.getOccurrences();
 
         if (params.getMatch().startsWith(REGEXP_PREFIX)) {
             matcher = new RegexpLogMatcher(params.getMatch().substring(REGEXP_PREFIX.length()));
@@ -58,12 +61,16 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
         return stdErr;
     }
 
+    public int getOccurrences() {
+        return occurrences;
+    }
+
     @Override
     public boolean await() {
         final DockerClient client = dockerClientExecutor.getDockerClient();
         final CountDownLatch containerUp = new CountDownLatch(1);
 
-        try (final LogContainerResultCallback callback = new LogContainerResultCallback(containerUp)) {
+        try (final LogContainerResultCallback callback = new LogContainerResultCallback(containerUp, this.occurrences)) {
 
             client.logContainerCmd(cube.getId())
                 .withStdErr(true)
@@ -114,9 +121,11 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
     private class LogContainerResultCallback extends ResultCallbackTemplate<LogContainerResultCallback, Frame> {
 
         private CountDownLatch containerUp;
+        private int occurrences;
 
-        public LogContainerResultCallback(CountDownLatch containerUp) {
+        public LogContainerResultCallback(CountDownLatch containerUp, int occurrences) {
             this.containerUp = containerUp;
+            this.occurrences = occurrences;
         }
 
         @Override
@@ -124,7 +133,10 @@ public class LogScanningAwaitStrategy extends SleepingAwaitStrategyBase {
             String line = new String(item.getPayload());
 
             if (matcher.match(line)) {
-                this.containerUp.countDown();
+                this.occurrences--;
+                if (this.occurrences == 0) {
+                    this.containerUp.countDown();
+                }
             }
         }
     }

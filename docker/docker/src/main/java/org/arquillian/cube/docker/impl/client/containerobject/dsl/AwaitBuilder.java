@@ -17,15 +17,20 @@ public class AwaitBuilder {
     private static final int DEFAULT_TIMEOUT = 30;
 
     public static Await logAwait(String matching) {
-        return logAwait(matching, DEFAULT_TIMEOUT);
+        return logAwait(matching, DEFAULT_TIMEOUT, 1);
     }
 
-    public static Await logAwait(String matching, int timeoutInSeconds) {
+    public static Await logAwait(String matching, int occurrences) {
+        return logAwait(matching, DEFAULT_TIMEOUT, occurrences);
+    }
+
+    public static Await logAwait(String matching, int timeoutInSeconds, int occurrences) {
         Await await = new Await();
         await.setStrategy("log");
         await.setMatch(matching);
         await.setTimeout(timeoutInSeconds);
         await.setStdOut(true);
+        await.setOccurrences(occurrences);
 
         return await;
     }
