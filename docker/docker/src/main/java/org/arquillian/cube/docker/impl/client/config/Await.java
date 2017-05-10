@@ -24,6 +24,7 @@ public class Await {
 
     // log
     private String match;
+    private int occurrences = 1;
     private boolean stdOut = true;
     private boolean stdErr;
 
@@ -152,6 +153,14 @@ public class Await {
 
     public Integer getTimeout() {
         return timeout;
+    }
+
+    public void setOccurrences(int occurrences) {
+        this.occurrences = occurrences;
+    }
+
+    public int getOccurrences() {
+        return occurrences;
     }
 
     public void setTimeout(Integer timeout) {

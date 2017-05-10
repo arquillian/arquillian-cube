@@ -297,6 +297,7 @@ public class AwaitStrategyTest {
         await.setStdOut(false);
         await.setStdErr(true);
         await.setTimeout(20);
+        await.setOccurrences(3);
 
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
@@ -308,5 +309,6 @@ public class AwaitStrategyTest {
         assertThat(log.getTimeout(), is(20));
         assertThat(log.isStdOut(), is(false));
         assertThat(log.isStdErr(), is(true));
+        assertThat(log.getOccurrences(), is(3));
     }
 }
