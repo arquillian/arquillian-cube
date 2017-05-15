@@ -184,7 +184,7 @@ public final class ReflectionUtil {
                     if (nextSource.isAnnotationPresent(annotationClass)) {
                         return true;
                     }
-                    nextSource = source.getSuperclass();
+                    nextSource = nextSource.getSuperclass();
                 }
                 return annotationPresent;
             }
