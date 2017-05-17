@@ -22,6 +22,10 @@ public class RedisTest {
     public static ContainerDslRule redis = new ContainerDslRule("redis:3.2.6")
                                                                 .withPortBinding(6379);
 
+    @ClassRule
+    public static ContainerDslRule redisStar = new ContainerDslRule("redis:3.2.6", "redis*")
+                                                    .withPortBinding(6379);
+
     @Test
     public void should_insert_string_in_redis() {
         Jedis jedis = new Jedis(redis.getIpAddress(), redis.getBindPort(6379));
@@ -43,6 +47,11 @@ public class RedisTest {
             .isNotBlank()
             .isEqualToIgnoringWhitespace("Linux");
 
+    }
+
+    @Test
+    public void should_use_random_port_redis_star() {
+        assertThat(redisStar.getBindPort(6379)).isNotEqualTo(6379);
     }
 
 }
