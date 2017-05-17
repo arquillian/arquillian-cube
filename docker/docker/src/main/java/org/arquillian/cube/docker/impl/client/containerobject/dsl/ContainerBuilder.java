@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.client.config.ExposedPort;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,20 @@ public class ContainerBuilder {
 
     public static ContainerBuilder newContainer(String id) {
         return new ContainerBuilder(id);
+    }
+
+    public static ContainerBuilder newContainerFromImage(String image) {
+        ContainerBuilder containerBuilder = new ContainerBuilder(convertImageToId(image));
+        containerBuilder.fromImage(image);
+
+        return containerBuilder;
+    }
+
+    private static String convertImageToId(String imageId) {
+        return imageId
+            .replace('/', '_')
+            .replace(':', '_')
+            .replace('.', '_');
     }
 
     public ContainerOptionsBuilder fromImage(String image) {
@@ -205,6 +221,18 @@ public class ContainerBuilder {
         }
 
         public Container build() {
+
+            if (id.endsWith("*")) {
+
+                final UUID uuid = UUID.randomUUID();
+
+                StarOperator.adaptPortBindingToParallelRun(cubeContainer);
+                StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
+
+                String templateName = id.substring(0, id.lastIndexOf('*'));
+                id = StarOperator.generateNewName(templateName, uuid);
+            }
+
             return new Container(id, cubeContainer, connectionMode);
         }
 

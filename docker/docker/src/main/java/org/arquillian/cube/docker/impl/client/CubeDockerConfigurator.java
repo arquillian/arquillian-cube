@@ -12,6 +12,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
@@ -93,10 +94,10 @@ public class CubeDockerConfigurator {
 
                 CubeContainer cubeContainer = container.getValue();
 
-                adaptPortBindingToParallelRun(cubeContainer);
-                adaptLinksToParallelRun(uuid, cubeContainer);
+                StarOperator.adaptPortBindingToParallelRun(cubeContainer);
+                StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
 
-                String newId = generateNewName(templateName, uuid);
+                String newId = StarOperator.generateNewName(templateName, uuid);
                 resolvedContainers.put(newId, cubeContainer);
             } else {
                 resolvedContainers.put(containerId, container.getValue());
@@ -107,55 +108,4 @@ public class CubeDockerConfigurator {
         return cubeConfiguration;
     }
 
-    private void adaptLinksToParallelRun(UUID uuid, CubeContainer cubeContainer) {
-        final Collection<Link> links = cubeContainer.getLinks();
-
-        if (links == null) {
-            return;
-        }
-
-        for (Link link : links) {
-            if (link.getName().endsWith("*")) {
-                String linkTemplate = link.getName().substring(0, link.getName().lastIndexOf('*'));
-                link.setName(generateNewName(linkTemplate, uuid));
-
-                String environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getName();
-                if (link.isAliasSet()) {
-                    link.setAlias(generateNewName(link.getAlias(), uuid));
-                    environmentVariable = linkTemplate.toUpperCase() + "_HOSTNAME=" + link.getAlias();
-                }
-
-                final Collection<String> env = cubeContainer.getEnv();
-                if (env != null) {
-                    // to avoid duplicates
-                    if (env.contains(environmentVariable)) {
-                        env.remove(environmentVariable);
-                    }
-                } else {
-                    cubeContainer.setEnv(new ArrayList<String>());
-                }
-                cubeContainer.getEnv().add(environmentVariable);
-            }
-        }
-    }
-
-    private void adaptPortBindingToParallelRun(CubeContainer cubeContainer) {
-        final Collection<PortBinding> portBindings = cubeContainer.getPortBindings();
-        if (portBindings == null) {
-            return;
-        }
-        for (PortBinding portBinding : portBindings) {
-            final int randomPrivatePort = generateRandomPrivatePort();
-            portBinding.setBound(randomPrivatePort);
-        }
-    }
-
-    private String generateNewName(String containerName, UUID uuid) {
-        return containerName + "_" + uuid;
-    }
-
-    private int generateRandomPrivatePort() {
-        final int randomPort = random.nextInt(16383);
-        return randomPort + 49152;
-    }
 }
