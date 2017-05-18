@@ -29,6 +29,8 @@ public interface Configuration {
     String NAMESPACE_DESTROY_ENABLED = "namespace.destroy.enabled";
     String NAMESPACE_DESTROY_CONFIRM_ENABLED = "namespace.destroy.confirm.enabled";
     String NAMESPACE_DESTROY_TIMEOUT = "namespace.destroy.timeout";
+
+    String NAMESPACE_USE_CURRENT = "namespace.use.current";
     String NAMESPACE_TO_USE = "namespace.use.existing";
     String NAMESPACE_PREFIX = "namespace.prefix";
 

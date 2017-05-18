@@ -75,7 +75,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
     public static CubeOpenShiftConfiguration fromMap(Map<String, String> map) {
         String sessionId = UUID.randomUUID().toString();
-        String namespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+        String namespace = getBooleanProperty(NAMESPACE_USE_CURRENT, map, false)
+            ? new ConfigBuilder().build().getNamespace()
+            : getStringProperty(NAMESPACE_TO_USE, map, null);
 
         //When a namespace is provided we want to cleanup our stuff...
         // ... without destroying pre-existing stuff.

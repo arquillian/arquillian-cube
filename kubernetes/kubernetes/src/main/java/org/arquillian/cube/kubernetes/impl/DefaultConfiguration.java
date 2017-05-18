@@ -1,5 +1,7 @@
 package org.arquillian.cube.kubernetes.impl;
 
+import io.fabric8.kubernetes.clnt.v2_2.Config;
+import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v2_2.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
 import java.net.MalformedURLException;
@@ -80,7 +82,9 @@ public class DefaultConfiguration implements Configuration {
     public static DefaultConfiguration fromMap(Map<String, String> map) {
         try {
             String sessionId = UUID.randomUUID().toString();
-            String namespace = getStringProperty(NAMESPACE_TO_USE, map, null);
+            String namespace = getBooleanProperty(NAMESPACE_USE_CURRENT, map, false)
+                ? new ConfigBuilder().build().getNamespace()
+                : getStringProperty(NAMESPACE_TO_USE, map, null);
 
             //When a namespace is provided we want to cleanup our stuff...
             // ... without destroying pre-existing stuff.
