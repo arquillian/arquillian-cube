@@ -325,6 +325,16 @@ jedis.set("foo", "bar");
 
 IMPORTANT: You need to add `org.arquillian.cube:rquillian-cube-docker-junit-rule` dependency.
 
+In both approaches (Runner and JUnit Rule) of Container Object DSL way, star operator is supported.
+
+[source, java]
+----
+@ClassRule
+public static ContainerDslRule redisStar = new ContainerDslRule("redis:3.2.6", "redis*")
+                                                .withPortBinding(6379);
+----
+
+
 ==== Network Objects DSL
 
 To create a network using DSL approach you only need to create a field of type `org.arquillian.cube.docker.impl.client.containerobject.dsl.Network` and annotate it with `org.arquillian.cube.docker.impl.client.containerobject.dsl.DockerNetwork`.
