@@ -3606,6 +3606,16 @@ You need to add <code>org.arquillian.cube:rquillian-cube-docker-junit-rule</code
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>In both approaches (Runner and JUnit Rule) of Container Object DSL way, star operator is supported.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ClassRule</span>
+<span class="directive">public</span> <span class="directive">static</span> ContainerDslRule redisStar = <span class="keyword">new</span> ContainerDslRule(<span class="string"><span class="delimiter">&quot;</span><span class="content">redis:3.2.6</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">redis*</span><span class="delimiter">&quot;</span></span>)
+                                                .withPortBinding(<span class="integer">6379</span>);</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -5845,7 +5855,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-10 16:57:27 UTC
+Last updated 2017-05-19 10:29:14 UTC
 </div>
 </div>
 </body>
