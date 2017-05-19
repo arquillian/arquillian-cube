@@ -1,13 +1,10 @@
 package org.arquillian.cube.docker.junit.rule;
 
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
-import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.arquillian.cube.requirement.RequirementRule;
-import org.arquillian.cube.spi.CubeOutput;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import redis.clients.jedis.Jedis;
 
 import static org.assertj.core.api.Assertions.assertThat;

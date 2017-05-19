@@ -70,6 +70,7 @@
     <version.kubernetes_client>2.2.12</version.kubernetes_client>
     <version.snakeyaml>1.18</version.snakeyaml>
     <version.shrinkwrap_resolver>3.0.0-alpha-4</version.shrinkwrap_resolver>
+    <version.shrinkwrap>1.2.6</version.shrinkwrap>
     <version.mockito>1.10.19</version.mockito>
     <version.fabric8_mockwebserver>0.0.13</version.fabric8_mockwebserver>
     <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
