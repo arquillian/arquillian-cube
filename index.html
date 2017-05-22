@@ -5281,6 +5281,13 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">namespace.use.current</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean (false)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Don&#8217;t generate a namespace use the current instead</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.use.existing</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
@@ -5476,6 +5483,25 @@ For debugging purposes, you can set the <strong>namespace.cleanup.enabled</stron
 <p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>arquillian</strong> do that for you.
 In this case you can use the <strong>namespace.use.existing</strong> option to select an existing namespace. This option goes hand in hand with <strong>env.init.enabled</strong> which can be
 used to prevent the extension from modifying the environment.</p>
+</div>
+<div class="paragraph">
+<p>Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case, arquillian cube will delegate to the <a href="https://github.com/fabric8io/kubernetes-client/">Kubernetes Client</a> that will use:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>~/.kube/config</p>
+</li>
+<li>
+<p>/var/run/secrets/kubernetes.io/serviceaccount/namespace</p>
+</li>
+<li>
+<p>the KUBERNETES_NAMESPACE environmnet variable</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>to determine the current namespace.</p>
 </div>
 </div>
 <div class="sect2">
@@ -5855,7 +5881,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-19 10:29:14 UTC
+Last updated 2017-05-22 09:57:45 UTC
 </div>
 </div>
 </body>
