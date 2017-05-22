@@ -51,6 +51,7 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | kubernetes.master                   | URL            | Any | The URL to the Kubernetes master                                                 |
 | kubernetes.domain                   | String         | OSE | Domain to use for creating routes for services                                   |
 | docker.registry                     | String         | Any | The docker registry                                                              |
+| namespace.use.current               | Boolean (false)| Any | Don't generate a namespace use the current instead                               |
 | namespace.use.existing              | String         | Any | Don't generate a namespace use the specified one instead                         |
 | namespace.prefix                    | String (itest) | Any | If you don't specify a namespace, a random one will be created, with this prefix |
 | namespace.lazy.enabled              | Bool (true)    | Any | Should the specified namespace be created if not exists, or throw exception?     |
@@ -91,6 +92,14 @@ For debugging purposes, you can set the **namespace.cleanup.enabled** and **name
 In other cases you may find it useful to manually create and manage the environment rather than having **arquillian** do that for you.
 In this case you can use the **namespace.use.existing** option to select an existing namespace. This option goes hand in hand with **env.init.enabled** which can be
 used to prevent the extension from modifying the environment.
+
+Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case, arquillian cube will delegate to the link:https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that will use:
+
+- ~/.kube/config
+- /var/run/secrets/kubernetes.io/serviceaccount/namespace
+- the KUBERNETES_NAMESPACE environmnet variable
+
+to determine the current namespace.
 
 ### Creating the environment
 After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.
