@@ -22,6 +22,7 @@ import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.FeedbackProvider;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
@@ -46,6 +47,7 @@ import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
 import org.arquillian.cube.kubernetes.impl.install.ResourceInstallerRegistar;
 import org.arquillian.cube.kubernetes.impl.label.DefaultLabelProvider;
 import org.arquillian.cube.kubernetes.impl.label.LabelProviderRegistar;
+import org.arquillian.cube.kubernetes.impl.locator.DefaultKubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.impl.locator.KubernetesResourceLocatorRegistar;
 import org.arquillian.cube.kubernetes.impl.log.LoggerRegistar;
 import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
@@ -80,6 +82,7 @@ public class KubernetesExtension implements LoadableExtension {
             .observer(SessionManagerLifecycle.class);
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
+            .service(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class)
             .service(ResourceInstaller.class, DefaultResourceInstaller.class)
             .service(LabelProvider.class, DefaultLabelProvider.class)
             .service(DependencyResolver.class, ShrinkwrapResolver.class)
