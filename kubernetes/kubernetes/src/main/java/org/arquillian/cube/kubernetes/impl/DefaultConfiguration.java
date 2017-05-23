@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -20,6 +21,8 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_2", generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements Configuration {
+
+    public static final String ROOT = "/";
 
     private final String sessionId;
     private final String namespace;
@@ -174,7 +177,7 @@ public class DefaultConfiguration implements Configuration {
         } else if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
             return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
         } else {
-            String defaultValue = "/" + DEFAULT_CONFIG_FILE_NAME;
+            String defaultValue = ROOT + DEFAULT_CONFIG_FILE_NAME;
             String resourceName = Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, defaultValue);
             URL answer = findConfigResource(resourceName);
             if (answer == null) {
@@ -195,8 +198,27 @@ public class DefaultConfiguration implements Configuration {
         if (Strings.isNullOrEmpty(resourceName)) {
             return null;
         }
-        return resourceName.startsWith("/") ? DefaultConfiguration.class.getResource(resourceName)
-            : DefaultConfiguration.class.getResource("/" + resourceName);
+
+        final URL url = resourceName.startsWith(ROOT) ? DefaultConfiguration.class.getResource(resourceName)
+            : DefaultConfiguration.class.getResource(ROOT + resourceName);
+
+        if (url != null) {
+            return url;
+        }
+
+        // This is useful to get resource under META-INF directory
+        String[] resourceNamePrefix = new String[] {"META-INF/fabric8/", "META-INF/fabric8/"};
+
+        for (String resource : resourceNamePrefix) {
+            String fullResourceName = resource + resourceName;
+
+            URL candidate = KubernetesResourceLocator.class.getResource(fullResourceName.startsWith(ROOT) ? fullResourceName : ROOT + fullResourceName);
+            if (candidate != null) {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     /**
