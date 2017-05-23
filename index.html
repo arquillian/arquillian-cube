@@ -5518,6 +5518,10 @@ used to prevent the extension from modifying the environment.</p>
 Of course it is also possible to specify an external resource by URL using the <strong>env.config.url</strong>.</p>
 </li>
 <li>
+<p>While finding resource in classpath with property <strong>env.config.resource.name</strong>, cube will look into classpath with given name, if not found, then cube will continue to look into classpath under META-INF/fabric8/ directory.
+Using this you can put multiple resources(openshift.json, openshift.yml) inside META-INF/fabric8, and choose only required one by specifying <strong>env.config.resource.name</strong> property.</p>
+</li>
+<li>
 <p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
 To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
 </li>
@@ -5881,7 +5885,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-22 09:57:45 UTC
+Last updated 2017-05-23 05:53:00 UTC
 </div>
 </div>
 </body>
