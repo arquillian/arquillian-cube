@@ -80,6 +80,7 @@
     <version.arquillian.reporter>0.0.3</version.arquillian.reporter>
     <version.restassured>3.0.3</version.restassured>
     <version.jgit>4.5.0.201609210915-r</version.jgit>
+    <version.systemrules>1.16.0</version.systemrules>
   </properties>
 
   <dependencyManagement>
@@ -233,6 +234,12 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${version.assertj}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.stefanbirkner</groupId>
+        <artifactId>system-rules</artifactId>
+        <version>${version.systemrules}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
