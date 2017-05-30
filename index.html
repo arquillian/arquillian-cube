@@ -544,6 +544,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_auto_starting_cubes_outside_of_arquillian_containers">10.3. Auto starting Cubes outside of Arquillian Containers</a></li>
 <li><a href="#_auto_remapping">10.4. Auto-Remapping</a></li>
 <li><a href="#_dockerserverip_and_containers">10.5. DockerServerIp and Containers</a></li>
+<li><a href="#_system_properties_injection">10.6. System Properties Injection</a></li>
 </ul>
 </li>
 <li><a href="#_parallel_execution">11. Parallel Execution</a>
@@ -2984,6 +2985,36 @@ In case you are running in <em>MACOS</em> or <em>Windows</em> with boot2docker, 
 </div>
 <div class="paragraph">
 <p>And in case you are running on <em>Windows</em> or <em>MacOS</em>, `host`property will be automatically set to the +boot2docker +<em>ip</em>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_system_properties_injection"><a class="anchor" href="#_system_properties_injection"></a>10.6. System Properties Injection</h3>
+<div class="paragraph">
+<p>Arquillian Cube sets some system properties to be used in tests in case you cannot use enrichers (i.e in case of JUnit rules).
+These system properties are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>arq.cube.docker.host</code> with Docker Host host.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For each container started:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>arq.cube.docker.&lt;cubeid&gt;.ip</code> with container ip.</p>
+</li>
+<li>
+<p><code>arq.cube.docker.&lt;cubeid&gt;.internal.ip</code> with container internal ip.</p>
+</li>
+<li>
+<p><code>arq.cube.docker.&lt;cubeid&gt;.port.&lt;exposedport&gt;</code> with binding port of giving exposed port.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -5885,7 +5916,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-23 05:53:00 UTC
+Last updated 2017-05-30 10:28:27 UTC
 </div>
 </div>
 </body>
