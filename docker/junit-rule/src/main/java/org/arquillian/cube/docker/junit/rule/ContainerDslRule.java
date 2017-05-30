@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.junit.rule;
 
 import org.arquillian.cube.HostIpContext;
+import org.arquillian.cube.docker.impl.client.SystemPropertiesCubeSetter;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.BindMode;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.Container;
@@ -10,9 +11,13 @@ import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeOutput;
 import org.arquillian.cube.spi.CubeRegistry;
+import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
+import org.arquillian.cube.spi.event.lifecycle.AfterStart;
 import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
+import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -29,6 +34,7 @@ public class ContainerDslRule implements TestRule {
 
 
     private DockerClientExecutor dockerClientExecutor;
+    private SystemPropertiesCubeSetter systemPropertiesCubeSetter = new SystemPropertiesCubeSetter();
 
     private ContainerBuilder.ContainerOptionsBuilder containerBuilder;
     private Container container;
@@ -66,6 +72,8 @@ public class ContainerDslRule implements TestRule {
 
     private void initializeDockerClient() {
         this.dockerClientExecutor = DockerClientInitializer.initialize();
+        // Since we are out of arquillian runner we need to call events by ourselves.
+        this.systemPropertiesCubeSetter.createDockerHostProperty(new BeforeSuite(), this.dockerClientExecutor);
     }
 
     public ContainerDslRule withExposedPorts(Integer... ports) {
@@ -205,6 +213,8 @@ public class ContainerDslRule implements TestRule {
                     dockerCube.create();
                     dockerCube.start();
 
+                    systemPropertiesCubeSetter.createCubeSystemProperties(new AfterStart(dockerCube.getId()), localCubeRegistry);
+
                     // Run tests
                     base.evaluate();
 
@@ -214,6 +224,9 @@ public class ContainerDslRule implements TestRule {
                     // stop container
                     dockerCube.stop();
                     dockerCube.destroy();
+
+                    systemPropertiesCubeSetter.removeCubeSystemProperties(new AfterDestroy(dockerCube.getId()));
+                    systemPropertiesCubeSetter.removeDockerHostProperty(new AfterSuite());
                 }
 
                 MultipleFailureException.assertEmpty(errors);

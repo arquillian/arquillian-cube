@@ -336,3 +336,16 @@ So previous example could be modified to:
 ----
 
 And in case you are running on _Windows_ or _MacOS_, `host`property will be automatically set to the +boot2docker +_ip_.
+
+=== System Properties Injection
+
+Arquillian Cube sets some system properties to be used in tests in case you cannot use enrichers (i.e in case of JUnit rules).
+These system properties are:
+
+* `arq.cube.docker.host` with Docker Host host.
+
+For each container started:
+
+* `arq.cube.docker.<cubeid>.ip` with container ip.
+* `arq.cube.docker.<cubeid>.internal.ip` with container internal ip.
+* `arq.cube.docker.<cubeid>.port.<exposedport>` with binding port of giving exposed port.
