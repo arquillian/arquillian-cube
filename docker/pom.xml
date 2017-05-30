@@ -59,6 +59,7 @@
     <module>ftest-standalone-star-operator-docker-compose</module>
     <module>ftest-docker-compose-v2-git-context</module>
     <module>ftest-docker-junit-rule</module>
+    <module>ftest-system-properties</module>
   </modules>
 
 </project>
