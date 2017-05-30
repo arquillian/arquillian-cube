@@ -161,6 +161,7 @@ public final class PortForwarder implements Closeable {
             System.out.println(
                 "Usage: portforward <namespace> <pod> <source-port> <target-port> -b [optional] <bindAddress>");
             System.out.println("Example: portforward mynamespace somepod 8080 8080 -b 10.1.1.1");
+            System.exit(1);
         }
 
         final String namespace = args[0];
