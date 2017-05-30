@@ -6,6 +6,8 @@ import io.fabric8.kubernetes.clnt.v2_2.KubernetesClientException;
 import io.fabric8.openshift.api.model.v2_2.ProjectRequest;
 import io.fabric8.openshift.api.model.v2_2.ProjectRequestBuilder;
 import io.fabric8.openshift.clnt.v2_2.OpenShiftClient;
+
+import java.util.Collections;
 import java.util.Map;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
@@ -41,29 +43,13 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
-            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-            ProjectRequest projectRequest = new ProjectRequestBuilder()
-                .withNewMetadata()
-                .withName(namespace)
-                .withAnnotations(annotations)
-                .addToLabels(labelProvider.getLabels())
-                .addToLabels(PROJECT_LABEL, client.getNamespace())
-                .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                .endMetadata()
-                .build();
-
-            ProjectRequest request = openShiftClient.projectrequests().create(projectRequest);
-            return openShiftClient.namespaces().withName(request.getMetadata().getName()).get();
-        }
-
-        @Override
-        public Namespace create(String namespace) {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                logger.status("Creating project: " + namespace);
                 ProjectRequest projectRequest = new ProjectRequestBuilder()
                     .withNewMetadata()
                     .withName(namespace)
+                    .withAnnotations(annotations)
                     .addToLabels(labelProvider.getLabels())
                     .addToLabels(PROJECT_LABEL, client.getNamespace())
                     .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
@@ -72,17 +58,29 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
                     .build();
 
                 ProjectRequest request = openShiftClient.projectrequests().create(projectRequest);
+                logger.info("To switch to the new project: oc project " + namespace);
                 return openShiftClient.namespaces().withName(request.getMetadata().getName()).get();
             } else {
-                return super.create(namespace);
+                return super.create(namespace, annotations);
             }
+        }
+
+        @Override
+        public Namespace create(String namespace) {
+           return create(namespace, Collections.emptyMap());
         }
 
         @Override
         public Boolean delete(String namespace) {
             if (client.isAdaptable(OpenShiftClient.class)) {
+
+                logger.info("Deleting project: " + namespace + "...");
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-                return openShiftClient.projects().withName(namespace).delete();
+                Boolean deleted = openShiftClient.projects().withName(namespace).delete();
+                if (deleted) {
+                    logger.info("Project: " + namespace + ", successfully deleted");
+                }
+                return deleted;
             } else {
                 return super.delete(namespace);
             }

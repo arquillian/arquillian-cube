@@ -113,7 +113,8 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
-            return client.namespaces().createNew().withNewMetadata()
+            logger.status("Creating namespace: " + namespace + "...");
+            Namespace result = client.namespaces().createNew().withNewMetadata()
                 .withName(namespace)
                 .withAnnotations(annotations)
                 .addToLabels(labelProvider.getLabels())
@@ -122,6 +123,10 @@ public class DefaultNamespaceService implements NamespaceService {
                 .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
                 .endMetadata()
                 .done();
+            logger.info(
+                "To switch to the new namespace: kubectl config set-context `kubectl config current-context` --namespace="
+                    + namespace);
+            return result;
         }
 
         @Override
@@ -134,7 +139,12 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Boolean delete(String namespace) {
-            return client.namespaces().withName(namespace).delete();
+            logger.info("Deleting namespace: " + namespace + "...");
+            Boolean deleted = client.namespaces().withName(namespace).delete();
+            if (deleted) {
+                logger.info("Namespace: " + namespace + ", successfully deleted");
+            }
+            return deleted;
         }
 
         @Override
