@@ -22,7 +22,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public final class PortForwarder implements Closeable {
     private static final String PORT_FWD = "%sapi/v1/namespaces/%s/pods/%s/portforward";
     private static final AtomicInteger requestId = new AtomicInteger();
     private final OptionMap DEFAULT_OPTIONS;
-    private InetAddress portForwardBindAddress;
+    private InetAddress portForwardBindAddress = Inet4Address.getLoopbackAddress();
     private URI portForwardURI;
     private Pool<ByteBuffer> bufferPoolSlice;
     private ByteBufferPool bufferPool;
@@ -206,11 +205,7 @@ public final class PortForwarder implements Closeable {
 
     public void setPortForwardBindAddress(InetAddress bindAddress) {
         if (bindAddress == null) {
-            try {
-                bindAddress = Inet4Address.getLocalHost();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+            bindAddress = Inet4Address.getLoopbackAddress();
         }
         portForwardBindAddress = bindAddress;
     }
