@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -19,6 +21,7 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
+import org.arquillian.spacelift.execution.ExecutionException;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
@@ -62,18 +65,22 @@ public class CubeDockerConfigurator {
     }
 
     private void configure(ArquillianDescriptor arquillianDescriptor) {
-        operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
-        Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
-        CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
-            dockerMachineInstance.get(),
-            boot2DockerInstance.get(),
-            operatingSystemFamilyInstanceProducer.get());
-        resolver.resolve(config);
-        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
-        cubeConfiguration = resolveDynamicNames(cubeConfiguration);
-        System.out.println(cubeConfiguration);
-        hostUriContextInstanceProducer.set(new HostIpContext(cubeConfiguration.getDockerServerIp()));
-        configurationProducer.set(cubeConfiguration);
+        try {
+            operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
+            Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
+            CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
+                dockerMachineInstance.get(),
+                boot2DockerInstance.get(),
+                operatingSystemFamilyInstanceProducer.get());
+            resolver.resolve(config);
+            CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
+            cubeConfiguration = resolveDynamicNames(cubeConfiguration);
+            System.out.println(cubeConfiguration);
+            hostUriContextInstanceProducer.set(new HostIpContext(cubeConfiguration.getDockerServerIp()));
+            configurationProducer.set(cubeConfiguration);
+        } catch (ExecutionException e) {
+            log.log(Level.WARNING, "Error executing docker command", e);
+        }
     }
 
     CubeDockerConfiguration resolveDynamicNames(CubeDockerConfiguration cubeConfiguration) {
