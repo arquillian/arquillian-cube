@@ -133,7 +133,7 @@ Finally in _env_ section, environment variables are set. Read next link to under
 
 == Standalone Example
 
-In previous example you have seen how to to start a Docker container, deploy an _Shrinkrap_ element using `@Deployment` to finally execute the test inside Docker container, get the results and stops everything.
+In previous example you have seen how to to start a Docker container, deploy an _Shrinkwrap_ element using `@Deployment` to finally execute the test inside Docker container, get the results and stops everything.
 
 But this is not the only way of using Arquillian Cube.
 Sometimes you already have your container image created and you want to test that it starts, that exposes correctly the ports and of course that for example the deployment file is in the correct place.
