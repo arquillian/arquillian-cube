@@ -91,22 +91,14 @@ public class SessionManager implements SessionCreatedListener {
      * @param session   The {@link Session}.
      */
     public void createNamespace(Session session) {
-        Logger log = session.getLogger();
-        String namespace = session.getNamespace();
-
-        log.status("Creating kubernetes resources inside namespace: " + namespace);
-        log.info("if you use OpenShift then type this switch namespaces:     oc project " + namespace);
-        log.info(
-            "if you use kubernetes then type this to switch namespaces: kubectl config set-context `kubectl config current-context` --namespace="
-                + namespace);
-
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         if (namespaceService.exists(session.getNamespace())) {
             //namespace exists
         } else if (configuration.isNamespaceLazyCreateEnabled()) {
             namespaceService.create(session.getNamespace(), namespaceAnnotations);
         } else {
-            throw new IllegalStateException("Namespace [" + session.getNamespace() + "] doesn't exists");
+            throw new IllegalStateException("Namespace [" + session.getNamespace() + "] doesn't exist and lazily creation of namespaces is disabled. "
+            + "Either use an existing one, or set `namespace.lazy.enabled` to true.");
         }
     }
 
