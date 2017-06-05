@@ -201,15 +201,15 @@ The next example is intended to how you can inject a resource by id.
     @RunWith(Arquillian.class)
     public class ResourceByIdTest {
 
-     @ArquillianResouce
+     @ArquillianResource
      @Named("my-serivce")
      Service service;
 
-     @ArquillianResouce
+     @ArquillianResource
      @Named("my-pod")
      Pod pod;
 
-     @ArquillianResouce
+     @ArquillianResource
      @Named("my-contoller")
      ReplicationController controller;
 
@@ -229,13 +229,13 @@ The next example is intended to how you can inject a resource list.
     @RunWith(Arquillian.class)
     public class ResourceListExample {
 
-     @ArquillianResouce
+     @ArquillianResource
      ServiceList services;
 
-     @ArquillianResouce
+     @ArquillianResource
      PodList pods;
 
-     @ArquillianResouce
+     @ArquillianResource
      ReplicationControllers controllers;
 
       @Test
