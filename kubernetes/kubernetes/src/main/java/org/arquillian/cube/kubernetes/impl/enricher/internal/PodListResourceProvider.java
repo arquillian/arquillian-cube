@@ -1,12 +1,13 @@
 package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
+
+import io.fabric8.kubernetes.api.model.v2_2.PodList;
+
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
-
-import java.lang.annotation.Annotation;
-
-import io.fabric8.kubernetes.api.model.v2_2.PodList;
 
 /**
  * A {@link ResourceProvider} for {@link PodList}.
@@ -21,6 +22,11 @@ public class PodListResourceProvider extends AbstractKubernetesResourceProvider 
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().pods().inNamespace(getSession().getNamespace()).list();
+        Map<String, String> labels = getLabels(qualifiers);
+        if( labels.isEmpty() ) {
+            return getClient().pods().inNamespace(getSession().getNamespace()).list();
+        } else {
+            return getClient().pods().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        }
     }
 }

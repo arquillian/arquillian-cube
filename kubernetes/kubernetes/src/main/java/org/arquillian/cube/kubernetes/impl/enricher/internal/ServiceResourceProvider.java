@@ -1,12 +1,15 @@
 package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
+
+import io.fabric8.kubernetes.api.model.v2_2.Service;
+import io.fabric8.kubernetes.api.model.v2_2.ServiceList;
+
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
-
-import java.lang.annotation.Annotation;
-
-import io.fabric8.kubernetes.api.model.v2_2.Service;
 
 /**
  * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_2.ServiceList}.
@@ -21,6 +24,19 @@ public class ServiceResourceProvider extends AbstractKubernetesResourceProvider 
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().services().inNamespace(getSession().getNamespace()).withName(getName(qualifiers)).get();
+        String name = getName(qualifiers);
+        if (name != null) {
+            return getClient().services().inNamespace(getSession().getNamespace()).withName(name).get();
+        }
+
+        // Gets the first service found that matches the labels.
+        Map<String, String> labels = getLabels(qualifiers);
+        ServiceList list = getClient().services().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        List<Service> services = list.getItems();
+        if( !services.isEmpty() ) {
+            return services.get(0);
+        }
+
+        return null;
     }
 }

@@ -1,12 +1,15 @@
 package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
+
+import io.fabric8.kubernetes.api.model.v2_2.Pod;
+import io.fabric8.kubernetes.api.model.v2_2.PodList;
+
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
-
-import java.lang.annotation.Annotation;
-
-import io.fabric8.kubernetes.api.model.v2_2.Pod;
 
 /**
  * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_2.PodList}.
@@ -21,6 +24,19 @@ public class PodResourceProvider extends AbstractKubernetesResourceProvider {
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().pods().inNamespace(getSession().getNamespace()).withName(getName(qualifiers)).get();
+        String name = getName(qualifiers);
+        if (name != null) {
+            return getClient().pods().inNamespace(getSession().getNamespace()).withName(name).get();
+        }
+
+        // Gets the first pod found that matches the labels.
+        Map<String, String> labels = getLabels(qualifiers);
+        PodList list = getClient().pods().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        List<Pod> pods = list.getItems();
+        if( !pods.isEmpty() ) {
+            return pods.get(0);
+        }
+
+        return null;
     }
 }

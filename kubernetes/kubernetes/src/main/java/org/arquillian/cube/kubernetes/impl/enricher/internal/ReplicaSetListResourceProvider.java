@@ -5,6 +5,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 import io.fabric8.kubernetes.api.model.v2_2.extensions.ReplicaSetList;
 
@@ -21,6 +22,11 @@ public class ReplicaSetListResourceProvider extends AbstractKubernetesResourcePr
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().extensions().replicaSets().inNamespace(getSession().getNamespace()).list();
+        Map<String, String> labels = getLabels(qualifiers);
+        if (labels.isEmpty()) {
+            return getClient().extensions().replicaSets().inNamespace(getSession().getNamespace()).list();
+        } else {
+            return getClient().extensions().replicaSets().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        }
     }
 }

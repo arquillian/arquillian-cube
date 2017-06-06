@@ -5,8 +5,11 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 
 import io.fabric8.kubernetes.api.model.v2_2.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.v2_2.extensions.ReplicaSetList;
 
 /**
  * A {@link ResourceProvider} for {@link ReplicaSet}.
@@ -20,10 +23,23 @@ public class ReplicaSetResourceProvider extends AbstractKubernetesResourceProvid
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().extensions()
-            .replicaSets()
-            .inNamespace(getSession().getNamespace())
-            .withName(getName(qualifiers))
-            .get();
+        String name = getName(qualifiers);
+        if (name != null) {
+            return getClient().extensions()
+                .replicaSets()
+                .inNamespace(getSession().getNamespace())
+                .withName(getName(qualifiers))
+                .get();
+        }
+
+        // Gets the first replica set found that matches the labels.
+        Map<String, String> labels = getLabels(qualifiers);
+        ReplicaSetList list = getClient().extensions().replicaSets().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        List<ReplicaSet> replicaSets = list.getItems();
+        if( !replicaSets.isEmpty() ) {
+            return replicaSets.get(0);
+        }
+
+        return null;
     }
 }

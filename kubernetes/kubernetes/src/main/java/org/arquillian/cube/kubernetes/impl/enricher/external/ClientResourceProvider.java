@@ -1,13 +1,11 @@
 package org.arquillian.cube.kubernetes.impl.enricher.external;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+
 import io.fabric8.kubernetes.clnt.v2_2.Config;
 import io.fabric8.kubernetes.clnt.v2_2.DefaultKubernetesClient;
 import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_2.utils.Serialization;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -30,11 +28,11 @@ public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
         if (client == null) {
             throw new IllegalStateException("Unable to inject Kubernetes client into test.");
         }
-        return createUserClinet(client);
+        return createUserClient(client);
     }
 
 
-    private Object createUserClinet(KubernetesClient client) {
+    private Object createUserClient(KubernetesClient client) {
         Config config = client.getConfiguration();
 
         Object userConfig = toUsersResource(config);
