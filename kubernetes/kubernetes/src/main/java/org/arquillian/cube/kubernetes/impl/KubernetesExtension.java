@@ -56,6 +56,7 @@ import org.arquillian.cube.kubernetes.impl.resolve.DependencyResolverRegistar;
 import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
 import org.arquillian.cube.kubernetes.impl.visitor.DockerRegistryVisitor;
 import org.arquillian.cube.kubernetes.impl.visitor.LoggingVisitor;
+import org.arquillian.cube.kubernetes.impl.visitor.NamespaceVisitor;
 import org.arquillian.cube.kubernetes.impl.visitor.ServiceAccountVisitor;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -91,6 +92,7 @@ public class KubernetesExtension implements LoadableExtension {
             .service(Visitor.class, LoggingVisitor.class)
             .service(Visitor.class, DockerRegistryVisitor.class)
             .service(Visitor.class, ServiceAccountVisitor.class)
+            .service(Visitor.class, NamespaceVisitor.class)
 
             //External
             .service(ResourceProvider.class, ClientResourceProvider.class)
