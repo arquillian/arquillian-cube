@@ -159,11 +159,11 @@ The resource providers available, can be used to inject to your test cases the f
 
 - A kubernetes client as an instance of KubernetesClient
 - Session object that contains information (e.g. the namespace) or the uuid of the test session.
-- Deployments *(by id or as a list of all deployments created during the session)*
-- Pods *(by id or as a list of all pods created during the session)*
-- Replication Controllers *(by id or as a list of all replication controllers created during the session)*
-- Replica Sets *(by id or as a list of all replica sets created during the session)*
-- Services *(by id or as a list of all services created during the session)*
+- Deployments *(by id or as a list of all deployments created during the session, optionally filtered by label)*
+- Pods *(by id or as a list of all pods created during the session, optionally filtered by label)*
+- Replication Controllers *(by id or as a list of all replication controllers created during the session, optionally filtered by label)*
+- Replica Sets *(by id or as a list of all replica sets created during the session, optionally filtered by label)*
+- Services *(by id or as a list of all services created during the session, optionally filtered by label)*
 
 The Openshift extension also provides:
 
@@ -220,6 +220,34 @@ The next example is intended to how you can inject a resource by id.
     }
 ----
 
+The next example shows how to inject a resource filtering by label.
+
+[source, java]
+.ResourceByLabelTest.java
+----
+
+    @RunWith(Arquillian.class)
+    public class ResourceByLabelTest {
+
+     @ArquillianResource
+     @WithLabel(name="app", value="my-app")
+     Service service;
+
+     @ArquillianResource
+     @WithLabel(name="app", value="my-app")
+     Pod pod;
+
+     @ArquillianResource
+     @WithLabel(name="app", value="my-app")
+     ReplicationController controller;
+
+      @Test
+      public void testStuff() throws Exception {
+       //Do stuff...
+      }
+    }
+----
+
 The next example is intended to how you can inject a resource list.
 
 [source, java]
@@ -236,7 +264,7 @@ The next example is intended to how you can inject a resource list.
      PodList pods;
 
      @ArquillianResource
-     ReplicationControllers controllers;
+     ReplicationControllerList controllers;
 
       @Test
       public void testStuff() throws Exception {
