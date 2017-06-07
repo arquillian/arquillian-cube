@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.arquillian.cube.docker.impl.client.CubeDockerConfigurator.DOCKER_HOST;
@@ -210,6 +209,11 @@ public class CubeDockerConfigurationResolver {
                 dockerServerUri =
                     resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
             }
+
+            if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
+                config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
+            }
+
         }
 
         config.put(CubeDockerConfiguration.DOCKER_URI, dockerServerUri);
@@ -237,6 +241,7 @@ public class CubeDockerConfigurationResolver {
         }
 
         if (scheme.equals(HTTP_SCHEME) || scheme.equals(HTTPS_SCHEME) || scheme.equals(TCP_SCHEME)) {
+
             if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
                 config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(scheme.equals(HTTPS_SCHEME)));
             }

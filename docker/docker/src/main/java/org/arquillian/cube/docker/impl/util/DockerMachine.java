@@ -129,7 +129,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
      * @param field
      *     to use in condition
      * @param value
-     *     value that the field shoudl have
+     *     value that the field should have
      *
      * @return set of machines
      */
