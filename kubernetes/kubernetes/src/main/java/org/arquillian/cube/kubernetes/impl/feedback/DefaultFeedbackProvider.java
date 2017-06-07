@@ -120,7 +120,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 fields.put("involvedObject.name", pod.getMetadata().getName());
                 fields.put("involvedObject.namespace", pod.getMetadata().getNamespace());
 
-                EventList eventList = client.events().withFields(fields).list();
+                EventList eventList = client.events().inNamespace(pod.getMetadata().getNamespace()).withFields(fields).list();
                 if (eventList == null) {
                     return;
                 }
