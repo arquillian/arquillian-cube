@@ -23,7 +23,7 @@ public class DockerMachine extends AbstractCliInternetAddressResolver {
     @Override
     protected String[] getCommandArguments(String cliPathExec) {
         if (machineName == null) {
-            throw new IllegalArgumentException("Machine Name cannot be null");
+            throw new IllegalArgumentException("Machine Name cannot be null and couldn't be autoresolved.");
         }
 
         return new String[] {createDockerMachineCommand(cliPathExec), "ip", machineName};

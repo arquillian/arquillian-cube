@@ -1,14 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -21,6 +12,17 @@ import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.task.net.DownloadTool;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.arquillian.cube.docker.impl.client.CubeDockerConfigurator.DOCKER_HOST;
 
@@ -41,7 +43,7 @@ public class CubeDockerConfigurationResolver {
     private final OperatingSystemFamily operatingSystemFamily;
 
     public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
-        OperatingSystemFamily operatingSystemFamily) {
+                                           OperatingSystemFamily operatingSystemFamily) {
         this.top = top;
         this.dockerMachine = dockerMachine;
         this.boot2Docker = boot2Docker;
@@ -51,9 +53,7 @@ public class CubeDockerConfigurationResolver {
     /**
      * Resolves the configuration.
      *
-     * @param config
-     *     The specified configuration.
-     *
+     * @param config The specified configuration.
      * @return The resolved configuration.
      */
     public Map<String, String> resolve(Map<String, String> config) {
@@ -120,28 +120,30 @@ public class CubeDockerConfigurationResolver {
 
     private Map<String, String> resolveAutoStartDockerMachine(Map<String, String> config) {
 
-        if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-            final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
-            if (dockerMachine.isDockerMachineInstalled(cliPathExec)) {
-                String machineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
-                final Set<Machine> machines = dockerMachine.list(cliPathExec, "name", machineName);
+        final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
+        if (dockerMachine.isDockerMachineInstalled(cliPathExec)) {
+            final Set<Machine> allMachines = dockerMachine.list(cliPathExec);
 
-                if (machines.size() == 1) {
-                    Machine machine = getFirstMachine(machines);
-                    if (machine.getState().equalsIgnoreCase("Stopped")) {
-                        dockerMachine.startDockerMachine(cliPathExec, machineName);
-                    }
-                } else {
-                    log.log(Level.SEVERE, String.format(
-                        "You are trying to run containers in Docker Machine %s but %s Docker Machines instances are installed.",
-                        config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME), machines));
-                }
+            Optional<Machine> machine = Optional.empty();
+
+            if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
+                String configuredMachineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
+
+                machine = allMachines.stream()
+                    .filter(m -> configuredMachineName.equals(m.getName()))
+                    .filter(m -> "Stopped".equalsIgnoreCase(m.getState()))
+                    .findFirst();
+
             } else {
-                log.log(Level.SEVERE, String.format(
-                    "You are trying to run containers in Docker Machine %s but no docker-machine installed.",
-                    config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME)));
+                if (allMachines.size() == 1 && "Stopped".equalsIgnoreCase(allMachines.iterator().next().getState())) {
+                    machine = Optional.of(allMachines.iterator().next());
+                }
             }
+
+            machine.ifPresent(m -> dockerMachine.startDockerMachine(cliPathExec, m.getName()));
+
         }
+
         return config;
     }
 
@@ -313,7 +315,7 @@ public class CubeDockerConfigurationResolver {
     }
 
     private String resolveBoot2Docker(String tag,
-        String boot2DockerPath) {
+                                      String boot2DockerPath) {
         return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG, boot2Docker.ip(boot2DockerPath, false));
     }
 
