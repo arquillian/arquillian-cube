@@ -58,7 +58,7 @@ class DockerJavaAssertionsSpec extends Specification {
 
         then:
             AssertionError er = thrown()
-            er.message == String.format("%nExpecting:%n <%s>%nto contain:%n <%s>", "[foo]", "[foo, bar]")
+            er.message == String.format("[Extracted: id] %nExpecting:%n <%s>%nto contain:%n <%s>", "[foo]", "[foo, bar]")
     }
 
     def "exposedPorts [8080/tcp, 80/tcp] should exist"() {
