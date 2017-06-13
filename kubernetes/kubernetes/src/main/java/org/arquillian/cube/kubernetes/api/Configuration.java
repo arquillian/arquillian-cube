@@ -67,6 +67,8 @@ public interface Configuration {
 
     URL getEnvironmentConfigUrl();
 
+    List<URL> getEnvironmentConfigAdditionalUrls();
+
     List<URL> getEnvironmentDependencies();
 
     String getSessionId();

@@ -5,8 +5,11 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Map;
 
 import io.fabric8.kubernetes.api.model.v2_2.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.v2_2.extensions.DeploymentList;
 
 /**
  * A {@link ResourceProvider} for {@link Deployment}.
@@ -20,10 +23,23 @@ public class DeploymentResourceProvider extends AbstractKubernetesResourceProvid
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
-        return getClient().extensions()
-            .deployments()
-            .inNamespace(getSession().getNamespace())
-            .withName(getName(qualifiers))
-            .get();
+        String name = getName(qualifiers);
+        if (name != null) {
+            return getClient().extensions()
+                .deployments()
+                .inNamespace(getSession().getNamespace())
+                .withName(getName(qualifiers))
+                .get();
+        }
+
+        // Gets the first deployment that matches the labels.
+        Map<String, String> labels = getLabels(qualifiers);
+        DeploymentList list = getClient().extensions().deployments().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        List<Deployment> deployments = list.getItems();
+        if( !deployments.isEmpty() ) {
+            return deployments.get(0);
+        }
+
+        return null;
     }
 }

@@ -9,7 +9,12 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.arquillian.cube.kubernetes.annotations.Named;
+import org.arquillian.cube.kubernetes.annotations.WithLabel;
+import org.arquillian.cube.kubernetes.annotations.WithLabels;
 import org.arquillian.cube.kubernetes.impl.DefaultSession;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -29,7 +34,7 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
     private Instance<KubernetesClient> client;
 
     @Inject
-    private Instance<DefaultSession> seesion;
+    private Instance<DefaultSession> session;
 
     protected String getName(Annotation... qualifiers) {
         for (Annotation annotation : qualifiers) {
@@ -43,6 +48,22 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
         return null;
     }
 
+    protected Map<String, String> getLabels(Annotation... qualifiers) {
+        HashMap<String, String> rc = new HashMap<>();
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof WithLabel) {
+                WithLabel l = (WithLabel) annotation;
+                rc.put(l.name(), l.value());
+            } else if (annotation instanceof WithLabels) {
+                WithLabels ls = (WithLabels) annotation;
+                for (WithLabel l : ls.value()) {
+                    rc.put(l.name(), l.value());
+                }
+            }
+        }
+        return rc;
+    }
+
 
     protected String internalToUserType(String fqn) {
        return fqn.replaceAll(VERSION_PACKAGE_PATTERN, "").replaceAll(CLNT, CLIENT);
@@ -53,14 +74,17 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
     }
 
     protected <I,O> O toUsersResource(I input, String className) {
-        String json = Serialization.asJson(input);
-        try {
-            return (O) Serialization.jsonMapper()
-                                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                    .readValue(json, loadClass(className));
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to deserialize json into an object of class:["+className+"].");
+        if (input != null) {
+            String json = Serialization.asJson(input);
+            try {
+                return (O) Serialization.jsonMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(json, loadClass(className));
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to deserialize json into an object of class:[" + className + "].");
+            }
         }
+        return null;
     }
 
 
@@ -111,6 +135,6 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
     }
 
     public DefaultSession getSession() {
-        return seesion.get();
+        return session.get();
     }
 }

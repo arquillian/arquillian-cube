@@ -1,15 +1,20 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.clnt.v2_2.Config;
-import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
-import io.sundr.builder.annotations.Buildable;
-import io.sundr.builder.annotations.BuildableReference;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import io.fabric8.kubernetes.clnt.v2_2.Config;
+import io.fabric8.kubernetes.clnt.v2_2.ConfigBuilder;
+import io.sundr.builder.annotations.Buildable;
+import io.sundr.builder.annotations.BuildableReference;
+
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 
@@ -36,6 +41,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
     private static final String PORT_FORWARDER_BIND_ADDRESS = "portForwardBindAddress";
 
+    private static final String DEFAULT_OPENSHIFT_CONFIG_FILE_NAME = "openshift.json";
+
     private final boolean keepAliveGitServer;
     private final String definitions;
     private final String definitionsFile;
@@ -44,7 +51,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final String portForwardBindAddress;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl,
-        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
+        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
         boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
@@ -53,7 +60,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
         String portForwardBindAddress) {
         super(sessionId, masterUrl, namespace, environmentSetupScriptUrl, environmentTeardownScriptUrl,
-            environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
+            environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
@@ -89,6 +96,26 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
             shouldDestroyNamespace = true;
             shouldCleanupNamespace = false;
         }
+
+        // Lets also try to load the image stream for the project.
+        List<URL> additionalUrls = new LinkedList<>();
+        File targetDir = new File(System.getProperty("basedir", ".") + "/target");
+         if (targetDir.exists() && targetDir.isDirectory()) {
+            File[]files = targetDir.listFiles();
+             if (files != null) {
+                 for (File file : files) {
+                     if (file.getName().endsWith("-is.yml")) {
+                         try {
+                             additionalUrls.add(file.toURI().toURL());
+                         } catch (MalformedURLException e) {
+                             // ignore
+                         }
+                    }
+                }
+            }
+        }
+
+
         try {
             return new CubeOpenShiftConfigurationBuilder()
                 .withSessionId(sessionId)
@@ -100,9 +127,10 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
-                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map, DEFAULT_OPENSHIFT_CONFIG_FILE_NAME))
+                .withEnvironmentConfigAdditionalUrls(additionalUrls)
                 .withEnvironmentDependencies(
-                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), " ")))
+                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, shouldCleanupNamespace))
@@ -120,7 +148,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
-                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), " "))
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s+"))
                 .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                 .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                 .withDockerRegistry(getDockerRegistry(map))

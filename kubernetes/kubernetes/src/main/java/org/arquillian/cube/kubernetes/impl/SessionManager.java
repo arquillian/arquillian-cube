@@ -135,6 +135,16 @@ public class SessionManager implements SessionCreatedListener {
                     log.warn("Did not find any kubernetes configuration.");
                 }
 
+                List<URL> additionalUrls = configuration.getEnvironmentConfigAdditionalUrls();
+                if (additionalUrls != null) {
+                    for (URL url : additionalUrls) {
+                        log.status("Applying additional kubernetes configuration from: " + url);
+                        try (InputStream is = url.openStream()) {
+                            resources.addAll(resourceInstaller.install(url));
+                        }
+                    }
+                }
+
                 List<HasMetadata> resourcesToWait = new ArrayList<>(resources);
 
                 //Also handle services externally specified
