@@ -5637,19 +5637,19 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <p>Session object that contains information (e.g. the namespace) or the uuid of the test session.</p>
 </li>
 <li>
-<p>Deployments <strong>(by id or as a list of all deployments created during the session)</strong></p>
+<p>Deployments <strong>(by id or as a list of all deployments created during the session, optionally filtered by label)</strong></p>
 </li>
 <li>
-<p>Pods <strong>(by id or as a list of all pods created during the session)</strong></p>
+<p>Pods <strong>(by id or as a list of all pods created during the session, optionally filtered by label)</strong></p>
 </li>
 <li>
-<p>Replication Controllers <strong>(by id or as a list of all replication controllers created during the session)</strong></p>
+<p>Replication Controllers <strong>(by id or as a list of all replication controllers created during the session, optionally filtered by label)</strong></p>
 </li>
 <li>
-<p>Replica Sets <strong>(by id or as a list of all replica sets created during the session)</strong></p>
+<p>Replica Sets <strong>(by id or as a list of all replica sets created during the session, optionally filtered by label)</strong></p>
 </li>
 <li>
-<p>Services <strong>(by id or as a list of all services created during the session)</strong></p>
+<p>Services <strong>(by id or as a list of all services created during the session, optionally filtered by label)</strong></p>
 </li>
 </ul>
 </div>
@@ -5697,16 +5697,44 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
     <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceByIdTest</span> {
 
-     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@ArquillianResource</span>
      <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-serivce</span><span class="delimiter">&quot;</span></span>)
      Service service;
 
-     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@ArquillianResource</span>
      <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-pod</span><span class="delimiter">&quot;</span></span>)
      Pod pod;
 
-     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@ArquillianResource</span>
      <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-contoller</span><span class="delimiter">&quot;</span></span>)
+     ReplicationController controller;
+
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       <span class="comment">//Do stuff...</span>
+      }
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next example shows how to inject a resource filtering by label.</p>
+</div>
+<div class="listingblock">
+<div class="title">ResourceByLabelTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceByLabelTest</span> {
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@WithLabel</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">app</span><span class="delimiter">&quot;</span></span>, value=<span class="string"><span class="delimiter">&quot;</span><span class="content">my-app</span><span class="delimiter">&quot;</span></span>)
+     Service service;
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@WithLabel</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">app</span><span class="delimiter">&quot;</span></span>, value=<span class="string"><span class="delimiter">&quot;</span><span class="content">my-app</span><span class="delimiter">&quot;</span></span>)
+     Pod pod;
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@WithLabel</span>(name=<span class="string"><span class="delimiter">&quot;</span><span class="content">app</span><span class="delimiter">&quot;</span></span>, value=<span class="string"><span class="delimiter">&quot;</span><span class="content">my-app</span><span class="delimiter">&quot;</span></span>)
      ReplicationController controller;
 
       <span class="annotation">@Test</span>
@@ -5725,14 +5753,14 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
     <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceListExample</span> {
 
-     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@ArquillianResource</span>
      ServiceList services;
 
-     <span class="annotation">@ArquillianResouce</span>
+     <span class="annotation">@ArquillianResource</span>
      PodList pods;
 
-     <span class="annotation">@ArquillianResouce</span>
-     ReplicationControllers controllers;
+     <span class="annotation">@ArquillianResource</span>
+     ReplicationControllerList controllers;
 
       <span class="annotation">@Test</span>
       <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
@@ -5916,7 +5944,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-01 07:27:12 UTC
+Last updated 2017-06-13 14:03:03 UTC
 </div>
 </div>
 </body>
