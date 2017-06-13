@@ -9,6 +9,8 @@ import io.fabric8.openshift.clnt.v2_2.OpenShiftClient;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Predicate;
+
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -91,7 +93,14 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 try {
-                    return openShiftClient.projects().withName(namespace).get() != null;
+                    // It is preferable to iterate on the list of projects as regular user
+                    // with the 'basic-role' bound are not granted permission get operation
+                    // on non-existing project resource that returns 403 instead of 404.
+                    // Only more privileged roles like 'view' or 'cluster-reader'
+                    // are granted this permission.
+                    return openShiftClient.projects().list().getItems().stream()
+                        .map(project -> project.getMetadata().getName())
+                        .anyMatch(Predicate.isEqual(namespace));
                 } catch (KubernetesClientException e) {
                     return false;
                 }
