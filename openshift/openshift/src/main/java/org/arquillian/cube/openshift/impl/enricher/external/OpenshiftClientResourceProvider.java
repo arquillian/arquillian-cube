@@ -1,5 +1,6 @@
 package org.arquillian.cube.openshift.impl.enricher.external;
 
+import io.fabric8.openshift.clnt.v2_2.DefaultOpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -32,15 +33,15 @@ public class OpenshiftClientResourceProvider extends AbstractKubernetesResourceP
             throw new IllegalStateException("Could not adapt to OpenShiftClient.");
         }
 
-        return createUserClinet(client.adapt(OpenShiftClient.class));
+        return createUserClient(client.adapt(OpenShiftClient.class));
     }
 
-    private Object createUserClinet(OpenShiftClient client) {
+    private Object createUserClient(OpenShiftClient client) {
         Config config = client.getConfiguration();
 
         Object userConfig = toUsersResource(config);
         Class userConfigClass = loadClass(internalToUserType(config.getClass().getName()));
-        Class userClientClass = loadClass(internalToUserType(DefaultKubernetesClient.class.getName()));
+        Class userClientClass = loadClass(internalToUserType(DefaultOpenShiftClient.class.getName()));
         try {
             Constructor<?> constructor = userClientClass.getConstructor(userConfigClass);
             return constructor.newInstance(userConfig);
