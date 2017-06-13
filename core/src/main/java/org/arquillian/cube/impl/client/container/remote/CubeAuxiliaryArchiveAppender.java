@@ -3,6 +3,7 @@ package org.arquillian.cube.impl.client.container.remote;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.impl.client.enricher.CubeControllerProvider;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.requirement.Requires;
 import org.jboss.arquillian.container.test.spi.RemoteLoadableExtension;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
@@ -18,7 +19,7 @@ public class CubeAuxiliaryArchiveAppender implements AuxiliaryArchiveAppender {
         JavaArchive javaArchive = ShrinkWrap.create(JavaArchive.class, "arquillian-cube.jar")
             .addPackage(CubeController.class.getPackage())
             .addPackages(true, CubeRemoteExtension.class.getPackage())
-            .addClass(CubeControllerProvider.class)
+            .addClasses(CubeControllerProvider.class, CubeControlException.class)
             .addAsServiceProvider(RemoteLoadableExtension.class, CubeRemoteExtension.class);
 
         if (LoadableExtension.Validate.classExists("org.arquillian.cube.requirement.ArquillianConditionalRunner")) {
