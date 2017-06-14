@@ -19,7 +19,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
-@RequiresDocker
+//@RequiresDocker
 public class StandaloneStarOperatorTestCase {
 
     @HostIp
