@@ -12,6 +12,7 @@ import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.docker.compose.DockerComposeEnvironmentVarResolver;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
@@ -64,8 +65,13 @@ public final class ConfigUtil {
     @SuppressWarnings("unchecked")
     public static DockerCompositions load(InputStream inputStream) {
         // TODO: Figure out how to map root Map<String, Type> objects. Workaround by mapping it to Map structure then dumping it into individual objects
+
+        //Apply Docker compose substitutions to cube format as well
+
+        final String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
+
         Yaml yaml = new Yaml(new CubeConstructor());
-        Map<String, Object> rawLoad = (Map<String, Object>) yaml.load(inputStream);
+        Map<String, Object> rawLoad = (Map<String, Object>) yaml.load(content);
 
         DockerCompositions containers = new DockerCompositions();
 
