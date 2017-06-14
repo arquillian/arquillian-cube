@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.5.2-SNAPSHOT</version>
+    <version>1.6.0</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Drone Custom</name>
   <artifactId>arquillian-cube-docker-ftest-drone-custom</artifactId>
