@@ -1,4 +1,4 @@
 pingpong*:
-  image: jonmorehouse/ping-pong:${PING_PONG_VERSION}
+  image: jonmorehouse/ping-pong:${PING_PONG_VERSION:-latest}
   exposedPorts: [8080/tcp]
   portBindings: [8080/tcp]
