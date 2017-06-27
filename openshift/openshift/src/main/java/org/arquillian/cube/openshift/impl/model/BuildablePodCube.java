@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
+
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
@@ -56,6 +58,8 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
+
+    private static final Logger logger = Logger.getLogger(BuildablePodCube.class.getName());
 
     public BuildablePodCube(Pod resource, OpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         this.id = resource.getMetadata().getName();
@@ -108,7 +112,7 @@ public class BuildablePodCube extends BaseCube<Void> {
                 portBindings.podStarted();
             } catch (Exception e) {
                 try {
-                    client.destroy(holder.getPod());
+                    destroyPod(holder.getPod());
                 } catch (Exception e1) {
                 }
                 throw e;
@@ -120,11 +124,19 @@ public class BuildablePodCube extends BaseCube<Void> {
         }
     }
 
+    private void destroyPod(Pod pod) throws Exception {
+        if (configuration.isNamespaceCleanupEnabled()) {
+            client.destroy(pod);
+        } else {
+            logger.info("Ignoring cleanup for pod " + pod.getMetadata().getName());
+        }
+    }
+
     @Override
     public void stop() throws CubeControlException {
         try {
             lifecycle.fire(new BeforeStop(id));
-            client.destroy(holder.getPod());
+            destroyPod(holder.getPod());
             try {
                 portBindings.podStopped();
             } catch (Exception e) {
