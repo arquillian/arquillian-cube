@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.spi.BaseCube;
@@ -25,6 +27,8 @@ public class ServiceCube extends BaseCube<Void> {
     private State state;
     private CubeOpenShiftConfiguration configuration;
     private OpenShiftClient client;
+
+    private static final Logger logger = Logger.getLogger(ServiceCube.class.getName());
 
     public ServiceCube(Service resource, OpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         this.id = resource.getMetadata().getName();
@@ -69,7 +73,11 @@ public class ServiceCube extends BaseCube<Void> {
     @Override
     public void stop() throws CubeControlException {
         try {
-            client.destroy(resource);
+            if (configuration.isNamespaceCleanupEnabled()) {
+                client.destroy(resource);
+            } else {
+                logger.info("Ignoring cleanup for service " + resource.getMetadata().getName());
+            }
             this.state = State.STOPPED;
         } catch (Exception e) {
             this.state = State.STOP_FAILED;
