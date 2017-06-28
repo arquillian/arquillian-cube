@@ -88,13 +88,10 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
         //When a namespace is provided we want to cleanup our stuff...
         // ... without destroying pre-existing stuff.
-        Boolean shouldCleanupNamespace = true;
         Boolean shouldDestroyNamespace = false;
         if (Strings.isNullOrEmpty(namespace)) {
-            //When we generate a namespace ourselves we to completely destroy it, so cleaning makes no sense.
             namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
             shouldDestroyNamespace = true;
-            shouldCleanupNamespace = false;
         }
 
         // Lets also try to load the image stream for the project.
@@ -133,7 +130,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
-                .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, shouldCleanupNamespace))
+                .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
                 .withNamespaceCleanupConfirmationEnabled(
                     getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                 .withNamespaceCleanupTimeout(
