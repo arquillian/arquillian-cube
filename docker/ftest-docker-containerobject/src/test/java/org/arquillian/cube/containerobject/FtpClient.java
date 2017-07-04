@@ -25,12 +25,16 @@ public class FtpClient {
         }
         ftpClient.login(user, password);
         ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-        ftpClient.enterLocalActiveMode();
+        if ("localhost".equals(host)) {
+            ftpClient.enterLocalPassiveMode();
+        } else {
+            ftpClient.enterLocalActiveMode();
+        }
     }
 
-    public void uploadFile(File fileToUplaod, String filename, String hostDir) throws IOException {
+    public void uploadFile(File fileToUplaod, String filename) throws IOException {
         try (InputStream input = new FileInputStream(fileToUplaod)) {
-            this.ftpClient.storeFile(hostDir + "/" + filename, input);
+            this.ftpClient.storeFile(filename, input);
         }
     }
 
