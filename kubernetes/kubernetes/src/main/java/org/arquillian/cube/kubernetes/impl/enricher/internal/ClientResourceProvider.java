@@ -6,7 +6,7 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
 
 /**
  * A {@link ResourceProvider} for {@link KubernetesClient}.

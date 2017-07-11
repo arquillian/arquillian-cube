@@ -8,8 +8,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v2_2.extensions.ReplicaSet;
-import io.fabric8.kubernetes.api.model.v2_2.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSetList;
 
 /**
  * A {@link ResourceProvider} for {@link ReplicaSet}.

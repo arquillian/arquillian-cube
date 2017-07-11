@@ -2,13 +2,13 @@ package org.arquillian.cube.kubernetes.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.api.model.v2_2.ReplicationController;
+import io.fabric8.kubernetes.api.model.v2_5.ReplicationController;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_2.ReplicationControllerList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_5.ReplicationControllerList}.
  * It refers to replication controllers that have been created during the current session.
  */
 public class ReplicationControllerResourceProvider extends org.arquillian.cube.kubernetes.impl.enricher.internal.ReplicationControllerResourceProvider {

@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v2_2.Pod;
-import io.fabric8.kubernetes.api.model.v2_2.PodBuilder;
-import io.fabric8.kubernetes.api.model.v2_2.Service;
-import io.fabric8.kubernetes.api.model.v2_2.ServiceBuilder;
-import io.fabric8.kubernetes.clnt.v2_2.Config;
-import io.fabric8.openshift.clnt.v2_2.NamespacedOpenShiftClient;
+import io.fabric8.kubernetes.api.model.v2_5.Pod;
+import io.fabric8.kubernetes.api.model.v2_5.PodBuilder;
+import io.fabric8.kubernetes.api.model.v2_5.Service;
+import io.fabric8.kubernetes.api.model.v2_5.ServiceBuilder;
+import io.fabric8.kubernetes.clnt.v2_5.Config;
+import io.fabric8.openshift.clnt.v2_5.NamespacedOpenShiftClient;
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;

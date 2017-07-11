@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.reporter;
 
-import io.fabric8.kubernetes.clnt.v2_2.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
