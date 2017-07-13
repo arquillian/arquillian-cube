@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v2_2.TypedVisitor;
-import io.fabric8.kubernetes.api.model.v2_2.HasMetadata;
+import io.fabric8.kubernetes.api.builder.v2_5.TypedVisitor;
+import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;

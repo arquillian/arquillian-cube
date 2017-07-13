@@ -3,7 +3,7 @@ package org.arquillian.cube.kubernetes.impl.enricher.internal;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v2_2.extensions.DeploymentList;
+import io.fabric8.kubernetes.api.model.v2_5.extensions.DeploymentList;
 
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
