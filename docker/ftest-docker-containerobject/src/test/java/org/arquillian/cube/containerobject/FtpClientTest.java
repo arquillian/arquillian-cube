@@ -34,7 +34,7 @@ public class FtpClientTest {
             ftpContainer.getBindPort(),
             ftpContainer.getUsername(), ftpContainer.getPassword());
         try {
-            ftpClient.uploadFile(file, REMOTE_FILENAME, ".");
+            ftpClient.uploadFile(file, REMOTE_FILENAME);
         } finally {
             ftpClient.disconnect();
         }
