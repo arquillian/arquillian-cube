@@ -159,7 +159,6 @@ public class SeleniumContainers {
 
         Await await = new Await();
         await.setStrategy("http");
-
         await.setResponseCode(getSeleniumExpectedResponseCode());
         await.setUrl("http://dockerHost:" + SELENIUM_BOUNDED_PORT);
 
