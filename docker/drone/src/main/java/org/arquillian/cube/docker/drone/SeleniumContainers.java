@@ -160,9 +160,7 @@ public class SeleniumContainers {
         Await await = new Await();
         await.setStrategy("http");
 
-        int expectedResponseCode = getSeleniumExpectedResponseCode();
-        
-        await.setResponseCode(expectedResponseCode);
+        await.setResponseCode(getSeleniumExpectedResponseCode());
         await.setUrl("http://dockerHost:" + SELENIUM_BOUNDED_PORT);
 
         cubeContainer.setAwait(await);
