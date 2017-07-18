@@ -160,16 +160,7 @@ public class SeleniumContainers {
         Await await = new Await();
         await.setStrategy("http");
 
-        // Selenium from 3.x onwards returns 200 if started
-        int expectedResponseCode = 200;
-        String imageTag = cubeContainer.getImage().getTag();
-        if(imageTag!=null && imageTag.matches("[0-9]+\\.?.*")) {
-            int seleniumMajorVersion = Integer.parseInt(imageTag.substring(0, imageTag.indexOf('.')));
-            if(seleniumMajorVersion < 3) {
-                // Doing an http request to selenium node returns a 403 if Jetty is up and running for Selenium < 3
-                expectedResponseCode=403;
-            }
-        }
+        int expectedResponseCode = getSeleniumExpectedResponseCode();
         
         await.setResponseCode(expectedResponseCode);
         await.setUrl("http://dockerHost:" + SELENIUM_BOUNDED_PORT);
@@ -177,6 +168,20 @@ public class SeleniumContainers {
         cubeContainer.setAwait(await);
 
         cubeContainer.setKillContainer(true);
+    }
+
+    private static int getSeleniumExpectedResponseCode(){
+        // Selenium from 3.x onwards returns 200 if started
+        int expectedResponseCode = 200;
+            String seleniumVersion = SeleniumVersionExtractor.fromClassPath();
+            if(seleniumVersion.matches("[0-9]+\\.?.*")){
+                int seleniumMajorVersion = Integer.parseInt(seleniumVersion.substring(0, seleniumVersion.indexOf('.')));
+                if(seleniumMajorVersion < 3){
+                    // Doing an http request to selenium node returns a 403 if Jetty is up and running for Selenium < 3
+                    expectedResponseCode = 403;
+                }
+        }
+        return expectedResponseCode;
     }
 
     public CubeContainer getSeleniumContainer() {

@@ -66,40 +66,6 @@ public class SeleniumContainersTest {
         assertThat(firefox.getBrowser(), is("firefox"));
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:2.53.0"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
-    }
-
-    @Test
-    public void shouldAwait200ResponseCodeForSelenium3() {
-        when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
-        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
-        when(cubeDroneConfiguration.getBrowserImage()).thenReturn("selenium/standalone-firefox-debug:3.4.0");
-
-        final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
-        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:3.4.0"));
-        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(200));
-    }
-
-    @Test
-    public void shouldAwait200ResponseCodeForLatestSelenium() {
-        when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
-        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
-        when(cubeDroneConfiguration.getBrowserImage()).thenReturn("selenium/standalone-firefox-debug:latest");
-
-        final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
-        assertThat(firefox.getBrowser(), is("firefox"));
-        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:latest"));
-        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(200));
-    }
-
-    @Test
-    public void shouldAwait403ResponseCodeForSelenium2() {
-        when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
-        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
-        when(cubeDroneConfiguration.getBrowserImage()).thenReturn("selenium/standalone-firefox-debug:2.53.0");
-
-        final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
-        assertThat(firefox.getBrowser(), is("firefox"));
-        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:2.53.0"));
         assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
     }
 
@@ -113,5 +79,6 @@ public class SeleniumContainersTest {
         assertThat(firefox.getBrowser(), is("chrome"));
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-chrome-debug:2.53.0"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
     }
 }
