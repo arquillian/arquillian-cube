@@ -86,7 +86,7 @@ public class DefaultConfiguration implements Configuration {
 
     public static DefaultConfiguration fromMap(Map<String, String> map) {
         try {
-            String sessionId = UUID.randomUUID().toString();
+            String sessionId = UUID.randomUUID().toString().split("-")[0];
             String namespace = getBooleanProperty(NAMESPACE_USE_CURRENT, map, false)
                 ? new ConfigBuilder().build().getNamespace()
                 : getStringProperty(NAMESPACE_TO_USE, map, null);
