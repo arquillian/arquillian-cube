@@ -56,7 +56,8 @@ public class VncRecorderLifecycleManager {
         CubeDroneConfiguration cubeDroneConfiguration, SeleniumContainers seleniumContainers) {
 
         if (this.vnc != null) {
-
+            vnc.stop();
+            
             Path finalLocation = null;
             if (shouldRecordOnlyOnFailure(testResult, cubeDroneConfiguration)) {
                 finalLocation =
@@ -68,7 +69,6 @@ public class VncRecorderLifecycleManager {
                 }
             }
 
-            vnc.stop();
             vnc.destroy();
 
             this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(afterTestMethod, finalLocation));
