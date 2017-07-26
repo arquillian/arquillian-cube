@@ -135,7 +135,6 @@ public class SeleniumContainers {
                 convertedHostPath.append('/');
                 convertedHostPath.append(pathElem.toString());
             }
-            
 
             if(!absoluteHostPath.startsWith("C:\\Users")) {
                 logger.warning(String.format("You're not running below the default shared path 'C:\\Users'. Make sure you have set up a shared folder making the host path '%s' accessible as '%s' in your Docker virtual machine.", absoluteHostPath, convertedHostPath));
