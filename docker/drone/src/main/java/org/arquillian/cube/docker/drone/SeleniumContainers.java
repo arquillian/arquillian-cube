@@ -2,6 +2,8 @@ package org.arquillian.cube.docker.drone;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.logging.Logger;
+
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
 import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
@@ -11,9 +13,13 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
 public class SeleniumContainers {
 
+    private static final Logger logger = Logger.getLogger(SeleniumContainers.class.getName());
+    
     public static final String SELENIUM_CONTAINER_NAME = "browser";
     public static final String VNC_CONTAINER_NAME = "vnc";
     public static final String CONVERSION_CONTAINER_NAME = "flv2mp4";
@@ -23,14 +29,14 @@ public class SeleniumContainers {
     private static final String CONVERSION_IMAGE = "arquillian/flv2mp4:0.0.1";
     private static final String DEFAULT_PASSWORD = "secret";
     private static final String VNC_HOSTNAME = "vnchost";
-    private static final String VOLUME_DIR = "recording";
+    private static final String VOLUME_DIR = "/recording";
     private static final int SELENIUM_BOUNDED_PORT = 14444;
     private static final int VNC_EXPOSED_PORT = 5900;
     public static final String[] FLVREC_COMMAND = new String[] {
         "-o",
-        "/" + VOLUME_DIR + "/screen.flv",
+        VOLUME_DIR + "/screen.flv",
         "-P",
-        "/" + VOLUME_DIR + "/password"
+        VOLUME_DIR + "/password"
         , VNC_HOSTNAME
         , Integer.toString(VNC_EXPOSED_PORT)};
 
@@ -62,7 +68,7 @@ public class SeleniumContainers {
         cubeContainer.setImage(Image.valueOf(CONVERSION_IMAGE));
 
         cubeContainer.setBinds(
-            Arrays.asList(dockerVolume.toAbsolutePath().toString() + ":/" + VOLUME_DIR + ":rw")
+            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "rw"))
         );
 
         // Using log await strategy to match the echo string indicating completion of conversion
@@ -85,7 +91,7 @@ public class SeleniumContainers {
         cubeContainer.setImage(Image.valueOf(VNC_IMAGE));
 
         cubeContainer.setBinds(
-            Arrays.asList(dockerVolume.toAbsolutePath().toString() + ":/" + VOLUME_DIR + ":rw")
+            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "rw"))
         );
 
         final Link link = Link.valueOf(SELENIUM_CONTAINER_NAME + ":" + VNC_HOSTNAME);
@@ -104,6 +110,40 @@ public class SeleniumContainers {
         cubeContainer.setManual(true);
 
         return cubeContainer;
+    }
+    
+    private static String convertToBind(Path hostPath, String containterPath, String mode) {
+        boolean isWindows = new OperatingSystemResolver().currentOperatingSystem().getFamily() == OperatingSystemFamily.WINDOWS;
+        Path absoluteHostPath = hostPath.toAbsolutePath();
+        if(isWindows) {
+            StringBuilder convertedHostPath = new StringBuilder();
+            String hostRoot = absoluteHostPath.getRoot().toString();
+            if(hostRoot.matches("[a-zA-Z]:\\\\")) {
+                // local path, converts C:\ to /c
+                convertedHostPath.append('/');
+                convertedHostPath.append(hostRoot.toLowerCase().charAt(0));
+            } else {
+                // network share, converts \\servername\share\ to /servername/share
+                convertedHostPath.append(hostRoot.replace("\\\\", "/").replace("\\", "/"));
+                if(convertedHostPath.charAt(convertedHostPath.length() - 1) == '/'){
+                    convertedHostPath.deleteCharAt(convertedHostPath.length() - 1);
+                }
+            }
+            
+            // join remaining path elements
+            for(Path pathElem : absoluteHostPath){
+                convertedHostPath.append('/');
+                convertedHostPath.append(pathElem.toString());
+            }
+
+            if(!absoluteHostPath.startsWith("C:\\Users")) {
+                logger.warning(String.format("You're not running below the default shared path 'C:\\Users'. Make sure you have set up a shared folder making the host path '%s' accessible as '%s' in your Docker virtual machine.", absoluteHostPath, convertedHostPath));
+            }
+            
+            return convertedHostPath + ":" + containterPath + ":" + mode;
+        }else {
+            return absoluteHostPath + ":" + containterPath + ":" + mode;
+        }
     }
 
     private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
