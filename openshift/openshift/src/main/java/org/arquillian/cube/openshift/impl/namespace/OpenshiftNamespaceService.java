@@ -113,12 +113,20 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
         public Namespace annotate(String namespace, Map<String, String> annotations) {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+
+                /* FIXME: Openshift currently doesn't support annotations
+                 * See: https://github.com/openshift/origin/issues/3819
+                 * And: https://github.com/openshift/origin/issues/10315
+                 *
+                 * https://github.com/arquillian/arquillian-cube/issues/740
+
                 openShiftClient.projects().withName(namespace)
                     .edit()
                     .editMetadata()
                     .addToAnnotations(annotations)
                     .endMetadata()
                     .done();
+                */
 
                 return openShiftClient.namespaces().withName(namespace).get();
             } else {
