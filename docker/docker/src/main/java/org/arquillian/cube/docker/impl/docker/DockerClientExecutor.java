@@ -785,14 +785,15 @@ public class DockerClientExecutor {
             buildImageCmd.withDockerfile(new File((String) params.get(DOCKERFILE_NAME)));
         }
         
-        AuthConfig buildAuthConfig = new AuthConfig()
-                .withUsername(this.dockerClientConfig.getRegistryUsername())
-                .withPassword(this.dockerClientConfig.getRegistryPassword())
-                .withEmail(this.dockerClientConfig.getRegistryEmail())
-                .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
-        final AuthConfigurations authConfigurations = new AuthConfigurations();
-        authConfigurations.addConfig(buildAuthConfig);
-        buildImageCmd.withBuildAuthConfigs(authConfigurations);
+        if(this.dockerClientConfig.getRegistryUsername() != null && this.dockerClientConfig.getRegistryPassword() != null){
+            AuthConfig buildAuthConfig = new AuthConfig().withUsername(this.dockerClientConfig.getRegistryUsername())
+                    .withPassword(this.dockerClientConfig.getRegistryPassword())
+                    .withEmail(this.dockerClientConfig.getRegistryEmail())
+                    .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
+            final AuthConfigurations authConfigurations = new AuthConfigurations();
+            authConfigurations.addConfig(buildAuthConfig);
+            buildImageCmd.withBuildAuthConfigs(authConfigurations);
+        }
     }
 
     private BuildImageCmd createBuildCommand(String location) {
