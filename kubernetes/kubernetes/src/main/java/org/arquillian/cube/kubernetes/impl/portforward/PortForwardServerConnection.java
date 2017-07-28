@@ -205,7 +205,8 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         getChannel().getCloseSetter()
             .set(new ChainedChannelListener<CloseableChannel>(
                 new CancelTimerChannelListener(timer),
-                new LatchReleaseChannelListener(requestComplete)));
+                new LatchReleaseChannelListener(requestComplete),
+                new LatchReleaseChannelListener(errorComplete)));
 
         clientConnection.sendRequest(request, new ClientCallback<ClientExchange>() {
             @Override
@@ -224,7 +225,10 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     public void completed(final ClientExchange result) {
                         result.getResponseChannel()
                             .getCloseSetter()
-                            .set(new LatchReleaseChannelListener(requestComplete));
+                            .set(new ChainedChannelListener<CloseableChannel>(
+                                    new CancelTimerChannelListener(timer),
+                                    new LatchReleaseChannelListener(requestComplete),
+                                    new LatchReleaseChannelListener(errorComplete)));
                         getIoThread().execute(new Runnable() {
                             @Override
                             public void run() {
