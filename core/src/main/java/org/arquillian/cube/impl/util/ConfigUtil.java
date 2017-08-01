@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.getPropertyOrEnvironmentVariable;
 
@@ -56,6 +57,14 @@ public class ConfigUtil {
             return Boolean.parseBoolean(map.get(name));
         } else {
             return getPropertyOrEnvironmentVariable(name, defaultValue);
+        }
+    }
+
+    public static int getIntProperty(String name, Optional<String> alternativeName, Map<String, String> map, int defaultValue) {
+        if (map.containsKey(name)) {
+            return Integer.parseInt(map.get(name));
+        } else {
+            return Integer.parseInt(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName.isPresent() ? alternativeName.get() : name, defaultValue)));
         }
     }
 

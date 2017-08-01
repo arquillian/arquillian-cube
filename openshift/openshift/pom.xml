@@ -11,6 +11,7 @@
 
   <properties>
     <version.openshift_restclient>1.0.0-SNAPSHOT</version.openshift_restclient>
+    <version.javax.inject>1</version.javax.inject>
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
   </properties>
@@ -49,6 +50,12 @@
       <artifactId>arquillian-container-test-spi
       </artifactId> <!-- required to for container integration, but not standalone -->
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>${version.javax.inject}</version>
     </dependency>
 
     <dependency>

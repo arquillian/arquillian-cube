@@ -16,6 +16,7 @@ import org.arquillian.cube.openshift.impl.client.CubeOpenShiftRegistrar;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfigurationFactory;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClientCreator;
 import org.arquillian.cube.openshift.impl.client.OpenShiftSuiteLifecycleController;
+import org.arquillian.cube.openshift.impl.enricher.RouteURLEnricher;
 import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigListResourceProvider;
 import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigResourceProvider;
 import org.arquillian.cube.openshift.impl.enricher.internal.OpenshiftClientResourceProvider;
@@ -23,7 +24,10 @@ import org.arquillian.cube.openshift.impl.feedback.OpenshiftFeedbackProvider;
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
 import org.arquillian.cube.openshift.impl.namespace.OpenshiftNamespaceService;
+import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
+import org.jboss.arquillian.container.test.spi.client.deployment.DeploymentScenarioGenerator;
 import org.jboss.arquillian.core.spi.LoadableExtension;
+import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 public class CubeOpenshiftExtension implements LoadableExtension {
@@ -44,6 +48,7 @@ public class CubeOpenshiftExtension implements LoadableExtension {
             .service(ResourceProvider.class, org.arquillian.cube.openshift.impl.enricher.external.DeploymentConfigResourceProvider.class)
             .service(ResourceProvider.class, org.arquillian.cube.openshift.impl.enricher.external.DeploymentConfigListResourceProvider.class)
 
+            .service(TestEnricher.class, RouteURLEnricher.class)
 
             .override(ConfigurationFactory.class, DefaultConfigurationFactory.class,
                 CubeOpenShiftConfigurationFactory.class)
