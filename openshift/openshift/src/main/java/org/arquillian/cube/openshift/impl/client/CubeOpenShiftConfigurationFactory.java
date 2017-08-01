@@ -20,7 +20,7 @@ import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.impl.DefaultConfigurationFactory;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 
-public class CubeOpenshiftConfigurationFactory extends DefaultConfigurationFactory<CubeOpenShiftConfiguration>
+public class CubeOpenShiftConfigurationFactory extends DefaultConfigurationFactory<CubeOpenShiftConfiguration>
     implements ConfigurationFactory<CubeOpenShiftConfiguration> {
 
     private static final String OPENSHIFT_EXTENSION_NAME = "openshift";
