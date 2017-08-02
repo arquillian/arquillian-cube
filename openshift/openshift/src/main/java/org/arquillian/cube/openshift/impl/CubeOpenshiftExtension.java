@@ -13,7 +13,7 @@ import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
 import org.arquillian.cube.kubernetes.impl.locator.DefaultKubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftRegistrar;
-import org.arquillian.cube.openshift.impl.client.CubeOpenshiftConfigurationFactory;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfigurationFactory;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClientCreator;
 import org.arquillian.cube.openshift.impl.client.OpenShiftSuiteLifecycleController;
 import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigListResourceProvider;
@@ -46,7 +46,7 @@ public class CubeOpenshiftExtension implements LoadableExtension {
 
 
             .override(ConfigurationFactory.class, DefaultConfigurationFactory.class,
-                CubeOpenshiftConfigurationFactory.class)
+                CubeOpenShiftConfigurationFactory.class)
             .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class,
                 KuberntesServiceUrlResourceProvider.class)
             .override(ResourceInstaller.class, DefaultResourceInstaller.class, OpenshiftResourceInstaller.class)
