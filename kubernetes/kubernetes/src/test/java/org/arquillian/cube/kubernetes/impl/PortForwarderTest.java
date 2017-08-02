@@ -1,4 +1,4 @@
-package org.arquillian.cube.openshift.test.portfowarder;
+package org.arquillian.cube.kubernetes.impl;
 
 import java.net.Inet4Address;
 import java.net.ServerSocket;
@@ -18,7 +18,7 @@ public class PortForwarderTest {
     private Map<Integer, Integer> proxiedPorts = new HashMap<>();
 
     @Test
-    public void testAlleatoryPortBackwar() {
+    public void testAlleatoryPortBackwardCapabilities() {
         resolvePorts("aleatoryPortBackward");
         for (Map.Entry<Integer, Integer> entry : proxiedPorts.entrySet()) {
             //key = containerPort, value = mappedPort
