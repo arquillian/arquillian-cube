@@ -308,6 +308,7 @@ public class SessionManager implements SessionCreatedListener {
     private Map<String, String> createScriptEnvironment() {
         Map<String, String> env = new HashMap<>();
         env.putAll(System.getenv());
+        env.putAll(configuration.getScriptEnvironmentVariables());
         env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_NAMESPACE), configuration.getNamespace());
         env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_DOMAIN), configuration.getKubernetesDomain());
         env.put(propertyToEnvironmentVariableName(Configuration.KUBERNETES_MASTER),

@@ -1,14 +1,24 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v2_5.Config;
 import io.fabric8.kubernetes.clnt.v2_5.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v2_5.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -22,12 +32,16 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_5", generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements Configuration {
 
+    private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";
+    private static final Pattern ENV_VAR_PATTERN = Pattern.compile(ENV_VAR_REGEX);
+
     public static final String ROOT = "/";
 
     private final String sessionId;
     private final String namespace;
     private final URL masterUrl;
 
+    private final Map<String, String> scriptEnvironmentVariables;
     private final URL environmentSetupScriptUrl;
     private final URL environmentTeardownScriptUrl;
 
@@ -53,7 +67,7 @@ public class DefaultConfiguration implements Configuration {
     private final String kubernetesDomain;
     private final String dockerRegistry;
 
-    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl,
+    public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
@@ -61,6 +75,7 @@ public class DefaultConfiguration implements Configuration {
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled,
         String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
+        this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
         this.environmentTeardownScriptUrl = environmentTeardownScriptUrl;
         this.environmentDependencies = environmentDependencies;
@@ -104,6 +119,7 @@ public class DefaultConfiguration implements Configuration {
                 .withMasterUrl(
                     new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
+                .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentSetupScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
@@ -241,6 +257,22 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
+    public static Map<String, String> parseMap(String s) throws IOException {
+        if (Strings.isNullOrEmpty(s)) {
+            return Collections.EMPTY_MAP;
+        }
+
+        Properties properties = new Properties();
+        try (InputStream is = new ByteArrayInputStream(s.getBytes(Charset.defaultCharset()))) {
+            properties.load(is);
+        }
+        Map<String, String> map = new HashMap<>();
+        for (String key : properties.stringPropertyNames()) {
+            map.put(key, properties.getProperty(key));
+        }
+        return map;
+    }
+
     @Override
     public String getSessionId() {
         return sessionId;
@@ -254,6 +286,11 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public URL getMasterUrl() {
         return masterUrl;
+    }
+
+    @Override
+    public Map<String, String> getScriptEnvironmentVariables() {
+        return scriptEnvironmentVariables;
     }
 
     public URL getEnvironmentSetupScriptUrl() {

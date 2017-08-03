@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.clnt.v2_5.Config;
 import io.fabric8.kubernetes.clnt.v2_5.ConfigBuilder;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 
 public interface Configuration {
 
@@ -36,6 +37,7 @@ public interface Configuration {
 
     String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";
 
+    String ENVIRONMENT_SCRIPT_ENV = "env.script.env";
     String ENVIRONMENT_SETUP_SCRIPT_URL = "env.setup.script.url";
     String ENVIRONMENT_TEARDOWN_SCRIPT_URL = "env.teardown.script.url";
     String ENVIRONMENT_CONFIG_URL = "env.config.url";
@@ -60,6 +62,8 @@ public interface Configuration {
     Config FALLBACK_CLIENT_CONFIG = new ConfigBuilder().build();
 
     URL getMasterUrl();
+
+    Map<String, String> getScriptEnvironmentVariables();
 
     URL getEnvironmentSetupScriptUrl();
 
