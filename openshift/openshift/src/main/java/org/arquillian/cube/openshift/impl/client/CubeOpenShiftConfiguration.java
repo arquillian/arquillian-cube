@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
+import static org.arquillian.cube.impl.util.ConfigUtil.getIntProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
@@ -40,6 +42,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
     private static final String PORT_FORWARDER_BIND_ADDRESS = "portForwardBindAddress";
+    private static final String ROUTER_HOST = "routerHost";
+    private static final String OPENSHIFT_ROUTER_HTTP_PORT = "openshiftRouterHttpPort";
+    private static final String OPENSHIFT_ROUTER_HTTPS_PORT = "openshiftRouterHttpsPort";
 
     private static final String DEFAULT_OPENSHIFT_CONFIG_FILE_NAME = "openshift.json";
 
@@ -49,6 +54,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final String[] autoStartContainers;
     private final Set<String> proxiedContainerPorts;
     private final String portForwardBindAddress;
+    private final String routerHost;
+    private final int openshiftRouterHttpPort;
+    private final int openshiftRouterHttpsPort;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
@@ -58,7 +66,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled,
         String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
         String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
-        String portForwardBindAddress) {
+        String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
         super(sessionId, masterUrl, namespace, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
@@ -70,6 +78,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         this.autoStartContainers = autoStartContainers;
         this.proxiedContainerPorts = proxiedContainerPorts;
         this.portForwardBindAddress = portForwardBindAddress;
+        this.routerHost = routerHost;
+        this.openshiftRouterHttpPort = openshiftRouterHttpPort;
+        this.openshiftRouterHttpsPort = openshiftRouterHttpsPort;
     }
 
     private static String[] split(String str, String regex) {
@@ -111,7 +122,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 }
             }
         }
-
 
         try {
             return new CubeOpenShiftConfigurationBuilder()
@@ -156,6 +166,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withAutoStartContainers(split(getStringProperty(AUTO_START_CONTAINERS, map, ""), ","))
                 .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
                 .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
+                .withRouterHost(getStringProperty(ROUTER_HOST, "openshift.router.host", map, null))
+                .withOpenshiftRouterHttpPort(getIntProperty(OPENSHIFT_ROUTER_HTTP_PORT, Optional.of("openshift.router.httpPort"), map, 80))
+                .withOpenshiftRouterHttpsPort(getIntProperty(OPENSHIFT_ROUTER_HTTPS_PORT, Optional.of("openshift.router.httpsPort"), map, 443))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -202,5 +215,17 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
     public String getPortForwardBindAddress() {
         return portForwardBindAddress;
+    }
+
+    public String getRouterHost() {
+        return routerHost;
+    }
+
+    public int getOpenshiftRouterHttpPort() {
+        return openshiftRouterHttpPort;
+    }
+
+    public int getOpenshiftRouterHttpsPort() {
+        return openshiftRouterHttpsPort;
     }
 }
