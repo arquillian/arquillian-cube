@@ -21,6 +21,7 @@ import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.annotations.Scheme;
+import org.arquillian.cube.kubernetes.annotations.UseDns;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionListener;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -45,6 +46,8 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     private static final String POD = "Pod";
     private static final String LOCALHOST = "127.0.0.1";
 
+    private static final String SERVICE_A_RECORD_FORMAT = "%s.%s.svc.cluster.local";
+
     private static final Random RANDOM = new Random();
 
     @Inject
@@ -66,6 +69,20 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         }
         return false;
     }
+
+    /**
+     * @param qualifiers The qualifiers
+     * @return true if qualifiers contain the `UseDns` qualifier.
+     */
+    private static boolean isUseDnsEnabled(Annotation... qualifiers) {
+        for (Annotation q : qualifiers) {
+            if (q instanceof UseDns) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Returns the {@link ServicePort} of the {@link Service} that matches the qualifiers
@@ -281,6 +298,10 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
             int containerPort = getContainerPort(service, qualifiers);
             port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
             ip = LOCALHOST;
+        } else if (isUseDnsEnabled(qualifiers)) {
+          ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
+          port = getPort(service, qualifiers);
+
         } else {
             port = getPort(service, qualifiers);
         }
