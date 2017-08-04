@@ -58,7 +58,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final int openshiftRouterHttpPort;
     private final int openshiftRouterHttpsPort;
 
-    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, URL environmentSetupScriptUrl,
+    public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
@@ -67,7 +67,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
         String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
         String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
-        super(sessionId, masterUrl, namespace, environmentSetupScriptUrl, environmentTeardownScriptUrl,
+        super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,              
             environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
@@ -129,6 +129,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withNamespace(namespace)
                 .withMasterUrl(
                     new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
+                .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                 .withEnvironmentSetupScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
