@@ -5403,6 +5403,13 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">env.script.env</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Key/Value pairs to pass to setup scripts as environment variables</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.setup.script.url</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
@@ -5557,8 +5564,31 @@ Using this you can put multiple resources(openshift.json, openshift.yml) inside 
 To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
 </li>
 <li>
-<p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup the environment. For those case you can use the <strong>env.setup.script.url</strong> / <strong>env.teardown.script.url</strong> to pass the
-scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the namespace is created and cleaned up respectively.</p>
+<p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup the environment. For those cases you can use the <strong>env.setup.script.url</strong> / <strong>env.teardown.script.url</strong> to pass the
+scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the namespace is created and cleaned up respectively.
+Both scripts will be executed using visible environment variables the following:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>KUBERNETES_MASTER</p>
+</li>
+<li>
+<p>KUBERNETES_NAMESPACE</p>
+</li>
+<li>
+<p>KUBERNETES_DOMAIN</p>
+</li>
+<li>
+<p>DOCKER_REGISTRY</p>
+</li>
+<li>
+<p>all host environment variables</p>
+</li>
+<li>
+<p>all environment variables in arquillian.xml via env.script.env (as properties).</p>
+</li>
+</ul>
+</div>
 </li>
 </ol>
 </div>
@@ -5944,7 +5974,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-13 14:03:03 UTC
+Last updated 2017-08-04 08:20:57 UTC
 </div>
 </div>
 </body>
