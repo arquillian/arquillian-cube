@@ -63,6 +63,15 @@ When running Arquillian Cube with Standalone you can enrich the test with URL.
 private URL url;
 ----
 
+When running Arquillian Cube against a OpenShift's pod you can retrieve the route to the pod's service just by using the example code below:
+[source, java]
+.RouterURLEnricher.java
+----
+@RouteURL("app-name")
+private URL url;
+----
+
+
 URL will be `http://<docker_host>:<bind_port>/`
 
 === Docker Inside Docker / Docker On Docker
