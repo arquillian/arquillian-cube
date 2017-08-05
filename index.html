@@ -2591,6 +2591,16 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>When running Arquillian Cube against a OpenShift&#8217;s pod you can retrieve the route to the pod&#8217;s service just by using the example code below:</p>
+</div>
+<div class="listingblock">
+<div class="title">RouterURLEnricher.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RouteURL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">app-name</span><span class="delimiter">&quot;</span></span>)
+<span class="directive">private</span> <span class="predefined-type">URL</span> url;</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>URL will be <code><a href="http://&lt;docker_host&gt;:&lt;bind_port&gt;/" class="bare">http://&lt;docker_host&gt;:&lt;bind_port&gt;/</a></code></p>
 </div>
 <div class="sect2">
@@ -5974,7 +5984,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-08-04 08:20:57 UTC
+Last updated 2017-08-05 10:42:03 UTC
 </div>
 </div>
 </body>
