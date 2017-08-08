@@ -82,7 +82,8 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | Option                              | Type           | Env | Description                                                                      |
 | autoStartContainers                 | List           | Any | Comma Separated List of Pods which you want to auto start                        |
 | definitionsFile                     | String         | Any | Definitions file path                                                            |
-| proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort |                                        |
+| proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort |
+| routerHost                          | String         | Any | Define OpenShift router address thats is used to resolve the pod's address and to get its route |
 |===============================================================================================================================================
 
 === Namespaces
