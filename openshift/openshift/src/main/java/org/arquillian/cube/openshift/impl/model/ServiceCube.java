@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.CubeControlException;
