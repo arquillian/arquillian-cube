@@ -1,5 +1,18 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+
+import org.xnio.ChainedChannelListener;
+import org.xnio.ChannelListener;
+import org.xnio.IoUtils;
+import org.xnio.OptionMap;
+import org.xnio.StreamConnection;
+import org.xnio.channels.CloseableChannel;
+import org.xnio.conduits.StreamSinkConduit;
+
 import io.undertow.UndertowMessages;
 import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;
@@ -14,19 +27,6 @@ import io.undertow.server.SSLSessionInfo;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.util.StringReadChannelListener;
-import org.xnio.ChainedChannelListener;
-import org.xnio.ChannelListener;
-import org.xnio.IoUtils;
-import org.xnio.OptionMap;
-import org.xnio.StreamConnection;
-import org.xnio.channels.CloseableChannel;
-import org.xnio.conduits.StreamSinkConduit;
-
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * PortForwardServerConnection
@@ -149,6 +149,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 holder[0] = e;
                 latch.countDown();
                 errorComplete.countDown();
+                requestComplete.countDown();
             }
 
             @Override
@@ -214,6 +215,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 holder[0] = e;
                 latch.countDown();
                 errorComplete.countDown();
+                requestComplete.countDown();
             }
 
             @Override
@@ -284,6 +286,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
             System.err.println("Port forwarding error: " + error);
         }
         errorComplete.countDown();
+        requestComplete.countDown();
     }
 
     private static final class CancelTimerChannelListener implements ChannelListener<CloseableChannel> {
