@@ -2601,6 +2601,25 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>But to be able to do this, you need to set the Router host and configure it under arquillian.xml:</p>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+        ....
+        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">routerHost</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>192.168.10.10<span class="tag">&lt;/property&gt;</span>
+        ...
+    <span class="tag">&lt;/extension&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or just setting the System Property: openshift.router.host
+To obtain the router address from your OpenShift instance you can execute the command below:
+<code>oc oc describe svc/router</code>
+And look for the Endpoints field.</p>
+</div>
+<div class="paragraph">
 <p>URL will be <code><a href="http://&lt;docker_host&gt;:&lt;bind_port&gt;/" class="bare">http://&lt;docker_host&gt;:&lt;bind_port&gt;/</a></code></p>
 </div>
 <div class="sect2">
@@ -5517,6 +5536,13 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">routerHost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Define OpenShift router address thats is used to resolve the pod&#8217;s address and to get its route</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -5984,7 +6010,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-08-05 10:42:03 UTC
+Last updated 2017-08-09 08:15:52 UTC
 </div>
 </div>
 </body>
