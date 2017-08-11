@@ -78,7 +78,7 @@ public class SessionManager implements SessionCreatedListener {
         this.feedbackProvider = feedbackProvider;
     }
 
-    private static String getSessionStatus(Session session) {
+    private String getSessionStatus() {
         if (session.getFailed().get() > 0) {
             return "FAILED";
         } else {
@@ -88,9 +88,8 @@ public class SessionManager implements SessionCreatedListener {
 
     /**
      * Creates a namespace if needed.
-     * @param session   The {@link Session}.
      */
-    public void createNamespace(Session session) {
+    public void createNamespace() {
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         if (namespaceService.exists(session.getNamespace())) {
             //namespace exists
@@ -103,7 +102,7 @@ public class SessionManager implements SessionCreatedListener {
     }
 
 
-    public void createEnvironment(Session session) {
+    public void createEnvironment() {
         Logger log = session.getLogger();
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -185,11 +184,11 @@ public class SessionManager implements SessionCreatedListener {
     public void start() {
         Logger log = session.getLogger();
         log.status("Using Kubernetes at: " + client.getMasterUrl());
-        createNamespace(session);
+        createNamespace();
 
         addShutdownHook();
         try {
-            createEnvironment(session);
+            createEnvironment();
         } catch (Throwable t){
           removeShutdownHook();
           throw t;
@@ -199,7 +198,7 @@ public class SessionManager implements SessionCreatedListener {
     @Override
     public void stop() {
         try {
-            clean(getSessionStatus(session));
+            clean(getSessionStatus());
         } finally {
            removeShutdownHook();
         }
