@@ -86,6 +86,31 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | routerHost                          | String         | Any | Define OpenShift router address thats is used to resolve the pod's address and to get its route |
 |===============================================================================================================================================
 
+
+==== Openshift DNS Naming Service
+The OpenShift module provides a easy way to run tests against your public application's route.
+The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
+manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
+that will be used to define the application's route when running your tests against an OpenShift instance, even if you specify
+a namepsace manually it will be transparent and the application's endpoint will be resolvable within your java tests.
+
+To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test or
+by setting a System properties.
+
+Configuring inside a test class:
+[source, java]
+.SomethingCoolTest.java
+----
+@Before
+public void prepareEnv(){
+    System.setProperty("sun.net.spi.nameservice.provider.1", "dns,ArquillianCubeNameService");
+    System.setProperty("sun.net.spi.nameservice.provider.2","default");
+}
+----
+
+Or just setting the following System Properties:
+`-Dsun.net.spi.nameservice.provider.1=dns,ArquillianCubeNameService -Dsun.net.spi.nameservice.provider.2=default`
+
 === Namespaces
 
 The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
