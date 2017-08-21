@@ -5546,6 +5546,37 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 </tbody>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_openshift_dns_naming_service"><a class="anchor" href="#_openshift_dns_naming_service"></a>20.5.3. Openshift DNS Naming Service</h4>
+<div class="paragraph">
+<p>The OpenShift module provides a easy way to run tests against your public application&#8217;s route.
+The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
+manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
+that will be used to define the application&#8217;s route when running your tests against an OpenShift instance, even if you specify
+a namepsace manually it will be transparent and the application&#8217;s endpoint will be resolvable within your java tests.</p>
+</div>
+<div class="paragraph">
+<p>To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test or
+by setting a System properties.</p>
+</div>
+<div class="paragraph">
+<p>Configuring inside a test class:</p>
+</div>
+<div class="listingblock">
+<div class="title">SomethingCoolTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Before</span>
+<span class="directive">public</span> <span class="type">void</span> prepareEnv(){
+    <span class="predefined-type">System</span>.setProperty(<span class="string"><span class="delimiter">&quot;</span><span class="content">sun.net.spi.nameservice.provider.1</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">dns,ArquillianCubeNameService</span><span class="delimiter">&quot;</span></span>);
+    <span class="predefined-type">System</span>.setProperty(<span class="string"><span class="delimiter">&quot;</span><span class="content">sun.net.spi.nameservice.provider.2</span><span class="delimiter">&quot;</span></span>,<span class="string"><span class="delimiter">&quot;</span><span class="content">default</span><span class="delimiter">&quot;</span></span>);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or just setting the following System Properties:
+<code>-Dsun.net.spi.nameservice.provider.1=dns,ArquillianCubeNameService -Dsun.net.spi.nameservice.provider.2=default</code></p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.6. Namespaces</h3>
@@ -6010,7 +6041,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-08-09 08:15:52 UTC
+Last updated 2017-08-21 09:59:27 UTC
 </div>
 </div>
 </body>
