@@ -64,6 +64,8 @@ public class DefaultConfiguration implements Configuration {
 
     private final boolean ansiLoggerEnabled;
     private final boolean environmentInitEnabled;
+    private final boolean logCopyEnabled;
+    private final String logPath;
     private final String kubernetesDomain;
     private final String dockerRegistry;
 
@@ -72,8 +74,8 @@ public class DefaultConfiguration implements Configuration {
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout,
-        long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled,
-        String kubernetesDomain, String dockerRegistry) {
+        long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
+        String logPath, String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
@@ -95,6 +97,8 @@ public class DefaultConfiguration implements Configuration {
         this.waitForServiceList = waitForServiceList;
         this.ansiLoggerEnabled = ansiLoggerEnabled;
         this.environmentInitEnabled = environmentInitEnabled;
+        this.logCopyEnabled = logCopyEnabled;
+        this.logPath = logPath;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
     }
@@ -119,6 +123,8 @@ public class DefaultConfiguration implements Configuration {
                 .withMasterUrl(
                     new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
+                .withLogCopyEnabled(getBooleanProperty(LOGS_COPY, map, false))
+                .withLogPath(getStringProperty(LOGS_PATH, map, null))
                 .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentSetupScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
@@ -375,6 +381,16 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isEnvironmentInitEnabled() {
         return environmentInitEnabled;
+    }
+
+    @Override
+    public boolean isLogCopyEnabled() {
+        return logCopyEnabled;
+    }
+
+    @Override
+    public String getLogPath() {
+        return logPath;
     }
 
     @Override

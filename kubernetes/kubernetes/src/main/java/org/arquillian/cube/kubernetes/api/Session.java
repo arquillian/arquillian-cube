@@ -19,4 +19,10 @@ public interface Session {
     void addListener(SessionListener listener);
 
     void removeListener(SessionListener listener);
+
+    String getCurrentClassName();
+    void setCurrentClassName(String className);
+
+    String getCurrentMethodName();
+    void setCurrentMethodName(String methodName);
 }

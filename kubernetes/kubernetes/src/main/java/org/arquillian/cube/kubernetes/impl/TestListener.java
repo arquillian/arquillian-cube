@@ -114,6 +114,8 @@ public class TestListener {
         String className = getClassName(event);
         String methodName = getMethodName(event);
 
+        session.setCurrentMethodName(methodName);
+
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);
         annotations.put(String.format(TEST_CASE_STATUS_FORMAT, testCase), Constants.RUNNING_STATUS);
@@ -132,6 +134,8 @@ public class TestListener {
         String pkg = getPackage(event);
         String className = getClassName(event);
         String methodName = getMethodName(event);
+
+        session.setCurrentMethodName(null);
 
         Map<String, String> annotations = new HashMap<>();
         String testCase = trimName(pkg, className, methodName);

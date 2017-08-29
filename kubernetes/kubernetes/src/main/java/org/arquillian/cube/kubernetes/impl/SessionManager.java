@@ -1,5 +1,39 @@
 package org.arquillian.cube.kubernetes.impl;
 
+import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
+import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.jboss.arquillian.core.spi.Validate;
+import org.xnio.IoUtils;
+
+import io.fabric8.kubernetes.api.model.v2_5.Container;
 import io.fabric8.kubernetes.api.model.v2_5.Endpoints;
 import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
 import io.fabric8.kubernetes.api.model.v2_5.Pod;
@@ -12,30 +46,11 @@ import io.fabric8.kubernetes.api.model.v2_5.ServicePort;
 import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSet;
 import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSetList;
 import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientException;
 import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientTimeoutException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.FeedbackProvider;
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.api.ResourceInstaller;
-import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
-import org.jboss.arquillian.core.spi.Validate;
-
-import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
-import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
+import io.fabric8.kubernetes.clnt.v2_5.Watch;
+import io.fabric8.kubernetes.clnt.v2_5.Watcher;
+import io.fabric8.kubernetes.clnt.v2_5.dsl.LogWatch;
 
 public class SessionManager implements SessionCreatedListener {
 
@@ -50,8 +65,12 @@ public class SessionManager implements SessionCreatedListener {
     private final FeedbackProvider feedbackProvider;
 
     private final List<HasMetadata> resources = new ArrayList<>();
+    private final Map<String, Collection<Closeable>> watchersMap = new HashMap<String, Collection<Closeable>>();
+    private Watch watchLog;
 
     private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
+
+    private String logPath;
 
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
         AnnotationProvider annotationProvider, NamespaceService namespaceService,
@@ -185,6 +204,7 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
+        setupConsoleListener();
 
         addShutdownHook();
         try {
@@ -195,9 +215,107 @@ public class SessionManager implements SessionCreatedListener {
         }
     }
 
+    private void addConsole(final String podName) {
+        if (watchersMap.containsKey(podName))
+            return;
+
+        String className = session.getCurrentClassName();
+        String methodName = session.getCurrentMethodName();
+        String fileName = logPath;
+
+        if (Strings.isNullOrEmpty(className))
+            className = "NOCLASS";
+        fileName += String.format("/%s", className);
+
+        if (Strings.isNotNullOrEmpty(methodName))
+            fileName += String.format("-%s", methodName);
+
+        try {
+            Collection<Closeable> fds = new ArrayList<Closeable>();
+            List<Container> containers = client.pods().inNamespace(session.getNamespace()).withName(podName).get()
+                    .getSpec().getContainers();
+            if (containers.size() == 1) {
+                fileName += String.format("-%s.log", podName);
+                final FileOutputStream stream = new FileOutputStream(fileName);
+                LogWatch lw = client.pods().inNamespace(session.getNamespace()).withName(podName).watchLog(stream);
+                fds.add(lw);
+                fds.add(stream);
+            } else {
+                for (Container container : containers) {
+                    String containerName = container.getName();
+                    String fileNameContainer = String.format("%s-%s-%s.log", fileName, podName, containerName);
+                    final FileOutputStream stream = new FileOutputStream(fileNameContainer);
+                    LogWatch lw = client.pods().inNamespace(session.getNamespace()).withName(podName).inContainer(containerName).watchLog(stream);
+                    fds.add(lw);
+                    fds.add(stream);
+                }
+            }
+
+            watchersMap.put(podName, fds);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(String.format("Error storing the console log for pod %s", podName), e);
+        }
+
+    }
+
+    private void delConsole(String podName) {
+        Collection<Closeable> lw = watchersMap.get(podName);
+        if (lw == null)
+            return;
+
+        watchersMap.remove(podName);
+        IoUtils.safeClose((Closeable[]) lw.toArray());
+    }
+
+    private void setupConsoleListener() {
+        if (!configuration.isLogCopyEnabled())
+            return;
+
+        logPath = configuration.getLogPath();
+        if (Strings.isNullOrEmpty(logPath))
+            logPath = String.format("%s/target/surefire-reports", System.getProperty("user.dir"));
+        session.getLogger().info(String.format("Storing pods console logs into dir %s", logPath));
+        new File(logPath).mkdirs();
+
+        final Watcher<Pod> watcher = new Watcher<Pod>() {
+            @Override
+            public void eventReceived(Action action, Pod pod) {
+                switch (action) {
+                    case ADDED:
+                    case MODIFIED:
+                        if (pod.getStatus().getPhase().equalsIgnoreCase("Running")) {
+                            addConsole(pod.getMetadata().getName());
+                        }
+                        break;
+                    case DELETED:
+                    case ERROR:
+                        delConsole(pod.getMetadata().getName());
+                        break;
+                }
+            }
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+        };
+
+        watchLog = client.pods().inNamespace(session.getNamespace()).watch(watcher);
+    }
+
+    private void cleanupConsoleListener() {
+        if (watchLog != null) {
+            watchLog.close();
+        }
+        watchersMap.forEach((k, v) -> {
+            IoUtils.safeClose(v.toArray(new Closeable[0]));
+        });
+        watchersMap.clear();
+    }
+
     @Override
     public void stop() {
         try {
+            cleanupConsoleListener();
             clean(getSessionStatus());
         } finally {
            removeShutdownHook();

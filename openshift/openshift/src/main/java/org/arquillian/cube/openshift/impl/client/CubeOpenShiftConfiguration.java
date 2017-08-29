@@ -63,15 +63,15 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
         boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
-        List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled,
-        String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
+        List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
+        String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
         String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
         String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,              
             environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
-            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, kubernetesDomain, dockerRegistry);
+            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -131,6 +131,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                 .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
+                .withLogCopyEnabled(getBooleanProperty(LOGS_COPY, map, false))
+                .withLogPath(getStringProperty(LOGS_PATH, map, null))
                 .withEnvironmentSetupScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
