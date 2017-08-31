@@ -102,6 +102,9 @@ public class ContainerConfigurationController {
 
         try {
             Method method = fieldName.getReadMethod();
+            if (method == null) {
+                return -1;
+            }
             return (int) method.invoke(configurationInstance);
         } catch (SecurityException e) {
             throw new IllegalArgumentException(e);
