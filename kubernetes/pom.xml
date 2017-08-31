@@ -22,6 +22,7 @@
     <module>kubernetes</module>
     <module>reporter</module>
     <module>ftest-kubernetes</module>
+    <module>ftest-kubernetes-logs</module>
     <module>ftest-kubernetes-reporter</module>
   </modules>
 
