@@ -4,6 +4,7 @@ import org.arquillian.cube.docker.drone.event.AfterConversion;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
@@ -14,6 +15,9 @@ public class VideoConversionLifecycleManager {
 
     @Inject
     Event<AfterConversion> afterConversionEvent;
+
+    @Inject
+    Instance<SeleniumContainers> seleniumContainersInstance;
 
     public void startConversion(@Observes AfterSuite afterSuite, CubeRegistry cubeRegistry) {
 
@@ -26,11 +30,13 @@ public class VideoConversionLifecycleManager {
 
     private void initConversionCube(CubeRegistry cubeRegistry) {
         if (flv2mp4 == null) {
-            Cube conversionContainer = cubeRegistry.getCube(SeleniumContainers.CONVERSION_CONTAINER_NAME);
+            SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
+            
+            Cube conversionContainer = cubeRegistry.getCube(seleniumContainers.getVideoConverterContainerName());
 
             if (conversionContainer == null) {
                 throw new IllegalArgumentException(
-                    SeleniumContainers.CONVERSION_CONTAINER_NAME + " cube is not present in the registry.");
+                        "Video conversion cube is not present in the registry.");
             }
 
             this.flv2mp4 = conversionContainer;

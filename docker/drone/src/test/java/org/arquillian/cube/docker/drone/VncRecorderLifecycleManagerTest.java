@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.TestResult;
 import org.jboss.arquillian.test.spi.event.suite.After;
@@ -45,10 +48,19 @@ public class VncRecorderLifecycleManagerTest {
 
     @Test
     public void should_start_vnc_by_default() {
-
-        when(cubeRegistry.getCube(SeleniumContainers.VNC_CONTAINER_NAME)).thenReturn(cube);
+        String vncName = "vnc_" + UUID.randomUUID();
+        when(seleniumContainers.getVncContainerName()).thenReturn(vncName);
+        when(cubeRegistry.getCube(vncName)).thenReturn(cube);
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
+
+        vncRecorderLifecycleManager.seleniumContainersInstance = new Instance<SeleniumContainers>() {
+            @Override
+            public SeleniumContainers get() {
+                return seleniumContainers;
+            }
+        };
+        
         vncRecorderLifecycleManager.startRecording(null,
             CubeDroneConfiguration.fromMap(new HashMap<String, String>()),
             cubeRegistry);

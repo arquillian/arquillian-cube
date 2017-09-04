@@ -1,6 +1,8 @@
 package org.arquillian.cube.docker.drone;
 
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.hamcrest.CustomMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -15,6 +17,19 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SeleniumContainersTest {
 
+    private final static Matcher<PortBinding> SELENIUM_PORT_BINDING_MATCHER =
+            new CustomMatcher<PortBinding>("a port binding for Selenium exposed port"){
+                @Override
+                public boolean matches(Object item){
+                    if (item instanceof PortBinding) {
+                        PortBinding portBinding = (PortBinding) item;
+                        return portBinding.getExposedPort().getExposed() == SeleniumContainers.SELENIUM_EXPOSED_PORT 
+                                && portBinding.getBound() >= 49152 && portBinding.getBound() < 65535;
+                    }
+                    return false;
+                }
+            };
+    
     @Mock
     CubeDroneConfiguration cubeDroneConfiguration;
 
@@ -27,7 +42,7 @@ public class SeleniumContainersTest {
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("mycompany/mybrowser:1.0"));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(SELENIUM_PORT_BINDING_MATCHER));
     }
 
     @Test
@@ -40,7 +55,7 @@ public class SeleniumContainersTest {
         assertThat(firefox.getBrowser(), is("firefox"));
         assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(),
             is("src/test/resources/browser"));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(SELENIUM_PORT_BINDING_MATCHER));
     }
 
     @Test
@@ -54,7 +69,7 @@ public class SeleniumContainersTest {
         assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(),
             is("src/test/resources/browser"));
         assertThat(firefox.getSeleniumContainer().getImage(), is(nullValue()));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(SELENIUM_PORT_BINDING_MATCHER));
     }
 
     @Test
@@ -65,7 +80,7 @@ public class SeleniumContainersTest {
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:2.53.0"));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(SELENIUM_PORT_BINDING_MATCHER));
         assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
     }
 
@@ -78,7 +93,7 @@ public class SeleniumContainersTest {
         final SeleniumContainers firefox = SeleniumContainers.create("chrome", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("chrome"));
         assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-chrome-debug:2.53.0"));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(SELENIUM_PORT_BINDING_MATCHER));
         assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
     }
 }
