@@ -49,9 +49,6 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     private CubeDockerConfiguration cubeDockerConfiguration;
 
     @Mock
-    private SeleniumContainers seleniumContainers;
-
-    @Mock
     private CubeRegistry cubeRegistry;
 
     @Mock
@@ -65,8 +62,6 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Before
     public void prepareCubeDockerConfiguration() {
         when(cubeDockerConfiguration.getDockerServerIp()).thenReturn(DOCKER_HOST);
-        when(seleniumContainers.getSeleniumContainerName()).thenReturn(SeleniumContainers.SELENIUM_CONTAINER_NAME);
-        when(seleniumContainers.getVncContainerName()).thenReturn(SeleniumContainers.VNC_CONTAINER_NAME);
 
         when(hasPortBindings.getInternalIP()).thenReturn("192.168.99.100");
         when(cube.hasMetadata(HasPortBindings.class)).thenReturn(true);
@@ -85,12 +80,6 @@ public class CubeDockerCustomizableURLResourceProviderTest {
             @Override
             public GrapheneConfiguration get() {
                 return grapheneConfiguration;
-            }
-        };
-        dockerCubeCustomizableURLResourceProvider.seleniumContainersInstance = new Instance<SeleniumContainers>() {
-            @Override
-            public SeleniumContainers get() {
-                return seleniumContainers;
             }
         };
         dockerCubeCustomizableURLResourceProvider.cubeRegistryInstance = new Instance<CubeRegistry>() {
