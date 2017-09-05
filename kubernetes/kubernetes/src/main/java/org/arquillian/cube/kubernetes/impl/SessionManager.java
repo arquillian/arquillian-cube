@@ -7,6 +7,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -35,6 +36,7 @@ import org.xnio.IoUtils;
 
 import io.fabric8.kubernetes.api.model.v2_5.Container;
 import io.fabric8.kubernetes.api.model.v2_5.Endpoints;
+import io.fabric8.kubernetes.api.model.v2_5.Event;
 import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
 import io.fabric8.kubernetes.api.model.v2_5.Pod;
 import io.fabric8.kubernetes.api.model.v2_5.PodList;
@@ -67,10 +69,14 @@ public class SessionManager implements SessionCreatedListener {
     private final List<HasMetadata> resources = new ArrayList<>();
     private final Map<String, Collection<Closeable>> watchersMap = new HashMap<String, Collection<Closeable>>();
     private Watch watchLog;
+    private Watch watchEvents;
 
     private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
 
     private String logPath;
+    private FileWriter eventLogWriter;
+    private String currentClassName;
+    private String currentMethodName;
 
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
         AnnotationProvider annotationProvider, NamespaceService namespaceService,
@@ -205,6 +211,7 @@ public class SessionManager implements SessionCreatedListener {
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
         setupConsoleListener();
+        setupEventListener();
 
         addShutdownHook();
         try {
@@ -312,10 +319,87 @@ public class SessionManager implements SessionCreatedListener {
         watchersMap.clear();
     }
 
+    private void setupEventLogWriter() {
+        String className = session.getCurrentClassName();
+        String methodName = session.getCurrentMethodName();
+
+        if (className != null && className.equals(currentClassName)
+                && methodName != null && methodName.equals(currentMethodName))
+            return;
+
+        currentClassName = className;
+        currentMethodName = methodName;
+        String fileName = logPath;
+
+        if (Strings.isNullOrEmpty(className))
+            className = "NOCLASS";
+        fileName += String.format("/%s", className);
+
+        if (Strings.isNotNullOrEmpty(methodName))
+            fileName += String.format("-%s", methodName);
+        fileName += "-KUBE_EVENTS.log";
+
+        try {
+            if (eventLogWriter != null) {
+                eventLogWriter.close();
+            }
+            eventLogWriter = new FileWriter(fileName, true);
+        } catch (IOException e) {
+            throw new RuntimeException("Error storing kubernetes events", e);
+        }
+
+    }
+
+    private void setupEventListener() {
+        if (!configuration.isLogCopyEnabled())
+            return;
+
+
+        final Watcher<Event> watcher = new Watcher<Event>() {
+            @Override
+            public void eventReceived(Action action, Event event) {
+                switch (action) {
+                    case ADDED:
+                    case MODIFIED:
+                    case DELETED:
+                    case ERROR:
+                    try {
+                        setupEventLogWriter();
+                        eventLogWriter.append(String.format("[%s] [%s]: (%s) %s\n", event.getLastTimestamp(), event.getType(), event.getReason(), event.getMessage()));
+                        eventLogWriter.flush();
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error storing kubernetes events", e);
+                    }
+                }
+            }
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+        };
+
+        watchEvents = client.events().inNamespace(session.getNamespace()).watch(watcher);
+    }
+
+    private void cleanupEventsListener() {
+        if (watchEvents != null) {
+            watchEvents.close();
+        }
+
+        if (eventLogWriter != null) {
+            try {
+                eventLogWriter.close();
+            } catch (IOException e) {
+                session.getLogger().error("Error closing kubernetes events file: " + e);
+            }
+        }
+    }
+
     @Override
     public void stop() {
         try {
             cleanupConsoleListener();
+            cleanupEventsListener();
             clean(getSessionStatus());
         } finally {
            removeShutdownHook();
