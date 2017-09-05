@@ -59,7 +59,7 @@ public class StarOperator {
         return containerName + "_" + uuid;
     }
 
-    private static int generateRandomPrivatePort() {
+    public static int generateRandomPrivatePort() {
         final int randomPort = random.nextInt(16383);
         return randomPort + 49152;
     }

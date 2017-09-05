@@ -15,6 +15,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
@@ -53,12 +54,28 @@ public class SeleniumContainers {
     private SeleniumContainers(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         this.browser = browser;
         
-        UUID namePostfix = UUID.randomUUID();
-        this.seleniumContainerName = "browser_" + namePostfix;
-        this.vncContainerName = "vnc_" + namePostfix;
-        this.conversionContainerName = "flv2mp4_" + namePostfix;
-        
-        this.seleniumBoundedPort = 49152 + new Random().nextInt(16383);
+        switch(cubeDroneConfiguration.getContainerNameStrategy()) {
+            case RANDOM:
+                UUID uuid = UUID.randomUUID();
+                this.seleniumContainerName = StarOperator.generateNewName("browser", uuid);
+                this.vncContainerName = StarOperator.generateNewName("vnc", uuid);
+                this.conversionContainerName = StarOperator.generateNewName("flv2mp4", uuid);
+                this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
+                break;
+            case STATIC_PREFIX:
+                this.seleniumContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_browser";
+                this.vncContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_vnc";
+                this.conversionContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_flv2mp4";
+                this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
+                break;
+            case STATIC:
+            default:
+                this.seleniumContainerName = "browser";
+                this.vncContainerName = "vnc";
+                this.conversionContainerName = "flv2mp4";
+                this.seleniumBoundedPort = 14444;
+                break;
+        }
         
         this.videoRecordingFolder = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
         
