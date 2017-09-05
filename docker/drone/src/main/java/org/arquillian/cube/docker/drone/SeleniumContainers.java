@@ -2,7 +2,6 @@ package org.arquillian.cube.docker.drone;
 
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -22,7 +21,10 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 public class SeleniumContainers {
 
     private static final Logger logger = Logger.getLogger(SeleniumContainers.class.getName());
-    
+
+    private static final String SELENIUM_CONTAINER_BASE_NAME = "browser";
+    private static final String VNC_CONTAINER_BASE_NAME = "vnc";
+    private static final String CONVERSION_CONTAINER_BASE_NAME = "flv2mp4";
     private static final String CHROME_IMAGE = "selenium/standalone-chrome-debug:%s";
     private static final String FIREFOX_IMAGE = "selenium/standalone-firefox-debug:%s";
     private static final String VNC_IMAGE = "richnorth/vnc-recorder:latest";
@@ -31,7 +33,6 @@ public class SeleniumContainers {
     private static final String VNC_HOSTNAME = "vnchost";
     private static final String VOLUME_DIR = "/recording";
     private static final int VNC_EXPOSED_PORT = 5900;
-    public static final int SELENIUM_EXPOSED_PORT = 4444;
     public static final String[] FLVREC_COMMAND = new String[] {
         "-o",
         VOLUME_DIR + "/screen.flv",
@@ -57,22 +58,22 @@ public class SeleniumContainers {
         switch(cubeDroneConfiguration.getContainerNameStrategy()) {
             case RANDOM:
                 UUID uuid = UUID.randomUUID();
-                this.seleniumContainerName = StarOperator.generateNewName("browser", uuid);
-                this.vncContainerName = StarOperator.generateNewName("vnc", uuid);
-                this.conversionContainerName = StarOperator.generateNewName("flv2mp4", uuid);
+                this.seleniumContainerName = StarOperator.generateNewName(SELENIUM_CONTAINER_BASE_NAME, uuid);
+                this.vncContainerName = StarOperator.generateNewName(VNC_CONTAINER_BASE_NAME, uuid);
+                this.conversionContainerName = StarOperator.generateNewName(CONVERSION_CONTAINER_BASE_NAME, uuid);
                 this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
                 break;
             case STATIC_PREFIX:
-                this.seleniumContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_browser";
-                this.vncContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_vnc";
-                this.conversionContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_flv2mp4";
+                this.seleniumContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + SELENIUM_CONTAINER_BASE_NAME;
+                this.vncContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + VNC_CONTAINER_BASE_NAME;
+                this.conversionContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + CONVERSION_CONTAINER_BASE_NAME;
                 this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
                 break;
             case STATIC:
             default:
-                this.seleniumContainerName = "browser";
-                this.vncContainerName = "vnc";
-                this.conversionContainerName = "flv2mp4";
+                this.seleniumContainerName = SELENIUM_CONTAINER_BASE_NAME;
+                this.vncContainerName = VNC_CONTAINER_BASE_NAME;
+                this.conversionContainerName = CONVERSION_CONTAINER_BASE_NAME;
                 this.seleniumBoundedPort = 14444;
                 break;
         }
@@ -222,7 +223,7 @@ public class SeleniumContainers {
 
     private static void setDefaultSeleniumCubeProperties(CubeContainer cubeContainer, int seleniumBoundedPort) {
         cubeContainer.setPortBindings(
-            Arrays.asList(PortBinding.valueOf(seleniumBoundedPort + "-> " + SELENIUM_EXPOSED_PORT))
+            Arrays.asList(PortBinding.valueOf(seleniumBoundedPort + "-> 4444"))
         );
 
         Await await = new Await();

@@ -48,9 +48,8 @@ public class VncRecorderLifecycleManagerTest {
 
     @Test
     public void should_start_vnc_by_default() {
-        String vncName = "vnc_" + UUID.randomUUID();
-        when(seleniumContainers.getVncContainerName()).thenReturn(vncName);
-        when(cubeRegistry.getCube(vncName)).thenReturn(cube);
+        when(seleniumContainers.getVncContainerName()).thenReturn("vnc");
+        when(cubeRegistry.getCube("vnc")).thenReturn(cube);
 
         VncRecorderLifecycleManager vncRecorderLifecycleManager = new VncRecorderLifecycleManager();
 

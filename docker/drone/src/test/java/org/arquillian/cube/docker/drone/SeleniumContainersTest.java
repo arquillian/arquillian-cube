@@ -26,7 +26,7 @@ public class SeleniumContainersTest {
                 public boolean matches(Object item){
                     if (item instanceof PortBinding) {
                         PortBinding portBinding = (PortBinding) item;
-                        return portBinding.getExposedPort().getExposed() == SeleniumContainers.SELENIUM_EXPOSED_PORT 
+                        return portBinding.getExposedPort().getExposed() == 4444 
                                 && portBinding.getBound() >= 49152 && portBinding.getBound() < 65535;
                     }
                     return false;
