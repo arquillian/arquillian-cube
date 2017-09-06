@@ -490,6 +490,10 @@ public class DockerClientExecutor {
                 createContainerCmd.withIpv6Address(containerConfiguration.getIpv6Address());
             }
 
+            if (containerConfiguration.getAliases() != null) {
+                createContainerCmd.withAliases(containerConfiguration.getAliases().toArray(new String[0]));
+            }
+
             boolean alwaysPull = false;
 
             if (containerConfiguration.getAlwaysPull() != null) {

@@ -25,6 +25,7 @@ public class ComposeBuilder {
     private static final String NETWORKS = "networks";
     private static final String IP_V4_Address = "ipv4_address";
     private static final String IP_V6_Address = "ipv6_address";
+    private static final String ALIASES = "aliases";
 
     private static final String NETWORK_NAME_SUFFIX = "_default";
 
@@ -121,6 +122,9 @@ public class ComposeBuilder {
             }
             if (networkOption.containsKey(IP_V6_Address)) {
                 cubeContainer.setIpv6Address(asString(networkOption, IP_V6_Address));
+            }
+            if (networkOption.containsKey(ALIASES)) {
+                cubeContainer.setAliases(asListOfString(networkOption, ALIASES));
             }
         }
     }
