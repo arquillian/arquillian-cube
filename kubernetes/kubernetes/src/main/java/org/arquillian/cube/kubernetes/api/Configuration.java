@@ -50,6 +50,8 @@ public interface Configuration {
     String WAIT_FOR_SERVICE_LIST = "wait.for.service.list";
 
     String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
+    String LOGS_COPY = "logs.copy";
+    String LOGS_PATH = "logs.path";
 
     Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
@@ -102,6 +104,10 @@ public interface Configuration {
     boolean isAnsiLoggerEnabled();
 
     boolean isEnvironmentInitEnabled();
+
+    boolean isLogCopyEnabled();
+
+    String getLogPath();
 
     String getKubernetesDomain();
 

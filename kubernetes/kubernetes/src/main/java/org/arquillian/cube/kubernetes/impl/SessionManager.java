@@ -1,27 +1,26 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.v2_5.Endpoints;
-import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
-import io.fabric8.kubernetes.api.model.v2_5.Pod;
-import io.fabric8.kubernetes.api.model.v2_5.PodList;
-import io.fabric8.kubernetes.api.model.v2_5.ReplicationController;
-import io.fabric8.kubernetes.api.model.v2_5.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.v2_5.Service;
-import io.fabric8.kubernetes.api.model.v2_5.ServiceList;
-import io.fabric8.kubernetes.api.model.v2_5.ServicePort;
-import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSet;
-import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSetList;
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientTimeoutException;
+import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
+import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -33,9 +32,27 @@ import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
 import org.jboss.arquillian.core.spi.Validate;
+import org.xnio.IoUtils;
 
-import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
-import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
+import io.fabric8.kubernetes.api.model.v2_5.Container;
+import io.fabric8.kubernetes.api.model.v2_5.Endpoints;
+import io.fabric8.kubernetes.api.model.v2_5.Event;
+import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
+import io.fabric8.kubernetes.api.model.v2_5.Pod;
+import io.fabric8.kubernetes.api.model.v2_5.PodList;
+import io.fabric8.kubernetes.api.model.v2_5.ReplicationController;
+import io.fabric8.kubernetes.api.model.v2_5.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.v2_5.Service;
+import io.fabric8.kubernetes.api.model.v2_5.ServiceList;
+import io.fabric8.kubernetes.api.model.v2_5.ServicePort;
+import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientException;
+import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientTimeoutException;
+import io.fabric8.kubernetes.clnt.v2_5.Watch;
+import io.fabric8.kubernetes.clnt.v2_5.Watcher;
+import io.fabric8.kubernetes.clnt.v2_5.dsl.LogWatch;
 
 public class SessionManager implements SessionCreatedListener {
 
@@ -50,8 +67,16 @@ public class SessionManager implements SessionCreatedListener {
     private final FeedbackProvider feedbackProvider;
 
     private final List<HasMetadata> resources = new ArrayList<>();
+    private final Map<String, Collection<Closeable>> watchersMap = new HashMap<String, Collection<Closeable>>();
+    private Watch watchLog;
+    private Watch watchEvents;
 
     private final AtomicReference<ShutdownHook> shutdownHookRef = new AtomicReference<>();
+
+    private String logPath;
+    private FileWriter eventLogWriter;
+    private String currentClassName;
+    private String currentMethodName;
 
     public SessionManager(Session session, KubernetesClient client, Configuration configuration,
         AnnotationProvider annotationProvider, NamespaceService namespaceService,
@@ -78,7 +103,7 @@ public class SessionManager implements SessionCreatedListener {
         this.feedbackProvider = feedbackProvider;
     }
 
-    private static String getSessionStatus(Session session) {
+    private String getSessionStatus() {
         if (session.getFailed().get() > 0) {
             return "FAILED";
         } else {
@@ -88,9 +113,8 @@ public class SessionManager implements SessionCreatedListener {
 
     /**
      * Creates a namespace if needed.
-     * @param session   The {@link Session}.
      */
-    public void createNamespace(Session session) {
+    public void createNamespace() {
         Map<String, String> namespaceAnnotations = annotationProvider.create(session.getId(), Constants.RUNNING_STATUS);
         if (namespaceService.exists(session.getNamespace())) {
             //namespace exists
@@ -103,7 +127,7 @@ public class SessionManager implements SessionCreatedListener {
     }
 
 
-    public void createEnvironment(Session session) {
+    public void createEnvironment() {
         Logger log = session.getLogger();
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
@@ -185,21 +209,198 @@ public class SessionManager implements SessionCreatedListener {
     public void start() {
         Logger log = session.getLogger();
         log.status("Using Kubernetes at: " + client.getMasterUrl());
-        createNamespace(session);
+        createNamespace();
+        setupConsoleListener();
+        setupEventListener();
 
         addShutdownHook();
         try {
-            createEnvironment(session);
+            createEnvironment();
         } catch (Throwable t){
           removeShutdownHook();
           throw t;
         }
     }
 
+    private void addConsole(final String podName) {
+        if (watchersMap.containsKey(podName))
+            return;
+
+        String className = session.getCurrentClassName();
+        String methodName = session.getCurrentMethodName();
+        String fileName = logPath;
+
+        if (Strings.isNullOrEmpty(className))
+            className = "NOCLASS";
+        fileName += String.format("/%s", className);
+
+        if (Strings.isNotNullOrEmpty(methodName))
+            fileName += String.format("-%s", methodName);
+
+        try {
+            Collection<Closeable> fds = new ArrayList<Closeable>();
+            List<Container> containers = client.pods().inNamespace(session.getNamespace()).withName(podName).get()
+                    .getSpec().getContainers();
+            if (containers.size() == 1) {
+                fileName += String.format("-%s.log", podName);
+                final FileOutputStream stream = new FileOutputStream(fileName);
+                LogWatch lw = client.pods().inNamespace(session.getNamespace()).withName(podName).watchLog(stream);
+                fds.add(lw);
+                fds.add(stream);
+            } else {
+                for (Container container : containers) {
+                    String containerName = container.getName();
+                    String fileNameContainer = String.format("%s-%s-%s.log", fileName, podName, containerName);
+                    final FileOutputStream stream = new FileOutputStream(fileNameContainer);
+                    LogWatch lw = client.pods().inNamespace(session.getNamespace()).withName(podName).inContainer(containerName).watchLog(stream);
+                    fds.add(lw);
+                    fds.add(stream);
+                }
+            }
+
+            watchersMap.put(podName, fds);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(String.format("Error storing the console log for pod %s", podName), e);
+        }
+
+    }
+
+    private void delConsole(String podName) {
+        Collection<Closeable> lw = watchersMap.get(podName);
+        if (lw == null)
+            return;
+
+        watchersMap.remove(podName);
+        IoUtils.safeClose((Closeable[]) lw.toArray());
+    }
+
+    private void setupConsoleListener() {
+        if (!configuration.isLogCopyEnabled())
+            return;
+
+        logPath = configuration.getLogPath();
+        if (Strings.isNullOrEmpty(logPath))
+            logPath = String.format("%s/target/surefire-reports", System.getProperty("user.dir"));
+        session.getLogger().info(String.format("Storing pods console logs into dir %s", logPath));
+        new File(logPath).mkdirs();
+
+        final Watcher<Pod> watcher = new Watcher<Pod>() {
+            @Override
+            public void eventReceived(Action action, Pod pod) {
+                switch (action) {
+                    case ADDED:
+                    case MODIFIED:
+                        if (pod.getStatus().getPhase().equalsIgnoreCase("Running")) {
+                            addConsole(pod.getMetadata().getName());
+                        }
+                        break;
+                    case DELETED:
+                    case ERROR:
+                        delConsole(pod.getMetadata().getName());
+                        break;
+                }
+            }
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+        };
+
+        watchLog = client.pods().inNamespace(session.getNamespace()).watch(watcher);
+    }
+
+    private void cleanupConsoleListener() {
+        if (watchLog != null) {
+            watchLog.close();
+        }
+        watchersMap.forEach((k, v) -> {
+            IoUtils.safeClose(v.toArray(new Closeable[0]));
+        });
+        watchersMap.clear();
+    }
+
+    private void setupEventLogWriter() {
+        String className = session.getCurrentClassName();
+        String methodName = session.getCurrentMethodName();
+
+        if (className != null && className.equals(currentClassName)
+                && methodName != null && methodName.equals(currentMethodName))
+            return;
+
+        currentClassName = className;
+        currentMethodName = methodName;
+        String fileName = logPath;
+
+        if (Strings.isNullOrEmpty(className))
+            className = "NOCLASS";
+        fileName += String.format("/%s", className);
+
+        if (Strings.isNotNullOrEmpty(methodName))
+            fileName += String.format("-%s", methodName);
+        fileName += "-KUBE_EVENTS.log";
+
+        try {
+            if (eventLogWriter != null) {
+                eventLogWriter.close();
+            }
+            eventLogWriter = new FileWriter(fileName, true);
+        } catch (IOException e) {
+            throw new RuntimeException("Error storing kubernetes events", e);
+        }
+
+    }
+
+    private void setupEventListener() {
+        if (!configuration.isLogCopyEnabled())
+            return;
+
+
+        final Watcher<Event> watcher = new Watcher<Event>() {
+            @Override
+            public void eventReceived(Action action, Event event) {
+                switch (action) {
+                    case ADDED:
+                    case MODIFIED:
+                    case DELETED:
+                    case ERROR:
+                    try {
+                        setupEventLogWriter();
+                        eventLogWriter.append(String.format("[%s] [%s]: (%s) %s\n", event.getLastTimestamp(), event.getType(), event.getReason(), event.getMessage()));
+                        eventLogWriter.flush();
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error storing kubernetes events", e);
+                    }
+                }
+            }
+
+            @Override
+            public void onClose(KubernetesClientException cause) {
+            }
+        };
+
+        watchEvents = client.events().inNamespace(session.getNamespace()).watch(watcher);
+    }
+
+    private void cleanupEventsListener() {
+        if (watchEvents != null) {
+            watchEvents.close();
+        }
+
+        if (eventLogWriter != null) {
+            try {
+                eventLogWriter.close();
+            } catch (IOException e) {
+                session.getLogger().error("Error closing kubernetes events file: " + e);
+            }
+        }
+    }
+
     @Override
     public void stop() {
         try {
-            clean(getSessionStatus(session));
+            cleanupConsoleListener();
+            cleanupEventsListener();
+            clean(getSessionStatus());
         } finally {
            removeShutdownHook();
         }

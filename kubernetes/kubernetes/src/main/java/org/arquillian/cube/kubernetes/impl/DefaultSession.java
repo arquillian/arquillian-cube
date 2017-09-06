@@ -3,6 +3,7 @@ package org.arquillian.cube.kubernetes.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionListener;
@@ -19,6 +20,9 @@ public class DefaultSession implements Session {
     private final AtomicInteger failed = new AtomicInteger();
     private final AtomicInteger skipped = new AtomicInteger();
     private final List<SessionListener> listeners = new ArrayList<>();
+
+    private String currentClassName;
+    private String currentMethodName;
 
     public DefaultSession(String id, String namespace, Logger logger) {
         this.id = id;
@@ -78,5 +82,25 @@ public class DefaultSession implements Session {
     @Override
     public void removeListener(SessionListener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public String getCurrentClassName() {
+        return currentClassName;
+    }
+
+    @Override
+    public void setCurrentClassName(String className) {
+        this.currentClassName = className;
+    }
+
+    @Override
+    public String getCurrentMethodName() {
+        return currentMethodName;
+    }
+
+    @Override
+    public void setCurrentMethodName(String methodName) {
+        this.currentMethodName = methodName;
     }
 }

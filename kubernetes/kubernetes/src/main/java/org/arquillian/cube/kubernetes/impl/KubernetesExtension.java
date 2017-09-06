@@ -79,6 +79,7 @@ public class KubernetesExtension implements LoadableExtension {
             .observer(FeedbackProviderServiceRegistar.class)
             .observer(getClientCreator())
             .observer(SuiteListener.class)
+            .observer(ClassListener.class)
             .observer(TestListener.class)
             .observer(SessionManagerLifecycle.class);
 
