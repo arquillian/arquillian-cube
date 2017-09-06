@@ -247,4 +247,16 @@ public class DockerComposeConverterTest {
     assertThat(webapp.getBuildImage(), is(notNullValue()));
   }
 
+  @Test
+  public void shouldTransformSimpleDockerComposeV2FormatNetworkAliases() throws URISyntaxException {
+    URI simpleDockerCompose = DockerComposeConverterTest.class.getResource("/simple-docker-compose-network-aliases-v2.yml").toURI();
+    DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerCompose));
+
+    DockerCompositions convert = dockerComposeConverter.convert();
+    CubeContainer webapp = convert.get("webapp");
+    assertThat(webapp, is(notNullValue()));
+    assertThat(webapp.getNetworks()).contains("front-tier");
+    assertThat(webapp.getAliases()).containsOnly("foo", "bar");
+  }
+
 }
