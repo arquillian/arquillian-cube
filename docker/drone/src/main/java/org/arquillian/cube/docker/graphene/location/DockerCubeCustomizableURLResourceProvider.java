@@ -64,9 +64,6 @@ public class DockerCubeCustomizableURLResourceProvider implements ResourceProvid
     Instance<CubeDockerConfiguration> cubeDockerConfigurationInstance;
 
     @Inject
-    Instance<SeleniumContainers> seleniumContainersInstance;
-
-    @Inject
     Instance<CubeRegistry> cubeRegistryInstance;
 
     @Override

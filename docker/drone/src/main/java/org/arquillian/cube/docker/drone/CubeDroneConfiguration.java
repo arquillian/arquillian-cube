@@ -26,6 +26,15 @@ public class CubeDroneConfiguration {
      * @see org.arquillian.cube.docker.drone.CubeDroneConfiguration#browserImage
      */
     private String browserDockerfileLocation = null;
+    /**
+     * Strategy for naming of containers, either always the same name or static with a configurable
+     * prefix or a randomly generated, unique name.
+     */
+    private ContainerNameStrategy containerNameStrategy = ContainerNameStrategy.STATIC;
+    /**
+     * Prefix for STATIC_PREFIX container name strategy.
+     */
+    private String containerNamePrefix = null;
 
     public static CubeDroneConfiguration fromMap(Map<String, String> config) {
         CubeDroneConfiguration cubeDroneConfiguration = new CubeDroneConfiguration();
@@ -44,6 +53,14 @@ public class CubeDroneConfiguration {
 
         if (config.containsKey("browserDockerfileLocation")) {
             cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
+        }
+
+        if (config.containsKey("containerNameStrategy")) {
+            cubeDroneConfiguration.containerNameStrategy = ContainerNameStrategy.valueOf(config.get("containerNameStrategy"));
+        }
+
+        if (config.containsKey("containerNamePrefix")) {
+            cubeDroneConfiguration.containerNamePrefix = config.get("containerNamePrefix");
         }
 
         return cubeDroneConfiguration;
@@ -84,8 +101,20 @@ public class CubeDroneConfiguration {
     public String getBrowserDockerfileLocation() {
         return browserDockerfileLocation;
     }
+    
+    public ContainerNameStrategy getContainerNameStrategy(){
+        return this.containerNameStrategy;
+    }
 
+    public String getContainerNamePrefix(){
+        return this.containerNamePrefix;
+    }
+    
     public static enum RecordMode {
         ALL, ONLY_FAILING, NONE;
+    }
+    
+    public static enum ContainerNameStrategy {
+        STATIC, STATIC_PREFIX, RANDOM;
     }
 }

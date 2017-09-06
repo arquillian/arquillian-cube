@@ -9,6 +9,7 @@ import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestResult;
@@ -25,6 +26,9 @@ public class VncRecorderLifecycleManager {
     @Inject
     Event<AfterVideoRecorded> afterVideoRecordedEvent;
 
+    @Inject
+    Instance<SeleniumContainers> seleniumContainersInstance;
+    
     Cube vnc;
 
     public void startRecording(@Observes Before beforeTestMethod, CubeDroneConfiguration cubeDroneConfiguration,
@@ -42,7 +46,9 @@ public class VncRecorderLifecycleManager {
 
     private void initVncCube(CubeRegistry cubeRegistry) {
         if (vnc == null) {
-            Cube vncContainer = cubeRegistry.getCube(SeleniumContainers.VNC_CONTAINER_NAME);
+            SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
+            
+            Cube vncContainer = cubeRegistry.getCube(seleniumContainers.getVncContainerName());
 
             if (vncContainer == null) {
                 throw new IllegalArgumentException("VNC cube is not present in registry.");
