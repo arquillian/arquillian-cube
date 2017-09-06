@@ -10,8 +10,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
@@ -26,6 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
 public class PingPongTest {
+
+    private static final String EXPECTED_RESPONSE = "{  \"status\": \"OK\"}";
 
     @HostIp
     String ip;
@@ -59,7 +64,7 @@ public class PingPongTest {
         }
         in.close();
 
-        assertThat(response.toString()).isEqualToIgnoringWhitespace("{  \"status\": \"OK\"}");
+        assertThat(response.toString()).isEqualToIgnoringWhitespace(EXPECTED_RESPONSE);
     }
 
     @Test
@@ -107,5 +112,29 @@ public class PingPongTest {
             assertThat(outputStream.toString()).contains("inet addr:172.16.238.10",
                 "inet6 addr: fe80::42:acff:fe10:ee0a/64");
         }
+    }
+    
+    @Test
+    public void network_should_reach_pingpong_by_alias_ping() throws UnsupportedEncodingException, InterruptedException {
+        ExecCreateCmdResponse exec = dockerClient.execCreateCmd("pingpong2").withCmd("curl", "http://ping:8080/").withAttachStdout(true).exec();
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+        dockerClient.execStartCmd(exec.getId()).exec(new ExecStartResultCallback(stdOut, null)).awaitCompletion(2, TimeUnit.SECONDS);
+        assertThat(stdOut.toString("UTF-8")).isEqualToIgnoringWhitespace(EXPECTED_RESPONSE);
+    }
+    
+    @Test
+    public void network_should_reach_pingpong2_by_alias_pong() throws UnsupportedEncodingException, InterruptedException {
+        ExecCreateCmdResponse exec = dockerClient.execCreateCmd("pingpong").withCmd("curl", "http://pong:8080/").withAttachStdout(true).exec();
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+        dockerClient.execStartCmd(exec.getId()).exec(new ExecStartResultCallback(stdOut, null)).awaitCompletion(2, TimeUnit.SECONDS);
+        assertThat(stdOut.toString("UTF-8")).isEqualToIgnoringWhitespace(EXPECTED_RESPONSE);
+    }
+    
+    @Test
+    public void network_should_reach_pingpong_by_alias_foo() throws UnsupportedEncodingException, InterruptedException {
+        ExecCreateCmdResponse exec = dockerClient.execCreateCmd("pingpong2").withCmd("curl", "http://foo:8080/").withAttachStdout(true).exec();
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+        dockerClient.execStartCmd(exec.getId()).exec(new ExecStartResultCallback(stdOut, null)).awaitCompletion(2, TimeUnit.SECONDS);
+        assertThat(stdOut.toString("UTF-8")).isEqualToIgnoringWhitespace(EXPECTED_RESPONSE);
     }
 }
