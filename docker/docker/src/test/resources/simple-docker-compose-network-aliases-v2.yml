@@ -1,0 +1,13 @@
+version: '2'
+services:
+  webapp:
+    image: ubuntu
+    ports:
+      - "8080:8080"
+    networks:
+      front-tier:
+        aliases:
+          - foo
+          - bar
+networks:
+  front-tier:

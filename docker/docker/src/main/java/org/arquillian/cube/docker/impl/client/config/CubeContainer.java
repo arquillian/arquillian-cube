@@ -51,6 +51,7 @@ public class CubeContainer {
     private Collection<String> extraHosts;
     private Collection<String> entryPoint;
     private Collection<String> networks;
+    private Collection<String> aliases;
     private String domainName;
     private Boolean alwaysPull = Boolean.FALSE;
     private boolean manual = false;
@@ -473,6 +474,14 @@ public class CubeContainer {
 
     public void setNetworks(Collection<String> networks) {
         this.networks = networks;
+    }
+
+    public Collection<String> getAliases(){
+        return aliases;
+    }
+
+    public void setAliases(Collection<String> aliases){
+        this.aliases = aliases;
     }
 
     public Collection<String> getDependingContainers() {
