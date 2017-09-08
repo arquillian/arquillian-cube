@@ -1,5 +1,12 @@
 package org.arquillian.cube.openshift.impl.client;
 
+import io.fabric8.kubernetes.clnt.v2_5.Config;
+import io.fabric8.kubernetes.clnt.v2_5.ConfigBuilder;
+import io.sundr.builder.annotations.Buildable;
+import io.sundr.builder.annotations.BuildableReference;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,14 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
-import io.fabric8.kubernetes.clnt.v2_5.Config;
-import io.fabric8.kubernetes.clnt.v2_5.ConfigBuilder;
-import io.sundr.builder.annotations.Buildable;
-import io.sundr.builder.annotations.BuildableReference;
-
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -39,6 +38,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String KEEP_ALIVE_GIT_SERVER = "keepAliveGitServer";
     private static final String DEFINITIONS_FILE = "definitionsFile";
     private static final String DEFINITIONS = "definitions";
+    private static final String ENABLE_IMAGE_STREAM_DETECTION = "enableImageStreamDetection";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String PROXIED_CONTAINER_PORTS = "proxiedContainerPorts";
     private static final String PORT_FORWARDER_BIND_ADDRESS = "portForwardBindAddress";
@@ -59,15 +59,15 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final int openshiftRouterHttpsPort;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
-        boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
-        boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
-        boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
-        List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-        String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
-        String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
-        String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
-        super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,              
+                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
+                                      boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
+                                      boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
+                                      boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
+                                      List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
+                                      String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
+                                      String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
+                                      String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
+        super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
@@ -107,17 +107,21 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
         // Lets also try to load the image stream for the project.
         List<URL> additionalUrls = new LinkedList<>();
-        File targetDir = new File(System.getProperty("basedir", ".") + "/target");
-         if (targetDir.exists() && targetDir.isDirectory()) {
-            File[]files = targetDir.listFiles();
-             if (files != null) {
-                 for (File file : files) {
-                     if (file.getName().endsWith("-is.yml")) {
-                         try {
-                             additionalUrls.add(file.toURI().toURL());
-                         } catch (MalformedURLException e) {
-                             // ignore
-                         }
+        final boolean enableImageStreamDetection = getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, false);
+
+        if (enableImageStreamDetection) {
+            File targetDir = new File(System.getProperty("basedir", ".") + "/target");
+            if (targetDir.exists() && targetDir.isDirectory()) {
+                File[] files = targetDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.getName().endsWith("-is.yml")) {
+                            try {
+                                additionalUrls.add(file.toURI().toURL());
+                            } catch (MalformedURLException e) {
+                                // ignore
+                            }
+                        }
                     }
                 }
             }
