@@ -2,8 +2,8 @@ package org.arquillian.cube.kubernetes.impl.enricher;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_5.utils.Serialization;
+import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_6.utils.Serialization;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

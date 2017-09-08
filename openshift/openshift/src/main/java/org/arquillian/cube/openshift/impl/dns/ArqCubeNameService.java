@@ -1,6 +1,6 @@
 package org.arquillian.cube.openshift.impl.dns;
 
-import io.fabric8.openshift.api.model.v2_5.RouteList;
+import io.fabric8.openshift.api.model.v2_6.RouteList;
 import sun.net.spi.nameservice.NameService;
 
 import java.net.InetAddress;

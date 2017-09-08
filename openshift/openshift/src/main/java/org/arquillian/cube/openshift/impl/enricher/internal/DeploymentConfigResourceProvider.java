@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.openshift.api.model.v2_5.DeploymentConfig;
-import io.fabric8.openshift.api.model.v2_5.DeploymentConfigList;
+import io.fabric8.openshift.api.model.v2_6.DeploymentConfig;
+import io.fabric8.openshift.api.model.v2_6.DeploymentConfigList;
 
 import org.arquillian.cube.openshift.impl.enricher.AbstractOpenshiftResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
