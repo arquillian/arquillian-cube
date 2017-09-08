@@ -34,25 +34,25 @@ import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
 import org.jboss.arquillian.core.spi.Validate;
 import org.xnio.IoUtils;
 
-import io.fabric8.kubernetes.api.model.v2_5.Container;
-import io.fabric8.kubernetes.api.model.v2_5.Endpoints;
-import io.fabric8.kubernetes.api.model.v2_5.Event;
-import io.fabric8.kubernetes.api.model.v2_5.HasMetadata;
-import io.fabric8.kubernetes.api.model.v2_5.Pod;
-import io.fabric8.kubernetes.api.model.v2_5.PodList;
-import io.fabric8.kubernetes.api.model.v2_5.ReplicationController;
-import io.fabric8.kubernetes.api.model.v2_5.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.v2_5.Service;
-import io.fabric8.kubernetes.api.model.v2_5.ServiceList;
-import io.fabric8.kubernetes.api.model.v2_5.ServicePort;
-import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSet;
-import io.fabric8.kubernetes.api.model.v2_5.extensions.ReplicaSetList;
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientException;
-import io.fabric8.kubernetes.clnt.v2_5.KubernetesClientTimeoutException;
-import io.fabric8.kubernetes.clnt.v2_5.Watch;
-import io.fabric8.kubernetes.clnt.v2_5.Watcher;
-import io.fabric8.kubernetes.clnt.v2_5.dsl.LogWatch;
+import io.fabric8.kubernetes.api.model.v2_6.Container;
+import io.fabric8.kubernetes.api.model.v2_6.Endpoints;
+import io.fabric8.kubernetes.api.model.v2_6.Event;
+import io.fabric8.kubernetes.api.model.v2_6.HasMetadata;
+import io.fabric8.kubernetes.api.model.v2_6.Pod;
+import io.fabric8.kubernetes.api.model.v2_6.PodList;
+import io.fabric8.kubernetes.api.model.v2_6.ReplicationController;
+import io.fabric8.kubernetes.api.model.v2_6.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.v2_6.Service;
+import io.fabric8.kubernetes.api.model.v2_6.ServiceList;
+import io.fabric8.kubernetes.api.model.v2_6.ServicePort;
+import io.fabric8.kubernetes.api.model.v2_6.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.v2_6.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v2_6.KubernetesClientException;
+import io.fabric8.kubernetes.clnt.v2_6.KubernetesClientTimeoutException;
+import io.fabric8.kubernetes.clnt.v2_6.Watch;
+import io.fabric8.kubernetes.clnt.v2_6.Watcher;
+import io.fabric8.kubernetes.clnt.v2_6.dsl.LogWatch;
 
 public class SessionManager implements SessionCreatedListener {
 
