@@ -19,13 +19,16 @@ public class VideoConversionLifecycleManager {
     @Inject
     Instance<SeleniumContainers> seleniumContainersInstance;
 
-    public void startConversion(@Observes AfterSuite afterSuite, CubeRegistry cubeRegistry) {
+    public void startConversion(@Observes AfterSuite afterSuite, CubeDroneConfiguration cubeDroneConfiguration,
+        CubeRegistry cubeRegistry) {
 
-        initConversionCube(cubeRegistry);
-        flv2mp4.create();
-        flv2mp4.start();
-
-        afterConversionEvent.fire(new AfterConversion());
+        if (cubeDroneConfiguration.isRecording()) {
+            initConversionCube(cubeRegistry);
+            flv2mp4.create();
+            flv2mp4.start();
+    
+            afterConversionEvent.fire(new AfterConversion());
+        }
     }
 
     private void initConversionCube(CubeRegistry cubeRegistry) {
