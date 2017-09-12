@@ -9,11 +9,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * OpenShiftRouter
- * <p/>
- * Used with @ArquillianResource URL objects. Provides a URL to the OpenShift
- * router configured on the ce-cube extension, u    e.g.
- * arq.extension.openshift.routerHost, or through arquillian.xml using routerHost parameter, setting the hostname appropriately.
+ * Provides a URL of given OpenShift route. If the route is not resolvable, you need to set the {@code routerHost} setting
+ * to the IP address of the OpenShift router.
  *
  * @author Rob Cernich
  */
