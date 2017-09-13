@@ -2610,7 +2610,8 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>But to be able to do this, you need to set the Router host and configure it under arquillian.xml:</p>
+<p>If the route is not resolvable, you need to set the <code>routerHost</code> setting to the IP address of the OpenShift router.
+You can configure it in arquillian.xml:</p>
 </div>
 <div class="listingblock">
 <div class="title">arquillian.xml</div>
@@ -2623,9 +2624,9 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Or just setting the System Property: openshift.router.host
+<p>Or just by setting the system property <code>openshift.router.host</code>.
 To obtain the router address from your OpenShift instance you can execute the command below:
-<code>oc oc describe svc/router</code>
+<code>oc describe svc/router</code>
 And look for the Endpoints field.</p>
 </div>
 <div class="paragraph">
@@ -6043,7 +6044,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-08 13:31:25 UTC
+Last updated 2017-09-13 16:24:06 UTC
 </div>
 </div>
 </body>
