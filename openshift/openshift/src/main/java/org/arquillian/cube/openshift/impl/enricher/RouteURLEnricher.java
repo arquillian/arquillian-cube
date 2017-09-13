@@ -76,11 +76,6 @@ public class RouteURLEnricher implements TestEnricher {
             throw new NullPointerException("CubeOpenShiftConfiguration is null.");
         }
 
-        final String routerAddress = config.getRouterHost();
-        if (routerAddress == null || routerAddress.length() == 0) {
-            throw new IllegalArgumentException("Must specify routerHost!");
-        }
-
         final OpenShiftClient client = clientInstance.get();
         final Route route = client.getClient().routes().inNamespace(config.getNamespace()).withName(routeName).get();
         if (route == null) {
