@@ -70,7 +70,8 @@ When running Arquillian Cube against a OpenShift's pod you can retrieve the rout
 @RouteURL("app-name")
 private URL url;
 ----
-But to be able to do this, you need to set the Router host and configure it under arquillian.xml:
+If the route is not resolvable, you need to set the `routerHost` setting to the IP address of the OpenShift router.
+You can configure it in arquillian.xml:
 [source, xml]
 .arquillian.xml
 ----
@@ -80,9 +81,9 @@ But to be able to do this, you need to set the Router host and configure it unde
         ...
     </extension>
 ----
-Or just setting the System Property: openshift.router.host
+Or just by setting the system property `openshift.router.host`.
 To obtain the router address from your OpenShift instance you can execute the command below:
-`oc oc describe svc/router`
+`oc describe svc/router`
 And look for the Endpoints field.
 
 
