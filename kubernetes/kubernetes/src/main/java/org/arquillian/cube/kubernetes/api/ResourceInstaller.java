@@ -18,16 +18,6 @@ public interface ResourceInstaller extends WithToImmutable<ResourceInstaller> {
     List<HasMetadata> install(URL url);
 
     /**
-     * Installs the resources found in the specified URL.
-     *
-     * @param url
-     *     The URL to read resources from.
-     *
-     * @return The list with the created resources.
-     */
-    List<HasMetadata> install(URL url, List<Class<? extends io.fabric8.kubernetes.api.builder.v2_6.Visitor>> excludedVisitors);
-
-    /**
      * Uninstalls the resources found in the specified URL.
      *
      * @param url

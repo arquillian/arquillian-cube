@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import io.fabric8.kubernetes.clnt.v2_6.dsl.ListVisitFromServerGetDeleteRecreateWaitApplicable;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
@@ -60,11 +57,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
     }
 
     @Override
-    public List<HasMetadata> install(URL url, List<Class<? extends Visitor>> excludedVisitors) {
-        return toImmutable().install(url, excludedVisitors);
-    }
-
-    @Override
     public Map<HasMetadata, Boolean> uninstall(URL url) {
         return toImmutable().uninstall(url);
     }
@@ -93,22 +85,7 @@ public class DefaultResourceInstaller implements ResourceInstaller {
         public List<HasMetadata> install(URL url) {
             CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
             try (InputStream is = url.openStream()) {
-                final ListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> accept = client.load(is).accept(compositeVisitor);
-                return accept.createOrReplace();
-            } catch (Throwable t) {
-                throw KubernetesClientException.launderThrowable(t);
-            }
-        }
-
-        @Override
-        public List<HasMetadata> install(URL url, List<Class<? extends Visitor>> excludedVisitors) {
-
-            CompositeVisitor compositeVisitor = new CompositeVisitor(
-                visitors.stream().filter(v -> !excludedVisitors.contains(v.getClass())).collect(Collectors.toList())
-            );
-            try (InputStream is = url.openStream()) {
-                final ListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> accept = client.load(is).accept(compositeVisitor);
-                return accept.createOrReplace();
+                return client.load(is).accept(compositeVisitor).createOrReplace();
             } catch (Throwable t) {
                 throw KubernetesClientException.launderThrowable(t);
             }
