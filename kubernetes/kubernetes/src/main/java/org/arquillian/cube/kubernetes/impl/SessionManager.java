@@ -31,7 +31,6 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
-import org.arquillian.cube.kubernetes.impl.visitor.NamespaceVisitor;
 import org.jboss.arquillian.core.spi.Validate;
 import org.xnio.IoUtils;
 
@@ -147,7 +146,7 @@ public class SessionManager implements SessionCreatedListener {
                     for (URL url : additionalUrls) {
                         log.status("Applying additional kubernetes configuration from: " + url);
                         try (InputStream is = url.openStream()) {
-                            resources.addAll(resourceInstaller.install(url, Arrays.asList(NamespaceVisitor.class)));
+                            resources.addAll(resourceInstaller.install(url));
                         }
                     }
                 }
