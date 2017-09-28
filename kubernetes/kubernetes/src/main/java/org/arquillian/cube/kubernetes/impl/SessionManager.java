@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -365,7 +364,10 @@ public class SessionManager implements SessionCreatedListener {
                     case ERROR:
                     try {
                         setupEventLogWriter();
-                        eventLogWriter.append(String.format("[%s] [%s]: (%s) %s\n", event.getLastTimestamp(), event.getType(), event.getReason(), event.getMessage()));
+                        eventLogWriter.append(String.format("[%s] [%s] [%s:%s]: (%s) %s\n",
+                                event.getLastTimestamp(), event.getType(),
+                                event.getInvolvedObject().getKind(), event.getInvolvedObject().getName(),
+                                event.getReason(), event.getMessage()));
                         eventLogWriter.flush();
                     } catch (IOException e) {
                         throw new RuntimeException("Error storing kubernetes events", e);
