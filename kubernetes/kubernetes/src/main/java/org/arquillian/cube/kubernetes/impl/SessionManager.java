@@ -271,7 +271,7 @@ public class SessionManager implements SessionCreatedListener {
             return;
 
         watchersMap.remove(podName);
-        IoUtils.safeClose((Closeable[]) lw.toArray());
+        IoUtils.safeClose(lw.toArray(new Closeable[0]));
     }
 
     private void setupConsoleListener() {
