@@ -107,7 +107,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
         // Lets also try to load the image stream for the project.
         List<URL> additionalUrls = new LinkedList<>();
-        final boolean enableImageStreamDetection = getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, false);
+        final boolean enableImageStreamDetection = getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, true);
 
         if (enableImageStreamDetection) {
             File targetDir = new File(System.getProperty("basedir", ".") + "/target");
