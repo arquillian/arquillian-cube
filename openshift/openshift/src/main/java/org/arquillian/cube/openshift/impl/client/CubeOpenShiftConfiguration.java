@@ -46,8 +46,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String OPENSHIFT_ROUTER_HTTP_PORT = "openshiftRouterHttpPort";
     private static final String OPENSHIFT_ROUTER_HTTPS_PORT = "openshiftRouterHttpsPort";
 
-    private static final String DEFAULT_OPENSHIFT_CONFIG_FILE_NAME = "openshift.json";
-
     private final boolean keepAliveGitServer;
     private final String definitions;
     private final String definitionsFile;
@@ -141,7 +139,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
-                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map, DEFAULT_OPENSHIFT_CONFIG_FILE_NAME))
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentConfigAdditionalUrls(additionalUrls)
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))

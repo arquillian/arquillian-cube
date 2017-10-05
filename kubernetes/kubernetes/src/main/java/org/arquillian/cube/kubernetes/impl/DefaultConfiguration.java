@@ -130,7 +130,7 @@ public class DefaultConfiguration implements Configuration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
-                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map, DEFAULT_CONFIG_FILE_NAME))
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
                 .withNamespaceLazyCreateEnabled(
@@ -201,7 +201,8 @@ public class DefaultConfiguration implements Configuration {
             String resourceName = map.get(ENVIRONMENT_CONFIG_RESOURCE_NAME);
             return findConfigResource(resourceName);
         } else {
-            return findConfigResource(defaultFileName);
+            // Let the resource locator find the resource
+            return null;
         }
     }
 
