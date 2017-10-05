@@ -11,8 +11,8 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
 
     @Override
     public URL locate() {
-        for (String suffix : getAllowedSuffixes()) {
-            for (String resource : getResourceNames()) {
+        for (String resource : getResourceNames()) {
+            for (String suffix : getAllowedSuffixes()) {
                 URL candidate = getResource(resource + suffix);
                 if (candidate != null) {
                     return candidate;
