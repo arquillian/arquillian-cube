@@ -1,6 +1,9 @@
 package org.arquillian.cube.kubernetes.impl.locator;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 public class DefaultKubernetesResourceLocator implements KubernetesResourceLocator {
@@ -20,6 +23,11 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
             }
         }
         return null;
+    }
+
+    @Override
+    public Collection<URL> locateAdditionalResources() {
+        return Collections.emptyList();
     }
 
     protected String[] getResourceNames() {

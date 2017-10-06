@@ -13,6 +13,8 @@ import io.fabric8.kubernetes.api.model.v2_6.ServiceListBuilder;
 import io.fabric8.kubernetes.clnt.v2_6.server.mock.KubernetesMockServer;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -438,6 +440,11 @@ public class TakeKubernetesResourcesInformationTest {
             @Override
             public URL locate() {
                 return getClass().getResource("/kubernetes.json");
+            }
+
+            @Override
+            public Collection<URL> locateAdditionalResources() {
+                return Collections.emptyList();
             }
 
             @Override
