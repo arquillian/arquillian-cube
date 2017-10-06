@@ -165,10 +165,6 @@ public class DefaultConfiguration implements Configuration {
     }
 
     public static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
-        if (map.containsKey(DOCKER_REGISTY)) {
-            return map.get(DOCKER_REGISTY);
-        }
-
         String registry = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_REGISTY);
         if (Strings.isNotNullOrEmpty(registry)) {
             return registry;
@@ -178,9 +174,13 @@ public class DefaultConfiguration implements Configuration {
         String registryPort = SystemEnvironmentVariables.getEnvironmentVariable(DOCKER_REGISTRY_PORT);
         if (Strings.isNotNullOrEmpty(registry) && Strings.isNotNullOrEmpty(registryPort)) {
             return String.format(DOCKER_REGISTRY_FORMAT, registryHost, registryPort);
-        } else {
-            return null;
         }
+
+        if (map.containsKey(DOCKER_REGISTY)) {
+            return map.get(DOCKER_REGISTY);
+        }
+
+        return null;
     }
 
     /**
@@ -190,20 +190,18 @@ public class DefaultConfiguration implements Configuration {
      *     The arquillian configuration.
      */
     public static URL getKubernetesConfigurationUrl(Map<String, String> map, String defaultFileName) throws MalformedURLException {
-        if (map.containsKey(ENVIRONMENT_CONFIG_URL)) {
+        if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
+            return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
+        } else if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, ""))) {
+            String resourceName = Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, "");
+            return findConfigResource(resourceName);
+        } else if (map.containsKey(ENVIRONMENT_CONFIG_URL)) {
             return new URL(map.get(ENVIRONMENT_CONFIG_URL));
         } else if (map.containsKey(ENVIRONMENT_CONFIG_RESOURCE_NAME)) {
             String resourceName = map.get(ENVIRONMENT_CONFIG_RESOURCE_NAME);
             return findConfigResource(resourceName);
-        } else if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
-            return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
         } else {
-            String defaultValue = ROOT + defaultFileName;
-            String resourceName = Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, defaultValue);
-            URL answer = findConfigResource(resourceName);
-            if (answer == null) {
-            }
-            return answer;
+            return findConfigResource(defaultFileName);
         }
     }
 

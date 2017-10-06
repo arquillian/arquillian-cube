@@ -23,11 +23,10 @@ public class ConfigUtil {
      *     The value that should be used if property is not found.
      */
     public static String getStringProperty(String name, Map<String, String> map, String defaultValue) {
-        if (map.containsKey(name)) {
-            return map.get(name);
-        } else {
-            return getPropertyOrEnvironmentVariable(name, defaultValue);
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = map.get(name);
         }
+        return getPropertyOrEnvironmentVariable(name, defaultValue);
     }
 
     /**
@@ -53,27 +52,24 @@ public class ConfigUtil {
     }
 
     public static Boolean getBooleanProperty(String name, Map<String, String> map, Boolean defaultValue) {
-        if (map.containsKey(name)) {
-            return Boolean.parseBoolean(map.get(name));
-        } else {
-            return getPropertyOrEnvironmentVariable(name, defaultValue);
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = Boolean.parseBoolean(map.get(name));
         }
+        return getPropertyOrEnvironmentVariable(name, defaultValue);
     }
 
     public static int getIntProperty(String name, Optional<String> alternativeName, Map<String, String> map, int defaultValue) {
-        if (map.containsKey(name)) {
-            return Integer.parseInt(map.get(name));
-        } else {
-            return Integer.parseInt(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName.isPresent() ? alternativeName.get() : name, defaultValue)));
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = Integer.parseInt(map.get(name));
         }
+        return Integer.parseInt(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName.isPresent() ? alternativeName.get() : name, defaultValue)));
     }
 
     public static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
-        if (map.containsKey(name)) {
-            return Long.parseLong(map.get(name));
-        } else {
-            return Long.parseLong(getPropertyOrEnvironmentVariable(name, String.valueOf(defaultValue)));
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = Long.parseLong(map.get(name));
         }
+        return Long.parseLong(getPropertyOrEnvironmentVariable(name, String.valueOf(defaultValue)));
     }
 
     public static URL[] asURL(List<String> stringUrls) {
