@@ -187,7 +187,7 @@ public class DefaultConfiguration implements Configuration {
      * @param map
      *     The arquillian configuration.
      */
-    public static URL getKubernetesConfigurationUrl(Map<String, String> map, String defaultFileName) throws MalformedURLException {
+    public static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
         if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
             return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
         } else if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, ""))) {
