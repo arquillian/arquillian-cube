@@ -46,7 +46,6 @@ public class DefaultConfiguration implements Configuration {
     private final URL environmentTeardownScriptUrl;
 
     private final URL environmentConfigUrl;
-    private final List<URL> environmentConfigAdditionalUrls;
     private final List<URL> environmentDependencies;
 
     private final boolean namespaceLazyCreateEnabled;
@@ -70,7 +69,7 @@ public class DefaultConfiguration implements Configuration {
     private final String dockerRegistry;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
-        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
+        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout,
@@ -82,7 +81,6 @@ public class DefaultConfiguration implements Configuration {
         this.environmentTeardownScriptUrl = environmentTeardownScriptUrl;
         this.environmentDependencies = environmentDependencies;
         this.environmentConfigUrl = environmentConfigUrl;
-        this.environmentConfigAdditionalUrls = environmentConfigAdditionalUrls;
         this.sessionId = sessionId;
         this.namespace = namespace;
         this.namespaceLazyCreateEnabled = namespaceLazyCreateEnabled;
@@ -130,7 +128,7 @@ public class DefaultConfiguration implements Configuration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
-                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map, DEFAULT_CONFIG_FILE_NAME))
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
                 .withNamespaceLazyCreateEnabled(
@@ -189,7 +187,7 @@ public class DefaultConfiguration implements Configuration {
      * @param map
      *     The arquillian configuration.
      */
-    public static URL getKubernetesConfigurationUrl(Map<String, String> map, String defaultFileName) throws MalformedURLException {
+    public static URL getKubernetesConfigurationUrl(Map<String, String> map) throws MalformedURLException {
         if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""))) {
             return new URL(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_URL, ""));
         } else if (Strings.isNotNullOrEmpty(Utils.getSystemPropertyOrEnvVar(ENVIRONMENT_CONFIG_RESOURCE_NAME, ""))) {
@@ -201,7 +199,8 @@ public class DefaultConfiguration implements Configuration {
             String resourceName = map.get(ENVIRONMENT_CONFIG_RESOURCE_NAME);
             return findConfigResource(resourceName);
         } else {
-            return findConfigResource(defaultFileName);
+            // Let the resource locator find the resource
+            return null;
         }
     }
 
@@ -309,11 +308,6 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public URL getEnvironmentConfigUrl() {
         return environmentConfigUrl;
-    }
-
-    @Override
-    public List<URL> getEnvironmentConfigAdditionalUrls() {
-        return environmentConfigAdditionalUrls;
     }
 
     @Override

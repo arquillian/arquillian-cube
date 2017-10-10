@@ -12,11 +12,15 @@ import io.fabric8.kubernetes.api.model.v2_6.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.v2_6.ServiceListBuilder;
 import io.fabric8.kubernetes.clnt.v2_6.server.mock.KubernetesMockServer;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 import org.arquillian.cube.kubernetes.impl.DefaultSession;
@@ -168,6 +172,7 @@ public class TakeKubernetesResourcesInformationTest {
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
+        takeKubernetesResourcesInformation.resourceLocator = getKubernetesResourceLocator();
 
         //when
         takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
@@ -194,6 +199,7 @@ public class TakeKubernetesResourcesInformationTest {
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
+        takeKubernetesResourcesInformation.resourceLocator = getKubernetesResourceLocator();
 
         //when
         takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
@@ -222,6 +228,7 @@ public class TakeKubernetesResourcesInformationTest {
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
         takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
+        takeKubernetesResourcesInformation.resourceLocator = getKubernetesResourceLocator();
 
         //when
         takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
@@ -252,7 +259,8 @@ public class TakeKubernetesResourcesInformationTest {
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resouceName));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
-        takeKubernetesResourcesInformation.dependencyResolver = (() -> new ShrinkwrapResolver("pom.xml", false));
+        takeKubernetesResourcesInformation.dependencyResolver = getDependencyResolverInstance();
+        takeKubernetesResourcesInformation.resourceLocator = getKubernetesResourceLocator();
 
         //when
         takeKubernetesResourcesInformation.reportKubernetesConfiguration(new Start(getDefaultSession(configuration)),
@@ -425,6 +433,25 @@ public class TakeKubernetesResourcesInformationTest {
 
     private Instance<DependencyResolver> getDependencyResolverInstance() {
         return () -> new ShrinkwrapResolver("pom.xml", false);
+    }
+
+    private Instance<KubernetesResourceLocator> getKubernetesResourceLocator() {
+        return () -> new KubernetesResourceLocator() {
+            @Override
+            public URL locate() {
+                return getClass().getResource("/kubernetes.json");
+            }
+
+            @Override
+            public Collection<URL> locateAdditionalResources() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public KubernetesResourceLocator toImmutable() {
+                return this;
+            }
+        };
     }
 
     public ReporterConfiguration getReporterConfiguration() {

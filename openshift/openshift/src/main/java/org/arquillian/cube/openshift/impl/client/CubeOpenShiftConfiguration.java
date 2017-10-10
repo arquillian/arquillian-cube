@@ -46,8 +46,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String OPENSHIFT_ROUTER_HTTP_PORT = "openshiftRouterHttpPort";
     private static final String OPENSHIFT_ROUTER_HTTPS_PORT = "openshiftRouterHttpsPort";
 
-    private static final String DEFAULT_OPENSHIFT_CONFIG_FILE_NAME = "openshift.json";
-
     private final boolean keepAliveGitServer;
     private final String definitions;
     private final String definitionsFile;
@@ -57,18 +55,19 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final String routerHost;
     private final int openshiftRouterHttpPort;
     private final int openshiftRouterHttpsPort;
+    private final boolean enableImageStreamDetection;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentConfigAdditionalUrls, List<URL> environmentDependencies,
+                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
                                       List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
                                       String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
-                                      String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort) {
+                                      String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
-            environmentConfigUrl, environmentConfigAdditionalUrls, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
+            environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry);
@@ -81,6 +80,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         this.routerHost = routerHost;
         this.openshiftRouterHttpPort = openshiftRouterHttpPort;
         this.openshiftRouterHttpsPort = openshiftRouterHttpsPort;
+        this.enableImageStreamDetection = enableImageStreamDetection;
     }
 
     private static String[] split(String str, String regex) {
@@ -105,28 +105,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
             shouldDestroyNamespace = true;
         }
 
-        // Lets also try to load the image stream for the project.
-        List<URL> additionalUrls = new LinkedList<>();
-        final boolean enableImageStreamDetection = getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, false);
-
-        if (enableImageStreamDetection) {
-            File targetDir = new File(System.getProperty("basedir", ".") + "/target");
-            if (targetDir.exists() && targetDir.isDirectory()) {
-                File[] files = targetDir.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.getName().endsWith("-is.yml")) {
-                            try {
-                                additionalUrls.add(file.toURI().toURL());
-                            } catch (MalformedURLException e) {
-                                // ignore
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         try {
             return new CubeOpenShiftConfigurationBuilder()
                 .withSessionId(sessionId)
@@ -141,8 +119,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
                 .withEnvironmentTeardownScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
-                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map, DEFAULT_OPENSHIFT_CONFIG_FILE_NAME))
-                .withEnvironmentConfigAdditionalUrls(additionalUrls)
+                .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
                 .withNamespaceLazyCreateEnabled(
@@ -176,6 +153,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withRouterHost(getStringProperty(ROUTER_HOST, "openshift.router.host", map, null))
                 .withOpenshiftRouterHttpPort(getIntProperty(OPENSHIFT_ROUTER_HTTP_PORT, Optional.of("openshift.router.httpPort"), map, 80))
                 .withOpenshiftRouterHttpsPort(getIntProperty(OPENSHIFT_ROUTER_HTTPS_PORT, Optional.of("openshift.router.httpsPort"), map, 443))
+                .withEnableImageStreamDetection(getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, true))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -234,5 +212,9 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
     public int getOpenshiftRouterHttpsPort() {
         return openshiftRouterHttpsPort;
+    }
+
+    public boolean isEnableImageStreamDetection() {
+        return enableImageStreamDetection;
     }
 }

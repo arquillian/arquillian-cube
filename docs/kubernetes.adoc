@@ -86,7 +86,7 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | definitionsFile                     | String         | Any | Definitions file path
 | proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort
 | routerHost                          | String         | Any | Define OpenShift router address thats is used to resolve the pod's address and to get its route
-| enableImageStreamDetection          | Bool (false)   | Any | Define if you want that Arquillian Cube apply Image Stream files (`*-is.yml`) before deploying
+| enableImageStreamDetection          | Bool (true)    | Any | Define if you want that Arquillian Cube apply Image Stream files (`*-is.yml`) to Openshift before deploying
 |===============================================================================================================================================
 
 
