@@ -12,6 +12,7 @@ import org.jboss.arquillian.test.spi.TestEnricher;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -31,14 +32,21 @@ public class RouteURLEnricher implements TestEnricher {
     @Override
     public void enrich(Object testCase) {
         for (Field field : ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), RouteURL.class)) {
+            URL url;
+            AwaitRoute await;
             try {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
-                field.set(testCase, lookup(getRouteURLAnnotation(field.getAnnotations())));
+                RouteURL routeURL = getRouteURLAnnotation(field.getAnnotations());
+                url = lookup(routeURL);
+                field.set(testCase, url);
+                await = routeURL.await();
             } catch (Exception e) {
                 throw new RuntimeException("Could not set RouteURL value on field " + field, e);
             }
+
+            awaitRoute(url, await);
         }
     }
 
@@ -49,7 +57,9 @@ public class RouteURLEnricher implements TestEnricher {
         for (int i = 0; i < parameterTypes.length; i++) {
             RouteURL routeURL = getRouteURLAnnotation(method.getParameterAnnotations()[i]);
             if (routeURL != null) {
-                values[i] = lookup(routeURL);
+                URL url = lookup(routeURL);
+                values[i] = url;
+                awaitRoute(url, routeURL.await());
             }
         }
         return values;
@@ -90,5 +100,50 @@ public class RouteURLEnricher implements TestEnricher {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Unable to create route URL", e);
         }
+    }
+
+    private void awaitRoute(URL url, AwaitRoute await) {
+        if (await == null) {
+            return;
+        }
+
+        String path = await.path();
+        // url always ends with '/' (see the lookup method above) and we don't want to duplicate that
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        try {
+            url = new URL(url + path);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+
+        long end = System.currentTimeMillis() + await.timeoutUnit().toMillis(await.timeout());
+
+        while (System.currentTimeMillis() < end) {
+            HttpURLConnection urlConnection = null;
+            try {
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setConnectTimeout(1000);
+                urlConnection.setReadTimeout(1000);
+                urlConnection.connect();
+                int connectionResponseCode = urlConnection.getResponseCode();
+                for (int expectedStatusCode : await.statusCode()) {
+                    if (expectedStatusCode == connectionResponseCode) {
+                        // OK
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                // retry
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        }
+
+        // timed out
+        throw new RuntimeException(url + " not available after " + await.timeout() + " " + await.timeoutUnit());
     }
 }

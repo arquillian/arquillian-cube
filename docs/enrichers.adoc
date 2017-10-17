@@ -70,6 +70,10 @@ When running Arquillian Cube against a OpenShift's pod you can retrieve the rout
 @RouteURL("app-name")
 private URL url;
 ----
+When Arquillian Cube injects the route URL, it also checks that the URL is available.
+That is, it responds with a known good HTTP status code in given timeout.
+This can be configured using the `await` parameter of the `@RouteURL` annotation.
+
 If the route is not resolvable, you need to set the `routerHost` setting to the IP address of the OpenShift router.
 You can configure it in arquillian.xml:
 [source, xml]

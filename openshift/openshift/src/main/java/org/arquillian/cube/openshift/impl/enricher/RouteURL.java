@@ -23,4 +23,9 @@ public @interface RouteURL {
      * @return the route name
      */
     String value() default "";
+
+    /**
+     * Allows configuring how to check if the route is available and how long to wait for that.
+     */
+    AwaitRoute await() default @AwaitRoute;
 }
