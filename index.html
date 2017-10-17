@@ -2610,6 +2610,11 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>When Arquillian Cube injects the route URL, it also checks that the URL is available.
+That is, it responds with a known good HTTP status code in given timeout.
+This can be configured using the <code>await</code> parameter of the <code>@RouteURL</code> annotation.</p>
+</div>
+<div class="paragraph">
 <p>If the route is not resolvable, you need to set the <code>routerHost</code> setting to the IP address of the OpenShift router.
 You can configure it in arquillian.xml:</p>
 </div>
@@ -6044,7 +6049,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-10-10 16:00:38 UTC
+Last updated 2017-10-17 09:08:34 UTC
 </div>
 </div>
 </body>
