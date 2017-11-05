@@ -28,17 +28,16 @@ public class CubeMetadataTest {
         Assert.assertTrue(metadata instanceof TestMetadataImpl);
     }
 
+    private static interface TestMetadata extends CubeMetadata {
+        String get();
+    }
+
     private static class TestMetadataImpl implements TestMetadata {
 
         @Override
         public String get() {
             return "A";
         }
-
-    }
-
-    private static interface TestMetadata extends CubeMetadata {
-        String get();
     }
 
     private static class TestCube extends BaseCube<Void> {

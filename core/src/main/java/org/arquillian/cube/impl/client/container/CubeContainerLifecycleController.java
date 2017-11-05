@@ -25,14 +25,14 @@ public class CubeContainerLifecycleController {
     private Event<CubeControlEvent> controlEvent;
 
     public void startCubeMappedContainer(@Observes BeforeStart event, CubeRegistry cubeRegistry,
-            ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) {
+        ContainerRegistry containerRegistry, CubeConfiguration cubeConfiguration) {
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
-                event.getDeployableContainer());
+            event.getDeployableContainer());
         if (container == null) {
             return;
         }
 
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
@@ -55,14 +55,14 @@ public class CubeContainerLifecycleController {
     }
 
     public void stopCubeMappedContainer(@Observes AfterStop event, CubeRegistry cubeRegistry,
-            ContainerRegistry containerRegistry) {
+        ContainerRegistry containerRegistry) {
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
-                event.getDeployableContainer());
+            event.getDeployableContainer());
         if (container == null) {
             return;
         }
 
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }

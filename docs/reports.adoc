@@ -1,0 +1,89 @@
+== Arquillian Reporter integration
+
+Arquillian Reporter (https://github.com/arquillian/arquillian-reporter) project brings neat reports of your Arquillian tests.
+
+Check Arquillian Reporter website to see the kind of reports you can generate and how to configure it.
+
+Arquillian Cube integrates with Arquillian Reporter to provide in these reports some information about Cube environment.
+
+To integrate Cube with Reporter, you only need to add arquillian reporter's depchain dependency:
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.reporter</groupId>
+    <artifactId>arquillian-reporter-depchain</artifactId>
+    <version>${version.arquillian.reporter}</version>
+    <type>pom</type>
+</dependency>
+----
+
+After that all *cubes* information will be added in the report.
+Cubes are elements that are deployed into a system, for example a Pod or a Docker container.
+
+For example in case of a Docker Cube it will report start and stop duration time, if it has failed or not and some container properties like ports, links, image name, entrypoint, network ....
+
+=== Arquillian Cube Docker Reporter
+
+In previous section you've read that by just adding reporter dependency, you get integration between cube and reporter and some information about cube (for example a docker container) is reported.
+
+But sometimes you need more information about the system and not each cube individually.
+For this reason there is a docker cube reporter integration that adds on the report information specific to docker environment like the composition used during deployment or docker host information.
+
+For this reason if you add next dependency too:
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-reporter</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+Information about docker host and an schema of docker compositions will be added in the report.
+
+=== Arquillian Cube Docker Drone Integration
+
+In <<Cube Docker Drone/Graphene Integration>> you've read that you can execute web UI tests inside a docker container which contains the browser.
+Also an screencast is recorded so you can review lately what has happened inside the container.
+
+If you add previous dependency  `arquillian-cube-docker-reporter` and `arquillian-reporter-depchain` in a cube docker drone project, then the report will contain the screencasts as well in the report, so you can play from the report the recordings as well.
+
+=== Arquillian Cube Docker RestAssured Integration
+
+If you add `arquillian-cube-docker-reporter` and `arquillian-reporter-depchain` in a cube docker RestAssured project, then the report will contain the request and response logs for all test methods.
+
+=== Arquillian Cube Kubernetes Reporter
+
+There is a arquillian cube kubernetes reporter integration that give report information about resources configuration and kubernetes session i.e. Namespace, Master URL, Replication Controllers, Pods, Services etc.
+
+For this reason you have to add following dependency:
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.arquillian.reporter</groupId>
+    <artifactId>arquillian-reporter-depchain</artifactId>
+    <version>${version.arquillian.reporter}</version>
+    <type>pom</type>
+</dependency>
+----
+
+=== Examples
+
+Arquillian Cube Docker Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter
+
+Arquillian Cube Docker Drone Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-reporter
+
+Arquillian Cube Kubernetes Reports: https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter
+
+Arquillian Reporter for more information: https://github.com/arquillian/arquillian-reporter

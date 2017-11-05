@@ -2,29 +2,30 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.AutoStartOrderUtil;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.arquillian.cube.spi.Node;
 
 public class CommaSeparatedAutoStartParser implements AutoStartParser {
 
     private String expression;
-    private CubeContainers containerDefinitions;
+    private DockerCompositions containerDefinitions;
 
-    public CommaSeparatedAutoStartParser(String expression, CubeContainers containerDefinitions) {
+    public CommaSeparatedAutoStartParser(String expression, DockerCompositions containerDefinitions) {
         this.expression = expression;
         this.containerDefinitions = containerDefinitions;
     }
 
     @Override
-    public Map<String, AutoStartOrderUtil.Node> parse() {
-        Map<String, AutoStartOrderUtil.Node> nodes = new HashMap<>();
+    public Map<String, Node> parse() {
+        Map<String, Node> nodes = new HashMap<>();
 
         String[] autoStartContainers = ConfigUtil.trim(expression.split(","));
         for (String autoStart : autoStartContainers) {
-            if (containerDefinitions.get(autoStart) != null) {
-                nodes.put(autoStart, AutoStartOrderUtil.Node.from(autoStart));
+            if (containerDefinitions.get(autoStart) != null && !containerDefinitions.get(autoStart).isManual()) {
+                nodes.put(autoStart, Node.from(autoStart));
             }
         }
         return nodes;

@@ -1,8 +1,8 @@
 package org.arquillian.cube.impl.client.enricher;
 
 import java.lang.annotation.Annotation;
-
 import org.arquillian.cube.CubeID;
+import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.container.spi.Container;
@@ -27,16 +27,18 @@ public class CubeIDResourceProvider extends OperatesOnDeploymentAwareProvider {
     @Override
     public Object doLookup(ArquillianResource resource, Annotation... qualifiers) {
         Container container = containerInst.get();
-        if(container == null) {
+        if (container == null) {
             throw new IllegalStateException("No Container found in context, can't perform CubeID injection");
         }
         CubeRegistry cubeRegistry = cubeRegistryInst.get();
-        if(cubeRegistry == null) {
+        if (cubeRegistry == null) {
             throw new IllegalStateException("No CubeRegistry found in context, can't perform CubeID injection");
         }
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
-        if(cube == null) {
-            throw new IllegalStateException("No Cube found mapped to current Container: " + container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
+        if (cube == null) {
+            throw new IllegalStateException(
+                String.format("No Cube found mapped to current Container[%s] with CubeID[%s]", container.getName(),
+                    ContainerUtil.getCubeIDForContainer(container)));
         }
         return new CubeID(cube.getId());
     }

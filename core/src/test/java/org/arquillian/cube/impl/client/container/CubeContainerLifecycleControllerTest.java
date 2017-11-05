@@ -1,12 +1,10 @@
 package org.arquillian.cube.impl.client.container;
 
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.ConnectionMode;
 import org.arquillian.cube.spi.Cube;
@@ -17,6 +15,7 @@ import org.arquillian.cube.spi.event.DestroyCube;
 import org.arquillian.cube.spi.event.PreRunningCube;
 import org.arquillian.cube.spi.event.StartCube;
 import org.arquillian.cube.spi.event.StopCube;
+import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
@@ -30,8 +29,28 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBase {
+
+    public static final String CUBE_ID = "test";
+    public static final String MISSING_CUBE_ID = "_MISSING_";
+    @Mock
+    private Cube<?> cube;
+    @Mock
+    private Container container;
+    @Mock
+    private ContainerDef containerDef;
+    @SuppressWarnings("rawtypes")
+    @Mock
+    private DeployableContainer deployableContainer;
+    @SuppressWarnings("rawtypes")
+    @Mock
+    private DeployableContainer deployableContainerNoMatch;
+    @Mock
+    private ContainerRegistry containerRegistry;
+    private CubeRegistry registry;
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
@@ -39,34 +58,14 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
         super.addExtensions(extensions);
     }
 
-    public static final String CUBE_ID = "test";
-    public static final String MISSING_CUBE_ID = "_MISSING_";
-
-    @Mock
-    private Cube<?> cube;
-
-    @Mock
-    private Container container;
-
-    @SuppressWarnings("rawtypes")
-    @Mock
-    private DeployableContainer deployableContainer;
-
-    @SuppressWarnings("rawtypes")
-    @Mock
-    private DeployableContainer deployableContainerNoMatch;
-
-    @Mock
-    private ContainerRegistry containerRegistry;
-
-    private CubeRegistry registry;
-
     @Before
     @SuppressWarnings("unchecked")
     public void setup() {
         when(cube.getId()).thenReturn(CUBE_ID);
         when(container.getName()).thenReturn(CUBE_ID);
         when(container.getDeployableContainer()).thenReturn(deployableContainer);
+        when(container.getContainerConfiguration()).thenReturn(containerDef);
+        when(containerDef.getContainerProperties()).thenReturn(Collections.EMPTY_MAP);
         when(containerRegistry.getContainers()).thenReturn(Arrays.asList(container));
         registry = new LocalCubeRegistry();
         registry.addCube(cube);
@@ -158,5 +157,16 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
         fire(new AfterStop(deployableContainer));
         assertEventFired(StopCube.class, 0);
         assertEventFired(DestroyCube.class, 0);
+    }
+
+    @Test
+    public void shouldUseOverriddenCubeId() {
+        Map<String, String> containerConfig = new HashMap<String, String>();
+        containerConfig.put("cubeId", CUBE_ID);
+
+        when(container.getName()).thenReturn(MISSING_CUBE_ID);
+        when(containerDef.getContainerProperties()).thenReturn(containerConfig);
+
+        shouldCreateAndStartCubeDuringBeforeStart();
     }
 }

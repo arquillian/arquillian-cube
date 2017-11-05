@@ -1,20 +1,21 @@
 package org.arquillian.cube.containerobject;
 
-import org.jboss.arquillian.junit.Arquillian;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class PingPongTest {
 
     @Cube
@@ -27,14 +28,13 @@ public class PingPongTest {
         assertThat(pingPongContainer.getConnectionPort(), is(5000));
     }
 
-
     public String ping() throws IOException {
         URL url = new URL("http://" + pingPongContainer.getDockerHost() + ":" + pingPongContainer.getConnectionPort());
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
+            new InputStreamReader(con.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -45,5 +45,4 @@ public class PingPongTest {
 
         return response.toString();
     }
-
 }

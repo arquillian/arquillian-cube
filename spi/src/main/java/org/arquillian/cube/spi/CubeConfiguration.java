@@ -8,16 +8,16 @@ public class CubeConfiguration {
 
     private ConnectionMode connectionMode = ConnectionMode.STARTANDSTOP;
 
-    public ConnectionMode getConnectionMode() {
-        return connectionMode;
-    }
-
     public static CubeConfiguration fromMap(Map<String, String> map) {
         CubeConfiguration cubeConfiguration = new CubeConfiguration();
 
-        if(map.containsKey(CONNECTION_MODE)) {
+        if (map.containsKey(CONNECTION_MODE)) {
             cubeConfiguration.connectionMode = ConnectionMode.valueOf(ConnectionMode.class, map.get(CONNECTION_MODE));
         }
         return cubeConfiguration;
+    }
+
+    public ConnectionMode getConnectionMode() {
+        return connectionMode;
     }
 }

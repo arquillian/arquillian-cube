@@ -16,7 +16,7 @@ public class StopDockerMachineAfterSuiteObserver {
     @Inject
     private Instance<CubeDockerConfiguration> configurationProducer;
 
-    public void stopDockerMachineIfStartedByCube(@Observes AfterSuite afterSuite) {
+    public void stopDockerMachineIfStartedByCube(@Observes(precedence = -300) AfterSuite afterSuite) {
 
         if (dockerMachineInstance.get().isManuallyStarted()) {
 
@@ -26,5 +26,4 @@ public class StopDockerMachineAfterSuiteObserver {
             dockerMachineInstance.get().stopDockerMachine(cliPath, machineName);
         }
     }
-
 }

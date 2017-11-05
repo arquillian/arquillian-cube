@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-
 import org.arquillian.cube.impl.util.ContainerUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
@@ -25,60 +24,87 @@ public class ContainerConfigurationController {
 
     private static final Pattern portPattern = Pattern.compile("(?i:.*port.*)");
     //private static final Pattern hostPattern = Pattern.compile("(?i:.*host.*)");
-    //private static final Pattern addressPattern = Pattern.compile("(?i:.*address.*)");
+    private static final Pattern addressPattern = Pattern.compile("(?i:.*address.*)");
+    private PortAddress mappingForPort = null;
     //private static final Pattern jmxPattern = Pattern.compile("(?i:.*jmx.*)");
 
     public void remapContainer(@Observes BeforeSetup event, CubeRegistry cubeRegistry,
-            ContainerRegistry containerRegistry) throws InstantiationException, IllegalAccessException {
+        ContainerRegistry containerRegistry) throws InstantiationException, IllegalAccessException {
 
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
-                event.getDeployableContainer());
+            event.getDeployableContainer());
         if (container == null) {
             return;
         }
 
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
 
-        HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
-        if (portBindings == null) {
+        HasPortBindings bindings = cube.getMetadata(HasPortBindings.class);
+        if (bindings == null) {
             return;
         }
 
         ContainerDef containerConfiguration = container.getContainerConfiguration();
-        List<String> portPropertiesFromArquillianConfigurationFile = filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
+        //Get the port property
+        List<String> portPropertiesFromArquillianConfigurationFile =
+            filterArquillianConfigurationPropertiesByPortAttribute(containerConfiguration);
+        //Get the AddressProperty property
+        List<String> addressPropertiesFromArquillianConfigurationFile =
+            filterArquillianConfigurationPropertiesByAddressAttribute(containerConfiguration);
 
         Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
-        List<PropertyDescriptor> configurationClassPortFields = filterConfigurationClassPropertiesByPortAttribute(configurationClass);
+        //Get the port property
+        List<PropertyDescriptor> configurationClassPortFields =
+            filterConfigurationClassPropertiesByPortAttribute(configurationClass);
+        //Get the Address property
+        List<PropertyDescriptor> configurationClassAddressFields =
+            filterConfigurationClassPropertiesByAddressAttribute(configurationClass);
 
         Object newConfigurationInstance = configurationClass.newInstance();
 
         for (PropertyDescriptor configurationClassPortField : configurationClassPortFields) {
-            if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (configurationClassPortField.getPropertyType().equals(Integer.class) || configurationClassPortField.getPropertyType().equals(int.class)) ) {
+            int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
+                configurationClass, configurationClassPortField);
+            mappingForPort = bindings.getMappedAddress(containerPort);
+
+            if (!portPropertiesFromArquillianConfigurationFile.contains(configurationClassPortField.getName()) && (
+                configurationClassPortField.getPropertyType().equals(Integer.class)
+                    || configurationClassPortField.getPropertyType().equals(int.class))) {
                 // This means that port has not configured in arquillian.xml and it will use default value.
                 // In this case is when remapping should be activated to adequate the situation according to
-                // Arquillian
-                // Cube exposed ports.
+                // Arquillian Cube exposed ports.
+                if (mappingForPort != null) {
+                    containerConfiguration.overrideProperty(configurationClassPortField.getName(),
+                        Integer.toString(mappingForPort.getPort()));
+                }
+            }
+        }
 
-                int containerPort = getDefaultPortFromConfigurationInstance(newConfigurationInstance,
-                        configurationClass, configurationClassPortField);
-
-                PortAddress mappingForPort = null;
-                if ((mappingForPort = portBindings.getMappedAddress(containerPort)) != null) {
-                        containerConfiguration.overrideProperty(configurationClassPortField.getName(),
-                                Integer.toString(mappingForPort.getPort()));
+        for (PropertyDescriptor configurationClassAddressField : configurationClassAddressFields) {
+            if (!addressPropertiesFromArquillianConfigurationFile.contains(configurationClassAddressField.getName()) && (
+                configurationClassAddressField.getPropertyType().equals(String.class)
+                    || configurationClassAddressField.getPropertyType().equals(String.class))) {
+                // If a property called portForwardBindAddress on openshift qualifier on arquillian.xml exists it will overrides the
+                // arquillian default|defined managementAddress with the IP address given on this property.
+                if (mappingForPort != null) {
+                    containerConfiguration.overrideProperty(configurationClassAddressField.getName(),
+                        mappingForPort.getIP());
                 }
             }
         }
     }
 
     private int getDefaultPortFromConfigurationInstance(Object configurationInstance, Class<?> configurationClass,
-            PropertyDescriptor fieldName) {
+        PropertyDescriptor fieldName) {
 
         try {
             Method method = fieldName.getReadMethod();
+            if (method == null) {
+                return -1;
+            }
             return (int) method.invoke(configurationInstance);
         } catch (SecurityException e) {
             throw new IllegalArgumentException(e);
@@ -89,7 +115,6 @@ public class ContainerConfigurationController {
         } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
-
     }
 
     private List<String> filterArquillianConfigurationPropertiesByPortAttribute(ContainerDef containerDef) {
@@ -104,22 +129,36 @@ public class ContainerConfigurationController {
         return fields;
     }
 
+    private List<String> filterArquillianConfigurationPropertiesByAddressAttribute(ContainerDef containerDef) {
+        List<String> fields = new ArrayList<String>();
+
+        for (Entry<String, String> entry : containerDef.getContainerProperties().entrySet()) {
+            if (addressPattern.matcher(entry.getKey()).matches()) {
+                fields.add(entry.getKey());
+            }
+        }
+
+        return fields;
+    }
+
     private List<PropertyDescriptor> filterConfigurationClassPropertiesByPortAttribute(Class<?> configurationClass) {
 
         List<PropertyDescriptor> fields = new ArrayList<PropertyDescriptor>();
 
         try {
             PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(configurationClass, Object.class)
-                    .getPropertyDescriptors();
+                .getPropertyDescriptors();
 
             for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
                 String propertyName = propertyDescriptor.getName();
 
                 if (portPattern.matcher(propertyName).matches()) {
-                    fields.add(propertyDescriptor);
+                    if (int.class.equals(propertyDescriptor.getPropertyType()) || Integer.class.equals(
+                        propertyDescriptor.getPropertyType())) {
+                        fields.add(propertyDescriptor);
+                    }
                 }
             }
-
         } catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
@@ -127,4 +166,25 @@ public class ContainerConfigurationController {
         return fields;
     }
 
+    private List<PropertyDescriptor> filterConfigurationClassPropertiesByAddressAttribute(Class<?> configurationClass) {
+
+        List<PropertyDescriptor> fields = new ArrayList<PropertyDescriptor>();
+
+        try {
+            PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(configurationClass, Object.class)
+                .getPropertyDescriptors();
+
+            for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+                String propertyName = propertyDescriptor.getName();
+
+                if (addressPattern.matcher(propertyName).matches()) {
+                    fields.add(propertyDescriptor);
+                }
+            }
+        } catch (IntrospectionException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        return fields;
+    }
 }

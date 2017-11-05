@@ -1,0 +1,47 @@
+{
+	"apiVersion": "v1",
+	"kind": "List",
+	"items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "name": "test-single-container"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "busybox",
+                        "name": "only-container",
+                        "command": ["/bin/sh"],
+                        "args": ["-c", "while true; do echo only-one; sleep 1; done"]
+                    }
+                ]
+            }
+        },
+
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "name": "test-multiple-containers"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "busybox",
+                        "name": "first-container",
+                        "command": ["/bin/sh"],
+                        "args": ["-c", "while true; do echo first; sleep 1; done"]
+                    },
+                    {
+                        "image": "busybox",
+                        "name": "second-container",
+                        "command": ["/bin/sh"],
+                        "args": ["-c", "while true; do echo second; sleep 1; done"]
+                    }
+                ]
+            }
+        }
+	]
+}

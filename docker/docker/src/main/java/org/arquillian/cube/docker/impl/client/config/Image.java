@@ -9,6 +9,48 @@ public class Image {
         this.tag = tag;
     }
 
+    public static Image valueOf(String image) {
+        String name = null;
+        String tag = null;
+
+        // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>:<tag>
+        String[] parts = image.split(":");
+        switch (parts.length) {
+            case 1: {
+                // <image_name>
+                // <organization_namespace>(/*)/<image_name>
+                // <repositoryurl>/<organization_namespace>(/*)/<image_name>[:<tag>]
+                name = image;
+                break;
+            }
+            case 2: {
+                // <image_name>[:<tag>]
+                // <organization_namespace>(/*)/<image_name>[:<tag>]
+                // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>
+
+                if (isPort(parts[1])) {
+                    name = parts[0] + ":" + parts[1];
+                } else {
+                    name = parts[0];
+                    tag = parts[1];
+                }
+                break;
+            }
+            case 3: {
+                // <repositoryurl>:<port>/<organization_namespace>(/*)/<image_name>:tag
+                name = parts[0] + ":" + parts[1];
+                tag = parts[2];
+                break;
+            }
+        }
+
+        return new Image(name, tag);
+    }
+
+    private static boolean isPort(String postColonPart) {
+        return postColonPart.contains("/");
+    }
+
     public String getName() {
         return name;
     }
@@ -32,65 +74,35 @@ public class Image {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Image other = (Image) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         if (tag == null) {
-            if (other.tag != null)
+            if (other.tag != null) {
                 return false;
-        } else if (!tag.equals(other.tag))
+            }
+        } else if (!tag.equals(other.tag)) {
             return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
         return name + (tag != null ? ":" + tag : "");
-    }
-
-    public static Image valueOf(String image) {
-        String name = null;
-        String tag = null;
-
-        // <repositoryurl>:<port>/<organization_namespace>/<image_name>:<tag>
-        String[] parts = image.split("/");
-
-        switch(parts.length) {
-            case 1: // <image_name>[:<tag>]
-            case 2: // <organization_namespace>/<image_name>[:tag]
-            {
-                String imageName = image;
-                final int colonIndex = imageName.indexOf(':');
-                if (colonIndex > -1) {
-                    name = imageName.substring(0, colonIndex);
-                    tag = imageName.substring(colonIndex + 1);
-                } else {
-                    name = imageName;
-                }
-                break;
-            }
-            case 3:  // <repositoryurl>[:<port>]/<organization_namespace>/<image_name>[:<tag>]
-            {
-                String imageName = parts[2];
-                final int colonIndex = imageName.indexOf(':');
-                if (colonIndex > -1) {
-                    name = parts[0] + "/" + parts[1] + "/" + imageName.substring(0, colonIndex);
-                    tag = imageName.substring(colonIndex + 1);
-                } else {
-                    name = image;
-                }
-            }
-        }
-
-        return new Image(name, tag);
     }
 }

@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.await;
 
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 
 public class NativeAwaitStrategy implements AwaitStrategy {
 
@@ -10,7 +11,7 @@ public class NativeAwaitStrategy implements AwaitStrategy {
     private DockerClientExecutor dockerClientExecutor;
     private String cubeId;
 
-    public NativeAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor ) {
+    public NativeAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor) {
         this.dockerClientExecutor = dockerClientExecutor;
         this.cubeId = cube.getId();
     }
@@ -24,5 +25,4 @@ public class NativeAwaitStrategy implements AwaitStrategy {
             return false;
         }
     }
-
 }

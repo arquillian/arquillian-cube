@@ -1,0 +1,56 @@
+[[boot2docker]]
+== Boot2Docker and Docker Machine
+
+If you are using _boot2docker_ or _docker machine_ there are some parameters that depends on the local installation.
+For example _boot2docker_ ip is not _localhost_ and may change every time you start a new _boot2docker_ instance.
+Also every time you start _boot2docker_ copies required certificates to home directory of local machine.
+
+_Arquillian Cube_ offers some automatic mechanisms to use _boot2docker_ or _docker machine_ in _Cube_.
+
+The first one is that +serverUri+ parameter can contain the word +dockerHost+ like for example +https://dockerHost:2376+.
+When _Cube_ is started it will check if the +serverUri+ contains the _dockerHost_ word, and if it is the case it will do next things:
+
+. if docker machine name is provided by using +machineName+ property then _Cube_ resolves if Docker Machine is installed, otherwise +machineDriver+ property must be provided to create the machine.
+. if docker machine name is provided by using +machineName+ property then Docker Machine command is run to get the ip to be replaced in `dockerHost`.
+. if previous conditions are not met, then _boot2docker_ command is run to get the ip to be replaced in `dockerHost`.
+
+IMPORTANT: In case of using docker machine with only one machine *running*, it is not necessary to use `machineName` property since Cube will be able to resolve it automatically.
+
+=== Boot2Docker
+
+In case of _boot2docker_ it will run the command +boot2docker ip+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
+
+Note that by default _Arquillian Cube_ assumes that +boot2docker+ command is on +PATH+, but you can configure its location by using +boot2dockerPath+ property which is the full location (and program name) of _boot2docker_.
+For example +/opt/boot2dockerhome/boot2docker+.
+
+_boot2docker_ runs in _https_ and you need to set the certificates path.
+These certificates are copied by _boot2docker_ by default at +<HOME>/.boot2docker/certs/boot2docker-vm+.
+If this property is not set and the +serverUri+ contains +dockerHost+, then this property is automatically configured to +<HOME>/.boot2docker/certs/boot2docker-vm+ so you don't need to worry to set for each environment.
+
+=== Docker Machine
+
+In case of _docker-machine_ it will run the command +docker-machine ip <machineName>+ to get the ip and substitute the _dockerHost_ keyword to the ip returned by that command.
+
+Note that by default _Arquillian Cube_ assumes that +docker-machine+ command is on +PATH+, but you can configure its location by using the +dockerMachinePath+ property which is the full location (and program name too) of _docker-machine_.
+For example +/usr/bin/docker-machine+. But, if +docker-machine+ command is not on +PATH+, _Cube_ will download the latest version. In this case, +machineDriver+ must be provided to create the machine.
+
+_docker-machine_ can run with _boot2docker_ together.
+And this docker host instance runs in _https_ so you need to set the certificates path.
+These certificates are copied by _docker-machine_ by default at +<HOME>/.docker/machine/machines+.
+If this property is not set and _docker-machine_ is run, then this property is automatically configured to default location, so you don't need to worry to set for each environment.
+
+For example you can configure +arquillian.xml+ file to use _docker-machine_ as:
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="docker">
+    <property name="serverVersion">${docker.api.version}</property>
+    <property name="definitionFormat">COMPOSE</property>
+    <property name="machineName">dev</property> <!--1-->
+    <property name="dockerContainersFile">docker-compose.yml</property>
+</extension>
+----
+<1> Sets docker machine to _dev_.
+
+Notice that you only need to add _machineName_ property in case you have more than one machine running, everything else it is exactly the same as previous examples.

@@ -12,11 +12,14 @@ import java.util.Set;
 
 import org.arquillian.cube.docker.impl.client.Converter;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.yaml.snakeyaml.Yaml;
 
 public class DockerComposeConverter implements Converter {
+
+    private static final String DOCKER_COMPOSE_VERSION_KEY = "version";
+    public static final String DOCKER_COMPOSE_VERSION_2_VALUE = "2";
 
     private Map<String, Object> dockerComposeDefinitionMap = new HashMap<>();
     private Path dockerComposeRootDirectory;
@@ -57,16 +60,30 @@ public class DockerComposeConverter implements Converter {
         return new DockerComposeConverter(content);
     }
 
-    public CubeContainers convert() {
-        CubeContainers cubeContainers = new CubeContainers();
+    public DockerCompositions convert() {
+        DockerCompositions dockerCompositions = new DockerCompositions();
 
         Set<String> names = dockerComposeDefinitionMap.keySet();
 
-        for(String name : names) {
-            CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
-            cubeContainers.add(name, cubeContainer);
+        boolean isV2 = names.contains(DOCKER_COMPOSE_VERSION_KEY) && DOCKER_COMPOSE_VERSION_2_VALUE.equals(dockerComposeDefinitionMap.get(DOCKER_COMPOSE_VERSION_KEY));
+        if (isV2) {
+            dockerCompositions = convertCompose(dockerComposeDefinitionMap);
+        } else {
+            for(String name : names) {
+                CubeContainer cubeContainer = convertContainer(asMap(dockerComposeDefinitionMap, name));
+                if (cubeContainer.getContainerName() != null) {
+                    dockerCompositions.add(cubeContainer.getContainerName(), cubeContainer);
+                } else {
+                    dockerCompositions.add(name, cubeContainer);
+                }
+            }
         }
-        return cubeContainers;
+        return dockerCompositions;
+    }
+
+    private DockerCompositions convertCompose(Map<String, Object> dockerComposeContainerDefinition) {
+        ComposeBuilder composeBuilder = new ComposeBuilder(this.dockerComposeRootDirectory);
+        return composeBuilder.build(dockerComposeContainerDefinition);
     }
 
     private CubeContainer convertContainer(Map<String, Object> dockerComposeContainerDefinition) {

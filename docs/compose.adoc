@@ -1,0 +1,94 @@
+[[docker-compose-format]]
+== Docker-Compose Format
+
+Instead of using Arquillian Cube format, you can use Docker Compose format to define containers layout. This means that you can use the same Docker Compose file for running your tests with Arquillian Cube and without any change run `docker-compose up` command from terminal and get the same result.
+
+It is important to note that this is not a docker-compose implementation but only the docker-compose format. This means that for example you cannot execute some CLI commands of _docker-compose_ like start several instances of same service.
+
+In case of some specific Arquillian Cube attributes like await strategy cannot be configured and the default values are going to be used.
+
+Moreover there are some docker-compose commands that are not implemented yet due to restrictions on docker-java library. These commands are  _pid_, _log_driver_ and _security_opt_. But they will be implemented as soon as docker-java library adds their support.
+
+Last thing, in case you define a command that is not implemented in Arquillian Cube, this command will be ignored (no exception will be thrown), but a log line will be printed notifying this situation. Please it is really important that if this happens you open a bug so we can add support for them. Althought this warning we will try to maintain aligned with the latest docker-compose format.
+
+Let's see how you can rewrite previous HelloWorld example with Tomcat to be used using docker-compose format.
+
+First let's create a file called `envs` on root of the project which configures environment variables:
+
+[source]
+.envs
+----
+TOMCAT_PASS=mypass
+JAVA_OPTS=-Djava.rmi.server.hostname=dockerServerIp -Dcom.sun.management.jmxremote.rmi.port=8088 -Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+----
+
+IMPORTANT: You can use `dockerServerIp` as special tag for identify the docker host IP. Before injecting the environement variables, Cube will change it to real host IP.
+
+Then you can create a file called `docker-compose.yml` following docker-compose commands on root of the project:
+
+[source, yml]
+.docker-compose.yml
+----
+tomcat:
+  env_file: envs
+  image: tutum/tomcat:7.0
+  ports:
+      - "8089:8089"
+      - "8088:8088"
+      - "8081:8080"
+----
+
+and finally you can configure in `arquillian.xml` file that you want to use docker-compose format.
+
+[IMPORTANT]
+====
+In case you use https://docs.docker.com/compose/compose-file/#context[context] with a GIT repository, you should add the following dependency `org.eclipse.jgit:org.eclipse.jgit:${jgit.version}`.
+Due of library conflicts between `docker-java` and `jgit`, that they are sharing common libraries but different unsupported versions, you need to exclude and include some of them.
+
+For example in case of using Maven, your `pom.xml` should look like:
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+  <groupId>org.eclipse.jgit</groupId>
+  <artifactId>org.eclipse.jgit</artifactId>
+  <scope>test</scope>
+  <exclusions>
+    <exclusion>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </exclusion>
+  </exclusions>
+</dependency>
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-api</artifactId>
+  <version>1.7.21</version>
+  <scope>test</scope>
+</dependency>
+----
+
+====
+
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="docker">
+  <property name="serverVersion">1.13</property>
+  <property name="serverUri">localhost</property>
+  <property name="dockerContainersFile">docker-compose.yml</property>
+</extension>
+
+<container qualifier="tomcat">
+  <configuration>
+    <property name="user">admin</property>
+    <property name="pass">mypass</property>
+  </configuration>
+</container>
+----
+
+Notice that you don't need to specify _definitionFormat_ since docker compose format is the default one.
+
+And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too.
+You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-docker-compose

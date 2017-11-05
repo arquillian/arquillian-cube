@@ -1,31 +1,35 @@
 package org.arquillian.cube.openshift.impl.model;
 
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServicePort;
-
+import io.fabric8.kubernetes.api.model.v2_6.Service;
+import io.fabric8.kubernetes.api.model.v2_6.ServicePort;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.toBinding;
+
 public class ServiceCube extends BaseCube<Void> {
 
+    private final PortBindings portBindings;
     private String id;
     private Service resource;
     private State state;
     private CubeOpenShiftConfiguration configuration;
     private OpenShiftClient client;
 
-    private final PortBindings portBindings;
+    private static final Logger logger = Logger.getLogger(ServiceCube.class.getName());
 
     public ServiceCube(Service resource, OpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         this.id = resource.getMetadata().getName();
@@ -70,7 +74,11 @@ public class ServiceCube extends BaseCube<Void> {
     @Override
     public void stop() throws CubeControlException {
         try {
-            client.destroy(resource);
+            if (configuration.isNamespaceCleanupEnabled()) {
+                client.destroy(resource);
+            } else {
+                logger.info("Ignoring cleanup for service " + resource.getMetadata().getName());
+            }
             this.state = State.STOPPED;
         } catch (Exception e) {
             this.state = State.STOP_FAILED;
@@ -108,6 +116,7 @@ public class ServiceCube extends BaseCube<Void> {
     public Void configuration() {
         return null;
     }
+
     private final class PortBindings implements HasPortBindings {
 
         private final Map<Integer, PortAddress> mappedPorts;
@@ -161,8 +170,13 @@ public class ServiceCube extends BaseCube<Void> {
             return null;
         }
 
+        @Override
+        public InetAddress getPortForwardBindAddress() {
+            return null;
+        }
+
         private synchronized void serviceStarted() throws Exception {
-            containerIP = resource.getSpec().getPortalIP();
+            containerIP = resource.getSpec().getClusterIP();
             for (ServicePort servicePort : resource.getSpec().getPorts()) {
                 final int port = servicePort.getPort();
                 final Integer nodePort = servicePort.getNodePort();

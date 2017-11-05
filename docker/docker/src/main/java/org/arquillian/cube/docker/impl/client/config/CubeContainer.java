@@ -1,11 +1,16 @@
 package org.arquillian.cube.docker.impl.client.config;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CubeContainer {
 
+    private String containerName;
     private String workingDir;
     private Boolean disableNetwork;
     private String hostName;
@@ -16,7 +21,9 @@ public class CubeContainer {
     private Boolean stdinOnce;
     private Long memoryLimit;
     private Long memorySwap;
+    private Long shmSize;
     private Integer cpuShares;
+    private Integer cpuQuota;
     private String cpuSet;
     private Boolean attachStdin;
     private Boolean attachSterr;
@@ -25,13 +32,17 @@ public class CubeContainer {
     private Collection<String> dns;
     private Collection<String> volumes;
     private Collection<String> volumesFrom;
+    private Boolean removeVolumes = Boolean.TRUE;
     private Collection<String> binds;
     private Collection<Link> links;
+    private Collection<String> dependsOn;
     private Collection<PortBinding> portBindings;
     private Collection<ExposedPort> exposedPorts;
     private Boolean privileged;
     private Boolean publishAllPorts;
     private String networkMode;
+    private String ipv4Address;
+    private String ipv6Address;
     private Collection<String> dnsSearch;
     private Collection<Device> devices;
     private RestartPolicy restartPolicy;
@@ -39,8 +50,12 @@ public class CubeContainer {
     private Collection<String> capDrop;
     private Collection<String> extraHosts;
     private Collection<String> entryPoint;
+    private Collection<String> networks;
+    private Collection<String> aliases;
     private String domainName;
-    private Boolean alwaysPull = false;
+    private Boolean alwaysPull = Boolean.FALSE;
+    private boolean manual = false;
+    private boolean killContainer = false;
     private Await await;
 
     private Image image;
@@ -181,6 +196,14 @@ public class CubeContainer {
         this.memorySwap = memorySwap;
     }
 
+    public Long getShmSize() {
+        return shmSize;
+    }
+
+    public void setShmSize(Long shmSize) {
+        this.shmSize = shmSize;
+    }
+
     public Integer getCpuShares() {
         return cpuShares;
     }
@@ -195,6 +218,14 @@ public class CubeContainer {
 
     public void setCpuSet(String cpuSet) {
         this.cpuSet = cpuSet;
+    }
+
+    public Integer getCpuQuota() {
+        return cpuQuota;
+    }
+
+    public void setCpuQuota(Integer cpuQuota) {
+        this.cpuQuota = cpuQuota;
     }
 
     public Boolean getAttachStdin() {
@@ -251,6 +282,14 @@ public class CubeContainer {
 
     public void setVolumesFrom(Collection<String> volumesFrom) {
         this.volumesFrom = volumesFrom;
+    }
+
+    public Boolean getRemoveVolumes() {
+        return removeVolumes;
+    }
+
+    public void setRemoveVolumes(Boolean deleteVolumes) {
+        this.removeVolumes = deleteVolumes;
     }
 
     public Collection<String> getBinds() {
@@ -397,6 +436,75 @@ public class CubeContainer {
         return this.beforeStop != null && !this.beforeStop.isEmpty();
     }
 
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
+    public Collection<String> getDependsOn() {
+        return dependsOn;
+    }
+
+    public void setDependsOn(Collection<String> dependsOn) {
+        this.dependsOn = dependsOn;
+    }
+
+    public boolean isManual() {
+        return manual;
+    }
+
+    public void setManual(boolean manual) {
+        this.manual = manual;
+    }
+
+    public boolean isKillContainer() {
+        return killContainer;
+    }
+
+    public void setKillContainer(boolean killContainer) {
+        this.killContainer = killContainer;
+    }
+
+    public Collection<String> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(Collection<String> networks) {
+        this.networks = networks;
+    }
+
+    public Collection<String> getAliases(){
+        return aliases;
+    }
+
+    public void setAliases(Collection<String> aliases){
+        this.aliases = aliases;
+    }
+
+    public Collection<String> getDependingContainers() {
+        // Depends on has more priority than links
+        if (dependsOn != null && dependsOn.size() > 0) {
+            return Collections.unmodifiableCollection(dependsOn);
+        } else {
+            return getLinksName();
+        }
+    }
+
+    private Collection<String> getLinksName() {
+        if (links != null && links.size() > 0) {
+            Set<String> dependencies = new HashSet<>();
+            for (Link link : links) {
+                dependencies.add(link.getName());
+            }
+            return dependencies;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     public void merge(CubeContainer container) {
         try {
             Field[] fields = CubeContainer.class.getDeclaredFields();
@@ -414,5 +522,21 @@ public class CubeContainer {
         } catch (Exception e) {
             throw new RuntimeException("Could not merge objects", e);
         }
+    }
+
+    public String getIpv4Address() {
+        return ipv4Address;
+    }
+
+    public void setIpv4Address(String ipv4Address) {
+        this.ipv4Address = ipv4Address;
+    }
+
+    public String getIpv6Address() {
+        return ipv6Address;
+    }
+
+    public void setIpv6Address(String ipv6Address) {
+        this.ipv6Address = ipv6Address;
     }
 }

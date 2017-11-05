@@ -1,14 +1,12 @@
 package org.arquillian.cube.docker.impl.client.enricher;
 
+import com.github.dockerjava.api.DockerClient;
 import java.lang.annotation.Annotation;
-
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
-
-import com.github.dockerjava.api.DockerClient;
 
 public class CubeResourceProvider implements ResourceProvider {
 
@@ -30,5 +28,4 @@ public class CubeResourceProvider implements ResourceProvider {
 
         return dockerClientExec.getDockerClient();
     }
-
 }

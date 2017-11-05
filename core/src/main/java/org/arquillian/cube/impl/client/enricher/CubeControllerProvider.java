@@ -1,7 +1,6 @@
 package org.arquillian.cube.impl.client.enricher;
 
 import java.lang.annotation.Annotation;
-
 import org.arquillian.cube.CubeController;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -9,9 +8,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- *
  * @author <a href="mailto:smikloso@redhat.com">Stefan Miklosovic</a>
- *
  */
 public class CubeControllerProvider implements ResourceProvider {
 
@@ -33,5 +30,4 @@ public class CubeControllerProvider implements ResourceProvider {
 
         return cubeController;
     }
-
 }

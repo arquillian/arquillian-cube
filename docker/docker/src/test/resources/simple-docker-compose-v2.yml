@@ -1,0 +1,29 @@
+version: '2'
+services:
+  webapp:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - "/data"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB0:/dev/ttyUSB0:rm"
+  webapp2:
+    image: ubuntu
+    ports:
+      - "8080:8080"
+    links:
+      - webapp:webapp
+    environment:
+      - RACK_ENV=development
+volumes:
+  redis-data:
+    driver: local
+    driver_opts:
+      foo: "bar"
+networks:
+  front-tier:
+    driver: bridge
+  back-tier:
+    driver: bridge

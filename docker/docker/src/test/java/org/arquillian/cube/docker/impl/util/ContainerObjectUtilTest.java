@@ -1,11 +1,13 @@
 package org.arquillian.cube.docker.impl.util;
 
+import java.util.List;
+import org.arquillian.cube.containerobject.Cube;
+import org.arquillian.cube.containerobject.Environment;
+import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-
-import org.arquillian.cube.containerobject.Cube;
-import org.junit.Test;
 
 public class ContainerObjectUtilTest {
 
@@ -41,15 +43,32 @@ public class ContainerObjectUtilTest {
 
     @Test
     public void shouldReturnParentValueIfCurrentIsDefault() throws NoSuchMethodException {
-        final String value = ContainerObjectUtil.getTopCubeAttribute(DefaultAnnotationWithExtension.class, "value", Cube.class, "");
+        final String value =
+            ContainerObjectUtil.getTopCubeAttribute(DefaultAnnotationWithExtension.class, "value", Cube.class, "");
         assertThat(value, is("secondValue"));
     }
 
     @Test
     public void shouldReturnArrays() throws NoSuchMethodException {
         final String[] ports = ContainerObjectUtil.
-                getTopCubeAttribute(FirstClassWithArray.class, "portBinding", Cube.class, new String[] {});
+            getTopCubeAttribute(FirstClassWithArray.class, "portBinding", Cube.class, new String[] {});
         assertThat(ports[0], is("2222->22/tcp"));
+    }
+
+    @Test
+    public void shouldReturnAnnotationsFromRootObject() {
+        final List<Environment> environments =
+            (List<Environment>) ContainerObjectUtil.getAllAnnotations(SecondEnvironmentAnnotation.class,
+                Environment.class);
+        assertThat(environments.size(), is(1));
+    }
+
+    @Test
+    public void shouldReturnAggregationAnnotationsOfAllObjectHierarchy() {
+        final List<Environment> environments =
+            (List<Environment>) ContainerObjectUtil.getAllAnnotations(FirstEnvironmentAnnotation.class,
+                Environment.class);
+        assertThat(environments.size(), is(2));
     }
 
     @Cube("secondValue")
@@ -76,5 +95,13 @@ public class ContainerObjectUtilTest {
 
     @Cube(portBinding = "2222->22/tcp")
     private static class FirstClassWithArray {
+    }
+
+    @Environment(key = "A", value = "B")
+    public static class SecondEnvironmentAnnotation {
+    }
+
+    @Environment(key = "C", value = "D")
+    public static class FirstEnvironmentAnnotation extends SecondEnvironmentAnnotation {
     }
 }

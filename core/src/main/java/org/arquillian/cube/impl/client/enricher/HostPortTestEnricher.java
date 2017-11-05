@@ -1,5 +1,12 @@
 package org.arquillian.cube.impl.client.enricher;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.arquillian.cube.HostPort;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.spi.Cube;
@@ -8,14 +15,6 @@ import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implements Test enricher to get the binding port of a concrete exposed port of a cube.
@@ -29,15 +28,17 @@ public class HostPortTestEnricher implements TestEnricher {
 
     @Override
     public void enrich(Object testCase) {
-        if(cubeRegistryInstance.get() != null) {
-            List<Field> fieldsWithAnnotation = ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), HostPort.class);
+        if (cubeRegistryInstance.get() != null) {
+            List<Field> fieldsWithAnnotation =
+                ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), HostPort.class);
             for (Field dockerHostPortField : fieldsWithAnnotation) {
 
                 if (!dockerHostPortField.isAccessible()) {
                     dockerHostPortField.setAccessible(true);
                 }
 
-                if(int.class.isAssignableFrom(dockerHostPortField.getType()) || Integer.class.isAssignableFrom(dockerHostPortField.getType())) {
+                if (int.class.isAssignableFrom(dockerHostPortField.getType()) || Integer.class.isAssignableFrom(
+                    dockerHostPortField.getType())) {
                     try {
                         final HostPort hostPortAnnotation = dockerHostPortField.getAnnotation(HostPort.class);
                         String containerName = hostPortAnnotation.containerName();
@@ -50,7 +51,6 @@ public class HostPortTestEnricher implements TestEnricher {
                         } else {
                             logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
                         }
-
                     } catch (IllegalAccessException e) {
                         throw new IllegalArgumentException(e);
                     }
@@ -88,7 +88,7 @@ public class HostPortTestEnricher implements TestEnricher {
         List<Integer> parametersWithAnnotations = new ArrayList<>();
         final Annotation[][] paramAnnotations = method.getParameterAnnotations();
         for (int i = 0; i < paramAnnotations.length; i++) {
-            for (Annotation a: paramAnnotations[i]) {
+            for (Annotation a : paramAnnotations[i]) {
                 if (a instanceof HostPort) {
                     parametersWithAnnotations.add(i);
                 }
@@ -100,7 +100,7 @@ public class HostPortTestEnricher implements TestEnricher {
     private HostPort findHostPort(Annotation[] annotations) {
         for (Annotation a : annotations) {
             if (a instanceof HostPort) {
-                return (HostPort)a;
+                return (HostPort) a;
             }
         }
 
@@ -120,7 +120,6 @@ public class HostPortTestEnricher implements TestEnricher {
             if (mappedAddress != null) {
                 bindPort = mappedAddress.getPort();
             }
-
         }
 
         return bindPort;

@@ -7,41 +7,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import org.apache.commons.lang.StringUtils;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.spi.AutoStartParser;
+import org.jboss.arquillian.core.api.Injector;
 
 public class CubeDockerConfiguration {
 
-    private static final String DOCKER_VERSION = "serverVersion";
     public static final String DOCKER_URI = "serverUri";
     public static final String DOCKER_SERVER_IP = "dockerServerIp";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD =  "password";
-    private static final String EMAIL = "email";
     public static final String CERT_PATH = "certPath";
     public static final String TLS_VERIFY = "tlsVerify";
-    private static final String DOCKER_CONTAINERS = "dockerContainers";
-    private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
-    private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
-    private static final String DOCKER_REGISTRY = "dockerRegistry";
+    public static final String DOCKER_CONTAINERS = "dockerContainers";
     public static final String BOOT2DOCKER_PATH = "boot2dockerPath";
     public static final String DOCKER_MACHINE_PATH = "dockerMachinePath";
     public static final String DOCKER_MACHINE_NAME = "machineName";
     public static final String DOCKER_MACHINE_DRIVER = "machineDriver";
-    private static final String AUTO_START_CONTAINERS = "autoStartContainers";
-    private static final String DEFINITION_FORMAT = "definitionFormat";
-    static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
-    private static final String CUBE_ENVIRONMENT = "cube.environment";
+    public static final String AUTO_START_ORDER = "autoStartOrder";
     public static final String DOCKER_MACHINE_CUSTOM_PATH = "dockerMachineCustomPath";
     public static final String DOCKER_MACHINE_ARQUILLIAN_PATH = "~/.arquillian/machine";
     public static final String CUBE_SPECIFIC_PROPERTIES = "cubeSpecificProperties";
     public static final String CLEAN = "clean";
-
+    public static final String REMOVE_VOLUMES = "removeVolumes";
+    public static final String CLEAN_BUILD_IMAGE = "cleanBuildImage";
+    static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
+    private static final String DOCKER_VERSION = "serverVersion";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String EMAIL = "email";
+    private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
+    private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
+    private static final String IGNORE_CONTAINERS_DEFINITION = "ignoreContainersDefinition";
+    private static final String DOCKER_REGISTRY = "dockerRegistry";
+    private static final String AUTO_START_CONTAINERS = "autoStartContainers";
+    private static final String DEFINITION_FORMAT = "definitionFormat";
+    private static final String CUBE_ENVIRONMENT = "cube.environment";
     private String dockerServerVersion;
     private String dockerServerUri;
     private String dockerRegistry;
@@ -54,12 +59,219 @@ public class CubeDockerConfiguration {
     private String certPath;
     private boolean tlsVerify;
     private String dockerServerIp;
-    private DefinitionFormat definitionFormat = DefinitionFormat.CUBE;
+    private DefinitionFormat definitionFormat = DefinitionFormat.COMPOSE;
     private boolean dockerInsideDockerResolution = true;
     private boolean clean = false;
-    private AutoStartParser autoStartContainers = null;
+    private boolean removeVolumes = true;
+    private boolean cleanBuildImage = true;
+    private boolean ignoreContainersDefinition = false;
 
-    private CubeContainers dockerContainersContent;
+    private AutoStartParser autoStartContainers = null;
+    private DockerAutoStartOrder dockerAutoStartOrder = null;
+
+    private DockerCompositions dockerContainersContent;
+
+    public static CubeDockerConfiguration fromMap(Map<String, String> map, Injector injector) {
+        CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
+
+        if (map.containsKey(DOCKER_SERVER_IP)) {
+            cubeConfiguration.dockerServerIp = map.get(DOCKER_SERVER_IP);
+        }
+
+        if (map.containsKey(DOCKER_VERSION)) {
+            cubeConfiguration.dockerServerVersion = map.get(DOCKER_VERSION);
+        }
+
+        if (map.containsKey(DOCKER_URI)) {
+            cubeConfiguration.dockerServerUri = map.get(DOCKER_URI);
+        }
+
+        if (map.containsKey(DIND_RESOLUTION)) {
+            cubeConfiguration.dockerInsideDockerResolution = Boolean.parseBoolean(map.get(DIND_RESOLUTION));
+        }
+
+        if (map.containsKey(BOOT2DOCKER_PATH)) {
+            cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
+        }
+
+        if (map.containsKey(DOCKER_MACHINE_PATH)) {
+            cubeConfiguration.dockerMachinePath = map.get(DOCKER_MACHINE_PATH);
+        }
+
+        if (map.containsKey(DOCKER_MACHINE_NAME)) {
+            cubeConfiguration.machineName = map.get(DOCKER_MACHINE_NAME);
+        }
+
+        if (map.containsKey(USERNAME)) {
+            cubeConfiguration.username = map.get(USERNAME);
+        }
+
+        if (map.containsKey(PASSWORD)) {
+            cubeConfiguration.password = map.get(PASSWORD);
+        }
+
+        if (map.containsKey(EMAIL)) {
+            cubeConfiguration.email = map.get(EMAIL);
+        }
+
+        if (map.containsKey(CERT_PATH)) {
+            cubeConfiguration.certPath = map.get(CERT_PATH);
+        }
+
+        if (map.containsKey(TLS_VERIFY)) {
+            cubeConfiguration.tlsVerify = Boolean.parseBoolean(map.get(TLS_VERIFY));
+        }
+
+        if (map.containsKey(DOCKER_REGISTRY)) {
+            cubeConfiguration.dockerRegistry = map.get(DOCKER_REGISTRY);
+        }
+
+        if (map.containsKey(IGNORE_CONTAINERS_DEFINITION)) {
+            cubeConfiguration.ignoreContainersDefinition = Boolean.parseBoolean(map.get(IGNORE_CONTAINERS_DEFINITION));
+        }
+
+        if (map.containsKey(DEFINITION_FORMAT)) {
+            String definitionContent = map.get(DEFINITION_FORMAT);
+            cubeConfiguration.definitionFormat = DefinitionFormat.valueOf(DefinitionFormat.class, definitionContent);
+        }
+
+        if (map.containsKey(DOCKER_CONTAINERS) && !cubeConfiguration.ignoreContainersDefinition) {
+            String content = map.get(DOCKER_CONTAINERS);
+            cubeConfiguration.dockerContainersContent =
+                DockerContainerDefinitionParser.convert(content, cubeConfiguration.definitionFormat);
+        }
+
+        if (map.containsKey(DOCKER_CONTAINERS_FILE) && !cubeConfiguration.ignoreContainersDefinition) {
+            final String location = map.get(DOCKER_CONTAINERS_FILE);
+            final List<URI> resolveUri = new ArrayList<>();
+            try {
+                final URI uri = URI.create(location);
+                resolveUri.add(uri);
+
+                if (System.getProperty(CUBE_ENVIRONMENT) != null) {
+                    final String resolveFilename = resolveFilename(uri);
+                    final String environmentUri = uri.toString()
+                        .replace(resolveFilename, resolveFilename + "." + System.getProperty(CUBE_ENVIRONMENT));
+                    resolveUri.add(URI.create(environmentUri));
+                }
+
+                cubeConfiguration.dockerContainersContent =
+                    DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat,
+                        resolveUri.toArray(new URI[resolveUri.size()]));
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        if (map.containsKey(DOCKER_CONTAINERS_FILES) && !cubeConfiguration.ignoreContainersDefinition) {
+
+            String locations = map.get(DOCKER_CONTAINERS_FILES);
+            List<URI> realLocations = getUris(locations);
+            try {
+                cubeConfiguration.dockerContainersContent =
+                    DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat,
+                        realLocations.toArray(new URI[realLocations.size()]));
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        if ( !map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(
+            DOCKER_CONTAINERS_FILES) && !cubeConfiguration.ignoreContainersDefinition) {
+            try {
+                cubeConfiguration.dockerContainersContent =
+                    DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        if (map.containsKey(CUBE_SPECIFIC_PROPERTIES)) {
+            String content = map.get(CUBE_SPECIFIC_PROPERTIES);
+            final DockerCompositions overrideInformation =
+                DockerContainerDefinitionParser.convert(content, DefinitionFormat.CUBE);
+            cubeConfiguration.dockerContainersContent.overrideCubeProperties(overrideInformation);
+        }
+
+        if (map.containsKey(AUTO_START_CONTAINERS)) {
+            String expression = map.get(AUTO_START_CONTAINERS);
+            DockerCompositions containerDefinitions = cubeConfiguration.getDockerContainersContent();
+            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions, injector);
+
+            cubeConfiguration.autoStartContainers = autoStartParser;
+        }
+
+        if (map.containsKey(CLEAN)) {
+            cubeConfiguration.clean = Boolean.parseBoolean(map.get(CLEAN));
+        }
+
+        if (map.containsKey(AUTO_START_ORDER)) {
+            cubeConfiguration.dockerAutoStartOrder =
+                AutoStartOrderFactory.createDockerAutoStartOrder(map.get(AUTO_START_ORDER));
+        } else {
+            cubeConfiguration.dockerAutoStartOrder = AutoStartOrderFactory.createDefaultDockerAutoStartOrder();
+        }
+
+        if (map.containsKey(REMOVE_VOLUMES)) {
+            cubeConfiguration.removeVolumes = Boolean.parseBoolean(map.get(REMOVE_VOLUMES));
+        }
+
+        if (map.containsKey(CLEAN_BUILD_IMAGE)) {
+            cubeConfiguration.cleanBuildImage = Boolean.parseBoolean(map.get(CLEAN_BUILD_IMAGE));
+        }
+
+        for (CubeContainer container : cubeConfiguration.dockerContainersContent.getContainers().values()) {
+            if (container.getRemoveVolumes() == null) {
+                container.setRemoveVolumes(cubeConfiguration.isRemoveVolumes());
+            }
+        }
+
+        return cubeConfiguration;
+    }
+
+    private static String resolveFilename(URI uri) {
+        if (uri.getScheme() == null || "file".equals(uri.getScheme())) {
+            //it is a local path
+            final String fullPath = uri.toString();
+            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
+            if (lastSeparatorChar > -1) {
+                return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
+            } else {
+                return fullPath.substring(0, fullPath.lastIndexOf('.'));
+            }
+        } else {
+            //means it is a remote uri (http, ftp, ...
+            final String fullPath = uri.toString();
+            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
+            return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
+        }
+    }
+
+    private static List<URI> getUris(String locations) {
+        // Transform comma-separated values to an array of URIs
+        List<URI> realLocations = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(locations, ",");
+        while (tokenizer.hasMoreTokens()) {
+            realLocations.add(URI.create(tokenizer.nextToken().trim()));
+        }
+        return realLocations;
+    }
+
+    public static String resolveUrl(String machineVersion) {
+        return "https://github.com/docker/machine/releases/download/"
+            + machineVersion
+            + "/"
+            + DockerMachineDistro.resolveDistro();
+    }
+
+    public static File resolveMachinePath(String machineCustomPath, String machineVersion) {
+        if (StringUtils.isBlank(machineCustomPath)) {
+            machineCustomPath = DOCKER_MACHINE_ARQUILLIAN_PATH;
+        }
+        String dockerMachineFile = HomeResolverUtil.resolveHomeDirectoryChar(
+            machineCustomPath + "/" + machineVersion + "/" + DockerMachine.DOCKER_MACHINE_EXEC);
+        return new File(dockerMachineFile);
+    }
 
     public String getDockerServerUri() {
         return dockerServerUri;
@@ -69,7 +281,7 @@ public class CubeDockerConfiguration {
         return dockerServerVersion;
     }
 
-    public CubeContainers getDockerContainersContent() {
+    public DockerCompositions getDockerContainersContent() {
         return dockerContainersContent;
     }
 
@@ -113,21 +325,29 @@ public class CubeDockerConfiguration {
         return tlsVerify;
     }
 
-    //this property is resolved in CubeConfigurator class.
+    //this property is resolved in DockerCubeConfigurator class.
     public String getDockerServerIp() {
         return dockerServerIp;
     }
 
     public AutoStartParser getAutoStartContainers() {
-       return autoStartContainers;
+        return autoStartContainers;
+    }
+
+    void setAutoStartContainers(AutoStartParser autoStartParser) {
+        this.autoStartContainers = autoStartParser;
+    }
+
+    public DockerAutoStartOrder getDockerAutoStartOrder() {
+        return dockerAutoStartOrder;
     }
 
     public boolean isClean() {
         return clean;
     }
 
-    void setAutoStartContainers(AutoStartParser autoStartParser) {
-        this.autoStartContainers = autoStartParser;
+    public boolean isRemoveVolumes() {
+        return removeVolumes;
     }
 
     public DefinitionFormat getDefinitionFormat() {
@@ -138,156 +358,8 @@ public class CubeDockerConfiguration {
         return dockerInsideDockerResolution;
     }
 
-    public static CubeDockerConfiguration fromMap(Map<String, String> map) {
-        CubeDockerConfiguration cubeConfiguration = new CubeDockerConfiguration();
-
-        if(map.containsKey(DOCKER_SERVER_IP)) {
-            cubeConfiguration.dockerServerIp = map.get(DOCKER_SERVER_IP);
-        }
-
-        if (map.containsKey(DOCKER_VERSION)) {
-            cubeConfiguration.dockerServerVersion = map.get(DOCKER_VERSION);
-        }
-
-        if (map.containsKey(DOCKER_URI)) {
-            cubeConfiguration.dockerServerUri = map.get(DOCKER_URI);
-        }
-
-        if (map.containsKey(DIND_RESOLUTION)) {
-            cubeConfiguration.dockerInsideDockerResolution = Boolean.parseBoolean(map.get(DIND_RESOLUTION));
-        }
-
-        if(map.containsKey(BOOT2DOCKER_PATH)) {
-            cubeConfiguration.boot2DockerPath = map.get(BOOT2DOCKER_PATH);
-        }
-
-        if(map.containsKey(DOCKER_MACHINE_PATH)) {
-            cubeConfiguration.dockerMachinePath = map.get(DOCKER_MACHINE_PATH);
-        }
-
-        if(map.containsKey(DOCKER_MACHINE_NAME)) {
-            cubeConfiguration.machineName = map.get(DOCKER_MACHINE_NAME);
-        }
-
-        if(map.containsKey(USERNAME)) {
-            cubeConfiguration.username = map.get(USERNAME);
-        }
-
-        if(map.containsKey(PASSWORD)) {
-            cubeConfiguration.password = map.get(PASSWORD);
-        }
-
-        if(map.containsKey(EMAIL)) {
-            cubeConfiguration.email = map.get(EMAIL);
-        }
-
-        if(map.containsKey(CERT_PATH)) {
-            cubeConfiguration.certPath = map.get(CERT_PATH);
-        }
-
-        if (map.containsKey(TLS_VERIFY)) {
-            cubeConfiguration.tlsVerify = Boolean.parseBoolean(map.get(TLS_VERIFY));
-        }
-
-        if (map.containsKey(DOCKER_REGISTRY)) {
-            cubeConfiguration.dockerRegistry = map.get(DOCKER_REGISTRY);
-        }
-
-        if(map.containsKey(DEFINITION_FORMAT)) {
-            String definitionContent = map.get(DEFINITION_FORMAT);
-            cubeConfiguration.definitionFormat = DefinitionFormat.valueOf(DefinitionFormat.class, definitionContent);
-        }
-
-        if (map.containsKey(DOCKER_CONTAINERS)) {
-            String content = map.get(DOCKER_CONTAINERS);
-            cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(content, cubeConfiguration.definitionFormat);
-        }
-
-        if (map.containsKey(DOCKER_CONTAINERS_FILE)) {
-            final String location = map.get(DOCKER_CONTAINERS_FILE);
-            final List<URI> resolveUri = new ArrayList<>();
-            try {
-                final URI uri = URI.create(location);
-                resolveUri.add(uri);
-
-                if (System.getProperty(CUBE_ENVIRONMENT) != null) {
-                    final String resolveFilename = resolveFilename(uri);
-                    final String environmentUri = uri.toString().replace(resolveFilename, resolveFilename + "." + System.getProperty(CUBE_ENVIRONMENT));
-                    resolveUri.add(URI.create(environmentUri));
-                }
-
-                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat, resolveUri.toArray(new URI[resolveUri.size()]));
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-
-        if (map.containsKey(DOCKER_CONTAINERS_FILES)) {
-
-            String locations = map.get(DOCKER_CONTAINERS_FILES);
-            List<URI> realLocations = getUris(locations);
-            try {
-                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convert(cubeConfiguration.definitionFormat, realLocations.toArray(new URI[realLocations.size()]));
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-
-        if (!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(DOCKER_CONTAINERS_FILES)) {
-            try {
-                cubeConfiguration.dockerContainersContent = DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-
-        if (map.containsKey(CUBE_SPECIFIC_PROPERTIES)) {
-            String content = map.get(CUBE_SPECIFIC_PROPERTIES);
-            final CubeContainers overrideInformation = DockerContainerDefinitionParser.convert(content, DefinitionFormat.CUBE);
-            cubeConfiguration.dockerContainersContent.overrideCubeProperties(overrideInformation);
-        }
-
-        if (map.containsKey(AUTO_START_CONTAINERS)) {
-            String expression = map.get(AUTO_START_CONTAINERS);
-            CubeContainers containerDefinitions = cubeConfiguration.getDockerContainersContent();
-            AutoStartParser autoStartParser = AutoStartParserFactory.create(expression, containerDefinitions);
-
-            cubeConfiguration.autoStartContainers = autoStartParser;
-        }
-
-        if (map.containsKey(CLEAN)) {
-            cubeConfiguration.clean = Boolean.parseBoolean(map.get(CLEAN));
-        }
-        
-        return cubeConfiguration;
-    }
-
-    private static String resolveFilename(URI uri) {
-        if (uri.getScheme() == null || "file".equals(uri.getScheme())) {
-            //it is a local path
-            final String fullPath = uri.toString();
-            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
-            if (lastSeparatorChar > -1) {
-                return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
-            } else {
-                return fullPath.substring(0, fullPath.lastIndexOf('.'));
-            }
-        } else {
-            //means it is a remote uri (http, ftp, ...
-            final String fullPath = uri.toString();
-            final int lastSeparatorChar = fullPath.lastIndexOf(File.separatorChar);
-            return fullPath.substring(lastSeparatorChar + 1, fullPath.lastIndexOf('.'));
-        }
-    }
-
-    private static List<URI> getUris(String locations) {
-        // Transform comma-separated values to an array of URIs
-        List<URI> realLocations = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(locations, ",");
-        while (tokenizer.hasMoreTokens()) {
-            realLocations.add(URI.create(tokenizer.nextToken().trim()));
-        }
-        return realLocations;
+    public boolean isCleanBuildImage() {
+        return cleanBuildImage;
     }
 
     @Override public String toString() {
@@ -337,9 +409,11 @@ public class CubeDockerConfiguration {
         if (autoStartContainers != null) {
             content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(autoStartContainers).append(SEP);
         }
-        if (clean) {
-            content.append("  ").append(CLEAN).append(" = ").append(clean).append(SEP);
-        }
+
+        content.append("  ").append(CLEAN).append(" = ").append(clean).append(SEP);
+
+        content.append("  ").append(REMOVE_VOLUMES).append(" = ").append(removeVolumes).append(SEP);
+
         if (dockerContainersContent != null) {
             String output = ConfigUtil.dump(dockerContainersContent);
             content.append("  ").append(DOCKER_CONTAINERS).append(" = ").append(output).append(SEP);
@@ -347,16 +421,4 @@ public class CubeDockerConfiguration {
 
         return content.toString();
     }
-
-    public static String resolveUrl(String machineVersion) {
-        return "https://github.com/docker/machine/releases/download/" + machineVersion + "/" + DockerMachineDistro.resolveDistro();
-    }
-
-    public static String resolveMachinePath(String machineCustomPath, String machineVersion) {
-        if (StringUtils.isBlank(machineCustomPath)) {
-            machineCustomPath = DOCKER_MACHINE_ARQUILLIAN_PATH;
-        }
-        return HomeResolverUtil.resolveHomeDirectoryChar(machineCustomPath + "/" + machineVersion + "/" + DockerMachine.DOCKER_MACHINE_EXEC);
-    }
-
 }

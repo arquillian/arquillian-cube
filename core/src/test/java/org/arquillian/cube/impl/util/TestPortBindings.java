@@ -1,11 +1,11 @@
 package org.arquillian.cube.impl.util;
 
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -62,6 +62,11 @@ public class TestPortBindings implements HasPortBindings {
         if (mappedPorts.containsKey(targetPort)) {
             return mappedPorts.get(targetPort);
         }
+        return null;
+    }
+
+    @Override
+    public InetAddress getPortForwardBindAddress() {
         return null;
     }
 }

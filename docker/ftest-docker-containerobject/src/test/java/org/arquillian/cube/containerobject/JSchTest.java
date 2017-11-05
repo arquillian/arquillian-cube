@@ -2,23 +2,21 @@ package org.arquillian.cube.containerobject;
 
 import com.jcabi.ssh.SSH;
 import com.jcabi.ssh.Shell;
-
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.arquillian.cube.impl.util.IOUtil;
-import org.jboss.arquillian.junit.Arquillian;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
-
-import java.io.File;
-import java.io.IOException;
-
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class JSchTest {
 
     @Rule
@@ -30,13 +28,13 @@ public class JSchTest {
     @Test
     public void shouldCopyFileToSFtp() throws JSchException, SftpException, IOException {
         String privateKey = IOUtils.toString(
-                JSchTest.class.getResourceAsStream("/org/arquillian/cube/containerobject/SshdContainer/test_rsa"), "UTF-8");
+            JSchTest.class.getResourceAsStream("/org/arquillian/cube/containerobject/SshdContainer/test_rsa"), "UTF-8");
         System.out.println(privateKey);
         String hello = new Shell.Plain(
-                new SSH(
-                        sshdContainer.getIp(), 2222,
-                        "test", privateKey
-                        )
+            new SSH(
+                sshdContainer.getIp(), 2222,
+                "test", privateKey
+            )
         ).exec("echo 'Hello, world!'");
         System.out.println(hello);
     }
@@ -46,5 +44,4 @@ public class JSchTest {
         FileUtils.write(testFile, "Hello World");
         return testFile;
     }
-
 }

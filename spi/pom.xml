@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
+    <version>1.9.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube SPI</name>
@@ -11,12 +11,16 @@
 
   <dependencies>
     <dependency>
-        <groupId>org.arquillian.cube</groupId>
-        <artifactId>arquillian-cube-api</artifactId>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-api</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.jboss.arquillian.core</groupId>
-        <artifactId>arquillian-core-spi</artifactId>
+      <groupId>org.jboss.arquillian.core</groupId>
+      <artifactId>arquillian-core-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.reporter</groupId>
+      <artifactId>arquillian-core-reporter-api</artifactId>
     </dependency>
   </dependencies>
 </project>

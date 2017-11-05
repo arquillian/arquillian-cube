@@ -1,0 +1,146 @@
+== Requirements Module
+
+Arquillian Cube tries to adapt to docker installation you have.
+For example if you are running Docker in linux machine, Docker Cube is going to try to connect there.
+If it is in MacOS or Windows will try to use docker-machine, and if there is only one machine defined, it will use that one.
+
+But sometimes this automatic resolutions are not possible, for example you have more than one docker machine installed/started, or you don't know if the user is going to have one docker machine installed/started or more than one.
+In these cases you need to set using `machineName` property which docker machine you want to use.
+
+The problem is that you don't know if the environment were test is running will have this machine or not.
+If it doesn't have then an exception will be thrown regarding cannot connect to given docker machine and test will fail.
+
+Obviously this is not a failure, but test should be ignored.
+For this use case Arquillian Cube and other ones, Cube implements the *requirements* module.
+This module makes skip tests instead of failing in case of not meeting some environment expectations.
+
+=== Example of environment requirements
+
+With Requirements you can set if you want to skip tests if some environment or property variables are not set.
+This is useful for example if you require that `DOCKER_HOST`, `DOCKER_TLS_VERIFY` or `DOCKER_CERT_PATH` system or environment variable must be set.
+
+Notice that Cube takes precedence these variables over configured in `arquillian.xml`.
+
+To use it you need to add requirements dependency.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-requirement</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+Then you can use an special runner or a JUnit rule.
+If you use Rule, the scope of annotations are only a test class, if you use the runner then annotations can be used in a suite level.
+
+Let's see how to use with Rule.
+
+[source, java]
+----
+import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
+import org.arquillian.cube.requirement.RequirementRule;
+
+@RunWith(Arquillian.class)
+@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) // <1>
+public class HelloWorldServletTest {
+
+    @Rule // <2>
+    public RequirementRule requirementRule = new RequirementRule();
+
+    //....
+
+}
+----
+<1> Checks if it is set a system property and if not environment variable with name `DOCKER_HOST`
+<2> Rule definition
+
+But you can use the runner approach to use it suite level.
+
+[source, java]
+----
+import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+
+@RunWith(ArquillianConditionalRunner.class) // <1>
+@RequiresSystemPropertyOrEnvironmentVariable(value = {"DOCKER_HOST"}) // <2>
+public class HelloWorldServletTest {
+
+    //....
+
+}
+----
+<1> Runner for requirements check
+<2> Checks if it is set a system property and if not environment variable with name `DOCKER_HOST`
+
+Other annotations you can use are: `RequiresEnvironmentVariable` and `RequiresSystemProperty` which basically instead of checking as system property or environment variable, they only checks ones.
+
+=== Example with Docker
+
+But also there is an annotation in docker module for checking the environment against docker machine.
+
+[source, java]
+----
+
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev") // <1>
+public class HelloWorldServletTest {
+
+    //....
+}
+----
+<1> Docker machine requirement
+
+Previous test will only be executed if in the environment where test is running has docker machine installed with a machine named _dev_.
+
+=== Customizing Requirements
+
+You can also implement your own requirement annotations.
+To do it you only need to do two things.
+
+* An annotation annotated with  `org.arquillian.cube.spi.requirement.Requires` pointing to a class which implements `org.arquillian.cube.spi.requirement.Requirement`.
+* An implementation of `org.arquillian.cube.spi.requirement.Requirement` interface.
+
+Let's see an example of how to implement a requirement against docker version.
+
+[source, java]
+.RequiresDockerVersion.java
+----
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Requires(DockerRequirement.class) // <1>
+public @interface RequiresDockerVersion {
+    String name() default ""; // <2>
+}
+----
+<1> Sets requirement interface
+<2> Attribute to set the required version
+
+And the implementation logic:
+
+[source, java]
+.DockerRequirement.java
+----
+public class DockerRequirement implements Requirement<RequiresDockerVersion> {
+
+    @Override
+    public void check(RequiresDockerMachine context) throws UnsatisfiedRequirementException {
+        String name = context.name();
+        if (name != null && !name.isEmpty()) {
+            String installedVersion = getDockerVersion();
+
+            if (!name.equals(installedVersion)) {
+                throw new UnsatisfiedRequirementException("Docker version not specified."); // <1>
+            }
+        }
+    }
+}
+----
+<1> In case of not meeting an expectation, `org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException` should be thrown with a message.
+
+After that you can use this annotation as any other requirements provided by Cube.

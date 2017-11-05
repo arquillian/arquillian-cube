@@ -17,12 +17,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.arquillian.cube.docker.impl.client.config.BuildImage;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -66,19 +70,26 @@ public class ContainerBuilder {
     private static final String HOSTNAME = "hostname";
     private static final String DOMAINNAME = "domainname";
     private static final String MEM_LIMIT = "mem_limit";
+    private static final String MEM_SWAP_LIMIT = "memswap_limit";
+    private static final String SHM_SIZE = "shm_size";
     private static final String PRIVILEGED = "privileged";
     private static final String RESTART = "restart";
     private static final String STDIN_OPEN = "stdin_open";
     private static final String TTY = "tty";
     private static final String CPU_SHARES = "cpu_shares";
     private static final String CPU_SET = "cpuset";
+    private static final String CPU_QUOTA = "cpu_quota";
     private static final String EXTRA_HOSTS = "extra_hosts";
     private static final String DEVICES = "devices";
+    private static final String CONTAINERNAME = "container_name";
+    private static final String DEPENDS_ON = "depends_on";
+    private static final String CONTEXT = "context";
+    private static final String NETWORKS = "networks";
 
     private static List<String> AVAILABLE_COMMANDS = Arrays.asList(IMAGE, BUILD, COMMAND, LINKS, EXTERNAL_LINKS, DOCKERFILE,
             EXTENDS, PORTS, EXPOSE, VOLUMES, VOLUMES_FROM, ENVIRONMENT, ENV_FILE, NET, DNS, CAP_ADD, CAP_DROP,
             DNS_SEARCH, WORKING_DIR, ENTRYPOINT, USER, HOSTNAME, MEM_LIMIT, PRIVILEGED, RESTART, STDIN_OPEN, TTY,
-            CPU_SET, CPU_SHARES, EXTRA_HOSTS, DEVICES);
+            CPU_SET, CPU_SHARES, CPU_QUOTA, EXTRA_HOSTS, DEVICES, CONTAINERNAME, DEPENDS_ON, MEM_SWAP_LIMIT, SHM_SIZE, NETWORKS);
 
     private static final Logger log = Logger.getLogger(ContainerBuilder.class.getName());
 
@@ -86,6 +97,7 @@ public class ContainerBuilder {
 
     private CubeContainer configuration;
     private Path dockerComposeRootLocation;
+    GitOperations gitOperations;
 
     public ContainerBuilder(Path dockerComposeRootLocation) {
         this(dockerComposeRootLocation, new CubeContainer());
@@ -96,8 +108,12 @@ public class ContainerBuilder {
         this.configuration = configuration;
     }
 
-    @SuppressWarnings("unchecked")
     public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition) {
+        return build(dockerComposeContainerDefinition, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public CubeContainer build(Map<String, Object> dockerComposeContainerDefinition, String version) {
         if(dockerComposeContainerDefinition.containsKey(EXTENDS)) {
             Map<String, Object> extendsDefinition = asMap(dockerComposeContainerDefinition, EXTENDS);
             this.extend(Paths.get(asString(extendsDefinition, "file")), asString(extendsDefinition, "service"));
@@ -106,11 +122,51 @@ public class ContainerBuilder {
             this.addImage(asString(dockerComposeContainerDefinition, IMAGE));
         }
         if (dockerComposeContainerDefinition.containsKey(BUILD)) {
-            String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
-            this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+            if (DockerComposeConverter.DOCKER_COMPOSE_VERSION_2_VALUE.equals(version)) {
+                Object o = dockerComposeContainerDefinition.get(BUILD);
+                if (o instanceof String) {
+                    String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                    this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+                } else if (o instanceof Map) {
+                    Map<String, Object> buildDefinition = asMap(dockerComposeContainerDefinition, BUILD);
+
+                    String context = buildDefinition.containsKey(CONTEXT) ? asString(buildDefinition, CONTEXT) : null;
+
+                    final String dockerfile = buildDefinition.containsKey(DOCKERFILE) ? asString(buildDefinition, DOCKERFILE) : null;
+                    if (context != null) {
+                        File directory = new File(context);
+                        if (directory.isDirectory()) {
+                            this.addBuild(asString(buildDefinition, CONTEXT),
+                                    dockerfile);
+                        } else {
+                            // Make GitOperations lazy because it will help for testing purposes and to avoid instantiate JGit classes when Git is not required-
+                            // In this way, if you don't need Git, you don't need to add jgit dependency
+                            if (gitOperations == null) {
+                                log.log(Level.INFO, String.format("Starting cloning git repository %s defined in docker-compose", context));
+                                GitOperations gitOperations = new GitOperations();
+                                File clonedDirectory = gitOperations.cloneRepo(context);
+                                log.log(Level.INFO, String.format("Finished cloning git repository %s defined in docker-compose", context));
+                                this.addBuild(clonedDirectory.getParentFile().getAbsolutePath(), dockerfile);
+                            }
+                        }
+                    } else {
+                        log.log(Level.WARNING, "build configuration is provided as object but no context definition is found.");
+                    }
+                }
+            } else {
+                String dockerfile = dockerComposeContainerDefinition.containsKey(DOCKERFILE) ? asString(dockerComposeContainerDefinition, DOCKERFILE) : null;
+                this.addBuild(asString(dockerComposeContainerDefinition, BUILD), dockerfile);
+            }
         }
         if (dockerComposeContainerDefinition.containsKey(COMMAND)) {
-            this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
+            if (dockerComposeContainerDefinition.get(COMMAND) instanceof List) {
+                this.addCommands(asListOfString(dockerComposeContainerDefinition, COMMAND));
+            } else {
+                this.addCommand(asString(dockerComposeContainerDefinition, COMMAND));
+            }
+        }
+        if (dockerComposeContainerDefinition.containsKey(DEPENDS_ON)) {
+            this.addDependsOn(asListOfString(dockerComposeContainerDefinition, DEPENDS_ON));
         }
         if (dockerComposeContainerDefinition.containsKey(LINKS)) {
             this.addLinks(asListOfString(dockerComposeContainerDefinition, LINKS));
@@ -126,6 +182,7 @@ public class ContainerBuilder {
         }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES)) {
             this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
+            this.addBinds(asListOfString(dockerComposeContainerDefinition, VOLUMES));
         }
         if(dockerComposeContainerDefinition.containsKey(LABELS)) {
             this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
@@ -186,6 +243,12 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(MEM_LIMIT)) {
             this.addMemLimit(asLong(dockerComposeContainerDefinition, MEM_LIMIT));
         }
+        if (dockerComposeContainerDefinition.containsKey(MEM_SWAP_LIMIT)) {
+            this.addMemSwapLimit(asLong(dockerComposeContainerDefinition, MEM_SWAP_LIMIT));
+        }
+        if (dockerComposeContainerDefinition.containsKey(SHM_SIZE)) {
+            this.addShmSize(asLong(dockerComposeContainerDefinition, SHM_SIZE));
+        }
         if (dockerComposeContainerDefinition.containsKey(PRIVILEGED)) {
             this.addPrivileged(asBoolean(dockerComposeContainerDefinition, PRIVILEGED));
         }
@@ -204,6 +267,9 @@ public class ContainerBuilder {
         if (dockerComposeContainerDefinition.containsKey(CPU_SET)) {
             this.addCpuSet(asString(dockerComposeContainerDefinition, CPU_SET));
         }
+        if (dockerComposeContainerDefinition.containsKey(CPU_QUOTA)) {
+            this.addCpuQuota(asInt(dockerComposeContainerDefinition, CPU_QUOTA));
+        }
         if (dockerComposeContainerDefinition.containsKey(DEVICES)) {
             this.addDevices(asListOfString(dockerComposeContainerDefinition, DEVICES));
         }
@@ -214,10 +280,44 @@ public class ContainerBuilder {
             this.addReadOnly(asBoolean(dockerComposeContainerDefinition, READ_ONLY));
         }
 
+        if (dockerComposeContainerDefinition.containsKey(CONTAINERNAME)) {
+            this.addContainerName(asString(dockerComposeContainerDefinition, CONTAINERNAME));
+        }
+
+        if (dockerComposeContainerDefinition.containsKey(NETWORKS)) {
+            if (dockerComposeContainerDefinition.get(NETWORKS) instanceof ArrayList) {
+                this.addNetworks(asListOfString(dockerComposeContainerDefinition, NETWORKS));
+            } else {
+                Map<String, Object> networks = asMap(dockerComposeContainerDefinition, NETWORKS);
+                this.addNetworks(networks.keySet());
+            }
+
+        }
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
     }
+
+    private ContainerBuilder addNetworks(Collection<String> networks) {
+        if (configuration.getNetworks() != null) {
+            configuration.getNetworks().addAll(networks);
+        } else {
+            configuration.setNetworks(new HashSet<>(networks));
+        }
+
+        return this;
+    }
+
+    private ContainerBuilder addShmSize(long shmSize) {
+        configuration.setShmSize(shmSize);
+        return this;
+    }
+
+    private ContainerBuilder addMemSwapLimit(long memSwapLimit) {
+        configuration.setMemorySwap(memSwapLimit);
+        return this;
+    }
+
 
     private ContainerBuilder addDevices(Collection<String> devices) {
         Collection<Device> devicesDefinition = new HashSet<Device>();
@@ -260,6 +360,11 @@ public class ContainerBuilder {
         return this;
     }
 
+    public ContainerBuilder addContainerName(String name) {
+        configuration.setContainerName(name);
+        return this;
+    }
+
     public ContainerBuilder addReadOnly(boolean b) {
         configuration.setReadonlyRootfs(b);
         return this;
@@ -269,16 +374,43 @@ public class ContainerBuilder {
         //. directory is the root of the project, but docker-compose . means relative to docker-compose file, so we resolve the full path
         //and to no add full path we relativize to docker-compose
 
-        Path fullDirectory = this.dockerComposeRootLocation.resolve(buildPath);
-        Path relativize = this.dockerComposeRootLocation.relativize(fullDirectory);
+        Path buildPathPath = Paths.get(buildPath);
 
-        BuildImage buildImage = new BuildImage(relativize.toString(), dockerfile, true, true);
+        Path calculatedPath;
+        if (buildPathPath.isAbsolute()) {
+            calculatedPath = buildPathPath;
+        } else {
+            Path fullDirectory = this.dockerComposeRootLocation.resolve(buildPath);
+            calculatedPath = this.dockerComposeRootLocation.relativize(fullDirectory);
+        }
+
+        BuildImage buildImage = new BuildImage(calculatedPath.toString(), dockerfile, true, true);
         configuration.setBuildImage(buildImage);
         return this;
     }
 
     public ContainerBuilder addCommand(String command) {
-        configuration.setCmd(Arrays.asList(command));
+        addCommands(Arrays.asList(command.split("\\ ")));
+        return this;
+    }
+
+    public ContainerBuilder addCommands(Collection<String> commands) {
+        configuration.setCmd(commands);
+        return this;
+    }
+
+    public ContainerBuilder addDependsOn(Collection<String> dependsOn) {
+        Collection<String> listOfDependsOn = new HashSet<>();
+        for (String link : dependsOn) {
+            listOfDependsOn.add(link);
+        }
+
+        if (configuration.getDependsOn() != null) {
+            Collection<String> oldDependsOn = configuration.getDependsOn();
+            oldDependsOn.addAll(listOfDependsOn);
+        } else {
+            configuration.setDependsOn(listOfDependsOn);
+        }
         return this;
     }
 
@@ -304,17 +436,32 @@ public class ContainerBuilder {
             switch (elements.length) {
                 case 1: {
                     //random host port
-                    listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
+                    if (port.contains("-")) {
+                        getExpandedPorts(port).stream()
+                                .forEach(expandedPort -> listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + expandedPort)));
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(getRandomPort() + "->" + elements[0]));
+                    }
                     break;
                 }
                 case 2: {
                     //hostport:containerport
-                    listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
+                    if (port.contains("-")) {
+
+                        listOfPorts.addAll(addPairPortRange(elements[0], elements[1], null));
+
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(port.replaceAll(":", "->")));
+                    }
                     break;
                 }
                 case 3: {
                     //host:hostport:containerport
-                    listOfPorts.add(PortBinding.valueOf(elements[0] + ":" + elements[1] + "->" + elements[2]));
+                    if (port.contains("-")) {
+                        listOfPorts.addAll(addPairPortRange(elements[1], elements[2], elements[0]));
+                    } else {
+                        listOfPorts.add(PortBinding.valueOf(elements[0] + ":" + elements[1] + "->" + elements[2]));
+                    }
                     break;
                 }
             }
@@ -327,6 +474,42 @@ public class ContainerBuilder {
             configuration.setPortBindings(listOfPorts);
         }
         return this;
+    }
+
+    private Collection<PortBinding> addPairPortRange(String hostRangePorts, String containerRangePorts, String host) {
+        Collection<PortBinding> listOfPorts = new ArrayList<>();
+        final List<String> expandedHostPorts = getExpandedPorts(hostRangePorts);
+        final List<String> expandedContainerPorts = getExpandedPorts(containerRangePorts);
+
+        if (expandedContainerPorts.size() != expandedHostPorts.size()) {
+            throw new IllegalArgumentException("Port ranges from host and container side should contain same number of ports");
+        }
+
+        for (int i=0; i < expandedHostPorts.size(); i++) {
+            if (host == null) {
+                listOfPorts.add(PortBinding.valueOf(expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
+            } else {
+                listOfPorts.add(PortBinding.valueOf(host + ":" + expandedHostPorts.get(i) + "->" + expandedContainerPorts.get(i)));
+            }
+        }
+
+        return listOfPorts;
+    }
+
+    private List<String> getExpandedPorts(String expression) {
+        String[] portRange = expression.split("-");
+
+        if (portRange.length != 2) {
+            throw new IllegalArgumentException("Expected Port Range expression but found " + expression);
+        }
+
+        int initialPort = Integer.parseInt(portRange[0].trim());
+        int endPort = Integer.parseInt(portRange[1].trim()) + 1;
+
+        return IntStream.range(initialPort, endPort).boxed()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
     }
 
     public ContainerBuilder addExpose(Collection<String> exposes) {
@@ -348,8 +531,19 @@ public class ContainerBuilder {
             Collection<String> oldVolumes = configuration.getVolumes();
             oldVolumes.addAll(volumes);
         } else {
-            configuration.setVolumes(new HashSet<String>(volumes));
+            configuration.setVolumes(new HashSet<>(volumes));
         }
+        return this;
+    }
+
+    public ContainerBuilder addBinds(Collection<String> volumes) {
+        if (configuration.getBinds() != null) {
+            Collection<String> oldBinds = configuration.getBinds();
+            oldBinds.addAll(volumes);
+        } else {
+            configuration.setBinds(new HashSet<>(volumes));
+        }
+
         return this;
     }
 
@@ -469,6 +663,11 @@ public class ContainerBuilder {
 
     private ContainerBuilder addCpuSet(String cpuSet) {
         configuration.setCpuSet(cpuSet);
+        return this;
+    }
+
+    public ContainerBuilder addCpuQuota(int cpuQuota) {
+        configuration.setCpuQuota(cpuQuota);
         return this;
     }
 

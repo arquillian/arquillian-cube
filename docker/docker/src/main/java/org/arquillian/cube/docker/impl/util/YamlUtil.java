@@ -44,5 +44,4 @@ public class YamlUtil {
     public static final long asLong(Map<String, Object> map, String property) {
         return (long) map.get(property);
     }
-
 }

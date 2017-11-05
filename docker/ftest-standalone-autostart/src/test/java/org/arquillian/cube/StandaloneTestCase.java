@@ -1,26 +1,33 @@
 package org.arquillian.cube;
 
-import org.hamcrest.CoreMatchers;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.junit.InSequence;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.jboss.arquillian.junit.InSequence;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Arquillian.class)
+@RunWith(ArquillianConditionalRunner.class)
+@RequiresDockerMachine(name = "dev")
 public class StandaloneTestCase {
 
     @HostIp
     String ip;
+
+    @DockerUrl(containerName = "pingpong", exposedPort = 8080)
+    @ArquillianResource
+    private URL url;
 
     @Test
     @InSequence(0)
@@ -34,13 +41,22 @@ public class StandaloneTestCase {
         assertThat(pong, containsString("OK"));
     }
 
+    @Test
+    @InSequence(2)
+    public void should_be_able_to_inject_url_in_standalone() {
+        assertThat(url, is(notNullValue()));
+        assertThat(url.getProtocol(), is("http"));
+        assertThat(url.getHost(), is(ip));
+        assertThat(url.getPort(), is(80));
+    }
+
     private String ping() throws IOException {
-        URL url = new URL("http://" + ip + ":8080");
+        URL url = new URL("http://" + ip + ":80");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
+            new InputStreamReader(con.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -51,6 +67,4 @@ public class StandaloneTestCase {
 
         return response.toString();
     }
-
-
 }

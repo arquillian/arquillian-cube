@@ -1,0 +1,21 @@
+version: '2'
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile-alternative
+    ports:
+      - "8000:8000"
+    volumes:
+      - "/data"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB0:/dev/ttyUSB0:rm"
+  webapp2:
+    image: ubuntu
+    ports:
+      - "8080:8080"
+    links:
+      - webapp:webapp
+    environment:
+      - RACK_ENV=development

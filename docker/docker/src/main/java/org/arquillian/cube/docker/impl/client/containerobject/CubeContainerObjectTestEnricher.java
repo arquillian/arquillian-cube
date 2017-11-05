@@ -1,333 +1,129 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
-
-import org.arquillian.cube.CubeController;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ArrayUtils;
+import org.arquillian.cube.ContainerObjectConfiguration;
+import org.arquillian.cube.ContainerObjectFactory;
 import org.arquillian.cube.containerobject.Cube;
-import org.arquillian.cube.containerobject.CubeDockerFile;
-import org.arquillian.cube.HostPort;
-import org.arquillian.cube.containerobject.Image;
+import org.arquillian.cube.containerobject.Environment;
 import org.arquillian.cube.containerobject.Link;
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.containerobject.Volume;
+import org.arquillian.cube.docker.impl.await.PollingAwaitStrategy;
+import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.model.DockerCube;
-import org.arquillian.cube.docker.impl.util.ContainerObjectUtil;
-import org.arquillian.cube.docker.impl.util.DockerFileUtil;
-import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.util.ReflectionUtil;
-import org.arquillian.cube.spi.CubeRegistry;
-import org.arquillian.cube.spi.metadata.HasPortBindings;
-import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
-import org.arquillian.cube.spi.metadata.IsContainerObject;
-import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.arquillian.test.spi.TestEnricher;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
 
 public class CubeContainerObjectTestEnricher implements TestEnricher {
 
     private static final Logger logger = Logger.getLogger(CubeContainerObjectTestEnricher.class.getName());
 
-    @Inject Instance<CubeRegistry> cubeRegistryInstance;
-    @Inject Instance<ServiceLoader> serviceLoader;
-    @Inject Instance<CubeController> cubeControllerInstance;
-    @Inject Instance<DockerClientExecutor> dockerClientExecutorInstance;
-    @Inject Instance<Injector> injectorInstance;
+    @Inject Instance<ContainerObjectFactory> containerObjectFactoryInstance;
+
+    private static ContainerObjectConfiguration extractConfigFrom(Field field) {
+        return new CubeContainerObjectConfiguration(extractCubeContainerFrom(field));
+    }
+
+    private static CubeContainer extractCubeContainerFrom(Field field) {
+        final CubeContainer cubeContainer = new CubeContainer();
+
+        final Cube cubeAnnotation = field.getAnnotation(Cube.class);
+        if (cubeAnnotation == null) {
+            throw new IllegalArgumentException(
+                String.format("Field %s requires to be annotated with %s annotation", field.getName(),
+                    Cube.class.getSimpleName()));
+        }
+
+        // cubeName from Cube::value()
+        final String cubeName = cubeAnnotation.value();
+        if (cubeName != null && !Cube.DEFAULT_VALUE.equals(cubeName)) {
+            cubeContainer.setContainerName(cubeName);
+        }
+
+        // port bindings from Cube::portBinding()
+        final String[] portBindingsFromAnnotation = cubeAnnotation.portBinding();
+        if (portBindingsFromAnnotation != null && !Arrays.equals(portBindingsFromAnnotation, Cube.DEFAULT_PORT_BINDING)) {
+            final List<PortBinding> portBindings = Arrays.stream(portBindingsFromAnnotation)
+                .map(PortBinding::valueOf)
+                .collect(Collectors.toList());
+            cubeContainer.setPortBindings(portBindings);
+        }
+
+        // await using PollingStrategy with Cube::awaitPorts()
+        final int[] awaitPortsFromAnnotation = cubeAnnotation.awaitPorts();
+        if (awaitPortsFromAnnotation != null && !Arrays.equals(awaitPortsFromAnnotation,
+            Cube.DEFAULT_AWAIT_PORT_BINDING)) {
+            final Await await = new Await();
+            await.setStrategy(PollingAwaitStrategy.TAG);
+            await.setPorts(Arrays.asList(ArrayUtils.toObject(awaitPortsFromAnnotation)));
+            cubeContainer.setAwait(await);
+        }
+
+        // environment variables from Environment annotations
+        final Environment[] environmentVariablesFromAnnotations = field.getAnnotationsByType(Environment.class);
+        if (environmentVariablesFromAnnotations != null && environmentVariablesFromAnnotations.length > 0) {
+            final List<String> environmentVariables = Arrays.stream(environmentVariablesFromAnnotations)
+                .map(environment -> environment.key() + "=" + environment.value())
+                .collect(Collectors.toList());
+            cubeContainer.setEnv(environmentVariables);
+        }
+
+        // volumes from Volume annotations
+        final Volume[] volumesFromAnnotations = field.getAnnotationsByType(Volume.class);
+        if (volumesFromAnnotations != null && volumesFromAnnotations.length > 0) {
+            final List<String> volumeBindings = Arrays.stream(volumesFromAnnotations)
+                .map(volume -> volume.hostPath() + ":" + volume.containerPath() + ":rw")
+                .collect(Collectors.toList());
+            cubeContainer.setBinds(volumeBindings);
+        }
+
+        // links from link annotations
+        final Link[] linksFromAnnotations = field.getAnnotationsByType(Link.class);
+        if (linksFromAnnotations != null && linksFromAnnotations.length > 0) {
+            final List<org.arquillian.cube.docker.impl.client.config.Link> links = Arrays.stream(linksFromAnnotations)
+                .map(Link::value)
+                .map(org.arquillian.cube.docker.impl.client.config.Link::valueOf)
+                .collect(Collectors.toList());
+            cubeContainer.setLinks(links);
+        }
+
+        return cubeContainer;
+    }
 
     @Override
     public void enrich(Object testCase) {
-        enrichAndReturnLinks(testCase);
-    }
-
-    private Set<String> enrichAndReturnLinks(Object testCase) {
         List<Field> cubeFields = ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), Cube.class);
-        Set<String> links = new HashSet<>();
         if (cubeFields.size() > 0) {
             for (Field cubeField : cubeFields) {
                 try {
                     logger.fine(String.format("Creating Container Object for field %s", cubeField.getName()));
-                    links.add(enrichField(testCase, cubeField));
+                    enrichField(testCase, cubeField);
                 } catch (IllegalAccessException e) {
-                    throw new IllegalArgumentException(e);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException(e);
-                } catch (InvocationTargetException e) {
                     throw new IllegalArgumentException(e);
                 }
             }
         }
-
-        return links;
     }
 
-    /**
-     *
-     * @param testCase
-     * @param field
-     * @return returns the name of the cube if this cube would be linked by its parent, or null
-     * @throws IllegalAccessException
-     * @throws IOException
-     * @throws InvocationTargetException
-     */
-    private String enrichField(Object testCase, Field field) throws IllegalAccessException, IOException, InvocationTargetException {
+    private void enrichField(Object testCase, Field field) throws IllegalAccessException {
         final Object cubeContainerObject = field.get(testCase);
         if (cubeContainerObject == null) {
-            final Cube cubeAnnotation = field.getAnnotation(Cube.class);
 
             final Class<?> cubeContainerClazz = field.getType();
 
-            final String cubeName = getCubeName(cubeAnnotation, cubeContainerClazz);
-            final String[] cubePortBinding = getPortBindings(cubeAnnotation, cubeContainerClazz);
-
-            //First we check if this ContainerObject is defining a @CubeDockerFile in static method
-            final List<Method> methodsWithCubeDockerFile = ReflectionUtil.getMethodsWithAnnotation(cubeContainerClazz, CubeDockerFile.class);
-
-            if (methodsWithCubeDockerFile.size() > 1 ) {
-                throw new IllegalArgumentException(
-                        String.format("More than one %s annotation found and only one was expected. Methods where %s was found are; %s", CubeDockerFile.class.getSimpleName(), CubeDockerFile.class.getSimpleName(), methodsWithCubeDockerFile));
-            }
-
-            // User has defined @CubeDockerfile and @Image
-            if ((methodsWithCubeDockerFile.size() == 1 || cubeContainerClazz.isAnnotationPresent(CubeDockerFile.class)) && cubeContainerClazz.isAnnotationPresent(Image.class)) {
-                throw new IllegalArgumentException(String.format("Container Object %s has defined %s annotation and %s annotation together.", cubeContainerClazz.getSimpleName(), Image.class.getSimpleName(), CubeDockerFile.class.getSimpleName()));
-            }
-
-            File output = null;
-            boolean imageSet = false;
-            CubeDockerFile cubeContainerClazzAnnotation = null;
-            // @Dockerfile is defined as static method
-            if(methodsWithCubeDockerFile.size() == 1) {
-                Method annotatedMethodWithCubeDockerFile = methodsWithCubeDockerFile.get(0);
-                cubeContainerClazzAnnotation = annotatedMethodWithCubeDockerFile.getAnnotation(CubeDockerFile.class);
-                final Object archive = annotatedMethodWithCubeDockerFile.invoke(null, new Object[0]);
-                if (archive instanceof Archive) {
-                    Archive<?> genericArchive = (Archive<?>) archive;
-                    output = createTemporalDirectoryForCopyingDockerfile(cubeContainerClazz, cubeName);
-                    logger.finer(String.format("Created %s directory for storing contents of %s cube.", output, cubeName));
-                    genericArchive.as(ExplodedExporter.class).exportExplodedInto(output);
-                }
-
-            } else {
-                // @Dockerfile is defined at class level
-                if (cubeContainerClazz.isAnnotationPresent(CubeDockerFile.class)) {
-                    cubeContainerClazzAnnotation = cubeContainerClazz.getAnnotation(CubeDockerFile.class);
-
-                    //Copy Dockerfile and all contains of the same directory in a known directory.
-                    output = createTemporalDirectoryForCopyingDockerfile(cubeContainerClazz, cubeName);
-                    logger.finer(String.format("Created %s directory for storing contents of %s cube.", output, cubeName));
-
-                    DockerFileUtil.copyDockerfileDirectory(cubeContainerClazz, cubeContainerClazzAnnotation, output);
-                } else {
-                    // If there is no annotation
-                    if (!cubeContainerClazz.isAnnotationPresent(Image.class)) {
-                        throw new IllegalArgumentException(String.format("Test class %s has a ContainerObject %s that is not annotated with %s or %s annotation.", testCase.getClass().getName(), cubeContainerClazz.getName(), CubeDockerFile.class.getSimpleName(), Image.class.getSimpleName()));
-                    }
-                    // We have set the image
-                    imageSet = true;
-                }
-            }
-
-            //Creates ContainerObject
-            final Object containerObjectInstance = ReflectionUtil.newInstance(cubeContainerClazz.getName(), new Class[0], new Class[0], cubeContainerClazz);
-            enrichContainerObject(containerObjectInstance);
+            final ContainerObjectConfiguration configuration = extractConfigFrom(field);
+            final Object containerObjectInstance =
+                containerObjectFactoryInstance.get().createContainerObject(cubeContainerClazz, configuration, testCase);
             field.set(testCase, containerObjectInstance);
-
-            // Get all fields annotated with @Cube (means they are inner containers).
-            // Then call recursively enrich method again.
-            // To reuse the same logic we call the enrich method but instead of passing a testcase class, we pass the container object instance
-            final Set<String> links = enrichAndReturnLinks(containerObjectInstance);
-
-            //Starts the cube.
-            // Since it is called after the enrichment they will be created in correct order
-
-            //Creates Cube and Registers into the Cube Registry
-
-            org.arquillian.cube.spi.Cube<?> cube;
-            if (imageSet) {
-                cube = createCubeFromImage(cubeName, cubePortBinding, links, cubeContainerClazz.getAnnotation(Image.class), output, testCase.getClass());
-            } else {
-                cube = createCubeFromDockerfile(cubeName, cubePortBinding, links, cubeContainerClazzAnnotation, output, testCase.getClass());
-            }
-
-            logger.finer(String.format("Created Cube with name %s and configuration %s", cubeName, cube.configuration()));
-            cubeRegistryInstance.get().addCube(cube);
-
-            CubeController cubeController = cubeControllerInstance.get();
-            cubeController.create(cubeName);
-            cubeController.start(cubeName);
-
-            // It is not a native Arquillian Enricher to avoid to be used wrongly in a none container object.
-            // Since it is only has sense in case of container object that it is running one container in the scope.
-            // Moreover it has no much sense to get this information in case of not using container object pattern.
-            enrichHostPort(containerObjectInstance, cube);
-
-
-            return link(field, cubeName);
         }
-        return null;
-    }
-
-    private void enrichHostPort(Object containerObjectInstance, org.arquillian.cube.spi.Cube<?> cube) throws IllegalAccessException {
-        final List<Field> fieldsWithHostPort = ReflectionUtil.getFieldsWithAnnotation(containerObjectInstance.getClass(), HostPort.class);
-        if (fieldsWithHostPort.isEmpty()) {
-            return;
-        }
-
-        final HasPortBindings portBindings = cube.getMetadata(HasPortBindings.class);
-        if (portBindings == null) {
-            throw new IllegalArgumentException(String.format("Container Object %s contains fields annotated with %s but no ports are exposed by the container", containerObjectInstance.getClass().getSimpleName(), HostPort.class.getSimpleName()));
-        }
-
-        for ( Field field : fieldsWithHostPort) {
-            final HostPort hostPort = field.getAnnotation(HostPort.class);
-            int hostPortValue = hostPort.value();
-            if (hostPortValue > 0) {
-                final PortAddress bindingForExposedPort = portBindings.getMappedAddress(hostPortValue);
-                if (bindingForExposedPort != null) {
-                    field.set(containerObjectInstance, bindingForExposedPort.getPort());
-                } else {
-                    throw new IllegalArgumentException(String.format("Container Object %s contains field %s annotated with %s but exposed port %s is not exposed on container object.", containerObjectInstance.getClass().getSimpleName(), field.getName(), HostPort.class.getSimpleName(), hostPortValue));
-                }
-            } else {
-                throw new IllegalArgumentException(String.format("Container Object %s contains field %s annotated with %s but do not specify any exposed port", containerObjectInstance.getClass().getSimpleName(), field.getName(), HostPort.class.getSimpleName()));
-            }
-        }
-    }
-
-    private String link(Field field, String cubeName) {
-        if (field.isAnnotationPresent(Link.class)) {
-            return field.getAnnotation(Link.class).value();
-        } else {
-            return cubeName + ":" + cubeName;
-        }
-    }
-
-
-    private String getCubeName(Cube fieldAnnotation, Class<?> cubeContainerClass) {
-        final String cubeName = fieldAnnotation.value();
-        if (!Cube.DEFAULT_VALUE.equals(cubeName)) {
-            // We have found a valid cube name
-            return cubeName;
-        } else {
-            // Needs to check if container object or one of his parents contains a Cube
-            final String value = ContainerObjectUtil.getTopCubeAttribute(cubeContainerClass, "value", Cube.class, Cube.DEFAULT_VALUE);
-            if (value != null && !Cube.DEFAULT_VALUE.equals(value)) {
-                //We got the cubeName in containerobject
-                return value;
-            } else {
-                //No override so we need to use the default logic
-                return cubeContainerClass.getSimpleName();
-            }
-        }
-    }
-
-    private String[] getPortBindings(Cube fieldAnnotation, Class<?> cubeContainerClass) {
-        final String[] portBindings = fieldAnnotation.portBinding();
-        if (!Arrays.equals(portBindings, Cube.DEFAULT_PORT_BINDING)) {
-            //We found the port binding
-            return portBindings;
-        } else {
-            final String[] portBinding = ContainerObjectUtil.getTopCubeAttribute(cubeContainerClass, "portBinding", Cube.class, Cube.DEFAULT_PORT_BINDING);
-            if (portBinding != null && !Arrays.equals(portBinding, Cube.DEFAULT_PORT_BINDING)) {
-                // Container Object or one of his parents has a Cube with portBinding definition.
-                return portBinding;
-            }
-        }
-        return Cube.DEFAULT_PORT_BINDING;
-    }
-
-    private void enrichContainerObject(Object containerObjectInstance) {
-        final Collection<TestEnricher> testEnrichers = serviceLoader.get().all(TestEnricher.class);
-        for (TestEnricher testEnricher : testEnrichers) {
-            //To avoid recursive.
-            if (testEnricher != this && ! (testEnricher instanceof HostPortTestEnricher)) {
-                testEnricher.enrich(containerObjectInstance);
-            }
-        }
-    }
-
-
-    private org.arquillian.cube.spi.Cube<?> createCubeFromDockerfile(String cubeName, String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation, Class<?> testClass) {
-        CubeContainer configuration = createConfigurationFromDockerfie(portBinding, links, cubeContainerClazzAnnotation, dockerfileLocation);
-        DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
-        newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
-        injectorInstance.get().inject(newCube);
-        return newCube;
-    }
-
-    private org.arquillian.cube.spi.Cube<?> createCubeFromImage(String cubeName, String[] portBinding, Set<String> links, Image image, File dockerfileLocation, Class<?> testClass) {
-        final CubeContainer configuration = createConfigurationFromImage(portBinding, links, image, dockerfileLocation);
-        DockerCube newCube = new DockerCube(cubeName, configuration, dockerClientExecutorInstance.get());
-        newCube.addMetadata(IsContainerObject.class, new IsContainerObject(testClass));
-        injectorInstance.get().inject(newCube);
-        return newCube;
-    }
-
-    private CubeContainer createConfigurationFromDockerfie(String[] portBinding, Set<String> links, CubeDockerFile cubeContainerClazzAnnotation, File dockerfileLocation) {
-        CubeContainer configuration = new CubeContainer();
-
-        List<PortBinding> bindings = new ArrayList<PortBinding>();
-        for(String binding : portBinding) {
-            bindings.add(PortBinding.valueOf(binding));
-        }
-        configuration.setPortBindings(bindings);
-
-        if (links.size() > 0) {
-            configuration.setLinks(org.arquillian.cube.docker.impl.client.config.Link.valuesOf(links));
-        }
-
-        BuildImage dockerfileConfiguration = new BuildImage(
-                dockerfileLocation.getAbsolutePath(),
-                null,
-                cubeContainerClazzAnnotation.nocache(),
-                cubeContainerClazzAnnotation.remove());
-
-        configuration.setBuildImage(dockerfileConfiguration);
-        return configuration;
-    }
-
-    private CubeContainer createConfigurationFromImage(String[] portBinding, Set<String> links, Image image, File dockerfileLocation) {
-        CubeContainer configuration = new CubeContainer();
-
-        List<PortBinding> bindings = new ArrayList<PortBinding>();
-        for(String binding : portBinding) {
-            bindings.add(PortBinding.valueOf(binding));
-        }
-        configuration.setPortBindings(bindings);
-
-        if (links.size() > 0) {
-            configuration.setLinks(org.arquillian.cube.docker.impl.client.config.Link.valuesOf(links));
-        }
-
-        configuration.setImage(org.arquillian.cube.docker.impl.client.config.Image.valueOf(image.value()));
-        return configuration;
-    }
-
-    private File createTemporalDirectoryForCopyingDockerfile(Class<?> cubeContainerClazz, String id) throws IOException {
-        File dir = File.createTempFile(cubeContainerClazz.getSimpleName(), id);
-        dir.delete();
-        if (!dir.mkdirs()) {
-            throw new IllegalArgumentException("Temp Dir for storing Dockerfile contents could not be created.");
-        }
-        dir.deleteOnExit();
-        return dir;
     }
 
     @Override

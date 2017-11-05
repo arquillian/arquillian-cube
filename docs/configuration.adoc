@@ -1,0 +1,630 @@
+== Configuration
+
+*Arquillian Cube* requires some parameters to be configured, some related with _Docker_ server and others related on the image that is being used.
+Let's see valid attributes:
+
+[cols="2*"]
+|===
+|serverVersion
+|Version of REST API provided by _Docker_ server. You should check on the _Docker_ site which version of REST API is shipped inside installed _Docker_ service. This field is not mandatory and if it's not set the default provided version from _docker-java_ will be used.
+
+|serverUri
+|Uri of _Docker_ server. If the _Docker_ server is running natively on Linux then this will be an URI pointing to _localhost_ docker host but if you are using _Boot2Docker_ or a remote _Docker_ server then the URI should be changed to point to the _Docker_ remote _URI_. It can be a unix socket URI as well in case you are running _Docker_ on Linux (+unix:///var/run/docker.sock+). If the URI has `http://` or `https://` scheme, the `tlsVerify` attribute will be set by Cube to `false` or `true` respectively. Also you can read at <<automatic-resolution, this section>> about automatic resolution of serverUri parameter. Also you can use `DOCKER_HOST` java property or system environment to set this parameter.
+
+|dockerRegistry
+|Sets the location of Docker registry. Default value is the official _Docker_ registry located at https://registry.hub.docker.com
+
+|username
+|Sets the username to connect to Docker registry.
+
+|password
+|Sets the password to connect to Docker registry.
+
+|dockerContainers
+|Each _Docker_ image (or container) can be configured with different parameters. This configuration is provided in YAML format. This property can be used to embed as YAML string value, all configuration.
+
+|dockerContainersFile
+|Instead of embedding YAML as a string, you can set the location of a YAML file with this attribute. The location can be a relative from the root of the project or also a URI that is converted to URL so you can effectively have docker definitions on remote sites.
+
+|dockerContainersFiles
+|You can set a list of locations separated by comma. These locations follow the same rules as `dockerContainersFile` so it can be a file or an URI. This property can be used to append the definitions from several files.
+
+|definitionFormat
+|Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ (default one in case of not set) to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
+
+|cubeSpecificProperties
+|In case you are using COMPOSE format, you cannot configure cube custom properties like `await` or `beforeStop`. This property allows you to add them in already defined containers.
+
+|autoStartContainers
+|Cube will normally start a _Docker_ container when it has the same name as an active _Arquillian_ container and all the containers defined as links to this container, so basically _Cube_ resolves all the container dependencies as well e.g. a database where the application saves data, or mail server where application sends an email. That works for things that are _DeployableContainer_'s. In case of defining networks instead of links, Cube will start *only* all the containers that belongs to a network defined inside definition file. For any other container services that might not have a link to the _DeployableContainer_, e.g. a monitor, you can use the _autoStartContainers_ option to define which _Docker_ containers to automatically start up. The option takes a comma separated list of _Docker_ container ids. e.g. _monitor_. *Arquillian Cube* will attempt to start the containers in parallel if possible as well as start any linked containers. Also if you need to start several images, instead of adding them as CSV, you can use a regular expression by prefixing with `regexp:`, for example setting the property to `regexp:a(.*)` would start all container ids starting with _a_, or you can add a custom implementation of `org.arquillian.cube.spi.AutoStartParser` by using reserved word `custom:` and the full qualified class name.
+
+|autoStartOrder
+|Property to set a new strategy for starting Cubes. Normally the default one is enough but in some cases, if you need to modify it or provide a custom one you can use this property. You need to set the fully qualified name of a class implementing `org.arquillian.cube.spi.AutoStartOrder`.
+
+|tlsVerify
+|Boolean to set if Cube should connect to Docker server with TLS. This attribute will be ignored if `serverUri` attribute starts with `http://` or `https://`.
+
+|certPath
+|Path where certificates are stored. If you are not using _https_ protocol this parameter is not required. This parameter accepts starting with ~ as home directory.
+
+|boot2dockerPath
+|Sets the full location (and program name) of _boot2docker_. For example +/opt/boot2dockerhome/boot2docker+.
+
+|dockerMachinePath
+|Sets the full location (and program name) of _docker-machine_. For example +/opt/dockermachinehome/docker-machine+.
+
+|machineName
+|Sets the machine name in case you are using docker-machine to manage your docker host. This parameter is mandatory when using docker-machine with more than one running machine. In case of having only one docker machine running, it is not necessary to set it since it is auto resolved by cube.
+
+|machineDriver
+|Sets the machine driver in case you are using _docker-machine_, _Cube_ will create a machine using this driver. This parameter is mandatory when docker-machine is not installed.
+
+|dockerMachineCustomPath
+|Sets the custom location where _docker-machine_ will be downloaded. Default value: ~/.arquillian/machine.
+
+|dockerInsideDockerResolution
+|Boolean to set if Cube should detect that tests are run inside an already started Docker container, so Docker containers started by Cube could be run using DinD (Docker Inside Docker) or DoD (docker On Docker). Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`. By default its value is true. If you want to use an external dockerhost, then you need to set this property to false.
+
+|clean
+|Sometimes you might left some container running inside your docker host with the same name as one defined for Cube test. At these cases Arquillian Cube (actually Docker) complains of a conflict of trying to create a container name that it is already running. If you want that Cube automatically removes these containers you can set this property to true. By default is false.
+
+|removeVolumes
+|Boolean to set if Cube should also remove the volumes associated with a container when removing the container. By default is true. Can be overwritten on container level.
+
+|cleanBuildImage
+|Boolean to set if you set to true all images built by cube are removed and if false no built images are removed. If image is not built by cube it should not be removed. By default is true.
+
+
+|connectionMode
+|Connection Mode to bypass the Create/Start Cube commands if the a Docker Container with the same name is already running on the target system. This parameter can receive three possible values. _STARTANDSTOP_ which is the default one if not set any and simply creates and stops all Docker Containers. If a container is already running, an exception is thrown. _STARTORCONNECT_ mode tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution. And last mode is _STARTORCONNECTANDLEAVE_ which is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions. *This is a Cube property, not a Docker one*, thus it should be inside a <extension qualifier="cube"> tag. See link:#allow-connecting-to-a-running-container[here] for an example.
+
+|ignoreContainersDefinition
+|If you set to true then Arquillian Cube will ignore definitions set in `dockerContainers`, `dockerContainersFile` and `dockerContainersFiles` as well as default locations. By default is set to false.
+|===
+
+Some of these properties can be provided by using standard Docker system environment variables so you can set once and use them in your tests too.
+Moreover you can set as Java system properties (-D...) as well.
+
+[cols="2*"]
+|===
+|serverUri
+|DOCKER_HOST
+
+|certPath
+|DOCKER_CERT_PATH
+
+|machineName
+|DOCKER_MACHINE_NAME
+|===
+
+
+[IMPORTANT]
+====
+If `dockerContainers`, `dockerContainersFile` or `dockerContainersFiles` are not set Arquillian Cube automatically search a file named `docker-compose.y(a)ml` into next places and in following order:
+
+. `src/{test, main}/docker` having more priority `test location than `main` location.
+. `Root` directory of project
+. `src/distribution`
+. `src/{test, main}/resources/docker` having more priority `test location than `main` location.
+. `src/{test, main}/resources` having more priority `test location than `main` location.
+====
+
+In the next example you can see a whole YAML document with configuration properties.
+Keep in mind that almost all of them are configuration parameters provided by _Docker_ remote API.
+In this example we are going to explain the attributes that are most used and special cases.
+Of course not all of them are mandatory:
+
+NOTE: In YAML adding brackets ("[" "]") is for setting a list.
+
+[[cube-format]]
+[source, yaml]
+----
+tomcat: # <1>
+  image: tutum/tomcat:7.0 # <2>
+  exposedPorts: [8089/tcp] # <3>
+  await: # <4>
+    strategy: polling # <5>
+  workingDir: .
+  alwaysPull: false
+  disableNetwork: true
+  hostName: host
+  portSpecs: [80,81]
+  user: alex
+  tty: true
+  stdinOpen: true
+  stdinOnce: true
+  memoryLimit: 1
+  memorySwap: 1
+  cpuShares: 1
+  cpuQuota: 1
+  shmSize: 64
+  cpuSet: a
+  extraHosts: a
+  attachStdin: true
+  attachStderr: true
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089] # <6>
+  cmd: [] # <7>
+  dns: [127.0.0.1]
+  volumes: [/tmp]
+  volumesFrom: [tomcat]
+  removeVolumes: true
+  binds:
+    - /host:/container:ro
+  links:
+    - name:alias
+    - name2:alias2
+  portBindings: [8089/tcp, 8081->8080/tcp] # <8>
+  privileged: true
+  publishAllPorts: true
+  networkMode: host
+  dnsSearch: [127.0.0.1]
+  entryPoint: [sh]
+  devices:
+    cGroupPermissions: a
+    pathOnHost: b
+    pathInContainer: c
+  restartPolicy:
+    name: failure
+    maximumRetryCount: 1
+  capAdd: [a]
+  capDrop: [b]
+  extends: container-id # <9>
+  manual: true # <10>
+  killContainer: true # <11>
+----
+<1> The name that are going to be assign to running container. It is *mandatory*.
+<2> The name of the image to be used. It is *mandatory*. If the image has not already been pulled by the _Docker_ server, *Arquillian Cube* will pull it for you. If you want to always pull latest image before container is created, you can configure *alwaysPull: true*.
+<3> Sets exposed ports of the running container. It should follow the format _port number_ slash(/) and _protocol (udp or tcp). Note that it is a list and it is not mandatory.
+<4> After a container is started, it starts booting up the defined services/commands. Depending on the nature of service, the lifecycle of these services are linked to start up or not. For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the client, the container never finishes to start. But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there. To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready. It is not mandatory and by default polling with _ss_ command strategy is used.
+<5> In +strategy+ you set which strategy you want to follow. Currently three strategies are supported. _static_, _native_ and _polling_.
+<6> You can pass environment variables by using `env`. In this section you can set special `dockerServerIp` string which at runtime will be replaced by _Cube_ to current docker server ip.
+<7> After the container is up, a list of commands can be executed within it.
+<8> Port forwarding is configured using `portBinding` section. It contains a list of `exposedPort` and `port` separated by arrow (_->_). If only one port is provided, *Arquillian Cube* will expose the same port number. In this example the exposed port 8089 is mapped to 8089 and exposed port 8080 is mapped to 8081.
+<9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
+<10> You can use `manual` to indicate that this container is going to be started or in the test manually using `CubeController` or started by an extension. This attribute is ingorned in case of arquillian containers (none autostart containers) or in case of a linked container that comes from a none manual container.
+<11> Kills the container instead of stopping it normally. By default is false so containers are stopped.
+
+As we've seen in the basic example the definition of the Arquillian Cube scenarios are described in `dockerContainers` property.
+But if you want you can avoid using this property by simply creating a file called `cube` in the root of the classpath of your project.
+_Arquillian Cube_ will read it as if it was defined in `arquilllian.xml` file.
+
+[source, yaml]
+.src/test/resources/cube
+----
+tomcat:
+  image: tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: polling
+  env: [TOMCAT_PASS=mypass, JAVA_OPTS=-Dcom.sun.management.jmxremote.port=8089 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false]
+  portBindings: [8089/tcp, 8080/tcp]
+----
+
+=== Networks
+
+You can define networks using cube format (Docker Compose v1 (the one supported by Cube) does not have support to networks.
+For defining them you only need to use the reserved word `networks`.
+
+[source, yml]
+.src/test/resources/cube
+----
+networks: # <1>
+   mynetwork: # <2>
+       driver: bridge # <3>
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  networkMode: mynetwork # <4>
+----
+<1> Reserved word to indicate start of network definition
+<2> Network name
+<3> Driver used. Currently this is the only supported property due not support in docker-java
+<4> Sets the network where container must join.
+
+You can also use `networks` to connect to more than one network:
+
+[source, yml]
+.src/test/resources/cube
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  networkMode: mynetwork
+  networks:
+    - mynetwork
+    - myothernetwork
+----
+
+=== cube.environment
+
+In case you use the `dockerContainersFile` to configure a YAML file (Cube format or Compose format) for loading the definition of your containers, you can use `cube.environment` system property to append a prefix to the file you want to load.
+
+For example, in case you set `dockerContainersFile` to `docker-compose.yml` and `cube.environment` not set, Cube loads a file named `docker-compose.yml`. But if `cube.environment` is set to *qa* (`-Dcube.environment=qa`), the Cube loads a file called `docker-compose.qa.yml`.
+
+This property is useful for loading different configurations depending on the environment you are running the tests.
+
+=== Await
+
+After a container is started, it starts booting up the defined services/commands.
+Depending on the nature of service, the lifecycle of these services are linked to start up or not.
+For example Tomcat, Wildlfy, TomEE and in general all Java servers must be started in foreground and this means that from the point of view of the _Docker_ client, the container never finishes to start.
+But on the other side other services like Redis are started in background and when the container is started you can be sure that Redis server is there.
+To avoid executing tests before the services are ready, you can set which await strategy should be used from *Arquillian Cube* side to accept that _Docker_ container and all its defined services are up and ready.
+
+Currently next await strategies are supported:
+
+native:: it uses *wait* command. In this case current thread is waiting until the _Docker_ server notifies that has started. In case of foreground services this is not the approach to be used.
+polling:: in this case a polling (with _ping_ or _ss_ command) is executed for 5 seconds against all exposed ports. When communication to all exposed ports is acknowledged, the container is considered to be up. This approach is the one to be used in case of services started in foreground. By default _polling_ executes _ss_ command inside the running container to know if the server is already running.
+Also you can use a _ping_ strategy from client by setting +type+ attribute to +ping+; Note that _ping_ only works if you are running _Docker_ daemon on +localhost+.
+You can also use `wait-for-it` script which is automatically downloaded, copied inside container and executed inside it. To do it you need to set `type` property to `waitforit`. In almost all cases the default behaviour matches all scenarios. If it is not specified, this is the default strategy.
+By default if you use _ss_ strategy but ss command is not installed into the container it fallsback automatically to waitforit strategy.
+static:: similar to _polling_ but it uses the host ip and specified list of ports provided as configuration parameter. This can be used in case of using _Boot2Docker_.
+sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
+log:: it looking for a specified pattern in container log to detect service startup. This can be used when there is no port to connect or connecting to the port successfully doesn't mean the service is fully initialized.
+http:: polls through a configured http endpoint checking for http response code and optionally the answer content or headers.
+<fullyqualifiedclassname>:: if you specify a fully qualified class name, Arquillian Cube will instantiate the given class. In this way you can implement your own await strategies. There are two rules to follow, the first one is that class must implement `AwaitStrategy` and the second one is that one default constructor must be provided. Optionally you can add fields/setters for types `Cube`, `DockerClientExecutor` or `Await` to inject them into the await strategy.
+
+By default in case you don't specify any _await_ strategy, polling with _ss_ command is used with automatic fallback to _wait-fo_it_ strategy.
+
+[source, yaml]
+.Example native
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: native
+----
+
+[source, yaml]
+.Example polling using ss command by default
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: polling
+    sleepPollingTime: 200 s # <1>
+    iterations: 3 # <2>
+----
+<1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+<2> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
+
+[source, yaml]
+.Example static
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: static
+    ip: localhost
+    ports: [8080, 8089]
+----
+
+[source, yaml]
+.Example sleeping
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: sleeping
+    sleepTime: 200 s # <1>
+----
+<1> Optional parameter to configure sleeping time between poling. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+
+[source, yaml]
+.Example log
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: log
+    match: 'Server startup' # <1>
+    stdOut: true # <2>
+    stdErr: true # <3>
+    timeout: 15 # <4>
+    occurrences: 2 # <5>
+----
+<1> Mandatory parameter to configure the pattern that signals the service started. To use regular expression just prefix the pattern with `regexp:`.
+<2> Optional parameter to enable scanning of _standard output_ log. Default is true.
+<3> Optional parameter to enable scanning of _standard error_ log. Default is false.
+<4> Optional parameter to configure timeout. It is expressed in seconds and by default is 15.
+<5> Optional parameter to configure the number of times that it should match. By default is 1.
+
+[source, yaml]
+.Example http
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: http
+    match: 'Server startup' # <1>
+    responseCode: 201 # <2>
+    url: http://dockerHost:8080 # <3>
+    sleepPollingTime: 200 s # <4>
+    iterations: 3 # <5>
+    headers:
+        X-Cube: Docker # <6>
+----
+<1> Parameter to configure the pattern that signals the service returned correctly value. To use regular expression just prefix the pattern with `regexp:`.
+<2> Optional parameter to set which response http code is the expected one from service. Default is 200.
+<3> Mandatory parameter that sets the url where to connect. `dockerHost` is substituted by Cube to Docker Host.
+<4> Optional parameter to configure sleeping time between each call in case of fail. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+<5> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
+<6> Optional parameter to check header's value returned by service.
+
+Custom Await strategy:
+
+[source, java]
+.org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
+----
+public class CustomAwaitStrategyImpl implements AwaitStrategy {
+
+  Await params;
+  DockerClientExecutor dockerClientExecutor;
+  Cube<?> cube;
+
+  public void setCube(Cube<?> cube) {
+    this.cube = cube;
+  }
+
+  public void setDockerClientExecutor(DockerClientExecutor dockerClientExecutor) {
+    this.dockerClientExecutor = dockerClientExecutor;
+  }
+
+  public void setParams(Await params) {
+     this.params = params;
+  }
+
+  @Override
+  public boolean await() {
+    return this.params != null && this.dockerClientExecutor != null && this.cube != null;
+  }
+}
+----
+
+and the configuration comes as:
+
+[source, yaml]
+.Example.yml
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
+----
+
+==== `@HealthCheck` annotation
+
+Sometimes default `await` strategy because when the service opens the port it does not mean that the service is up and running.
+For example in case of Tomcat, exposed port is opened when the application is deployed so default strategy works perfectly, but in case of Wildfly the port is opened when the server is up and running but not when the application has been deployed.
+
+To avoid this problem and continue using default `await` strategy you can annotate your test class with `@HealthCheck` annotation.
+
+By default annotating your test class with it, next default parameters are used:
+
+----
+context: /
+schema: http
+port: 8080
+method: GET
+containerName: null
+responseCode: 200
+iterations: 40
+interval: 500ms
+timeout: 2s
+----
+
+Each of these attributes are configurable with custom values.
+
+TIP: Time attributes like `timeout` and `interval` uses `docker-compose` durations approach of using timespan format such as `1m30s`.
+
+TIP: If `containerName` is set to null `port` attribute is used, otherwise `port` is considered an exposed port and it is resolved against the given container.
+
+==== `@Sleep` annotation
+
+Sometimes you need to sleep your execution for some specific amount of time and you have no way to do it using an http health check.
+In this situations a sleep might do the work.
+
+To avoid this problem and continue using default `await` strategy you can annotate your test class with `@Sleep` annotation which receives as value an string that represents a timespan.
+
+By default the time specified is in milliseconds so annotating the test class with `@Sleep("1000")` makes your test class sleeps 1 second before executing all test methods.
+You can also use the timespan format and write something like `@Sleep("1m30s")` which makes your test class sleeps for one minute and a half before executing all test methods.
+
+=== Inferring exposedPorts from portBinding
+
+When you are using _Docker_ you can set two different parameters, +exposedPort+ and +portBinding+.
++exposedPorts+ are ports that are available inside _Docker_ infrastructure and they are used for communication between _Docker_ containers but not from outside.
+On the other side +portBindings+ are a way to instruct _Docker_ container to publish a port to be available from outside (for example from our test).
+
+It seems reasonable that if you set a port binding this port should automatically be exposed port as well.
+For this reason in *Arquillian Cube* you can use +portBinding+ and it will automatically set to exposed port.
+
+In next example we are only setting +portBinding+ and *Arquillian Cube* will instruct _Docker_ to expose port 8080 and of course bind the port 8080 so it can be accessible from outside.
+
+[source, xml]
+.arquillian.xml
+----
+daytime:
+  buildImage:
+    dockerfileLocation: src/test/resources/undertow
+    noCache: true
+    remove: true
+  await:
+    strategy: polling
+  portBindings: [8080/tcp]
+----
+
+Also it is not necessary to set the network protocol (tcp or udp).
+If protocol is not specified `portBindings: ["8080"]` then _tcp_ is used by default.
+Notice that you need to add double-quotes to stringify the value.
+
+=== Allow connecting to a running container
+
+With the configuration option +connectionMode+ you can bypass
+the Create/Start Cube commands if the a _Docker_ Container with the same name is already
+running on the target system. If so, *Arquillian Cube* will reuse that Container moving forward.
+
+This allows you to prestart the containers manually during development and just
+connect to them to avoid the extra cost of starting the _Docker_ Containers for each test
+run. This assumes you are not changing the actual definition of the _Docker_ Container itself.
+
+An example of this configuration could be:
+
+[source, xml]
+.arquillian.xml
+----
+
+<extension qualifier="cube">
+  <property name="connectionMode">STARTORCONNECT</property>
+</extension>
+
+<extension qualifier="docker">
+  <property name="serverVersion">1.12</property>
+  <property name="serverUri">http://localhost:2375</property>
+  <property name="dockerContainers">
+      tomcat:
+        #more properties
+  </property>
+</extension>
+----
+
++connectionMode+ is an attribute that can receive three parameters:
+
+STARTANDSTOP:: it is the default one if not set any and simply creates and stops all _Docker_ Containers. If a container is already running, an exception is thrown.
+STARTORCONNECT:: it tries to bypass the Create/Start Cube commands if a container with the same name is already running, and if it is the case doesn’t stop it at the end. But if container is not already running, Cube will start one and stop it at the end of the execution.
+STARTORCONNECTANDLEAVE:: it is exactly the same of _STARTORCONNECT_ but if container is started by Cube it won’t be stopped at the end of the execution so it can be reused in next executions.
+
+=== Before Stop Events
+
+Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
+In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.
+Or if your need is more specific, you can provide a custom implementation
+
+Next snippet shows how to copy a directory from container to local disk:
+
+[source, yaml]
+----
+tomcat_default:
+  image: tutum/tomcat:7.0
+  beforeStop: # <1>
+    - copy: # <2>
+        from: /test
+        to: /tmp
+
+    - log: # <3>
+        to: /tmp/container.log
+
+    - customBeforeStopAction: # <4>
+        strategy: <fullyqualifiedclassname>
+----
+<1> +beforeStop+ goes into the container section and may contain a list of +copy+ and +log+ elements.
+<2> +copy+ is used to notify that we want to copy some directories or files form +from+ container location to +to+ local location.
+<3> +log+ is used to notify that we want to copy container log to +to+ local location.
+<4> +customBeforeStopAction+ is used to notify that we provide our own implementation of a stop action. There are
+two rules to follow. The first is that the class must implement 'BeforeStopAction' and the second one is that the class must have a default constructor.
+Optionally fields/setters for types 'DockerClientExecutor' and 'CubeId' for containerId can be used to inject them into
+the custom beforeStop action
+
+
+In case of +log+ command the standard output and the error output are returned.
++log+ _Docker_ command can receive some configuration paramters and you can set them too in configuration file.
+
+[source, yaml]
+.Example of log parameters
+----
+beforeStop:
+  - log:
+    to: /tmp/container.log
+    follow: true
+    stdout: true
+    stderr: false
+    timestamps: true
+    tail: 10
+----
+
+
+Custom BeforeStop action:
+
+[source, java]
+----
+package org.arquillian.cube.docker.impl.beforeStop;
+
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.impl.model.CubeId;
+import org.arquillian.cube.spi.beforeStop.BeforeStopAction;
+
+public class CustomBeforeStopActionImpl implements BeforeStopAction {
+
+    private DockerClientExecutor dockerClientExecutor;
+    private CubeId containerID;
+
+    @Override
+    public void doBeforeStop() {
+
+    }
+}
+----
+
+and the configuration comes as:
+
+[source, yaml]
+.Example.yml
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  beforeStop:
+    - customBeforeStopAction:
+        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl
+----
+
+
+=== CubeSpecificProperties
+
+In case you are using COMPOSE format, you cannot configure cube custom properties like `await` or `beforeStop`.
+You can use a property called `cubeSpecificProperties` allows you to add them in already defined containers.
+
+NOTE: This property only overrides custom properties defined by CUBE format.
+
+[source, xml]
+.arquillian.xml
+----
+<property name="cubeSpecificProperties">
+    tomcat:
+      removeVolumes: true
+      await:
+        strategy: polling
+      beforeStop:
+        - copy:
+            from: /test
+            to: /tmp";
+</property>
+----
+
+Previous snippet would override `await` strategy to polling and set a `beforeStop` event in cube container named `tomcat` defined in a previous docker-compose definition.
+
+[[automatic-resolution]]
+=== Automatic serverUri resolution
+
++serverUri+ parameter is where you configure the Uri of _Docker_ server.
+This parameter is not mandatory and in case you don't set it, _Arquillian Cube_ will use next values:
+
+[cols="2*"]
+|===
+|Linux
+|unix:///var/run/docker.sock
+
+|Windows
+|tcp://dockerHost:2376
+
+|MacOS
+|tcp://dockerHost:2376
+
+|Docker Machine
+|tcp://dockerHost:2376
+|===

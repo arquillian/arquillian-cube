@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.arquillian.cube.docker.impl.client.Converter;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 
 public class CubeConverter implements Converter {
 
-    private final CubeContainers dockerCubeDefinitionMap;
+    private final DockerCompositions dockerCubeDefinitionMap;
 
     private CubeConverter(Path location) throws IOException {
         FileInputStream inputStream = new FileInputStream(location.toFile());
@@ -35,7 +35,7 @@ public class CubeConverter implements Converter {
     }
 
     @Override
-    public CubeContainers convert() {
+    public DockerCompositions convert() {
         return this.dockerCubeDefinitionMap;
     }
 }

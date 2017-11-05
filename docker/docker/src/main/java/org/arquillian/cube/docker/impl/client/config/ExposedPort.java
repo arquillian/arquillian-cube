@@ -10,9 +10,35 @@ public class ExposedPort {
 
     public ExposedPort(int exposed, String type) {
         this.exposed = exposed;
-        if(type != null) {
+        if (type != null) {
             this.type = type;
         }
+    }
+
+    public static ExposedPort valueOf(String exp) {
+        int exposed;
+        String type = null;
+        String[] parts = exp.split("/");
+        exposed = Integer.parseInt(parts[0].trim());
+        if (parts.length > 1) {
+            type = parts[1].trim();
+        }
+        return new ExposedPort(exposed, type);
+    }
+
+    public static ExposedPort valueOf(int port) {
+        return new ExposedPort(port, null);
+    }
+
+    public static Collection<ExposedPort> valuesOf(Collection<String> ports) {
+        if (ports == null) {
+            return null;
+        }
+        List<ExposedPort> result = new ArrayList<ExposedPort>();
+        for (String port : ports) {
+            result.add(valueOf(port));
+        }
+        return result;
     }
 
     public int getExposed() {
@@ -47,42 +73,26 @@ public class ExposedPort {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ExposedPort other = (ExposedPort) obj;
-        if (exposed != other.exposed)
+        if (exposed != other.exposed) {
             return false;
+        }
         if (type == null) {
-            if (other.type != null)
+            if (other.type != null) {
                 return false;
-        } else if (!type.equals(other.type))
+            }
+        } else if (!type.equals(other.type)) {
             return false;
+        }
         return true;
-    }
-
-    public static ExposedPort valueOf(String exp) {
-        int exposed;
-        String type = null;
-        String[] parts = exp.split("/");
-        exposed = Integer.parseInt(parts[0]);
-        if (parts.length > 1) {
-            type = parts[1];
-        }
-        return new ExposedPort(exposed, type);
-    }
-
-    public static Collection<ExposedPort> valuesOf(Collection<String> ports) {
-        if (ports == null) {
-            return null;
-        }
-        List<ExposedPort> result = new ArrayList<ExposedPort>();
-        for (String port : ports) {
-            result.add(valueOf(port));
-        }
-        return result;
     }
 }

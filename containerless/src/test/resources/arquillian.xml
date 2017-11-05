@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://jboss.org/schema/arquillian"
-    xsi:schemaLocation="http://jboss.org/schema/arquillian
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
     http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-    <extension qualifier="docker">
-        <property name="serverVersion">${docker.api.version}</property>
-        <property name="dockerContainers">
+  <extension qualifier="docker">
+    <property name="serverVersion">${docker.api.version}</property>
+    <property name="machineName">dev</property>
+    <property name="definitionFormat">CUBE</property>
+    <property name="dockerContainers">
             daytime:
               buildImage:
                 dockerfileLocation: src/test/resources/undertow
@@ -23,14 +25,14 @@
               await:
                 strategy: polling
               portBindings: [8080/tcp]
-        </property>
-    </extension>
+    </property>
+  </extension>
 
-    <container qualifier="containerless" default="true">
-        <configuration>
-            <property name="containerlessDocker">${arquillian.cube.containerless}</property>
-            <property name="embeddedPort">8080</property>
-        </configuration>
-    </container>
-    
+  <container qualifier="containerless" default="true">
+    <configuration>
+      <property name="containerlessDocker">${arquillian.cube.containerless}</property>
+      <property name="embeddedPort">8080</property>
+    </configuration>
+  </container>
+
 </arquillian>

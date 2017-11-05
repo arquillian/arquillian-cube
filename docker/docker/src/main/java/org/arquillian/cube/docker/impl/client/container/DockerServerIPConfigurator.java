@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.util.ContainerUtil;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
@@ -33,15 +32,16 @@ public class DockerServerIPConfigurator {
     @Inject
     private Instance<OperatingSystemFamily> familyInstance;
 
-    public void applyDockerServerIpChange(@Observes BeforeSetup event, CubeRegistry cubeRegistry, ContainerRegistry containerRegistry)
-            throws InstantiationException, IllegalAccessException, MalformedURLException {
+    public void applyDockerServerIpChange(@Observes BeforeSetup event, CubeRegistry cubeRegistry,
+        ContainerRegistry containerRegistry)
+        throws InstantiationException, IllegalAccessException, MalformedURLException {
 
         Container container = ContainerUtil.getContainerByDeployableContainer(containerRegistry,
-                event.getDeployableContainer());
+            event.getDeployableContainer());
         if (container == null) {
             return;
         }
-        Cube<?> cube = cubeRegistry.getCube(container.getName());
+        Cube<?> cube = cubeRegistry.getCube(org.arquillian.cube.impl.util.ContainerUtil.getCubeIDForContainer(container));
         if (cube == null) {
             return; // No Cube found matching Container name, not managed by Cube
         }
@@ -52,18 +52,19 @@ public class DockerServerIPConfigurator {
         }
 
         ContainerDef containerConfiguration = container.getContainerConfiguration();
-        boolean foundAttribute = resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, portBindings.getContainerIP());
+        boolean foundAttribute =
+            resolveConfigurationPropertiesWithDockerServerIp(containerConfiguration, portBindings.getContainerIP());
 
         //if user doesn't configured in arquillian.xml the host then we can override the default value.
-        if(!foundAttribute) {
+        if (!foundAttribute) {
             Class<?> configurationClass = container.getDeployableContainer().getConfigurationClass();
-            List<PropertyDescriptor> configurationClassHostOrAddressFields = filterConfigurationClassPropertiesByHostOrAddressAttribute(configurationClass);
+            List<PropertyDescriptor> configurationClassHostOrAddressFields =
+                filterConfigurationClassPropertiesByHostOrAddressAttribute(configurationClass);
             for (PropertyDescriptor propertyDescriptor : configurationClassHostOrAddressFields) {
                 //we get default address value and we replace to boot2docker ip
                 containerConfiguration.overrideProperty(propertyDescriptor.getName(), portBindings.getContainerIP());
             }
         }
-
     }
 
     private boolean resolveConfigurationPropertiesWithDockerServerIp(ContainerDef containerDef, String containerIP) {
@@ -73,35 +74,36 @@ public class DockerServerIPConfigurator {
             if ((hostPattern.matcher(entry.getKey()).matches() || addressPattern.matcher(entry.getKey()).matches())) {
                 //if property is already configured, doesn't matter if it is a boot2docker or not we can say that we have matched a defined property.
                 foundAttribute = true;
-                if(entry.getValue().contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
-                    containerDef.overrideProperty(entry.getKey(), entry.getValue().replaceAll(CubeDockerConfiguration.DOCKER_SERVER_IP, containerIP));
+                if (entry.getValue().contains(CubeDockerConfiguration.DOCKER_SERVER_IP)) {
+                    containerDef.overrideProperty(entry.getKey(),
+                        entry.getValue().replaceAll(CubeDockerConfiguration.DOCKER_SERVER_IP, containerIP));
                 }
             }
         }
         return foundAttribute;
     }
 
-    private List<PropertyDescriptor> filterConfigurationClassPropertiesByHostOrAddressAttribute(Class<?> configurationClass) {
+    private List<PropertyDescriptor> filterConfigurationClassPropertiesByHostOrAddressAttribute(
+        Class<?> configurationClass) {
 
         List<PropertyDescriptor> fields = new ArrayList<PropertyDescriptor>();
 
         try {
             PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(configurationClass, Object.class)
-                    .getPropertyDescriptors();
+                .getPropertyDescriptors();
 
             for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
                 String propertyName = propertyDescriptor.getName();
 
-                if ((hostPattern.matcher(propertyName).matches() || addressPattern.matcher(propertyName).matches()) && (!jmxPattern.matcher(propertyName).matches())) {
+                if ((hostPattern.matcher(propertyName).matches() || addressPattern.matcher(propertyName).matches())
+                    && (!jmxPattern.matcher(propertyName).matches())) {
                     fields.add(propertyDescriptor);
                 }
             }
-
         } catch (IntrospectionException e) {
             throw new IllegalArgumentException(e);
         }
 
         return fields;
     }
-
 }

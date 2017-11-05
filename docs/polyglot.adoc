@@ -1,0 +1,130 @@
+== Polyglot Applications
+
+In previous section we have seen that we can test any _java_ _CLI_ application that offers a socket connection.
+But if you think clearly there is nothing that avoid *Arquillian Cube* to deploy applications developed in other languages like _Node.js_, _Play_, _Ruby on Rails_, ...
+
+Let's see an example on how you can use *Arquillian Cube* to test a _Node.js_ _hello world_ application.
+
+First thing to do is create the _Node.js_ application.
+
+[source, json]
+.src/main/js/package.json
+----
+{
+  "name": "helloworld-server",
+  "version": "0.0.1",
+  "description": "A NodeJS webserver to run inside a docker container",
+  "author": "asotobu@gmail.com",
+  "license": "APLv2",
+  "dependencies": {
+      "express": "*"
+  },
+  "scripts": {"start": "node index.js"}
+}
+----
+
+[source, javascript]
+.src/main/js/index.js
+----
+var express = require('express');
+
+var app = express();
+
+app.get('/', function(req, res){
+  res.send('Hello from inside a container!');
+});
+
+app.listen(8080);
+----
+
+Then we need to define a +DockerfileTemplate+ as we did for +Undertow+.
+
+[source]
+.src/test/resources/node/DockerfileTemplate
+----
+FROM node:0.11.14
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+ADD ${deployableFilename} /usr/src/app # <1>
+RUN npm install
+EXPOSE 8080
+
+CMD [ "npm", "start" ]
+----
+<1> We need to use +ADD+ command adding the deployed file instead of +COPY+. We are going to see why below.
+
+Finally the +arquillian.xml+ configuration file.
+
+[source, xml]
+.arquillian.xml
+----
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
+  http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="docker">
+    <property name="serverVersion">1.12</property>
+    <property name="serverUri">http://localhost:2375</property>
+    <property name="dockerContainers">
+        node:
+          buildImage:
+            dockerfileLocation: src/test/resources/node
+            noCache: true
+            remove: true
+          await:
+            strategy: polling
+          portBindings: [8080/tcp]
+    </property>
+  </extension>
+
+  <container qualifier="containerless" default="true">
+    <configuration>
+      <property name="containerlessDocker">node</property> <!--1-->
+      <property name="embeddedPort">8080</property>
+    </configuration>
+  </container>
+
+</arquillian>
+----
+<1> This property is used to set which container must be started. In this case +node+.
+
+IMPORTANT: If containerless definition only contains only one image, it is not necessary to use _containerlessDocker_ property. At the same time if the image only exposes one port, it is not necessary to use _embeddedPort_ proeprty to set the port. So in previous example you could avoid using _containerlessDocker_ and _embeddedPort_.
+
+And finally the *Arquillian* test.
+
+[source, java]
+.NodeTest.java
+----
+@RunWith(Arquillian.class)
+public class NodeTest {
+
+  @Deployment(testable = false) //<1>
+  public static GenericArchive createDeployment() {
+    return ShrinkWrap.create(GenericArchive.class, "app.tar") //<2>
+            .add(new ClassLoaderAsset("index.js"), "index.js")
+            .add(new ClassLoaderAsset("package.json"), "package.json");
+  }
+
+  @Test
+  public void shouldReturnMessageFromNodeJs(@ArquillianResource URL base) { //<3>
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(
+            base.openStream()));) {
+        String userInput = in.readLine();
+        assertThat(userInput, is("Hello from inside a container!"));
+    } catch (UnknownHostException e) {
+        fail("Don't know about host ");
+    } catch (IOException e) {
+        fail("Couldn't get I/O for the connection to ");
+    }
+  }
+}
+----
+<1> Tests should be run as-client.
+<2> +GenericArchive+ with +tar+ extension must be created using _Shrinkwrap_.
+<3> Simple test.
+
+NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *Arquillian Cube*. When you use +ADD+ in +Dockerfile+, _Docker_ will untar automatically the file to given location.

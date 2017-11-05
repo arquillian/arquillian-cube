@@ -1,20 +1,11 @@
 package org.arquillian.cube.docker.impl.client;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.CubeContainers;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -32,6 +23,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 @RunWith(MockitoJUnitRunner.class)
 public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
 
@@ -39,18 +38,25 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_COPY_CONFIGURATION =
         "tomcat_default:\n" +
-        "  image: tutum/tomcat:7.0\n" + 
-        "  beforeStop:\n" + 
-        "    - copy:\n" + 
-        "        from: /test\n" + 
-        "        to: ";
+            "  image: tutum/tomcat:7.0\n" +
+            "  beforeStop:\n" +
+            "    - copy:\n" +
+            "        from: /test\n" +
+            "        to: ";
 
     private static final String CONTAINER_LOG_CONFIGURATION =
-        "tomcat_default:\n" + 
-        "  image: tutum/tomcat:7.0\n" + 
-        "  beforeStop:\n" + 
-        "    - log:\n" + 
-        "        to: ";
+        "tomcat_default:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  beforeStop:\n" +
+            "    - log:\n" +
+            "        to: ";
+
+    private static final String CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION =
+        "tomcat_default:\n" +
+            "  image: tutum/tomcat:7.0\n" +
+            "  beforeStop:\n" +
+            "    - customBeforeStopAction:\n" +
+            "        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl";
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -90,11 +96,12 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         String content = CONTAINER_COPY_CONFIGURATION;
         content += newFolder.getAbsolutePath();
 
-        CubeContainers configuration = ConfigUtil.load(content);
+        DockerCompositions configuration = ConfigUtil.load(content);
         CubeContainer config = configuration.get("tomcat_default");
 
         Mockito.when(cube.configuration()).thenReturn(config);
-        Mockito.when(dockerClientExecutor.getFileOrDirectoryFromContainerAsTar(eq(CUBE_CONTAINER_NAME), anyString())).thenReturn(BeforeStopContainerObserverTest.class.getResourceAsStream("/hello.tar"));
+        Mockito.when(dockerClientExecutor.getFileOrDirectoryFromContainerAsTar(eq(CUBE_CONTAINER_NAME), anyString()))
+            .thenReturn(BeforeStopContainerObserverTest.class.getResourceAsStream("/hello.tar"));
         fire(new BeforeStop(CUBE_CONTAINER_NAME));
         verify(dockerClientExecutor).getFileOrDirectoryFromContainerAsTar(eq(CUBE_CONTAINER_NAME), eq("/test"));
         assertThat(new File(newFolder, "hello.txt").exists(), is(true));
@@ -107,10 +114,21 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
         content += newFolder.getAbsolutePath();
         content += "mylog.log";
 
-        CubeContainers configuration = ConfigUtil.load(content);
+        DockerCompositions configuration = ConfigUtil.load(content);
         CubeContainer config = configuration.get("tomcat_default");
         Mockito.when(cube.configuration()).thenReturn(config);
         fire(new BeforeStop(CUBE_CONTAINER_NAME));
-        verify(dockerClientExecutor, times(1)).copyLog(eq(CUBE_CONTAINER_NAME), eq(false), eq(false), eq(false), eq(false), eq(-1), any(OutputStream.class));
+        verify(dockerClientExecutor, times(1)).copyLog(eq(CUBE_CONTAINER_NAME), eq(false), eq(false), eq(false),
+            eq(false), eq(-1), any(OutputStream.class));
+    }
+
+    @Test
+    public void shouldExecuteCustomBeforeStopOperationForContainer() throws IOException {
+        DockerCompositions configuration = ConfigUtil.load(CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION);
+        CubeContainer config = configuration.get("tomcat_default");
+        Mockito.when(cube.configuration()).thenReturn(config);
+        fire(new BeforeStop(CUBE_CONTAINER_NAME));
+        verify(dockerClientExecutor, times(1)).getDockerUri();
     }
 }
+

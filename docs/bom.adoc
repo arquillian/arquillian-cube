@@ -1,0 +1,207 @@
+== Arquillian Cube BOM - Unified Dependencies
+
+This aims to fulfill requirements of unify naming & versions.
+
+=== Usage
+
+Include the following snippet in your pom.xml file:
+
+[source, xml]
+.pom.xml
+----
+<properties>
+    <version.arquillian_cube>${latest_released_version}</version.arquillian_cube>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.arquillian.cube</groupId>
+            <artifactId>arquillian-cube-bom</artifactId>
+            <version>${version.arquillian_cube}</version>
+            <scope>import</scope>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+----
+
+Then include the individual modules as you see fit, by simply depending on the unified pom name:
+
+[source, xml]
+----
+<dependencies>
+    <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+
+=== Available Modules:
+
+==== Arquillian Cube API
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-api</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube SPI
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-spi</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Core
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-core</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Containerless
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-containerless</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Requirement
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-requirement</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Docker
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Docker Junit Rule
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-junit-rule</artifactId>
+    <version>${project.version}</version>
+</dependency>
+----
+
+==== Arquillian Cube Docker Drone
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-drone</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Docker Restassured
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-restassured</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Docker Reporter
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-docker-reporter</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Docker Java AssertJ
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>assertj-docker-java</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Kubernetes
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-kubernetes</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Kubernetes Reporter
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Kubernetes Fabric8
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-kubernetes-fabric8</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Arquillian Cube Openshift
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-openshift</artifactId>
+    <scope>test</scope>
+</dependency>
+----

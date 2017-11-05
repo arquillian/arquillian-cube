@@ -5,7 +5,8 @@ public class RestartPolicy {
     private String name;
     private Integer maximumRetryCount;
 
-    public RestartPolicy() { }
+    public RestartPolicy() {
+    }
 
     public RestartPolicy(String name, Integer maximumRetryCount) {
         super();

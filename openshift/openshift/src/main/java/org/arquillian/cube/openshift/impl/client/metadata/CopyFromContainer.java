@@ -1,6 +1,6 @@
 package org.arquillian.cube.openshift.impl.client.metadata;
 
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
+import io.fabric8.kubernetes.clnt.v2_6.dsl.ExecWatch;
 
 import java.io.File;
 import java.io.IOException;
