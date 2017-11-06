@@ -25,7 +25,8 @@ public @interface RouteURL {
     String value() default "";
 
     /**
-     * Allows configuring how to check if the route is available and how long to wait for that.
+     * The {@code path} part of the URL that will be appended to the root route URL. Useful if you only need a single URL
+     * to the application behind the route and don't want to construct that URL programmatically. Defaults to {@code /}.
      */
-    AwaitRoute await() default @AwaitRoute;
+    String path() default "/";
 }
