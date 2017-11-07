@@ -5,6 +5,7 @@ import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.jboss.arquillian.config.impl.extension.StringPropertyReplacer;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -14,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -32,14 +34,14 @@ public class RouteURLEnricher implements TestEnricher {
     @Override
     public void enrich(Object testCase) {
         for (Field field : ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), RouteURL.class)) {
-            URL url;
+            Object url;
             AwaitRoute await;
             try {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
                 RouteURL routeURL = getRouteURLAnnotation(field.getAnnotations());
-                url = lookup(routeURL);
+                url = lookup(routeURL, field.getType());
                 field.set(testCase, url);
                 await = routeURL.await();
             } catch (Exception e) {
@@ -57,7 +59,7 @@ public class RouteURLEnricher implements TestEnricher {
         for (int i = 0; i < parameterTypes.length; i++) {
             RouteURL routeURL = getRouteURLAnnotation(method.getParameterAnnotations()[i]);
             if (routeURL != null) {
-                URL url = lookup(routeURL);
+                Object url = lookup(routeURL, method.getParameterTypes()[i]);
                 values[i] = url;
                 awaitRoute(url, routeURL.await());
             }
@@ -74,11 +76,14 @@ public class RouteURLEnricher implements TestEnricher {
         return null;
     }
 
-    private URL lookup(RouteURL routeURL) {
+    private Object lookup(RouteURL routeURL, Class<?> returnType) {
+        if (routeURL == null) {
+            throw new NullPointerException("RouteURL is null!");
+        }
 
-        final String routeName = routeURL.value();
-        if (routeURL == null || routeName == null || routeName.length() == 0) {
-            throw new NullPointerException("RouteURL is null, must specify a route name!");
+        final String routeName = StringPropertyReplacer.replaceProperties(routeURL.value());
+        if (routeName == null || routeName.length() == 0) {
+            throw new NullPointerException("Route name is null, must specify a route name!");
         }
 
         final CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
@@ -96,24 +101,36 @@ public class RouteURLEnricher implements TestEnricher {
         final int port = protocol.equals("http") ? config.getOpenshiftRouterHttpPort() : config.getOpenshiftRouterHttpsPort();
 
         try {
-            return new URL(protocol, route.getSpec().getHost(), port, "/");
-        } catch (MalformedURLException e) {
+            URL url = new URL(protocol, route.getSpec().getHost(), port, "/");
+            if (returnType == URL.class) {
+                return url;
+            } else if (returnType == URI.class) {
+                return url.toURI();
+            } else if (returnType == String.class) {
+                return url.toExternalForm();
+            } else {
+                throw new IllegalArgumentException("Invalid route injection type (can only handle URL, URI, String): " + returnType.getName());
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
             throw new IllegalArgumentException("Unable to create route URL", e);
         }
     }
 
-    private void awaitRoute(URL url, AwaitRoute await) {
+    private void awaitRoute(Object route, AwaitRoute await) {
         if (await == null) {
             return;
         }
 
+        URL url;
         String path = await.path();
         // url always ends with '/' (see the lookup method above) and we don't want to duplicate that
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
         try {
-            url = new URL(url + path);
+            url = new URL(route + path);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
