@@ -40,10 +40,10 @@ public class RouteURLEnricher implements TestEnricher {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
-                RouteURL routeURL = getRouteURLAnnotation(field.getAnnotations());
+                RouteURL routeURL = getAnnotation(RouteURL.class, field.getAnnotations());
                 url = lookup(routeURL, field.getType());
                 field.set(testCase, url);
-                await = routeURL.await();
+                await = getAnnotation(AwaitRoute.class, field.getAnnotations());
             } catch (Exception e) {
                 throw new RuntimeException("Could not set RouteURL value on field " + field, e);
             }
@@ -57,20 +57,21 @@ public class RouteURLEnricher implements TestEnricher {
         Object[] values = new Object[method.getParameterTypes().length];
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
-            RouteURL routeURL = getRouteURLAnnotation(method.getParameterAnnotations()[i]);
+            RouteURL routeURL = getAnnotation(RouteURL.class, method.getParameterAnnotations()[i]);
             if (routeURL != null) {
                 Object url = lookup(routeURL, method.getParameterTypes()[i]);
                 values[i] = url;
-                awaitRoute(url, routeURL.await());
+                AwaitRoute await = getAnnotation(AwaitRoute.class, method.getParameterAnnotations()[i]);
+                awaitRoute(url, await);
             }
         }
         return values;
     }
 
-    private RouteURL getRouteURLAnnotation(Annotation[] annotations) {
+    private <T extends Annotation> T getAnnotation(Class<T> annotationClass, Annotation[] annotations) {
         for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == RouteURL.class) {
-                return (RouteURL) annotation;
+            if (annotation.annotationType() == annotationClass) {
+                return annotationClass.cast(annotation);
             }
         }
         return null;
@@ -98,10 +99,17 @@ public class RouteURLEnricher implements TestEnricher {
         }
 
         final String protocol = route.getSpec().getTls() == null ? "http" : "https";
-        final int port = protocol.equals("http") ? config.getOpenshiftRouterHttpPort() : config.getOpenshiftRouterHttpsPort();
+        // adding the port number to the URL if it's equal to the default port number for given protocol
+        // is 100% correct, but unexpected
+        final int port;
+        if ("http".equals(protocol)) {
+            port = config.getOpenshiftRouterHttpPort() == 80 ? -1 : config.getOpenshiftRouterHttpPort();
+        } else {
+            port = config.getOpenshiftRouterHttpsPort() == 443 ? -1 : config.getOpenshiftRouterHttpsPort();
+        }
 
         try {
-            URL url = new URL(protocol, route.getSpec().getHost(), port, "/");
+            URL url = new URL(protocol, route.getSpec().getHost(), port, routeURL.path());
             if (returnType == URL.class) {
                 return url;
             } else if (returnType == URI.class) {
@@ -124,13 +132,11 @@ public class RouteURLEnricher implements TestEnricher {
         }
 
         URL url;
-        String path = await.path();
-        // url always ends with '/' (see the lookup method above) and we don't want to duplicate that
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
         try {
-            url = new URL(route + path);
+            url = new URL(route.toString());
+            if (!AwaitRoute.DEFAULT_PATH_FOR_ROUTE_AVAILABILITY_CHECK.equals(await.path())) {
+                url = new URL(url.getProtocol(), url.getHost(), url.getPort(), await.path());
+            }
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
