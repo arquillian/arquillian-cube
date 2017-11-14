@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: hello
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: hello-openshift-service
+  spec:
+    ports:
+    - name: hello-openshift-service
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      name: hello-openshift-service
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    labels:
+      name: hello-openshift-service
+    name: hello-openshift
+  spec:
+    containers:
+    - image: openshift/hello-openshift
+      imagePullPolicy: IfNotPresent
+      name: hello-openshift
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000100000
+        seLinuxOptions:
+          level: s0:c10,c5
+      terminationMessagePath: /dev/termination-log
+      volumeMounts:
+      - mountPath: /tmp
+        name: tmp
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-6lf25
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-lcz2g
+    nodeName: localhost
+    restartPolicy: Always
+    securityContext:
+      fsGroup: 1000100000
+      seLinuxOptions:
+        level: s0:c10,c5
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - emptyDir: {}
+      name: tmp
+    - name: default-token-6lf25
+      secret:
+        defaultMode: 420
+        secretName: default-token-6lf25
+  status:
+    phase: Pending
