@@ -59,7 +59,7 @@ public class CubeDockerConfigurator {
 
     @Inject
     @ApplicationScoped
-    private InstanceProducer<ContainerRegistry> registry;
+    private Instance<ContainerRegistry> registry;
 
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
         configure(arquillianDescriptor);
