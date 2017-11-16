@@ -3106,6 +3106,11 @@ In this way when you execute your tests in parallel there will be no conflicts b
     <span class="key">ping*</span>:
       <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
       <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+    <span class="key">pong*</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+      <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+      <span class="key">depends_on</span>:
+        - <span class="string"><span class="delimiter">&quot;</span><span class="content">ping*</span><span class="delimiter">&quot;</span></span>
 <span class="error">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
@@ -3121,7 +3126,7 @@ In this way when you execute your tests in parallel there will be no conflicts b
 <p>Generate a unique <em>UUID</em>.</p>
 </li>
 <li>
-<p>Substitute cube name and links using the name + UUID</p>
+<p>Substitute cube name, links and depends_on using the name + UUID</p>
 </li>
 <li>
 <p>In case of using an alias, don&#8217;t add the <code>*</code> since it is extended from the service name</p>
@@ -3150,6 +3155,11 @@ In this way when you execute your tests in parallel there will be no conflicts b
     <span class="key">ping_123456</span>:
       <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
       <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+    <span class="key">pong_123456</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+      <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+      <span class="key">depends_on</span>:
+        - <span class="string"><span class="delimiter">&quot;</span><span class="content">ping_123456</span><span class="delimiter">&quot;</span></span>
 <span class="error">&lt;/property&gt;</span></code></pre>
 </div>
 </div>
@@ -6049,7 +6059,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-11-07 13:58:41 UTC
+Last updated 2017-11-16 14:05:33 UTC
 </div>
 </div>
 </body>
