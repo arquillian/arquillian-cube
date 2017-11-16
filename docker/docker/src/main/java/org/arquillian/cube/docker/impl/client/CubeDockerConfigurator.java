@@ -96,6 +96,7 @@ public class CubeDockerConfigurator {
 
                 StarOperator.adaptPortBindingToParallelRun(cubeContainer);
                 StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
+                StarOperator.adaptDependenciesToParallelRun(uuid, cubeContainer);
 
                 String newId = StarOperator.generateNewName(templateName, uuid);
                 resolvedContainers.put(newId, cubeContainer);
