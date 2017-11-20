@@ -96,6 +96,7 @@ import org.arquillian.cube.openshift.api.MountSecret;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.adapter.AbstractOpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.fabric8.model.F8DeploymentConfig;
 import org.arquillian.cube.openshift.impl.portfwd.PortForwardContext;
 import org.arquillian.cube.openshift.impl.proxy.Proxy;
 import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceHandle;
@@ -106,7 +107,6 @@ import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.Port;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
-import org.arquillian.cube.openshift.impl.fabric8.model.F8DeploymentConfig;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.dmr.ModelNode;
 
@@ -195,17 +195,24 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
         Pod pod = pods.get(0);
         String nodeName = pod.getStatus().getHostIP();
-        return new PortForwardContext(configuration.getKubernetesMaster(), nodeName, configuration.getNamespace(), pod.getMetadata().getName(), port);
+        return new PortForwardContext(configuration.getKubernetesMaster(), nodeName, configuration.getNamespace(),
+            pod.getMetadata().getName(), port);
     }
 
     private Object createProject() {
         // oc new-project <namespace>
-        return client.projectrequests().createNew().withNewMetadata().withName(configuration.getNamespace()).endMetadata().done();
+        return client.projectrequests()
+            .createNew()
+            .withNewMetadata()
+            .withName(configuration.getNamespace())
+            .endMetadata()
+            .done();
     }
 
     public boolean checkProject() {
         for (Project project : client.projects().list().getItems()) {
-            if (configuration.getNamespace().equals(KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) project.getMetadata()))) {
+            if (configuration.getNamespace()
+                .equals(KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) project.getMetadata()))) {
                 return false;
             }
         }
@@ -217,7 +224,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     public void deletePod(String podName, long gracePeriodSeconds) {
-        PodResource<Pod, DoneablePod> resource = client.pods().inNamespace(configuration.getNamespace()).withName(podName);
+        PodResource<Pod, DoneablePod> resource =
+            client.pods().inNamespace(configuration.getNamespace()).withName(podName);
         Deletable<Boolean> deletable = resource;
         if (gracePeriodSeconds >= 0) {
             deletable = resource.withGracePeriod(gracePeriodSeconds);
@@ -225,10 +233,12 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         deletable.delete();
     }
 
-    public void triggerDeploymentConfigUpdate(String prefix, boolean wait, Map<String, String> variables) throws Exception {
+    public void triggerDeploymentConfigUpdate(String prefix, boolean wait, Map<String, String> variables)
+        throws Exception {
         DeploymentConfigList list = client.deploymentConfigs().inNamespace(configuration.getNamespace()).list();
         String actualName = getActualName(prefix, list.getItems(), "No such deployment config: " + prefix);
-        final DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> ccr = client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
+        final DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> ccr =
+            client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
         List<Container> containers = ccr.get().getSpec().getTemplate().getSpec().getContainers();
         if (containers.size() > 0) {
             // there should be one to do upgrade
@@ -245,7 +255,15 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             }
             container.setEnv(newEnv);
 
-            ccr.edit().editSpec().editTemplate().editSpec().withContainers(containers).endSpec().endTemplate().endSpec().done();
+            ccr.edit()
+                .editSpec()
+                .editTemplate()
+                .editSpec()
+                .withContainers(containers)
+                .endSpec()
+                .endTemplate()
+                .endSpec()
+                .done();
         }
         if (wait) {
             final int replicas = ccr.get().getSpec().getReplicas();
@@ -302,9 +320,15 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
         Map<String, String> selector = Collections.singletonMap("name", name + "-pod");
         Map<String, String> labels = Collections.singletonMap("name", name + "Controller");
-        ReplicationController rc = createReplicationController(name + "rc", configuration.getApiVersion(), labels, context.getReplicas(), selector, podTemplate);
+        ReplicationController rc =
+            createReplicationController(name + "rc", configuration.getApiVersion(), labels, context.getReplicas(),
+                selector, podTemplate);
 
-        return client.replicationControllers().inNamespace(configuration.getNamespace()).create(rc).getMetadata().getName();
+        return client.replicationControllers()
+            .inNamespace(configuration.getNamespace())
+            .create(rc)
+            .getMetadata()
+            .getName();
     }
 
     private List<Container> getContainers(String name, RCContext context) throws Exception {
@@ -337,12 +361,16 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
 
         Probe probe = null;
-        if (context.getProbeCommands() != null && context.getProbeCommands().size() > 0 && context.getProbeHook() != null) {
+        if (context.getProbeCommands() != null
+            && context.getProbeCommands().size() > 0
+            && context.getProbeHook() != null) {
             probe = new Probe();
             handleProbe(probe, context.getProbeHook(), context.getProbeCommands(), cps);
         }
 
-        Container container = createContainer(context.getImageName(), name + "-container", envVars, cps, volumeMounts, lifecycle, probe, "Always");
+        Container container =
+            createContainer(context.getImageName(), name + "-container", envVars, cps, volumeMounts, lifecycle, probe,
+                "Always");
 
         return Collections.singletonList(container);
     }
@@ -383,7 +411,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
     }
 
-    public List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, String templateURL, List<ParamValue> values, Map<String, String> labels) throws Exception {
+    public List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, String templateURL,
+        List<ParamValue> values, Map<String, String> labels) throws Exception {
         List<ParameterValue> pvs = new ArrayList<>();
         for (ParamValue value : values) {
             pvs.add(new ParameterValue(value.getName(), value.getValue()));
@@ -413,16 +442,19 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     private void verifyServiceAccounts(DeploymentConfig dc) throws Exception {
         String serviceAccountName = dc.getSpec().getTemplate().getSpec().getServiceAccountName();
         if (serviceAccountName != null) {
-            ServiceAccount serviceAccount = client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccountName).get();
+            ServiceAccount serviceAccount =
+                client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccountName).get();
             if (serviceAccount == null) {
                 throw new Exception("Missing required ServiceAccount: " + serviceAccountName);
             }
         }
     }
 
-    private KubernetesList processTemplate(String templateURL, List<ParameterValue> values, Map<String, String> labels) throws IOException {
+    private KubernetesList processTemplate(String templateURL, List<ParameterValue> values, Map<String, String> labels)
+        throws IOException {
         try (InputStream stream = new URL(templateURL).openStream()) {
-            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle = client.templates().inNamespace(configuration.getNamespace()).load(stream);
+            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
+                client.templates().inNamespace(configuration.getNamespace()).load(stream);
             Template template = templateHandle.get();
             if (template.getLabels() == null) {
                 template.setLabels(new HashMap<String, String>());
@@ -437,32 +469,32 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     protected OpenShiftResourceHandle createResourceFromStream(InputStream stream) throws IOException {
-    	
-    	try {
-    		String content = IOUtils.toString(stream, StandardCharsets.UTF_8);
-	        
-    		try {
-	        	ModelNode json;
-	            json = ModelNode.fromJSONString(content);
-	            String kind = json.get("kind").asString();
-	            
-	            content = json.toJSONString(true);
-	            return createResourceFromString(kind, content);
-	        } catch (IllegalArgumentException e) {
-	        	StringTokenizer tokenizer = new StringTokenizer(content.trim(),":\n");
-	        	tokenizer.nextToken();
-	        	String kind = tokenizer.nextToken().trim();
-	        	
-	        	return createResourceFromString(kind, content);
-	        }
-	        
+
+        try {
+            String content = IOUtils.toString(stream, StandardCharsets.UTF_8);
+
+            try {
+                // TODO only works if JSON should work with YAML as well.
+                ModelNode json;
+                json = ModelNode.fromJSONString(content);
+                String kind = json.get("kind").asString();
+
+                content = json.toJSONString(true);
+                return createResourceFromString(kind, content);
+            } catch (IllegalArgumentException e) {
+                StringTokenizer tokenizer = new StringTokenizer(content.trim(), ":\n");
+                tokenizer.nextToken();
+                String kind = tokenizer.nextToken().trim();
+
+                return createResourceFromString(kind, content);
+            }
         } finally {
             stream.close();
         }
     }
-    
+
     private OpenShiftResourceHandle createResourceFromString(String kind, String content) {
-    	if ("List".equalsIgnoreCase(kind)) {
+        if ("List".equalsIgnoreCase(kind)) {
             return new ListOpenShiftResourceHandle(content);
         } else if ("Secret".equalsIgnoreCase(kind)) {
             return new SecretOpenShiftResourceHandle(content);
@@ -473,7 +505,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         } else if ("Route".equalsIgnoreCase(kind)) {
             return new RouteOpenShiftResourceHandle(content);
         } else {
-            throw new IllegalArgumentException(String.format("Kind '%s' not yet supported -- use Native OpenShift adapter!", kind));
+            throw new IllegalArgumentException(
+                String.format("Kind '%s' not yet supported -- use Native OpenShift adapter!", kind));
         }
     }
 
@@ -492,11 +525,19 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             .inNamespace(configuration.getNamespace())
             .create(
                 new RoleBindingBuilder()
-                .withNewMetadata().withName(roleRefName + "-" + subjectName).endMetadata()
-                .withNewRoleRef().withName(roleRefName).endRoleRef()
-                .addToUserNames(userName)
-                .addNewSubject().withKind("ServiceAccount").withNamespace(configuration.getNamespace()).withName(subjectName).endSubject()
-                .build()
+                    .withNewMetadata()
+                    .withName(roleRefName + "-" + subjectName)
+                    .endMetadata()
+                    .withNewRoleRef()
+                    .withName(roleRefName)
+                    .endRoleRef()
+                    .addToUserNames(userName)
+                    .addNewSubject()
+                    .withKind("ServiceAccount")
+                    .withNamespace(configuration.getNamespace())
+                    .withName(subjectName)
+                    .endSubject()
+                    .build()
             );
         return new OpenShiftResourceHandle() {
             public void delete() {
@@ -520,7 +561,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             delay(labels, replicas, op);
         } catch (Exception e) {
-            throw new DeploymentException(String.format("Timeout waiting for deployment %s to scale to %s pods", prefix, replicas), e);
+            throw new DeploymentException(
+                String.format("Timeout waiting for deployment %s to scale to %s pods", prefix, replicas), e);
         }
     }
 
@@ -558,7 +600,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     public String getLog(String prefix, Map<String, String> labels) throws Exception {
         List<Pod> pods;
-        NonNamespaceOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> allPods = client.pods().inNamespace(configuration.getNamespace());
+        NonNamespaceOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> allPods =
+            client.pods().inNamespace(configuration.getNamespace());
 
         if (labels == null) {
             pods = allPods.list().getItems();
@@ -569,7 +612,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         String actualName;
 
         if (prefix != null) {
-            actualName = getActualName(prefix, pods, String.format("No pod found starting with '%s' and labels %s.", prefix, labels));
+            actualName = getActualName(prefix, pods,
+                String.format("No pod found starting with '%s' and labels %s.", prefix, labels));
         } else {
             if (pods.isEmpty()) {
                 throw new Exception("No pod found with labels " + labels);
@@ -589,7 +633,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         throw new Exception(msg);
     }
 
-    private Container createContainer(String image, String name, List<EnvVar> envVars, List<ContainerPort> ports, List<VolumeMount> volumes, Lifecycle lifecycle, Probe probe, String imagePullPolicy) throws Exception {
+    private Container createContainer(String image, String name, List<EnvVar> envVars, List<ContainerPort> ports,
+        List<VolumeMount> volumes, Lifecycle lifecycle, Probe probe, String imagePullPolicy) throws Exception {
         Container container = new Container();
         container.setImage(image);
         container.setName(name);
@@ -602,7 +647,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         return container;
     }
 
-    private PodTemplateSpec createPodTemplateSpec(Map<String, String> labels, List<Container> containers, MountSecret mountSecret) throws Exception {
+    private PodTemplateSpec createPodTemplateSpec(Map<String, String> labels, List<Container> containers,
+        MountSecret mountSecret) throws Exception {
         PodTemplateSpec pts = new PodTemplateSpec();
 
         ObjectMeta objectMeta = new ObjectMeta();
@@ -631,7 +677,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
     }
 
-    private ReplicationController createReplicationController(String name, String apiVersion, Map<String, String> labels, int replicas, Map<String, String> selector, PodTemplateSpec podTemplate) throws Exception {
+    private ReplicationController createReplicationController(String name, String apiVersion, Map<String, String> labels,
+        int replicas, Map<String, String> selector, PodTemplateSpec podTemplate) throws Exception {
         ReplicationController rc = new ReplicationController();
 
         rc.setApiVersion(apiVersion);
@@ -653,7 +700,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanServices(String... ids) throws Exception {
         for (String id : ids) {
             try {
-                boolean exists = client.services().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete();
+                boolean exists =
+                    client.services().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete();
                 log.info(String.format("Service [%s] delete: %s.", id, exists));
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Exception while deleting service [%s]: %s", id, e), e);
@@ -664,7 +712,11 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanReplicationControllers(String... ids) throws Exception {
         for (String id : ids) {
             try {
-                boolean exists = client.replicationControllers().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete();
+                boolean exists = client.replicationControllers()
+                    .inNamespace(configuration.getNamespace())
+                    .withName(id)
+                    .cascading(false)
+                    .delete();
                 log.info(String.format("RC [%s] delete: %s.", id, exists));
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Exception while deleting RC [%s]: %s", id, e), e);
@@ -695,7 +747,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         final BuildList builds = client.builds().inNamespace(configuration.getNamespace()).withLabels(labels).list();
         try {
             for (Build build : builds.getItems()) {
-                String buildId = KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) build.getMetadata());
+                String buildId =
+                    KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) build.getMetadata());
                 boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete();
                 log.info(String.format("Build [%s] delete: %s.", buildId, exists));
             }
@@ -705,12 +758,14 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     private void cleanDeployments(Map<String, String> labels) throws Exception {
-        final ReplicationControllerList rcs = client.replicationControllers().inNamespace(configuration.getNamespace()).withLabels(labels).list();
+        final ReplicationControllerList rcs =
+            client.replicationControllers().inNamespace(configuration.getNamespace()).withLabels(labels).list();
         try {
             for (ReplicationController rc : rcs.getItems()) {
                 String rcId = KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) rc.getMetadata());
                 client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).scale(0, true);
-                boolean exists = client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete();
+                boolean exists =
+                    client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete();
                 log.info(String.format("ReplicationController [%s] delete: %s.", rcId, exists));
             }
         } catch (Exception e) {
