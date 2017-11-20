@@ -58,11 +58,18 @@ public class ConfigUtil {
         return getPropertyOrEnvironmentVariable(name, defaultValue);
     }
 
-    public static int getIntProperty(String name, Optional<String> alternativeName, Map<String, String> map, int defaultValue) {
+    public static Boolean getBooleanProperty(String name,String alternativeName, Map<String, String> map, Boolean defaultValue) {
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = Boolean.parseBoolean(map.get(name));
+        }
+        return Boolean.parseBoolean(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName != null ? alternativeName : name, defaultValue)));
+    }
+
+    public static int getIntProperty(String name, String alternativeName, Map<String, String> map, int defaultValue) {
         if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
             defaultValue = Integer.parseInt(map.get(name));
         }
-        return Integer.parseInt(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName.isPresent() ? alternativeName.get() : name, defaultValue)));
+        return Integer.parseInt(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName != null ? alternativeName : name, defaultValue)));
     }
 
     public static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
@@ -70,6 +77,13 @@ public class ConfigUtil {
             defaultValue = Long.parseLong(map.get(name));
         }
         return Long.parseLong(getPropertyOrEnvironmentVariable(name, String.valueOf(defaultValue)));
+    }
+
+    public static Long getLongProperty(String name, String alternativeName, Map<String, String> map, Long defaultValue) {
+        if (map.containsKey(name) && Strings.isNotNullOrEmpty(map.get(name))) {
+            defaultValue = Long.parseLong(map.get(name));
+        }
+        return Long.parseLong(String.valueOf(getPropertyOrEnvironmentVariable(alternativeName != null ? alternativeName : name, defaultValue)));
     }
 
     public static URL[] asURL(List<String> stringUrls) {
