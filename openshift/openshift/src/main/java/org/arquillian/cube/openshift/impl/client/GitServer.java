@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v2_6.Pod;
-import io.fabric8.kubernetes.api.model.v2_6.PodBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.Service;
-import io.fabric8.kubernetes.api.model.v2_6.ServiceBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.openshift.clnt.v2_6.NamespacedOpenShiftClient;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.PodBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServiceBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
@@ -118,7 +118,9 @@ public class GitServer {
             .endContainer()
             .addNewVolume()
             .withName("git-repo")
-            .withNewEmptyDir("Memory")
+            .withNewEmptyDir()
+                .withMedium("Memory")
+            .endEmptyDir()
             .endVolume()
             .endSpec()
             .build();

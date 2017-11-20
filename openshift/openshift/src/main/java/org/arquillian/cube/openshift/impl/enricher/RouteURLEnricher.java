@@ -1,6 +1,6 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
-import io.fabric8.openshift.api.model.v2_6.Route;
+import io.fabric8.openshift.api.model.v3_1.Route;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;

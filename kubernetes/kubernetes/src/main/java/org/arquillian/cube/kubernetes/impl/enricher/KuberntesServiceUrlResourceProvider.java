@@ -1,13 +1,13 @@
 package org.arquillian.cube.kubernetes.impl.enricher;
 
-import io.fabric8.kubernetes.api.model.v2_6.EndpointAddress;
-import io.fabric8.kubernetes.api.model.v2_6.EndpointSubset;
-import io.fabric8.kubernetes.api.model.v2_6.Endpoints;
-import io.fabric8.kubernetes.api.model.v2_6.Pod;
-import io.fabric8.kubernetes.api.model.v2_6.Service;
-import io.fabric8.kubernetes.api.model.v2_6.ServicePort;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointAddress;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointSubset;
+import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServicePort;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
@@ -32,7 +32,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_6.ServiceList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v3_1.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResourceProvider {

@@ -2,13 +2,13 @@ package org.arquillian.cube.kubernetes.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.api.model.v2_6.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.api.model.v3_1.extensions.ReplicaSetList;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_6.extensions.ReplicaSetList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v3_1.extensions.ReplicaSetList}.
  * It refers to replica sets that have been created during the current session.
  */
 public class ReplicaSetListResourceProvider extends org.arquillian.cube.kubernetes.impl.enricher.internal.ReplicaSetListResourceProvider {

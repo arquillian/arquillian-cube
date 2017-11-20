@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import java.io.Serializable;
@@ -28,7 +28,7 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 import static org.arquillian.cube.openshift.impl.utils.Strings.isNotNullOrEmpty;
 import static org.arquillian.cube.openshift.impl.utils.Strings.isNullOrEmpty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_6", generateBuilderPackage = false, editableEnabled = false, refs = {
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
 })
 public class CubeOpenShiftConfiguration extends DefaultConfiguration implements ContainerConfiguration,
