@@ -23,7 +23,6 @@
 
 package org.arquillian.cube.openshift.impl.fabric8;
 
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.v2_6.Container;
 import io.fabric8.kubernetes.api.model.v2_6.ContainerPort;
 import io.fabric8.kubernetes.api.model.v2_6.DoneablePod;
@@ -212,7 +211,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public boolean checkProject() {
         for (Project project : client.projects().list().getItems()) {
             if (configuration.getNamespace()
-                .equals(KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) project.getMetadata()))) {
+                .equals(getName(project.getMetadata()))) {
                 return false;
             }
         }
@@ -728,7 +727,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         final PodList pods = client.pods().inNamespace(configuration.getNamespace()).withLabels(labels).list();
         try {
             for (Pod pod : pods.getItems()) {
-                String podId = KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) pod.getMetadata());
+                String podId = getName(pod.getMetadata());
                 boolean exists = client.pods().inNamespace(configuration.getNamespace()).withName(podId).delete();
                 log.info(String.format("Pod [%s] delete: %s.", podId, exists));
             }
@@ -748,7 +747,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             for (Build build : builds.getItems()) {
                 String buildId =
-                    KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) build.getMetadata());
+                   getName(build.getMetadata());
                 boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete();
                 log.info(String.format("Build [%s] delete: %s.", buildId, exists));
             }
@@ -762,7 +761,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             client.replicationControllers().inNamespace(configuration.getNamespace()).withLabels(labels).list();
         try {
             for (ReplicationController rc : rcs.getItems()) {
-                String rcId = KubernetesHelper.getName((io.fabric8.kubernetes.api.model.HasMetadata) rc.getMetadata());
+                String rcId = getName(rc.getMetadata());
                 client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).scale(0, true);
                 boolean exists =
                     client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete();
@@ -784,6 +783,26 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         IntOrString intOrString = new IntOrString();
         intOrString.setIntVal(port.getContainerPort());
         return intOrString;
+    }
+
+    static String getName(ObjectMeta entity) {
+        if (entity != null) {
+            return org.arquillian.cube.openshift.impl.utils.Strings.firstNonBlank(entity.getName(),
+                getAdditionalPropertyText(entity.getAdditionalProperties(), "id"),
+                entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    static String getAdditionalPropertyText(Map<String, Object> additionalProperties, String name) {
+        if (additionalProperties != null) {
+            Object value = additionalProperties.get(name);
+            if (value != null) {
+                return value.toString();
+            }
+        }
+        return null;
     }
 
     static Integer findHttpServicePort(List<ServicePort> ports) {

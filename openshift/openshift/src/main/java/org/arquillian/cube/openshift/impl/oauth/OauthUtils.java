@@ -1,9 +1,9 @@
 package org.arquillian.cube.openshift.impl.oauth;
 
-import io.fabric8.utils.Base64Encoder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Base64;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.httpclient.HttpClient;
 import org.arquillian.cube.openshift.httpclient.HttpClientBuilder;
@@ -29,7 +29,7 @@ public class OauthUtils {
         log.info("Issuing a new token for user: " + username);
 
         HttpRequest request = HttpClientBuilder.doGET(url + "/" + TOKEN_REQUEST_URI);
-        request.setHeader("Authorization", "Basic " + Base64Encoder.encode(username + ":" + password));
+        request.setHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()));
 
         HttpClient client = getClient();
         HttpResponse response = client.execute(request);

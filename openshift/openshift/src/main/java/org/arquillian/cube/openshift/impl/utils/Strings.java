@@ -37,6 +37,20 @@ public class Strings {
         return "__none".equalsIgnoreCase(value) ? null : value;
     }
 
+    public static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (notEmpty(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    public static boolean notEmpty(String text) {
+        return text != null && text.length() > 0;
+    }
+
+
     private static String getSystemPropertyOrEnvVar(String systemPropertyName, String envVarName, String defaultValue) {
         String answer = System.getProperty(systemPropertyName);
         if (answer != null && !answer.equals("")) {
