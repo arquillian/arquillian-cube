@@ -48,11 +48,12 @@ public class CECubeInitializer {
 
     @Inject
     @ApplicationScoped
-    private Instance<CubeOpenShiftConfiguration> configurationInstance;
+    private InstanceProducer<CubeOpenShiftConfiguration> configurationInstance;
 
     public void createOpenShiftAdapter(@Observes OpenShiftClient client, Configuration configuration) {
         CubeOpenShiftConfiguration cubeOpenShiftConfiguration = (CubeOpenShiftConfiguration) configuration;
         cubeOpenShiftConfiguration.setClient(client);
+        configurationInstance.set(cubeOpenShiftConfiguration);
         openShiftAdapterProducer.set(new F8OpenShiftAdapter(client.getClient(), cubeOpenShiftConfiguration));
     }
 }

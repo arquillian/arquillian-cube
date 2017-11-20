@@ -5,6 +5,16 @@ metadata:
   name: hello
 objects:
 - apiVersion: v1
+  kind: Route
+  metadata:
+    name: hello-openshift-route
+  spec:
+    port:
+      targetPort: 8080
+    to:
+      kind: Service
+      name: hello-openshift-service
+- apiVersion: v1
   kind: Service
   metadata:
     creationTimestamp: null

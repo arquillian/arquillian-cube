@@ -91,7 +91,7 @@ public class CEEnvironmentProcessor {
      * Needs to fire before the containers are started.
      */
     public void createEnvironment(@Observes(precedence = 10) BeforeClass event, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration configuration, OpenShiftClient openshiftClient) throws DeploymentException {
+        CubeOpenShiftConfiguration configuration) throws DeploymentException {
         final TestClass testClass = event.getTestClass();
         log.info(String.format("Creating environment for %s", testClass.getName()));
         OpenShiftResourceFactory.createResources(testClass.getName(), client, null, testClass.getJavaClass(),
