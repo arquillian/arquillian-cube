@@ -108,6 +108,7 @@ import org.arquillian.cube.openshift.impl.utils.Port;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.dmr.ModelNode;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -473,17 +474,16 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             String content = IOUtils.toString(stream, StandardCharsets.UTF_8);
 
             try {
-                // TODO only works if JSON should work with YAML as well.
-                ModelNode json;
-                json = ModelNode.fromJSONString(content);
+                final ModelNode json = ModelNode.fromJSONString(content);
                 String kind = json.get("kind").asString();
 
                 content = json.toJSONString(true);
                 return createResourceFromString(kind, content);
             } catch (IllegalArgumentException e) {
-                StringTokenizer tokenizer = new StringTokenizer(content.trim(), ":\n");
-                tokenizer.nextToken();
-                String kind = tokenizer.nextToken().trim();
+                // It is in yaml format
+                final Yaml yaml = new Yaml();
+                final Map<Object,Object> conf  = yaml.loadAs(content, Map.class);
+                String kind = (String) conf.get("kind");
 
                 return createResourceFromString(kind, content);
             }
