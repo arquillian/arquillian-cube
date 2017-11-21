@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v2_6.Namespace;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.api.model.v3_1.Namespace;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;

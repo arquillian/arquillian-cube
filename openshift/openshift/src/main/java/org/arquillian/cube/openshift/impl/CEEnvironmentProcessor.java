@@ -22,7 +22,7 @@
  */
 package org.arquillian.cube.openshift.impl;
 
-import io.fabric8.kubernetes.api.model.v2_6.Event;
+import io.fabric8.kubernetes.api.model.v3_1.Event;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

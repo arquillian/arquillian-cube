@@ -4,15 +4,15 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v2_6.ReplicationController;
-import io.fabric8.kubernetes.api.model.v2_6.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationController;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerList;
 
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_6.ReplicationControllerList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerList}.
  * It refers to replication controllers that have been created during the current session.
  */
 public class ReplicationControllerResourceProvider extends AbstractKubernetesResourceProvider {

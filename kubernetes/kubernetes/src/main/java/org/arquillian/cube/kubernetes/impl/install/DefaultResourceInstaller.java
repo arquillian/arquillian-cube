@@ -1,9 +1,9 @@
 package org.arquillian.cube.kubernetes.impl.install;
 
-import io.fabric8.kubernetes.api.builder.v2_6.Visitor;
-import io.fabric8.kubernetes.api.model.v2_6.HasMetadata;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClientException;
+import io.fabric8.kubernetes.api.builder.v3_1.Visitor;
+import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;

@@ -15,9 +15,9 @@
  */
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.DefaultKubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
