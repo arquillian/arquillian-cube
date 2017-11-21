@@ -397,6 +397,14 @@ public class HelloWorldTest {
 }
 ----
 
+Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
+
+[source, java]
+.OpenshiftAndK8sExample.java
+----
+include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]
+----
+
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.
