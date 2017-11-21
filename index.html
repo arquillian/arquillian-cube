@@ -5239,10 +5239,13 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 <div class="sect2">
 <h3 id="_overview"><a class="anchor" href="#_overview"></a>20.1. Overview</h3>
 <div class="paragraph">
-<p>This extension, wll create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests. The tests will be enriched with resources required to access services. Finally when testing is over it will cleanup everything.</p>
+<p>This extension will create and manage a temporary namespace for your tests, apply all Kubernetes resources required to
+create your environment and once everything is ready it will run your tests. The tests will be enriched with resources
+required to access services. Finally when testing is over it will cleanup everything.</p>
 </div>
 <div class="paragraph">
-<p>This extension, will not mutate neither your containers <strong>(by deploying, reconfiguring etc)</strong> nor your Kubernetes resources, and takes a black box approach to testing.</p>
+<p>This extension  will neither mutate your containers <strong>(by deploying, reconfiguring etc)</strong> nor your Kubernetes resources
+and takes a black box approach to testing.</p>
 </div>
 </div>
 <div class="sect2">
@@ -5282,7 +5285,8 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 </li>
 <li>
 <p>Enrichers for:</p>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p>Kubernetes/Openshift client</p>
 </li>
@@ -5295,14 +5299,21 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 <li>
 <p>Services</p>
 </li>
+</ul>
+</div>
+</li>
 <li>
 <p>Integration with Fabric8 Modules:</p>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p><a href="https://fabric8.io/guide/mavenPlugin.html">Fabric8 Maven Plugin</a></p>
 </li>
 <li>
 <p><a href="https://fabric8.io/guide/fabric8DevOps.html">Microservices Platform</a></p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>"Bring your own client" support</p>
@@ -5326,30 +5337,35 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 <div class="sect2">
 <h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.5. Configuring the extension</h3>
 <div class="paragraph">
-<p>The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables (in that particular order).
-Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn&#8217;t contain an entry, the system properties will be used.
+<p>The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables
+(in that particular order).
+Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn&#8217;t
+contain an entry, the system properties will be used.
 If no result has been found so far the environment variables will be used.</p>
 </div>
 <div class="paragraph">
-<p><strong>Note:</strong> When checking for environment variables, property names will get capitalized, and symbols like "." will be converted to "_".
+<p><strong>Note:</strong> When checking for environment variables, property names will get capitalized, and symbols like "." will be
+converted to "_".
 For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BAZ</strong>.</p>
 </div>
 <div class="sect3">
 <h4 id="_kubernetes_configuration_parameters"><a class="anchor" href="#_kubernetes_configuration_parameters"></a>20.5.1. Kubernetes Configuration Parameters</h4>
-<table class="tableblock frame-all grid-all" style="width: 80%;">
+<table class="tableblock frame-all grid-all spread">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 42.8572%;">
 </colgroup>
-<tbody>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Env</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+<th class="tableblock halign-left valign-top">Options</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Env</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">kubernetes.master</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
@@ -5384,19 +5400,22 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.prefix</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String (itest)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If you don&#8217;t specify a namespace, a random one will be created, with this prefix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you don&#8217;t specify a namespace, a random one will be
+created, with this prefix</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.lazy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Should the specified namespace be created if not exists, or throw exception?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should the specified namespace be created if not exists,
+or throw exception?</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to destroy the namespace after the end of the test suite</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to destroy the namespace after the end of the test
+suite</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.confirm.enabled</p></td>
@@ -5414,7 +5433,8 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to clean (delete resources) the namespace after the end of the test suite</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to clean (delete resources) the namespace after the
+end of the test suite</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.confirm.enabled</p></td>
@@ -5432,43 +5452,43 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.init.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to initialize the environment (apply kubernetes resources)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to initialize the environment (apply kubernetes
+resources)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.config.url</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the Kubernetes JSON/YAML (defaults to classpath resource kubernetes.json)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the Kubernetes JSON/YAML (defaults to classpath
+resource kubernetes.json)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.config.resource.name</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a different classpath resource (other than kubernetes.json)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">env.script.env</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Key/Value pairs to pass to setup scripts as environment variables</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a different classpath resource (other
+than kubernetes.json)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.setup.script.url</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script that will setup the environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script that will setup the
+environment</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.teardown.script.url</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script to tear down / cleanup the environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Option to select a shell script to tear down / cleanup
+the environment</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.dependencies</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whitespace separated list of URLs to more dependency kubernetes.json</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whitespace separated list of URLs to more dependency
+kubernetes.json</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.timeout</p></td>
@@ -5480,7 +5500,8 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.poll.interval</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long (5secs)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The poll interval to use for checking if the environment is ready</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The poll interval to use for checking if the environment
+is ready</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.for.service.list</p></td>
@@ -5495,47 +5516,39 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">Flag to enable colorful output</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logs.copy</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether to capture the pods logs and save them into the filesystem - as individual files, one for each pod. Filenames will be "ClassName-[MethodName-]-PodName[-ContainerName].log". If the pod has multiple containers, one log file for each container will be created. Kubernetes events (<code>kubectl get events</code>) will also be captured if this flag is enabled. Filenames will end with <code>-KUBE_EVENTS.log</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">logs.path</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Directory where to save the pods logs. Defaults to "target/surefire-reports".</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">kubernetes.client.creator.class.name</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Fully qualified class name of a kubernetes client creator class (byon)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fully qualified class name of a kubernetes client
+creator class (byon)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
 <h4 id="_openshift_configuration_parameters"><a class="anchor" href="#_openshift_configuration_parameters"></a>20.5.2. Openshift Configuration Parameters</h4>
-<table class="tableblock frame-all grid-all" style="width: 80%;">
+<table class="tableblock frame-all grid-all spread">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 42.8572%;">
 </colgroup>
-<tbody>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Option</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Env</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Env</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">autoStartContainers</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List of Pods which you want to auto start</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List of Pods which you want to auto
+start</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">definitionsFile</p></td>
@@ -5547,19 +5560,8 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">proxiedContainerPorts</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">routerHost</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Define OpenShift router address thats is used to resolve the pod&#8217;s address and to get its route</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enableImageStreamDetection</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Define if you want that Arquillian Cube apply Image Stream files (<code>*-is.yml</code>) to Openshift before deploying</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List following Pod:containerPort OR
+Pod:MappedPort:ContainerPort</p></td>
 </tr>
 </tbody>
 </table>
@@ -5570,12 +5572,13 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <p>The OpenShift module provides a easy way to run tests against your public application&#8217;s route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
 manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
-that will be used to define the application&#8217;s route when running your tests against an OpenShift instance, even if you specify
-a namepsace manually it will be transparent and the application&#8217;s endpoint will be resolvable within your java tests.</p>
+that will be used to define the application&#8217;s route when running your tests against an OpenShift instance, even if you
+specify a namepsace manually it will be transparent and the application&#8217;s endpoint will be resolvable within your java
+tests.</p>
 </div>
 <div class="paragraph">
-<p>To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test or
-by setting a System properties.</p>
+<p>To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test
+or by setting a System properties.</p>
 </div>
 <div class="paragraph">
 <p>Configuring inside a test class:</p>
@@ -5599,16 +5602,21 @@ by setting a System properties.</p>
 <div class="sect2">
 <h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.6. Namespaces</h3>
 <div class="paragraph">
-<p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
-For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> and <strong>namespace.destroy.enabled</strong>  to false and keep the namespace around.</p>
+<p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before
+the suite is started and destroyed in the end.
+For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> and <strong>namespace.destroy.enabled</strong>  to false and
+keep the namespace around.</p>
 </div>
 <div class="paragraph">
-<p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>arquillian</strong> do that for you.
-In this case you can use the <strong>namespace.use.existing</strong> option to select an existing namespace. This option goes hand in hand with <strong>env.init.enabled</strong> which can be
-used to prevent the extension from modifying the environment.</p>
+<p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>arquillian</strong>
+do that for you.
+In this case you can use the <strong>namespace.use.existing</strong> option to select an existing namespace. This option goes hand
+in hand with <strong>env.init.enabled</strong> which can be used to prevent the extension from modifying the environment.</p>
 </div>
 <div class="paragraph">
-<p>Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case, arquillian cube will delegate to the <a href="https://github.com/fabric8io/kubernetes-client/">Kubernetes Client</a> that will use:</p>
+<p>Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case,
+arquillian cube will delegate to the <a href="https://github.com/fabric8io/kubernetes-client/">Kubernetes Client</a> that
+will use:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -5630,27 +5638,34 @@ used to prevent the extension from modifying the environment.</p>
 <div class="sect2">
 <h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.7. Creating the environment</h3>
 <div class="paragraph">
-<p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.</p>
+<p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage
+where all the required Kubernetes configuration will be applied.</p>
 </div>
 <div class="sect3">
 <h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.7.1. How to run kubernetes with multiple configuration files?</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Out of the box, the extension will use the classpath and try to find a resource named <strong>kubernetes.json</strong> or <strong>kubernetes.yaml</strong>*. The name of the resource can be changed using the <strong>env.config.resource.name</strong>.
+<p>Out of the box, the extension will use the classpath and try to find a resource named <strong>kubernetes.json</strong> or
+<strong>kubernetes.yaml</strong>*. The name of the resource can be changed using the <strong>env.config.resource.name</strong>.
 Of course it is also possible to specify an external resource by URL using the <strong>env.config.url</strong>.</p>
 </li>
 <li>
-<p>While finding resource in classpath with property <strong>env.config.resource.name</strong>, cube will look into classpath with given name, if not found, then cube will continue to look into classpath under META-INF/fabric8/ directory.
-Using this you can put multiple resources(openshift.json, openshift.yml) inside META-INF/fabric8, and choose only required one by specifying <strong>env.config.resource.name</strong> property.</p>
+<p>While finding resource in classpath with property <strong>env.config.resource.name</strong>, cube will look into classpath
+with given name, if not found, then cube will continue to look into classpath under META-INF/fabric8/ directory.
+Using this you can put multiple resources(openshift.json, openshift.yml) inside META-INF/fabric8, and choose only
+required one by specifying <strong>env.config.resource.name</strong> property.</p>
 </li>
 <li>
-<p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
+<p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also
+possible that your environment configuration is split in multiple files.
 To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
 </li>
 <li>
-<p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup the environment. For those cases you can use the <strong>env.setup.script.url</strong> / <strong>env.teardown.script.url</strong> to pass the
-scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the namespace is created and cleaned up respectively.
+<p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup
+the environment. For those cases you can use the <strong>env.setup.script.url</strong> / <strong>env.teardown.script.url</strong> to pass the
+scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the
+namespace is created and cleaned up respectively.
 Both scripts will be executed using visible environment variables the following:</p>
 <div class="ulist">
 <ul>
@@ -5681,10 +5696,12 @@ Both scripts will be executed using visible environment variables the following:
 <p>(You can use any custom URL provided the appropriate URL stream handler.)</p>
 </div>
 <div class="paragraph">
-<p><strong>Note:</strong> Out of the box mvn urls are supported, so you can use values like: <strong>mvn:my.groupId/artifactId/1.0.0/json/kubernetes</strong> (work in progress)</p>
+<p><strong>Note:</strong> Out of the box mvn urls are supported, so you can use values like:
+<strong>mvn:my.groupId/artifactId/1.0.0/json/kubernetes</strong> (work in progress)</p>
 </div>
 <div class="paragraph">
-<p><strong>Also:</strong> If your project is using maven and dependencies like the above are expressed in the pom, the will be used <strong>automatically</strong>. (work in progress)</p>
+<p><strong>Also:</strong> If your project is using maven and dependencies like the above are expressed in the pom, the will be used
+<strong>automatically</strong>. (work in progress)</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -5698,7 +5715,9 @@ Both scripts will be executed using visible environment variables the following:
 To do it, Cube reads from <code>~/.kube/config</code> user information (token, password).</p>
 </div>
 <div class="paragraph">
-<p>For example in case of OpenShift you can use <code>oc login --username=admin --password=admin</code> for creating a token for connecting as admin, or <code>oc config set-credentials myself --username=admin --password=admin</code> for statically add the username and password and will communicate with Kubernetes to update the <code>~/.kube/config</code> file with the info provided.</p>
+<p>For example in case of OpenShift you can use <code>oc login --username=admin --password=admin</code> for creating a token for
+connecting as admin, or <code>oc config set-credentials myself --username=admin --password=admin</code> for statically adding the
+username and password and communicate with Kubernetes to update the <code>~/.kube/config</code> file with the info provided.</p>
 </div>
 <div class="paragraph">
 <p>You can read more about Kubernetes config file at <a href="http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/" class="bare">http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/</a></p>
@@ -5712,13 +5731,17 @@ To do it, Cube reads from <code>~/.kube/config</code> user information (token, p
 <div class="sect2">
 <h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.8. Readiness and waiting</h3>
 <div class="paragraph">
-<p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
-Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything is ready.</p>
+<p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a
+remote repository and this make take even several minutes.
+Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything
+is ready.</p>
 </div>
 <div class="paragraph">
-<p>This extension will wait up to <strong>wait.timeout</strong> until everything is up and running. Everything? It will wait for all Pods and Service <strong>(that were created during the test suite initialization)</strong> to become ready.
-It will poll them every <strong>wait.poll.interval</strong> milliseconds. For services there is also the option to perform a simple "connection test"  by setting the flag <strong>wait.for.service.connection.enabled</strong> to true.
-In this case it will not just wait for the service to ready, but also to be usable/connectable.</p>
+<p>This extension will wait up to <strong>wait.timeout</strong> until everything is up and running. Everything? It will wait for all
+Pods and Service <strong>(that were created during the test suite initialization)</strong> to become ready.
+It will poll them every <strong>wait.poll.interval</strong> milliseconds. For services there is also the option to perform a simple
+"connection test"  by setting the flag <strong>wait.for.service.connection.enabled</strong> to true.
+In this case it will not just wait for the service to be ready, but also to be usable/connectable.</p>
 </div>
 </div>
 <div class="sect2">
@@ -5732,10 +5755,12 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <p>So what exactly is your test case going to test?</p>
 </div>
 <div class="paragraph">
-<p>The test cases are meant to consume and test the provided services and assert that the environment is in the expected state.</p>
+<p>The test cases are meant to consume and test the provided services and assert that the environment is in the
+expected state.</p>
 </div>
 <div class="paragraph">
-<p>The test case may obtain everything it needs, by accessing the Kubernetes resources that are provided by the plugin as @ArquillianResources (see resource providers below).</p>
+<p>The test case may obtain everything it needs, by accessing the Kubernetes resources that are provided by the plugin as
+@ArquillianResources (see resource providers below).</p>
 </div>
 </div>
 <div class="sect2">
@@ -5758,7 +5783,8 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 <p>Pods <strong>(by id or as a list of all pods created during the session, optionally filtered by label)</strong></p>
 </li>
 <li>
-<p>Replication Controllers <strong>(by id or as a list of all replication controllers created during the session, optionally filtered by label)</strong></p>
+<p>Replication Controllers <strong>(by id or as a list of all replication controllers created during the session, optionally
+filtered by label)</strong></p>
 </li>
 <li>
 <p>Replica Sets <strong>(by id or as a list of all replica sets created during the session, optionally filtered by label)</strong></p>
@@ -5801,7 +5827,10 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 </div>
 </div>
 <div class="paragraph">
-<p>The test code above, demonstrates how you can inject an use inside your test the <strong>KubernetesClient</strong> and the <strong>Session</strong> object. It also demonstrates the use of <strong>kubernetes-assertions</strong> which is a nice little library based on [assert4j](<a href="http://assertj.org" class="bare">http://assertj.org</a>) for performing assertions on top of the Kubernetes model.</p>
+<p>The test code above, demonstrates how you can inject an use inside your test the <strong>KubernetesClient</strong> and the
+<strong>Session</strong> object.
+It also demonstrates the use of <strong>kubernetes-assertions</strong> which is a nice little library based on
+<a href="http://assertj.org">assert4j</a> for performing assertions on top of the Kubernetes model.</p>
 </div>
 <div class="paragraph">
 <p>The next example is intended to how you can inject a resource by id.</p>
@@ -5937,13 +5966,25 @@ It doesn&#8217;t even need to run inside Kubernetes (it can just run in your lap
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
 </div>
 <div class="paragraph">
-<p>To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned package (with major and minor version).</p>
+<p>To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned
+package (with major and minor version).</p>
 </div>
 <div class="paragraph">
-<p>All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with whatever version of the client that is found in the classpath.</p>
+<p>All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with
+whatever version of the client that is found in the classpath.</p>
 </div>
-<div class="paragraph">
-<p>Note: If your existing tests don&#8217;t have a dependency to the kubernetes-client, you will either need to add kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If your existing tests don&#8217;t have a dependency to the kubernetes-client, you will either need to add
+kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -6059,7 +6100,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-11-16 14:05:33 UTC
+Last updated 2017-11-21 12:15:31 UTC
 </div>
 </div>
 </body>
