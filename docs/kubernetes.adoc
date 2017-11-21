@@ -402,33 +402,7 @@ Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
 [source, java]
 .OpenshiftAndK8sExample.java
 ----
-public class HelloWorldTest {
-
-    private CommandExecutor commandExecutor;
-
-    @Before
-    public void initCommandExecutor() {
-        commandExecutor = new CommandExecutor();
-    }
-
-    @Test
-    public void should_be_able_deploy_resources_using_oc() {
-        // when
-        final List<String> resources = commandExecutor.execCommand("oc create -f https://goo.gl/qaiGRJ");
-
-        // then
-        assertThat(resources).contains("service \"hello-world\" created", "deployment \"hello-world\" created");
-    }
-
-    @Test
-    public void should_be_able_get_namespace_using_kubectl() {
-        // when
-        final List<String> namespaces = commandExecutor.execCommand("kubectl get ns -o=name");
-
-        // then
-        assertThat(namespaces).contains("namespaces/default");
-    }
-}
+include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]
 ----
 
 === Dealing with version conflicts
