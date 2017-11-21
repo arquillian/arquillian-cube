@@ -30,19 +30,16 @@ import java.util.List;
 import java.util.Map;
 import org.arquillian.cube.openshift.api.OpenShiftHandle;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
-import org.arquillian.cube.openshift.impl.utils.ParamValue;
-import org.arquillian.cube.openshift.impl.utils.RCContext;
-import org.arquillian.cube.openshift.impl.portfwd.PortForwardContext;
 import org.arquillian.cube.openshift.impl.proxy.Proxy;
 import org.arquillian.cube.openshift.impl.utils.Operator;
+import org.arquillian.cube.openshift.impl.utils.ParamValue;
+import org.arquillian.cube.openshift.impl.utils.RCContext;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 public interface OpenShiftAdapter extends Closeable, OpenShiftHandle {
     Proxy getProxy();
-
-    PortForwardContext createPortForwardContext(Map<String, String> labels, int port);
 
     /**
      * @return true if the project was created; false if the project already exists
