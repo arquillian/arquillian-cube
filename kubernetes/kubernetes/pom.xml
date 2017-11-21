@@ -97,6 +97,10 @@
       <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.arquillian.spacelift</groupId>
+      <artifactId>arquillian-spacelift</artifactId>
+    </dependency>
 
   </dependencies>
 
