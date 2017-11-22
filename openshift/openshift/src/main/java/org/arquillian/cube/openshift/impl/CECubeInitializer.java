@@ -23,11 +23,11 @@
 package org.arquillian.cube.openshift.impl;
 
 import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.openshift.api.ConfigurationHandle;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.fabric8.F8OpenShiftAdapter;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -50,10 +50,15 @@ public class CECubeInitializer {
     @ApplicationScoped
     private InstanceProducer<CubeOpenShiftConfiguration> configurationInstance;
 
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<ConfigurationHandle> configurationHandleProducer;
+
     public void createOpenShiftAdapter(@Observes OpenShiftClient client, Configuration configuration) {
         CubeOpenShiftConfiguration cubeOpenShiftConfiguration = (CubeOpenShiftConfiguration) configuration;
         cubeOpenShiftConfiguration.setClient(client);
         configurationInstance.set(cubeOpenShiftConfiguration);
+        configurationHandleProducer.set(cubeOpenShiftConfiguration);
         openShiftAdapterProducer.set(new F8OpenShiftAdapter(client.getClient(), cubeOpenShiftConfiguration));
     }
 }
