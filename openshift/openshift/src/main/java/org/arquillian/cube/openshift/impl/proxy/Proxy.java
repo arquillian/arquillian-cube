@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.net.ssl.SSLContext;
 import org.arquillian.cube.openshift.api.ManagementHandle;
-import org.arquillian.cube.openshift.impl.portfwd.PortForward;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -39,8 +38,6 @@ public interface Proxy {
     SSLContext getSSLContext();
 
     void setDefaultSSLContext();
-
-    PortForward createPortForward();
 
     String url(String podName, String protocol, int port, String path, String parameters);
 

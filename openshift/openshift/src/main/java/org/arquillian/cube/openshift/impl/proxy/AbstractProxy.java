@@ -41,7 +41,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.arquillian.cube.openshift.api.ManagementHandle;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.arquillian.cube.openshift.impl.portfwd.PortForward;
 import org.arquillian.cube.openshift.impl.utils.ManagementHandleImpl;
 
 /**
@@ -67,10 +66,6 @@ public abstract class AbstractProxy<P> implements Proxy {
             sslContextSet = true;
             SSLContext.setDefault(getSSLContext());
         }
-    }
-
-    public PortForward createPortForward() {
-        return new PortForward(getHttpClient());
     }
 
     public String url(String podName, String protocol, int port, String path, String parameters) {

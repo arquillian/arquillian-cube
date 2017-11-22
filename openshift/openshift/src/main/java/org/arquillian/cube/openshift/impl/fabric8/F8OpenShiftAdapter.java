@@ -96,7 +96,6 @@ import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.adapter.AbstractOpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.fabric8.model.F8DeploymentConfig;
-import org.arquillian.cube.openshift.impl.portfwd.PortForwardContext;
 import org.arquillian.cube.openshift.impl.proxy.Proxy;
 import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceHandle;
 import org.arquillian.cube.openshift.impl.utils.Checker;
@@ -184,18 +183,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     protected Proxy createProxy() {
         return new F8Proxy(configuration, client);
-    }
-
-    @Override
-    public PortForwardContext createPortForwardContext(Map<String, String> labels, int port) {
-        List<Pod> pods = client.pods().inNamespace(configuration.getNamespace()).withLabels(labels).list().getItems();
-        if (pods.isEmpty()) {
-            throw new IllegalStateException("No such pods: " + labels);
-        }
-        Pod pod = pods.get(0);
-        String nodeName = pod.getStatus().getHostIP();
-        return new PortForwardContext(configuration.getKubernetesMaster(), nodeName, configuration.getNamespace(),
-            pod.getMetadata().getName(), port);
     }
 
     private Object createProject() {
