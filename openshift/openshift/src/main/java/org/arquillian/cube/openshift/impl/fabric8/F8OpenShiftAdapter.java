@@ -86,7 +86,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import okhttp3.Response;
@@ -471,41 +470,9 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     protected OpenShiftResourceHandle createResourceFromStream(InputStream stream) throws IOException {
 
         try {
-            String content = IOUtils.toString(stream, StandardCharsets.UTF_8);
-
-            try {
-                final ModelNode json = ModelNode.fromJSONString(content);
-                String kind = json.get("kind").asString();
-
-                content = json.toJSONString(true);
-                return createResourceFromString(kind, content);
-            } catch (IllegalArgumentException e) {
-                // It is in yaml format
-                final Yaml yaml = new Yaml();
-                final Map<Object,Object> conf  = yaml.loadAs(content, Map.class);
-                String kind = (String) conf.get("kind");
-
-                return createResourceFromString(kind, content);
-            }
+            return new StreamOpenShiftResourceHandle(stream);
         } finally {
             stream.close();
-        }
-    }
-
-    private OpenShiftResourceHandle createResourceFromString(String kind, String content) {
-        if ("List".equalsIgnoreCase(kind)) {
-            return new ListOpenShiftResourceHandle(content);
-        } else if ("Secret".equalsIgnoreCase(kind)) {
-            return new SecretOpenShiftResourceHandle(content);
-        } else if ("ImageStream".equalsIgnoreCase(kind)) {
-            return new ImageStreamOpenShiftResourceHandle(content);
-        } else if ("ServiceAccount".equalsIgnoreCase(kind)) {
-            return new ServiceAccountOpenShiftResourceHandle(content);
-        } else if ("Route".equalsIgnoreCase(kind)) {
-            return new RouteOpenShiftResourceHandle(content);
-        } else {
-            throw new IllegalArgumentException(
-                String.format("Kind '%s' not yet supported -- use Native OpenShift adapter!", kind));
         }
     }
 
@@ -747,7 +714,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             for (Build build : builds.getItems()) {
                 String buildId =
-                   getName(build.getMetadata());
+                    getName(build.getMetadata());
                 boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete();
                 log.info(String.format("Build [%s] delete: %s.", buildId, exists));
             }
@@ -843,83 +810,20 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         throw new IllegalArgumentException("No such port: " + name);
     }
 
-    private abstract class AbstractOpenShiftResourceHandle<T> implements OpenShiftResourceHandle {
-        protected final T resource;
+    private class StreamOpenShiftResourceHandle implements OpenShiftResourceHandle {
 
-        public AbstractOpenShiftResourceHandle(String content) {
-            resource = createResource(new ByteArrayInputStream(content.getBytes()));
+        private List<HasMetadata> hasMetadata;
+
+        public StreamOpenShiftResourceHandle(InputStream content) {
+            hasMetadata =
+                client.inNamespace(configuration.getNamespace()).load(content).createOrReplace();
         }
 
-        protected abstract T createResource(InputStream stream);
-    }
-
-    private class ListOpenShiftResourceHandle extends AbstractOpenShiftResourceHandle<KubernetesList> {
-        public ListOpenShiftResourceHandle(String content) {
-            super(content);
-        }
-
-        protected KubernetesList createResource(InputStream stream) {
-            return client.lists().inNamespace(configuration.getNamespace()).load(stream).create();
-        }
-
+        @Override
         public void delete() {
-            client.lists().inNamespace(configuration.getNamespace()).delete(resource);
+            client.inNamespace(configuration.getNamespace())
+                .resourceList(hasMetadata).delete();
         }
     }
 
-    private class SecretOpenShiftResourceHandle extends AbstractOpenShiftResourceHandle<Secret> {
-        public SecretOpenShiftResourceHandle(String content) {
-            super(content);
-        }
-
-        protected Secret createResource(InputStream stream) {
-            return client.secrets().inNamespace(configuration.getNamespace()).load(stream).create();
-        }
-
-        public void delete() {
-            client.secrets().inNamespace(configuration.getNamespace()).delete(resource);
-        }
-    }
-
-    private class ImageStreamOpenShiftResourceHandle extends AbstractOpenShiftResourceHandle<ImageStream> {
-        public ImageStreamOpenShiftResourceHandle(String content) {
-            super(content);
-        }
-
-        protected ImageStream createResource(InputStream stream) {
-            return client.imageStreams().inNamespace(configuration.getNamespace()).load(stream).create();
-        }
-
-        public void delete() {
-            client.imageStreams().inNamespace(configuration.getNamespace()).delete(resource);
-        }
-    }
-
-    private class ServiceAccountOpenShiftResourceHandle extends AbstractOpenShiftResourceHandle<ServiceAccount> {
-        public ServiceAccountOpenShiftResourceHandle(String content) {
-            super(content);
-        }
-
-        protected ServiceAccount createResource(InputStream stream) {
-            return client.serviceAccounts().inNamespace(configuration.getNamespace()).load(stream).create();
-        }
-
-        public void delete() {
-            client.serviceAccounts().inNamespace(configuration.getNamespace()).delete(resource);
-        }
-    }
-
-    private class RouteOpenShiftResourceHandle extends AbstractOpenShiftResourceHandle<Route> {
-        public RouteOpenShiftResourceHandle(String content) {
-            super(content);
-        }
-
-        protected Route createResource(InputStream stream) {
-            return client.routes().inNamespace(configuration.getNamespace()).load(stream).create();
-        }
-
-        public void delete() {
-            client.routes().inNamespace(configuration.getNamespace()).delete(resource);
-        }
-    }
 }
