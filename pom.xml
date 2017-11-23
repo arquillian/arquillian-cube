@@ -63,7 +63,7 @@
   </issueManagement>
 
   <properties>
-    <version.arquillian_core>1.1.13.Final</version.arquillian_core>
+    <version.arquillian_core>1.1.14.Final</version.arquillian_core>
     <version.junit>4.12</version.junit>
     <version.hamcrest>1.3</version.hamcrest>
     <version.docker-java>3.0.14</version.docker-java>
@@ -74,7 +74,7 @@
     <version.mockito>1.10.19</version.mockito>
     <version.fabric8_mockwebserver>0.0.17</version.fabric8_mockwebserver>
     <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
-    <version.undertow>1.3.30.Final</version.undertow>
+    <version.undertow>1.3.33.Final</version.undertow>
     <version.arquillian_spacelift>1.0.1</version.arquillian_spacelift>
     <version.assertj>3.8.0</version.assertj>
     <version.arquillian.reporter>0.0.3</version.arquillian.reporter>
