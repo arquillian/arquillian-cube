@@ -83,7 +83,8 @@ environment
 the environment
 | env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency 
 kubernetes.json             
-| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready       
+| wait.enabled                        | Bool (true)    | Any | Whether to wait until the env is ready
+| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready
 | wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment
 is ready
 | wait.for.service.list               | List           | Any | Explicitly specify a list of services to wait upon             
