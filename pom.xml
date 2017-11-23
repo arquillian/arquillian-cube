@@ -158,6 +158,16 @@
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-httpclient</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-shrinkwrap</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-junit-rule</artifactId>
         <version>${project.version}</version>
       </dependency>
