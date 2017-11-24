@@ -5522,6 +5522,21 @@ is ready</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Fully qualified class name of a kubernetes client
 creator class (byon)</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">logs.copy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether to capture the pods logs and save them into the
+filesystem - as individual files, one for each pod. Filenames will be "ClassName-[MethodName-]-PodName[-ContainerName].log".
+If the pod has multiple containers, one log file for each container will be created. Kubernetes events (<code>kubectl get events</code>)
+will also be captured if this flag is enabled. Filenames will end with <code>-KUBE_EVENTS.log</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">logs.path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directory where to save the pods logs. Defaults to "target/surefire-reports".</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -6156,7 +6171,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-11-21 14:25:40 UTC
+Last updated 2017-11-24 15:18:27 UTC
 </div>
 </div>
 </body>
