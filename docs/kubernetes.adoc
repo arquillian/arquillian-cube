@@ -90,6 +90,11 @@ is ready
 | ansi.logger.enabled                 | Bool (true)    | Any | Flag to enable colorful output                                 
 | kubernetes.client.creator.class.name| Bool (true)    | Any | Fully qualified class name of a kubernetes client
 creator class (byon)
+| logs.copy                           | Bool (false)   | Any | Whether to capture the pods logs and save them into the
+filesystem - as individual files, one for each pod. Filenames will be "ClassName-[MethodName-]-PodName[-ContainerName].log".
+If the pod has multiple containers, one log file for each container will be created. Kubernetes events (`kubectl get events`)
+will also be captured if this flag is enabled. Filenames will end with `-KUBE_EVENTS.log`
+| logs.path | String | Any | Directory where to save the pods logs. Defaults to "target/surefire-reports".
 |===
 
 ==== Openshift Configuration Parameters
