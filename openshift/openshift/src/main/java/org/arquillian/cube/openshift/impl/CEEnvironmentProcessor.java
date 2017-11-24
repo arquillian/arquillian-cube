@@ -22,7 +22,6 @@
  */
 package org.arquillian.cube.openshift.impl;
 
-import io.fabric8.kubernetes.api.model.v3_1.Event;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -133,18 +132,6 @@ public class CEEnvironmentProcessor {
         });
     }
 
-    private void logEvents(OpenShiftClient client, CubeOpenShiftConfiguration configuration) {
-        StringBuilder b = new StringBuilder("\nLogged events from Openshift:\n\n");
-
-        for (Event event : client.getClientExt().events().inNamespace(configuration.getNamespace()).list().getItems()) {
-            b.append(String.format("[%s] [%s]: (%s) %s\n", event.getLastTimestamp(), event.getType(), event.getReason(),
-                event.getMessage()));
-        }
-        b.append("\nEnd of Openshift events\n\n");
-
-        log.info(b.toString());
-    }
-
     /**
      * Wait for the template resources to come up after the test container has
      * been started. This allows the test container and the template resources
@@ -167,7 +154,6 @@ public class CEEnvironmentProcessor {
                 delay(client, resources);
             }
         } catch (Throwable t) {
-            logEvents(openshiftClient, configuration);
             throw new DeploymentException("Error waiting for template resources to deploy: " + testClass.getName(), t);
         }
     }
