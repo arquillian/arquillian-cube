@@ -24,17 +24,18 @@ public class ReplicaSetResourceProvider extends AbstractKubernetesResourceProvid
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
             return getClient().extensions()
                 .replicaSets()
-                .inNamespace(getSession().getNamespace())
-                .withName(getName(qualifiers))
+                .inNamespace(namespace)
+                .withName(name)
                 .get();
         }
 
         // Gets the first replica set found that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        ReplicaSetList list = getClient().extensions().replicaSets().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        ReplicaSetList list = getClient().extensions().replicaSets().inNamespace(namespace).withLabels(labels).list();
         List<ReplicaSet> replicaSets = list.getItems();
         if( !replicaSets.isEmpty() ) {
             return replicaSets.get(0);

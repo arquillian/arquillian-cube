@@ -24,16 +24,17 @@ public class ReplicationControllerResourceProvider extends AbstractKubernetesRes
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
             return getClient().replicationControllers()
-                .inNamespace(getSession().getNamespace())
-                .withName(getName(qualifiers))
+                .inNamespace(namespace)
+                .withName(name)
                 .get();
         }
 
         // Gets the first replication controller found that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        ReplicationControllerList list = getClient().replicationControllers().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        ReplicationControllerList list = getClient().replicationControllers().inNamespace(namespace).withLabels(labels).list();
         List<ReplicationController> replicationControllers = list.getItems();
         if( !replicationControllers.isEmpty() ) {
             return replicationControllers.get(0);

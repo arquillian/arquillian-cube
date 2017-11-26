@@ -48,6 +48,15 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
         return null;
     }
 
+    protected String getNamespace(Annotation... qualifiers) {
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof Named) {
+                return ((Named) annotation).namespace();
+            }
+        }
+        return null;
+    }
+
     protected Map<String, String> getLabels(Annotation... qualifiers) {
         HashMap<String, String> rc = new HashMap<>();
         for (Annotation annotation : qualifiers) {

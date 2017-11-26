@@ -25,13 +25,14 @@ public class ServiceResourceProvider extends AbstractKubernetesResourceProvider 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
-            return getClient().services().inNamespace(getSession().getNamespace()).withName(name).get();
+            return getClient().services().inNamespace(namespace).withName(name).get();
         }
 
         // Gets the first service found that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        ServiceList list = getClient().services().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        ServiceList list = getClient().services().inNamespace(namespace).withLabels(labels).list();
         List<Service> services = list.getItems();
         if( !services.isEmpty() ) {
             return services.get(0);

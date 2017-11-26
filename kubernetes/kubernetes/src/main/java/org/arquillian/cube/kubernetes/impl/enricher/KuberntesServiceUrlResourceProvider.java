@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
@@ -285,7 +286,10 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
                 return delegate.lookup(resource, qualifiers);
             }
         }
-        String namespace = getSession().getNamespace();
+        String namespace = getNamespace(qualifiers);
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = getSession().getNamespace();
+        }
         Service service = getClient().services().inNamespace(namespace).withName(name).get();
         String scheme = getScheme(service, qualifiers);
         String path = getPath(service, qualifiers);
@@ -296,11 +300,11 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         if (isPortForwardingEnabled(qualifiers)) {
             Pod pod = getRandomPod(getClient(), name, namespace);
             int containerPort = getContainerPort(service, qualifiers);
-            port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
+            port = portForward(getSession(), pod.getMetadata().getName(), containerPort, namespace);
             ip = LOCALHOST;
         } else if (isUseDnsEnabled(qualifiers)) {
-          ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
-          port = getPort(service, qualifiers);
+            ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
+            port = getPort(service, qualifiers);
 
         } else {
             port = getPort(service, qualifiers);
@@ -335,14 +339,14 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         return next;
     }
 
-    private int portForward(Session session, String podName, int targetPort) {
-        return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
+    private int portForward(Session session, String podName, int targetPort, String namespace) {
+        return portForward(session, podName, findRandomFreeLocalPort(), targetPort, namespace);
     }
 
-    private int portForward(Session session, String podName, int sourcePort, int targetPort) {
+    private int portForward(Session session, String podName, int sourcePort, int targetPort, String namespace) {
         try {
             final PortForwarder portForwarder = new PortForwarder(
-                new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
+                new ConfigBuilder(getClient().getConfiguration()).withNamespace(namespace).build(), podName);
             final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
             session.addListener(new SessionListener() {
                 @Override
