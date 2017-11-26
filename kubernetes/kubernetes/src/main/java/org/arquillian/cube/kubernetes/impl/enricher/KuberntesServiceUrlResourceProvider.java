@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
@@ -287,9 +286,6 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
             }
         }
         String namespace = getNamespace(qualifiers);
-        if (StringUtils.isEmpty(namespace)) {
-            namespace = getSession().getNamespace();
-        }
         Service service = getClient().services().inNamespace(namespace).withName(name).get();
         String scheme = getScheme(service, qualifiers);
         String path = getPath(service, qualifiers);
