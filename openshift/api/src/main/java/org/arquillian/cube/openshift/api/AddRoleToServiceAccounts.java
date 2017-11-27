@@ -33,6 +33,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface AddRoleToServiceAccountWrapper {
+public @interface AddRoleToServiceAccounts {
     AddRoleToServiceAccount[] value();
 }

@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-public @interface TemplateResources {
+public @interface Templates {
 
     /**
      * If true, the templates will be instantiated synchronously. If false, the

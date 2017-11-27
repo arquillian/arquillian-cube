@@ -32,13 +32,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
-import org.arquillian.cube.openshift.api.AddRoleToServiceAccountWrapper;
+import org.arquillian.cube.openshift.api.AddRoleToServiceAccounts;
 import org.arquillian.cube.openshift.api.OpenShiftResource;
 import org.arquillian.cube.openshift.api.OpenShiftResources;
 import org.arquillian.cube.openshift.api.RoleBinding;
 import org.arquillian.cube.openshift.api.RoleBindings;
 import org.arquillian.cube.openshift.api.Template;
-import org.arquillian.cube.openshift.api.TemplateResources;
+import org.arquillian.cube.openshift.api.Templates;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
@@ -136,7 +136,7 @@ public class OpenShiftResourceFactory {
      */
     public static boolean syncInstantiation(Class<?> testClass) {
     	List<Template> templates = new ArrayList<>();
-        TemplateResources tr = TEMP_FINDER.findAnnotations(templates, testClass);
+        Templates tr = TEMP_FINDER.findAnnotations(templates, testClass);
         if (tr == null) {
         	/* Default to synchronous instantiation */
         	return true;
@@ -213,35 +213,35 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    private static class ARSAFinder extends Finder<AddRoleToServiceAccountWrapper, AddRoleToServiceAccount> {
-        protected Class<AddRoleToServiceAccountWrapper> getWrapperType() {
-            return AddRoleToServiceAccountWrapper.class;
+    private static class ARSAFinder extends Finder<AddRoleToServiceAccounts, AddRoleToServiceAccount> {
+        protected Class<AddRoleToServiceAccounts> getWrapperType() {
+            return AddRoleToServiceAccounts.class;
         }
 
         protected Class<AddRoleToServiceAccount> getSingleType() {
             return AddRoleToServiceAccount.class;
         }
 
-        protected AddRoleToServiceAccount[] toSingles(AddRoleToServiceAccountWrapper roleBindings) {
+        protected AddRoleToServiceAccount[] toSingles(AddRoleToServiceAccounts roleBindings) {
             return roleBindings.value();
         }
     }
 
-    private static class TEMPFinder extends Finder<TemplateResources, Template> {
-        protected Class<TemplateResources> getWrapperType() {
-            return TemplateResources.class;
+    private static class TEMPFinder extends Finder<Templates, Template> {
+        protected Class<Templates> getWrapperType() {
+            return Templates.class;
         }
 
         protected Class<Template> getSingleType() {
             return Template.class;
         }
 
-        protected Template[] toSingles(TemplateResources templateResources) {
-            return templateResources.templates();
+        protected Template[] toSingles(Templates templates) {
+            return templates.templates();
         }
 
-        protected boolean syncInstantiation(TemplateResources templateResources) {
-            return templateResources.syncInstantiation();
+        protected boolean syncInstantiation(Templates templates) {
+            return templates.syncInstantiation();
         }
     }
 }

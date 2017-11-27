@@ -24,6 +24,7 @@
 package org.arquillian.cube.openshift.api;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -33,6 +34,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Repeatable(OpenShiftResources.class)
 public @interface OpenShiftResource {
     /**
      * The value can either be
