@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
-import org.arquillian.cube.openshift.api.AddRoleToServiceAccounts;
+import org.arquillian.cube.openshift.api.AddRolesToServiceAccounts;
 import org.arquillian.cube.openshift.api.OpenShiftResource;
 import org.arquillian.cube.openshift.api.OpenShiftResources;
 import org.arquillian.cube.openshift.api.RoleBinding;
@@ -213,16 +213,16 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    private static class ARSAFinder extends Finder<AddRoleToServiceAccounts, AddRoleToServiceAccount> {
-        protected Class<AddRoleToServiceAccounts> getWrapperType() {
-            return AddRoleToServiceAccounts.class;
+    private static class ARSAFinder extends Finder<AddRolesToServiceAccounts, AddRoleToServiceAccount> {
+        protected Class<AddRolesToServiceAccounts> getWrapperType() {
+            return AddRolesToServiceAccounts.class;
         }
 
         protected Class<AddRoleToServiceAccount> getSingleType() {
             return AddRoleToServiceAccount.class;
         }
 
-        protected AddRoleToServiceAccount[] toSingles(AddRoleToServiceAccounts roleBindings) {
+        protected AddRoleToServiceAccount[] toSingles(AddRolesToServiceAccounts roleBindings) {
             return roleBindings.value();
         }
     }

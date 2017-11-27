@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-@Repeatable(AddRoleToServiceAccounts.class)
+@Repeatable(AddRolesToServiceAccounts.class)
 public @interface AddRoleToServiceAccount {
     String role();
     String serviceAccount();
