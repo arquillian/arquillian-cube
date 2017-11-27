@@ -57,7 +57,7 @@ import static org.arquillian.cube.openshift.impl.utils.TemplateUtils.addParamete
 /**
  * CEEnvironmentProcessor
  * <p>
- * Temporary class to handle @Template, @TemplateResources, and @OpenShiftResource annotations on
+ * Temporary class to handle @Template, @Templates, and @OpenShiftResource annotations on
  * test classes. Eventually, these will be migrated to Cube types, at which
  * point this will delegate to those for setup/teardown (via
  * StartCube/StopCube).
@@ -99,7 +99,7 @@ public class CEEnvironmentProcessor {
     }
 
     /**
-     * Instantiates the templates specified by @Template within @TemplateResources
+     * Instantiates the templates specified by @Template within @Templates
      */
     private void processTemplateResources(TestClass testClass, OpenShiftAdapter client, CubeOpenShiftConfiguration configuration)
         throws DeploymentException {
