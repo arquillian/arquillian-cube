@@ -177,7 +177,7 @@ public class SessionManager implements SessionCreatedListener {
                     }
                 }
 
-                if (!resourcesToWait.isEmpty()) {
+                if (configuration.isWaitEnabled() && !resourcesToWait.isEmpty()) {
                     try {
                         client.resourceList(resourcesToWait)
                             .waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);

@@ -127,6 +127,11 @@ public class RouteURLEnricher implements TestEnricher {
     }
 
     private void awaitRoute(Object route, AwaitRoute await) {
+        // we _intentionally_ don't check if `configurationInstance.get().isWaitEnabled()` here;
+        // even if awaiting readiness is disabled, we still want to await the route, because the user
+        // explicitly opted into it, maybe because they want to workaround a Fabric8 Kubernetes Client
+        // issue and rely on @AwaitRoute instead
+
         if (await == null) {
             return;
         }
