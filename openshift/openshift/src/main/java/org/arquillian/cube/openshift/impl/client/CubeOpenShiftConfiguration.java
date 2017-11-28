@@ -183,6 +183,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
+                .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
