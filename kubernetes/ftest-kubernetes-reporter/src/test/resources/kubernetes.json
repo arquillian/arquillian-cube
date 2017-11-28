@@ -36,7 +36,7 @@
         },
         "spec" : {
           "containers" : [ {
-            "image" : "dockercloud/hello-world",
+            "image" : "openshift/hello-openshift:v3.6.0",
             "name" : "hello-world-container",
             "ports" : [ {
               "name" : "http",

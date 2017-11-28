@@ -49,7 +49,7 @@ public class HelloWorldTest {
             Response response = okHttpClient.newCall(request).execute();
             assertNotNull(response);
             assertEquals(200, response.code());
-            assertTrue(response.body().string().contains("Hello world!"));
+            assertTrue(response.body().string().contains("Hello OpenShift!\n"));
         }
     }
 }
