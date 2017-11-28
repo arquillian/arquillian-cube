@@ -1,5 +1,7 @@
 package org.arquillian.cube.openshift.standalone;
 
+import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.client.OpenShiftClient;
 import java.io.IOException;
 import java.net.URL;
 import okhttp3.OkHttpClient;
@@ -10,6 +12,7 @@ import org.arquillian.cube.openshift.impl.enricher.AwaitRoute;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,6 +27,9 @@ public class HelloWorldOpenShiftResourcesTest {
     @AwaitRoute
     URL url;
 
+    @ArquillianResource
+    OpenShiftClient openShiftClient;
+
     @Test
     public void should_show_hello_world() throws IOException {
         assertThat(url).isNotNull();
@@ -35,4 +41,12 @@ public class HelloWorldOpenShiftResourcesTest {
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
     }
+
+    @Test
+    @OpenShiftResource("classpath:hello-route-2.yaml")
+    public void should_register_extra_route() {
+        final RouteList routes = openShiftClient.routes().list();
+        assertThat(routes.getItems()).hasSize(2);
+    }
+
 }

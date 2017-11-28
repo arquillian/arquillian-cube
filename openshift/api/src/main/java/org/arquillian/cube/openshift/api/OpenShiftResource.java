@@ -30,17 +30,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation to set the OpenShift resource to be executed before test execution.
+ * These resources creation were meant to be used for resources that aren't tied to a living thing.
+ * Examples of these are service accounts, credentials, routes, ...
+ *
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Repeatable(OpenShiftResources.class)
 public @interface OpenShiftResource {
     /**
      * The value can either be
      * link (https://www.github.com/alesj/template-testing/some.json)
      * test classpath resource (classpath:some.json)
-     * deployment archive resource (archive:some.json)
      * or plain content ({"kind" : "Secret", ...})
      *
      * W/o any prefix (or http schema) it's treated as plain content.

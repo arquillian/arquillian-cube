@@ -24,10 +24,13 @@
 package org.arquillian.cube.openshift.impl.resources;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -61,59 +64,78 @@ public class OpenShiftResourceFactory {
     private static final ARSAFinder ARSA_FINDER = new ARSAFinder();
     private static final TEMPFinder TEMP_FINDER = new TEMPFinder();
 
-    public static void createResources(String resourcesKey, OpenShiftAdapter adapter, Archive<?> archive, Class<?> testClass, Properties properties) {
+    public static void createResources(String resourcesKey, OpenShiftAdapter adapter, Class<?> testClass, Properties properties) {
         try {
             final StringResolver resolver = Strings.createStringResolver(properties);
 
             List<OpenShiftResource> openShiftResources = new ArrayList<>();
             OSR_FINDER.findAnnotations(openShiftResources, testClass);
-            for (OpenShiftResource osr : openShiftResources) {
-                String file = resolver.resolve(osr.value());
-
-                InputStream stream;
-                if (file.startsWith(URL_PREFIX)) {
-                    stream = new URL(file).openStream();
-                } else if (file.startsWith(CLASSPATH_PREFIX)) {
-                    String resourceName = file.substring(CLASSPATH_PREFIX.length());
-                    stream = testClass.getClassLoader().getResourceAsStream(resourceName);
-                    if (stream == null) {
-                        throw new IllegalArgumentException("Could not find resource on classpath: " + resourceName);
-                    }
-                } else if (file.startsWith(ARCHIVE_PREFIX)) {
-                    String resourceName = file.substring(ARCHIVE_PREFIX.length());
-                    Node node = archive.get(resourceName);
-                    if (node == null) {
-                        throw new IllegalArgumentException("Could not find resource in Arquillian archive: " + resourceName);
-                    }
-                    stream = node.getAsset().openStream();
-                } else {
-                    stream = new ByteArrayInputStream(file.getBytes());
-                }
-
-                log.info(String.format("Creating new OpenShift resource: %s", file));
-                adapter.createResource(resourcesKey, stream);
-            }
+            createOpenShiftResources(resourcesKey, adapter, testClass, resolver, openShiftResources);
 
             List<RoleBinding> roleBindings = new ArrayList<>();
             RB_FINDER.findAnnotations(roleBindings, testClass);
-            for (RoleBinding rb : roleBindings) {
-                String roleRefName = resolver.resolve(rb.roleRefName());
-                String userName = resolver.resolve(rb.userName());
-                log.info(String.format("Adding new role binding: %s / %s", roleRefName, userName));
-                adapter.addRoleBinding(resourcesKey, roleRefName, userName);
-            }
+            createRoleBindings(resourcesKey, adapter, resolver, roleBindings);
 
             List<AddRoleToServiceAccount> arsaBindings = new ArrayList<>();
             ARSA_FINDER.findAnnotations(arsaBindings, testClass);
-            for (AddRoleToServiceAccount arsa : arsaBindings) {
-                String role = resolver.resolve(arsa.role());
-                String saPattern = String.format("system:serviceaccount:${kubernetes.namespace}:%s", arsa.serviceAccount());
-                String serviceAccount = resolver.resolve(saPattern);
-                log.info(String.format("Adding role %s to service account %s", role, serviceAccount));
-                adapter.addRoleBinding(resourcesKey, role, serviceAccount);
-            }
+            createRolesToServiceAccounts(resourcesKey, adapter, resolver, arsaBindings);
         } catch (Exception e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    public static void createResources(Class<?> testClass, OpenShiftAdapter client, Method testMethod, Properties properties) {
+        final StringResolver resolver = Strings.createStringResolver(properties);
+
+        final List<OpenShiftResource> openShiftResources = Arrays.asList(testMethod.getAnnotationsByType(OpenShiftResource.class));
+        try {
+            createOpenShiftResources(createResourceKey(testClass, testMethod), client, testClass, resolver, openShiftResources);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private static void createRolesToServiceAccounts(String resourcesKey, OpenShiftAdapter adapter,
+        StringResolver resolver, List<AddRoleToServiceAccount> arsaBindings) {
+        for (AddRoleToServiceAccount arsa : arsaBindings) {
+            String role = resolver.resolve(arsa.role());
+            String saPattern = String.format("system:serviceaccount:${kubernetes.namespace}:%s", arsa.serviceAccount());
+            String serviceAccount = resolver.resolve(saPattern);
+            log.info(String.format("Adding role %s to service account %s", role, serviceAccount));
+            adapter.addRoleBinding(resourcesKey, role, serviceAccount);
+        }
+    }
+
+    private static void createRoleBindings(String resourcesKey, OpenShiftAdapter adapter, StringResolver resolver,
+        List<RoleBinding> roleBindings) {
+        for (RoleBinding rb : roleBindings) {
+            String roleRefName = resolver.resolve(rb.roleRefName());
+            String userName = resolver.resolve(rb.userName());
+            log.info(String.format("Adding new role binding: %s / %s", roleRefName, userName));
+            adapter.addRoleBinding(resourcesKey, roleRefName, userName);
+        }
+    }
+
+    private static void createOpenShiftResources(String resourcesKey, OpenShiftAdapter adapter, Class<?> testClass,
+        StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
+        for (OpenShiftResource osr : openShiftResources) {
+            String file = resolver.resolve(osr.value());
+
+            InputStream stream;
+            if (file.startsWith(URL_PREFIX)) {
+                stream = new URL(file).openStream();
+            } else if (file.startsWith(CLASSPATH_PREFIX)) {
+                String resourceName = file.substring(CLASSPATH_PREFIX.length());
+                stream = testClass.getClassLoader().getResourceAsStream(resourceName);
+                if (stream == null) {
+                    throw new IllegalArgumentException("Could not find resource on classpath: " + resourceName);
+                }
+            } else {
+                stream = new ByteArrayInputStream(file.getBytes());
+            }
+
+            log.info(String.format("Creating new OpenShift resource: %s", file));
+            adapter.createResource(resourcesKey, stream);
         }
     }
 
@@ -151,6 +173,18 @@ public class OpenShiftResourceFactory {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static void deleteReosurces(Class<?> testClass, Method testMethod, OpenShiftAdapter client) {
+        try {
+            client.deleteResources(createResourceKey(testClass, testMethod));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static String createResourceKey(Class<?> testClass, Method testMethod) {
+        return testClass.getName() + testMethod.getName();
     }
 
     private static abstract class Finder<U extends Annotation, V extends Annotation> {
