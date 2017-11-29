@@ -1,4 +1,11 @@
 sudo: required
+
+matrix:
+  include:
+    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf"
+    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5"
+    - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
+
 services:
   - docker
 addons:
@@ -14,11 +21,6 @@ jdk:
 cache:
   directories:
     - $HOME/.m2
-
-env:
- - OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf"
- - OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5"
- - OC_CLUSTER_UP=true OC_VERSION="v3.8.0-alpha.0" COMMIT_ID="e6b20e1"
 
 before_install:
   - BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
