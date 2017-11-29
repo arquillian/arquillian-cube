@@ -608,13 +608,14 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_modules">20.2. Modules</a></li>
 <li><a href="#_features">20.3. Features</a></li>
 <li><a href="#_pre_requisites">20.4. Pre-requisites</a></li>
-<li><a href="#_configuring_the_extension">20.5. Configuring the extension</a></li>
-<li><a href="#_namespaces">20.6. Namespaces</a></li>
-<li><a href="#_creating_the_environment">20.7. Creating the environment</a></li>
-<li><a href="#_readiness_and_waiting">20.8. Readiness and waiting</a></li>
-<li><a href="#_immutable_infrastructure_and_integration_testing">20.9. Immutable infrastructure and integration testing</a></li>
-<li><a href="#_resource_providers">20.10. Resource Providers</a></li>
-<li><a href="#_dealing_with_version_conflicts">20.11. Dealing with version conflicts</a></li>
+<li><a href="#_setup">20.5. Setup</a></li>
+<li><a href="#_configuring_the_extension">20.6. Configuring the extension</a></li>
+<li><a href="#_namespaces">20.7. Namespaces</a></li>
+<li><a href="#_creating_the_environment">20.8. Creating the environment</a></li>
+<li><a href="#_readiness_and_waiting">20.9. Readiness and waiting</a></li>
+<li><a href="#_immutable_infrastructure_and_integration_testing">20.10. Immutable infrastructure and integration testing</a></li>
+<li><a href="#_resource_providers">20.11. Resource Providers</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.12. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -5256,10 +5257,10 @@ and takes a black box approach to testing.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Kubernetes (default feature set)</p>
+<p>Kubernetes</p>
 </li>
 <li>
-<p>Openshift (work in progress)</p>
+<p>Openshift</p>
 </li>
 <li>
 <p>Fabric8 Microservices Platform (Fabric8 label and annotation support)</p>
@@ -5335,7 +5336,16 @@ and takes a black box approach to testing.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.5. Configuring the extension</h3>
+<h3 id="_setup"><a class="anchor" href="#_setup"></a>20.5. Setup</h3>
+<div class="paragraph">
+<p>To use Kubernetes extension you need to register next dependency in your build tool: <code>org.arquillian.cube:arquillian-cube-kubernetes:${version}</code>.</p>
+</div>
+<div class="paragraph">
+<p>To use OpenShift extension you need to register next dependency in your build tool: <code>org.arquillian.cube:arquillian-cube-openshift:${version}</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_the_extension"><a class="anchor" href="#_configuring_the_extension"></a>20.6. Configuring the extension</h3>
 <div class="paragraph">
 <p>The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables
 (in that particular order).
@@ -5349,7 +5359,17 @@ converted to "_".
 For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BAZ</strong>.</p>
 </div>
 <div class="sect3">
-<h4 id="_kubernetes_configuration_parameters"><a class="anchor" href="#_kubernetes_configuration_parameters"></a>20.5.1. Kubernetes Configuration Parameters</h4>
+<h4 id="_kubernetes_configuration_parameters"><a class="anchor" href="#_kubernetes_configuration_parameters"></a>20.6.1. Kubernetes Configuration Parameters</h4>
+<div class="paragraph">
+<p>You can configure Kubernetes by using any of the next configuration properties in <code>arquillian.xml</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">src/test/resources/arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">kubernetes</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
+</div>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 28.5714%;">
@@ -5547,7 +5567,18 @@ will also be captured if this flag is enabled. Filenames will end with <code>-KU
 </table>
 </div>
 <div class="sect3">
-<h4 id="_openshift_configuration_parameters"><a class="anchor" href="#_openshift_configuration_parameters"></a>20.5.2. Openshift Configuration Parameters</h4>
+<h4 id="_openshift_configuration_parameters"><a class="anchor" href="#_openshift_configuration_parameters"></a>20.6.2. Openshift Configuration Parameters</h4>
+<div class="paragraph">
+<p>When using OpenShift you can use <code>arquillian.xml</code> to configure ANY of the configuration properties introduced at <a href="#_kubernetes_configuration_parameters">Kubernetes Configuration Parameters</a> mixed with some specific configuration parameters related to OpenShift.
+In cas of using OpenShift, then you need to use <code>openshift</code> qualifier instead of <code>kubernetes</code>, but as noticed in previous paragraph you can use it to set any Kubernetes configuration parameters as well.</p>
+</div>
+<div class="listingblock">
+<div class="title">src/test/resources/arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
+</div>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 28.5714%;">
@@ -5584,11 +5615,47 @@ start</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Comma Separated List following Pod:containerPort OR
 Pod:MappedPort:ContainerPort</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enableImageStreamDetection</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable detecting ImageStream resources located at target/XXX-is.(json</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yaml)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">portForwardBindAddress</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String (127.0.0.1)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If using port forwarding you can set the host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateUrl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL where template is stored. This template is executed before any execution</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateLabels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CSV</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets a comma separated value of template labels in form &lt;key&gt;=&lt;value&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateParameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CSV</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets a comma separated value of template parameters in form &lt;key&gt;=&lt;value&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">templateProcess</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_openshift_dns_naming_service"><a class="anchor" href="#_openshift_dns_naming_service"></a>20.5.3. Openshift DNS Naming Service</h4>
+<h4 id="_openshift_dns_naming_service"><a class="anchor" href="#_openshift_dns_naming_service"></a>20.6.3. Openshift DNS Naming Service</h4>
 <div class="paragraph">
 <p>The OpenShift module provides a easy way to run tests against your public application&#8217;s route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
@@ -5619,9 +5686,57 @@ or by setting a System properties.</p>
 <code>-Dsun.net.spi.nameservice.provider.1=dns,ArquillianCubeNameService -Dsun.net.spi.nameservice.provider.2=default</code></p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_openshift_annotations"><a class="anchor" href="#_openshift_annotations"></a>20.6.4. OpenShift Annotations</h4>
+<div class="paragraph">
+<p>OpenShift extension comes with some annotations that let you define resources at test level instead of globally.</p>
+</div>
+<div class="sect4">
+<h5 id="__code_template_code"><a class="anchor" href="#__code_template_code"></a><code>@Template</code></h5>
+<div class="paragraph">
+<p>A template describes a set of objects that can be parameterized and processed to produce a list of objects for creation by OpenShift.</p>
+</div>
+<div class="paragraph">
+<p>You can set template location as configuration parameter or using <code>@Template</code> annotation at class level.</p>
+</div>
+<div class="paragraph">
+<p>You can see an example of template usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java</a></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="__code_openshiftresource_code"><a class="anchor" href="#__code_openshiftresource_code"></a><code>@OpenShiftResource</code></h5>
+<div class="paragraph">
+<p>You can apply OpenShift resources files before test execution.
+These resources creation are meant to be used for resources that aren&#8217;t tied to a living thing.
+Examples of these are service accounts, credentials, routes, &#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>The value can either be:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>link (<a href="https://www.github.com/alesj/template-testing/some.json" class="bare">https://www.github.com/alesj/template-testing/some.json</a>)</p>
+</li>
+<li>
+<p>test classpath resource (classpath:some.json)</p>
+</li>
+<li>
+<p>or plain content ({"kind" : "Secret", &#8230;&#8203;}</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can use <code>@OpenShiftResource</code> either at class level which implies that resource is created before test class execution and they are deleted after class execution or at method level which implies that resources are created and deleted after each test method execution.</p>
+</div>
+<div class="paragraph">
+<p>You can see an example of OpenShift resources usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java</a></p>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.6. Namespaces</h3>
+<h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.7. Namespaces</h3>
 <div class="paragraph">
 <p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before
 the suite is started and destroyed in the end.
@@ -5657,13 +5772,13 @@ will use:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.7. Creating the environment</h3>
+<h3 id="_creating_the_environment"><a class="anchor" href="#_creating_the_environment"></a>20.8. Creating the environment</h3>
 <div class="paragraph">
 <p>After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage
 where all the required Kubernetes configuration will be applied.</p>
 </div>
 <div class="sect3">
-<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.7.1. How to run kubernetes with multiple configuration files?</h4>
+<h4 id="_how_to_run_kubernetes_with_multiple_configuration_files"><a class="anchor" href="#_how_to_run_kubernetes_with_multiple_configuration_files"></a>20.8.1. How to run kubernetes with multiple configuration files?</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -5750,7 +5865,7 @@ username and password and communicate with Kubernetes to update the <code>~/.kub
 </div>
 </div>
 <div class="sect2">
-<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.8. Readiness and waiting</h3>
+<h3 id="_readiness_and_waiting"><a class="anchor" href="#_readiness_and_waiting"></a>20.9. Readiness and waiting</h3>
 <div class="paragraph">
 <p>Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a
 remote repository and this make take even several minutes.
@@ -5766,7 +5881,7 @@ In this case it will not just wait for the service to be ready, but also to be u
 </div>
 </div>
 <div class="sect2">
-<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>20.9. Immutable infrastructure and integration testing</h3>
+<h3 id="_immutable_infrastructure_and_integration_testing"><a class="anchor" href="#_immutable_infrastructure_and_integration_testing"></a>20.10. Immutable infrastructure and integration testing</h3>
 <div class="paragraph">
 <p>As mentioned in the overview, this extension will not try to deploy your tests, inside an application container.
 It doesn&#8217;t need nor want to know what runs inside your docker containers, nor will try to mess with it.
@@ -5785,7 +5900,7 @@ expected state.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>20.10. Resource Providers</h3>
+<h3 id="_resource_providers"><a class="anchor" href="#_resource_providers"></a>20.11. Resource Providers</h3>
 <div class="paragraph">
 <p>The resource providers available, can be used to inject to your test cases the following resources:</p>
 </div>
@@ -6037,7 +6152,7 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.11. Dealing with version conflicts</h3>
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.12. Dealing with version conflicts</h3>
 <div class="paragraph">
 <p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
@@ -6177,7 +6292,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-11-27 15:52:10 UTC
+Last updated 2017-11-29 16:02:06 UTC
 </div>
 </div>
 </body>
