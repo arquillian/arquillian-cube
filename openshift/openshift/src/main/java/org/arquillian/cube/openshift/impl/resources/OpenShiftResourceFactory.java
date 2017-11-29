@@ -175,7 +175,7 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    public static void deleteReosurces(Class<?> testClass, Method testMethod, OpenShiftAdapter client) {
+    public static void deleteResources(Class<?> testClass, Method testMethod, OpenShiftAdapter client) {
         try {
             client.deleteResources(createResourceKey(testClass, testMethod));
         } catch (Exception e) {

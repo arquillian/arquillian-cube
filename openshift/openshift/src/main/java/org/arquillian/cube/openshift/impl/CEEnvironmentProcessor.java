@@ -120,7 +120,7 @@ public class CEEnvironmentProcessor {
 
         log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
 
-        OpenShiftResourceFactory.deleteReosurces(testClass.getJavaClass(), testMethod, client);
+        OpenShiftResourceFactory.deleteResources(testClass.getJavaClass(), testMethod, client);
 
     }
 

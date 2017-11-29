@@ -1,5 +1,7 @@
 package org.arquillian.cube.openshift.standalone;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.client.OpenShiftClient;
 import java.io.IOException;
@@ -46,7 +48,11 @@ public class HelloWorldOpenShiftResourcesTest {
     @OpenShiftResource("classpath:hello-route-2.yaml")
     public void should_register_extra_route() {
         final RouteList routes = openShiftClient.routes().list();
-        assertThat(routes.getItems()).hasSize(2);
+        assertThat(routes.getItems())
+            .hasSize(2)
+            .extracting(Route::getMetadata)
+            .extracting(ObjectMeta::getName)
+            .containsExactlyInAnyOrder("hello-world", "hello-world-2");
     }
 
 }
