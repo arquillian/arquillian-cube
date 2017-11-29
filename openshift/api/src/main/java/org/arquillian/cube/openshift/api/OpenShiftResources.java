@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 public @interface OpenShiftResources {
     OpenShiftResource[] value();
 }
