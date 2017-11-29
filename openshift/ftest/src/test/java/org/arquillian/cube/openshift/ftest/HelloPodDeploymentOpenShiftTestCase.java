@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
-@Ignore
 public class HelloPodDeploymentOpenShiftTestCase {
 
     @ArquillianResource

@@ -46,6 +46,8 @@ install:
         sudo mv ${tmp} /etc/default/docker
         sudo mount --make-shared /
         sudo service docker restart
+        docker pull openshift/wildfly-101-centos7
+        docker pull aslakknutsen/openshift-arquillian-gitserver
         curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
             chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         client_tools="openshift-origin-client-tools-${OC_VERSION}-${COMMIT_ID}-linux-64bit" && curl -LO https://github.com/openshift/origin/releases/download/${OC_VERSION}/${client_tools}.tar.gz && \
@@ -58,7 +60,7 @@ install:
 before_script: ./mvnw install -q -U -DskipTests=true
 
 script:
-  - ./mvnw clean install
+  - ./mvnw clean test -pl openshift/ftest
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
     fi'
