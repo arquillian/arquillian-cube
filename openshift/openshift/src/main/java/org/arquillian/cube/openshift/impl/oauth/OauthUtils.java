@@ -1,14 +1,10 @@
 package org.arquillian.cube.openshift.impl.oauth;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.logging.Logger;
-import org.arquillian.cube.openshift.httpclient.HttpClient;
-import org.arquillian.cube.openshift.httpclient.HttpClientBuilder;
-import org.arquillian.cube.openshift.httpclient.HttpRequest;
-import org.arquillian.cube.openshift.httpclient.HttpResponse;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by fspolti on 6/20/16.
@@ -27,14 +23,15 @@ public class OauthUtils {
         String password = pwd != null ? pwd : PASSWORD;
 
         log.info("Issuing a new token for user: " + username);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+            .url(url + "/" + TOKEN_REQUEST_URI)
+            .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()))
+            .build();
 
-        HttpRequest request = HttpClientBuilder.doGET(url + "/" + TOKEN_REQUEST_URI);
-        request.setHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()));
+        Response response = client.newCall(request).execute();
 
-        HttpClient client = getClient();
-        HttpResponse response = client.execute(request);
-
-        StringBuilder result = getResult(new BufferedReader(new InputStreamReader((response.getResponseAsStream()))));
+        String result = response.body().string();
 
         String token = result.substring(result.indexOf("<code>") + 6, result.indexOf("</code>"));
         log.info("Got token: " + token);
@@ -42,20 +39,4 @@ public class OauthUtils {
         return token;
     }
 
-    private static StringBuilder getResult(BufferedReader br) throws IOException {
-        try {
-            StringBuilder result = new StringBuilder();
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
-            return result;
-        } finally {
-            br.close();
-        }
-    }
-
-    private static HttpClient getClient() throws Exception {
-        return HttpClientBuilder.untrustedConnectionClient();
-    }
 }
