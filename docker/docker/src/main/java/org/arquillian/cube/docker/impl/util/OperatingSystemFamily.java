@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.util;
 public enum OperatingSystemFamily {
     LINUX("unix:///var/run/docker.sock", false),
     WINDOWS("https://" + AbstractCliInternetAddressResolver.DOCKERHOST_TAG + ":2376", true),
+    WINDOWS_NPIPE("npipe:////./pipe/docker_engine", false),
     UNIX("unix:///var/run/docker.sock", false),
     DIND("unix:///var/run/docker.sock", false),
     DEC_OS("unix:///var/run/docker.sock", false),
