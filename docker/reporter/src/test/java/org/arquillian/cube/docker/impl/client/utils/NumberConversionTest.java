@@ -1,6 +1,9 @@
 package org.arquillian.cube.docker.impl.client.utils;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Locale;
 
 import static org.arquillian.cube.docker.impl.client.utils.NumberConversion.convertToLong;
 import static org.arquillian.cube.docker.impl.client.utils.NumberConversion.humanReadableByteCount;
@@ -8,6 +11,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class NumberConversionTest {
+
+    @Before
+    public void set_locale(){
+        Locale.setDefault(Locale.ENGLISH);
+    }
 
     private static final Long TEN_MEGABYTES = 9999800L;
 
