@@ -232,10 +232,6 @@ public class CubeDockerConfigurationResolver {
         }
 
         config.put(CubeDockerConfiguration.DOCKER_URI, dockerServerUri);
-        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
-            config.put(CubeDockerConfiguration.CERT_PATH,
-                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
-        }
 
         resolveDockerServerIp(config, dockerServerUri);
 
@@ -246,6 +242,11 @@ public class CubeDockerConfigurationResolver {
 
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
+
+        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
+            config.put(CubeDockerConfiguration.CERT_PATH,
+                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
+        }
 
         if (scheme.equals(HTTP_SCHEME)) {
             config.remove(CubeDockerConfiguration.TLS_VERIFY);
@@ -268,6 +269,10 @@ public class CubeDockerConfigurationResolver {
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException(e);
             }
+        }
+
+        if (scheme.equals("unix") || scheme.equals("npipe")){
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
         }
 
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
