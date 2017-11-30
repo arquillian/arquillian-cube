@@ -1,12 +1,13 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -19,7 +20,7 @@ public class CubeDockerConfigurationResolverTest {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
             new DockerMachine(null),
             new Boot2Docker(null),
-            OperatingSystemFamily.MAC);
+            OperatingSystem.MAC_OSX);
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://localhost:2376");
@@ -35,7 +36,7 @@ public class CubeDockerConfigurationResolverTest {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
             new DockerMachine(null),
             new Boot2Docker(null),
-            OperatingSystemFamily.LINUX);
+            OperatingSystem.LINUX_OS);
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://localhost:2376");

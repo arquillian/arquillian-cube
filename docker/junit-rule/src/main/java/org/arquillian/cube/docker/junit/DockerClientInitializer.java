@@ -27,7 +27,7 @@ public class DockerClientInitializer {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
             new DockerMachine(new CommandLineExecutor()),
             new Boot2Docker(new CommandLineExecutor()),
-            new OperatingSystemResolver().currentOperatingSystem().getFamily());
+            new OperatingSystemResolver().currentOperatingSystem());
 
         final Map<String, String> config = resolver.resolve(new HashMap<>());
 
