@@ -18,6 +18,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -58,6 +60,7 @@ public class CubeDockerConfigurationResolver {
      */
     public Map<String, String> resolve(Map<String, String> config) {
         config = resolveSystemEnvironmentVariables(config);
+        config = resolveSystemDefaultSetup(config);
         config = resolveDockerInsideDocker(config);
         config = resolveDownloadDockerMachine(config);
         config = resolveAutoStartDockerMachine(config);
@@ -193,6 +196,17 @@ public class CubeDockerConfigurationResolver {
 
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY) && isDockerTlsVerifySet()) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.TRUE.toString());
+        }
+
+        return config;
+    }
+    
+    private Map<String, String> resolveSystemDefaultSetup(Map<String, String> config) {
+        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
+            URI uri = URI.create(operatingSystem.getDefaultFamily().getServerUri());
+            if (Files.exists(FileSystems.getDefault().getPath(uri.getPath()))){
+                config.put(CubeDockerConfiguration.DOCKER_URI, operatingSystem.getDefaultFamily().getServerUri());
+            }
         }
 
         return config;
