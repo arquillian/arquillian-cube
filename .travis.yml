@@ -52,7 +52,7 @@ install:
             chmod +x kubectl && sudo mv kubectl /usr/local/bin/
         client_tools="openshift-origin-client-tools-${OC_VERSION}-${COMMIT_ID}-linux-64bit" && curl -LO https://github.com/openshift/origin/releases/download/${OC_VERSION}/${client_tools}.tar.gz && \
           tar -xvzf ${client_tools}.tar.gz && sudo mv $PWD/${client_tools}/oc /usr/local/bin/ && rm -rf ${client_tools}.tar.gz
-        oc cluster up --version=${OC_VERSION}
+        oc cluster up --version=${OC_VERSION} --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
         sleep 10
         oc login -u system:admin
       fi
