@@ -7,7 +7,7 @@ import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.UNIX;
 import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.UNKNOWN;
 import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.WINDOWS;
 
-public enum OperatingSystem {
+public enum OperatingSystem implements OperatingSystemInterface {
     LINUX_OS("Linux", LINUX),
     MAC_OSX("Mac OS X", MAC),
     MAC_OS("Mac OS", MAC),

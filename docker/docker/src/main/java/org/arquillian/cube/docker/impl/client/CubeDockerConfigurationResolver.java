@@ -6,8 +6,8 @@ import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.GitHubUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Machine;
-import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -42,10 +42,10 @@ public class CubeDockerConfigurationResolver {
     private final Top top;
     private final DockerMachine dockerMachine;
     private final Boot2Docker boot2Docker;
-    private final OperatingSystem operatingSystem;
+    private final OperatingSystemInterface operatingSystem;
 
     public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
-                                           OperatingSystem operatingSystem) {
+                                           OperatingSystemInterface operatingSystem) {
         this.top = top;
         this.dockerMachine = dockerMachine;
         this.boot2Docker = boot2Docker;
