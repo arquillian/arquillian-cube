@@ -5240,9 +5240,14 @@ GenericArchive must end with tar extension because it is expected by <strong>Arq
 <div class="sect2">
 <h3 id="_overview"><a class="anchor" href="#_overview"></a>20.1. Overview</h3>
 <div class="paragraph">
-<p>This extension will create and manage a temporary namespace for your tests, apply all Kubernetes resources required to
+<p>This extension will create and manage one temporary namespace for your tests, apply all Kubernetes resources required to
 create your environment and once everything is ready it will run your tests. The tests will be enriched with resources
 required to access services. Finally when testing is over it will cleanup everything.</p>
+</div>
+<div class="paragraph">
+<p>In addition to the main testing namespace additional secondary namespaces could be used during testing. Cube
+would not modify them, but tests could be enriched with resources from secondary namespaces to access services in them
+in case you need to verify changes made by services you are testing.</p>
 </div>
 <div class="paragraph">
 <p>This extension  will neither mutate your containers <strong>(by deploying, reconfiguring etc)</strong> nor your Kubernetes resources
@@ -5408,65 +5413,65 @@ For example <strong>foo.bar.baz</strong> will be converted to <strong>FOO_BAR_BA
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.use.current</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean (false)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Don&#8217;t generate a namespace use the current instead</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Don&#8217;t generate a testing namespace use the current instead</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.use.existing</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Don&#8217;t generate a namespace use the specified one instead</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Don&#8217;t generate a testing namespace use the specified one instead</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.prefix</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String (itest)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If you don&#8217;t specify a namespace, a random one will be
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you don&#8217;t specify a testing namespace, a random one will be
 created, with this prefix</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.lazy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Should the specified namespace be created if not exists,
+<td class="tableblock halign-left valign-top"><p class="tableblock">Should the specified testing namespace be created if not exists,
 or throw exception?</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to destroy the namespace after the end of the test
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to destroy the testing namespace after the end of the test
 suite</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.confirm.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to delete the namespace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to delete the testing namespace</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.destroy.timeout</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time to wait before destroying the namespace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time to wait before destroying the testing namespace</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (true)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to clean (delete resources) the namespace after the
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to clean (delete resources) the testing namespace after the
 end of the test suite</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.confirm.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bool (false)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to clean the namespace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flag to ask for confirmation to clean the testing namespace</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">namespace.cleanup.timeout</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Time to wait when cleaning up the namespace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Time to wait when cleaning up the testing namespace</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.init.enabled</p></td>
@@ -5659,9 +5664,9 @@ Pod:MappedPort:ContainerPort</p></td>
 <div class="paragraph">
 <p>The OpenShift module provides a easy way to run tests against your public application&#8217;s route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
-manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
+manually to your /etc/hosts to make its name resolvable. The arquillian Cube generates a custom namespaces prefix
 that will be used to define the application&#8217;s route when running your tests against an OpenShift instance, even if you
-specify a namepsace manually it will be transparent and the application&#8217;s endpoint will be resolvable within your java
+specify a namespace manually it will be transparent and the application&#8217;s endpoint will be resolvable within your java
 tests.</p>
 </div>
 <div class="paragraph">
@@ -5738,21 +5743,22 @@ Examples of these are service accounts, credentials, routes, &#8230;&#8203;</p>
 <div class="sect2">
 <h3 id="_namespaces"><a class="anchor" href="#_namespaces"></a>20.7. Namespaces</h3>
 <div class="paragraph">
-<p>The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before
-the suite is started and destroyed in the end.
+<p>The default behavior of the extension is to create a unique testing namespace per test suite. The namespace is created
+Before the suite is started and destroyed in the end.
 For debugging purposes, you can set the <strong>namespace.cleanup.enabled</strong> and <strong>namespace.destroy.enabled</strong>  to false and
-keep the namespace around.</p>
+keep the testing namespace around.</p>
 </div>
 <div class="paragraph">
 <p>In other cases you may find it useful to manually create and manage the environment rather than having <strong>arquillian</strong>
 do that for you.
-In this case you can use the <strong>namespace.use.existing</strong> option to select an existing namespace. This option goes hand
-in hand with <strong>env.init.enabled</strong> which can be used to prevent the extension from modifying the environment.</p>
+In this case you can use the <strong>namespace.use.existing</strong> option to select an existing testing namespace.
+This option goes hand in hand with <strong>env.init.enabled</strong> which can be used to prevent the extension from modifying
+the environment.</p>
 </div>
 <div class="paragraph">
-<p>Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case,
-arquillian cube will delegate to the <a href="https://github.com/fabric8io/kubernetes-client/">Kubernetes Client</a> that
-will use:</p>
+<p>Last but not least, you can just tell arquillian, that you are going to use the current namespace as testing namespace.
+In this case, arquillian cube will delegate to the link:
+<a href="https://github.com/fabric8io/kubernetes-client/">Kubernetes Client</a> that will use:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -5768,7 +5774,13 @@ will use:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>to determine the current namespace.</p>
+<p>to determine the current testing namespace.</p>
+</div>
+<div class="paragraph">
+<p>In addition to the primary testing namespace a number of secondary namespaces could participate in tests, but only as
+a possible location of resources needed to be accessed during tests, usually with verifying purpose. When the service
+you are testing made some changes in state of services in another namespaces, you can specify the secondary
+namespace in a field of @Named annotation to reach them.</p>
 </div>
 </div>
 <div class="sect2">
@@ -5910,7 +5922,7 @@ expected state.</p>
 <p>A kubernetes client as an instance of KubernetesClient</p>
 </li>
 <li>
-<p>Session object that contains information (e.g. the namespace) or the uuid of the test session.</p>
+<p>Session object that contains information (e.g. the testing namespace) or the uuid of the test session.</p>
 </li>
 <li>
 <p>Deployments <strong>(by id or as a list of all deployments created during the session, optionally filtered by label)</strong></p>
@@ -5969,7 +5981,7 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
 <a href="http://assertj.org">assert4j</a> for performing assertions on top of the Kubernetes model.</p>
 </div>
 <div class="paragraph">
-<p>The next example is intended to how you can inject a resource by id.</p>
+<p>The next example is intended to show how you can inject a resource by id.</p>
 </div>
 <div class="listingblock">
 <div class="title">ResourceByIdTest.java</div>
@@ -5978,7 +5990,7 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
     <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceByIdTest</span> {
 
      <span class="annotation">@ArquillianResource</span>
-     <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-serivce</span><span class="delimiter">&quot;</span></span>)
+     <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-service</span><span class="delimiter">&quot;</span></span>)
      Service service;
 
      <span class="annotation">@ArquillianResource</span>
@@ -5987,6 +5999,34 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
 
      <span class="annotation">@ArquillianResource</span>
      <span class="annotation">@Named</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">my-contoller</span><span class="delimiter">&quot;</span></span>)
+     ReplicationController controller;
+
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       <span class="comment">//Do stuff...</span>
+      }
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next example is intended to show how you can inject a resource from secondary namespace.</p>
+</div>
+<div class="listingblock">
+<div class="title">ResourceByIdInSecondaryNamespaceTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">ResourceByIdInSecondaryNamespaceTest</span> {
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@Named</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-service</span><span class="delimiter">&quot;</span></span>, namespace = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-predefined-namespace</span><span class="delimiter">&quot;</span></span>)
+     Service service;
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@Named</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-pod</span><span class="delimiter">&quot;</span></span>, namespace = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-predefined-namespace</span><span class="delimiter">&quot;</span></span>)
+     Pod pod;
+
+     <span class="annotation">@ArquillianResource</span>
+     <span class="annotation">@Named</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-contoller</span><span class="delimiter">&quot;</span></span>, namespace = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-predefined-namespace</span><span class="delimiter">&quot;</span></span>)
      ReplicationController controller;
 
       <span class="annotation">@Test</span>
@@ -6068,14 +6108,27 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
     <span class="annotation">@ArquillianResource</span>
     <span class="predefined-type">URL</span> url;
 
+    <span class="annotation">@Named</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">another-openshift-service</span><span class="delimiter">&quot;</span></span>, namespace = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-predefined-namespace</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@PortForward</span>
+    <span class="annotation">@ArquillianResource</span>
+    Service anotherService;
+
+    <span class="annotation">@Named</span>(value = <span class="string"><span class="delimiter">&quot;</span><span class="content">another-openshift-service</span><span class="delimiter">&quot;</span></span>, namespace = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-predefined-namespace</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@PortForward</span>
+    <span class="annotation">@ArquillianResource</span>
+    <span class="predefined-type">URL</span> anotherUrl;
+
     <span class="annotation">@Test</span>
-    <span class="directive">public</span> <span class="type">void</span> service_instance_should_not_be_null() <span class="directive">throws</span> <span class="exception">Exception</span> {
+    <span class="directive">public</span> <span class="type">void</span> service_instances_should_not_be_null() <span class="directive">throws</span> <span class="exception">Exception</span> {
         assertThat(service).isNotNull();
+        assertThat(anotherService).isNotNull();
     }
 
     <span class="annotation">@Test</span>
     <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
         <span class="comment">//Do stuff...</span>
+        <span class="comment">//Modify something with request to url...</span>
+        <span class="comment">//Check results with request to anotherUrl...</span>
     }
 }</code></pre>
 </div>
@@ -6292,7 +6345,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-11-29 16:02:06 UTC
+Last updated 2017-12-02 16:16:04 UTC
 </div>
 </div>
 </body>
