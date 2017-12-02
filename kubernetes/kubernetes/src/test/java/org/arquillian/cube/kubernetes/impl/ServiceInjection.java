@@ -40,13 +40,21 @@ public class ServiceInjection {
     @ArquillianResource
     private Service service;
 
+    @Named(value = "test-service-second", namespace = "test-secondary-namespace")
+    @ArquillianResource
+    private Service serviceInSecondaryNamespace;
+
     @Test
-    public void testPodListInjection() {
+    public void testServicesInjection() {
         assertNotNull(serviceList);
         assertEquals(1, serviceList.getItems().size());
         assertEquals("test-service", serviceList.getItems().get(0).getMetadata().getName());
 
         assertNotNull(service);
         assertEquals("test-service", service.getMetadata().getName());
+
+        assertNotNull(serviceInSecondaryNamespace);
+        assertEquals("test-service-second", serviceInSecondaryNamespace.getMetadata().getName());
+        assertEquals("test-secondary-namespace", serviceInSecondaryNamespace.getMetadata().getNamespace());
     }
 }

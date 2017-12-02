@@ -4,9 +4,13 @@ The kubernetes extension helps you write and run integration tests for your Kube
 
 === Overview
 
-This extension will create and manage a temporary namespace for your tests, apply all Kubernetes resources required to 
+This extension will create and manage one temporary namespace for your tests, apply all Kubernetes resources required to
 create your environment and once everything is ready it will run your tests. The tests will be enriched with resources 
 required to access services. Finally when testing is over it will cleanup everything.
+
+In addition to the main testing namespace additional secondary namespaces could be used during testing. Cube
+would not modify them, but tests could be enriched with resources from secondary namespaces to access services in them
+in case you need to verify changes made by services you are testing.
 
 This extension  will neither mutate your containers *(by deploying, reconfiguring etc)* nor your Kubernetes resources 
 and takes a black box approach to testing.
@@ -57,20 +61,20 @@ For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 | kubernetes.master                   | URL            | Any | The URL to the Kubernetes master                               
 | kubernetes.domain                   | String         | OSE | Domain to use for creating routes for services                 
 | docker.registry                     | String         | Any | The docker registry     
-| namespace.use.current               | Boolean (false)| Any | Don't generate a namespace use the current instead             
-| namespace.use.existing              | String         | Any | Don't generate a namespace use the specified one instead       
-| namespace.prefix                    | String (itest) | Any | If you don't specify a namespace, a random one will be 
+| namespace.use.current               | Boolean (false)| Any | Don't generate a testing namespace use the current instead
+| namespace.use.existing              | String         | Any | Don't generate a testing namespace use the specified one instead
+| namespace.prefix                    | String (itest) | Any | If you don't specify a testing namespace, a random one will be
 created, with this prefix 
-| namespace.lazy.enabled              | Bool (true)    | Any | Should the specified namespace be created if not exists,
+| namespace.lazy.enabled              | Bool (true)    | Any | Should the specified testing namespace be created if not exists,
 or throw exception?
-| namespace.destroy.enabled           | Bool (true)    | Any | Flag to destroy the namespace after the end of the test
+| namespace.destroy.enabled           | Bool (true)    | Any | Flag to destroy the testing namespace after the end of the test
 suite
-| namespace.destroy.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the namespace           
-| namespace.destroy.timeout           | Long           | Any | Time to wait before destroying the namespace                   
-| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to clean (delete resources) the namespace after the
+| namespace.destroy.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the testing namespace
+| namespace.destroy.timeout           | Long           | Any | Time to wait before destroying the testing namespace
+| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to clean (delete resources) the testing namespace after the
 end of the test suite
-| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the namespace           
-| namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the namespace                   
+| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the testing namespace
+| namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the testing namespace
 | env.init.enabled                    | Bool (true)    | Any | Flag to initialize the environment (apply kubernetes 
 resources)                  
 | env.config.url                      | URL            | Any | URL to the Kubernetes JSON/YAML (defaults to classpath 
@@ -113,9 +117,9 @@ Pod:MappedPort:ContainerPort
 ==== Openshift DNS Naming Service
 The OpenShift module provides a easy way to run tests against your public application's route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
-manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
+manually to your /etc/hosts to make its name resolvable. The arquillian Cube generates a custom namespaces prefix
 that will be used to define the application's route when running your tests against an OpenShift instance, even if you
-specify a namepsace manually it will be transparent and the application's endpoint will be resolvable within your java
+specify a namespace manually it will be transparent and the application's endpoint will be resolvable within your java
 tests.
 
 To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test
@@ -137,25 +141,31 @@ Or just setting the following System Properties:
 
 === Namespaces
 
-The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before
-the suite is started and destroyed in the end.
+The default behavior of the extension is to create a unique testing namespace per test suite. The namespace is created
+Before the suite is started and destroyed in the end.
 For debugging purposes, you can set the **namespace.cleanup.enabled** and **namespace.destroy.enabled**  to false and
-keep the namespace around.
+keep the testing namespace around.
 
 In other cases you may find it useful to manually create and manage the environment rather than having **arquillian**
 do that for you.
-In this case you can use the **namespace.use.existing** option to select an existing namespace. This option goes hand
-in hand with **env.init.enabled** which can be used to prevent the extension from modifying the environment.
+In this case you can use the **namespace.use.existing** option to select an existing testing namespace.
+This option goes hand in hand with **env.init.enabled** which can be used to prevent the extension from modifying
+the environment.
 
-Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case,
-arquillian cube will delegate to the link:https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that
-will use:
+Last but not least, you can just tell arquillian, that you are going to use the current namespace as testing namespace.
+In this case, arquillian cube will delegate to the link:
+https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that will use:
 
 - ~/.kube/config
 - /var/run/secrets/kubernetes.io/serviceaccount/namespace
 - the KUBERNETES_NAMESPACE environmnet variable
 
-to determine the current namespace.
+to determine the current testing namespace.
+
+In addition to the primary testing namespace a number of secondary namespaces could participate in tests, but only as
+a possible location of resources needed to be accessed during tests, usually with verifying purpose. When the service
+you are testing made some changes in state of services in another namespaces, you can specify the secondary
+namespace in a field of @Named annotation to reach them.
 
 ### Creating the environment
 
@@ -240,7 +250,7 @@ The test case may obtain everything it needs, by accessing the Kubernetes resour
 The resource providers available, can be used to inject to your test cases the following resources:
 
 - A kubernetes client as an instance of KubernetesClient
-- Session object that contains information (e.g. the namespace) or the uuid of the test session.
+- Session object that contains information (e.g. the testing namespace) or the uuid of the test session.
 - Deployments *(by id or as a list of all deployments created during the session, optionally filtered by label)*
 - Pods *(by id or as a list of all pods created during the session, optionally filtered by label)*
 - Replication Controllers *(by id or as a list of all replication controllers created during the session, optionally
@@ -278,7 +288,7 @@ The test code above, demonstrates how you can inject an use inside your test the
 It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on 
 http://assertj.org[assert4j] for performing assertions on top of the Kubernetes model.
 
-The next example is intended to how you can inject a resource by id.
+The next example is intended to show how you can inject a resource by id.
 
 [source, java]
 .ResourceByIdTest.java
@@ -288,7 +298,7 @@ The next example is intended to how you can inject a resource by id.
     public class ResourceByIdTest {
 
      @ArquillianResource
-     @Named("my-serivce")
+     @Named("my-service")
      Service service;
 
      @ArquillianResource
@@ -305,7 +315,33 @@ The next example is intended to how you can inject a resource by id.
       }
     }
 ----
+The next example is intended to show how you can inject a resource from secondary namespace.
 
+[source, java]
+.ResourceByIdInSecondaryNamespaceTest.java
+----
+
+    @RunWith(Arquillian.class)
+    public class ResourceByIdInSecondaryNamespaceTest {
+
+     @ArquillianResource
+     @Named(value = "my-service", namespace = "my-predefined-namespace")
+     Service service;
+
+     @ArquillianResource
+     @Named(value = "my-pod", namespace = "my-predefined-namespace")
+     Pod pod;
+
+     @ArquillianResource
+     @Named(value = "my-contoller", namespace = "my-predefined-namespace")
+     ReplicationController controller;
+
+      @Test
+      public void testStuff() throws Exception {
+       //Do stuff...
+      }
+    }
+----
 The next example shows how to inject a resource filtering by label.
 
 [source, java]
@@ -377,14 +413,27 @@ public class HelloWorldTest {
     @ArquillianResource
     URL url;
 
+    @Named(value = "another-openshift-service", namespace = "my-predefined-namespace")
+    @PortForward
+    @ArquillianResource
+    Service anotherService;
+
+    @Named(value = "another-openshift-service", namespace = "my-predefined-namespace")
+    @PortForward
+    @ArquillianResource
+    URL anotherUrl;
+
     @Test
-    public void service_instance_should_not_be_null() throws Exception {
+    public void service_instances_should_not_be_null() throws Exception {
         assertThat(service).isNotNull();
+        assertThat(anotherService).isNotNull();
     }
 
     @Test
     public void testStuff() throws Exception {
         //Do stuff...
+        //Modify something with request to url...
+        //Check results with request to anotherUrl...
     }
 }
 ----
