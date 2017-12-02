@@ -57,6 +57,7 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceDestroyConfirmationEnabled;
     private final long namespaceDestroyTimeout;
 
+    private final boolean waitEnabled;
     private final long waitTimeout;
     private final long waitPollInterval;
     private final List<String> waitForServiceList;
@@ -72,7 +73,7 @@ public class DefaultConfiguration implements Configuration {
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
-        boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout,
+        boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
         String logPath, String kubernetesDomain, String dockerRegistry) {
         this.masterUrl = masterUrl;
@@ -90,6 +91,7 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyEnabled = namespaceDestroyEnabled;
         this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
+        this.waitEnabled = waitEnabled;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
         this.waitForServiceList = waitForServiceList;
@@ -145,6 +147,7 @@ public class DefaultConfiguration implements Configuration {
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
+                .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
@@ -348,6 +351,11 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public long getNamespaceDestroyTimeout() {
         return namespaceDestroyTimeout;
+    }
+
+    @Override
+    public boolean isWaitEnabled() {
+        return waitEnabled;
     }
 
     @Override

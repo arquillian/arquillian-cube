@@ -21,7 +21,6 @@
   <modules>
     <module>api</module>
     <module>shrinkwrap</module>
-    <module>httpclient</module>
     <module>openshift</module>
     <module>ftest</module>
     <module>ftest-containerless</module>

@@ -22,6 +22,7 @@
  */
 package org.arquillian.cube.openshift.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +50,9 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.annotation.ClassScoped;
+import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
+import org.jboss.arquillian.test.spi.event.suite.Before;
 import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
 
 import static org.arquillian.cube.openshift.impl.utils.TemplateUtils.addParameterValues;
@@ -57,7 +60,7 @@ import static org.arquillian.cube.openshift.impl.utils.TemplateUtils.addParamete
 /**
  * CEEnvironmentProcessor
  * <p>
- * Temporary class to handle @Template, @TemplateResources, and @OpenShiftResource annotations on
+ * Temporary class to handle @Template, @Templates, and @OpenShiftResource annotations on
  * test classes. Eventually, these will be migrated to Cube types, at which
  * point this will delegate to those for setup/teardown (via
  * StartCube/StopCube).
@@ -93,13 +96,36 @@ public class CEEnvironmentProcessor {
         CubeOpenShiftConfiguration configuration) throws DeploymentException {
         final TestClass testClass = event.getTestClass();
         log.info(String.format("Creating environment for %s", testClass.getName()));
-        OpenShiftResourceFactory.createResources(testClass.getName(), client, null, testClass.getJavaClass(),
+        OpenShiftResourceFactory.createResources(testClass.getName(), client, testClass.getJavaClass(),
             configuration.getProperties());
         processTemplateResources(testClass, client, configuration);
     }
 
+    public void createOpenShiftResource(@Observes(precedence = 10) Before event, OpenShiftAdapter client,
+        CubeOpenShiftConfiguration cubeOpenShiftConfiguration) {
+
+        final TestClass testClass = event.getTestClass();
+        final Method testMethod = event.getTestMethod();
+
+        log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod));
+
+        OpenShiftResourceFactory.createResources(testClass.getJavaClass(), client, testMethod, cubeOpenShiftConfiguration.getProperties());
+
+    }
+
+    public void deleteOpenShiftResource(@Observes(precedence = -10) After event, OpenShiftAdapter client) {
+
+        final TestClass testClass = event.getTestClass();
+        final Method testMethod = event.getTestMethod();
+
+        log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
+
+        OpenShiftResourceFactory.deleteResources(testClass.getJavaClass(), testMethod, client);
+
+    }
+
     /**
-     * Instantiates the templates specified by @Template within @TemplateResources
+     * Instantiates the templates specified by @Template within @Templates
      */
     private void processTemplateResources(TestClass testClass, OpenShiftAdapter client, CubeOpenShiftConfiguration configuration)
         throws DeploymentException {
@@ -124,12 +150,7 @@ public class CEEnvironmentProcessor {
                 }
             }
         }
-        templateDetailsProducer.set(new TemplateDetails() {
-            @Override
-            public List<List<? extends OpenShiftResource>> getResources() {
-                return RESOURCES;
-            }
-        });
+        templateDetailsProducer.set(() -> RESOURCES);
     }
 
     /**

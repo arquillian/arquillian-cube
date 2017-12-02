@@ -94,7 +94,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
                                       URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
-                                      boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
+                                      boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
                                       List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
                                       String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
@@ -104,7 +104,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
-            namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
+            namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
@@ -183,6 +183,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
+                .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(

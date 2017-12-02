@@ -44,6 +44,7 @@ public interface Configuration {
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
 
+    String WAIT_ENABLED = "wait.enabled";
     String WAIT_TIMEOUT = "wait.timeout";
     String WAIT_POLL_INTERVAL = "wait.poll.interval";
 
@@ -92,6 +93,8 @@ public interface Configuration {
     boolean isNamespaceDestroyConfirmationEnabled();
 
     long getNamespaceDestroyTimeout();
+
+    boolean isWaitEnabled();
 
     long getWaitTimeout();
 

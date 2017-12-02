@@ -75,12 +75,6 @@
       <artifactId>kubernetes-openshift-uberjar</artifactId>
       <classifier>versioned</classifier>
     </dependency>
-
-    <dependency>
-      <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift-httpclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
       <artifactId>arquillian-container-spi</artifactId>

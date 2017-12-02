@@ -11,7 +11,7 @@
       "ports" : [ {
         "port" : 80,
         "protocol" : "TCP",
-        "targetPort" : 80
+        "targetPort" : 8080
       } ],
       "selector" : {
         "app" : "hello-world"
@@ -38,17 +38,17 @@
         },
         "spec" : {
           "containers" : [ {
-            "image" : "dockercloud/hello-world",
+            "image" : "openshift/hello-openshift:v3.6.0",
             "name" : "hello-world-container",
             "ports" : [ {
               "name" : "http",
               "protocol" : "TCP",
-              "containerPort" : 80
+              "containerPort" : 8080
             } ],
             "readinessProbe": {
               "httpGet": {
                 "path": "/",
-                "port": 80
+                "port": 8080
               },
               "initialDelaySeconds": 1
             }

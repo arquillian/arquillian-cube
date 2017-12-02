@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2016 Red Hat Inc. and/or its affiliates and other
+ * Copyright 2015 Red Hat Inc. and/or its affiliates and other
  * contributors as indicated by the @author tags. All rights reserved.
  * See the copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -21,18 +21,18 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.arquillian.cube.openshift.httpclient;
+package org.arquillian.cube.openshift.api;
 
-import java.io.IOException;
-import java.util.Map;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
-public interface HttpRequest {
-    void setHeader(String name, String value);
-
-    void setEntity(String body) throws IOException;
-
-    void setEntity(Map<String, String> form) throws IOException;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface AddRolesToServiceAccounts {
+    AddRoleToServiceAccount[] value();
 }

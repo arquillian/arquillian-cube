@@ -18,8 +18,8 @@ and takes a black box approach to testing.
 === Modules
 The main modules of this extension are the following:
 
-- Kubernetes (default feature set)
-- Openshift (work in progress)
+- Kubernetes
+- Openshift
 - Fabric8 Microservices Platform (Fabric8 label and annotation support)
 
 === Features
@@ -41,6 +41,12 @@ The main modules of this extension are the following:
 - To use kubernetes extension, your host should have running kubernetes cluster.
 - To use openshift extension, your host should have running openshift cluster.
 
+=== Setup
+
+To use Kubernetes extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-kubernetes:${version}`.
+
+To use OpenShift extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-openshift:${version}`.
+
 === Configuring the extension
 
 The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables
@@ -54,6 +60,15 @@ converted to "_".
 For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 
 ==== Kubernetes Configuration Parameters
+
+You can configure Kubernetes by using any of the next configuration properties in `arquillian.xml`.
+
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="kubernetes">
+</extension>
+----
 
 [cols="2,1,1,3", options="header"]
 |===
@@ -87,7 +102,8 @@ environment
 the environment
 | env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency 
 kubernetes.json             
-| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready       
+| wait.enabled                        | Bool (true)    | Any | Whether to wait until the env is ready
+| wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready
 | wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment
 is ready
 | wait.for.service.list               | List           | Any | Explicitly specify a list of services to wait upon             
@@ -103,6 +119,16 @@ will also be captured if this flag is enabled. Filenames will end with `-KUBE_EV
 
 ==== Openshift Configuration Parameters
 
+When using OpenShift you can use `arquillian.xml` to configure ANY of the configuration properties introduced at <<Kubernetes Configuration Parameters>> mixed with some specific configuration parameters related to OpenShift.
+In cas of using OpenShift, then you need to use `openshift` qualifier instead of `kubernetes`, but as noticed in previous paragraph you can use it to set any Kubernetes configuration parameters as well.
+
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="openshift">
+</extension>
+----
+
 [cols="2,1,1,3", options="header"]
 |===
 | Option                              | Type           | Env | Description                                                   
@@ -110,11 +136,18 @@ will also be captured if this flag is enabled. Filenames will end with `-KUBE_EV
 start
 | definitionsFile                     | String         | Any | Definitions file path                                         
 | proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR 
-Pod:MappedPort:ContainerPort 
+Pod:MappedPort:ContainerPort
+| enableImageStreamDetection          | Bool (true)    | Any | Enable detecting ImageStream resources located at target/XXX-is.(json|yaml)
+| portForwardBindAddress              | String (127.0.0.1) | Any | If using port forwarding you can set the host
+| templateUrl                         | URL            | Any | URL where template is stored. This template is executed before any execution
+| templateLabels                      | CSV            | Any | Sets a comma separated value of template labels in form <key>=<value>
+| templateParameters                  | CSV            | Any | Sets a comma separated value of template parameters in form <key>=<value>
+| templateProcess                     | Bool (true)    | Any | Sets if templates must be processed or not
+
 |===
 
-
 ==== Openshift DNS Naming Service
+
 The OpenShift module provides a easy way to run tests against your public application's route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
 manually to your /etc/hosts to make its name resolvable. The arquillian Cube generates a custom namespaces prefix
@@ -138,6 +171,34 @@ public void prepareEnv(){
 
 Or just setting the following System Properties:
 `-Dsun.net.spi.nameservice.provider.1=dns,ArquillianCubeNameService -Dsun.net.spi.nameservice.provider.2=default`
+
+==== OpenShift Annotations
+
+OpenShift extension comes with some annotations that let you define resources at test level instead of globally.
+
+===== `@Template`
+
+A template describes a set of objects that can be parameterized and processed to produce a list of objects for creation by OpenShift.
+
+You can set template location as configuration parameter or using `@Template` annotation at class level.
+
+You can see an example of template usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java
+
+===== `@OpenShiftResource`
+
+You can apply OpenShift resources files before test execution.
+These resources creation are meant to be used for resources that aren't tied to a living thing.
+Examples of these are service accounts, credentials, routes, ...
+
+The value can either be:
+
+* link (https://www.github.com/alesj/template-testing/some.json)
+* test classpath resource (classpath:some.json)
+* or plain content ({"kind" : "Secret", ...}
+
+You can use `@OpenShiftResource` either at class level which implies that resource is created before test class execution and they are deleted after class execution or at method level which implies that resources are created and deleted after each test method execution.
+
+You can see an example of OpenShift resources usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java
 
 === Namespaces
 
