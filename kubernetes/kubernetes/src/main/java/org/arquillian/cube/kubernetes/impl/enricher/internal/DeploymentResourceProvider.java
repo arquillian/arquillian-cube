@@ -24,17 +24,18 @@ public class DeploymentResourceProvider extends AbstractKubernetesResourceProvid
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
             return getClient().extensions()
                 .deployments()
-                .inNamespace(getSession().getNamespace())
-                .withName(getName(qualifiers))
+                .inNamespace(namespace)
+                .withName(name)
                 .get();
         }
 
         // Gets the first deployment that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        DeploymentList list = getClient().extensions().deployments().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        DeploymentList list = getClient().extensions().deployments().inNamespace(namespace).withLabels(labels).list();
         List<Deployment> deployments = list.getItems();
         if( !deployments.isEmpty() ) {
             return deployments.get(0);

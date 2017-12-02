@@ -25,13 +25,14 @@ public class PodResourceProvider extends AbstractKubernetesResourceProvider {
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
-            return getClient().pods().inNamespace(getSession().getNamespace()).withName(name).get();
+            return getClient().pods().inNamespace(namespace).withName(name).get();
         }
 
         // Gets the first pod found that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        PodList list = getClient().pods().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        PodList list = getClient().pods().inNamespace(namespace).withLabels(labels).list();
         List<Pod> pods = list.getItems();
         if( !pods.isEmpty() ) {
             return pods.get(0);

@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.WithLabel;
 import org.arquillian.cube.kubernetes.annotations.WithLabels;
@@ -46,6 +47,19 @@ public abstract class AbstractKubernetesResourceProvider implements ResourceProv
             }
         }
         return null;
+    }
+
+    protected String getNamespace(Annotation... qualifiers) {
+        String namespace = null;
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof Named) {
+                namespace = ((Named) annotation).namespace();
+            }
+        }
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = getSession().getNamespace();
+        }
+        return namespace;
     }
 
     protected Map<String, String> getLabels(Annotation... qualifiers) {

@@ -24,16 +24,17 @@ public class DeploymentConfigResourceProvider extends AbstractOpenshiftResourceP
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
             return getOpenshiftClient().deploymentConfigs()
-                .inNamespace(getSession().getNamespace())
-                .withName(getName(qualifiers))
+                .inNamespace(namespace)
+                .withName(name)
                 .get();
         }
 
         // Gets the first deployment config that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        DeploymentConfigList list = getOpenshiftClient().deploymentConfigs().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        DeploymentConfigList list = getOpenshiftClient().deploymentConfigs().inNamespace(namespace).withLabels(labels).list();
         List<DeploymentConfig> deploymentConfigs = list.getItems();
         if( !deploymentConfigs.isEmpty() ) {
             return deploymentConfigs.get(0);
