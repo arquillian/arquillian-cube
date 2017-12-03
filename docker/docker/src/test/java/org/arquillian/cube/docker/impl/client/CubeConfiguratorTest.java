@@ -1,16 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.SystemUtils;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
@@ -28,16 +22,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {
@@ -75,6 +73,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, DockerMachine.class, new DockerMachine(commandLineExecutor));
         bind(ApplicationScoped.class, ArquillianDescriptor.class, arquillianDescriptor);
         bind(ApplicationScoped.class, Top.class, top);
+
         when(top.isSpinning()).thenReturn(false);
     }
 
@@ -186,6 +185,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         // Docker Machine is installed
         when(commandLineExecutor.execCommand("docker-machine"))
             .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
+
+        bind(ApplicationScoped.class, OperatingSystem.class, OperatingSystem.MAC_OS);
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
