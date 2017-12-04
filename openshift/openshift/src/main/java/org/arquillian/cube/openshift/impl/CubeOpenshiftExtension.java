@@ -24,6 +24,12 @@ import org.arquillian.cube.openshift.impl.feedback.OpenshiftFeedbackProvider;
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
 import org.arquillian.cube.openshift.impl.namespace.OpenshiftNamespaceService;
+import org.arquillian.cube.openshift.impl.ext.ExternalDeploymentScenarioGenerator;
+import org.arquillian.cube.openshift.impl.ext.LocalConfigurationResourceProvider;
+import org.arquillian.cube.openshift.impl.ext.OpenShiftHandleResourceProvider;
+import org.arquillian.cube.openshift.impl.ext.UtilsArchiveAppender;
+import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
+import org.jboss.arquillian.container.test.spi.client.deployment.DeploymentScenarioGenerator;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -57,5 +63,17 @@ public class CubeOpenshiftExtension implements LoadableExtension {
             .override(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class,
                 OpenshiftKubernetesResourceLocator.class)
             .override(NamespaceService.class, DefaultNamespaceService.class, OpenshiftNamespaceService.class);
+
+
+        //CE
+        builder.observer(CECubeInitializer.class)
+            .observer(CEEnvironmentProcessor.class);
+
+        builder.service(ResourceProvider.class, OpenShiftHandleResourceProvider.class);
+        builder.service(ResourceProvider.class, LocalConfigurationResourceProvider.class);
+        builder.service(AuxiliaryArchiveAppender.class, UtilsArchiveAppender.class);
+        builder.service(DeploymentScenarioGenerator.class, ExternalDeploymentScenarioGenerator.class);
+
+
     }
 }

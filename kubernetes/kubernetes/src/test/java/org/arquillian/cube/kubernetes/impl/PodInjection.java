@@ -40,6 +40,10 @@ public class PodInjection {
     @ArquillianResource
     private Pod pod;
 
+    @Named(value = "test-pod-second", namespace = "test-secondary-namespace")
+    @ArquillianResource
+    private Pod secondaryPod;
+
     @Test
     public void testPodListInjection() {
         assertNotNull(podList);
@@ -48,5 +52,9 @@ public class PodInjection {
 
         assertNotNull(pod);
         assertEquals("test-pod", pod.getMetadata().getName());
+
+        assertNotNull(secondaryPod);
+        assertEquals("test-pod-second", secondaryPod.getMetadata().getName());
+        assertEquals("test-secondary-namespace", secondaryPod.getMetadata().getNamespace());
     }
 }

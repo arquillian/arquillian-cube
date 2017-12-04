@@ -228,6 +228,7 @@ public class ContainerBuilder {
 
                 StarOperator.adaptPortBindingToParallelRun(cubeContainer);
                 StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
+                StarOperator.adaptDependenciesToParallelRun(uuid, cubeContainer);
 
                 String templateName = id.substring(0, id.lastIndexOf('*'));
                 id = StarOperator.generateNewName(templateName, uuid);

@@ -1,4 +1,4 @@
-import io.fabric8.kubernetes.api.model.v2_6.Service;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
 import java.io.IOException;
 import java.net.URL;
 import okhttp3.OkHttpClient;
@@ -49,7 +49,7 @@ public class HelloWorldTest {
             Response response = okHttpClient.newCall(request).execute();
             assertNotNull(response);
             assertEquals(200, response.code());
-            assertTrue(response.body().string().contains("Hello world!"));
+            assertTrue(response.body().string().contains("Hello OpenShift!\n"));
         }
     }
 }

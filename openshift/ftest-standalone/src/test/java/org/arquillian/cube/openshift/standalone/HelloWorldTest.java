@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.standalone;
 
-import io.fabric8.kubernetes.api.model.v2_6.Service;
-import io.fabric8.openshift.clnt.v2_6.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.openshift.client.OpenShiftClient;
 import java.io.IOException;
 import java.net.URL;
 import okhttp3.OkHttpClient;

@@ -1,4 +1,12 @@
 sudo: required
+
+matrix:
+  include:
+    #https://github.com/openshift/origin/issues/17210
+    #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
+    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf"
+    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5"
+
 services:
   - docker
 addons:
@@ -30,6 +38,25 @@ before_install:
       docker pull rochdev/alpine-asciidoctor:mini;
     fi'
 
+install:
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        tmp=`mktemp`
+        echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry 172.30.0.0/16"' > ${tmp}
+        sudo mv ${tmp} /etc/default/docker
+        sudo mount --make-shared /
+        sudo service docker restart
+        docker pull openshift/wildfly-101-centos7
+        docker pull aslakknutsen/openshift-arquillian-gitserver
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
+            chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        client_tools="openshift-origin-client-tools-${OC_VERSION}-${COMMIT_ID}-linux-64bit" && curl -LO https://github.com/openshift/origin/releases/download/${OC_VERSION}/${client_tools}.tar.gz && \
+          tar -xvzf ${client_tools}.tar.gz && sudo mv $PWD/${client_tools}/oc /usr/local/bin/ && rm -rf ${client_tools}.tar.gz
+        oc cluster up --version=${OC_VERSION} --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
+        sleep 10
+        oc login -u system:admin
+      fi
+
 before_script: ./mvnw install -q -U -DskipTests=true
 
 script:
@@ -55,3 +82,8 @@ after_failure:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        oc project default
+        oc get event -w
+      fi

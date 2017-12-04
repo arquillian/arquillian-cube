@@ -55,6 +55,27 @@ public class StarOperator {
         }
     }
 
+    public static void adaptDependenciesToParallelRun(UUID uuid, CubeContainer cubeContainer) {
+        final Collection<String> dependencies = cubeContainer.getDependsOn();
+
+        if (dependencies == null) {
+            return;
+        }
+        
+        ArrayList<String> adjustedDependsOn = new ArrayList<>();
+
+        for (String dependency : dependencies) {
+            if (dependency.endsWith("*")) {
+                String dependencyTemplate = dependency.substring(0,dependency.lastIndexOf('*'));
+                adjustedDependsOn.add(generateNewName(dependencyTemplate, uuid));
+            }else {
+                adjustedDependsOn.add(dependency);
+            }
+        }
+        
+        cubeContainer.setDependsOn(adjustedDependsOn);
+    }
+
     public static String generateNewName(String containerName, UUID uuid) {
         return containerName + "_" + uuid;
     }

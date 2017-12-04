@@ -30,6 +30,11 @@ Let's see an example:
     ping*:
       image: jonmorehouse/ping-pong
       exposedPorts: [8089/tcp]
+    pong*:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+      depends_on:
+        - "ping*"
 </property>
 ----
 
@@ -38,7 +43,7 @@ You add the special character `*` to indicate that cube name should be randomize
 With previous example Cube will:
 
 . Generate a unique _UUID_.
-. Substitute cube name and links using the name + UUID
+. Substitute cube name, links and depends_on using the name + UUID
 . In case of using an alias, don't add the `*` since it is extended from the service name
 . Bind port is going to be changed to a random private port (49152 - 65535)
 . Add an environment variable with new hostname. This environment variable is <name>_HOSTNAME
@@ -58,6 +63,11 @@ So for example the result file could look like:
     ping_123456:
       image: jonmorehouse/ping-pong
       exposedPorts: [8089/tcp]
+    pong_123456:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+      depends_on:
+        - "ping_123456"
 </property>
 ----
 

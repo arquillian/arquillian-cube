@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,7 @@ public interface Configuration {
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
 
+    String WAIT_ENABLED = "wait.enabled";
     String WAIT_TIMEOUT = "wait.timeout";
     String WAIT_POLL_INTERVAL = "wait.poll.interval";
 
@@ -92,6 +93,8 @@ public interface Configuration {
     boolean isNamespaceDestroyConfirmationEnabled();
 
     long getNamespaceDestroyTimeout();
+
+    boolean isWaitEnabled();
 
     long getWaitTimeout();
 

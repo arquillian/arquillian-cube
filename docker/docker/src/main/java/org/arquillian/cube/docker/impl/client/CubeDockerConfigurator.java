@@ -98,6 +98,7 @@ public class CubeDockerConfigurator {
 
                 StarOperator.adaptPortBindingToParallelRun(cubeContainer);
                 StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
+                StarOperator.adaptDependenciesToParallelRun(uuid, cubeContainer);
 
                 String newId = StarOperator.generateNewName(templateName, uuid);
                 // Due to the fact that arquillian container names are determined way before the cubeDockerConfigurator kicks of and

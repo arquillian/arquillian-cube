@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 public @interface Named {
 
     String value();
+
+    String namespace() default "";
 }

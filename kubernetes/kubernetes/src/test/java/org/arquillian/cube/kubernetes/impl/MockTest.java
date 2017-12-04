@@ -1,22 +1,22 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.v2_6.Endpoints;
-import io.fabric8.kubernetes.api.model.v2_6.EndpointsBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.EndpointsListBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.Pod;
-import io.fabric8.kubernetes.api.model.v2_6.PodBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.PodListBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.ReplicationController;
-import io.fabric8.kubernetes.api.model.v2_6.ReplicationControllerBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.ReplicationControllerListBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.Service;
-import io.fabric8.kubernetes.api.model.v2_6.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.ServiceListBuilder;
-import io.fabric8.kubernetes.api.model.v2_6.WatchEvent;
-import io.fabric8.kubernetes.api.model.v2_6.extensions.ReplicaSetBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.kubernetes.clnt.v2_6.server.mock.KubernetesMockServer;
+import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointsBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointsListBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.PodBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.PodListBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationController;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerListBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.ServiceListBuilder;
+import io.fabric8.kubernetes.api.model.v3_1.WatchEvent;
+import io.fabric8.kubernetes.api.model.v3_1.extensions.ReplicaSetBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.server.mock.KubernetesMockServer;
 
 import java.io.IOException;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -55,9 +55,36 @@ public class MockTest {
             .endStatus()
             .build();
 
+        Pod testPodInSecondaryNamespace = new PodBuilder()
+            .withNewMetadata()
+            .withName("test-pod-second")
+            .withNamespace("test-secondary-namespace")
+            .endMetadata()
+            .withNewStatus()
+            .withPhase("Running")
+            .addNewCondition()
+            .withType("Ready")
+            .withStatus("True")
+            .endCondition()
+            .endStatus()
+            .build();
+
         Service testService = new ServiceBuilder()
             .withNewMetadata()
             .withName("test-service")
+            .endMetadata()
+            .withNewSpec()
+            .withClusterIP("10.0.0.1")
+            .addNewPort()
+            .withPort(8080)
+            .endPort()
+            .endSpec()
+            .build();
+
+        Service testServiceInSecondaryNamespace = new ServiceBuilder()
+            .withNewMetadata()
+            .withName("test-service-second")
+            .withNamespace("test-secondary-namespace")
             .endMetadata()
             .withNewSpec()
             .withClusterIP("10.0.0.1")
@@ -92,6 +119,32 @@ public class MockTest {
         ReplicationController testController = new ReplicationControllerBuilder()
             .withNewMetadata()
             .withName("test-controller")
+            .endMetadata()
+            .withNewSpec()
+            .addToSelector("name", "somelabel")
+            .withReplicas(1)
+            .withNewTemplate()
+            .withNewMetadata()
+            .addToLabels("name", "somelabel")
+            .endMetadata()
+            .withNewSpec()
+            .addNewContainer()
+            .withName("test-container2")
+            .withImage("test/image2")
+            .endContainer()
+            .endSpec()
+            .endTemplate()
+            .endSpec()
+            .withNewStatus()
+            .withReplicas(1)
+            .withReadyReplicas(1)
+            .endStatus()
+            .build();
+
+        ReplicationController testControllerInSecondaryNamespace = new ReplicationControllerBuilder()
+            .withNewMetadata()
+            .withName("test-controller-second")
+            .withNamespace("test-secondary-namespace")
             .endMetadata()
             .withNewSpec()
             .addToSelector("name", "somelabel")
@@ -151,6 +204,22 @@ public class MockTest {
             .andReturn(200, "")
             .always();
 
+        //test-controller-second in secondary namespace test-secondary-namespace
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/test-secondary-namespace/replicationcontrollers/test-controller-second")
+            .andReturn(200, testControllerInSecondaryNamespace)
+            .always();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/test-secondary-namespace/replicationcontrollers")
+            .andReturn(200, new ReplicationControllerListBuilder()
+                .withNewMetadata()
+                .withResourceVersion("1")
+                .endMetadata()
+                .withItems(testControllerInSecondaryNamespace).build())
+            .always();
+
         //test-pod
         MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/pods").andReturn(201, testPod).always();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(404, "").once();
@@ -162,6 +231,16 @@ public class MockTest {
             .withItems(testPod)
             .build()).always();
         MOCK.expect().delete().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(200, "").always();
+
+        //test-pod-second in secondary namespace test-secondary-namespace
+        MOCK.expect().get().withPath("/api/v1/namespaces/test-secondary-namespace/pods/test-pod-second").andReturn(200, testPodInSecondaryNamespace).always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/test-secondary-namespace/pods").andReturn(200, new PodListBuilder()
+            .withNewMetadata()
+            .withResourceVersion("1")
+            .endMetadata()
+            .withItems(testPodInSecondaryNamespace)
+            .build()).always();
+
 
         //test-service
         MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/services").andReturn(201, testService).always();
@@ -182,6 +261,19 @@ public class MockTest {
             .withPath("/api/v1/namespaces/arquillian/services/test-service")
             .andReturn(200, "")
             .always();
+
+        //test-service-second in secondary namespace test-secondary-namespace
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/test-secondary-namespace/services/test-service-second")
+            .andReturn(200, testServiceInSecondaryNamespace)
+            .always();
+        MOCK.expect().get().withPath("/api/v1/namespaces/test-secondary-namespace/services").andReturn(200, new ServiceListBuilder()
+            .withNewMetadata()
+            .withResourceVersion("1")
+            .endMetadata()
+            .withItems(testServiceInSecondaryNamespace)
+            .build()).always();
 
         //test-service endpoints
         MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/endpoints").andReturn(201, testEndpoints).always();
