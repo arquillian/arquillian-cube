@@ -44,7 +44,6 @@ import io.fabric8.kubernetes.api.model.v3_1.Probe;
 import io.fabric8.kubernetes.api.model.v3_1.ReplicationController;
 import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.v3_1.Secret;
 import io.fabric8.kubernetes.api.model.v3_1.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.v3_1.Service;
 import io.fabric8.kubernetes.api.model.v3_1.ServiceAccount;
@@ -62,11 +61,9 @@ import io.fabric8.openshift.api.model.v3_1.DeploymentConfigList;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfigStatus;
 import io.fabric8.openshift.api.model.v3_1.DoneableDeploymentConfig;
 import io.fabric8.openshift.api.model.v3_1.DoneableTemplate;
-import io.fabric8.openshift.api.model.v3_1.ImageStream;
 import io.fabric8.openshift.api.model.v3_1.Project;
 import io.fabric8.openshift.api.model.v3_1.RoleBinding;
 import io.fabric8.openshift.api.model.v3_1.RoleBindingBuilder;
-import io.fabric8.openshift.api.model.v3_1.Route;
 import io.fabric8.openshift.api.model.v3_1.Template;
 import io.fabric8.openshift.clnt.v3_1.DefaultOpenShiftClient;
 import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
@@ -75,12 +72,10 @@ import io.fabric8.openshift.clnt.v3_1.OpenShiftConfigBuilder;
 import io.fabric8.openshift.clnt.v3_1.ParameterValue;
 import io.fabric8.openshift.clnt.v3_1.dsl.DeployableScalableResource;
 import io.fabric8.openshift.clnt.v3_1.dsl.TemplateResource;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,7 +84,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import okhttp3.Response;
-import org.apache.commons.io.IOUtils;
 import org.arquillian.cube.openshift.api.MountSecret;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.adapter.AbstractOpenShiftAdapter;
@@ -104,9 +98,6 @@ import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.Port;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
-import org.jboss.arquillian.container.spi.client.container.DeploymentException;
-import org.jboss.dmr.ModelNode;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -492,11 +483,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
                     .endSubject()
                     .build()
             );
-        return new OpenShiftResourceHandle() {
-            public void delete() {
-                client.roleBindings().inNamespace(configuration.getNamespace()).delete(roleBinding);
-            }
-        };
+        return () -> client.roleBindings().inNamespace(configuration.getNamespace()).delete(roleBinding);
     }
 
     public Service getService(String namespace, String serviceName) {
@@ -514,7 +501,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             delay(labels, replicas, op);
         } catch (Exception e) {
-            throw new DeploymentException(
+            throw new IllegalStateException(
                 String.format("Timeout waiting for deployment %s to scale to %s pods", prefix, replicas), e);
         }
     }

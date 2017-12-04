@@ -28,6 +28,7 @@
     <module>ftest-template-standalone</module>
     <module>ftest-openshift-resources-standalone</module>
     <module>ftest-oc-proxy</module>
+    <module>ftest-openshift-assistant</module>
   </modules>
 
 </project>
