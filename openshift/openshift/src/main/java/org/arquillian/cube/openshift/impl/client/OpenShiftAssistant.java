@@ -27,6 +27,10 @@ import java.util.stream.Stream;
 
 import static org.awaitility.Awaitility.await;
 
+/**
+ * Class that allows you to deploy undeploy and wait for resources programmatically in a test.
+ *
+ */
 public class OpenShiftAssistant {
 
     private static final Logger log = Logger.getLogger(OpenShiftAssistant.class.getName());
@@ -46,10 +50,26 @@ public class OpenShiftAssistant {
         this.openShiftAssistantDefaultResourcesLocator = new OpenShiftAssistantDefaultResourcesLocator();
     }
 
+    /**
+     * Deploys application finding resources in default location in classpath. That is:
+     * openshift.(y[a]ml|json), kubernetes.(y[a]ml|json), META-INF/fabric8/openshift.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
+     * @return the name of the application defined in the DeplymentConfig.
+     * @throws IOException
+     */
     public String deployApplication() throws IOException {
         return deployApplication(null);
     }
 
+    /**
+     * Deploys application finding resources in default location in classpath. That is:
+     * openshift.(y[a]ml|json), kubernetes.(y[a]ml|json), META-INF/fabric8/openshift.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
+     *
+     * In this method yo specify the application name.
+     *
+     * @param applicationName to configure in cluster
+     * @return the name of the application
+     * @throws IOException
+     */
     public String deployApplication(String applicationName) throws IOException {
 
         final Optional<URL> defaultFileOptional = this.openShiftAssistantDefaultResourcesLocator.locate();
@@ -63,6 +83,13 @@ public class OpenShiftAssistant {
         return this.applicationName;
     }
 
+    /**
+     * Deploys application reading resources from specified classpath location
+     * @param applicationName to configure in cluster
+     * @param classpathLocations where resources are read
+     * @return the name of the application
+     * @throws IOException
+     */
     public String deployApplication(String applicationName, String... classpathLocations) throws IOException {
 
         final List<URL> classpathElements = Arrays.stream(classpathLocations)
@@ -74,6 +101,13 @@ public class OpenShiftAssistant {
         return this.applicationName;
     }
 
+    /**
+     * Deploys application reading resources from specified URLs
+     * @param applicationName to configure in cluster
+     * @param urls where resources are read
+     * @return the name of the application
+     * @throws IOException
+     */
     public String deployApplication(String applicationName, URL... urls) throws IOException {
         this.applicationName = applicationName;
 
@@ -114,7 +148,11 @@ public class OpenShiftAssistant {
         return entities;
     }
 
-
+    /**
+     * Gets the URL of the route with given name.
+     * @param routeName to return its URL
+     * @return URL backed by the route with given name.
+     */
     public Optional<URL> getRoute(String routeName) {
         Route route = client.routes()
             .inNamespace(namespace).withName(applicationName).get();
@@ -122,6 +160,10 @@ public class OpenShiftAssistant {
         return route != null ? createUrlFromRoute(route) : Optional.empty();
     }
 
+    /**
+     * Returns the URL of the first route.
+     * @return URL backed by the first route.
+     */
     public Optional<URL> getRoute() {
         Optional<Route> optionalRoute = client.routes().inNamespace(namespace)
             .list().getItems()
@@ -152,6 +194,9 @@ public class OpenShiftAssistant {
         }
     }
 
+    /**
+     * Removes all resources deployed using this class.
+     */
     public void cleanup() {
         List<String> keys = new ArrayList<>(created.keySet());
         keys.sort(String::compareTo);
@@ -190,6 +235,9 @@ public class OpenShiftAssistant {
         }
     }
 
+    /**
+     * Awaits at most 5 minutes until all pods are running.
+     */
     public void awaitApplicationReadinessOrFail() {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
@@ -209,6 +257,10 @@ public class OpenShiftAssistant {
         return namespace;
     }
 
+    /**
+     * Awaits at most 5 minutes until all pods meets the given predicate.
+     * @param filter used to wait to detect that a pod is up and running.
+     */
     public void awaitPodReadinessOrFail(Predicate<Pod> filter) {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
@@ -220,6 +272,10 @@ public class OpenShiftAssistant {
         );
     }
 
+    /**
+     * Scaling the application to given replicas
+     * @param replicas to scale the application
+     */
     public void scale(final int replicas) {
         log.info(String.format("Scaling replicas from %s to %s.", getPods("deploymentconfig").size(), replicas));
         this.client
@@ -253,6 +309,10 @@ public class OpenShiftAssistant {
             .getItems();
     }
 
+    /**
+     * Method that returns the current deployment configuration object
+     * @return Current deployment config object.
+     */
     public DeploymentConfig deploymentConfig() {
         return this.client
             .deploymentConfigs()
