@@ -33,6 +33,8 @@ public class HelloWorldOpenShiftAssistantTest {
         openShiftAssistant.deployApplication("hello-world", "hello-route.json");
 
         final Optional<URL> route = openShiftAssistant.getRoute();
+        openShiftAssistant.awaitUrl(route.get());
+
 
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(route.get()).build();

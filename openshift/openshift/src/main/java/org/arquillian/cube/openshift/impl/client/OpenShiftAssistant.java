@@ -9,6 +9,7 @@ import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
 import io.fabric8.openshift.api.model.v3_1.Route;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -270,6 +271,45 @@ public class OpenShiftAssistant {
                     .collect(Collectors.toList()).size() >= 1;
             }
         );
+    }
+
+    /**
+     * Waits until the url responds with correct status code
+     * @param routeUrl URL to check (usually a route one)
+     * @param statusCodes list of status code that might return that service is up and running.
+     *                    It is used as OR, so if one returns true, then the route is considered valid.
+     *                    If not set, then only 200 status code is used.
+     */
+    public void awaitUrl(URL routeUrl, int... statusCodes) {
+        await().atMost(5, TimeUnit.MINUTES).until(() -> tryConnect(routeUrl, statusCodes));
+    }
+
+    private boolean tryConnect(URL routeUrl, int[] statusCodes) {
+        if (statusCodes.length == 0) {
+            statusCodes = new int[] { 200 };
+        }
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) routeUrl.openConnection();
+            urlConnection.setConnectTimeout(1000);
+            urlConnection.setReadTimeout(1000);
+            urlConnection.connect();
+            int connectionResponseCode = urlConnection.getResponseCode();
+            for (int expectedStatusCode : statusCodes) {
+                if (expectedStatusCode == connectionResponseCode) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // retry
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+
+        return false;
     }
 
     /**
