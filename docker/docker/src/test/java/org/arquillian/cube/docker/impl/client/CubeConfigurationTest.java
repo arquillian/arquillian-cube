@@ -234,6 +234,9 @@ public class CubeConfigurationTest {
 
         final String ping = findElementStartingWith(containerIds, "ping");
         assertThat(ping.length(), is(greaterThan(4)));
+
+        final List<String> containerNames = containers.stream().map(Container::getName).collect(Collectors.toList());
+        assertThat(containerNames,contains(tomcat,ping));
     }
 
     @Test
