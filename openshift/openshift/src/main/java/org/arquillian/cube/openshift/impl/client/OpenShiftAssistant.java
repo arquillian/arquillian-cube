@@ -7,11 +7,16 @@ import io.fabric8.kubernetes.clnt.v3_1.dsl.NamespaceListVisitFromServerGetDelete
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
 import io.fabric8.openshift.api.model.v3_1.Route;
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,7 +63,8 @@ public class OpenShiftAssistant {
      * @throws IOException
      */
     public String deployApplication() throws IOException {
-        return deployApplication(null);
+        deployApplication((String) null);
+        return this.applicationName;
     }
 
     /**
@@ -71,7 +77,7 @@ public class OpenShiftAssistant {
      * @return the name of the application
      * @throws IOException
      */
-    public String deployApplication(String applicationName) throws IOException {
+    public void deployApplication(String applicationName) throws IOException {
 
         final Optional<URL> defaultFileOptional = this.openShiftAssistantDefaultResourcesLocator.locate();
 
@@ -81,23 +87,32 @@ public class OpenShiftAssistant {
             log.warning("No default Kubernetes or OpenShift resources found at default locations.");
         }
 
-        return this.applicationName;
     }
 
     /**
      * Deploys application reading resources from specified classpath location
      * @param applicationName to configure in cluster
      * @param classpathLocations where resources are read
-     * @return the name of the application
      * @throws IOException
      */
-    public String deployApplication(String applicationName, String... classpathLocations) throws IOException {
+    public void deployApplication(String applicationName, String... classpathLocations) throws IOException {
 
         final List<URL> classpathElements = Arrays.stream(classpathLocations)
             .map(classpath -> Thread.currentThread().getContextClassLoader().getResource(classpath))
             .collect(Collectors.toList());
 
         deployApplication(applicationName, classpathElements.toArray(new URL[classpathElements.size()]));
+
+    }
+
+    /**
+     * Deploys application reading resources from specified URLs
+     * @param urls where resources are read
+     * @return the name of the application
+     * @throws IOException
+     */
+    public String deployApplication(URL... urls) throws IOException {
+        deployApplication(null, urls);
 
         return this.applicationName;
     }
@@ -109,7 +124,7 @@ public class OpenShiftAssistant {
      * @return the name of the application
      * @throws IOException
      */
-    public String deployApplication(String applicationName, URL... urls) throws IOException {
+    public void deployApplication(String applicationName, URL... urls) throws IOException {
         this.applicationName = applicationName;
 
         for (URL url : urls) {
@@ -118,7 +133,80 @@ public class OpenShiftAssistant {
             }
         }
 
+    }
+
+    /**
+     * Deploys application reading resources from classpath, matching the given regular expression.
+     * For example kubernetes/.*\\.json will deploy all resources ending with json placed at kubernetes classpath directory.
+     * @param applicationName to configure the cluster
+     * @param pattern to match the resources.
+     */
+    public void deployAll(String applicationName, String pattern) {
+        this.applicationName = applicationName;
+
+        final FastClasspathScanner fastClasspathScanner = new FastClasspathScanner();
+
+        fastClasspathScanner.matchFilenamePattern(pattern, (FileMatchProcessor) (relativePath, inputStream, lengthBytes) -> {
+            deploy(inputStream);
+        }).scan();
+    }
+
+    /**
+     * Deploys application reading resources from classpath, matching the given regular expression.
+     * For example kubernetes/.*\\.json will deploy all resources ending with json placed at kubernetes classpath directory.
+     * @param pattern to match the resources.
+     */
+    public String deployAll(String pattern) {
+        final FastClasspathScanner fastClasspathScanner = new FastClasspathScanner();
+
+        fastClasspathScanner.matchFilenamePattern(pattern, (FileMatchProcessor) (relativePath, inputStream, lengthBytes) -> {
+            deploy(inputStream);
+        }).scan();
+
         return this.applicationName;
+
+    }
+
+    /**
+     * Deploys all y(a)ml and json files located at given directory.
+     * @param directory where resource files are stored
+     * @return the name of the application
+     * @throws IOException
+     */
+    public String deployAll(Path directory) throws IOException {
+        deployAll(directory);
+        return this.applicationName;
+    }
+
+    /**
+     * Deploys all y(a)ml and json files located at given directory.
+     * @param applicationName to configure in cluster
+     * @param directory where resources files are stored
+     * @throws IOException
+     */
+    public void deployAll(String applicationName, Path directory) throws IOException {
+        this.applicationName = applicationName;
+
+        if (Files.isDirectory(directory)) {
+            Files.list(directory)
+                .filter(p -> p.endsWith(".yaml") || p.endsWith(".yml") || p.endsWith(".json"))
+                .map(p -> {
+                    try {
+                        return Files.newInputStream(p);
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                })
+                .forEach(is -> {
+                    try {
+                        deploy(is);
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                });
+        } else {
+            throw new IllegalArgumentException(String.format("%s should be a directory", directory));
+        }
     }
 
     private void deploy(InputStream inputStream) throws IOException {
