@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
@@ -17,6 +19,7 @@ import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.jboss.arquillian.config.descriptor.api.ContainerDef;
 import org.jboss.arquillian.container.impl.ContainerImpl;
+import org.jboss.arquillian.container.spi.Container;
 import org.jboss.arquillian.container.spi.ContainerRegistry;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.core.api.Instance;
@@ -30,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -198,6 +202,12 @@ public class CubeConfigurationTest {
 
     @Test
     public void shouldChangeNamesInParallelizeStarCubes() {
+        ContainerRegistry mockRegistry = mock(ContainerRegistry.class);
+        when(registry.get()).thenReturn(mockRegistry);
+        List<Container> containers = ImmutableList.of(new ContainerImpl("tomcat", mock(
+            DeployableContainer.class), mock(ContainerDef.class)),
+            new ContainerImpl("ping", mock(DeployableContainer.class), mock(ContainerDef.class)));
+        when(mockRegistry.getContainers()).thenReturn(containers);
         String content =
             "tomcat*:\n" +
                 "  image: tutum/tomcat:8.0\n" +
@@ -214,7 +224,7 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
-        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator(registry);
         final CubeDockerConfiguration cubeDockerConfiguration =
             cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
@@ -228,6 +238,11 @@ public class CubeConfigurationTest {
 
     @Test
     public void shouldAddEnvVarsWithHostNameInParallelizeStarCubes() {
+        ContainerRegistry mockRegistry = mock(ContainerRegistry.class);
+        when(registry.get()).thenReturn(mockRegistry);
+        when(mockRegistry.getContainers()).thenReturn(ImmutableList.of(new ContainerImpl("tomcat", mock(
+            DeployableContainer.class), mock(ContainerDef.class)),
+            new ContainerImpl("ping", mock(DeployableContainer.class), mock(ContainerDef.class))));
         String content =
             "tomcat*:\n" +
                 "  image: tutum/tomcat:8.0\n" +
@@ -244,7 +259,7 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
-        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator(registry);
         final CubeDockerConfiguration cubeDockerConfiguration =
             cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
@@ -261,8 +276,9 @@ public class CubeConfigurationTest {
     public void shouldChangePortBindingToPrivatePortsInParallelizeStarCubes() {
         ContainerRegistry mockRegistry = mock(ContainerRegistry.class);
         when(registry.get()).thenReturn(mockRegistry);
-        when(mockRegistry.getContainers()).thenReturn(ImmutableList.of(new ContainerImpl("tomcat",mock(
-            DeployableContainer.class),mock(ContainerDef.class)),new ContainerImpl("ping",mock(DeployableContainer.class),mock(ContainerDef.class))));
+        when(mockRegistry.getContainers()).thenReturn(ImmutableList.of(new ContainerImpl("tomcat", mock(
+            DeployableContainer.class), mock(ContainerDef.class)),
+            new ContainerImpl("ping", mock(DeployableContainer.class), mock(ContainerDef.class))));
         String content =
             "tomcat*:\n" +
                 "  image: tutum/tomcat:8.0\n" +
@@ -293,6 +309,11 @@ public class CubeConfigurationTest {
 
     @Test
     public void shouldChangeStarLinksInParallelizeStarCubes() {
+        ContainerRegistry mockRegistry = mock(ContainerRegistry.class);
+        when(registry.get()).thenReturn(mockRegistry);
+        when(mockRegistry.getContainers()).thenReturn(ImmutableList.of(new ContainerImpl("tomcat", mock(
+            DeployableContainer.class), mock(ContainerDef.class)),
+            new ContainerImpl("ping", mock(DeployableContainer.class), mock(ContainerDef.class))));
         String content =
             "tomcat*:\n" +
                 "  image: tutum/tomcat:8.0\n" +
@@ -309,7 +330,7 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
-        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator(registry);
         final CubeDockerConfiguration cubeDockerConfiguration =
             cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
@@ -324,6 +345,11 @@ public class CubeConfigurationTest {
 
     @Test
     public void shouldParallelizeStarCubesUsingRemappingAlias() {
+        ContainerRegistry mockRegistry = mock(ContainerRegistry.class);
+        when(registry.get()).thenReturn(mockRegistry);
+        when(mockRegistry.getContainers()).thenReturn(ImmutableList.of(new ContainerImpl("tomcat", mock(
+            DeployableContainer.class), mock(ContainerDef.class)),
+            new ContainerImpl("ping", mock(DeployableContainer.class), mock(ContainerDef.class))));
         String content =
             "tomcat*:\n" +
                 "  image: tutum/tomcat:8.0\n" +
@@ -341,7 +367,7 @@ public class CubeConfigurationTest {
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
-        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator(registry);
         final CubeDockerConfiguration cubeDockerConfiguration =
             cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
 
