@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Logger;
-
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
@@ -76,7 +75,8 @@ public class CubeDockerConfigurator {
     private void configure(ArquillianDescriptor arquillianDescriptor) {
         operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
-        CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(), dockerMachineInstance.get(),
+        CubeDockerConfigurationResolver resolver =
+            new CubeDockerConfigurationResolver(topInstance.get(), dockerMachineInstance.get(),
                 boot2DockerInstance.get(), operatingSystemFamilyInstanceProducer.get());
         resolver.resolve(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
@@ -132,5 +132,4 @@ public class CubeDockerConfigurator {
         dockerContainersContent.setContainers(resolvedContainers);
         return cubeConfiguration;
     }
-
 }
