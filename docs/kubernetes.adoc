@@ -512,6 +512,29 @@ public class HelloWorldTest {
 }
 ----
 
+Also you can gather control of what to deploy, when to deploy or  when to wait for resources readiness.
+To control you need to inject into test the `org.arquillian.cube.openshift.impl.client.OpenShiftAssistant`.
+
+[source, java]
+----
+public class HelloWorldOpenShiftAssistantTest {
+
+    @ArquillianResource
+    OpenShiftAssistant openShiftAssistant;
+
+     @Test
+     public void should_apply_route_programmatically() throws IOException {
+
+         openShiftAssistant.deployApplication("hello-world", "hello-route.json"); // <1> <2>
+         final Optional<URL> route = openShiftAssistant.getRoute(); // <3>
+     }
+
+}
+----
+<1> Sets the application name where everything is deployed
+<2> Sets the resource to apply, in this case creation of an OpenShift `route`
+<3> You can get the first defined route from cluster
+
 Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
 
 [source, java]

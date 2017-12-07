@@ -78,26 +78,15 @@ public class TemplateUtils {
 
     public static int readReplicas(TestClass testClass) {
         Replicas replicas = testClass.getAnnotation(Replicas.class);
-        int r = -1;
+        int r = 1;
         if (replicas != null) {
             if (replicas.value() <= 0) {
                 throw new IllegalArgumentException("Non-positive replicas size: " + replicas.value());
             }
             r = replicas.value();
         }
-        int max = 0;
-        for (Method c : testClass.getMethods(TargetsContainer.class)) {
-            int index = Strings.parseNumber(c.getAnnotation(TargetsContainer.class).value());
-            if (r > 0 && index >= r) {
-                throw new IllegalArgumentException(String.format("Node / pod index bigger then replicas; %s >= %s ! (%s)", index, r, c));
-            }
-            max = Math.max(max, index);
-        }
-        if (r < 0) {
-            return max + 1;
-        } else {
-            return r;
-        }
+
+        return r;
     }
 
     public static Map<String, String> readLabels(Template template, CubeOpenShiftConfiguration configuration, StringResolver resolver) {

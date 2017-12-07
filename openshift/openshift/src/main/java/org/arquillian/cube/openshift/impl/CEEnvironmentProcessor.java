@@ -33,17 +33,14 @@ import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.model.DeploymentConfig;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
-import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory;
 import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
-import org.jboss.arquillian.container.spi.client.container.DeploymentException;
-import org.jboss.arquillian.container.spi.event.container.AfterStart;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -93,7 +90,7 @@ public class CEEnvironmentProcessor {
      * Needs to fire before the containers are started.
      */
     public void createEnvironment(@Observes(precedence = 10) BeforeClass event, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration configuration) throws DeploymentException {
+        CubeOpenShiftConfiguration configuration) {
         final TestClass testClass = event.getTestClass();
         log.info(String.format("Creating environment for %s", testClass.getName()));
         OpenShiftResourceFactory.createResources(testClass.getName(), client, testClass.getJavaClass(),
@@ -127,8 +124,7 @@ public class CEEnvironmentProcessor {
     /**
      * Instantiates the templates specified by @Template within @Templates
      */
-    private void processTemplateResources(TestClass testClass, OpenShiftAdapter client, CubeOpenShiftConfiguration configuration)
-        throws DeploymentException {
+    private void processTemplateResources(TestClass testClass, OpenShiftAdapter client, CubeOpenShiftConfiguration configuration) {
         List<? extends OpenShiftResource> resources;
         final List<List<? extends OpenShiftResource>> RESOURCES = new ArrayList<List<? extends OpenShiftResource>>();
         templates = OpenShiftResourceFactory.getTemplates(testClass.getJavaClass());
@@ -145,38 +141,12 @@ public class CEEnvironmentProcessor {
                 try {
                     delay(client, resources);
                 } catch (Throwable t) {
-                    throw new DeploymentException(
+                    throw new IllegalArgumentException(
                         "Error waiting for template resources to deploy: " + testClass.getName(), t);
                 }
             }
         }
         templateDetailsProducer.set(() -> RESOURCES);
-    }
-
-    /**
-     * Wait for the template resources to come up after the test container has
-     * been started. This allows the test container and the template resources
-     * to come up in parallel.
-     */
-    public void waitForDeployments(@Observes(precedence = -100) AfterStart event, OpenShiftAdapter client,
-        TemplateDetails details, TestClass testClass, CubeOpenShiftConfiguration configuration, OpenShiftClient openshiftClient)
-        throws Exception {
-        if (testClass == null) {
-            // nothing to do, since we're not in ClassScoped context
-            return;
-        }
-        if (details == null) {
-            log.warning(String.format("No environment for %s", testClass.getName()));
-            return;
-        }
-        log.info(String.format("Waiting for environment for %s", testClass.getName()));
-        try {
-            for (List<? extends OpenShiftResource> resources : details.getResources()) {
-                delay(client, resources);
-            }
-        } catch (Throwable t) {
-            throw new DeploymentException("Error waiting for template resources to deploy: " + testClass.getName(), t);
-        }
     }
 
     /**
@@ -213,7 +183,7 @@ public class CEEnvironmentProcessor {
     }
 
     private List<? extends OpenShiftResource> processTemplate(Template template, TestClass tc, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration configuration) throws DeploymentException {
+        CubeOpenShiftConfiguration configuration) {
         final StringResolver resolver = Strings.createStringResolver(configuration.getProperties());
         final String templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
 
@@ -258,7 +228,7 @@ public class CEEnvironmentProcessor {
 
             return resources;
         } catch (Throwable t) {
-            throw new DeploymentException("Cannot deploy template: " + templateURL, t);
+            throw new IllegalArgumentException("Cannot deploy template: " + templateURL, t);
         }
     }
 
