@@ -6148,6 +6148,43 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
 </div>
 </div>
 <div class="paragraph">
+<p>Also you can gather control of what to deploy, when to deploy or  when to wait for resources readiness.
+To control you need to inject into test the <code>org.arquillian.cube.openshift.impl.client.OpenShiftAssistant</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldOpenShiftAssistantTest</span> {
+
+    <span class="annotation">@ArquillianResource</span>
+    OpenShiftAssistant openShiftAssistant;
+
+     <span class="annotation">@Test</span>
+     <span class="directive">public</span> <span class="type">void</span> should_apply_route_programmatically() <span class="directive">throws</span> <span class="exception">IOException</span> {
+
+         openShiftAssistant.deployApplication(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-world</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">hello-route.json</span><span class="delimiter">&quot;</span></span>);  <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+         <span class="directive">final</span> Optional&lt;<span class="predefined-type">URL</span>&gt; route = openShiftAssistant.getRoute(); <i class="conum" data-value="3"></i><b>(3)</b>
+     }
+
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Sets the application name where everything is deployed</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Sets the resource to apply, in this case creation of an OpenShift <code>route</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>You can get the first defined route from cluster</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
 <p>Let&#8217;s see how can you execute <code>oc</code> or <code>kubectl</code> commands as a part of your test.</p>
 </div>
 <div class="listingblock">
@@ -6345,7 +6382,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-12-06 21:49:56 UTC
+Last updated 2017-12-07 17:45:14 UTC
 </div>
 </div>
 </body>
