@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.9.3-SNAPSHOT</version>
+    <version>1.10.0</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Graphene</name>
   <artifactId>arquillian-cube-docker-ftest-graphene</artifactId>
