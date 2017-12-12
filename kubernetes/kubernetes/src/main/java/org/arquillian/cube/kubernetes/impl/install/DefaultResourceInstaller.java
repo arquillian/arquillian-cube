@@ -68,10 +68,10 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
     public static class ImmutableResourceInstaller implements ResourceInstaller, WithToImmutable<ResourceInstaller> {
 
-        private final KubernetesClient client;
-        private final Configuration configuration;
-        private final Logger logger;
-        private final List<Visitor> visitors;
+        protected final KubernetesClient client;
+        protected final Configuration configuration;
+        protected final Logger logger;
+        protected final List<Visitor> visitors;
 
         public ImmutableResourceInstaller(KubernetesClient client, Configuration configuration, Logger logger,
             List<Visitor> visitors) {
