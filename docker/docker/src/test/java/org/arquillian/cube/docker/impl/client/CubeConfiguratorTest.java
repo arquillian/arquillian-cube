@@ -61,6 +61,20 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         return new PathStringEndsWithMatcher(suffix);
     }
 
+    private void bindNonExistingDockerSocketOS() {
+        OperatingSystem os;
+
+        // invert OS selection to ensure we point to a non-existing
+        // socket
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            os = OperatingSystem.MAC_OS;
+        } else {
+            os = OperatingSystem.WINDOWS_8;
+        }
+
+        bind(ApplicationScoped.class, OperatingSystem.class, os);
+    }
+
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeDockerConfigurator.class);
@@ -186,7 +200,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("docker-machine"))
             .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
-        bind(ApplicationScoped.class, OperatingSystem.class, OperatingSystem.MAC_OS);
+        bindNonExistingDockerSocketOS();
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
@@ -215,6 +229,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("docker-machine"))
             .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
+
+        bindNonExistingDockerSocketOS();
+
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
     }
@@ -233,6 +250,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new IllegalArgumentException());
+
+        bindNonExistingDockerSocketOS();
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
