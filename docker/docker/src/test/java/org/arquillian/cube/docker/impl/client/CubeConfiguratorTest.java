@@ -6,6 +6,8 @@ import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -13,6 +15,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.StringEndsWith;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
+import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assume;
@@ -47,6 +50,10 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     @Mock
     ExtensionDef extensionDef;
     @Mock
+    OperatingSystemInterface operatingSystem;
+    @Mock
+    OperatingSystemFamilyInterface operatingSystemFamily;
+    @Mock
     Top top;
 
     private static Matcher<String> defaultDockerMachineCertPath() {
@@ -62,17 +69,11 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     private void bindNonExistingDockerSocketOS() {
-        OperatingSystem os;
+        when(operatingSystem.getDefaultFamily()).thenReturn(operatingSystemFamily);
+        when(operatingSystem.getFamily()).thenReturn(OperatingSystemFamily.MAC);
+        when(operatingSystemFamily.getServerUri()).thenReturn("non/existing/path");
 
-        // invert OS selection to ensure we point to a non-existing
-        // socket
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            os = OperatingSystem.MAC_OS;
-        } else {
-            os = OperatingSystem.WINDOWS_8;
-        }
-
-        bind(ApplicationScoped.class, OperatingSystem.class, os);
+        bind(ApplicationScoped.class, OperatingSystemInterface.class, operatingSystem);
     }
 
     @Override

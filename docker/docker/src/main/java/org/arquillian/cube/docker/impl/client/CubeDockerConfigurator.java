@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystem;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -54,14 +55,14 @@ public class CubeDockerConfigurator {
 
     @Inject
     @ApplicationScoped
-    private InstanceProducer<OperatingSystem> operatingSystemInstanceProducer;
+    private InstanceProducer<OperatingSystemInterface> operatingSystemInstanceProducer;
 
 
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
         configure(arquillianDescriptor);
     }
 
-    OperatingSystem getCurrentOperatingSystem() {
+    OperatingSystemInterface getCurrentOperatingSystem() {
         return new OperatingSystemResolver().currentOperatingSystem();
     }
 
