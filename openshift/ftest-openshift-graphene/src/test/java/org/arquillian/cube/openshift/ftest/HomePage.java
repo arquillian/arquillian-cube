@@ -9,11 +9,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Location("/")
 public class HomePage {
 
-    @FindBy(tagName = "h1")
+    @FindBy(tagName = "body")
     private WebElement welcomeMessageElement;
 
     public void assertOnWelcomePage() {
         assertThat(this.welcomeMessageElement.getText().trim())
-            .isEqualTo("Hello OpenShift!\n");
+            .isEqualTo("Hello OpenShift!");
     }
 }
