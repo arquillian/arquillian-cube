@@ -42,12 +42,6 @@
       <version>${version.graphene}</version>
       <type>pom</type>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>com.google.guava</artifactId>
-          <groupId>guava</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.graphene</groupId>
@@ -74,17 +68,6 @@
       <artifactId>arquillian-drone-webdriver-depchain</artifactId>
       <version>${version.arquillian.drone}</version>
       <type>pom</type>
-      <scope>test</scope>
-    </dependency>
-    <!--<dependency>
-      <groupId>org.jboss.arquillian.graphene</groupId>
-      <artifactId>graphene-webdriver-api</artifactId>
-      <version>2.3.1</version>
-      <scope>test</scope>
-    </dependency>-->
-    <dependency>
-      <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

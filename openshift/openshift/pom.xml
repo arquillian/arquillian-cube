@@ -15,6 +15,7 @@
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
     <version.selenium>3.6.0</version.selenium>
+    <version.graphene>2.3.1</version.graphene>
   </properties>
   <dependencyManagement>
   <dependencies>
@@ -176,14 +177,14 @@
     <dependency>
       <groupId>org.jboss.arquillian.graphene</groupId>
       <artifactId>graphene-webdriver</artifactId>
-      <version>2.3.1</version>
+      <version>${version.graphene}</version>
       <type>pom</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.graphene</groupId>
       <artifactId>graphene-webdriver-impl</artifactId>
-      <version>2.3.1</version>
+      <version>${version.graphene}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
