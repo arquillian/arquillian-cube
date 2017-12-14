@@ -44,27 +44,27 @@ public class OpenshiftCustomizableURLResourceProvider implements ResourceProvide
         final GrapheneConfiguration grapheneConfiguration = this.grapheneConfiguration.get();
 
         final String configuredUrl = grapheneConfiguration.getUrl();
-
         if (configuredUrl != null && !configuredUrl.isEmpty()) {
-            return getRoute(new URL(configuredUrl).getHost()).get();
+            return getRoute(new URL(configuredUrl));
         }
-        return getRoute().get();
+        return getRoute();
     }
 
-    private Optional<URL> getRoute(String routeName) {
+    private URL getRoute(URL routeUrl) {
+        final CubeOpenShiftConfiguration config = getCubeOpenShiftConfiguration();
         final OpenShiftClient client = clientInstance.get();
 
-        final CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
-
+        final String routeName = routeUrl.getHost();
         Route route = client.getClient().routes().inNamespace(config.getNamespace()).withName(routeName).get();
-
-        return route != null ? createUrlFromRoute(route) : Optional.empty();
+        if (route == null) {
+            return routeUrl;
+        }
+        return createUrlFromRoute(route);
     }
 
-    private Optional<URL> getRoute() {
+    private URL getRoute() {
+        final CubeOpenShiftConfiguration config = getCubeOpenShiftConfiguration();
         final OpenShiftClient client = clientInstance.get();
-
-        final CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
 
         Optional<Route> optionalRoute = client.getClient().routes().inNamespace(config.getNamespace())
             .list().getItems()
@@ -73,15 +73,22 @@ public class OpenshiftCustomizableURLResourceProvider implements ResourceProvide
 
         return optionalRoute
             .map(this::createUrlFromRoute)
-            .orElse(Optional.empty());
+            .orElseThrow(() -> new NullPointerException("No route defined."));
     }
 
-    private Optional<URL> createUrlFromRoute(Route route) {
+    private CubeOpenShiftConfiguration getCubeOpenShiftConfiguration() {
+        final CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
+        if (config == null) {
+            throw new NullPointerException("CubeOpenShiftConfiguration is null.");
+        }
+        return config;
+    }
+
+    private URL createUrlFromRoute(Route route) {
         try {
             final String protocol = route.getSpec().getTls() == null ? "http" : "https";
             final String path = route.getSpec().getPath() == null ? "" : route.getSpec().getPath();
-            return Optional.of(
-                new URL(protocol, route.getSpec().getHost(), resolvePort(protocol), path));
+            return new URL(protocol, route.getSpec().getHost(), resolvePort(protocol), path);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
