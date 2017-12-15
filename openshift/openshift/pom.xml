@@ -14,7 +14,20 @@
     <version.javax.inject>1</version.javax.inject>
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
+    <version.selenium>3.6.0</version.selenium>
+    <version.graphene>2.3.1</version.graphene>
   </properties>
+  <dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.arquillian.selenium</groupId>
+      <artifactId>selenium-bom</artifactId>
+      <version>${version.selenium}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -159,6 +172,34 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.graphene</groupId>
+      <artifactId>graphene-webdriver</artifactId>
+      <version>${version.graphene}</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.graphene</groupId>
+      <artifactId>graphene-webdriver-impl</artifactId>
+      <version>${version.graphene}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-support</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-remote-driver</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
 
