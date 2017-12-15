@@ -615,7 +615,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_readiness_and_waiting">20.9. Readiness and waiting</a></li>
 <li><a href="#_immutable_infrastructure_and_integration_testing">20.10. Immutable infrastructure and integration testing</a></li>
 <li><a href="#_resource_providers">20.11. Resource Providers</a></li>
-<li><a href="#_dealing_with_version_conflicts">20.12. Dealing with version conflicts</a></li>
+<li><a href="#_openshift_integration_with_graphene">20.12. OpenShift Integration with Graphene</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.13. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -6242,7 +6243,98 @@ To control you need to inject into test the <code>org.arquillian.cube.openshift.
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.12. Dealing with version conflicts</h3>
+<h3 id="_openshift_integration_with_graphene"><a class="anchor" href="#_openshift_integration_with_graphene"></a>20.12. OpenShift Integration with Graphene</h3>
+<div class="paragraph">
+<p>Integration with Graphene allows for auto-resolution of the host and the context of the application deployed within the
+OpenShift cluster by using the cluster&#8217;s <code>route</code> definition for configuring Graphene.</p>
+</div>
+<div class="paragraph">
+<p>In case, multiple routes are defined, user can select a <code>route</code>, by setting the route name as the host part in the URL
+property for Graphene.</p>
+</div>
+<div class="paragraph">
+<p>For example, as shown in the below snippet (1), a route named <code>hello-world</code> is selected for configuring the URL for
+graphene.</p>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">graphene</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">url</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://hello-world:8080<span class="tag">&lt;/property&gt;</span>   <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="tag">&lt;/extension&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If there is a single route or no route name is set, a default route from the definition is used for Graphene
+configuration.</p>
+</div>
+<div class="sect3">
+<h4 id="_example_4"><a class="anchor" href="#_example_4"></a>20.12.1. Example</h4>
+<div class="paragraph">
+<p>Apart from adding arquillian and arquillian-cube-openshift, obviously you also need to add the dependencies for
+arquillian-drone, selenium-bom and aquillian-graphene.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependencyManagement&gt;</span>
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="comment">&lt;!-- arquillian-drone-bom dependencies --&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>arquillian-drone-bom<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>2.0.0.Final<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+
+        <span class="comment">&lt;!-- selenium-bom dependencies --&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.selenium<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>selenium-bom<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>2.53.1<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/dependencyManagement&gt;</span>
+
+<span class="comment">&lt;!-- arquillian-drone webdriver dependency --&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.extension<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-drone-webdriver-depchain<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>2.0.0.Final<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
+
+<span class="comment">&lt;!-- arquillian-graphene dependencies --&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.graphene<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>graphene-webdriver<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>2.1.0.Final<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span>
+<span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.jboss.arquillian.graphene<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>graphene-webdriver-impl<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;version&gt;</span>2.1.0.Final<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can see the example using Graphene at
+<a href="https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-graphene" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-graphene</a> .</p>
+</div>
+<div class="paragraph">
+<p>Also, you can learn more about Graphene at <a href="http://arquillian.org/guides/functional_testing_using_graphene/" class="bare">http://arquillian.org/guides/functional_testing_using_graphene/</a> .</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.13. Dealing with version conflicts</h3>
 <div class="paragraph">
 <p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
@@ -6382,7 +6474,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-12-07 17:45:14 UTC
+Last updated 2017-12-15 06:34:58 UTC
 </div>
 </div>
 </body>
