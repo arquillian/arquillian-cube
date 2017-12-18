@@ -5,6 +5,7 @@ import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
@@ -27,6 +28,7 @@ public class DockerClientInitializer {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
             new DockerMachine(new CommandLineExecutor()),
             new Boot2Docker(new CommandLineExecutor()),
+            new DefaultDocker(),
             new OperatingSystemResolver().currentOperatingSystem());
 
         final Map<String, String> config = resolver.resolve(new HashMap<>());

@@ -1,7 +1,11 @@
 package org.arquillian.cube.docker.impl.client;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InfoCmd;
+import com.github.dockerjava.api.model.Info;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.GitHubUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
@@ -14,6 +18,7 @@ import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.task.net.DownloadTool;
 
+import javax.ws.rs.ProcessingException;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
@@ -42,14 +47,16 @@ public class CubeDockerConfigurationResolver {
     private final Top top;
     private final DockerMachine dockerMachine;
     private final Boot2Docker boot2Docker;
+    private final DefaultDocker defaultDocker;
     private final OperatingSystemInterface operatingSystem;
 
     public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
-                                           OperatingSystemInterface operatingSystem) {
+                                           DefaultDocker defaultDocker, OperatingSystemInterface operatingSystem) {
         this.top = top;
         this.dockerMachine = dockerMachine;
         this.boot2Docker = boot2Docker;
         this.operatingSystem = operatingSystem;
+        this.defaultDocker = defaultDocker;
     }
 
     /**
@@ -203,9 +210,22 @@ public class CubeDockerConfigurationResolver {
     
     private Map<String, String> resolveSystemDefaultSetup(Map<String, String> config) {
         if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
-            URI uri = URI.create(operatingSystem.getDefaultFamily().getServerUri());
+            final String defaultUri = operatingSystem.getDefaultFamily().getServerUri();
+            URI uri = URI.create(defaultUri);
             if (Files.exists(FileSystems.getDefault().getPath(uri.getPath()))){
-                config.put(CubeDockerConfiguration.DOCKER_URI, operatingSystem.getDefaultFamily().getServerUri());
+
+                DockerClient client = defaultDocker.GetDefaultDockerClient(defaultUri);
+                InfoCmd cmd = client.infoCmd();
+                try {
+                    Info info = cmd.exec();
+                    config.put(CubeDockerConfiguration.DOCKER_URI, defaultUri);
+                    log.info(String.format("Connected to docker (%s) using default settings version: %s kernel: %s",
+                        info.getName(), info.getServerVersion(), info.getKernelVersion()));
+                } catch (ProcessingException e){
+                    log.info(String.format("Could not connect to default socket %s. Go on with ",
+                        operatingSystem.getDefaultFamily().getServerUri()));
+                }
+
             }
         }
 

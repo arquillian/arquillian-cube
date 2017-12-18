@@ -6,6 +6,7 @@ import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
@@ -76,6 +77,7 @@ public class CubeDockerConfigurator {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
             dockerMachineInstance.get(),
             boot2DockerInstance.get(),
+            new DefaultDocker(),
             operatingSystemInstanceProducer.get());
         resolver.resolve(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
