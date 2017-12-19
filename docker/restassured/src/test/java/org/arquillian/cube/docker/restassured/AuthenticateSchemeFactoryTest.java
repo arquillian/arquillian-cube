@@ -4,9 +4,9 @@ import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.BasicAuthScheme;
 import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.FormAuthScheme;
-import io.restassured.authentication.OAuth2Scheme;
 import io.restassured.authentication.OAuthScheme;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
+import io.restassured.authentication.PreemptiveOAuth2HeaderScheme;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,8 +77,8 @@ public class AuthenticateSchemeFactoryTest {
     @Test
     public void should_create_oauth_auth2() {
         final AuthenticationScheme authenticationScheme = AuthenticationSchemeFactory.create("oauth2:accessToken");
-        assertThat(authenticationScheme).isInstanceOf(OAuth2Scheme.class);
-        OAuth2Scheme authScheme = (OAuth2Scheme) authenticationScheme;
+        assertThat(authenticationScheme).isInstanceOf(PreemptiveOAuth2HeaderScheme.class);
+        PreemptiveOAuth2HeaderScheme authScheme = (PreemptiveOAuth2HeaderScheme) authenticationScheme;
 
         assertThat(authScheme.getAccessToken()).isEqualTo("accessToken");
     }
