@@ -450,7 +450,7 @@ public class DockerContainerObjectBuilder<T> {
         if (true) {
             List<String> volumeBindings = ContainerObjectUtil.getAllAnnotations(containerObjectClass, Volume.class)
                 .stream()
-                .map(volume -> volume.hostPath() + ":" + volume.containerPath() + ":rw")
+                .map(volume -> volume.hostPath() + ":" + volume.containerPath() + ":Z")
                 .collect(Collectors.toList());
             generatedConfigutation.setBinds(volumeBindings);
         }
