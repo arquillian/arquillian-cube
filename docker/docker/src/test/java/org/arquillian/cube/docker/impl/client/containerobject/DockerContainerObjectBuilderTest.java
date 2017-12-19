@@ -250,7 +250,7 @@ public class DockerContainerObjectBuilderTest {
         final AtomicReference<DockerCube> cubeRef = new AtomicReference<>();
         try {
             CubeContainer ccconfig = new CubeContainer();
-            ccconfig.setBinds(Collections.singleton("/mypath3:/containerPath3:rw"));
+            ccconfig.setBinds(Collections.singleton("/mypath3:/containerPath3:Z"));
             CubeContainerObjectConfiguration ccoconfig = new CubeContainerObjectConfiguration(ccconfig);
             TestContainerObjectDefinedUsingImageAndVolumes containerObject = new DockerContainerObjectBuilder<TestContainerObjectDefinedUsingImageAndVolumes>(dockerClientExecutor, cubeController, cubeRegistry)
                     .withContainerObjectClass(TestContainerObjectDefinedUsingImageAndVolumes.class)
@@ -267,7 +267,7 @@ public class DockerContainerObjectBuilderTest {
         assertThat(cube.hasMetadata(IsContainerObject.class), is(true));
         assertThat(cube.getMetadata(IsContainerObject.class).getTestClass(), is(nullValue()));
         assertThat(cube.configuration().getImage().toImageRef(), is(BASE_IMAGE));
-        assertThat(cube.configuration().getBinds(), hasItems("/mypath:/containerPath:rw", "/mypath2:/containerPath2:rw", "/mypath3:/containerPath3:rw"));
+        assertThat(cube.configuration().getBinds(), hasItems("/mypath:/containerPath:Z", "/mypath2:/containerPath2:Z", "/mypath3:/containerPath3:Z"));
 
         verify(cubeController, times(1)).create("containerWithVolumes");
         verify(cubeController, times(1)).start("containerWithVolumes");

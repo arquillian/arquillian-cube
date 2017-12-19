@@ -234,7 +234,7 @@ public class CubeContainerObjectTestEnricherTest {
 
         DockerCube dockerCube = (DockerCube) image;
         assertThat(dockerCube.configuration().getImage().toImageRef(), is("tomee:8-jre-1.7.2-webprofile"));
-        assertThat(dockerCube.configuration().getBinds(), hasItems("/mypath:/containerPath:rw", "/mypath2:/containerPath2:rw"));
+        assertThat(dockerCube.configuration().getBinds(), hasItems("/mypath:/containerPath:Z", "/mypath2:/containerPath2:Z"));
 
     }
 
