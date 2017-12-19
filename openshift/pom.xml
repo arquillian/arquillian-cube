@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.10.1-SNAPSHOT</version>
+    <version>1.11.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -18,6 +18,12 @@
 
   <name>Arquillian Cube OpenShift Parent</name>
 
+  <properties>
+    <version.graphene>2.1.0.Final</version.graphene>
+    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
+    <version.selenium>2.53.1</version.selenium>
+  </properties>
+
   <modules>
     <module>api</module>
     <module>shrinkwrap</module>
@@ -29,6 +35,7 @@
     <module>ftest-openshift-resources-standalone</module>
     <module>ftest-oc-proxy</module>
     <module>ftest-openshift-assistant</module>
+    <module>ftest-openshift-graphene</module>
   </modules>
 
 </project>

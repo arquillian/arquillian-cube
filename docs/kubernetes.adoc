@@ -543,6 +543,87 @@ Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
 include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]
 ----
 
+=== OpenShift Integration with Graphene
+
+Integration with Graphene allows for auto-resolution of the host and the context of the application deployed within the
+OpenShift cluster by using the cluster's `route` definition for configuring Graphene.
+
+In case, multiple routes are defined, user can select a `route`, by setting the route name as the host part in the URL
+property for Graphene.
+
+For example, as shown in the below snippet (1), a route named `hello-world` is selected for configuring the URL for
+graphene.
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="graphene">
+    <property name="url">http://hello-world:8080</property>   <!1>
+</extension>
+----
+
+If there is a single route or no route name is set, a default route from the definition is used for Graphene
+configuration.
+
+==== Example
+Apart from adding arquillian and arquillian-cube-openshift, obviously you also need to add the dependencies for
+arquillian-drone, selenium-bom and aquillian-graphene.
+
+[source, xml]
+.pom.xml
+----
+<dependencyManagement>
+    <dependencies>
+        <!-- arquillian-drone-bom dependencies -->
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-drone-bom</artifactId>
+            <version>2.0.0.Final</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+        <!-- selenium-bom dependencies -->
+        <dependency>
+            <groupId>org.jboss.arquillian.selenium</groupId>
+            <artifactId>selenium-bom</artifactId>
+            <version>2.53.1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<!-- arquillian-drone webdriver dependency -->
+<dependency>
+    <groupId>org.jboss.arquillian.extension</groupId>
+    <artifactId>arquillian-drone-webdriver-depchain</artifactId>
+    <version>2.0.0.Final</version>
+    <type>pom</type>
+    <scope>test</scope>
+</dependency>
+
+<!-- arquillian-graphene dependencies -->
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver</artifactId>
+    <version>2.1.0.Final</version>
+    <type>pom</type>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver-impl</artifactId>
+    <version>2.1.0.Final</version>
+    <scope>test</scope>
+</dependency>
+----
+
+You can see the example using Graphene at
+https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-graphene .
+
+Also, you can learn more about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/ .
+
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.
