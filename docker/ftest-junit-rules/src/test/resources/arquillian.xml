@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
+    http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="docker">
+    <property name="autoStartContainers">[none]</property>
+    <property name="definitionFormat">CUBE</property>
+    <property name="dockerContainers">
+      database:
+        image: zhilvis/h2-db
+        exposedPorts: [81/tcp, 1521/tcp]
+        await:
+          strategy: polling
+        portBindings: [1521/tcp, 8181->81/tcp]
+    </property>
+  </extension>
+
+</arquillian>
