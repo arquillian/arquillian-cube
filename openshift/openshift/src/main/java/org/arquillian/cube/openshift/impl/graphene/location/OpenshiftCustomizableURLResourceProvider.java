@@ -1,9 +1,9 @@
 package org.arquillian.cube.openshift.impl.graphene.location;
 
 import io.fabric8.openshift.api.model.v3_1.Route;
-import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.graphene.spi.configuration.GrapheneConfiguration;
@@ -14,6 +14,8 @@ import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
+
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 
 public class OpenshiftCustomizableURLResourceProvider implements ResourceProvider {
 
@@ -34,7 +36,9 @@ public class OpenshiftCustomizableURLResourceProvider implements ResourceProvide
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         try {
-            return resolveUrl();
+            final URL routeUrl = resolveUrl();
+            awaitRoute(routeUrl);
+            return routeUrl;
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }

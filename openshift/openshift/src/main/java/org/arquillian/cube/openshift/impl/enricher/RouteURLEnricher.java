@@ -13,10 +13,11 @@ import org.jboss.arquillian.test.spi.TestEnricher;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 
 /**
  * RouteProxyProvider
@@ -47,8 +48,7 @@ public class RouteURLEnricher implements TestEnricher {
             } catch (Exception e) {
                 throw new RuntimeException("Could not set RouteURL value on field " + field, e);
             }
-
-            awaitRoute(url, await);
+            configureAwaitRoute(url, await);
         }
     }
 
@@ -62,7 +62,7 @@ public class RouteURLEnricher implements TestEnricher {
                 Object url = lookup(routeURL, method.getParameterTypes()[i]);
                 values[i] = url;
                 AwaitRoute await = getAnnotation(AwaitRoute.class, method.getParameterAnnotations()[i]);
-                awaitRoute(url, await);
+                configureAwaitRoute(url, await);
             }
         }
         return values;
@@ -126,7 +126,7 @@ public class RouteURLEnricher implements TestEnricher {
         }
     }
 
-    private void awaitRoute(Object route, AwaitRoute await) {
+    private void configureAwaitRoute(Object route, AwaitRoute await) {
         // we _intentionally_ don't check if `configurationInstance.get().isWaitEnabled()` here;
         // even if awaiting readiness is disabled, we still want to await the route, because the user
         // explicitly opted into it, maybe because they want to workaround a Fabric8 Kubernetes Client
@@ -145,33 +145,6 @@ public class RouteURLEnricher implements TestEnricher {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-
-        long end = System.currentTimeMillis() + await.timeoutUnit().toMillis(await.timeout());
-
-        while (System.currentTimeMillis() < end) {
-            HttpURLConnection urlConnection = null;
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setConnectTimeout(1000);
-                urlConnection.setReadTimeout(1000);
-                urlConnection.connect();
-                int connectionResponseCode = urlConnection.getResponseCode();
-                for (int expectedStatusCode : await.statusCode()) {
-                    if (expectedStatusCode == connectionResponseCode) {
-                        // OK
-                        return;
-                    }
-                }
-            } catch (Exception e) {
-                // retry
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-        }
-
-        // timed out
-        throw new RuntimeException(url + " not available after " + await.timeout() + " " + await.timeoutUnit());
+        awaitRoute(url, await.timeout(), await.timeoutUnit(), await.statusCode());
     }
 }
