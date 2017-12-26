@@ -18,29 +18,12 @@ package org.arquillian.cube.kubernetes.impl;
 import io.fabric8.kubernetes.api.builder.v3_1.Visitor;
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
-import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
-import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.FeedbackProvider;
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.LabelProvider;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.api.*;
 import org.arquillian.cube.kubernetes.impl.annotation.AnnotationProviderRegistar;
 import org.arquillian.cube.kubernetes.impl.annotation.DefaultAnnotationProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ClientResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.DeploymentListResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.DeploymentResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.PodListResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.PodResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ReplicaSetListResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ReplicaSetResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ReplicationControllerListResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ReplicationControllerResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ServiceListResourceProvider;
-import org.arquillian.cube.kubernetes.impl.enricher.external.ServiceResourceProvider;
 import org.arquillian.cube.kubernetes.impl.enricher.SessionResourceProvider;
+import org.arquillian.cube.kubernetes.impl.enricher.external.*;
 import org.arquillian.cube.kubernetes.impl.feedback.DefaultFeedbackProvider;
 import org.arquillian.cube.kubernetes.impl.feedback.FeedbackProviderServiceRegistar;
 import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
@@ -71,6 +54,7 @@ public class KubernetesExtension implements LoadableExtension {
         builder.observer(ConfigurationRegistar.class)
             .observer(NamespaceServiceRegistar.class)
             .observer(KubernetesResourceLocatorRegistar.class)
+            .observer(KubernetesAssistantCreator.class)
             .observer(LabelProviderRegistar.class)
             .observer(DependencyResolverRegistar.class)
             .observer(AnnotationProviderRegistar.class)
@@ -123,6 +107,8 @@ public class KubernetesExtension implements LoadableExtension {
 
             .service(ResourceProvider.class, SessionResourceProvider.class)
             .service(ConfigurationFactory.class, DefaultConfigurationFactory.class)
+
+            .service(ResourceProvider.class, KubernetesAssistantResourceProvider.class)
 
             .override(ResourceProvider.class, StandaloneCubeUrlResourceProvider.class,
                 KuberntesServiceUrlResourceProvider.class);
