@@ -42,6 +42,11 @@
       <version>2.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-requirement-spi</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
