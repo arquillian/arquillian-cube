@@ -1,3 +1,4 @@
+import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.v3_1.Service;
 import java.io.IOException;
 import java.net.URL;
@@ -10,6 +11,7 @@ import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertFalse;
@@ -19,16 +21,17 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresKubernetes
+@Category(RequiresKubernetes.class)
 public class HelloWorldTest {
 
     @Named("hello-world")
     @ArquillianResource
-    Service helloWorld;
+    private Service helloWorld;
 
     @Named("hello-world")
     @PortForward
     @ArquillianResource
-    URL url;
+    private URL url;
 
     @Test
     public void shouldFindServiceInstance() throws IOException {

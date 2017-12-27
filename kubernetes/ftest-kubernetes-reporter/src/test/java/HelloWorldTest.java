@@ -5,12 +5,14 @@ import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(ArquillianConditionalRunner.class)
+@Category(RequiresKubernetes.class)
 @RequiresKubernetes
 public class HelloWorldTest {
 

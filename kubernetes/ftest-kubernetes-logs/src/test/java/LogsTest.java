@@ -7,10 +7,12 @@ import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@RunWith(ArquillianConditionalRunner.class)
+@Category(RequiresKubernetes.class)
 @RequiresKubernetes
+@RunWith(ArquillianConditionalRunner.class)
 public class LogsTest {
 
     @Test
