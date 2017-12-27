@@ -9,10 +9,9 @@ import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
 import io.fabric8.openshift.api.model.v3_1.Route;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
-import java.io.FileInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -31,6 +30,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 import static org.awaitility.Awaitility.await;
 
 /**
@@ -369,35 +369,7 @@ public class OpenShiftAssistant {
      *                    If not set, then only 200 status code is used.
      */
     public void awaitUrl(URL routeUrl, int... statusCodes) {
-        await().atMost(5, TimeUnit.MINUTES).until(() -> tryConnect(routeUrl, statusCodes));
-    }
-
-    private boolean tryConnect(URL routeUrl, int[] statusCodes) {
-        if (statusCodes.length == 0) {
-            statusCodes = new int[] { 200 };
-        }
-
-        HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) routeUrl.openConnection();
-            urlConnection.setConnectTimeout(1000);
-            urlConnection.setReadTimeout(1000);
-            urlConnection.connect();
-            int connectionResponseCode = urlConnection.getResponseCode();
-            for (int expectedStatusCode : statusCodes) {
-                if (expectedStatusCode == connectionResponseCode) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            // retry
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-
-        return false;
+        awaitRoute(routeUrl, statusCodes);
     }
 
     /**
