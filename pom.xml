@@ -66,6 +66,7 @@
   <properties>
     <version.arquillian_core>1.2.0.Final</version.arquillian_core>
     <version.junit>4.12</version.junit>
+    <version.surefire>2.19.1</version.surefire>
     <version.hamcrest>1.3</version.hamcrest>
     <version.docker-java>3.0.14</version.docker-java>
     <version.kubernetes_client>3.1.5</version.kubernetes_client>
@@ -101,6 +102,11 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-requirement-spi</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -358,6 +364,48 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <id>travis</id>
+      <activation>
+        <property>
+          <name>env.type</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${version.surefire}</version>
+            <executions>
+              <execution>
+                <id>default-test</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <!--<forkCount>${surefire.fork.count}</forkCount>
+                  <threadCount>${surefire.thread.count}</threadCount>
+                  <reuseForks>${surefire.reuse.forks}</reuseForks>-->
+                  <!--<argLine>-Xmx1024m</argLine>-->
+                  <!--<parallel>classesAndMethods</parallel>-->
+                  <groups>${env.type}</groups>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
