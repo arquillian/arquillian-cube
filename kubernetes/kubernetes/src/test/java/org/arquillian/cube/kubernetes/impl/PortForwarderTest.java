@@ -6,9 +6,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(RequiresKubernetes.class)
 public class PortForwarderTest {
 
     private final String[] portsToForwardStringBackward = {"test:1234", "test:9999", "test:9990", "test:8080"};

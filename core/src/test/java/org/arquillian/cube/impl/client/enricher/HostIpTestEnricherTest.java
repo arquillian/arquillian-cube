@@ -2,12 +2,16 @@ package org.arquillian.cube.impl.client.enricher;
 
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostIpContext;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.jboss.arquillian.core.api.Instance;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class HostIpTestEnricherTest {
 
     @Test

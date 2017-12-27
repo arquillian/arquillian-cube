@@ -3,7 +3,9 @@ package org.arquillian.cube.openshift;
 import io.fabric8.openshift.api.model.v3_1.Route;
 import io.fabric8.openshift.api.model.v3_1.RouteList;
 import io.fabric8.openshift.api.model.v3_1.RouteSpec;
+import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
+import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +15,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.junit.experimental.categories.Category;
 
+@Category(RequiresOpenshift.class)
 public class DnsServiceTest {
 
     private static String ROUTER_HOST = "127.0.0.1";

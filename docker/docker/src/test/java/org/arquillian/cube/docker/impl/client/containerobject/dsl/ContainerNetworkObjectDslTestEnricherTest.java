@@ -4,11 +4,14 @@ import org.arquillian.cube.CubeController;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.LocalDockerNetworkRegistry;
 import org.arquillian.cube.docker.impl.model.NetworkRegistry;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Injector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -22,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class ContainerNetworkObjectDslTestEnricherTest {
 
     private CubeRegistry cubeRegistry;

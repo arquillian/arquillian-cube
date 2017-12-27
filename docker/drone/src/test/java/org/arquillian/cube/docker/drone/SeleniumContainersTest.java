@@ -2,9 +2,12 @@ package org.arquillian.cube.docker.drone;
 
 import org.arquillian.cube.docker.drone.CubeDroneConfiguration.ContainerNameStrategy;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -18,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class SeleniumContainersTest {
 
     private final static Matcher<PortBinding> SELENIUM_RANDOM_PORT_BINDING_MATCHER =

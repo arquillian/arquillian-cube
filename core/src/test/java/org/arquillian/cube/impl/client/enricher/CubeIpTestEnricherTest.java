@@ -1,12 +1,15 @@
 package org.arquillian.cube.impl.client.enricher;
 
 import org.arquillian.cube.CubeIp;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.hamcrest.core.Is;
 import org.jboss.arquillian.core.api.Instance;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -14,6 +17,7 @@ import org.mockito.stubbing.Answer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CubeIpTestEnricherTest {
 
     @Test

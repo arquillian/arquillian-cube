@@ -1,13 +1,15 @@
 package org.arquillian.cube.kubernetes.impl;
 
+import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.*;
 
-
+@Category(RequiresKubernetes.class)
 public class DefaultConfigurationTest {
 
     @Test

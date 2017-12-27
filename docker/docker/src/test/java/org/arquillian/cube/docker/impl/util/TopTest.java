@@ -1,13 +1,17 @@
 package org.arquillian.cube.docker.impl.util;
 
 import java.io.IOException;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class TopTest {
 
     @Rule

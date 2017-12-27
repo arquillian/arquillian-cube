@@ -1,8 +1,12 @@
 package org.arquillian.cube.impl.model;
 
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CubeIdFactoryTest {
 
     @Test(expected = NullPointerException.class)

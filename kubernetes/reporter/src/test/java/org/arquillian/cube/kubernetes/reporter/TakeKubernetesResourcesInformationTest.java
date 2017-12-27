@@ -27,6 +27,7 @@ import org.arquillian.cube.kubernetes.impl.DefaultSession;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.arquillian.cube.kubernetes.impl.event.Start;
 import org.arquillian.cube.kubernetes.impl.log.SimpleLogger;
+import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
 import org.arquillian.reporter.api.builder.BuilderLoader;
 import org.arquillian.reporter.api.event.SectionEvent;
@@ -41,6 +42,7 @@ import org.jboss.arquillian.core.api.Instance;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -56,6 +58,7 @@ import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSecti
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category(RequiresKubernetes.class)
 public class TakeKubernetesResourcesInformationTest {
 
     private static final KubernetesMockServer server = new KubernetesMockServer();

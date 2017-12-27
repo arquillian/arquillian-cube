@@ -27,6 +27,8 @@ import org.arquillian.cube.containerobject.Link;
 import org.arquillian.cube.containerobject.Volume;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.IsContainerObject;
@@ -42,7 +44,9 @@ import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CubeContainerObjectTestEnricherTest {
 
     private CubeRegistry cubeRegistry;

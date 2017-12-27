@@ -1,6 +1,8 @@
 package org.arquillian.cube.impl.client.container;
 
 import java.util.List;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.util.TestPortBindings;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
@@ -24,12 +26,14 @@ import org.jboss.arquillian.core.spi.Manager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
 
     private static final String CUBE_CONTAINER_NAME = "test";

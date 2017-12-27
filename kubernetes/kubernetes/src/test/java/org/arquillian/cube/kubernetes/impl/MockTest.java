@@ -23,6 +23,7 @@ import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -34,6 +35,7 @@ import org.junit.runners.Suite;
         ServiceInjection.class,
     }
 )
+@Category(RequiresKubernetes.class)
 @RequiresKubernetes
 public class MockTest {
 

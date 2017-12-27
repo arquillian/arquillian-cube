@@ -5,11 +5,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.arquillian.cube.spi.Node;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
+import org.junit.experimental.categories.Category;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class ChangeNameAutoStartParser implements AutoStartParser {
 
     @Inject

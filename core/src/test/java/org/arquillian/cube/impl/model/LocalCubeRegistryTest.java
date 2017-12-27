@@ -2,13 +2,17 @@ package org.arquillian.cube.impl.model;
 
 import java.util.Arrays;
 import java.util.List;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class LocalCubeRegistryTest {
 
     private CubeRegistry cubeRegistry;
