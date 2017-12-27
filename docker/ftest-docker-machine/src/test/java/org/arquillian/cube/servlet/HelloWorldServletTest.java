@@ -23,6 +23,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -32,6 +33,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class HelloWorldServletTest {
 
     @Rule

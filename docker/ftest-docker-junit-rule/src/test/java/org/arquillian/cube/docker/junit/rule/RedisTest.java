@@ -5,11 +5,13 @@ import org.arquillian.cube.requirement.RequirementRule;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import redis.clients.jedis.Jedis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class RedisTest {
 
     @Rule

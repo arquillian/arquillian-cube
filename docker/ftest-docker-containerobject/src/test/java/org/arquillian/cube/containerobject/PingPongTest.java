@@ -8,6 +8,7 @@ import java.net.URL;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class PingPongTest {
 
     @Cube

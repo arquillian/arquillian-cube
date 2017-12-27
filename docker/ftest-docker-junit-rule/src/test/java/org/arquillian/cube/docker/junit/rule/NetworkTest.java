@@ -5,10 +5,12 @@ import org.arquillian.cube.requirement.RequirementRule;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class NetworkTest {
 
     @Rule

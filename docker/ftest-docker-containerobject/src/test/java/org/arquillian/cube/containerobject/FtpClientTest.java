@@ -6,6 +6,7 @@ import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -14,6 +15,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class FtpClientTest {
 
     public static final String REMOTE_FILENAME = "a.txt";

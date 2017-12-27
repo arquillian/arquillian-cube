@@ -10,6 +10,7 @@ import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -20,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class StandaloneStarOperatorTestCase {
 
     @HostIp

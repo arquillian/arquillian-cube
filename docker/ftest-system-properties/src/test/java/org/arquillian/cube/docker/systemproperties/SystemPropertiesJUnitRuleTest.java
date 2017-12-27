@@ -1,18 +1,18 @@
 package org.arquillian.cube.docker.systemproperties;
 
+import java.util.Properties;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.junit.rule.ContainerDslRule;
 import org.arquillian.cube.requirement.RequirementRule;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
-
-import java.util.Properties;
+import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class SystemPropertiesJUnitRuleTest {
 
     @Rule

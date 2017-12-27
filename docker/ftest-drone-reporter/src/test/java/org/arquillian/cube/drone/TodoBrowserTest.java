@@ -8,6 +8,7 @@ import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -17,6 +18,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class TodoBrowserTest {
 
     @Drone

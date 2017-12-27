@@ -14,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
-
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
@@ -22,12 +21,14 @@ import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.assertj.core.groups.Tuple;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresDockerMachine(name = "dev")
+@Category(RequiresDockerMachine.class)
 public class PingPongTest {
 
     private static final String EXPECTED_RESPONSE = "{  \"status\": \"OK\"}";
