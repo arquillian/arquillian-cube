@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,15 +31,14 @@ public class HelloWorldKubernetesAssistantTest {
     @Test
     public void should_apply_route_programmatically() throws IOException {
         kubernetesAssistant.deployApplication("hello-world");
-        URL serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");
+        Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");
 
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().get().url(serviceUrl).build();
+        Request request = new Request.Builder().get().url(serviceUrl.get()).build();
         Response response = okHttpClient.newCall(request).execute();
 
         assertThat(response).isNotNull();
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
     }
-
 }

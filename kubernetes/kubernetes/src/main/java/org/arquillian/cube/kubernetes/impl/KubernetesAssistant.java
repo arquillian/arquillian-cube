@@ -1,6 +1,12 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.v3_1.*;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointSubset;
+import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
+import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.ReplicationController;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServicePort;
 import io.fabric8.kubernetes.api.model.v3_1.extensions.Deployment;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
@@ -18,13 +24,22 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider.LOCALHOST;
 import static org.awaitility.Awaitility.await;
 
 /**
@@ -79,7 +94,6 @@ public class KubernetesAssistant {
         } else {
             log.warning("No default Kubernetes or OpenShift resources found at default locations.");
         }
-
     }
 
     /**
@@ -96,7 +110,6 @@ public class KubernetesAssistant {
             .collect(Collectors.toList());
 
         deployApplication(applicationName, classpathElements.toArray(new URL[classpathElements.size()]));
-
     }
 
     /**
@@ -108,7 +121,6 @@ public class KubernetesAssistant {
      */
     public String deployApplication(URL... urls) throws IOException {
         deployApplication(null, urls);
-
         return this.applicationName;
     }
 
@@ -128,7 +140,6 @@ public class KubernetesAssistant {
                 deploy(inputStream);
             }
         }
-
     }
 
     /**
@@ -162,7 +173,6 @@ public class KubernetesAssistant {
         }).scan();
 
         return this.applicationName;
-
     }
 
     /**
@@ -238,30 +248,58 @@ public class KubernetesAssistant {
     }
 
     /**
-     * Returns the URL of the services that have been created during the current session.
+     * Gets the URL of the service with the given name that has been created during the current session.
      *
+     * @param name to return its URL
      * @return URL of the service.
      */
-    public URL getServiceUrl(String name) {
+    public Optional<URL> getServiceUrl(String name) {
         Service service = client.services().inNamespace(namespace).withName(name).get();
-        String scheme = getScheme(service);
-        String path = getPath(service);
-        String ip = "127.0.0.1";
+        return service != null ? createUrlForService(service) : Optional.empty();
+    }
 
-        Pod pod = getRandomPod(client, name, namespace);
-        int containerPort = getContainerPort(service);
-        int port = portForward(pod.getMetadata().getName(), containerPort, namespace);
+    /**
+     * Gets the URL of the first service that have been created during the current session.
+     *
+     * @return URL of the first service.
+     */
+    public Optional<URL> getServiceUrl() {
+        Optional<Service> optionalService = client.services().inNamespace(namespace)
+            .list().getItems()
+            .stream()
+            .findFirst();
+
+        return optionalService
+            .map(this::createUrlForService)
+            .orElse(Optional.empty());
+    }
+
+    private Optional<URL> createUrlForService(Service service) {
+        final String scheme = (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) ?
+            service.getMetadata().getAnnotations().get("api.service.kubernetes.io/scheme") : "http";
+        final String path = (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) ?
+            service.getMetadata().getAnnotations().get("api.service.kubernetes.io/path") : "/";
+        final int port = resolvePort(service);
 
         try {
             if (port > 0) {
-                return new URL(scheme, ip, port, path);
+                return Optional.of(new URL(scheme, LOCALHOST, port, path));
             } else {
-                return new URL(scheme, ip, path);
+                return Optional.of(new URL(scheme, LOCALHOST, path));
             }
         } catch (MalformedURLException e) {
             throw new IllegalStateException(
-                "Cannot resolve URL for service: [" + name + "] in namespace:[" + namespace + "].");
+                "Cannot resolve URL for service: [" + service.getMetadata().getName() + "] in namespace:[" + namespace + "].");
         }
+    }
+
+    private int resolvePort(Service service) {
+        final Pod pod = getRandomPod(client, service.getMetadata().getName(), namespace);
+        final ServicePort servicePort = (service.getSpec() != null && service.getSpec().getPorts() != null) ?
+            service.getSpec().getPorts().get(0) : null;
+        final int containerPort = servicePort != null ? servicePort.getTargetPort().getIntVal() : 0;
+
+        return portForward(pod.getMetadata().getName(), containerPort, namespace);
     }
 
     private int portForward(String podName, int targetPort, String namespace) {
@@ -287,14 +325,6 @@ public class KubernetesAssistant {
         }
     }
 
-    private int getContainerPort(Service service) {
-        ServicePort servicePort = findQualifiedServicePort(service);
-        if (servicePort != null) {
-            return servicePort.getTargetPort().getIntVal();
-        }
-        return 0;
-    }
-
     private Pod getRandomPod(KubernetesClient client, String name, String namespace) {
         Endpoints endpoints = client.endpoints().inNamespace(namespace).withName(name).get();
         List<String> pods = new ArrayList<>();
@@ -316,33 +346,6 @@ public class KubernetesAssistant {
             String chosen = pods.get(new Random().nextInt(pods.size()));
             return client.pods().inNamespace(namespace).withName(chosen).get();
         }
-    }
-
-    private ServicePort findQualifiedServicePort(Service service) {
-        if (service.getSpec() != null && service.getSpec().getPorts() != null) {
-            return service.getSpec().getPorts().get(0);
-        }
-        return null;
-    }
-
-    private String getPath(Service service) {
-        if (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) {
-            String s = service.getMetadata().getAnnotations().get("api.service.kubernetes.io/path");
-            if (s != null && s.isEmpty()) {
-                return s;
-            }
-        }
-        return "/";
-    }
-
-    private String getScheme(Service service) {
-        if (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) {
-            String s = service.getMetadata().getAnnotations().get("api.service.kubernetes.io/scheme");
-            if (s != null && s.isEmpty()) {
-                return s;
-            }
-        }
-        return "http";
     }
 
     /**
