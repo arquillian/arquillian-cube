@@ -12,10 +12,12 @@ import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(RequiresOpenshift.class)
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 @Template(url = "https://gist.githubusercontent.com/lordofthejars/8781cacd4000a516695ad6c55b5815b3/raw/5151aeef0f5dd8823e2c581c3b7452f04a76af59/hello-template.yaml",
@@ -24,7 +26,7 @@ public class HelloWorldTemplateTest {
 
     @RouteURL("hello-openshift-route")
     @AwaitRoute
-    URL url;
+    private URL url;
 
     @Test
     public void should_show_hello_world() throws IOException {

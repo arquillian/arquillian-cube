@@ -10,8 +10,10 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+@Category(RequiresOpenshift.class)
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 public class HelloPodDeploymentOpenShiftTestCase {

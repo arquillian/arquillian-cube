@@ -7,9 +7,11 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 @Ignore // hello-openshift container is auto started due to container mapping
+@Category(RequiresOpenshift.class)
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 public class HelloPodOpenShiftTestCase {

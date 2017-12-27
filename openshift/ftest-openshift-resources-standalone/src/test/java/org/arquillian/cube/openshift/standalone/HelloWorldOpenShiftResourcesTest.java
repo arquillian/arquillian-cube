@@ -16,10 +16,12 @@ import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(RequiresOpenshift.class)
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 @OpenShiftResource("classpath:hello-route.yaml")
