@@ -32,6 +32,7 @@
     <module>kubernetes</module>
     <module>requirement</module>
     <module>bom</module>
+    <module>requirement-spi</module>
   </modules>
 
   <developers>
