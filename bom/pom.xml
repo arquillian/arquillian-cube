@@ -124,6 +124,11 @@
         <artifactId>arquillian-cube-openshift</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-shrinkwrap</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
