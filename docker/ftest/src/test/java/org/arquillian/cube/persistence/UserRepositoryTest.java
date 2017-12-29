@@ -2,6 +2,8 @@ package org.arquillian.cube.persistence;
 
 import java.io.IOException;
 import javax.inject.Inject;
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -9,8 +11,10 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(Arquillian.class)
 public class UserRepositoryTest {
 

@@ -33,8 +33,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
 
     public static final String CUBE_ID = "test";

@@ -22,9 +22,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RequiresDockerMachine(name = "dev")
+@RunWith(ArquillianConditionalRunner.class)
 public class DaytimeTest {
 
     private static final String LINE_SEPARATOR = System

@@ -9,8 +9,8 @@ import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RequiresDockerMachine(name = "dev")
 @Category(RequiresDockerMachine.class)
+@RequiresDockerMachine(name = "dev")
 public class NetworkTest {
 
     @Rule

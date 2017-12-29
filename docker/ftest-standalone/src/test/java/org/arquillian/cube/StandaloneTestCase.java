@@ -9,9 +9,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
 @Category(RequiresDockerMachine.class)
+@RequiresDockerMachine(name = "dev")
+@RunWith(ArquillianConditionalRunner.class)
 public class StandaloneTestCase {
 
     private static final String CONTAINER = "database";

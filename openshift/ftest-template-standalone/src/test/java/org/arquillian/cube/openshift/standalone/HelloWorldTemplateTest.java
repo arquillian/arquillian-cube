@@ -18,8 +18,8 @@ import org.junit.runner.RunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 @Template(url = "https://gist.githubusercontent.com/lordofthejars/8781cacd4000a516695ad6c55b5815b3/raw/5151aeef0f5dd8823e2c581c3b7452f04a76af59/hello-template.yaml",
           parameters = @TemplateParameter(name = "RESPONSE", value = "Hello from Arquillian Template"))
 public class HelloWorldTemplateTest {

@@ -21,8 +21,8 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
 
     @Override

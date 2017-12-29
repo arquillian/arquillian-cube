@@ -15,8 +15,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class DockerMachineTest {
 
     @Mock

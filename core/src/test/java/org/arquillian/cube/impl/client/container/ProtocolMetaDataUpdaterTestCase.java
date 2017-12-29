@@ -32,8 +32,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
 
     private static final String CUBE_CONTAINER_NAME = "test";

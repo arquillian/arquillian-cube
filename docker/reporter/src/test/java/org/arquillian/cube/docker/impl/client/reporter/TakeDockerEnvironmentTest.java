@@ -39,8 +39,8 @@ import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSecti
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class TakeDockerEnvironmentTest {
 
     private static final String MULTIPLE_PORT_BINDING_SCENARIO =

@@ -14,6 +14,7 @@ import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -22,6 +23,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -29,6 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RequiresDocker
 @RunWith(ArquillianConditionalRunner.class)
 public class HelloWorldServletTest {

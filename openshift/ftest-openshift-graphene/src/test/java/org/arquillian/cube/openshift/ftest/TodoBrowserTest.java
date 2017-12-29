@@ -9,9 +9,9 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresOpenshift
 @Category(RequiresOpenshift.class)
+@RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 public class TodoBrowserTest {
 
     @Drone

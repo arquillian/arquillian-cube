@@ -15,8 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // tag::client_cli_execution[]
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloWorldTest {
 
     private static CommandExecutor commandExecutor = new CommandExecutor();

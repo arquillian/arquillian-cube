@@ -29,8 +29,8 @@ import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class TakeVncDroneVideoTest {
 
     @Before

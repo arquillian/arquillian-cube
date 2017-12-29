@@ -13,9 +13,9 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 //@BelongsTo(IntegrationSuite.class)
-@RunWith(Arquillian.class)
-@RunAsClient
 @Category(RequiresOpenshift.class)
+@RunAsClient
+@RunWith(Arquillian.class)
 public class IndexTestCase {
 
     @Test @InSequence(1)

@@ -14,8 +14,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloPodDeploymentOpenShiftTestCase {
 
     @ArquillianResource

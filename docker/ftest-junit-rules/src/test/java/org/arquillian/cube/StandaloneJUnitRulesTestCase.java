@@ -1,5 +1,7 @@
 package org.arquillian.cube;
 
+import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
+import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.jboss.arquillian.junit.ArquillianTest;
 import org.jboss.arquillian.junit.ArquillianTestClass;
 import org.jboss.arquillian.junit.InSequence;
@@ -8,7 +10,9 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class StandaloneJUnitRulesTestCase {
 
     @ClassRule

@@ -10,9 +10,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresKubernetes
 @Category(RequiresKubernetes.class)
+@RequiresKubernetes
+@RunWith(ArquillianConditionalRunner.class)
 public class LogsTest {
 
     @Test

@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
 @Category(RequiresDockerMachine.class)
+@RequiresDockerMachine(name = "dev")
+@RunWith(ArquillianConditionalRunner.class)
 @HealthCheck
 public class PingPongTest {
 

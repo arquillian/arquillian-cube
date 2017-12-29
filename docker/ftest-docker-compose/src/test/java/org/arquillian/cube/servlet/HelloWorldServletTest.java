@@ -31,9 +31,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RequiresDocker
 @RunWith(ArquillianConditionalRunner.class)
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class HelloWorldServletTest {
 
     @Rule

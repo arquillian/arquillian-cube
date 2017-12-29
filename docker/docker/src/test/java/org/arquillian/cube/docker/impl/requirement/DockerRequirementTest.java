@@ -23,8 +23,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class DockerRequirementTest {
 
     @Mock

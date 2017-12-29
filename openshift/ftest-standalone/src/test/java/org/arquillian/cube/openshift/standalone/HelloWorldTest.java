@@ -19,8 +19,8 @@ import org.junit.runner.RunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloWorldTest {
 
     @Named("hello-openshift-service")

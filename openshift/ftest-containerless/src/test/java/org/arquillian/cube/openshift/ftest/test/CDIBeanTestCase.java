@@ -10,8 +10,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 //@BelongsTo(IntegrationSuite.class)
-@RunWith(Arquillian.class)
 @Category(RequiresOpenshift.class)
+@RunWith(Arquillian.class)
 public class CDIBeanTestCase {
 
     @Inject

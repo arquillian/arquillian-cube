@@ -20,8 +20,8 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class SeleniumContainersTest {
 
     private final static Matcher<PortBinding> SELENIUM_RANDOM_PORT_BINDING_MATCHER =

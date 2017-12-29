@@ -22,8 +22,8 @@ import org.junit.runner.RunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 @OpenShiftResource("classpath:hello-route.yaml")
 public class HelloWorldOpenShiftResourcesTest {
 

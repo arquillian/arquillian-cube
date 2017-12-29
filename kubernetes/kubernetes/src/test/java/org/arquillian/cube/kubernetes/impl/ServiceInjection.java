@@ -29,8 +29,8 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(Arquillian.class)
 @Category(RequiresKubernetes.class)
+@RunWith(Arquillian.class)
 public class ServiceInjection {
 
     @ArquillianResource

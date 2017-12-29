@@ -57,8 +57,8 @@ import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category(RequiresKubernetes.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TakeKubernetesResourcesInformationTest {
 
     private static final KubernetesMockServer server = new KubernetesMockServer();

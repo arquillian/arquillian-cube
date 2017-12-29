@@ -11,9 +11,9 @@ import org.junit.runner.RunWith;
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.CoreMatchers.equalTo;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDockerMachine(name = "dev")
 @Category(RequiresDockerMachine.class)
+@RequiresDockerMachine(name = "dev")
+@RunWith(ArquillianConditionalRunner.class)
 public class PingPongTest {
 
     @HostIp

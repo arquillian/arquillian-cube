@@ -11,9 +11,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresKubernetes
 @Category(RequiresKubernetes.class)
+@RequiresKubernetes
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloWorldTest {
 
     @Named("hello-world-service")

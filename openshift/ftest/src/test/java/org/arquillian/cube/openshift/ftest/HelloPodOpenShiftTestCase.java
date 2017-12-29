@@ -12,8 +12,8 @@ import org.junit.runner.RunWith;
 
 @Ignore // hello-openshift container is auto started due to container mapping
 @Category(RequiresOpenshift.class)
-@RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
+@RunWith(ArquillianConditionalRunner.class)
 public class HelloPodOpenShiftTestCase {
 
     private static final String ID = "hello-openshift";

@@ -27,8 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
+@RunWith(MockitoJUnitRunner.class)
 public class ClientCubeControllerTest extends AbstractManagerTestBase {
 
     private static final String CUBE_ID = "x";
