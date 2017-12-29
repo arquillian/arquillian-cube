@@ -274,8 +274,9 @@ public class SessionManager implements SessionCreatedListener {
     }
 
     private void setupConsoleListener() {
-        if (!configuration.isLogCopyEnabled())
+        if (!configuration.isLogCopyEnabled()) {
             return;
+        }
 
         logPath = configuration.getLogPath();
         if (Strings.isNullOrEmpty(logPath))
@@ -350,8 +351,9 @@ public class SessionManager implements SessionCreatedListener {
     }
 
     private void setupEventListener() {
-        if (!configuration.isLogCopyEnabled())
+        if (!configuration.isLogCopyEnabled()) {
             return;
+        }
 
 
         final Watcher<Event> watcher = new Watcher<Event>() {
