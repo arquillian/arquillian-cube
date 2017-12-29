@@ -17,10 +17,9 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresDocker
 @Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RequiresDockerMachine(name = "dev")
+@RunWith(ArquillianConditionalRunner.class)
 public class PingPongTest {
 
     @HostIp
