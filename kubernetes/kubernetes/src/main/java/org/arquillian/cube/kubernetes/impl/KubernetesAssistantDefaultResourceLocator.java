@@ -5,8 +5,7 @@ import java.util.Optional;
 
 public class KubernetesAssistantDefaultResourceLocator {
 
-    private static final String[] RESOURCE_NAMES =
-        new String[] {"openshift", "META-INF/fabric8/openshift", "kubernetes", "META-INF/fabric8/kubernetes"};
+    private static final String[] RESOURCE_NAMES = new String[] {"kubernetes", "META-INF/fabric8/kubernetes"};
 
     private static final String[] ALLOWED_SUFFIXES = {".json", ".yml", ".yaml"};
 

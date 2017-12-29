@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HelloWorldKubernetesAssistantTest {
 
     @ArquillianResource
-    KubernetesAssistant kubernetesAssistant;
+    private KubernetesAssistant kubernetesAssistant;
 
     @Test
     public void should_inject_kubernetes_assistant() {

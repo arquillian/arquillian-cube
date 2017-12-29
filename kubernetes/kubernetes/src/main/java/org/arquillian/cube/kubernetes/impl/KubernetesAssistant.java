@@ -65,7 +65,7 @@ public class KubernetesAssistant {
 
     /**
      * Deploys application finding resources in default location in classpath. That is:
-     * openshift.(y[a]ml|json), kubernetes.(y[a]ml|json), META-INF/fabric8/openshift.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
+     * kubernetes.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
      *
      * @return the name of the application defined in the Deployment.
      * @throws IOException
@@ -77,7 +77,7 @@ public class KubernetesAssistant {
 
     /**
      * Deploys application finding resources in default location in classpath. That is:
-     * openshift.(y[a]ml|json), kubernetes.(y[a]ml|json), META-INF/fabric8/openshift.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
+     * kubernetes.(y[a]ml|json), META-INF/fabric8/kubernetes.(y[a]ml|json)
      * <p>
      * In this method you specify the application name.
      *
@@ -222,7 +222,6 @@ public class KubernetesAssistant {
     private void deploy(InputStream inputStream) throws IOException {
         final List<? extends HasMetadata> entities = deploy("application", inputStream);
 
-        System.out.println(entities);
         if (this.applicationName == null) {
 
             Optional<String> deployment = entities.stream()

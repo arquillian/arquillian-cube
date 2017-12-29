@@ -23,7 +23,7 @@ public class KubernetesAssistantResourceProvider implements ResourceProvider {
         KubernetesAssistant kubernetesAssistant = this.kubernetesAssistantInstance.get();
 
         if (kubernetesAssistant == null) {
-            throw new IllegalStateException("Unable to inject DockerClient into test.");
+            throw new IllegalStateException("Unable to inject KubernetesAssistant into test.");
         }
 
         return kubernetesAssistant;
