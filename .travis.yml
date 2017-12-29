@@ -8,7 +8,7 @@ matrix:
     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" ENV_TYPE="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" ENV_TYPE="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" ENV_TYPE=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift
-    - env: OC_CLUSTER_UP=false ENV_TYPE=org.arquillian.cube.docker.impl.requirement.RequiresDocker
+    - env: ENV_TYPE=org.arquillian.cube.docker.impl.requirement.RequiresDocker
 
 services:
   - docker
