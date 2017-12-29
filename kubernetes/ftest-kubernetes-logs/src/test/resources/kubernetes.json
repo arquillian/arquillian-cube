@@ -14,7 +14,14 @@
                         "image": "busybox",
                         "name": "only-container",
                         "command": ["/bin/sh"],
-                        "args": ["-c", "while true; do echo only-one; sleep 1; done"]
+                        "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo only-one; done"],
+                        "readinessProbe": {
+                            "exec": {
+                                "command": ["cat", "/tmp/healthy"]
+                            },
+                            "initialDelaySeconds": 2,
+                            "periodSeconds": 2
+                        }
                     }
                 ]
             }
@@ -32,13 +39,27 @@
                         "image": "busybox",
                         "name": "first-container",
                         "command": ["/bin/sh"],
-                        "args": ["-c", "while true; do echo first; sleep 1; done"]
+                        "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo first; done"],
+                        "readinessProbe": {
+                              "exec": {
+                                "command": ["cat", "/tmp/healthy"]
+                              },
+                              "initialDelaySeconds": 2,
+                              "periodSeconds": 2
+                        }
                     },
                     {
                         "image": "busybox",
                         "name": "second-container",
                         "command": ["/bin/sh"],
-                        "args": ["-c", "while true; do echo second; sleep 1; done"]
+                        "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo second; done"],
+                        "readinessProbe": {
+                            "exec": {
+                              "command": ["cat", "/tmp/healthy"]
+                            },
+                            "initialDelaySeconds": 2,
+                            "periodSeconds": 2
+                        }
                     }
                 ]
             }
