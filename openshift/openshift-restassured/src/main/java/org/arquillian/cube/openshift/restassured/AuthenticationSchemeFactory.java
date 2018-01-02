@@ -7,10 +7,6 @@ import java.util.Arrays;
 
 public class AuthenticationSchemeFactory {
 
-    private AuthenticationSchemeFactory() {
-        super();
-    }
-
     public static AuthenticationScheme create(String attribute) {
         String[] parameters = attribute.split(":");
 

@@ -12,7 +12,8 @@ public class RestAssuredConfigurator {
     @ApplicationScoped
     InstanceProducer<RestAssuredConfiguration> restAssuredConfigurationInstanceProducer;
 
-    // Need to be executed after CubeOpenShiftConfiguration
+    // Need to be executed after CubeOpenShiftConfiguration, to take into account OpenShift Configuration parameters
+    // required for rest assured base URI configuration.
     public void configure(@Observes(precedence = -200) ArquillianDescriptor arquillianDescriptor) {
         restAssuredConfigurationInstanceProducer.set(
             RestAssuredConfiguration.fromMap(arquillianDescriptor

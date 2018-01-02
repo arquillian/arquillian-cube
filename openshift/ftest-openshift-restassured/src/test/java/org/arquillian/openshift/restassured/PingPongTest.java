@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 
+// tag::openshift_restassured_example[]
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
 public class PingPongTest {
@@ -26,3 +27,4 @@ public class PingPongTest {
             .body(containsString("Hello OpenShift!"));
     }
 }
+// end::openshift_restassured_example[]

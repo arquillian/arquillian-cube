@@ -24,13 +24,6 @@ public class RestAssuredCustomizer {
     @ApplicationScoped
     InstanceProducer<RequestSpecBuilder> requestSpecBuilderInstanceProducer;
 
-    /**
-     * Method executed before starting a test.
-     * It is important to do it in this event because in case of incontainer tests or containerless,
-     * this is when the mapped container is started and you might need to inspect the automatic port binding.
-     * <p>
-     * Precedence is set to -100 to execute this after all sarting events.
-     */
     public void configure(@Observes RestAssuredConfiguration restAssuredConfiguration) {
 
         final CubeOpenShiftConfiguration openShiftConfiguration = (CubeOpenShiftConfiguration) configurationInstance.get();

@@ -648,9 +648,7 @@ treated as is. For example:
 [source, xml]
 .arquillian.xml
 ----
-<extension qualifier="restassured">
-    <property name="baseUri">http://hello-world</property> <!1>
-</extension>
+include::../openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
 ----
 
 As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
@@ -681,22 +679,7 @@ to write your Arquillian Cube test as :
 [source, java]
 .PingPongTest.java
 ----
-@RunWith(ArquillianConditionalRunner.class)
-@RequiresOpenshift
-public class PingPongTest {
-
-    @ArquillianResource
-    RequestSpecBuilder requestSpecBuilder;
-
-    @Test
-    public void test_default_endpoint() {
-        given(requestSpecBuilder.build())
-            .when().get()
-            .then()
-            .statusCode(200)
-            .body(containsString("Hello OpenShift!"));
-    }
-}
+include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]
 ----
 
 Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.

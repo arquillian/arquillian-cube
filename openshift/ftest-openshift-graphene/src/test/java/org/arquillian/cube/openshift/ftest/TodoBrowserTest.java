@@ -16,7 +16,7 @@ public class TodoBrowserTest {
     WebDriver webDriver;
 
     @Test
-    public void shouldShowHelloWorld(@InitialPage HomePage homePage) {
+    public void shouldShowWelcomePageMessage(@InitialPage HomePage homePage) {
         homePage.assertOnWelcomePage();
     }
 }
