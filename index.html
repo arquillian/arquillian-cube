@@ -5982,6 +5982,52 @@ It also demonstrates the use of <strong>kubernetes-assertions</strong> which is 
 <a href="http://assertj.org">assert4j</a> for performing assertions on top of the Kubernetes model.</p>
 </div>
 <div class="paragraph">
+<p>Also, you can gather control of what to deploy, when to deploy or when to wait for resources readiness.
+To control you need to inject into test the <code>org.arquillian.cube.kubernetes.impl.KubernetesAssistant</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
+<span class="annotation">@RequiresKubernetes</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldKubernetesAssistantTest</span> {
+
+    <span class="annotation">@ArquillianResource</span>
+    <span class="directive">private</span> KubernetesAssistant kubernetesAssistant;
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_inject_kubernetes_assistant() {
+        assertThat(kubernetesAssistant).isNotNull();
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_apply_route_programmatically() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        kubernetesAssistant.deployApplication(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-world</span><span class="delimiter">&quot;</span></span>);                           <i class="conum" data-value="1"></i><b>(1)</b>
+        Optional&lt;<span class="predefined-type">URL</span>&gt; serviceUrl = kubernetesAssistant.getServiceUrl(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-world</span><span class="delimiter">&quot;</span></span>);    <i class="conum" data-value="2"></i><b>(2)</b>
+
+        OkHttpClient okHttpClient = <span class="keyword">new</span> OkHttpClient();
+        Request request = <span class="keyword">new</span> Request.Builder().get().url(serviceUrl.get()).build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        assertThat(response).isNotNull();
+        assertThat(response.code()).isEqualTo(<span class="integer">200</span>);
+        assertThat(response.body().string()).isEqualTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello OpenShift!</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Sets the application name where everything is deployed.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>You can get the url of the deployed service on the cluster.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
 <p>The next example is intended to show how you can inject a resource by id.</p>
 </div>
 <div class="listingblock">
@@ -6474,7 +6520,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-12-15 06:34:58 UTC
+Last updated 2018-01-02 09:47:22 UTC
 </div>
 </div>
 </body>
