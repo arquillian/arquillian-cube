@@ -616,7 +616,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_immutable_infrastructure_and_integration_testing">20.10. Immutable infrastructure and integration testing</a></li>
 <li><a href="#_resource_providers">20.11. Resource Providers</a></li>
 <li><a href="#_openshift_integration_with_graphene">20.12. OpenShift Integration with Graphene</a></li>
-<li><a href="#_dealing_with_version_conflicts">20.13. Dealing with version conflicts</a></li>
+<li><a href="#_arquillian_kubernetes_and_openshift_recipes">20.13. Arquillian Kubernetes and OpenShift Recipes</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.14. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -6380,7 +6381,49 @@ arquillian-drone, selenium-bom and aquillian-graphene.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.13. Dealing with version conflicts</h3>
+<h3 id="_arquillian_kubernetes_and_openshift_recipes"><a class="anchor" href="#_arquillian_kubernetes_and_openshift_recipes"></a>20.13. Arquillian Kubernetes and OpenShift Recipes</h3>
+<div class="paragraph">
+<p>To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.</p>
+</div>
+<div class="sect3">
+<h4 id="_example_1"><a class="anchor" href="#_example_1"></a>20.13.1. Example 1</h4>
+<div class="paragraph">
+<p>Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
+manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.</p>
+</div>
+<div class="paragraph">
+<p>Source: <a href="https://github.com/arquillian-testing-microservices/kubernetes-deployment-testing">arquillian-testing-microservices/kubernetes-deployment-testing</a></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_2_2"><a class="anchor" href="#_example_2_2"></a>20.13.2. Example 2</h4>
+<div class="paragraph">
+<p>Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
+Cube Extension for OpenShift and  Fabric8 OpenShift Client.</p>
+</div>
+<div class="paragraph">
+<p>Source: <a href="https://github.com/arquillian-testing-microservices/openshift-deployment-testing">arquillian-testing-microservices/openshift-deployment-testing</a></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_3_2"><a class="anchor" href="#_example_3_2"></a>20.13.3. Example 3</h4>
+<div class="paragraph">
+<p>Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
+<a href="https://maven.fabric8.io/">Fabric8 Maven Plugin</a> and
+<a href="https://github.com/arquillian/arquillian-cube">Arquillian Cube Extension</a>.</p>
+</div>
+<div class="paragraph">
+<p>Fabric8 Maven Plugin aids in building Docker images and creating Kubernetes and OpenShift resource
+descriptors for the application that allows for a quick ramp-up with some opinionated defaults and Arquillian
+Cube Extension deploys the application from the generated resource descriptors and then executes deployment tests.</p>
+</div>
+<div class="paragraph">
+<p>Source: <a href="https://github.com/arquillian-testing-microservices/zero-config-deployment-test">arquillian-testing-microservices/zero-config-deployment-test</a></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.14. Dealing with version conflicts</h3>
 <div class="paragraph">
 <p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
@@ -6520,7 +6563,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-02 09:47:22 UTC
+Last updated 2018-01-02 16:23:13 UTC
 </div>
 </div>
 </body>
