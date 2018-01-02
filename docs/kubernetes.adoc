@@ -634,6 +634,36 @@ https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-opensh
 
 Also, you can learn more about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/ .
 
+=== Arquillian Kubernetes and OpenShift Recipes
+
+To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.
+
+==== Example 1
+
+Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
+manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.
+
+Source: https://github.com/arquillian-testing-microservices/kubernetes-deployment-testing[arquillian-testing-microservices/kubernetes-deployment-testing]
+
+==== Example 2
+
+Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
+Cube Extension for OpenShift and  Fabric8 OpenShift Client.
+
+Source: https://github.com/arquillian-testing-microservices/openshift-deployment-testing[arquillian-testing-microservices/openshift-deployment-testing]
+
+==== Example 3
+
+Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
+https://maven.fabric8.io/[Fabric8 Maven Plugin] and
+https://github.com/arquillian/arquillian-cube[Arquillian Cube Extension].
+
+Fabric8 Maven Plugin aids in building Docker images and creating Kubernetes and OpenShift resource
+descriptors for the application that allows for a quick ramp-up with some opinionated defaults and Arquillian
+Cube Extension deploys the application from the generated resource descriptors and then executes deployment tests.
+
+Source: https://github.com/arquillian-testing-microservices/zero-config-deployment-test[arquillian-testing-microservices/zero-config-deployment-test]
+
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.
