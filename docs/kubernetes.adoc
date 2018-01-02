@@ -349,6 +349,16 @@ The test code above, demonstrates how you can inject an use inside your test the
 It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on 
 http://assertj.org[assert4j] for performing assertions on top of the Kubernetes model.
 
+Also, you can gather control of what to deploy, when to deploy or when to wait for resources readiness.
+To control you need to inject into test the `org.arquillian.cube.kubernetes.impl.KubernetesAssistant`.
+
+[source, java]
+----
+include::../kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
+----
+<1> Sets the application name where everything is deployed.
+<2> You can get the url of the deployed service on the cluster.
+
 The next example is intended to show how you can inject a resource by id.
 
 [source, java]
@@ -558,7 +568,7 @@ graphene.
 .arquillian.xml
 ----
 <extension qualifier="graphene">
-    <property name="url">http://hello-world:8080</property>   <!1>
+    <property name="url">http://hello-world:8080</property>   <!--1-->
 </extension>
 ----
 
