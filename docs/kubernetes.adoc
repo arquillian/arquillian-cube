@@ -354,18 +354,7 @@ To control you need to inject into test the `org.arquillian.cube.kubernetes.impl
 
 [source, java]
 ----
-public class HelloWorldKubernetesAssistantTest {
-
-    @ArquillianResource
-    KubernetesAssistant kubernetesAssistant;
-
-    @Test
-    public void should_apply_route_programmatically() throws IOException {
-        kubernetesAssistant.deployApplication("hello-world"); // <1>
-        final Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world"); // <2>
-    }
-
-}
+include::../kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
 ----
 <1> Sets the application name where everything is deployed.
 <2> You can get the url of the deployed service on the cluster.
@@ -579,7 +568,7 @@ graphene.
 .arquillian.xml
 ----
 <extension qualifier="graphene">
-    <property name="url">http://hello-world:8080</property>   <!1>
+    <property name="url">http://hello-world:8080</property>   <!--1-->
 </extension>
 ----
 

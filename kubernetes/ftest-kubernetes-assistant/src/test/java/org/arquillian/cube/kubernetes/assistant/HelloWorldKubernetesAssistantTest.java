@@ -1,4 +1,4 @@
-package org.arquillian.cube.kubernetes.standalone;
+package org.arquillian.cube.kubernetes.assistant;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// tag::k8_assistant_example[]
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresKubernetes
 public class HelloWorldKubernetesAssistantTest {
@@ -30,8 +31,8 @@ public class HelloWorldKubernetesAssistantTest {
 
     @Test
     public void should_apply_route_programmatically() throws IOException {
-        kubernetesAssistant.deployApplication("hello-world");
-        Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");
+        kubernetesAssistant.deployApplication("hello-world");                           // <1>
+        Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");    // <2>
 
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(serviceUrl.get()).build();
@@ -42,3 +43,4 @@ public class HelloWorldKubernetesAssistantTest {
         assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
     }
 }
+// end::k8_assistant_example[]
