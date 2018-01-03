@@ -13,7 +13,7 @@ import org.jboss.arquillian.core.api.event.ManagerStopping;
 
 
 /**
- * Class that gets restassured configuration and configures the RestAssured instance accordantly
+ * Class that gets restassured configuration and configures the RestAssured instance accordingly.
  */
 public class RestAssuredCustomizer {
 

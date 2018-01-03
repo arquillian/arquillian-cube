@@ -13,7 +13,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 // tag::openshift_restassured_example[]
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
-public class PingPongTest {
+public class HelloOpenShiftRestAssuredTest {
 
     @ArquillianResource
     RequestSpecBuilder requestSpecBuilder;

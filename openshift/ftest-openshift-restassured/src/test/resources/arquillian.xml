@@ -8,7 +8,7 @@
 
   <!-- tag::restassured_configuration[] -->
   <extension qualifier="restassured">
-    <property name="baseUri">http://hello-world</property>   <!--1-->
+    <property name="baseUri">http://hello-openshift</property>   <!--1-->
   </extension>
   <!-- end::restassured_configuration[] -->
 </arquillian>
