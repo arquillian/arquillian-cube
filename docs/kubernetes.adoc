@@ -634,6 +634,59 @@ https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-opensh
 
 Also, you can learn more about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/ .
 
+=== OpenShift Integration with Rest-Assured
+
+Integration with Rest-Assured allows for auto-resolution of the base URI of the application deployed within the
+OpenShift cluster by using `OpenShift Route` definition for configuring Rest-Assured.
+
+==== Configuration
+
+You can configure a specific base URI using the `baseUri` property from restassured configuration. In this case, the
+hostname is going to be resolved as OpenShift route name, and if there is no route with that name, then the base URI is
+treated as is. For example:
+
+[source, xml]
+.arquillian.xml
+----
+include::../openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
+----
+
+As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
+and inject its IP. If there is no route with that name, then the base URI field is considered to be the final base URI.
+
+If however, no specific base URI is configured, a default route from the definition is used for rest-assured
+configuration.
+
+==== Dependency
+
+To use Arquillian Cube OpenShift RestAssured integration you only need to add as dependency.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-openshift-restassured</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Example
+
+After setting the dependencies for OpenShift and OpenShift-RestAssured and configuring the extensions, you are all set
+to write your Arquillian Cube test as :
+
+[source, java]
+.PingPongTest.java
+----
+include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]
+----
+
+Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
+
+You can see the full example using OpenShift and Rest-Assured at
+https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured .
+
 === Arquillian Kubernetes and OpenShift Recipes
 
 To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.
