@@ -616,8 +616,9 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_immutable_infrastructure_and_integration_testing">20.10. Immutable infrastructure and integration testing</a></li>
 <li><a href="#_resource_providers">20.11. Resource Providers</a></li>
 <li><a href="#_openshift_integration_with_graphene">20.12. OpenShift Integration with Graphene</a></li>
-<li><a href="#_arquillian_kubernetes_and_openshift_recipes">20.13. Arquillian Kubernetes and OpenShift Recipes</a></li>
-<li><a href="#_dealing_with_version_conflicts">20.14. Dealing with version conflicts</a></li>
+<li><a href="#_openshift_integration_with_rest_assured">20.13. OpenShift Integration with Rest-Assured</a></li>
+<li><a href="#_arquillian_kubernetes_and_openshift_recipes">20.14. Arquillian Kubernetes and OpenShift Recipes</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.15. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -6381,12 +6382,79 @@ arquillian-drone, selenium-bom and aquillian-graphene.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_kubernetes_and_openshift_recipes"><a class="anchor" href="#_arquillian_kubernetes_and_openshift_recipes"></a>20.13. Arquillian Kubernetes and OpenShift Recipes</h3>
+<h3 id="_openshift_integration_with_rest_assured"><a class="anchor" href="#_openshift_integration_with_rest_assured"></a>20.13. OpenShift Integration with Rest-Assured</h3>
+<div class="paragraph">
+<p>Integration with Rest-Assured allows for auto-resolution of the base URI of the application deployed within the
+OpenShift cluster by using <code>OpenShift Route</code> definition for configuring Rest-Assured.</p>
+</div>
+<div class="sect3">
+<h4 id="_configuration_4"><a class="anchor" href="#_configuration_4"></a>20.13.1. Configuration</h4>
+<div class="paragraph">
+<p>You can configure a specific base URI using the <code>baseUri</code> property from restassured configuration. In this case, the
+hostname is going to be resolved as OpenShift route name, and if there is no route with that name, then the base URI is
+treated as is. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml">  <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">restassured</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">baseUri</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>http://hello-openshift<span class="tag">&lt;/property&gt;</span>   <i class="conum" data-value="1"></i><b>(1)</b>
+  <span class="tag">&lt;/extension&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
+and inject its IP. If there is no route with that name, then the base URI field is considered to be the final base URI.</p>
+</div>
+<div class="paragraph">
+<p>If however, no specific base URI is configured, a default route from the definition is used for rest-assured
+configuration.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_dependency"><a class="anchor" href="#_dependency"></a>20.13.2. Dependency</h4>
+<div class="paragraph">
+<p>To use Arquillian Cube OpenShift RestAssured integration you only need to add as dependency.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-openshift-restassured<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_5"><a class="anchor" href="#_example_5"></a>20.13.3. Example</h4>
+<div class="paragraph">
+<p>After setting the dependencies for OpenShift and OpenShift-RestAssured and configuring the extensions, you are all set
+to write your Arquillian Cube test as :</p>
+</div>
+<div class="listingblock">
+<div class="title">PingPongTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/kubernetes.adoc - include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that no <em>ip</em> nor <em>port</em> configuration are required since everything is managed and configured by Cube.</p>
+</div>
+<div class="paragraph">
+<p>You can see the full example using OpenShift and Rest-Assured at
+<a href="https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured" class="bare">https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured</a> .</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_arquillian_kubernetes_and_openshift_recipes"><a class="anchor" href="#_arquillian_kubernetes_and_openshift_recipes"></a>20.14. Arquillian Kubernetes and OpenShift Recipes</h3>
 <div class="paragraph">
 <p>To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.</p>
 </div>
 <div class="sect3">
-<h4 id="_example_1"><a class="anchor" href="#_example_1"></a>20.13.1. Example 1</h4>
+<h4 id="_example_1"><a class="anchor" href="#_example_1"></a>20.14.1. Example 1</h4>
 <div class="paragraph">
 <p>Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
 manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.</p>
@@ -6396,7 +6464,7 @@ manifest file and testing it using Arquillian Cube Extension for Kubernetes and 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_2_2"><a class="anchor" href="#_example_2_2"></a>20.13.2. Example 2</h4>
+<h4 id="_example_2_2"><a class="anchor" href="#_example_2_2"></a>20.14.2. Example 2</h4>
 <div class="paragraph">
 <p>Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
 Cube Extension for OpenShift and  Fabric8 OpenShift Client.</p>
@@ -6406,7 +6474,7 @@ Cube Extension for OpenShift and  Fabric8 OpenShift Client.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_3_2"><a class="anchor" href="#_example_3_2"></a>20.13.3. Example 3</h4>
+<h4 id="_example_3_2"><a class="anchor" href="#_example_3_2"></a>20.14.3. Example 3</h4>
 <div class="paragraph">
 <p>Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
 <a href="https://maven.fabric8.io/">Fabric8 Maven Plugin</a> and
@@ -6423,7 +6491,7 @@ Cube Extension deploys the application from the generated resource descriptors a
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.14. Dealing with version conflicts</h3>
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.15. Dealing with version conflicts</h3>
 <div class="paragraph">
 <p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
@@ -6563,7 +6631,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-02 17:07:09 UTC
+Last updated 2018-01-03 11:03:11 UTC
 </div>
 </div>
 </body>
