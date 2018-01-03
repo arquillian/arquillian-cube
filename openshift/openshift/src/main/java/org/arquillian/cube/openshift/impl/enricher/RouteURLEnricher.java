@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
 import io.fabric8.openshift.api.model.v3_1.Route;
+import io.fabric8.openshift.api.model.v3_1.RouteList;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
@@ -16,6 +17,10 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 
@@ -95,7 +100,8 @@ public class RouteURLEnricher implements TestEnricher {
         final OpenShiftClient client = clientInstance.get();
         final Route route = client.getClient().routes().inNamespace(config.getNamespace()).withName(routeName).get();
         if (route == null) {
-            throw new IllegalArgumentException("Could not resolve route: " + routeName);
+            List<Route> availableRoutes = client.getClient().routes().inNamespace(config.getNamespace()).list().getItems();
+            throw new IllegalArgumentException("Could not resolve route: " + routeName + ". Available routes: " + availableRoutes.stream().map(r -> r.getMetadata().getName()).collect(Collectors.toList()));
         }
 
         final String protocol = route.getSpec().getTls() == null ? "http" : "https";
