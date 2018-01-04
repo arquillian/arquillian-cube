@@ -13,7 +13,6 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
-import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -58,16 +57,10 @@ public class KubernetesAssistant {
     private KubernetesAssistantDefaultResourceLocator kubernetesAssistantDefaultResourcesLocator;
     private Map<String, List<HasMetadata>> created = new LinkedHashMap<>();
 
-    KubernetesAssistant(KubernetesClient client, String namespace) {
+    public KubernetesAssistant(KubernetesClient client, String namespace) {
         this.client = client;
         this.namespace = namespace;
         this.kubernetesAssistantDefaultResourcesLocator = new KubernetesAssistantDefaultResourceLocator();
-    }
-
-    public KubernetesAssistant(io.fabric8.openshift.clnt.v3_1.OpenShiftClient openShiftClient, String namespace) {
-        this.client = openShiftClient;
-        this.client.adapt(OpenShiftClient.class);
-        this.namespace = namespace;
     }
 
     /**
@@ -99,7 +92,7 @@ public class KubernetesAssistant {
         if (defaultFileOptional.isPresent()) {
             deployApplication(applicationName, defaultFileOptional.get());
         } else {
-            log.warning("No default Kubernetes or OpenShift resources found at default locations.");
+            log.warning("No default Kubernetes resources found at default locations.");
         }
     }
 
@@ -246,7 +239,7 @@ public class KubernetesAssistant {
         }
     }
 
-    public List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
+    protected List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
         NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 
@@ -467,7 +460,7 @@ public class KubernetesAssistant {
             });
     }
 
-    public List<Pod> getPods(String label) {
+    protected List<Pod> getPods(String label) {
         return this.client
             .pods()
             .inNamespace(this.namespace)
