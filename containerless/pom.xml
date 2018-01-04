@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.12.0</version>
+    <version>1.12.1-SNAPSHOT</version>
   </parent>
   <name>Arquillian Cube Containerless Container</name>
   <artifactId>arquillian-cube-containerless</artifactId>
