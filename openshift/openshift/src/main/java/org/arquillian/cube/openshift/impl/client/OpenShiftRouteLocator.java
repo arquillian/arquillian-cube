@@ -40,7 +40,7 @@ public class OpenShiftRouteLocator {
             .findFirst();
 
         return optionalRoute
-            .map(this::createUrlFromRoute)
+            .map(OpenShiftRouteLocator::createUrlFromRoute)
             .orElseThrow(() -> new NullPointerException("No route defined."));
     }
 
@@ -52,7 +52,7 @@ public class OpenShiftRouteLocator {
         return config;
     }
 
-    private URL createUrlFromRoute(Route route) {
+    static URL createUrlFromRoute(Route route) {
         try {
             final String protocol = route.getSpec().getTls() == null ? "http" : "https";
             final String path = route.getSpec().getPath() == null ? "" : route.getSpec().getPath();
@@ -62,7 +62,7 @@ public class OpenShiftRouteLocator {
         }
     }
 
-    private int resolvePort(String protocol) {
+    private static int resolvePort(String protocol) {
         if ("http".equals(protocol)) {
             return 80;
         } else {

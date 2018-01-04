@@ -10,13 +10,13 @@ import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static org.arquillian.cube.openshift.impl.client.OpenShiftRouteLocator.createUrlFromRoute;
 import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 import static org.awaitility.Awaitility.await;
 
@@ -58,6 +58,12 @@ public class OpenShiftAssistant extends KubernetesAssistant {
 
     }
 
+    /**
+     * Deploys application reading resources from specified InputStream.
+     *
+     * @param inputStream  where resources are read
+     * @throws IOException
+     */
     @Override
     public void deploy(InputStream inputStream) throws IOException {
         final List<? extends HasMetadata> entities = deploy("application", inputStream);
@@ -84,9 +90,9 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      */
     public Optional<URL> getRoute(String routeName) {
         Route route = getClient().routes()
-            .inNamespace(namespace).withName(applicationName).get();
+            .inNamespace(namespace).withName(routeName).get();
 
-        return route != null ? createUrlFromRoute(route) : Optional.empty();
+        return route != null ? Optional.ofNullable(createUrlFromRoute(route)) : Optional.empty();
     }
 
     /**
@@ -100,27 +106,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
             .findFirst();
 
         return optionalRoute
-            .map(this::createUrlFromRoute)
-            .orElse(Optional.empty());
-    }
-
-    private Optional<URL> createUrlFromRoute(Route route) {
-        try {
-            final String protocol = route.getSpec().getTls() == null ? "http" : "https";
-            final String path = route.getSpec().getPath() == null ? "" : route.getSpec().getPath();
-            return Optional.of(
-                new URL(protocol, route.getSpec().getHost(), resolvePort(protocol), path));
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private int resolvePort(String protocol) {
-        if ("http".equals(protocol)) {
-            return 80;
-        } else {
-            return 443;
-        }
+            .map(OpenShiftRouteLocator::createUrlFromRoute);
     }
 
     /**

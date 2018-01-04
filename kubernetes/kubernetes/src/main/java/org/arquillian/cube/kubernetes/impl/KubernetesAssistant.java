@@ -16,6 +16,8 @@ import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
+import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -37,7 +39,6 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 
 import static org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider.LOCALHOST;
 import static org.awaitility.Awaitility.await;
@@ -225,6 +226,12 @@ public class KubernetesAssistant {
         }
     }
 
+    /**
+     * Deploys application reading resources from specified InputStream
+     *
+     * @param inputStream  where resources are read
+     * @throws IOException
+     */
     public void deploy(InputStream inputStream) throws IOException {
         final List<? extends HasMetadata> entities = deploy("application", inputStream);
 
