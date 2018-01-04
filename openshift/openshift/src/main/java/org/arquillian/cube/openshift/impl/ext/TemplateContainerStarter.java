@@ -1,17 +1,19 @@
 package org.arquillian.cube.openshift.impl.ext;
 
-import java.util.List;
-import java.util.logging.Logger;
 import org.arquillian.cube.openshift.api.model.DeploymentConfig;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.CEEnvironmentProcessor;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
 import org.arquillian.cube.openshift.impl.utils.Operator;
-import org.jboss.arquillian.container.spi.event.container.AfterStart;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
+import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 public class TemplateContainerStarter {
 
@@ -22,8 +24,8 @@ public class TemplateContainerStarter {
      * been started. This allows the test container and the template resources
      * to come up in parallel.
      */
-    public void waitForDeployments(@Observes(precedence = -100) AfterStart event, OpenShiftAdapter client,
-        CEEnvironmentProcessor.TemplateDetails details, TestClass testClass, CubeOpenShiftConfiguration configuration, OpenShiftClient openshiftClient)
+    public void waitForDeployments(@Observes(precedence = -100) BeforeClass event, OpenShiftAdapter client,
+                                   CEEnvironmentProcessor.TemplateDetails details, TestClass testClass, CubeOpenShiftConfiguration configuration, OpenShiftClient openshiftClient)
         throws Exception {
         if (testClass == null) {
             // nothing to do, since we're not in ClassScoped context
@@ -36,6 +38,8 @@ public class TemplateContainerStarter {
         log.info(String.format("Waiting for environment for %s", testClass.getName()));
         try {
             delay(client, details.getResources());
+            // Add the routes to JVM's name service for all templates
+            ArqCubeNameService.setRoutes(openshiftClient.getClientExt().routes().list(), configuration.getRouterHost());
         } catch (Throwable t) {
             throw new IllegalArgumentException("Error waiting for template resources to deploy: " + testClass.getName(), t);
         }
