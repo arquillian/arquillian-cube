@@ -13,6 +13,7 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
+import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -61,6 +62,12 @@ public class KubernetesAssistant {
         this.client = kubernetesClient;
         this.namespace = namespace;
         this.kubernetesAssistantDefaultResourcesLocator = new KubernetesAssistantDefaultResourceLocator();
+    }
+
+    public KubernetesAssistant(io.fabric8.openshift.clnt.v3_1.OpenShiftClient openShiftClient, String namespace) {
+        this.client = openShiftClient;
+        this.client.adapt(OpenShiftClient.class);
+        this.namespace = namespace;
     }
 
     /**
@@ -219,7 +226,7 @@ public class KubernetesAssistant {
         }
     }
 
-    private void deploy(InputStream inputStream) throws IOException {
+    public void deploy(InputStream inputStream) throws IOException {
         final List<? extends HasMetadata> entities = deploy("application", inputStream);
 
         if (this.applicationName == null) {
@@ -233,7 +240,7 @@ public class KubernetesAssistant {
         }
     }
 
-    private List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
+    public List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
         NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 
@@ -455,7 +462,7 @@ public class KubernetesAssistant {
             });
     }
 
-    private List<Pod> getPods(String label) {
+    public List<Pod> getPods(String label) {
         return this.client
             .pods()
             .inNamespace(this.namespace)
