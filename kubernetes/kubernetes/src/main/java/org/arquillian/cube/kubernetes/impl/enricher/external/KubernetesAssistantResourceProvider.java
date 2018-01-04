@@ -15,7 +15,7 @@ public class KubernetesAssistantResourceProvider implements ResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return KubernetesAssistant.class.isAssignableFrom(type);
+        return KubernetesAssistant.class.getName().equals(type.getName());
     }
 
     @Override

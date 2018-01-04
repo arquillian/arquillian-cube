@@ -1,12 +1,11 @@
 package org.arquillian.cube.openshift.impl.enricher.external;
 
+import java.lang.annotation.Annotation;
 import org.arquillian.cube.openshift.impl.client.OpenShiftAssistant;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
-
-import java.lang.annotation.Annotation;
 
 public class OpenShiftAssistantResourceProvider implements ResourceProvider {
 
@@ -15,7 +14,7 @@ public class OpenShiftAssistantResourceProvider implements ResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return OpenShiftAssistant.class.isAssignableFrom(type);
+        return OpenShiftAssistant.class.getName().equals(type.getName());
     }
 
     @Override
@@ -23,7 +22,7 @@ public class OpenShiftAssistantResourceProvider implements ResourceProvider {
         OpenShiftAssistant openShiftAssistant = this.openShiftAssistantInstance.get();
 
         if (openShiftAssistant == null) {
-            throw new IllegalStateException("Unable to inject OpenShift Assistant into test.");
+            throw new IllegalStateException("Unable to inject OpenshiftAssistant into test.");
         }
 
         return openShiftAssistant;

@@ -16,8 +16,6 @@ import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
-import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -39,6 +37,7 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 
 import static org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider.LOCALHOST;
 import static org.awaitility.Awaitility.await;
@@ -49,17 +48,17 @@ import static org.awaitility.Awaitility.await;
 public class KubernetesAssistant {
 
     private static final Logger log = Logger.getLogger(KubernetesAssistant.class.getName());
-    private final io.fabric8.kubernetes.clnt.v3_1.KubernetesClient client;
 
-    private final String namespace;
-    private String applicationName;
+
+    protected KubernetesClient client;
+    protected String namespace;
+    protected String applicationName;
 
     private KubernetesAssistantDefaultResourceLocator kubernetesAssistantDefaultResourcesLocator;
-
     private Map<String, List<HasMetadata>> created = new LinkedHashMap<>();
 
-    public KubernetesAssistant(io.fabric8.kubernetes.clnt.v3_1.KubernetesClient kubernetesClient, String namespace) {
-        this.client = kubernetesClient;
+    KubernetesAssistant(KubernetesClient client, String namespace) {
+        this.client = client;
         this.namespace = namespace;
         this.kubernetesAssistantDefaultResourcesLocator = new KubernetesAssistantDefaultResourceLocator();
     }
@@ -252,7 +251,6 @@ public class KubernetesAssistant {
 
         return entities;
     }
-
     /**
      * Gets the URL of the service with the given name that has been created during the current session.
      *

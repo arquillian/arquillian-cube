@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
 import io.fabric8.openshift.api.model.v3_1.Route;
+import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
 import java.io.IOException;
@@ -26,17 +27,11 @@ import static org.awaitility.Awaitility.await;
 public class OpenShiftAssistant extends KubernetesAssistant {
 
     private static final Logger log = Logger.getLogger(OpenShiftAssistant.class.getName());
-    private final io.fabric8.openshift.clnt.v3_1.OpenShiftClient client;
 
-    private final String namespace;
-
-    private String applicationName;
     private OpenShiftAssistantDefaultResourcesLocator openShiftAssistantDefaultResourcesLocator;
 
-    public OpenShiftAssistant(io.fabric8.openshift.clnt.v3_1.OpenShiftClient openShiftClient, String namespace) {
-        super(openShiftClient, namespace);
-        this.client = openShiftClient;
-        this.namespace = namespace;
+    OpenShiftAssistant(OpenShiftClient client, String namespace) {
+        super(client, namespace);
         this.openShiftAssistantDefaultResourcesLocator = new OpenShiftAssistantDefaultResourcesLocator();
     }
 
@@ -78,13 +73,17 @@ public class OpenShiftAssistant extends KubernetesAssistant {
         }
     }
 
+    private OpenShiftClient getClient() {
+        return client.adapt(OpenShiftClient.class);
+    }
+
     /**
      * Gets the URL of the route with given name.
      * @param routeName to return its URL
      * @return URL backed by the route with given name.
      */
     public Optional<URL> getRoute(String routeName) {
-        Route route = client.routes()
+        Route route = getClient().routes()
             .inNamespace(namespace).withName(applicationName).get();
 
         return route != null ? createUrlFromRoute(route) : Optional.empty();
@@ -95,7 +94,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      * @return URL backed by the first route.
      */
     public Optional<URL> getRoute() {
-        Optional<Route> optionalRoute = client.routes().inNamespace(namespace)
+        Optional<Route> optionalRoute = getClient().routes().inNamespace(namespace)
             .list().getItems()
             .stream()
             .findFirst();
@@ -142,7 +141,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     @Override
     public void scale(final int replicas) {
         log.info(String.format("Scaling replicas from %s to %s.", getPods("deploymentconfig").size(), replicas));
-        this.client
+        getClient()
             .deploymentConfigs()
             .inNamespace(this.namespace)
             .withName(this.applicationName)
@@ -169,7 +168,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      * @return Current deployment config object.
      */
     public DeploymentConfig deploymentConfig() {
-        return this.client
+        return getClient()
             .deploymentConfigs()
             .inNamespace(this.namespace)
             .withName(this.applicationName)
