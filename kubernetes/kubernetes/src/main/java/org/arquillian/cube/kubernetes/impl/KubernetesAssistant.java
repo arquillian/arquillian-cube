@@ -48,17 +48,17 @@ import static org.awaitility.Awaitility.await;
 public class KubernetesAssistant {
 
     private static final Logger log = Logger.getLogger(KubernetesAssistant.class.getName());
-    private final io.fabric8.kubernetes.clnt.v3_1.KubernetesClient client;
 
-    private final String namespace;
-    private String applicationName;
+
+    protected KubernetesClient client;
+    protected String namespace;
+    protected String applicationName;
 
     private KubernetesAssistantDefaultResourceLocator kubernetesAssistantDefaultResourcesLocator;
-
     private Map<String, List<HasMetadata>> created = new LinkedHashMap<>();
 
-    public KubernetesAssistant(io.fabric8.kubernetes.clnt.v3_1.KubernetesClient kubernetesClient, String namespace) {
-        this.client = kubernetesClient;
+    public KubernetesAssistant(KubernetesClient client, String namespace) {
+        this.client = client;
         this.namespace = namespace;
         this.kubernetesAssistantDefaultResourcesLocator = new KubernetesAssistantDefaultResourceLocator();
     }
@@ -92,7 +92,7 @@ public class KubernetesAssistant {
         if (defaultFileOptional.isPresent()) {
             deployApplication(applicationName, defaultFileOptional.get());
         } else {
-            log.warning("No default Kubernetes or OpenShift resources found at default locations.");
+            log.warning("No default Kubernetes resources found at default locations.");
         }
     }
 
@@ -219,7 +219,13 @@ public class KubernetesAssistant {
         }
     }
 
-    private void deploy(InputStream inputStream) throws IOException {
+    /**
+     * Deploys application reading resources from specified InputStream
+     *
+     * @param inputStream  where resources are read
+     * @throws IOException
+     */
+    public void deploy(InputStream inputStream) throws IOException {
         final List<? extends HasMetadata> entities = deploy("application", inputStream);
 
         if (this.applicationName == null) {
@@ -233,7 +239,7 @@ public class KubernetesAssistant {
         }
     }
 
-    private List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
+    protected List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
         NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 
@@ -245,7 +251,6 @@ public class KubernetesAssistant {
 
         return entities;
     }
-
     /**
      * Gets the URL of the service with the given name that has been created during the current session.
      *
@@ -455,7 +460,7 @@ public class KubernetesAssistant {
             });
     }
 
-    private List<Pod> getPods(String label) {
+    protected List<Pod> getPods(String label) {
         return this.client
             .pods()
             .inNamespace(this.namespace)

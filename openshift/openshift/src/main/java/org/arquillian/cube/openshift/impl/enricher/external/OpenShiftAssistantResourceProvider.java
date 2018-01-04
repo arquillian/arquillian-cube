@@ -14,7 +14,7 @@ public class OpenShiftAssistantResourceProvider implements ResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return OpenShiftAssistant.class.isAssignableFrom(type);
+        return OpenShiftAssistant.class.getName().equals(type.getName());
     }
 
     @Override
@@ -22,7 +22,7 @@ public class OpenShiftAssistantResourceProvider implements ResourceProvider {
         OpenShiftAssistant openShiftAssistant = this.openShiftAssistantInstance.get();
 
         if (openShiftAssistant == null) {
-            throw new IllegalStateException("Unable to inject DockerClient into test.");
+            throw new IllegalStateException("Unable to inject OpenshiftAssistant into test.");
         }
 
         return openShiftAssistant;
