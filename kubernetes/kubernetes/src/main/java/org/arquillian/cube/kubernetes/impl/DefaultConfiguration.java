@@ -132,7 +132,7 @@ public class DefaultConfiguration implements Configuration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
-                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
+                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), ",\\s*")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
