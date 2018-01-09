@@ -5515,7 +5515,7 @@ the environment</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">env.dependencies</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whitespace separated list of URLs to more dependency
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-separated list of URLs to more environment dependencies
 kubernetes.json</p></td>
 </tr>
 <tr>
@@ -5541,7 +5541,7 @@ is ready</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">wait.for.service.list</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Explicitly specify a list of services to wait upon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-separated list of additional services to wait upon</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ansi.logger.enabled</p></td>
@@ -5810,7 +5810,7 @@ required one by specifying <strong>env.config.resource.name</strong> property.</
 <li>
 <p>Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also
 possible that your environment configuration is split in multiple files.
-To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a space separated list of URLs.</p>
+To cover cases like this the <strong>env.dependencies</strong> is provided which accepts a comma-separated list of URLs.</p>
 </li>
 <li>
 <p>There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup
@@ -6631,7 +6631,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-03 11:03:11 UTC
+Last updated 2018-01-09 08:54:07 UTC
 </div>
 </div>
 </body>
