@@ -223,7 +223,7 @@ public class TakeKubernetesResourcesInformationTest {
     public void should_report_environment_dependencies_from_http_url_and_configuration_from_default_location()
         throws IOException {
         //given
-        String resourceName = SERVICE_PATH + " " + REPLICATION_CONTROLLER_PATH;
+        String resourceName = SERVICE_PATH + "," + REPLICATION_CONTROLLER_PATH;
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resourceName));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
@@ -255,7 +255,7 @@ public class TakeKubernetesResourcesInformationTest {
     public void should_report_environment_dependencies_from_file_url_and_configuration_from_default_location()
         throws IOException {
         //given
-        String resouceName = getResourceURL(SERVICES_FILE_NAME) + " " + getResourceURL(REPLICATION_CONTROLLER_FILE_NAME);
+        String resouceName = getResourceURL(SERVICES_FILE_NAME) + "," + getResourceURL(REPLICATION_CONTROLLER_FILE_NAME);
         Configuration configuration = DefaultConfiguration.fromMap(addEnvironmentDependencies(getConfig(), resouceName));
         TakeKubernetesResourcesInformation takeKubernetesResourcesInformation = new TakeKubernetesResourcesInformation();
         takeKubernetesResourcesInformation.sectionEvent = sectionEvent;
