@@ -44,7 +44,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     private static final String DEFAULT_PATH = "/";
 
     private static final String POD = "Pod";
-    private static final String LOCALHOST = "127.0.0.1";
+    public static final String LOCALHOST = "127.0.0.1";
 
     private static final String SERVICE_A_RECORD_FORMAT = "%s.%s.svc.cluster.local";
 

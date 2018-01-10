@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.11.1-SNAPSHOT</version>
+    <version>1.12.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -24,6 +24,7 @@
     <module>ftest-kubernetes</module>
     <module>ftest-kubernetes-logs</module>
     <module>ftest-kubernetes-reporter</module>
+    <module>ftest-kubernetes-assistant</module>
   </modules>
 
 </project>

@@ -100,13 +100,13 @@ than kubernetes.json)
 environment                  
 | env.teardown.script.url             | URL            | Any | Option to select a shell script to tear down / cleanup
 the environment
-| env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency 
+| env.dependencies                    | List           | Any | Comma-separated list of URLs to more environment dependencies
 kubernetes.json             
 | wait.enabled                        | Bool (true)    | Any | Whether to wait until the env is ready
 | wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready
 | wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment
 is ready
-| wait.for.service.list               | List           | Any | Explicitly specify a list of services to wait upon             
+| wait.for.service.list               | List           | Any | Comma-separated list of additional services to wait upon
 | ansi.logger.enabled                 | Bool (true)    | Any | Flag to enable colorful output                                 
 | kubernetes.client.creator.class.name| Bool (true)    | Any | Fully qualified class name of a kubernetes client
 creator class (byon)
@@ -245,7 +245,7 @@ required one by specifying **env.config.resource.name** property.
 
 3. Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also
 possible that your environment configuration is split in multiple files.
-To cover cases like this the **env.dependencies** is provided which accepts a space separated list of URLs.
+To cover cases like this the **env.dependencies** is provided which accepts a comma-separated list of URLs.
 
 4. There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup
 the environment. For those cases you can use the **env.setup.script.url** / **env.teardown.script.url** to pass the
@@ -348,6 +348,16 @@ The test code above, demonstrates how you can inject an use inside your test the
 *Session* object.
 It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on 
 http://assertj.org[assert4j] for performing assertions on top of the Kubernetes model.
+
+Also, you can gather control of what to deploy, when to deploy or when to wait for resources readiness.
+To control you need to inject into test the `org.arquillian.cube.kubernetes.impl.KubernetesAssistant`.
+
+[source, java]
+----
+include::../kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
+----
+<1> Sets the application name where everything is deployed.
+<2> You can get the url of the deployed service on the cluster.
 
 The next example is intended to show how you can inject a resource by id.
 
@@ -558,7 +568,7 @@ graphene.
 .arquillian.xml
 ----
 <extension qualifier="graphene">
-    <property name="url">http://hello-world:8080</property>   <!1>
+    <property name="url">http://hello-world:8080</property>   <!--1-->
 </extension>
 ----
 
@@ -623,6 +633,89 @@ You can see the example using Graphene at
 https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-graphene .
 
 Also, you can learn more about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/ .
+
+=== OpenShift Integration with Rest-Assured
+
+Integration with Rest-Assured allows for auto-resolution of the base URI of the application deployed within the
+OpenShift cluster by using `OpenShift Route` definition for configuring Rest-Assured.
+
+==== Configuration
+
+You can configure a specific base URI using the `baseUri` property from restassured configuration. In this case, the
+hostname is going to be resolved as OpenShift route name, and if there is no route with that name, then the base URI is
+treated as is. For example:
+
+[source, xml]
+.arquillian.xml
+----
+include::../openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
+----
+
+As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
+and inject its IP. If there is no route with that name, then the base URI field is considered to be the final base URI.
+
+If however, no specific base URI is configured, a default route from the definition is used for rest-assured
+configuration.
+
+==== Dependency
+
+To use Arquillian Cube OpenShift RestAssured integration you only need to add as dependency.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-openshift-restassured</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Example
+
+After setting the dependencies for OpenShift and OpenShift-RestAssured and configuring the extensions, you are all set
+to write your Arquillian Cube test as :
+
+[source, java]
+.PingPongTest.java
+----
+include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]
+----
+
+Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
+
+You can see the full example using OpenShift and Rest-Assured at
+https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured .
+
+=== Arquillian Kubernetes and OpenShift Recipes
+
+To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.
+
+==== Example 1
+
+Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
+manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.
+
+Source: https://github.com/arquillian-testing-microservices/kubernetes-deployment-testing[arquillian-testing-microservices/kubernetes-deployment-testing]
+
+==== Example 2
+
+Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
+Cube Extension for OpenShift and  Fabric8 OpenShift Client.
+
+Source: https://github.com/arquillian-testing-microservices/openshift-deployment-testing[arquillian-testing-microservices/openshift-deployment-testing]
+
+==== Example 3
+
+Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
+https://maven.fabric8.io/[Fabric8 Maven Plugin] and
+https://github.com/arquillian/arquillian-cube[Arquillian Cube Extension].
+
+Fabric8 Maven Plugin aids in building Docker images and creating Kubernetes and OpenShift resource
+descriptors for the application that allows for a quick ramp-up with some opinionated defaults and Arquillian
+Cube Extension deploys the application from the generated resource descriptors and then executes deployment tests.
+
+Source: https://github.com/arquillian-testing-microservices/zero-config-deployment-test[arquillian-testing-microservices/zero-config-deployment-test]
 
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.

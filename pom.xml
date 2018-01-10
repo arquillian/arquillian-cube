@@ -15,7 +15,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-parent</artifactId>
-  <version>1.11.1-SNAPSHOT</version>
+  <version>1.12.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Arquillian Cube Extension</name>
@@ -68,7 +68,7 @@
     <version.junit>4.12</version.junit>
     <version.hamcrest>1.3</version.hamcrest>
     <version.docker-java>3.0.14</version.docker-java>
-    <version.kubernetes_client>3.1.5</version.kubernetes_client>
+    <version.kubernetes_client>3.1.7</version.kubernetes_client>
     <version.snakeyaml>1.19</version.snakeyaml>
     <version.shrinkwrap_resolver>3.0.1</version.shrinkwrap_resolver>
     <version.shrinkwrap>1.2.6</version.shrinkwrap>
@@ -166,6 +166,16 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-openshift</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-restassured</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

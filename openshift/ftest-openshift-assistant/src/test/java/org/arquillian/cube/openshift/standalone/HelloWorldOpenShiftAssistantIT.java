@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HelloWorldOpenShiftAssistantIT {
 
     @ArquillianResource
-    OpenShiftAssistant openShiftAssistant;
+    private OpenShiftAssistant openShiftAssistant;
 
     @Test
     public void should_inject_openshift_assistant() {

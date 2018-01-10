@@ -16,7 +16,7 @@ import org.arquillian.cube.openshift.impl.enricher.internal.DeploymentConfigReso
 import org.arquillian.cube.openshift.impl.enricher.internal.OpenshiftClientResourceProvider;
 import org.arquillian.cube.openshift.impl.ext.*;
 import org.arquillian.cube.openshift.impl.feedback.OpenshiftFeedbackProvider;
-import org.arquillian.cube.openshift.impl.graphene.location.OpenshiftCustomizableURLResourceProvider;
+import org.arquillian.cube.openshift.impl.graphene.location.OpenShiftCustomizableURLResourceProvider;
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
 import org.arquillian.cube.openshift.impl.namespace.OpenshiftNamespaceService;
@@ -76,7 +76,7 @@ public class CubeOpenshiftExtension implements LoadableExtension {
 
         if (isGrapheneInStandaloneMode()) {
             builder.override(ResourceProvider.class, CustomizableURLResourceProvider.class,
-                OpenshiftCustomizableURLResourceProvider.class);
+                OpenShiftCustomizableURLResourceProvider.class);
         }
     }
 

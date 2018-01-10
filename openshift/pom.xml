@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.11.1-SNAPSHOT</version>
+    <version>1.12.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -36,6 +36,8 @@
     <module>ftest-oc-proxy</module>
     <module>ftest-openshift-assistant</module>
     <module>ftest-openshift-graphene</module>
+    <module>ftest-openshift-restassured</module>
+    <module>openshift-restassured</module>
   </modules>
 
 </project>
