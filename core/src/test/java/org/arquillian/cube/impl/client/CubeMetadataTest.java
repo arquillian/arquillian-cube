@@ -1,7 +1,5 @@
 package org.arquillian.cube.impl.client;
 
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Cube;
@@ -9,9 +7,7 @@ import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.metadata.CubeMetadata;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CubeMetadataTest {
 
     @Test
