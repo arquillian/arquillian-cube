@@ -1,7 +1,6 @@
 package org.arquillian.cube.requirement;
 
 import java.lang.annotation.Annotation;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 import org.arquillian.cube.spi.requirement.Requirement;
 import org.arquillian.cube.spi.requirement.Requires;
@@ -21,7 +20,7 @@ public class Requirements {
             try {
                 Requirement requirement;
                 if (requirementType.isInterface()) {
-                    requirement = getRequirement(context);
+                    requirement = loadRequirement(context);
                 } else {
                     requirement = requirementType.newInstance();
                 }
@@ -34,23 +33,25 @@ public class Requirements {
         }
     }
 
-    private static Requirement getRequirement(Annotation context) {
+    // Loading first found implementation of requirement found on classpath assuming
+    // we have only one implementation on classpath.
+    private static Requirement loadRequirement(Annotation context) {
         Requirement requirement = null;
+        final ServiceLoader<Requirement> requirements = ServiceLoader.load(Requirement.class);
 
-        final ServiceLoader<Requirement> requirementLoader = ServiceLoader.load(Requirement.class);
-
-        final Iterator<Requirement> requirements = requirementLoader.iterator();
-
-        while (requirement == null && requirements.hasNext()) {
-            Requirement req = requirements.next();
+        for (Requirement req : requirements) {
             try {
                 req.getClass().getDeclaredMethod("check", context.annotationType());
                 requirement = req;
+                break;
             } catch (NoSuchMethodException e) {
-                // if method not found with required signature. Look for next implementation
+                // Look for next implementation if method not found with required signature.
             }
         }
 
+        if (requirement == null) {
+            throw new IllegalStateException("Couldn't found any implementation of " + Requirement.class);
+        }
         return requirement;
     }
 }
