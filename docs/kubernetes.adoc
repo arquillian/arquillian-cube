@@ -214,8 +214,8 @@ This option goes hand in hand with **env.init.enabled** which can be used to pre
 the environment.
 
 Last but not least, you can just tell arquillian, that you are going to use the current namespace as testing namespace.
-In this case, arquillian cube will delegate to the link:
-https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that will use:
+In this case, arquillian cube will delegate to
+https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that in turn will use:
 
 - ~/.kube/config
 - /var/run/secrets/kubernetes.io/serviceaccount/namespace
