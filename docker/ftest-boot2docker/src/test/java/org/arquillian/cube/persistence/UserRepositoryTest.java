@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(Arquillian.class)
 public class UserRepositoryTest {
 

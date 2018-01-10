@@ -13,7 +13,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 //@BelongsTo(IntegrationSuite.class)
-@Category(RequiresOpenshift.class)
 @RunAsClient
 @RunWith(Arquillian.class)
 public class IndexTestCase {
