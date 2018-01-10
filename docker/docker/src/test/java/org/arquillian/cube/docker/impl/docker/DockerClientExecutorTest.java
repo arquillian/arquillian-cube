@@ -8,19 +8,15 @@ package org.arquillian.cube.docker.impl.docker;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class DockerClientExecutorTest {
 

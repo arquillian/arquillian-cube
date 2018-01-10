@@ -1,16 +1,12 @@
 package org.arquillian.cube.docker.impl.client.utils;
 
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.arquillian.cube.docker.impl.client.utils.NumberConversion.convertToLong;
 import static org.arquillian.cube.docker.impl.client.utils.NumberConversion.humanReadableByteCount;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class NumberConversionTest {
 
     private static final Long TEN_MEGABYTES = 9999800L;

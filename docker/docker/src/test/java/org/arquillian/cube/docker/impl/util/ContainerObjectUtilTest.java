@@ -3,16 +3,12 @@ package org.arquillian.cube.docker.impl.util;
 import java.util.List;
 import org.arquillian.cube.containerobject.Cube;
 import org.arquillian.cube.containerobject.Environment;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class ContainerObjectUtilTest {
 
     @Test

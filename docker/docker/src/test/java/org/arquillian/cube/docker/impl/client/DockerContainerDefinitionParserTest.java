@@ -1,14 +1,10 @@
 package org.arquillian.cube.docker.impl.client;
 
 import java.net.URI;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class DockerContainerDefinitionParserTest {
 
     @Test

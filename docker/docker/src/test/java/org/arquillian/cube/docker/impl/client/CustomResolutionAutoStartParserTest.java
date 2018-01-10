@@ -4,20 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.core.api.Injector;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase {
 
     private static final String CONTENT =

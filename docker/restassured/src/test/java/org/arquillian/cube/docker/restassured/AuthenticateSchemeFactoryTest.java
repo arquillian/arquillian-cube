@@ -7,14 +7,10 @@ import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.OAuthScheme;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.authentication.PreemptiveOAuth2HeaderScheme;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class AuthenticateSchemeFactoryTest {
 
     @Test

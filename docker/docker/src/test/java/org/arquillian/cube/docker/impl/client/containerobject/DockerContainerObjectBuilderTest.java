@@ -37,8 +37,6 @@ import org.arquillian.cube.containerobject.Volume;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
@@ -53,10 +51,8 @@ import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.invocation.InvocationOnMock;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class DockerContainerObjectBuilderTest {
 
     public static final String BASE_IMAGE = "tomee:8-jre-1.7.2-webprofile";

@@ -1,8 +1,6 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
 import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.reporter.api.builder.BuilderLoader;
 import org.arquillian.reporter.api.event.SectionEvent;
 import org.arquillian.reporter.api.model.entry.FileEntry;
@@ -14,7 +12,6 @@ import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -29,7 +26,6 @@ import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class TakeVncDroneVideoTest {
 

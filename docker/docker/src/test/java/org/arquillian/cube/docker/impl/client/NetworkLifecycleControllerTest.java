@@ -7,21 +7,17 @@ import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.LocalDockerNetworkRegistry;
 import org.arquillian.cube.docker.impl.model.NetworkRegistry;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
 

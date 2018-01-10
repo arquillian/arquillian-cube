@@ -2,20 +2,16 @@ package org.arquillian.cube.docker.impl.client;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class CubeDockerConfigurationResolverTest {
 
     @Test

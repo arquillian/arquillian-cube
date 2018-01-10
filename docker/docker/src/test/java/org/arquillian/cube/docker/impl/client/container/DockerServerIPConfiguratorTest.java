@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.Binding;
@@ -27,13 +25,11 @@ import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
 

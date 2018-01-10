@@ -4,15 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.DefinitionFormat;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class SinglePortBindResolverTest {
 
     @Test

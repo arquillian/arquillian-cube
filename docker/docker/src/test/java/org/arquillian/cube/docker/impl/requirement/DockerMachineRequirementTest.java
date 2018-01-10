@@ -8,14 +8,12 @@ import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.when;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class DockerMachineRequirementTest {
 

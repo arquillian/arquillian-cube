@@ -4,13 +4,10 @@ import java.io.IOException;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.impl.log.AnsiLogger;
-import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category(RequiresKubernetes.class)
 public class DependencyResolverTest {
 
     @Test

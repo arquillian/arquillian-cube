@@ -7,13 +7,9 @@ import java.util.List;
 import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.DefinitionFormat;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 public class AutoStartOrderUtilTestCase {
 
     private static final String SCENARIO_NO_KNOWN_LINK =

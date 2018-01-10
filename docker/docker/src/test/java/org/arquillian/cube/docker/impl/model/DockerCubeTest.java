@@ -8,8 +8,6 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
@@ -24,7 +22,6 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -33,7 +30,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class DockerCubeTest extends AbstractManagerTestBase {
 

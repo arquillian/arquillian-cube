@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.SystemUtils;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -26,7 +24,6 @@ import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,7 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {
 

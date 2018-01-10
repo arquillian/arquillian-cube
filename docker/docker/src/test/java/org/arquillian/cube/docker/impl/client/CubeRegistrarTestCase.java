@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -13,12 +11,10 @@ import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
 @RunWith(MockitoJUnitRunner.class)
 public class CubeRegistrarTestCase extends AbstractManagerTestBase {
 
