@@ -1,16 +1,22 @@
 package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.kubernetes.api.model.v3_1.KubernetesList;
 import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.DoneableTemplate;
 import io.fabric8.openshift.api.model.v3_1.Route;
+import io.fabric8.openshift.api.model.v3_1.Template;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
+import io.fabric8.openshift.clnt.v3_1.ParameterValue;
+import io.fabric8.openshift.clnt.v3_1.dsl.TemplateResource;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +35,10 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     private static final Logger log = Logger.getLogger(OpenShiftAssistant.class.getName());
 
     private OpenShiftAssistantDefaultResourcesLocator openShiftAssistantDefaultResourcesLocator;
+
+    private List<ParameterValue> pvs = new ArrayList<>();
+
+    private String templateURL;
 
     OpenShiftAssistant(OpenShiftClient client, String namespace) {
         super(client, namespace);
@@ -159,5 +169,38 @@ public class OpenShiftAssistant extends KubernetesAssistant {
             .inNamespace(this.namespace)
             .withName(this.applicationName)
             .get();
+    }
+
+    public OpenShiftAssistant usingTemplate(String templateURL) {
+        this.templateURL = templateURL;
+        return this;
+    }
+
+    public OpenShiftAssistant parameter(String param, String value) {
+        pvs.add(new ParameterValue(param, value));
+        return this;
+    }
+
+    /**
+     * Deploys application reading resources from specified TemplateURL.
+     *
+     * @throws IOException
+     */
+    public void deploy() throws IOException {
+        KubernetesList list = processTemplate(templateURL, pvs);
+        createResources(list);
+    }
+
+    private KubernetesList processTemplate(String templateURL, List<ParameterValue> values) throws IOException {
+        OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+        try (InputStream stream = new URL(templateURL).openStream()) {
+            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
+                openShiftClient.templates().inNamespace(this.namespace).load(stream);
+            return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
+        }
+    }
+
+    private KubernetesList createResources(KubernetesList list) {
+        return client.lists().inNamespace(this.namespace).create(list);
     }
 }

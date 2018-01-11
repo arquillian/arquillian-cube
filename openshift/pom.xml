@@ -38,6 +38,7 @@
     <module>ftest-openshift-graphene</module>
     <module>ftest-openshift-restassured</module>
     <module>openshift-restassured</module>
+    <module>ftest-openshift-assistant-template</module>
   </modules>
 
 </project>
