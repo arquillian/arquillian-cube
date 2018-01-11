@@ -1,14 +1,13 @@
 sudo: required
 
-matrix:
-  include:
+env:
     #https://github.com/openshift/origin/issues/17210
-    #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-    - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
+    #- OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
+    - OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+    - OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+    - OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+    - OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+    - CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
   - docker
@@ -68,13 +67,31 @@ jobs:
       script: ./mvnw clean verify -DskipITs=${SKIP_IT}
       env: SKIP_IT=true
     - stage: integration-test
-      script: ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      script:
+#        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+#    - stage: integration-test
+#      script:
+#        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+#    - stage: integration-test
+#      script:
+#        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+#    - stage: integration-test
+#      script:
+#        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+#    - stage: integration-test
+#      script:
+#        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+#      env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
     - stage: generate-doc
       script:
         - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
             docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
           fi'
-      env:  FOO=foo
+      env:
 
 after_success:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
