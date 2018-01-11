@@ -90,8 +90,8 @@
     <version.awaitility>3.0.0</version.awaitility>
     <version.fast-classpath-scanner>2.9.3</version.fast-classpath-scanner>
 
-    <!--- Empty property for surefire groups to avoid conflict with maven-javadoc-plugin's groups -->
-    <surefire.groups/>
+    <!--- Empty property for failsafe groups to avoid conflict with maven-javadoc-plugin's groups -->
+    <failsafe.groups/>
     <surefire.skip>false</surefire.skip>
   </properties>
 
@@ -385,11 +385,13 @@
         <configuration>
           <!-- you can disable unit tests by setting it to true -->
           <skip>${surefire.skip}</skip>
-          <groups>${surefire.groups}</groups>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <groups>${failsafe.groups}</groups>
+        </configuration>
         <executions>
           <execution>
             <goals>

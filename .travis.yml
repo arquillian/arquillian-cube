@@ -59,23 +59,23 @@ jobs:
       env: SKIP_IT=true
     - stage: integration-tests
       script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
       env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
     - stage: integration-tests
       script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
       env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
     - stage: integration-tests
       script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
       env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
     - stage: integration-tests
       script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
       env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
     - stage: integration-tests
       script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dsurefire.groups=${CATEGORY}
+        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
       env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
     - stage: generate-doc
       script:
