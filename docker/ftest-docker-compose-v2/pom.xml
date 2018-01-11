@@ -77,7 +77,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
+        <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
             <arquillian.launch>${arquillian.launch}</arquillian.launch>
@@ -86,7 +86,16 @@
           <excludes>
             <exclude>**/persistence/**</exclude>
           </excludes>
+          <groups>${failsafe.groups}</groups>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <testResources>
