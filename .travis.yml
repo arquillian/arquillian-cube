@@ -1,6 +1,7 @@
 sudo: required
 
 matrix:
+  fast_finish: true
   include:
     #https://github.com/openshift/origin/issues/17210
     #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
@@ -10,7 +11,6 @@ matrix:
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift" SKIP_UNIT=true
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker" SKIP_UNIT=true
      - env: SKIP_IT=true
-  fast_finish: true
 
 services:
   - docker
