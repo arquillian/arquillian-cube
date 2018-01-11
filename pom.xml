@@ -92,7 +92,6 @@
 
     <!--- Empty property for failsafe groups to avoid conflict with maven-javadoc-plugin's groups -->
     <failsafe.groups/>
-    <surefire.skip>false</surefire.skip>
   </properties>
 
   <dependencyManagement>
@@ -382,10 +381,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- you can disable unit tests by setting it to true -->
-          <skip>${surefire.skip}</skip>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
