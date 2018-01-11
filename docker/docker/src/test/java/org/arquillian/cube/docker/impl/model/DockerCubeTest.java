@@ -68,7 +68,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Test
     public void shouldFireLifecycleEventsDuringCreate() {
         cube.create();
-        assertEventFired(BeforeCreate.class, 1);
+        assertEventFired(BeforeCreate.class, 10);
         assertEventFired(AfterCreate.class, 1);
     }
 
