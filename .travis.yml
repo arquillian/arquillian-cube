@@ -1,5 +1,17 @@
 sudo: required
 
+matrix:
+  include:
+    #https://github.com/openshift/origin/issues/17210
+    #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes" SKIP_UNIT=true
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift" SKIP_UNIT=true
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes" SKIP_UNIT=true
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift" SKIP_UNIT=true
+     - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker" SKIP_UNIT=true
+     - env: SKIP_IT=true
+  fast_finish: true
+
 services:
   - docker
 addons:
@@ -52,37 +64,11 @@ install:
 
 before_script: ./mvnw install -q -U -DskipTests=true
 
-jobs:
-  include:
-    - stage: unit-tests
-      script: ./mvnw clean verify -DskipITs=${SKIP_IT}
-      env: SKIP_IT=true
-    - stage: integration-tests
-      script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
-      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
-    - stage: integration-tests
-      script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
-      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-    - stage: integration-tests
-      script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
-      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
-    - stage: integration-tests
-      script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
-      env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-    - stage: integration-tests
-      script:
-        - ./mvnw clean verify -Dsurefire.skip=true -Dfailsafe.groups=${CATEGORY}
-      env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
-    - stage: generate-doc
-      script:
-        - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
-            docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
-          fi'
-      env:
+script:
+  - ./mvnw clean verify -Dsurefire.skip=${SKIP_UNIT} -DskipITs=${SKIP_IT} -Dfailsafe.groups=${CATEGORY}
+  - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
+      docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
+    fi'
 
 after_success:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
