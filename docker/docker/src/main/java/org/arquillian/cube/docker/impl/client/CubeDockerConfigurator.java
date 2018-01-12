@@ -11,6 +11,7 @@ import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
@@ -77,22 +78,37 @@ public class CubeDockerConfigurator {
     }
 
     CubeDockerConfiguration resolveDynamicNames(CubeDockerConfiguration cubeConfiguration) {
-
-        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
-
-        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
-
         final UUID uuid = UUID.randomUUID();
 
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        final Map<String, Network> networks = dockerContainersContent.getNetworks();
+        final Map<String, String> networkResolutions = new HashMap<>();
+        if (networks != null) {
+            final Map<String, Network> resolvedNetworks = new HashMap<>();
+            for (Map.Entry<String, Network> network : networks.entrySet()) {
+                final String networkId = network.getKey();
+                if (networkId.endsWith("*")) {
+                    String templateName = networkId.substring(0, networkId.lastIndexOf("*"));
+                    String newId = StarOperator.generateNewName(templateName, uuid);
+                    resolvedNetworks.put(newId, network.getValue());
+                    networkResolutions.put(networkId, newId);
+                } else {
+                    resolvedNetworks.put(networkId, network.getValue());
+                }
+            }
+            dockerContainersContent.setNetworks(resolvedNetworks);
+        }
+        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
+        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
         for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
 
             // If it is a dynamic definition
             final String containerId = container.getKey();
+            CubeContainer cubeContainer = container.getValue();
+
+            StarOperator.adaptNetworksToParalledRun(networkResolutions, cubeContainer);
             if (containerId.endsWith("*")) {
                 String templateName = containerId.substring(0, containerId.lastIndexOf('*'));
-
-                CubeContainer cubeContainer = container.getValue();
 
                 StarOperator.adaptPortBindingToParallelRun(cubeContainer);
                 StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
@@ -101,11 +117,11 @@ public class CubeDockerConfigurator {
                 String newId = StarOperator.generateNewName(templateName, uuid);
                 resolvedContainers.put(newId, cubeContainer);
             } else {
-                resolvedContainers.put(containerId, container.getValue());
+                resolvedContainers.put(containerId, cubeContainer);
             }
         }
-
         dockerContainersContent.setContainers(resolvedContainers);
+
         return cubeConfiguration;
     }
 
