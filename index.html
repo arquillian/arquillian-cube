@@ -1513,7 +1513,8 @@ In YAML adding brackets ("[" "]") is for setting a list.
   <span class="key">capDrop</span>: <span class="string"><span class="content">[b]</span></span>
   <span class="key">extends</span>: <span class="string"><span class="content">container-id </span></span><i class="conum" data-value="9"></i><b>(9)</b>
   <span class="key">manual</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="10"></i><b>(10)</b>
-  <span class="key">killContainer</span>: <span class="string"><span class="content">true </span></span> <i class="conum" data-value="11"></i><b>(11)</b></code></pre>
+  <span class="key">killContainer</span>: <span class="string"><span class="content">true </span></span><i class="conum" data-value="11"></i><b>(11)</b>
+  <span class="key">alias</span>: <span class="string"><span class="content">tomcat1 </span></span> <i class="conum" data-value="12"></i><b>(12)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1561,6 +1562,10 @@ In YAML adding brackets ("[" "]") is for setting a list.
 <tr>
 <td><i class="conum" data-value="11"></i><b>11</b></td>
 <td>Kills the container instead of stopping it normally. By default is false so containers are stopped.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Alternate hostname for use with the builtin DNS for <a href="https://docs.docker.com/engine/userguide/networking/#user-defined-networks">docker&#8217;suser defined networks</a>.</td>
 </tr>
 </table>
 </div>
@@ -6631,7 +6636,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-10 19:08:42 UTC
+Last updated 2018-01-12 14:01:46 UTC
 </div>
 </div>
 </body>
