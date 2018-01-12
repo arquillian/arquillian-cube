@@ -32,13 +32,12 @@ public class HelloOpenShiftAssistantTemplateTest {
     public void should_apply_template_programmatically() throws IOException {
 
         openShiftAssistant
-                .usingTemplate("https://gist.githubusercontent.com/lordofthejars/8781cacd4000a516695ad6c55b5815b3/raw/5151aeef0f5dd8823e2c581c3b7452f04a76af59/hello-template.yaml")
+                .usingTemplate(String.valueOf(getClass().getClassLoader().getResource("hello-template.yaml")))
                 .parameter("RESPONSE", "Hello from Arquillian Template")
             .deploy();
 
         final Optional<URL> route = openShiftAssistant.getRoute();
         openShiftAssistant.awaitUrl(route.get());
-
 
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(route.get()).build();
