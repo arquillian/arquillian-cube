@@ -6,15 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Requires annotation is used to express {@link Requirement}.
+ * Requires annotation is used to express {@link Constraint}.
  * Can be used directly on a type or method, but also can be used to annotate other annotations.
  * When used to annotate an other annotation, the target annotation defines the requirement context (which is passed to
- * the {@link Requirement}.
+ * the {@link Constraint}.
  * In all other cases, there is no context.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE, ElementType.METHOD})
 public @interface Requires {
 
-    Class<? extends Requirement>[] value() default {};
+    Class<? extends Constraint>[] value() default {};
 }

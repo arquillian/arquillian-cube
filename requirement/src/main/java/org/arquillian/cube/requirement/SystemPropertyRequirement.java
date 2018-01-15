@@ -1,9 +1,9 @@
 package org.arquillian.cube.requirement;
 
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
-public class SystemPropertyRequirement implements Requirement<RequiresSystemProperty> {
+public class SystemPropertyRequirement implements Constraint<RequiresSystemProperty> {
 
     @Override
     public void check(RequiresSystemProperty context) throws UnsatisfiedRequirementException {

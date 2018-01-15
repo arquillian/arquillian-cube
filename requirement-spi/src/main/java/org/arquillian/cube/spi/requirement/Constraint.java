@@ -1,6 +1,6 @@
 package org.arquillian.cube.spi.requirement;
 
-public interface Requirement<T> {
+public interface Constraint<T> {
 
     /**
      * Check if the specified requirement is met in a given context.

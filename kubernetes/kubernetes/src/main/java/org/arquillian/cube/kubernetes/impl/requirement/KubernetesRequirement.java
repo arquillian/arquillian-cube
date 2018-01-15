@@ -7,11 +7,11 @@ import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
 //TODO: The kubernetes client currently doesn't expose a method to do a version check. An issue has been raised, but until its done we do the work here. See https://github.com/fabric8io/kubernetes-client/issues/477.
-public class KubernetesRequirement implements Requirement<RequiresKubernetes> {
+public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
 
     @Override
     public void check(RequiresKubernetes context) throws UnsatisfiedRequirementException {
