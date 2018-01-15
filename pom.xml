@@ -33,6 +33,9 @@
     <module>requirement</module>
     <module>bom</module>
     <module>requirement-spi</module>
+    <module>arquillian-cube-docker-starter</module>
+    <module>arquillian-cube-kubernetes-starter</module>
+    <module>arquillian-cube-openshift-starter</module>
   </modules>
 
   <developers>
