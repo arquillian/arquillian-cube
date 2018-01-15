@@ -1316,6 +1316,10 @@ Let&#8217;s see valid attributes:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">You can set a list of locations separated by comma. These locations follow the same rules as <code>dockerContainersFile</code> so it can be a file or an URI. This property can be used to append the definitions from several files.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">dockerContainersResource</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rather than embedding YAML as a string, or specifying a path on the filesystem, you can specify a file containing the container definitions on the java classpath. This allows you to avoid dealing with complex relative paths if sharing definitions between multiple modules.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">definitionFormat</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Sets the format of content expressed in <code>dockerContainers</code> attribute or in file set in <code>dockerContainersFile</code>. It can contain two possible values <em>CUBE</em> to indicate that content is written following <a href="#cube-format">Arquillian Cube</a> format or <em>COMPOSE</em> (default one in case of not set) to indicate that content is written following <a href="#docker-compose-format">Docker Compose</a> format.</p></td>
 </tr>
@@ -3174,6 +3178,31 @@ In this way when you execute your tests in parallel there will be no conflicts b
 </div>
 <div class="paragraph">
 <p>Since now the ports are unique and names are unique, you can run tests using same orchestration in parallel against same docker host.</p>
+</div>
+<div class="paragraph">
+<p>The same approach can work for ensuring that each test run has a unique network. As docker allows multiple networks to have the same name, it will not throw an error if two concurrent tests create networks with the same name. However, as cube networks are specified by name in the cube specification, if there are multiple networks with the same name, the cube could end up in any one of them, resulting in hard to debug test failures.</p>
+</div>
+<div class="paragraph">
+<p>Again, adding the special character <code>*</code> to the end of the network name will cause a random network name to be used. The name can then be used for a cube&#8217;s networkMode or in the cube&#8217;s network list, and it will be substituted correctly when the test runs.</p>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yml"><span class="error">&lt;property name=&quot;dockerContainers&quot;&gt;</span>
+    <span class="key">networks</span>:
+      <span class="key">testnetwork*</span>:
+        <span class="key">driver</span>: <span class="string"><span class="content">bridge</span></span>
+    <span class="key">tomcat*</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:8.0</span></span>
+      <span class="key">portBindings</span>: <span class="string"><span class="content">[8080/tcp]</span></span>
+      <span class="key">networkMode</span>: <span class="string"><span class="content">testnetwork*</span></span>
+    <span class="key">ping*</span>:
+      <span class="key">image</span>: <span class="string"><span class="content">jonmorehouse/ping-pong</span></span>
+      <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+      <span class="key">networks</span>:
+        - <span class="string"><span class="content">testnetwork*</span></span>
+<span class="error">&lt;/property&gt;</span></code></pre>
+</div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -6636,7 +6665,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-12 14:01:46 UTC
+Last updated 2018-01-15 10:44:51 UTC
 </div>
 </div>
 </body>
