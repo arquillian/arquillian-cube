@@ -7,7 +7,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <name>Arquillian Cube OpenShift RestAssured Functional Test</name>
   <artifactId>arquillian-cube-openshift-ftest-restassured</artifactId>
+
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
