@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.client.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -74,6 +75,25 @@ public class StarOperator {
         }
         
         cubeContainer.setDependsOn(adjustedDependsOn);
+    }
+
+    public static void adaptNetworksToParalledRun(Map<String,String> networkResolutions, CubeContainer cubeContainer) {
+        String networkMode = cubeContainer.getNetworkMode();
+        if (networkMode != null && networkResolutions.containsKey(networkMode)) {
+            cubeContainer.setNetworkMode(networkResolutions.get(networkMode));
+        }
+
+        if (cubeContainer.getNetworks() != null) {
+            ArrayList<String> networks = new ArrayList<>();
+            for (String network : cubeContainer.getNetworks()) {
+                if (networkResolutions.containsKey(network)) {
+                    networks.add(networkResolutions.get(network));
+                } else {
+                    networks.add(network);
+                }
+            }
+            cubeContainer.setNetworks(networks);
+        }
     }
 
     public static String generateNewName(String containerName, UUID uuid) {

@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
@@ -336,6 +337,50 @@ public class CubeConfigurationTest {
         final CubeContainer tomcatContainer = cubeDockerConfiguration.getDockerContainersContent().get(tomcat);
         Link link = getFirst(tomcatContainer.getLinks());
         assertThat(link.getAlias(), is("bb_" + uuid));
+    }
+
+    @Test
+    public void shouldParallelizeNetworks() {
+        String content =
+            "networks:\n" +
+            "  network1*:\n" +
+            "    driver: bridge\n" +
+            "  network2:\n" +
+            "    driver: bridge\n" +
+            "  network3*:\n" +
+            "    driver: bridge\n" +
+            "tomcat:\n" +
+            "  image: tutum/tomcat:8.0\n" +
+            "  networkMode: network3*\n" +
+            "ping:\n" +
+            "  image: jonmorehouse/ping-pong\n" +
+            "  networks:\n" +
+            "    - network1*\n" +
+            "    - network2\n";
+
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+        final DockerCompositions dockerContainersContent = cubeDockerConfiguration.getDockerContainersContent();
+        final Set<String> networkIds = dockerContainersContent.getNetworkIds();
+        String network1 = findElementStartingWith(networkIds, "network1");
+        assertThat(network1, is(not("network1*")));
+        String network2 = findElementStartingWith(networkIds, "network2");
+        assertThat(network2, is("network2"));
+        String network3 = findElementStartingWith(networkIds, "network3");
+        assertThat(network3, is(not("network3*")));
+
+        final CubeContainer tomcat = dockerContainersContent.get("tomcat");
+        assertThat(tomcat.getNetworkMode(), is(network3));
+
+        final CubeContainer ping = dockerContainersContent.get("ping");
+        assertThat(ping.getNetworks(), containsInAnyOrder(network1, network2));
     }
 
     private <T> T getFirst(Collection<T> collection) {
