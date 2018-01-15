@@ -561,6 +561,27 @@ public class CubeConfigurationTest {
     }
 
     @Test
+    public void should_parse_and_load_configuration_from_container_configuration_resource() throws IOException {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
+        parameters.put("dockerContainersResource", "test-topologies/topology1.yaml");
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
+        assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
+
+        DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
+        assertThat(actualTomcat, is(notNullValue()));
+
+        String image = actualTomcat.getImage().toImageRef();
+        assertThat(image, is("tutum/tomcat:7.0"));
+    }
+
+    @Test
     public void should_be_able_to_extend_and_override_toplevel() throws Exception {
         String config =
             "tomcat6:\n" +

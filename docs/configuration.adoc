@@ -29,6 +29,9 @@ Let's see valid attributes:
 |dockerContainersFiles
 |You can set a list of locations separated by comma. These locations follow the same rules as `dockerContainersFile` so it can be a file or an URI. This property can be used to append the definitions from several files.
 
+|dockerContainersResource
+|Rather than embedding YAML as a string, or specifying a path on the filesystem, you can specify a file containing the container definitions on the java classpath. This allows you to avoid dealing with complex relative paths if sharing definitions between multiple modules.
+
 |definitionFormat
 |Sets the format of content expressed in `dockerContainers` attribute or in file set in `dockerContainersFile`. It can contain two possible values _CUBE_ to indicate that content is written following <<cube-format, Arquillian Cube>> format or _COMPOSE_ (default one in case of not set) to indicate that content is written following <<docker-compose-format, Docker Compose>> format.
 
