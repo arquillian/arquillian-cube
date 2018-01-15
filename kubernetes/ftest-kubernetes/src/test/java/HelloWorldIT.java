@@ -1,4 +1,3 @@
-import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.v3_1.Service;
 import java.io.IOException;
 import java.net.URL;
