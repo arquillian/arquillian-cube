@@ -27,10 +27,10 @@ public class HelloWorldOpenShiftResourcesTest {
 
     @RouteURL("hello-world")
     @AwaitRoute
-    URL url;
+    private URL url;
 
     @ArquillianResource
-    OpenShiftClient openShiftClient;
+    private OpenShiftClient openShiftClient;
 
     @Test
     public void should_show_hello_world() throws IOException {

@@ -76,8 +76,13 @@ public class TemplateUtils {
         return templateUrl;
     }
 
-    public static int readReplicas(TestClass testClass) {
-        Replicas replicas = testClass.getAnnotation(Replicas.class);
+    public static <T> int readReplicas(T type) {
+        Replicas replicas = null;
+        if (type instanceof Method) {
+            replicas = ((Method) type).getAnnotation(Replicas.class);
+        } else if (type instanceof TestClass){
+            replicas = ((TestClass) type).getAnnotation(Replicas.class);
+        }
         int r = 1;
         if (replicas != null) {
             if (replicas.value() <= 0) {

@@ -24,10 +24,23 @@ public class HelloWorldTemplateTest {
 
     @RouteURL("hello-openshift-route")
     @AwaitRoute
-    URL url;
+    private URL url;
 
     @Test
-    public void should_show_hello_world() throws IOException {
+    public void should_create_class_template_resources() throws IOException {
+        verifyResponse(url);
+    }
+
+    @Test
+    @Template(url = "https://gist.githubusercontent.com/dipak-pawar/403b870fc92f6569f64f12b506318606/raw/4dd7cd4b259f893353509411ba4777792cacd034/hello_openshift_route_template.yaml",
+        parameters = @TemplateParameter(name = "ROUTE_NAME", value = "hello-openshift-method-route"))
+    public void should_create_method_template_resources(
+        @RouteURL("hello-openshift-method-route") @AwaitRoute URL routeUrl)
+        throws IOException {
+        verifyResponse(routeUrl);
+    }
+
+    private void verifyResponse(URL url) throws IOException {
         assertThat(url).isNotNull();
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(url).build();
@@ -37,5 +50,4 @@ public class HelloWorldTemplateTest {
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.body().string()).isEqualTo("Hello from Arquillian Template\n");
     }
-
 }
