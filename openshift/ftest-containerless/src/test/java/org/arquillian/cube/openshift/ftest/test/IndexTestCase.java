@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 //@BelongsTo(IntegrationSuite.class)
-@RunWith(Arquillian.class)
 @RunAsClient
+@RunWith(Arquillian.class)
 public class IndexTestCase {
 
     @Test @InSequence(1)

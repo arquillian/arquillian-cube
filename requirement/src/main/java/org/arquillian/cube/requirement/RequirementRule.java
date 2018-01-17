@@ -9,7 +9,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import static org.arquillian.cube.requirement.Requirements.checkRequirement;
+import static org.arquillian.cube.requirement.Constraints.checkConstraint;
 
 public class RequirementRule implements TestRule {
 
@@ -20,10 +20,10 @@ public class RequirementRule implements TestRule {
         Statement result = base;
         try {
             //Check if Requires is used directly.
-            checkRequirement(description.getAnnotation(Requires.class), null);
+            checkConstraint(description.getAnnotation(Requires.class), null);
             for (Annotation annotation : description.getAnnotations()) {
                 //Check if Requires is annotating an other annotation
-                checkRequirement(annotation.annotationType().getAnnotation(Requires.class), annotation);
+                checkConstraint(annotation.annotationType().getAnnotation(Requires.class), annotation);
             }
         } catch (UnsatisfiedRequirementException e) {
             log.log(Level.WARNING, String.format("Unsatisfied assumption in test class %s. Requirement problem: %s.",
