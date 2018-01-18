@@ -35,6 +35,9 @@ public interface Configuration {
     String NAMESPACE_TO_USE = "namespace.use.existing";
     String NAMESPACE_PREFIX = "namespace.prefix";
 
+    String NAMESPACE_CLASS_SCOPE_ENABLED = "namespace.class.scope.enabled";
+    String NAMESPACE_METHOD_SCOPE_ENABLED = "namespace.method.scope.enabled";
+
     String ENVIRONMENT_INIT_ENABLED = "env.init.enabled";
 
     String ENVIRONMENT_SCRIPT_ENV = "env.script.env";
@@ -107,6 +110,10 @@ public interface Configuration {
     boolean isNamespaceDestroyEnabled();
 
     boolean isNamespaceDestroyConfirmationEnabled();
+
+    boolean isNamespaceClassScopeEnabled();
+
+    boolean isNamespaceMethodScopeEnabled();
 
     long getNamespaceDestroyTimeout();
 

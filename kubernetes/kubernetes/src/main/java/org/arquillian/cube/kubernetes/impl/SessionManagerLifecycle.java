@@ -1,7 +1,9 @@
 package org.arquillian.cube.kubernetes.impl;
 
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -18,8 +20,14 @@ import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
+import org.jboss.arquillian.test.spi.event.suite.After;
+import org.jboss.arquillian.test.spi.event.suite.AfterClass;
+import org.jboss.arquillian.test.spi.event.suite.Before;
+import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
 
 public class SessionManagerLifecycle {
+
+    private static Logger log = Logger.getLogger(SessionManager.class.getName());
 
     @Inject
     Instance<KubernetesClient> kubernetesClient;
@@ -63,6 +71,45 @@ public class SessionManagerLifecycle {
         sessionManagerRef.set(sessionManager);
         sessionManager.start();
         afterStartEvent.fire(new AfterStart(session));
+    }
+
+    public void createNamespaceAtClassScope(@Observes BeforeClass beforeClassEvent, Configuration configuration) throws Exception {
+        final TestClass testClass = beforeClassEvent.getTestClass();
+        log.info(String.format("Creating environment for %s", testClass.getName()));
+
+        if (configuration.isNamespaceClassScopeEnabled()) {
+            namespaceService.get().create(configuration.getNamespace() + "-" + testClass.getJavaClass().hashCode());
+        }
+    }
+
+    public void createNamespaceAtMethodScope(@Observes Before beforeMethodEvent, Configuration configuration) throws Exception {
+        final TestClass testClass = beforeMethodEvent.getTestClass();
+        final Method testMethod = beforeMethodEvent.getTestMethod();
+
+        log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod));
+
+        if (configuration.isNamespaceMethodScopeEnabled()) {
+            namespaceService.get().create(configuration.getNamespace() + "-" + testMethod.hashCode());
+        }
+
+    }
+
+    public void deleteNamespaceAtClassScope(@Observes AfterClass afterClassEvent, Configuration configuration) {
+        if (configuration.isNamespaceClassScopeEnabled()) {
+            namespaceService.get().delete(configuration.getNamespace() + "-" + afterClassEvent.getTestClass().getJavaClass().hashCode());
+        }
+    }
+
+    public void deleteNamespaceAtMethodScope(@Observes After afterMethodEvent, Configuration configuration) {
+        final TestClass testClass = afterMethodEvent.getTestClass();
+        final Method testMethod = afterMethodEvent.getTestMethod();
+        final Class<?> javaClass = testClass.getJavaClass();
+        log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
+
+        if (configuration.isNamespaceMethodScopeEnabled()) {
+            namespaceService.get().delete(configuration.getNamespace() + "-" + testMethod.hashCode());
+        }
+
     }
 
     public void stop(@Observes Stop event, Configuration configuration) throws Exception {

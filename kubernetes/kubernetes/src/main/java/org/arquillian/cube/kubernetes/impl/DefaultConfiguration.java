@@ -54,6 +54,9 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceDestroyConfirmationEnabled;
     private final long namespaceDestroyTimeout;
 
+    private final boolean namespaceClassScopeEnabled;
+    private final boolean namespaceMethodScopeEnabled;
+
     private final boolean waitEnabled;
     private final long waitTimeout;
     private final long waitPollInterval;
@@ -74,7 +77,7 @@ public class DefaultConfiguration implements Configuration {
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
-        boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
+        boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceClassScopeEnabled, boolean namespaceMethodScopeEnabled,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
@@ -95,6 +98,8 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyEnabled = namespaceDestroyEnabled;
         this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
+        this.namespaceClassScopeEnabled = namespaceClassScopeEnabled;
+        this.namespaceMethodScopeEnabled = namespaceMethodScopeEnabled;
         this.waitEnabled = waitEnabled;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
@@ -155,7 +160,8 @@ public class DefaultConfiguration implements Configuration {
                     getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
-
+                .withNamespaceClassScopeEnabled(getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false))
+                .withNamespaceMethodScopeEnabled(getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false))
                 .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
@@ -360,6 +366,16 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isNamespaceDestroyConfirmationEnabled() {
         return namespaceDestroyConfirmationEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceClassScopeEnabled() {
+        return namespaceClassScopeEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceMethodScopeEnabled() {
+        return namespaceMethodScopeEnabled;
     }
 
     @Override

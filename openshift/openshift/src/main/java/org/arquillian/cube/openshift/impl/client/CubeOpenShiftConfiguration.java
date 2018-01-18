@@ -4,6 +4,10 @@ import io.fabric8.kubernetes.clnt.v3_1.Config;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
+import org.arquillian.cube.openshift.api.ConfigurationHandle;
+
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Collections;
@@ -12,9 +16,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
-import org.arquillian.cube.openshift.api.ConfigurationHandle;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -76,7 +77,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
                                       URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
-                                      boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
+                                      boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceClassScopeEnabled, boolean namespaceMethodScopeEnabled,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
                                       List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
@@ -87,7 +88,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
-            namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
+            namespaceCleanupTimeout, namespaceClassScopeEnabled, namespaceMethodScopeEnabled, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);
         this.keepAliveGitServer = keepAliveGitServer;
