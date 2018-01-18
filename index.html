@@ -6460,9 +6460,25 @@ configuration.</p>
 to write your Arquillian Cube test as :</p>
 </div>
 <div class="listingblock">
-<div class="title">PingPongTest.java</div>
+<div class="title">HelloOpenShiftRestAssuredIT.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/kubernetes.adoc - include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Category</span>(RequiresOpenshift.class)
+<span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
+<span class="annotation">@RequiresOpenshift</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloOpenShiftRestAssuredIT</span> {
+
+    <span class="annotation">@ArquillianResource</span>
+    RequestSpecBuilder requestSpecBuilder;
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> testGreetingEndpoint() {
+        given(requestSpecBuilder.build())
+            .when().get()
+            .then()
+            .statusCode(<span class="integer">200</span>)
+            .body(containsString(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello OpenShift!</span><span class="delimiter">&quot;</span></span>));
+    }
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6657,7 +6673,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-18 07:08:41 UTC
+Last updated 2018-01-18 08:54:30 UTC
 </div>
 </div>
 </body>
