@@ -112,4 +112,39 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
     }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyDestroyedCube() {
+        // given
+        cube.stop();
+        cube.destroy();
+
+        // when
+        cube.stop();
+
+        // then - event count is 1 which is for first cube.stop()
+        assertEventFired(BeforeStop.class, 1);
+        assertEventFired(AfterStop.class, 1);
+    }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyStoppedCube() {
+        // given
+        cube.stop();
+
+        // when
+        cube.stop();
+
+        // then  - event count is 1 which is for first cube.stop()
+        assertEventFired(BeforeStop.class, 1);
+        assertEventFired(AfterStop.class, 1);
+    }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopPreRunningCube() {
+        cube.changeToPreRunning();
+        cube.stop();
+        assertEventFired(BeforeStop.class, 0);
+        assertEventFired(AfterStop.class, 0);
+    }
 }
