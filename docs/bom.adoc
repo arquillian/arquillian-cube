@@ -107,6 +107,13 @@ Then include the individual modules as you see fit, by simply depending on the u
 </dependency>
 ----
 
+==== Arquillian Cube Docker Starter (Single Unified Dependency for Cube Docker in Standalone Mode)
+
+[source, xml, indent=0]
+----
+include::../pom.xml[tag=docker_starter_dependency]
+----
+
 ==== Arquillian Cube Docker Junit Rule
 
 [source, xml]
@@ -173,6 +180,13 @@ Then include the individual modules as you see fit, by simply depending on the u
 </dependency>
 ----
 
+==== Arquillian Cube Kubernetes Starter (Single Unified Dependency for Cube Kubernetes in Standalone Mode)
+
+[source, xml, indent=0]
+----
+include::../pom.xml[tag=kubernetes_starter_dependency]
+----
+
 ==== Arquillian Cube Kubernetes Reporter
 
 [source, xml]
@@ -204,4 +218,11 @@ Then include the individual modules as you see fit, by simply depending on the u
     <artifactId>arquillian-cube-openshift</artifactId>
     <scope>test</scope>
 </dependency>
+----
+
+==== Arquillian Cube Openshift Starter (Single Unified Dependency for Cube OpenShift in Standalone Mode)
+
+[source, xml, indent=0]
+----
+include::../pom.xml[tag=openshift_starter_dependency]
 ----

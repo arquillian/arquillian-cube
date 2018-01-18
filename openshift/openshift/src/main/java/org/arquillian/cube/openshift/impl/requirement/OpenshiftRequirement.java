@@ -8,10 +8,10 @@ import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
-public class OpenshiftRequirement implements Requirement<RequiresOpenshift> {
+public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
 
     @Override
     public void check(RequiresOpenshift context) throws UnsatisfiedRequirementException {

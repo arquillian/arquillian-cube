@@ -1,9 +1,9 @@
 package org.arquillian.cube.requirement;
 
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
-public class EnvironmentVariableRequirement implements Requirement<RequiresEnvironmentVariable> {
+public class EnvironmentVariableRequirement implements Constraint<RequiresEnvironmentVariable> {
 
     @Override
     public void check(RequiresEnvironmentVariable context) throws UnsatisfiedRequirementException {

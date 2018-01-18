@@ -7,6 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <name>Arquillian Cube OpenShift OC Proxy Functional Test</name>
   <artifactId>arquillian-cube-openshift-oc-proxy-ftest</artifactId>
 
   <dependencies>
@@ -31,4 +32,18 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- This artifact shouldn't be deployed to maven repository -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

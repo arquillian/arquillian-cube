@@ -32,11 +32,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.arquillian.graphene</groupId>
       <artifactId>graphene-webdriver</artifactId>
       <version>${version.graphene}</version>
@@ -56,7 +51,7 @@
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-docker</artifactId>
+      <artifactId>arquillian-cube-docker-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

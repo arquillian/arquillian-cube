@@ -12,18 +12,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-docker</artifactId>
+      <artifactId>arquillian-cube-docker-starter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

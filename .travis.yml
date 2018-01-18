@@ -4,8 +4,11 @@ matrix:
   include:
     #https://github.com/openshift/origin/issues/17210
     #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf"
-    - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
   - docker
@@ -60,7 +63,7 @@ install:
 before_script: ./mvnw install -q -U -DskipTests=true
 
 script:
-  - ./mvnw clean install
+  - ./mvnw clean verify -Dfailsafe.groups=${CATEGORY}
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
     fi'

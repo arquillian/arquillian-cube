@@ -22,5 +22,9 @@
       <groupId>org.arquillian.reporter</groupId>
       <artifactId>arquillian-core-reporter-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-requirement-spi</artifactId>
+    </dependency>
   </dependencies>
 </project>

@@ -15,11 +15,11 @@ import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
 
-public class DockerRequirement implements Requirement<RequiresDocker> {
+public class DockerRequirement implements Constraint<RequiresDocker> {
 
     private final CommandLineExecutor commandLineExecutor;
     private final CubeDockerConfigurationResolver resolver;

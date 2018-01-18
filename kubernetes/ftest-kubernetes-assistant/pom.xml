@@ -12,7 +12,9 @@
     <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
 
+  <name>Arquillian Cube Kubernetes Assistant Standalone Functional Test</name>
   <artifactId>arquillian-cube-kubernetes-assistant-standalone-ftest</artifactId>
+
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -21,7 +23,7 @@
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-kubernetes</artifactId>
+      <artifactId>arquillian-cube-kubernetes-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -29,12 +31,18 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
-
+  <build>
+    <plugins>
+      <!-- This artifact shouldn't be deployed to maven repository -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

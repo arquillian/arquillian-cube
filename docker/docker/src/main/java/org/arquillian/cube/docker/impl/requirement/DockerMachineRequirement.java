@@ -2,11 +2,11 @@ package org.arquillian.cube.docker.impl.requirement;
 
 import java.util.List;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
 
-public class DockerMachineRequirement implements Requirement<RequiresDockerMachine> {
+public class DockerMachineRequirement implements Constraint<RequiresDockerMachine> {
 
     private final CommandLineExecutor commandLineExecutor;
 
