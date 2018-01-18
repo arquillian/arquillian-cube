@@ -182,7 +182,14 @@ A template describes a set of objects that can be parameterized and processed to
 
 You can set template location as configuration parameter or using `@Template` annotation at class level.
 
-You can see an example of template usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java
+Here's a small example:
+[source, java]
+----
+include::../openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateIT.java[tag=openshift_template_example]
+----
+
+However in `@Template`, url can be set using `url = https://git.io/vNRQm` or using
+`url = "classpath:hello-openshift.yaml"` if template is on Test class path.
 
 ===== `@OpenShiftResource`
 
@@ -198,7 +205,7 @@ The value can either be:
 
 You can use `@OpenShiftResource` either at class level which implies that resource is created before test class execution and they are deleted after class execution or at method level which implies that resources are created and deleted after each test method execution.
 
-You can see an example of OpenShift resources usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java
+You can see an example of OpenShift resources usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java
 
 === Namespaces
 
@@ -550,7 +557,7 @@ Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
 [source, java]
 .OpenshiftAndK8sExample.java
 ----
-include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]
+include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldIT.java[tag=client_cli_execution]
 ----
 
 === OpenShift Integration with Graphene
