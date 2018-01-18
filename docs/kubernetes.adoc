@@ -677,9 +677,9 @@ After setting the dependencies for OpenShift and OpenShift-RestAssured and confi
 to write your Arquillian Cube test as :
 
 [source, java]
-.PingPongTest.java
+.HelloOpenShiftRestAssuredIT.java
 ----
-include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/PingPongTest.java[tag=openshift_restassured_example]
+include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/HelloOpenShiftRestAssuredIT.java[tag=openshift_restassured_example]
 ----
 
 Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
