@@ -2,7 +2,7 @@
 
 http://forge.jboss.org[Forge] Arquillian Addon offers an integration with Arquillian Cube.
 
-==== How to use it?
+=== How to use it?
 * Install JBoss-Forge from https://forge.jboss.org/download[here].
 * Install arquillian add-on. To install arquillian-addon, in the Forge CLI, run command:
  `addon-install-from-git --url https://github.com/forge/arquillian-addon.git --coordinate org.arquillian.forge:arquillian-addon`

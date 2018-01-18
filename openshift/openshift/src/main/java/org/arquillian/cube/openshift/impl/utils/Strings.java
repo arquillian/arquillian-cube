@@ -119,16 +119,11 @@ public class Strings {
 
     public static StringResolver createStringResolver(Properties properties) {
         final ValueExpressionResolver resolver = createValueExpressionResolver(properties);
-        return new StringResolver() {
-            public String resolve(String value) {
-                return new ValueExpression(value).resolveString(resolver);
-            }
-        };
+        return value -> new ValueExpression(value).resolveString(resolver);
     }
 
-    // ---
 
-    static ValueExpressionResolver createValueExpressionResolver(Properties properties) {
+    private static ValueExpressionResolver createValueExpressionResolver(Properties properties) {
         return new CustomValueExpressionResolver(properties);
     }
 }

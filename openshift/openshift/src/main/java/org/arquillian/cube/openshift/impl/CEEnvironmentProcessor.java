@@ -170,7 +170,7 @@ public class CEEnvironmentProcessor {
             for (Template template : templates) {
                 // Delete pods and services related to each template
                 resolver = Strings.createStringResolver(configuration.getProperties());
-                templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
+                templateURL = TemplateUtils.readTemplateUrl(template, testClass.getJavaClass(), configuration, false, resolver);
 
                 client.deleteTemplate(testClass.getName() + templateURL);
             }
@@ -185,7 +185,7 @@ public class CEEnvironmentProcessor {
     private List<? extends OpenShiftResource> processTemplate(Template template, TestClass tc, OpenShiftAdapter client,
         CubeOpenShiftConfiguration configuration) {
         final StringResolver resolver = Strings.createStringResolver(configuration.getProperties());
-        final String templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
+        final String templateURL = TemplateUtils.readTemplateUrl(template, tc.getJavaClass(), configuration, false, resolver);
 
         if (templateURL == null) {
             log.info(String.format("No template specified for %s", tc.getName()));
