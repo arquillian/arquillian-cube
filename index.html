@@ -1160,7 +1160,20 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_junit_rule"><a class="anchor" href="#_arquillian_cube_docker_junit_rule"></a>5.2.7. Arquillian Cube Docker Junit Rule</h4>
+<h4 id="_arquillian_cube_docker_starter_single_unified_dependency_for_cube_docker_in_standalone_mode"><a class="anchor" href="#_arquillian_cube_docker_starter_single_unified_dependency_for_cube_docker_in_standalone_mode"></a>5.2.7. Arquillian Cube Docker Starter (Single Unified Dependency for Cube Docker in Standalone Mode)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-docker-starter<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_docker_junit_rule"><a class="anchor" href="#_arquillian_cube_docker_junit_rule"></a>5.2.8. Arquillian Cube Docker Junit Rule</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1172,7 +1185,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_drone"><a class="anchor" href="#_arquillian_cube_docker_drone"></a>5.2.8. Arquillian Cube Docker Drone</h4>
+<h4 id="_arquillian_cube_docker_drone"><a class="anchor" href="#_arquillian_cube_docker_drone"></a>5.2.9. Arquillian Cube Docker Drone</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1184,7 +1197,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_restassured"><a class="anchor" href="#_arquillian_cube_docker_restassured"></a>5.2.9. Arquillian Cube Docker Restassured</h4>
+<h4 id="_arquillian_cube_docker_restassured"><a class="anchor" href="#_arquillian_cube_docker_restassured"></a>5.2.10. Arquillian Cube Docker Restassured</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1196,7 +1209,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>5.2.10. Arquillian Cube Docker Reporter</h4>
+<h4 id="_arquillian_cube_docker_reporter"><a class="anchor" href="#_arquillian_cube_docker_reporter"></a>5.2.11. Arquillian Cube Docker Reporter</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1208,7 +1221,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_docker_java_assertj"><a class="anchor" href="#_docker_java_assertj"></a>5.2.11. Docker Java AssertJ</h4>
+<h4 id="_docker_java_assertj"><a class="anchor" href="#_docker_java_assertj"></a>5.2.12. Docker Java AssertJ</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1220,7 +1233,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes"><a class="anchor" href="#_arquillian_cube_kubernetes"></a>5.2.12. Arquillian Cube Kubernetes</h4>
+<h4 id="_arquillian_cube_kubernetes"><a class="anchor" href="#_arquillian_cube_kubernetes"></a>5.2.13. Arquillian Cube Kubernetes</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1232,7 +1245,20 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>5.2.13. Arquillian Cube Kubernetes Reporter</h4>
+<h4 id="_arquillian_cube_kubernetes_starter_single_unified_dependency_for_cube_kubernetes_in_standalone_mode"><a class="anchor" href="#_arquillian_cube_kubernetes_starter_single_unified_dependency_for_cube_kubernetes_in_standalone_mode"></a>5.2.14. Arquillian Cube Kubernetes Starter (Single Unified Dependency for Cube Kubernetes in Standalone Mode)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-kubernetes-starter<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_kubernetes_reporter"><a class="anchor" href="#_arquillian_cube_kubernetes_reporter"></a>5.2.15. Arquillian Cube Kubernetes Reporter</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1244,7 +1270,7 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_kubernetes_fabric8"><a class="anchor" href="#_arquillian_cube_kubernetes_fabric8"></a>5.2.14. Arquillian Cube Kubernetes Fabric8</h4>
+<h4 id="_arquillian_cube_kubernetes_fabric8"><a class="anchor" href="#_arquillian_cube_kubernetes_fabric8"></a>5.2.16. Arquillian Cube Kubernetes Fabric8</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
@@ -1256,13 +1282,26 @@ This test basically validates that the image can be started, and finally that fr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_arquillian_cube_openshift"><a class="anchor" href="#_arquillian_cube_openshift"></a>5.2.15. Arquillian Cube Openshift</h4>
+<h4 id="_arquillian_cube_openshift"><a class="anchor" href="#_arquillian_cube_openshift"></a>5.2.17. Arquillian Cube Openshift</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
     <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
     <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-openshift<span class="tag">&lt;/artifactId&gt;</span>
     <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_arquillian_cube_openshift_starter_single_unified_dependency_for_cube_openshift_in_standalone_mode"><a class="anchor" href="#_arquillian_cube_openshift_starter_single_unified_dependency_for_cube_openshift_in_standalone_mode"></a>5.2.18. Arquillian Cube Openshift Starter (Single Unified Dependency for Cube OpenShift in Standalone Mode)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-openshift-starter<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -6273,54 +6312,7 @@ To control you need to inject into test the <code>org.arquillian.cube.openshift.
 <div class="listingblock">
 <div class="title">OpenshiftAndK8sExample.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
-<span class="annotation">@RequiresOpenshift</span>
-<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldTest</span> {
-
-    <span class="directive">private</span> <span class="directive">static</span> CommandExecutor commandExecutor = <span class="keyword">new</span> CommandExecutor();
-
-    <span class="annotation">@Test</span>
-    <span class="directive">public</span> <span class="type">void</span> should_be_able_get_namespace_using_kubectl() {
-        <span class="comment">// when</span>
-        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; namespaces = commandExecutor.execCommand(<span class="string"><span class="delimiter">&quot;</span><span class="content">kubectl get ns -o=name</span><span class="delimiter">&quot;</span></span>);
-
-        <span class="comment">// then</span>
-        assertThat(namespaces).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">namespaces/default</span><span class="delimiter">&quot;</span></span>);
-    }
-
-    <span class="annotation">@Test</span>
-    <span class="directive">public</span> <span class="type">void</span> should_be_able_deploy_resources_using_oc() {
-        <span class="comment">// given</span>
-        <span class="predefined-type">String</span> commandToExecute = <span class="string"><span class="delimiter">&quot;</span><span class="content">oc create -f </span><span class="delimiter">&quot;</span></span> + getResource(<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift.json</span><span class="delimiter">&quot;</span></span>);
-
-        <span class="comment">// when</span>
-        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; resources = commandExecutor.execCommand(commandToExecute);
-
-        <span class="comment">// then</span>
-        assertThat(resources).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">service </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> created</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">deployment </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> created</span><span class="delimiter">&quot;</span></span>);
-    }
-
-    <span class="annotation">@AfterClass</span>
-    <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> deleteDeployment() {
-        <span class="predefined-type">String</span> commandToExecute = <span class="string"><span class="delimiter">&quot;</span><span class="content">oc delete -f </span><span class="delimiter">&quot;</span></span> + getResource(<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift.json</span><span class="delimiter">&quot;</span></span>);
-        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; strings = commandExecutor.execCommand(commandToExecute);
-
-        assertThat(strings).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">service </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> deleted</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">deployment </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> deleted</span><span class="delimiter">&quot;</span></span>);
-    }
-
-    <span class="directive">private</span> <span class="directive">static</span> <span class="predefined-type">String</span> getResource(<span class="predefined-type">String</span> resourceName) {
-        <span class="directive">final</span> <span class="predefined-type">URL</span> resource = <span class="predefined-type">Thread</span>.currentThread().getContextClassLoader().getResource(resourceName);
-        <span class="keyword">if</span> (resource == <span class="predefined-constant">null</span>) {
-            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalStateException</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">Expected </span><span class="delimiter">&quot;</span></span> + resourceName + <span class="string"><span class="delimiter">&quot;</span><span class="content"> to be on the classpath</span><span class="delimiter">&quot;</span></span>);
-        }
-
-        <span class="keyword">try</span> {
-            <span class="keyword">return</span> resource.toURI().getPath();
-        } <span class="keyword">catch</span> (<span class="exception">URISyntaxException</span> e) {
-            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">RuntimeException</span>(e);
-        }
-    }
-}</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/kubernetes.adoc - include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]</code></pre>
 </div>
 </div>
 </div>
@@ -6665,7 +6657,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-15 10:44:51 UTC
+Last updated 2018-01-18 07:08:41 UTC
 </div>
 </div>
 </body>
