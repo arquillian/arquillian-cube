@@ -12,13 +12,8 @@
   <artifactId>arquillian-cube-openshift-standalone-ftest</artifactId>
   <dependencies>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift</artifactId>
+      <artifactId>arquillian-cube-openshift-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

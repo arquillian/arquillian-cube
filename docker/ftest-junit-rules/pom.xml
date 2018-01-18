@@ -7,6 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <name>Arquillian Cube Docker Functional Test JUnit Rules</name>
   <artifactId>arquillian-cube-docker-junit-rules</artifactId>
 
   <properties>
@@ -34,14 +35,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-      <version>${version.arquillian_core}</version>
-    </dependency>
-    <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-docker</artifactId>
+      <artifactId>arquillian-cube-docker-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

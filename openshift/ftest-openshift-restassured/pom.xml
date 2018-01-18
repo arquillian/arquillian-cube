@@ -7,7 +7,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <name>Arquillian Cube OpenShift RestAssured Functional Test</name>
   <artifactId>arquillian-cube-openshift-ftest-restassured</artifactId>
+
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -16,12 +18,7 @@
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
+      <artifactId>arquillian-cube-openshift-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-parent</artifactId>
+    <version>1.13.1-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>arquillian-cube-openshift-starter</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Arquillian Cube OpenShift Starter</name>
+  <description>Optimized dependencyManagement for the Arquillian Cube OpenShift Project</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-openshift</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-standalone</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

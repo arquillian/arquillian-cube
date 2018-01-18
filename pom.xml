@@ -33,6 +33,9 @@
     <module>requirement</module>
     <module>bom</module>
     <module>requirement-spi</module>
+    <module>arquillian-cube-docker-starter</module>
+    <module>arquillian-cube-kubernetes-starter</module>
+    <module>arquillian-cube-openshift-starter</module>
   </modules>
 
   <developers>
@@ -192,6 +195,33 @@
         <artifactId>arquillian-cube-docker-junit-rule</artifactId>
         <version>${project.version}</version>
       </dependency>
+
+      <!-- tag::openshift_starter_dependency[] -->
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-starter</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- end::openshift_starter_dependency[] -->
+
+      <!-- tag::kubernetes_starter_dependency[] -->
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-kubernetes-starter</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- end::kubernetes_starter_dependency[] -->
+
+      <!-- tag::docker_starter_dependency[] -->
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker-starter</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- end::docker_starter_dependency[] -->
 
       <dependency>
         <groupId>org.eclipse.jgit</groupId>
