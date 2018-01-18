@@ -627,7 +627,7 @@ table.CodeRay td.code>pre{padding:0}
 </ul>
 </li>
 <li><a href="#_jboss_forge_arquillian_addon">22. JBoss Forge Arquillian Addon</a>
-<ul class="sectlevel3">
+<ul class="sectlevel2">
 <li><a href="#_how_to_use_it">22.1. How to use it?</a></li>
 </ul>
 </li>
@@ -5781,7 +5781,39 @@ or by setting a System properties.</p>
 <p>You can set template location as configuration parameter or using <code>@Template</code> annotation at class level.</p>
 </div>
 <div class="paragraph">
-<p>You can see an example of template usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateTest.java</a></p>
+<p>Here&#8217;s a small example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Category</span>(RequiresOpenshift.class)
+<span class="annotation">@RequiresOpenshift</span>
+<span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
+<span class="annotation">@Template</span>(url = <span class="string"><span class="delimiter">&quot;</span><span class="content">classpath:hello-openshift.yaml</span><span class="delimiter">&quot;</span></span>,
+          parameters = <span class="annotation">@TemplateParameter</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">RESPONSE</span><span class="delimiter">&quot;</span></span>, value = <span class="string"><span class="delimiter">&quot;</span><span class="content">Hello from Arquillian Template</span><span class="delimiter">&quot;</span></span>))
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldTemplateIT</span> {
+
+    <span class="annotation">@RouteURL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-openshift-route</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@AwaitRoute</span>
+    <span class="directive">private</span> <span class="predefined-type">URL</span> url;
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_show_hello_world() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        assertThat(url).isNotNull();
+        OkHttpClient okHttpClient = <span class="keyword">new</span> OkHttpClient();
+        Request request = <span class="keyword">new</span> Request.Builder().get().url(url).build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        assertThat(response).isNotNull();
+        assertThat(response.code()).isEqualTo(<span class="integer">200</span>);
+        assertThat(response.body().string()).isEqualTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello from Arquillian Template</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However in <code>@Template</code>, url can be set using <code>url = <a href="https://git.io/vNRQm" class="bare">https://git.io/vNRQm</a></code> or using
+<code>url = "classpath:hello-openshift.yaml"</code> if template is on Test class path.</p>
 </div>
 </div>
 <div class="sect4">
@@ -5811,7 +5843,7 @@ Examples of these are service accounts, credentials, routes, &#8230;&#8203;</p>
 <p>You can use <code>@OpenShiftResource</code> either at class level which implies that resource is created before test class execution and they are deleted after class execution or at method level which implies that resources are created and deleted after each test method execution.</p>
 </div>
 <div class="paragraph">
-<p>You can see an example of OpenShift resources usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesTest.java</a></p>
+<p>You can see an example of OpenShift resources usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java</a></p>
 </div>
 </div>
 </div>
@@ -6312,7 +6344,55 @@ To control you need to inject into test the <code>org.arquillian.cube.openshift.
 <div class="listingblock">
 <div class="title">OpenshiftAndK8sExample.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/kubernetes.adoc - include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldTest.java[tag=client_cli_execution]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Category</span>(RequiresOpenshift.class)
+<span class="annotation">@RequiresOpenshift</span>
+<span class="annotation">@RunWith</span>(ArquillianConditionalRunner.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">HelloWorldIT</span> {
+
+    <span class="directive">private</span> <span class="directive">static</span> CommandExecutor commandExecutor = <span class="keyword">new</span> CommandExecutor();
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_be_able_get_namespace_using_kubectl() {
+        <span class="comment">// when</span>
+        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; namespaces = commandExecutor.execCommand(<span class="string"><span class="delimiter">&quot;</span><span class="content">kubectl get ns -o=name</span><span class="delimiter">&quot;</span></span>);
+
+        <span class="comment">// then</span>
+        assertThat(namespaces).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">namespaces/default</span><span class="delimiter">&quot;</span></span>);
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="directive">public</span> <span class="type">void</span> should_be_able_deploy_resources_using_oc() {
+        <span class="comment">// given</span>
+        <span class="predefined-type">String</span> commandToExecute = <span class="string"><span class="delimiter">&quot;</span><span class="content">oc create -f </span><span class="delimiter">&quot;</span></span> + getResource(<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift.json</span><span class="delimiter">&quot;</span></span>);
+
+        <span class="comment">// when</span>
+        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; resources = commandExecutor.execCommand(commandToExecute);
+
+        <span class="comment">// then</span>
+        assertThat(resources).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">service </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> created</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">deployment </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> created</span><span class="delimiter">&quot;</span></span>);
+    }
+
+    <span class="annotation">@AfterClass</span>
+    <span class="directive">public</span> <span class="directive">static</span> <span class="type">void</span> deleteDeployment() {
+        <span class="predefined-type">String</span> commandToExecute = <span class="string"><span class="delimiter">&quot;</span><span class="content">oc delete -f </span><span class="delimiter">&quot;</span></span> + getResource(<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift.json</span><span class="delimiter">&quot;</span></span>);
+        <span class="directive">final</span> <span class="predefined-type">List</span>&lt;<span class="predefined-type">String</span>&gt; strings = commandExecutor.execCommand(commandToExecute);
+
+        assertThat(strings).contains(<span class="string"><span class="delimiter">&quot;</span><span class="content">service </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> deleted</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">deployment </span><span class="char">\&quot;</span><span class="content">hello-world</span><span class="char">\&quot;</span><span class="content"> deleted</span><span class="delimiter">&quot;</span></span>);
+    }
+
+    <span class="directive">private</span> <span class="directive">static</span> <span class="predefined-type">String</span> getResource(<span class="predefined-type">String</span> resourceName) {
+        <span class="directive">final</span> <span class="predefined-type">URL</span> resource = <span class="predefined-type">Thread</span>.currentThread().getContextClassLoader().getResource(resourceName);
+        <span class="keyword">if</span> (resource == <span class="predefined-constant">null</span>) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">IllegalStateException</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">Expected </span><span class="delimiter">&quot;</span></span> + resourceName + <span class="string"><span class="delimiter">&quot;</span><span class="content"> to be on the classpath</span><span class="delimiter">&quot;</span></span>);
+        }
+
+        <span class="keyword">try</span> {
+            <span class="keyword">return</span> resource.toURI().getPath();
+        } <span class="keyword">catch</span> (<span class="exception">URISyntaxException</span> e) {
+            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="exception">RuntimeException</span>(e);
+        }
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -6598,8 +6678,8 @@ kubernetes-client, to your classpath or use the internal classes. It is recommen
 <div class="paragraph">
 <p><a href="http://forge.jboss.org">Forge</a> Arquillian Addon offers an integration with Arquillian Cube.</p>
 </div>
-<div class="sect3">
-<h4 id="_how_to_use_it"><a class="anchor" href="#_how_to_use_it"></a>22.1. How to use it?</h4>
+<div class="sect2">
+<h3 id="_how_to_use_it"><a class="anchor" href="#_how_to_use_it"></a>22.1. How to use it?</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -6673,7 +6753,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-18 08:54:30 UTC
+Last updated 2018-01-18 14:13:57 UTC
 </div>
 </div>
 </body>
