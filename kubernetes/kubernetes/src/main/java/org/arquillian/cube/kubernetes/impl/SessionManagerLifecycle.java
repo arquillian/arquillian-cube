@@ -2,6 +2,7 @@ package org.arquillian.cube.kubernetes.impl;
 
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.lang.reflect.Method;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
@@ -92,7 +93,7 @@ public class SessionManagerLifecycle {
         log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod));
 
         if (configuration.isNamespaceMethodScopeEnabled()) {
-            createUniqueNamespace(configuration, testMethod.getName());
+            createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName() + "-" + testMethod.getName());
         }
 
     }
@@ -128,9 +129,14 @@ public class SessionManagerLifecycle {
     private void createUniqueNamespace(Configuration configuration, String uniqueKey) {
         namespace = configuration.getNamespace() + "-" + uniqueKey.toLowerCase().replaceAll("[^a-z0-9-]", "-");
         if (namespace.chars().count() > 63) {
-            namespace = namespace.substring(0, 63);
-            log.warning(String.format("Created project: %s for %s", namespace, uniqueKey));
+            log.warning(String.format("Creating fallback namespace %s as %s is greater than 63 characters", getDefaultNamespace(configuration), namespace));
+            namespace = getDefaultNamespace(configuration);
         }
         namespaceService.get().create(namespace);
     }
+
+    private String getDefaultNamespace(Configuration configuration) {
+        return configuration.getNamespace() + UUID.randomUUID();
+    }
+
 }
