@@ -58,9 +58,9 @@ import org.jboss.arquillian.test.spi.TestClass;
 public class OpenShiftResourceFactory {
     private static final Logger log = Logger.getLogger(OpenShiftResourceFactory.class.getName());
 
-    private static final String CLASSPATH_PREFIX = "classpath:";
+    public static final String CLASSPATH_PREFIX = "classpath:";
     public static final String ARCHIVE_PREFIX = "archive:";
-    private static final String URL_PREFIX = "http";
+    public static final String URL_PREFIX = "http";
 
     private static final OSRFinder OSR_FINDER = new OSRFinder();
     private static final RBFinder RB_FINDER = new RBFinder();
@@ -178,7 +178,7 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    public static void deleteTemplates(final String templateKeyPrefix, List<Template> templates,
+    public static void deleteTemplates(final String templateKeyPrefix, Class<?> testClass, List<Template> templates,
         OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration)
         throws Exception {
         StringResolver resolver;
@@ -186,7 +186,7 @@ public class OpenShiftResourceFactory {
         for (Template template : templates) {
             // Delete pods and services related to each template
             resolver = Strings.createStringResolver(configuration.getProperties());
-            templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
+            templateURL = TemplateUtils.readTemplateUrl(template, testClass, configuration, false, resolver);
 
             openshiftAdapter.deleteTemplate(templateKeyPrefix + templateURL);
         }
@@ -204,11 +204,12 @@ public class OpenShiftResourceFactory {
         CubeOpenShiftConfiguration configuration, List<Template> templates)
         throws Exception {
         if (configuration.getCubeConfiguration().isNamespaceCleanupEnabled()) {
+            final Class<?> javaClass = testClass.getJavaClass();
             log.info(String.format("Deleting environment for %s", testClass.getName()));
-            deleteTemplates(testClass.getName(), templates, client, configuration);
+            deleteTemplates(testClass.getName(), javaClass, templates, client, configuration);
             deleteResources(testClass.getName(), client);
             additionalCleanup(client,
-                Collections.singletonMap("test-case", testClass.getJavaClass().getSimpleName().toLowerCase()));
+                Collections.singletonMap("test-case", javaClass.getSimpleName().toLowerCase()));
         } else {
             log.info(String.format("Ignoring cleanup for %s", testClass.getName()));
         }

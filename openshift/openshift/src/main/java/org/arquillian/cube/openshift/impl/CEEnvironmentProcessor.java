@@ -113,11 +113,12 @@ public class CEEnvironmentProcessor {
 
         final TestClass testClass = event.getTestClass();
         final Method testMethod = event.getTestMethod();
-        final String templateKeyPrefix = createResourceKey(testClass.getJavaClass(), testMethod);
+        final Class<?> javaClass = testClass.getJavaClass();
+        final String templateKeyPrefix = createResourceKey(javaClass, testMethod);
         log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
 
-        OpenShiftResourceFactory.deleteResources(testClass.getJavaClass(), testMethod, client);
-        OpenShiftResourceFactory.deleteTemplates(templateKeyPrefix, methodTemplateProcessor.getTemplates(), client, cubeOpenShiftConfiguration);
+        OpenShiftResourceFactory.deleteResources(javaClass, testMethod, client);
+        OpenShiftResourceFactory.deleteTemplates(templateKeyPrefix, javaClass, methodTemplateProcessor.getTemplates(), client, cubeOpenShiftConfiguration);
 
     }
 

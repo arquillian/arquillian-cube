@@ -24,6 +24,7 @@
 package org.arquillian.cube.openshift.impl.utils;
 
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,11 @@ import org.arquillian.cube.openshift.api.Replicas;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.TemplateParameter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory;
 import org.jboss.arquillian.test.spi.TestClass;
+
+import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.CLASSPATH_PREFIX;
+import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.URL_PREFIX;
 
 /**
  * Template utils.
@@ -58,7 +63,8 @@ public class TemplateUtils {
         }
     }
 
-    public static String readTemplateUrl(Template template, CubeOpenShiftConfiguration configuration, boolean required, StringResolver resolver) {
+    public static String readTemplateUrl(Template template, Class<?> testClass, CubeOpenShiftConfiguration configuration,
+        boolean required, StringResolver resolver) {
         String templateUrl = template == null ? null : template.url();
         if (templateUrl == null || templateUrl.length() == 0) {
             templateUrl = configuration.getTemplateURL();
@@ -69,7 +75,17 @@ public class TemplateUtils {
         }
 
         if (templateUrl != null) {
-            templateUrl = resolver.resolve(templateUrl);
+            String url = resolver.resolve(templateUrl);
+            if (url.startsWith(URL_PREFIX)) {
+                templateUrl = url;
+            } else if (url.startsWith(CLASSPATH_PREFIX)) {
+                String resourceName = url.substring(CLASSPATH_PREFIX.length()).trim();
+                URL resourceUrl = testClass.getClassLoader().getResource(resourceName);
+                if (resourceUrl == null) {
+                    throw new IllegalArgumentException("Could not find resource on classpath: " + resourceName);
+                }
+                templateUrl = resourceUrl.toString();
+            }
         }
 
         return templateUrl;

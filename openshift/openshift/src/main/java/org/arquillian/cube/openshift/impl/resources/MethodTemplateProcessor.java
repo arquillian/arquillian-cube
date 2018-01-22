@@ -62,7 +62,7 @@ public class MethodTemplateProcessor extends TemplateProcessor<Method> {
 
     @Override
     protected void handleExceptionForCreatingResource() throws Exception {
-        deleteTemplates(templateKeyPrefix(), templates, openShiftAdapter, configuration);
+        deleteTemplates(templateKeyPrefix(), testClass.getJavaClass(), templates, openShiftAdapter, configuration);
         additionalCleanup(openShiftAdapter, scopeLabels());
     }
 
