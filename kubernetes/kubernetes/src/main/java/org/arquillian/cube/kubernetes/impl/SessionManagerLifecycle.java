@@ -29,6 +29,9 @@ public class SessionManagerLifecycle {
 
     private static Logger log = Logger.getLogger(SessionManager.class.getName());
 
+    private String namespace;
+
+
     @Inject
     Instance<KubernetesClient> kubernetesClient;
 
@@ -78,7 +81,7 @@ public class SessionManagerLifecycle {
         log.info(String.format("Creating environment for %s", testClass.getName()));
 
         if (configuration.isNamespaceClassScopeEnabled()) {
-            namespaceService.get().create(configuration.getNamespace() + "-" + testClass.getJavaClass().hashCode());
+            createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName());
         }
     }
 
@@ -89,14 +92,17 @@ public class SessionManagerLifecycle {
         log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod));
 
         if (configuration.isNamespaceMethodScopeEnabled()) {
-            namespaceService.get().create(configuration.getNamespace() + "-" + testMethod.hashCode());
+            createUniqueNamespace(configuration, testMethod.getName());
         }
 
     }
 
     public void deleteNamespaceAtClassScope(@Observes AfterClass afterClassEvent, Configuration configuration) {
+        final TestClass testClass = afterClassEvent.getTestClass();
+        log.info(String.format("Deleting environment for %s", testClass.getName()));
+
         if (configuration.isNamespaceClassScopeEnabled()) {
-            namespaceService.get().delete(configuration.getNamespace() + "-" + afterClassEvent.getTestClass().getJavaClass().hashCode());
+            namespaceService.get().delete(namespace);
         }
     }
 
@@ -117,5 +123,14 @@ public class SessionManagerLifecycle {
         if (sessionManager != null) {
             sessionManager.stop();
         }
+    }
+
+    private void createUniqueNamespace(Configuration configuration, String uniqueKey) {
+        namespace = configuration.getNamespace() + "-" + uniqueKey.toLowerCase().replaceAll("[^a-z0-9-]", "-");
+        if (namespace.chars().count() > 63) {
+            namespace = namespace.substring(0, 63);
+            log.warning(String.format("Created project: %s for %s", namespace, uniqueKey));
+        }
+        namespaceService.get().create(namespace);
     }
 }
