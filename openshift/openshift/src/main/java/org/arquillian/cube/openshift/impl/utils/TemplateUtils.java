@@ -32,7 +32,6 @@ import org.arquillian.cube.openshift.api.Replicas;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.TemplateParameter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.jboss.arquillian.container.test.api.TargetsContainer;
 import org.jboss.arquillian.test.spi.TestClass;
 
 /**
@@ -80,8 +79,8 @@ public class TemplateUtils {
         Replicas replicas = null;
         if (type instanceof Method) {
             replicas = ((Method) type).getAnnotation(Replicas.class);
-        } else if (type instanceof TestClass){
-            replicas = ((TestClass) type).getAnnotation(Replicas.class);
+        } else if (type instanceof Class) {
+            replicas = (Replicas) ((Class) type).getAnnotation(Replicas.class);
         }
         int r = 1;
         if (replicas != null) {

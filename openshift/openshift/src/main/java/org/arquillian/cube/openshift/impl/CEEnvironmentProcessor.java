@@ -31,8 +31,8 @@ import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.resources.ClassTemplateProcessor;
 import org.arquillian.cube.openshift.impl.resources.MethodTemplateProcessor;
-import org.arquillian.cube.openshift.impl.resources.TemplateProcessor;
 import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory;
+import org.arquillian.cube.openshift.impl.resources.TemplateProcessor;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -90,8 +90,9 @@ public class CEEnvironmentProcessor {
         OpenShiftResourceFactory.createResources(testClass.getName(), client, testClass.getJavaClass(),
             cubeOpenShiftConfiguration.getProperties());
         classTemplateProcessor = new ClassTemplateProcessor(client, cubeOpenShiftConfiguration, testClass);
-        classTemplateProcessor.processTemplateResources();
-        templateDetailsProducer.set(() -> classTemplateProcessor.processTemplateResources());
+        final List<List<? extends OpenShiftResource>> templateResources =
+            classTemplateProcessor.processTemplateResources();
+        templateDetailsProducer.set(() -> templateResources);
     }
 
     public void createOpenShiftResource(@Observes(precedence = 10) Before event, OpenShiftAdapter client,
