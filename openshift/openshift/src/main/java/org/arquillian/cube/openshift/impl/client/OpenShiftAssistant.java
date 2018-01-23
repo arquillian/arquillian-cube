@@ -10,6 +10,7 @@ import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -164,11 +165,20 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     /**
      * Gets template URL used for deploying application.
      *
-     * @param templateURL path to the template
+     * @param templateURL url path to the template
      * @return OpenShiftAssistantTemplate object.
      */
-    public OpenShiftAssistantTemplate usingTemplate(String templateURL) {
+    public OpenShiftAssistantTemplate usingTemplate(URL templateURL) {
         return new OpenShiftAssistantTemplate(templateURL, client);
     }
 
+    /**
+     * Gets template URL string used for deploying application.
+     *
+     * @param templateURL path to the template
+     * @return OpenShiftAssistantTemplate object.
+     */
+    public OpenShiftAssistantTemplate usingTemplate(String templateURL) throws MalformedURLException {
+        return new OpenShiftAssistantTemplate(new URL(templateURL), client);
+    }
 }

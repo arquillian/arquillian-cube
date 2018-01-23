@@ -20,11 +20,11 @@ public class OpenShiftAssistantTemplate {
 
     private final KubernetesClient client;
 
-    private String templateURL;
+    private URL templateURL;
 
     private HashMap<String, String> parameterValues = new HashMap<>();
 
-    OpenShiftAssistantTemplate(String templateURL, KubernetesClient client) {
+    OpenShiftAssistantTemplate(URL templateURL, KubernetesClient client) {
         this.templateURL = templateURL;
         this.client = client;
     }
@@ -50,11 +50,11 @@ public class OpenShiftAssistantTemplate {
         createResources(list);
     }
 
-    private KubernetesList processTemplate(String templateURL, HashMap<String, String> parameterValues) throws IOException {
+    private KubernetesList processTemplate(URL templateURL, HashMap<String, String> parameterValues) throws IOException {
         final OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
         List<ParameterValue> list = new ArrayList<>();
 
-        try (InputStream stream = new URL(templateURL).openStream()) {
+        try (InputStream stream = templateURL.openStream()) {
             TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
                 openShiftClient.templates().inNamespace(client.getNamespace()).load(stream);
 

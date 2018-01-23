@@ -32,7 +32,7 @@ public class HelloOpenShiftAssistantTemplateTest {
     public void should_apply_template_programmatically() throws IOException {
 
         openShiftAssistant
-                .usingTemplate(String.valueOf(getClass().getClassLoader().getResource("hello-template.yaml")))
+                .usingTemplate(getClass().getClassLoader().getResource("hello-template.yaml"))
                 .parameter("RESPONSE", "Hello from Arquillian Template")
             .deploy();
 
