@@ -169,7 +169,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      * @return OpenShiftAssistantTemplate object.
      */
     public OpenShiftAssistantTemplate usingTemplate(URL templateURL) {
-        return new OpenShiftAssistantTemplate(templateURL, client);
+        return new OpenShiftAssistantTemplate(templateURL, getClient());
     }
 
     /**
@@ -179,6 +179,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      * @return OpenShiftAssistantTemplate object.
      */
     public OpenShiftAssistantTemplate usingTemplate(String templateURL) throws MalformedURLException {
-        return new OpenShiftAssistantTemplate(new URL(templateURL), client);
+        return new OpenShiftAssistantTemplate(new URL(templateURL), getClient());
     }
 }

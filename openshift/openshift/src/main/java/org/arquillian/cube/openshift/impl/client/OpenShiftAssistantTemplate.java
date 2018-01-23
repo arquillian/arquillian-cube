@@ -1,7 +1,6 @@
 package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.api.model.v3_1.KubernetesList;
-import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.openshift.api.model.v3_1.DoneableTemplate;
 import io.fabric8.openshift.api.model.v3_1.Template;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
@@ -18,13 +17,13 @@ import java.util.stream.Collectors;
 
 public class OpenShiftAssistantTemplate {
 
-    private final KubernetesClient client;
+    private final OpenShiftClient client;
 
     private URL templateURL;
 
     private HashMap<String, String> parameterValues = new HashMap<>();
 
-    OpenShiftAssistantTemplate(URL templateURL, KubernetesClient client) {
+    OpenShiftAssistantTemplate(URL templateURL, OpenShiftClient client) {
         this.templateURL = templateURL;
         this.client = client;
     }
@@ -51,12 +50,11 @@ public class OpenShiftAssistantTemplate {
     }
 
     private KubernetesList processTemplate(URL templateURL, HashMap<String, String> parameterValues) throws IOException {
-        final OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
         List<ParameterValue> list = new ArrayList<>();
 
         try (InputStream stream = templateURL.openStream()) {
             TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
-                openShiftClient.templates().inNamespace(client.getNamespace()).load(stream);
+                client.templates().inNamespace(client.getNamespace()).load(stream);
 
             list.addAll(parameterValues.entrySet().stream()
                 .map(entry -> new ParameterValue(entry.getKey(), entry.getValue()))
