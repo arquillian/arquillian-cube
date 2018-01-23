@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -28,6 +29,8 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 })
 public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     ConfigurationHandle, Serializable{
+
+    private static final Logger log = Logger.getLogger(CubeOpenShiftConfiguration.class.getName());
 
     private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
 
@@ -120,14 +123,19 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
     public static CubeOpenShiftConfiguration fromMap(Map<String, String> map) {
         String sessionId = UUID.randomUUID().toString().split("-")[0];
+        String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
         String namespace = getBooleanProperty(NAMESPACE_USE_CURRENT, map, false)
-            ? new ConfigBuilder().build().getNamespace()
-            : getStringProperty(NAMESPACE_TO_USE, map, null);
+            ? new ConfigBuilder().build().getNamespace() : existingNamespace;
+
+        if (existingNamespace != null && isNamespaceScopeConfigured(map)) {
+            log.warning(String.format("%s is ignored as %s or %s is configured.",
+                NAMESPACE_TO_USE, NAMESPACE_METHOD_SCOPE_ENABLED, NAMESPACE_CLASS_SCOPE_ENABLED));
+        }
 
         //When a namespace is provided we want to cleanup our stuff...
         // ... without destroying pre-existing stuff.
         Boolean shouldDestroyNamespace = false;
-        if (Strings.isNullOrEmpty(namespace)) {
+        if (Strings.isNullOrEmpty(namespace) || isNamespaceScopeConfigured(map)) {
             namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
             shouldDestroyNamespace = true;
         }
@@ -202,6 +210,10 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 throw new RuntimeException(t);
             }
         }
+    }
+
+    private static boolean isNamespaceScopeConfigured(Map<String, String> map) {
+        return getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false) || getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false);
     }
 
     public String getOriginServer() {
