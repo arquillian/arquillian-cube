@@ -44,24 +44,26 @@ public abstract class TemplateProcessor<T> {
     /**
      * Instantiates the templates specified by @Template within @Templates
      */
-    public List<List<? extends OpenShiftResource>> processTemplateResources() {
+    public List<? super OpenShiftResource> processTemplateResources() {
         List<? extends OpenShiftResource> resources;
-        final List<List<? extends OpenShiftResource>> processedResources = new ArrayList<>();
+        final List<? super OpenShiftResource> processedResources = new ArrayList<>();
         templates = OpenShiftResourceFactory.getTemplates(getType());
         boolean sync_instantiation = OpenShiftResourceFactory.syncInstantiation(getType());
 
         /* Instantiate templates */
         for (Template template : templates) {
             resources = processTemplate(template);
-            if (sync_instantiation) {
+            if (resources != null) {
+                if (sync_instantiation) {
                 /* synchronous template instantiation */
-                processedResources.add(resources);
-            } else {
+                    Collections.copy(processedResources, resources);
+                } else {
                 /* asynchronous template instantiation */
-                try {
-                    delay(openShiftAdapter, resources);
-                } catch (Throwable t) {
-                    throw new IllegalArgumentException(asynchronousDelayErrorMessage(), t);
+                    try {
+                        delay(openShiftAdapter, resources);
+                    } catch (Throwable t) {
+                        throw new IllegalArgumentException(asynchronousDelayErrorMessage(), t);
+                    }
                 }
             }
         }

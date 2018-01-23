@@ -61,7 +61,7 @@ public class CEEnvironmentProcessor {
     private final Logger log = Logger.getLogger(CEEnvironmentProcessor.class.getName());
 
     public interface TemplateDetails {
-        List<List<? extends OpenShiftResource>> getResources();
+        List<? extends OpenShiftResource> getResources();
     }
 
     @Inject
@@ -90,8 +90,7 @@ public class CEEnvironmentProcessor {
         OpenShiftResourceFactory.createResources(testClass.getName(), client, testClass.getJavaClass(),
             cubeOpenShiftConfiguration.getProperties());
         classTemplateProcessor = new ClassTemplateProcessor(client, cubeOpenShiftConfiguration, testClass);
-        final List<List<? extends OpenShiftResource>> templateResources =
-            classTemplateProcessor.processTemplateResources();
+        final List<? extends OpenShiftResource> templateResources = classTemplateProcessor.processTemplateResources();
         templateDetailsProducer.set(() -> templateResources);
     }
 

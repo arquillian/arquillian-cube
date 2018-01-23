@@ -35,9 +35,7 @@ public class TemplateContainerStarter {
         }
         log.info(String.format("Waiting for environment for %s", testClass.getName()));
         try {
-            for (List<? extends OpenShiftResource> resources : details.getResources()) {
-                delay(client, resources);
-            }
+            delay(client, details.getResources());
         } catch (Throwable t) {
             throw new IllegalArgumentException("Error waiting for template resources to deploy: " + testClass.getName(), t);
         }
