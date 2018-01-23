@@ -40,7 +40,7 @@ public class ReportMetrics implements CanReportMetrics {
     public ReportInSectionBuilder report() {
 
         boolean error = EnumSet.of(Cube.State.START_FAILED, Cube.State.CREATE_FAILED,
-            Cube.State.STOP_FAILED, Cube.State.DESTORY_FAILED)
+            Cube.State.STOP_FAILED, Cube.State.DESTROY_FAILED)
             .contains(dockerCube.state());
 
         final ReportBuilder reportBuilder = Reporter.createReport(DOCKER_CONTAINER_CONFIGURATION)

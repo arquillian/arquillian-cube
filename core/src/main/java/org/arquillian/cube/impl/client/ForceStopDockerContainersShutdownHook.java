@@ -10,16 +10,13 @@ public class ForceStopDockerContainersShutdownHook {
 
     public void attachShutDownHookForceStopDockerContainers(@Observes(precedence = 200) BeforeSuite event,
         final CubeRegistry cubeRegistry) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                final List<Cube<?>> cubes = cubeRegistry.getCubes();
-                for (Cube cube : cubes) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            final List<Cube<?>> cubes = cubeRegistry.getCubes();
+            for (Cube cube : cubes) {
 
-                        cube.stop();
-                        cube.destroy();
-                }
+                    cube.stop();
+                    cube.destroy();
             }
-        });
+        }));
     }
 }

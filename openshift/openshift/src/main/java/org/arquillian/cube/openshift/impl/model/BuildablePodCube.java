@@ -165,7 +165,7 @@ public class BuildablePodCube extends BaseCube<Void> {
             this.state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch (Exception e) {
-            this.state = State.DESTORY_FAILED;
+            this.state = State.DESTROY_FAILED;
             throw CubeControlException.failedDestroy(getId(), e);
         }
     }
