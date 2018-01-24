@@ -35,7 +35,6 @@ public class OpenShiftAssistantOperationalMethodsIT {
 
     @Test
     public void should_apply_template_programmatically() throws IOException {
-
         openShiftAssistant
                 .usingTemplate(getClass().getClassLoader().getResource("hello-template.yaml"))
                 .parameter("RESPONSE", "Hello from Arquillian Template")
@@ -54,26 +53,28 @@ public class OpenShiftAssistantOperationalMethodsIT {
     }
 
     @Test
-    public void should_list_all_projects() {
-        String currentProject = openShiftAssistant.getCurrentProject();
-
+    public void should_list_all_projects_and_verify_list_contains_the_project_with_given_name() {
         List<Project> projects = openShiftAssistant.listProjects();
 
         assertThat(projects).extracting(Project::getMetadata)
-            .extracting(ObjectMeta::getName).contains(currentProject);
+            .extracting(ObjectMeta::getName).contains(getCurrentProjectName());
     }
 
     @Test
-    public void should_find_project() {
-        String currentProject = openShiftAssistant.getCurrentProject();
-
-        assertThat(openShiftAssistant.findProject(currentProject)).isPresent();
+    public void should_find_and_return_the_project_with_given_name() {
+        Optional<Project> project = openShiftAssistant.findProject(getCurrentProjectName());
+        
+        assertThat(project).isPresent();
     }
 
     @Test
-    public void should_check_if_project_exists() {
-        String currentProject = openShiftAssistant.getCurrentProject();
+    public void should_check_if_the_project_with_given_name_exists() {
+        boolean projectExists = openShiftAssistant.projectExists(getCurrentProjectName());
+        
+        assertThat(projectExists).isTrue();
+    }
 
-        assertThat(openShiftAssistant.projectExists(currentProject)).isTrue();
+    private String getCurrentProjectName() {
+        return openShiftAssistant.getCurrentProjectName();
     }
 }

@@ -194,7 +194,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      *
      * @return current namespace.
      */
-    public String getCurrentProject() {
+    public String getCurrentProjectName() {
         return getClient().getNamespace();
     }
 
@@ -218,14 +218,14 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      * Finds for the given project.
      *
      * @param name project name
-     * @return given project or null if project does not exist
+     * @return given project or an empty {@code Optional} if project does not exist
      * @throws IllegalArgumentException
      */
     public Optional<Project> findProject(String name) throws IllegalArgumentException {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Project name cannot be empty");
         }
-        return projectExists(name) ? getProject(name) : null;
+        return getProject(name);
     }
 
     private Optional<Project> getProject(String name) {
