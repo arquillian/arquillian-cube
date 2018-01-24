@@ -82,10 +82,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
         }
     }
 
-    private OpenShiftClient getClient() {
-        return client.adapt(OpenShiftClient.class);
-    }
-
     /**
      * Gets the URL of the route with given name.
      * @param routeName to return its URL
@@ -184,14 +180,31 @@ public class OpenShiftAssistant extends KubernetesAssistant {
         return new OpenShiftAssistantTemplate(new URL(templateURL), getClient());
     }
 
+    /**
+     * Gets the list of all the OpenShift Projects.
+     *
+     * @return list of OpenShift Projects.
+     */
     public List<Project> listProjects() {
         return getClient().projects().list().getItems();
     }
 
+    /**
+     * Gets the current OpenShift project used for deploying application.
+     *
+     * @return current namespace.
+     */
     public String getCurrentProject() {
         return getClient().getNamespace();
     }
 
+    /**
+     * Checks if the given project exists or not.
+     *
+     * @param name project name
+     * @return true/false
+     * @throws IllegalArgumentException
+     */
     public boolean projectExists(String name) throws IllegalArgumentException {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Project name cannot be empty");
@@ -201,6 +214,13 @@ public class OpenShiftAssistant extends KubernetesAssistant {
             .anyMatch(Predicate.isEqual(name));
     }
 
+    /**
+     * Finds for the given project.
+     *
+     * @param name project name
+     * @return given project or null if project does not exist
+     * @throws IllegalArgumentException
+     */
     public Optional<Project> findProject(String name) throws IllegalArgumentException {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Project name cannot be empty");
@@ -212,5 +232,9 @@ public class OpenShiftAssistant extends KubernetesAssistant {
         return getClient().projects().list().getItems().stream()
             .filter(p -> p.getMetadata().getName().equals(name))
             .findFirst();
+    }
+
+    private OpenShiftClient getClient() {
+        return client.adapt(OpenShiftClient.class);
     }
 }
