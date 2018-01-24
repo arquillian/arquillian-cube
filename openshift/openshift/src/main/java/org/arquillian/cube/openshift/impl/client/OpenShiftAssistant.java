@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
 import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.Project;
 import io.fabric8.openshift.api.model.v3_1.Route;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import static org.arquillian.cube.openshift.impl.client.OpenShiftRouteLocator.createUrlFromRoute;
@@ -180,5 +182,35 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      */
     public OpenShiftAssistantTemplate usingTemplate(String templateURL) throws MalformedURLException {
         return new OpenShiftAssistantTemplate(new URL(templateURL), getClient());
+    }
+
+    public List<Project> listProjects() {
+        return getClient().projects().list().getItems();
+    }
+
+    public String getCurrentProject() {
+        return getClient().getNamespace();
+    }
+
+    public boolean projectExists(String name) throws IllegalArgumentException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Project name cannot be empty");
+        }
+        return getClient().projects().list().getItems().stream()
+            .map(p -> p.getMetadata().getName())
+            .anyMatch(Predicate.isEqual(name));
+    }
+
+    public Optional<Project> findProject(String name) throws IllegalArgumentException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Project name cannot be empty");
+        }
+        return projectExists(name) ? getProject(name) : null;
+    }
+
+    private Optional<Project> getProject(String name) {
+        return getClient().projects().list().getItems().stream()
+            .filter(p -> p.getMetadata().getName().equals(name))
+            .findFirst();
     }
 }
