@@ -21,6 +21,7 @@ import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static io.restassured.RestAssured.given;
@@ -29,6 +30,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasKey;
 
 @RunWith(ArquillianConditionalRunner.class)
+@Category(RequiresOpenshift.class)
 @RequiresOpenshift
 @IstioResource("route-rule-reviews-test-v${serviceVersion:2}.yaml")
 @Ignore("This test assumes that you have a cluster installed with Istio and BookInfo application deployed. We could make a full test preparing all this, but it will take lot of time, not error safe and test execution would take like 10 minutes")

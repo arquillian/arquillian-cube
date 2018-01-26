@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import me.snowdrop.istio.client.IstioClient;
 import org.arquillian.cube.istio.api.IstioResource;
