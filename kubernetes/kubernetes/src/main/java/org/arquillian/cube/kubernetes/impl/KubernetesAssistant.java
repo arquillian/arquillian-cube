@@ -170,6 +170,7 @@ public class KubernetesAssistant {
 
         fastClasspathScanner.matchFilenamePattern(pattern, (FileMatchProcessor) (relativePath, inputStream, lengthBytes) -> {
             deploy(inputStream);
+            inputStream.close();
         }).scan();
 
         return this.applicationName;
@@ -183,7 +184,7 @@ public class KubernetesAssistant {
      * @throws IOException
      */
     public String deployAll(Path directory) throws IOException {
-        deployAll(directory);
+        deployAll(null, directory);
         return this.applicationName;
     }
 
@@ -199,7 +200,9 @@ public class KubernetesAssistant {
 
         if (Files.isDirectory(directory)) {
             Files.list(directory)
-                .filter(p -> p.endsWith(".yaml") || p.endsWith(".yml") || p.endsWith(".json"))
+                .filter(p -> p.toString().toLowerCase().endsWith(".yaml")
+                    || p.toString().toLowerCase().endsWith(".yml")
+                    || p.toString().toLowerCase().endsWith(".json"))
                 .map(p -> {
                     try {
                         return Files.newInputStream(p);
@@ -210,6 +213,7 @@ public class KubernetesAssistant {
                 .forEach(is -> {
                     try {
                         deploy(is);
+                        is.close();
                     } catch (IOException e) {
                         throw new IllegalArgumentException(e);
                     }
@@ -239,7 +243,7 @@ public class KubernetesAssistant {
         }
     }
 
-    protected List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
+    protected List<? extends HasMetadata> deploy(String name, InputStream element) {
         NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 
