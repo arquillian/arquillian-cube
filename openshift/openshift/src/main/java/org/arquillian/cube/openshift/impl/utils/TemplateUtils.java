@@ -23,6 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.utils;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.arquillian.cube.openshift.api.Replicas;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.TemplateParameter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory;
 import org.jboss.arquillian.test.spi.TestClass;
 
 import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.CLASSPATH_PREFIX;
@@ -89,8 +91,13 @@ public class TemplateUtils {
         return templateUrl;
     }
 
-    public static int readReplicas(TestClass testClass) {
-        Replicas replicas = testClass.getAnnotation(Replicas.class);
+    public static <T> int readReplicas(T type) {
+        Replicas replicas = null;
+        if (type instanceof Method) {
+            replicas = ((Method) type).getAnnotation(Replicas.class);
+        } else if (type instanceof Class) {
+            replicas = (Replicas) ((Class) type).getAnnotation(Replicas.class);
+        }
         int r = 1;
         if (replicas != null) {
             if (replicas.value() <= 0) {

@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * @author Marko Luksa
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Template {
     String url() default "";
 

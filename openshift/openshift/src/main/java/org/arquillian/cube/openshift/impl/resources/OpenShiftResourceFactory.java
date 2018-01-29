@@ -31,7 +31,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
@@ -43,10 +45,11 @@ import org.arquillian.cube.openshift.api.RoleBindings;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.Templates;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.Node;
+import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
+import org.jboss.arquillian.test.spi.TestClass;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -142,10 +145,10 @@ public class OpenShiftResourceFactory {
     /**
      * Aggregates a list of templates specified by @Template
      */
-    public static List<Template> getTemplates(Class<?> testClass) {
+    static <T> List<Template> getTemplates(T objectType) {
         try {
             List<Template> templates = new ArrayList<>();
-            TEMP_FINDER.findAnnotations(templates, testClass);
+            TEMP_FINDER.findAnnotations(templates, objectType);
             return templates;
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -156,22 +159,36 @@ public class OpenShiftResourceFactory {
      * Returns true if templates are to be instantiated synchronously and false if
      * asynchronously.
      */
-    public static boolean syncInstantiation(Class<?> testClass) {
-    	List<Template> templates = new ArrayList<>();
-        Templates tr = TEMP_FINDER.findAnnotations(templates, testClass);
+    static <T> boolean syncInstantiation(T objectType) {
+        List<Template> templates = new ArrayList<>();
+        Templates tr = TEMP_FINDER.findAnnotations(templates, objectType);
         if (tr == null) {
         	/* Default to synchronous instantiation */
         	return true;
         } else {
-        	return tr.syncInstantiation();
+            return tr.syncInstantiation();
         }
     }
 
-    public static void deleteResources(String resourcesKey, OpenShiftAdapter adapter) {
+    private static void deleteResources(String resourcesKey, OpenShiftAdapter adapter) {
         try {
             adapter.deleteResources(resourcesKey);
         } catch (Exception e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    public static void deleteTemplates(final String templateKeyPrefix, Class<?> testClass, List<Template> templates,
+        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration)
+        throws Exception {
+        StringResolver resolver;
+        String templateURL;
+        for (Template template : templates) {
+            // Delete pods and services related to each template
+            resolver = Strings.createStringResolver(configuration.getProperties());
+            templateURL = TemplateUtils.readTemplateUrl(template, testClass, configuration, false, resolver);
+
+            openshiftAdapter.deleteTemplate(templateKeyPrefix + templateURL);
         }
     }
 
@@ -183,8 +200,27 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    private static String createResourceKey(Class<?> testClass, Method testMethod) {
-        return testClass.getName() + testMethod.getName();
+    public static void deleteEnvironment(final TestClass testClass, OpenShiftAdapter client,
+        CubeOpenShiftConfiguration configuration, List<Template> templates)
+        throws Exception {
+        if (configuration.getCubeConfiguration().isNamespaceCleanupEnabled()) {
+            final Class<?> javaClass = testClass.getJavaClass();
+            log.info(String.format("Deleting environment for %s", testClass.getName()));
+            deleteTemplates(testClass.getName(), javaClass, templates, client, configuration);
+            deleteResources(testClass.getName(), client);
+            additionalCleanup(client,
+                Collections.singletonMap("test-case", javaClass.getSimpleName().toLowerCase()));
+        } else {
+            log.info(String.format("Ignoring cleanup for %s", testClass.getName()));
+        }
+    }
+
+    static void additionalCleanup(OpenShiftAdapter client, Map<String, String> labels) throws Exception {
+        client.cleanRemnants(labels);
+    }
+
+    public static String createResourceKey(Class<?> testClass, Method testMethod) {
+        return testClass.getName() + "_" + testMethod.getName();
     }
 
     private static abstract class Finder<U extends Annotation, V extends Annotation> {
@@ -195,26 +231,43 @@ public class OpenShiftResourceFactory {
 
         protected abstract V[] toSingles(U u);
 
-        U findAnnotations(List<V> annotations, Class<?> testClass) {
-            if (testClass == Object.class) {
+        <T> U findAnnotations(List<V> annotations, T type) {
+            if (type == Object.class) {
                 return null;
             }
+            if (type instanceof Class) {
+                final Class<?> testClass = (Class<?>) type;
+                U anns = testClass.getAnnotation(getWrapperType());
+                addAnnotationsFromWrapper(anns, annotations);
 
-            U anns = testClass.getAnnotation(getWrapperType());
+                V ann = testClass.getAnnotation(getSingleType());
+                if (ann != null) {
+                    annotations.add(0, ann);
+                }
+
+                findAnnotations(annotations, testClass.getSuperclass());
+                return anns;
+            } else if (type instanceof Method) {
+                final Method testMethod = (Method) type;
+                U anns = testMethod.getAnnotation(getWrapperType());
+                addAnnotationsFromWrapper(anns, annotations);
+
+                V ann = testMethod.getAnnotation(getSingleType());
+                if (ann != null) {
+                    annotations.add(0, ann);
+                }
+                return anns;
+            }
+            return null;
+        }
+
+        void addAnnotationsFromWrapper(U anns, List<V> annotations) {
             if (anns != null) {
                 V[] ann = toSingles(anns);
                 for (int i = ann.length - 1; i >= 0; i--) {
                     annotations.add(0, ann[i]);
                 }
             }
-
-            V ann = testClass.getAnnotation(getSingleType());
-            if (ann != null) {
-                annotations.add(0, ann);
-            }
-
-            findAnnotations(annotations, testClass.getSuperclass());
-	    return anns;
         }
 
     }
