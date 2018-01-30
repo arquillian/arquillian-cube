@@ -6,9 +6,9 @@ To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it ca
 
 By default the _Docker_ server uses UNIX sockets for communicating with the _Docker_ client. *Arquillian Cube* will attempt to detect the operating system it is running on and either set _docker-java_ to use UNIX socket on _Linux_ or to <<Boot2Docker>> on _Windows_/_Mac_ as the default URI.
 
-If you want to use TCP/IP to connect to the Docker server, you'll need to make sure that your _Docker_ server is listening on TCP port.
-To allow _Docker_ server to use TCP set the _Docker daemon options_, the exact process for which varies by the way you
-launch the Docker daemon and/or the underlying OS:
+Further in case of Linux, if you want to use TCP/IP to connect to the Docker server, you'll need to make sure that your
+_Docker_ server is listening on TCP port. To allow _Docker_ server to use TCP set the _Docker daemon options_, the exact
+process for which varies by the way you launch the Docker daemon and/or the underlying OS:
 
 * systemd (Ubuntu, Debian, RHEL 7, CentOS 7, Fedora, Archlinux) — edit docker.service and change the ExecStart value
 
@@ -30,13 +30,21 @@ It was necessary to clear out ExecStart using `ExecStart=` before setting it to 
 required for some options and most options in the configuration file would not need to be cleared like this. Using
 systemctl edit also ensures that the override settings are loaded.
 
-* Ubuntu 12.04 — set DOCKER_OPTS in `/etc/default/docker`
+* upstart (Ubuntu 14.04 and older versions) — set DOCKER_OPTS in `/etc/default/docker`
 
  DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"
 
-* OS/X — select Preferences -> Daemon -> Advanced
+* In case of Fedora distribution docker installed on Fedora - set OPTIONS in `/etc/sysconfig/docker`
+
+ OPTIONS='-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock'
 
 After restarting the _Docker_ daemon you need to make sure that _Docker_ is up and listening on TCP.
+
+[source, terminal]
+----
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+----
 
 [source, terminal]
 ----
