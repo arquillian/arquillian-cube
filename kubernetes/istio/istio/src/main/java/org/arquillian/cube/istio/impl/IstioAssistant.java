@@ -16,6 +16,7 @@ import me.snowdrop.istio.client.IstioClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
 import org.awaitility.Awaitility;
 
 public class IstioAssistant {
@@ -82,9 +83,7 @@ public class IstioAssistant {
 
         if (Files.isDirectory(directory)) {
             Files.list(directory)
-                .filter(p -> p.toString().toLowerCase().endsWith(".yaml")
-                    || p.toString().toLowerCase().endsWith(".yml")
-                    || p.toString().toLowerCase().endsWith(".json"))
+                .filter(ResourceFilter::filterKubernetesResource)
                 .map(p -> {
                     try {
                         return Files.newInputStream(p);

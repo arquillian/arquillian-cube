@@ -32,16 +32,18 @@ import static org.hamcrest.Matchers.hasKey;
 @RunWith(ArquillianConditionalRunner.class)
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
-@IstioResource("route-rule-reviews-test-v${serviceVersion:2}.yaml")
+@IstioResource("classpath:route-rule-reviews-test-v${serviceVersion:2}.yaml")
 @Ignore("This test assumes that you have a cluster installed with Istio and BookInfo application deployed. We could make a full test preparing all this, but it will take lot of time, not error safe and test execution would take like 10 minutes")
-public class ReviewsIntegrationTest {
+public class ReviewsIT {
 
     @RouteURL("productpage")
     @AwaitRoute
     private URL url;
 
+    // tag::istio_assistant[]
     @ArquillianResource
     private IstioAssistant istioAssistant;
+    // end::istio_assistant[]
 
     @Test
     public void should_get_v1_if_not_logged() {

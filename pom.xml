@@ -96,8 +96,6 @@
     <version.istio>0.7</version.istio>
     <version.awaitility>3.0.0</version.awaitility>
 
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
 
   <dependencyManagement>
@@ -225,6 +223,15 @@
         <scope>test</scope>
       </dependency>
       <!-- end::docker_starter_dependency[] -->
+
+      <!-- tag::istio_dependency[] -->
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-istio-kubernetes</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <!-- end::istio_dependency[] -->
 
       <dependency>
         <groupId>org.eclipse.jgit</groupId>

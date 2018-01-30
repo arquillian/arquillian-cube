@@ -5,6 +5,7 @@
 
 
   <extension qualifier="openshift">
+    <!-- We are assuming that BookInfo application from Istio samples is already deployed on default Istio namespace for that application -->
     <property name="namespace.use.existing">istio-system</property>
     <property name="env.init.enabled">false</property>
   </extension>

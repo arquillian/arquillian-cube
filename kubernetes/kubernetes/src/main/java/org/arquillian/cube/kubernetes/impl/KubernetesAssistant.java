@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
 
 import static org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider.LOCALHOST;
 import static org.awaitility.Awaitility.await;
@@ -200,9 +201,7 @@ public class KubernetesAssistant {
 
         if (Files.isDirectory(directory)) {
             Files.list(directory)
-                .filter(p -> p.toString().toLowerCase().endsWith(".yaml")
-                    || p.toString().toLowerCase().endsWith(".yml")
-                    || p.toString().toLowerCase().endsWith(".json"))
+                .filter(ResourceFilter::filterKubernetesResource)
                 .map(p -> {
                     try {
                         return Files.newInputStream(p);

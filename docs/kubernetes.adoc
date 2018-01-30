@@ -707,12 +707,7 @@ To use Istio integration you just need to add next dependency.
 [source, xml]
 .pom.xml
 ----
-<dependency>
-    <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-istio-kubernetes</artifactId>
-    <version>${project.version}</version>
-    <scope>test</scope>
-</dependency>
+include::../pom.xml[indent=0, tag=istio_dependency]
 ----
 
 TIP: Same dependency can be used for OpenShift
@@ -746,8 +741,7 @@ Notice that both annotations and assistant approaches can be mixed in the same t
 
 [source, java]
 ----
-@ArquillianResource
-private IstioAssistant istioAssistant;
+include::../openshift/ftest-istio-openshift/src/test/java/org/arquillian/cube/openshift/standalone/ReviewsIT.java[indent=0, tag=istio_assistant]
 ----
 
 The assistant provides you `deployIstioResources` and `undeployIstioResources` to deploy and undeploy Istio resources.
