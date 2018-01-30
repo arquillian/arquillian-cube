@@ -728,14 +728,65 @@ It works with <strong>Boot2Docker</strong> as well in <em>Windows</em> and <em>M
 <p>By default the <em>Docker</em> server uses UNIX sockets for communicating with the <em>Docker</em> client. <strong>Arquillian Cube</strong> will attempt to detect the operating system it is running on and either set <em>docker-java</em> to use UNIX socket on <em>Linux</em> or to <a href="#_boot2docker">Boot2Docker</a> on <em>Windows</em>/<em>Mac</em> as the default URI.</p>
 </div>
 <div class="paragraph">
-<p>If you want to use TCP/IP to connect to the Docker server, you&#8217;ll need to make sure that your <em>Docker</em> server is listening on TCP port.
-To allow <em>Docker</em> server to use TCP add the following line to /etc/default/docker:</p>
+<p>Further in case of Linux, if you want to use TCP/IP to connect to the Docker server, you&#8217;ll need to make sure that your
+<em>Docker</em> server is listening on TCP port. To allow <em>Docker</em> server to use TCP set the <em>Docker daemon options</em>, the exact
+process for which varies by the way you launch the Docker daemon and/or the underlying OS:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>systemd (Ubuntu, Debian, RHEL 7, CentOS 7, Fedora, Archlinux) — edit docker.service and change the ExecStart value</p>
+<div class="paragraph">
+<p>To change the value of an option, ExecStart in this case, do the following:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ sudo systemctl edit docker</pre>
+</div>
 </div>
 <div class="paragraph">
-<p>DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"</p>
+<p>This will create the necessary directory structure under <code>/etc/systemd/system/docker.service.d</code> and open an editor
+(using the default editor configured for the user) to the override file. Add the section below into the editor:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It was necessary to clear out ExecStart using <code>ExecStart=</code> before setting it to the override value. This is only
+required for some options and most options in the configuration file would not need to be cleared like this. Using
+systemctl edit also ensures that the override settings are loaded.</p>
+</div>
+</li>
+<li>
+<p>upstart (Ubuntu 14.04 and older versions) — set DOCKER_OPTS in <code>/etc/default/docker</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"</pre>
+</div>
+</div>
+</li>
+<li>
+<p>In case of Fedora distribution docker installed on Fedora - set OPTIONS in <code>/etc/sysconfig/docker</code></p>
+<div class="literalblock">
+<div class="content">
+<pre>OPTIONS='-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock'</pre>
+</div>
+</div>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>After restarting the <em>Docker</em> daemon you need to make sure that <em>Docker</em> is up and listening on TCP.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="terminal">$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker</code></pre>
+</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -5797,7 +5848,20 @@ or by setting a System properties.</p>
     <span class="directive">private</span> <span class="predefined-type">URL</span> url;
 
     <span class="annotation">@Test</span>
-    <span class="directive">public</span> <span class="type">void</span> should_show_hello_world() <span class="directive">throws</span> <span class="exception">IOException</span> {
+    <span class="directive">public</span> <span class="type">void</span> should_create_class_template_resources() <span class="directive">throws</span> <span class="exception">IOException</span> {
+        verifyResponse(url);
+    }
+
+    <span class="annotation">@Test</span>
+    <span class="annotation">@Template</span>(url = <span class="string"><span class="delimiter">&quot;</span><span class="content">https://gist.githubusercontent.com/dipak-pawar/403b870fc92f6569f64f12b506318606/raw/4dd7cd4b259f893353509411ba4777792cacd034/hello_openshift_route_template.yaml</span><span class="delimiter">&quot;</span></span>,
+        parameters = <span class="annotation">@TemplateParameter</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">ROUTE_NAME</span><span class="delimiter">&quot;</span></span>, value = <span class="string"><span class="delimiter">&quot;</span><span class="content">hello-openshift-method-route</span><span class="delimiter">&quot;</span></span>))
+    <span class="directive">public</span> <span class="type">void</span> should_create_method_template_resources(
+        <span class="annotation">@RouteURL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello-openshift-method-route</span><span class="delimiter">&quot;</span></span>) <span class="annotation">@AwaitRoute</span> <span class="predefined-type">URL</span> routeUrl)
+        <span class="directive">throws</span> <span class="exception">IOException</span> {
+        verifyResponse(routeUrl);
+    }
+
+    <span class="directive">private</span> <span class="type">void</span> verifyResponse(<span class="predefined-type">URL</span> url) <span class="directive">throws</span> <span class="exception">IOException</span> {
         assertThat(url).isNotNull();
         OkHttpClient okHttpClient = <span class="keyword">new</span> OkHttpClient();
         Request request = <span class="keyword">new</span> Request.Builder().get().url(url).build();
@@ -5807,7 +5871,6 @@ or by setting a System properties.</p>
         assertThat(response.code()).isEqualTo(<span class="integer">200</span>);
         assertThat(response.body().string()).isEqualTo(<span class="string"><span class="delimiter">&quot;</span><span class="content">Hello from Arquillian Template</span><span class="char">\n</span><span class="delimiter">&quot;</span></span>);
     }
-
 }</code></pre>
 </div>
 </div>
@@ -6753,7 +6816,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-18 14:13:57 UTC
+Last updated 2018-01-30 14:14:32 UTC
 </div>
 </div>
 </body>
