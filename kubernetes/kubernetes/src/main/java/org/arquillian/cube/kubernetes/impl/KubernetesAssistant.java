@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
 
 import static org.arquillian.cube.kubernetes.impl.enricher.KuberntesServiceUrlResourceProvider.LOCALHOST;
 import static org.awaitility.Awaitility.await;
@@ -170,6 +171,7 @@ public class KubernetesAssistant {
 
         fastClasspathScanner.matchFilenamePattern(pattern, (FileMatchProcessor) (relativePath, inputStream, lengthBytes) -> {
             deploy(inputStream);
+            inputStream.close();
         }).scan();
 
         return this.applicationName;
@@ -183,7 +185,7 @@ public class KubernetesAssistant {
      * @throws IOException
      */
     public String deployAll(Path directory) throws IOException {
-        deployAll(directory);
+        deployAll(null, directory);
         return this.applicationName;
     }
 
@@ -199,7 +201,7 @@ public class KubernetesAssistant {
 
         if (Files.isDirectory(directory)) {
             Files.list(directory)
-                .filter(p -> p.endsWith(".yaml") || p.endsWith(".yml") || p.endsWith(".json"))
+                .filter(ResourceFilter::filterKubernetesResource)
                 .map(p -> {
                     try {
                         return Files.newInputStream(p);
@@ -210,6 +212,7 @@ public class KubernetesAssistant {
                 .forEach(is -> {
                     try {
                         deploy(is);
+                        is.close();
                     } catch (IOException e) {
                         throw new IllegalArgumentException(e);
                     }
@@ -239,7 +242,7 @@ public class KubernetesAssistant {
         }
     }
 
-    protected List<? extends HasMetadata> deploy(String name, InputStream element) throws IOException {
+    protected List<? extends HasMetadata> deploy(String name, InputStream element) {
         NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 

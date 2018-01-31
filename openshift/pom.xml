@@ -37,6 +37,7 @@
     <module>ftest-openshift-assistant</module>
     <module>ftest-openshift-graphene</module>
     <module>ftest-openshift-restassured</module>
+    <module>ftest-istio-openshift</module>
     <module>openshift-restassured</module>
     <module>ftest-openshift-assistant-template</module>
   </modules>

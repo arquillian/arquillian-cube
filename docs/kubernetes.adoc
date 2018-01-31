@@ -694,6 +694,76 @@ Notice that no _ip_ nor _port_ configuration are required since everything is ma
 You can see the full example using OpenShift and Rest-Assured at
 https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured .
 
+=== Istio in Kubernetes/OpenShift
+
+Arquillian Cube also support Istio, so you can apply Istio resources before executing tests.
+
+As it happens with Arquillian Kubernetes/OpenShift integration, the integration is provided as annotation and as assistant.
+
+==== Dependency
+
+To use Istio integration you just need to add next dependency.
+
+[source, xml]
+.pom.xml
+----
+include::../pom.xml[indent=0, tag=istio_dependency]
+----
+
+TIP: Same dependency can be used for OpenShift
+
+==== `@IstioResource`
+
+You can define at class level which Istio resource to apply before any test method execution, and it will be unregistered after all test methods are executed.
+
+The location of Istio Resource can start with `http(s):` or `file:` which then the value is treated as `URL.
+If location is prefixed with `classpath:`, then the resource is considered to be located at classpath.
+
+If it is not prefixed, then the resource is considered to be the content text.
+
+For example: `@IstioResource("classpath:istio_route_rule.yaml")`
+
+The value also supports like `${property:defaultValue}` where `property is resolved against system property, if not set then environment variable, and if not set the default value (if specified) is returned.
+
+[IMPORTANT]
+====
+When applying any resource, Istio notifies that the resource has been correctly registered, but this does not mean that all the configuration has been populated across all the cluster.
+
+This means that when test method is executed, all Istio elements might not be updated yet.
+At this time, Istio does not cover to query its state, so the only thing you can do is either sleeping some amount of time before executing the test or create some polling against a service that should be reachable after applying the rule.
+
+<<Istio Assistant>> provides some helper methd based on `awaitility` and `OkHttp`.
+
+====
+
+==== Istio Assistant
+
+You can register and unregister Istio resources programmatically using `IstioAssistant`.
+Notice that both annotations and assistant approaches can be mixed in the same test.
+
+[source, java]
+----
+include::../openshift/ftest-istio-openshift/src/test/java/org/arquillian/cube/openshift/standalone/ReviewsIT.java[indent=0, tag=istio_assistant]
+----
+
+The assistant provides you `deployIstioResources` and `undeployIstioResources` to deploy and undeploy Istio resources.
+
+Assistant also provides a helper method to poll a URL based on `awaitility` and `OkHttp`.
+
+For example:
+
+[source, java]
+----
+final Request request = new Request.Builder()
+    .url(url.toString() + "api/v1/products/0/reviews")
+    .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+    .build(); // <1>
+
+istioAssistant.await(request, response -> "2.0.0".equals(response.header("version"))); // <2>
+----
+<1> Creates the request to reach version 2.0.0 of the service
+<2> When all proxies are updated the request will finally get service 2 (instead of 1) and return the version in header
+
 === Arquillian Kubernetes and OpenShift Recipes
 
 To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.
