@@ -209,7 +209,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Project name cannot be empty");
         }
-        return getClient().projects().list().getItems().stream()
+        return listProjects().stream()
             .map(p -> p.getMetadata().getName())
             .anyMatch(Predicate.isEqual(name));
     }
@@ -229,7 +229,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     }
 
     private Optional<Project> getProject(String name) {
-        return getClient().projects().list().getItems().stream()
+        return listProjects().stream()
             .filter(p -> p.getMetadata().getName().equals(name))
             .findFirst();
     }
