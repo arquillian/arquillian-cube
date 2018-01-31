@@ -5,8 +5,13 @@ import java.nio.file.Path;
 public class ResourceFilter {
 
     public static boolean filterKubernetesResource(Path p) {
-        return p.toString().toLowerCase().endsWith(".yaml")
-            || p.toString().toLowerCase().endsWith(".yml")
-            || p.toString().toLowerCase().endsWith(".json");
+        return endsWith(p, ".yaml")
+            || endsWith(p, ".yml")
+            || endsWith(p, ".json");
     }
+
+    private static boolean endsWith(Path path, String extension) {
+        return path.toString().toLowerCase().endsWith(extension);
+    }
+
 }

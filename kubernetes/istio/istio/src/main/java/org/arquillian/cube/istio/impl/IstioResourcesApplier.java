@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import me.snowdrop.istio.client.IstioClient;
 import org.arquillian.cube.istio.api.IstioResource;
 import org.arquillian.cube.kubernetes.impl.utils.RunnerExpressionParser;

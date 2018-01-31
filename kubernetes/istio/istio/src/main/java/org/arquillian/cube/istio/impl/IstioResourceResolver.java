@@ -20,7 +20,13 @@ public class IstioResourceResolver {
             } else if (location.startsWith(CLASSPATH_PREFIX)) {
                 String classPathLocation = location.substring(location.indexOf(CLASSPATH_PREFIX)
                     + CLASSPATH_PREFIX.length());
-                return Thread.currentThread().getContextClassLoader().getResource(classPathLocation).openStream();
+                final URL resource = Thread.currentThread().getContextClassLoader().getResource(classPathLocation);
+
+                if (resource != null) {
+                    throw new IllegalArgumentException(String.format("%s location couldn't be found inside classpath.", classPathLocation));
+                }
+
+                return resource.openStream();
             } else {
                 return new ByteArrayInputStream(location.getBytes());
             }
