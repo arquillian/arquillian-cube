@@ -617,8 +617,9 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_resource_providers">20.11. Resource Providers</a></li>
 <li><a href="#_openshift_integration_with_graphene">20.12. OpenShift Integration with Graphene</a></li>
 <li><a href="#_openshift_integration_with_rest_assured">20.13. OpenShift Integration with Rest-Assured</a></li>
-<li><a href="#_arquillian_kubernetes_and_openshift_recipes">20.14. Arquillian Kubernetes and OpenShift Recipes</a></li>
-<li><a href="#_dealing_with_version_conflicts">20.15. Dealing with version conflicts</a></li>
+<li><a href="#_istio_in_kubernetes_openshift">20.14. Istio in Kubernetes/OpenShift</a></li>
+<li><a href="#_arquillian_kubernetes_and_openshift_recipes">20.15. Arquillian Kubernetes and OpenShift Recipes</a></li>
+<li><a href="#_dealing_with_version_conflicts">20.16. Dealing with version conflicts</a></li>
 </ul>
 </li>
 <li><a href="#_fabric8">21. Fabric8</a>
@@ -6634,12 +6635,134 @@ to write your Arquillian Cube test as :</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_arquillian_kubernetes_and_openshift_recipes"><a class="anchor" href="#_arquillian_kubernetes_and_openshift_recipes"></a>20.14. Arquillian Kubernetes and OpenShift Recipes</h3>
+<h3 id="_istio_in_kubernetes_openshift"><a class="anchor" href="#_istio_in_kubernetes_openshift"></a>20.14. Istio in Kubernetes/OpenShift</h3>
+<div class="paragraph">
+<p>Arquillian Cube also support Istio, so you can apply Istio resources before executing tests.</p>
+</div>
+<div class="paragraph">
+<p>As it happens with Arquillian Kubernetes/OpenShift integration, the integration is provided as annotation and as assistant.</p>
+</div>
+<div class="sect3">
+<h4 id="_dependency_2"><a class="anchor" href="#_dependency_2"></a>20.14.1. Dependency</h4>
+<div class="paragraph">
+<p>To use Istio integration you just need to add next dependency.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+  <span class="tag">&lt;groupId&gt;</span>org.arquillian.cube<span class="tag">&lt;/groupId&gt;</span>
+  <span class="tag">&lt;artifactId&gt;</span>arquillian-cube-istio-kubernetes<span class="tag">&lt;/artifactId&gt;</span>
+  <span class="tag">&lt;version&gt;</span>${project.version}<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Same dependency can be used for OpenShift
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="__code_istioresource_code"><a class="anchor" href="#__code_istioresource_code"></a>20.14.2. <code>@IstioResource</code></h4>
+<div class="paragraph">
+<p>You can define at class level which Istio resource to apply before any test method execution, and it will be unregistered after all test methods are executed.</p>
+</div>
+<div class="paragraph">
+<p>The location of Istio Resource can start with <code>http(s):</code> or <code>file:</code> which then the value is treated as <code>URL.
+If location is prefixed with `classpath:</code>, then the resource is considered to be located at classpath.</p>
+</div>
+<div class="paragraph">
+<p>If it is not prefixed, then the resource is considered to be the content text.</p>
+</div>
+<div class="paragraph">
+<p>For example: <code>@IstioResource("classpath:istio_route_rule.yaml")</code></p>
+</div>
+<div class="paragraph">
+<p>The value also supports like <code>${property:defaultValue}</code> where `property is resolved against system property, if not set then environment variable, and if not set the default value (if specified) is returned.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>When applying any resource, Istio notifies that the resource has been correctly registered, but this does not mean that all the configuration has been populated across all the cluster.</p>
+</div>
+<div class="paragraph">
+<p>This means that when test method is executed, all Istio elements might not be updated yet.
+At this time, Istio does not cover to query its state, so the only thing you can do is either sleeping some amount of time before executing the test or create some polling against a service that should be reachable after applying the rule.</p>
+</div>
+<div class="paragraph">
+<p><a href="#_istio_assistant">Istio Assistant</a> provides some helper methd based on <code>awaitility</code> and <code>OkHttp</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_istio_assistant"><a class="anchor" href="#_istio_assistant"></a>20.14.3. Istio Assistant</h4>
+<div class="paragraph">
+<p>You can register and unregister Istio resources programmatically using <code>IstioAssistant</code>.
+Notice that both annotations and assistant approaches can be mixed in the same test.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ArquillianResource</span>
+<span class="directive">private</span> IstioAssistant istioAssistant;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The assistant provides you <code>deployIstioResources</code> and <code>undeployIstioResources</code> to deploy and undeploy Istio resources.</p>
+</div>
+<div class="paragraph">
+<p>Assistant also provides a helper method to poll a URL based on <code>awaitility</code> and <code>OkHttp</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">final</span> Request request = <span class="keyword">new</span> Request.Builder()
+    .url(url.toString() + <span class="string"><span class="delimiter">&quot;</span><span class="content">api/v1/products/0/reviews</span><span class="delimiter">&quot;</span></span>)
+    .addHeader(<span class="string"><span class="delimiter">&quot;</span><span class="content">Cookie</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">user=alex; Domain=</span><span class="delimiter">&quot;</span></span> + url.getHost() +<span class="string"><span class="delimiter">&quot;</span><span class="content">; Path=/</span><span class="delimiter">&quot;</span></span>)
+    .build(); <i class="conum" data-value="1"></i><b>(1)</b>
+
+istioAssistant.await(request, response -&gt; <span class="string"><span class="delimiter">&quot;</span><span class="content">2.0.0</span><span class="delimiter">&quot;</span></span>.equals(response.header(<span class="string"><span class="delimiter">&quot;</span><span class="content">version</span><span class="delimiter">&quot;</span></span>))); <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Creates the request to reach version 2.0.0 of the service</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>When all proxies are updated the request will finally get service 2 (instead of 1) and return the version in header</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_arquillian_kubernetes_and_openshift_recipes"><a class="anchor" href="#_arquillian_kubernetes_and_openshift_recipes"></a>20.15. Arquillian Kubernetes and OpenShift Recipes</h3>
 <div class="paragraph">
 <p>To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.</p>
 </div>
 <div class="sect3">
-<h4 id="_example_1"><a class="anchor" href="#_example_1"></a>20.14.1. Example 1</h4>
+<h4 id="_example_1"><a class="anchor" href="#_example_1"></a>20.15.1. Example 1</h4>
 <div class="paragraph">
 <p>Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
 manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.</p>
@@ -6649,7 +6772,7 @@ manifest file and testing it using Arquillian Cube Extension for Kubernetes and 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_2_2"><a class="anchor" href="#_example_2_2"></a>20.14.2. Example 2</h4>
+<h4 id="_example_2_2"><a class="anchor" href="#_example_2_2"></a>20.15.2. Example 2</h4>
 <div class="paragraph">
 <p>Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
 Cube Extension for OpenShift and  Fabric8 OpenShift Client.</p>
@@ -6659,7 +6782,7 @@ Cube Extension for OpenShift and  Fabric8 OpenShift Client.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_example_3_2"><a class="anchor" href="#_example_3_2"></a>20.14.3. Example 3</h4>
+<h4 id="_example_3_2"><a class="anchor" href="#_example_3_2"></a>20.15.3. Example 3</h4>
 <div class="paragraph">
 <p>Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
 <a href="https://maven.fabric8.io/">Fabric8 Maven Plugin</a> and
@@ -6676,7 +6799,7 @@ Cube Extension deploys the application from the generated resource descriptors a
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.15. Dealing with version conflicts</h3>
+<h3 id="_dealing_with_version_conflicts"><a class="anchor" href="#_dealing_with_version_conflicts"></a>20.16. Dealing with version conflicts</h3>
 <div class="paragraph">
 <p>Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.</p>
@@ -6816,7 +6939,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-30 14:14:32 UTC
+Last updated 2018-01-31 15:59:41 UTC
 </div>
 </div>
 </body>
