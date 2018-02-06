@@ -12,9 +12,15 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.kubernetes.clnt.v3_1.Watch;
 import io.fabric8.kubernetes.clnt.v3_1.Watcher;
 import io.fabric8.openshift.api.model.v3_1.Build;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.spi.Binding;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.awaitility.Awaitility.await;
 
 public final class ResourceUtil {
 
@@ -165,5 +171,53 @@ public final class ResourceUtil {
             binding.addPortBinding(port.getPort(), port.getNodePort());
         }
         return binding;
+    }
+
+    /**
+     * Waits for the timeout duration until the url responds with correct status code
+     *
+     * @param routeUrl    URL to check (usually a route one)
+     * @param timeout     Max timeout value to await for route readiness.
+     *                    If not set, default timeout value is set to 5.
+     * @param timeoutUnit TimeUnit used for timeout duration.
+     *                    If not set, Minutes is used as default TimeUnit.
+     * @param statusCodes list of status code that might return that service is up and running.
+     *                    It is used as OR, so if one returns true, then the route is considered valid.
+     *                    If not set, then only 200 status code is used.
+     */
+    public static void awaitRoute(URL routeUrl, int timeout, TimeUnit timeoutUnit, int... statusCodes) {
+        await().atMost(timeout, timeoutUnit).until(() -> tryConnect(routeUrl, statusCodes));
+    }
+
+    public static void awaitRoute(URL routeUrl, int... statusCodes) {
+        awaitRoute(routeUrl, 5, TimeUnit.MINUTES, statusCodes);
+    }
+
+    private static boolean tryConnect(URL routeUrl, int[] statusCodes) {
+        if (statusCodes.length == 0) {
+            statusCodes = new int[]{200};
+        }
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) routeUrl.openConnection();
+            urlConnection.setConnectTimeout(1000);
+            urlConnection.setReadTimeout(1000);
+            urlConnection.connect();
+            int connectionResponseCode = urlConnection.getResponseCode();
+            for (int expectedStatusCode : statusCodes) {
+                if (expectedStatusCode == connectionResponseCode) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // retry
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+
+        return false;
     }
 }

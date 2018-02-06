@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -386,6 +387,50 @@ public class CubeConfigurationTest {
         assertThat(link.getAlias(), is("bb_" + uuid));
     }
 
+    @Test
+    public void shouldParallelizeNetworks() {
+        String content =
+            "networks:\n" +
+            "  network1*:\n" +
+            "    driver: bridge\n" +
+            "  network2:\n" +
+            "    driver: bridge\n" +
+            "  network3*:\n" +
+            "    driver: bridge\n" +
+            "tomcat:\n" +
+            "  image: tutum/tomcat:8.0\n" +
+            "  networkMode: network3*\n" +
+            "ping:\n" +
+            "  image: jonmorehouse/ping-pong\n" +
+            "  networks:\n" +
+            "    - network1*\n" +
+            "    - network2\n";
+
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("dockerContainers", content);
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+
+        CubeDockerConfigurator cubeDockerConfigurator = new CubeDockerConfigurator();
+        final CubeDockerConfiguration cubeDockerConfiguration =
+            cubeDockerConfigurator.resolveDynamicNames(cubeConfiguration);
+
+        final DockerCompositions dockerContainersContent = cubeDockerConfiguration.getDockerContainersContent();
+        final Set<String> networkIds = dockerContainersContent.getNetworkIds();
+        String network1 = findElementStartingWith(networkIds, "network1");
+        assertThat(network1, is(not("network1*")));
+        String network2 = findElementStartingWith(networkIds, "network2");
+        assertThat(network2, is("network2"));
+        String network3 = findElementStartingWith(networkIds, "network3");
+        assertThat(network3, is(not("network3*")));
+
+        final CubeContainer tomcat = dockerContainersContent.get("tomcat");
+        assertThat(tomcat.getNetworkMode(), is(network3));
+
+        final CubeContainer ping = dockerContainersContent.get("ping");
+        assertThat(ping.getNetworks(), containsInAnyOrder(network1, network2));
+    }
+
     private <T> T getFirst(Collection<T> collection) {
         return collection.iterator().next();
     }
@@ -550,6 +595,27 @@ public class CubeConfigurationTest {
         parameters.put("serverUri", "http://localhost:25123");
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         parameters.put("dockerContainersFile", newFile.toURI().toString());
+
+        CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
+        assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));
+        assertThat(cubeConfiguration.getDockerServerVersion(), is("1.13"));
+
+        DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        CubeContainer actualTomcat = dockerContainersContent.get("tomcat");
+        assertThat(actualTomcat, is(notNullValue()));
+
+        String image = actualTomcat.getImage().toImageRef();
+        assertThat(image, is("tutum/tomcat:7.0"));
+    }
+
+    @Test
+    public void should_parse_and_load_configuration_from_container_configuration_resource() throws IOException {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("serverVersion", "1.13");
+        parameters.put("serverUri", "http://localhost:25123");
+        parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
+        parameters.put("dockerContainersResource", "test-topologies/topology1.yaml");
 
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
         assertThat(cubeConfiguration.getDockerServerUri(), is("http://localhost:25123"));

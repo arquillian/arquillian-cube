@@ -1,0 +1,7 @@
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: static
+    ip: localhost
+    ports: [8080, 8089]

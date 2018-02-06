@@ -199,6 +199,10 @@ public class OpenShiftClient {
         return kubernetes;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
     private Map<String, String> getDefaultLabels() {
         Map<String, String> labels = new HashMap<String, String>();
         labels.put("generatedby", "arquillian");

@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.client;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import org.arquillian.cube.docker.impl.model.DockerMachineDistro;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
+import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.AutoStartParser;
 import org.jboss.arquillian.core.api.Injector;
 
@@ -42,6 +44,7 @@ public class CubeDockerConfiguration {
     private static final String EMAIL = "email";
     private static final String DOCKER_CONTAINERS_FILE = "dockerContainersFile";
     private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
+    private static final String DOCKER_CONTAINERS_RESOURCE = "dockerContainersResource";
     private static final String IGNORE_CONTAINERS_DEFINITION = "ignoreContainersDefinition";
     private static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
@@ -176,8 +179,22 @@ public class CubeDockerConfiguration {
             }
         }
 
-        if ( !map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE) && !map.containsKey(
-            DOCKER_CONTAINERS_FILES) && !cubeConfiguration.ignoreContainersDefinition) {
+        if (map.containsKey(DOCKER_CONTAINERS_RESOURCE) && !cubeConfiguration.ignoreContainersDefinition) {
+            String resource = map.get(DOCKER_CONTAINERS_RESOURCE);
+            InputStream stream = CubeDockerConfiguration.class.getClassLoader().getResourceAsStream(resource);
+            if (stream != null) {
+                cubeConfiguration.dockerContainersContent =
+                    DockerContainerDefinitionParser.convert(
+                            IOUtil.asStringPreservingNewLines(stream),
+                            cubeConfiguration.definitionFormat);
+            } else {
+                throw new IllegalArgumentException("Resource " + resource + " not found in classpath");
+            }
+        }
+
+        if (!map.containsKey(DOCKER_CONTAINERS) && !map.containsKey(DOCKER_CONTAINERS_FILE)
+            && !map.containsKey(DOCKER_CONTAINERS_FILES) && !map.containsKey(DOCKER_CONTAINERS_RESOURCE)
+            && !cubeConfiguration.ignoreContainersDefinition) {
             try {
                 cubeConfiguration.dockerContainersContent =
                     DockerContainerDefinitionParser.convertDefault(cubeConfiguration.definitionFormat);

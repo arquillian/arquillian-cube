@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -66,7 +67,7 @@ public class SessionManager implements SessionCreatedListener {
     private final FeedbackProvider feedbackProvider;
 
     private final List<HasMetadata> resources = new ArrayList<>();
-    private final Map<String, Collection<Closeable>> watchersMap = new HashMap<String, Collection<Closeable>>();
+    private final Map<String, Collection<Closeable>> watchersMap = new ConcurrentHashMap<>();
     private Watch watchLog;
     private Watch watchEvents;
 
@@ -273,8 +274,9 @@ public class SessionManager implements SessionCreatedListener {
     }
 
     private void setupConsoleListener() {
-        if (!configuration.isLogCopyEnabled())
+        if (!configuration.isLogCopyEnabled()) {
             return;
+        }
 
         logPath = configuration.getLogPath();
         if (Strings.isNullOrEmpty(logPath))
@@ -349,8 +351,9 @@ public class SessionManager implements SessionCreatedListener {
     }
 
     private void setupEventListener() {
-        if (!configuration.isLogCopyEnabled())
+        if (!configuration.isLogCopyEnabled()) {
             return;
+        }
 
 
         final Watcher<Event> watcher = new Watcher<Event>() {

@@ -9,7 +9,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
 import io.fabric8.kubernetes.clnt.v3_1.Config;
-import io.fabric8.kubernetes.clnt.v3_1.DefaultKubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 

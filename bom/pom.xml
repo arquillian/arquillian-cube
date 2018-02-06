@@ -6,7 +6,7 @@
   <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-bom</artifactId>
   <packaging>pom</packaging>
-  <version>1.9.3-SNAPSHOT</version>
+  <version>1.13.0</version>
 
   <name>Arquillian Cube Universe Aggregator</name>
   <url>http://arquillian.org/arquillian-cube</url>
@@ -39,7 +39,7 @@
     <connection>scm:git:git://git@github.com:arquillian/arquillian-cube.git</connection>
     <developerConnection>scm:git:ssh://github.com/arquillian/arquillian-cube.git</developerConnection>
     <url>git://github.com/arquillian/arquillian-cube.git</url>
-    <tag>HEAD</tag>
+    <tag>1.13.0</tag>
   </scm>
 
   <issueManagement>
@@ -122,6 +122,11 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-openshift</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-shrinkwrap</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

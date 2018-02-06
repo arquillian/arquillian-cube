@@ -5,20 +5,16 @@ import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import java.io.Serializable;
-import java.util.Properties;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
-
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 import org.arquillian.cube.openshift.api.ConfigurationHandle;
-import org.jboss.arquillian.container.spi.ConfigurationException;
-import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -31,7 +27,7 @@ import static org.arquillian.cube.openshift.impl.utils.Strings.isNullOrEmpty;
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
 })
-public class CubeOpenShiftConfiguration extends DefaultConfiguration implements ContainerConfiguration,
+public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     ConfigurationHandle, Serializable{
 
     private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
@@ -168,7 +164,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
-                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
+                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
@@ -187,7 +183,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
-                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s+"))
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s*,\\s*"))
                 .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                 .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                 .withDockerRegistry(getDockerRegistry(map))
@@ -311,13 +307,13 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements 
         properties.put("kubernetes.api.version", getApiVersion());
     }
 
-    public void validate() throws ConfigurationException {
+    public void validate() {
 
         if (isNullOrEmpty(this.getMasterUrl().toString()))
-            throw new ConfigurationException("NULL master URL");
+            throw new IllegalArgumentException("NULL master URL");
 
         if ((isNullOrEmpty(username) || isNullOrEmpty(password)) && isNullOrEmpty(token)) {
-            throw new ConfigurationException("Missing OpenShift authentification -- username/password or token!");
+            throw new IllegalArgumentException("Missing OpenShift authentification -- username/password or token!");
         }
     }
 

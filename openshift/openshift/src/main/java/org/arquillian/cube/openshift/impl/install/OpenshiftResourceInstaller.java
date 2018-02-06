@@ -6,44 +6,76 @@ import io.fabric8.kubernetes.api.model.v3_1.KubernetesList;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
-import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
-import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
-import org.jboss.arquillian.core.spi.ServiceLoader;
+import java.util.Properties;
 
 public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
 
     private static final String PARAMETERS_FILE = "template.parameters.file";
 
     @Override
-    public List<HasMetadata> install(URL url) {
-        ServiceLoader serviceLoader = this.serviceLoader.get();
-        KubernetesClient client = this.client.get();
-        List<Visitor> visitors = new ArrayList<>(serviceLoader.all(Visitor.class));
-        CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
+    public ResourceInstaller toImmutable() {
+        return new ImmutableOpenshiftResourceInstaller(client.get(), configuration.get(), logger.get(), new ArrayList<>(serviceLoader.get().all(Visitor.class)));
+    }
 
-        if (!client.isAdaptable(OpenShiftClient.class)) {
-            return super.install(url);
+    public static class ImmutableOpenshiftResourceInstaller extends DefaultResourceInstaller.ImmutableResourceInstaller {
+
+        public ImmutableOpenshiftResourceInstaller(KubernetesClient client, Configuration configuration, Logger logger, List<Visitor> visitors) {
+            super(client, configuration, logger, visitors);
         }
 
-        OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-
-        try (InputStream is = url.openStream()) {
-            KubernetesList list;
-            String templateParametersFile = SystemEnvironmentVariables.getPropertyOrEnvironmentVariable(PARAMETERS_FILE);
-            if (templateParametersFile != null && new File(templateParametersFile).exists()) {
-                list = openShiftClient.templates().load(is).processLocally(new File(templateParametersFile));
-            } else {
-                list = openShiftClient.templates().load(is).processLocally();
+        @Override
+        public List<HasMetadata> install(URL url) {
+            CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
+            if (!client.isAdaptable(OpenShiftClient.class)) {
+                return super.install(url);
             }
-            return openShiftClient.resourceList(list).accept(compositeVisitor).createOrReplace();
-        } catch (Throwable t) {
-            throw KubernetesClientException.launderThrowable(t);
+
+            OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+            try (InputStream is = url.openStream()) {
+
+                KubernetesList list;
+                String templateParametersFile = SystemEnvironmentVariables.getPropertyOrEnvironmentVariable(PARAMETERS_FILE);
+                if (Strings.isNullOrEmpty(templateParametersFile)){
+                    logger.warn("Processing template. No parameters file has been specified, processing without external parameters!");
+                    list = openShiftClient.templates().load(is).processLocally();
+                } else if (!new File(templateParametersFile).exists()) {
+                    throw new IllegalArgumentException("Template parameters file: " + templateParametersFile+" does not exists");
+                } else {
+                    HashMap<String, String> map = new HashMap<>();
+                    try (FileInputStream fis = new FileInputStream(templateParametersFile)) {
+                        Properties properties = new Properties();
+                        properties.load(fis);
+
+                        for (Object k : properties.keySet()) {
+                            String s = String.valueOf(k);
+                            map.put(s, properties.getProperty(s));
+                        }
+                        logger.info("Processing template, using parameters file:" + templateParametersFile);
+                        list = openShiftClient.templates().load(is).processLocally(map);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to read parameters file!");
+                    }
+                }
+                return openShiftClient.resourceList(list).accept(compositeVisitor).createOrReplace();
+            } catch (Throwable t) {
+                throw KubernetesClientException.launderThrowable(t);
+            }
         }
     }
 }

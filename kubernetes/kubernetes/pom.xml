@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes-parent</artifactId>
-    <version>1.9.3-SNAPSHOT</version>
+    <version>1.13.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube Kubernetes</name>
@@ -82,7 +82,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-container</artifactId>
+      <artifactId>arquillian-junit-standalone</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -100,6 +100,14 @@
     <dependency>
       <groupId>org.arquillian.spacelift</groupId>
       <artifactId>arquillian-spacelift</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.lukehutch</groupId>
+      <artifactId>fast-classpath-scanner</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
     </dependency>
 
   </dependencies>

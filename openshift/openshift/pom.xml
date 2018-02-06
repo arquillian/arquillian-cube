@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-openshift-parent</artifactId>
-    <version>1.9.3-SNAPSHOT</version>
+    <version>1.13.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube OpenShift</name>
@@ -14,7 +14,20 @@
     <version.javax.inject>1</version.javax.inject>
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
+    <version.selenium>3.6.0</version.selenium>
+    <version.graphene>2.3.1</version.graphene>
   </properties>
+  <dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.arquillian.selenium</groupId>
+      <artifactId>selenium-bom</artifactId>
+      <version>${version.selenium}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -36,7 +49,6 @@
       <groupId>org.jboss.arquillian.core</groupId>
       <artifactId>arquillian-core-spi</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.jboss.arquillian.config</groupId>
       <artifactId>arquillian-config-api</artifactId>
@@ -50,6 +62,14 @@
       <artifactId>arquillian-container-test-spi
       </artifactId> <!-- required to for container integration, but not standalone -->
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.lukehutch</groupId>
+      <artifactId>fast-classpath-scanner</artifactId>
     </dependency>
 
     <dependency>
@@ -75,10 +95,7 @@
       <artifactId>kubernetes-openshift-uberjar</artifactId>
       <classifier>versioned</classifier>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-container-spi</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-openshift-api</artifactId>
@@ -91,13 +108,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-container-test-impl-base</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jboss.arquillian.protocol</groupId>
       <artifactId>arquillian-protocol-servlet</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -111,18 +124,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.docker-java</groupId>
-      <artifactId>docker-java</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>jcl-over-slf4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.jaxrs</groupId>
-          <artifactId>jackson-jaxrs-json-provider</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.18.1-GA</version>
     </dependency>
 
     <dependency>
@@ -166,27 +170,36 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-container-impl-base</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.arquillian.core</groupId>
-      <artifactId>arquillian-core-impl-base</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.graphene</groupId>
+      <artifactId>graphene-webdriver</artifactId>
+      <version>${version.graphene}</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.graphene</groupId>
+      <artifactId>graphene-webdriver-impl</artifactId>
+      <version>${version.graphene}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-support</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-remote-driver</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
 

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
@@ -87,22 +88,37 @@ public class CubeDockerConfigurator {
     }
 
     CubeDockerConfiguration resolveDynamicNames(CubeDockerConfiguration cubeConfiguration) {
-
-        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
-
-        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
-        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
-
         final UUID uuid = UUID.randomUUID();
 
-        for (Map.Entry<String, CubeContainer> cubeContainerEntry : containers.entrySet()) {
+        final DockerCompositions dockerContainersContent = cubeConfiguration.getDockerContainersContent();
+        final Map<String, Network> networks = dockerContainersContent.getNetworks();
+        final Map<String, String> networkResolutions = new HashMap<>();
+        if (networks != null) {
+            final Map<String, Network> resolvedNetworks = new HashMap<>();
+            for (Map.Entry<String, Network> network : networks.entrySet()) {
+                final String networkId = network.getKey();
+                if (networkId.endsWith("*")) {
+                    String templateName = networkId.substring(0, networkId.lastIndexOf("*"));
+                    String newId = StarOperator.generateNewName(templateName, uuid);
+                    resolvedNetworks.put(newId, network.getValue());
+                    networkResolutions.put(networkId, newId);
+                } else {
+                    resolvedNetworks.put(networkId, network.getValue());
+                }
+            }
+            dockerContainersContent.setNetworks(resolvedNetworks);
+        }
+        final Map<String, CubeContainer> resolvedContainers = new HashMap<>();
+        final Map<String, CubeContainer> containers = dockerContainersContent.getContainers();
+        for (Map.Entry<String, CubeContainer> container : containers.entrySet()) {
 
             // If it is a dynamic definition
-            final String containerId = cubeContainerEntry.getKey();
+            final String containerId = container.getKey();
+            CubeContainer cubeContainer = container.getValue();
+
+            StarOperator.adaptNetworksToParalledRun(networkResolutions, cubeContainer);
             if (containerId.endsWith("*")) {
                 String templateName = containerId.substring(0, containerId.lastIndexOf('*'));
-
-                CubeContainer cubeContainer = cubeContainerEntry.getValue();
 
                 StarOperator.adaptPortBindingToParallelRun(cubeContainer);
                 StarOperator.adaptLinksToParallelRun(uuid, cubeContainer);
@@ -111,12 +127,12 @@ public class CubeDockerConfigurator {
                 String newId = StarOperator.generateNewName(templateName, uuid);
                 // Due to the fact that arquillian container names are determined way before the cubeDockerConfigurator kicks of and
                 // changes the name, we need to update the name
-                for (Container container : registry.get().getContainers()) {
-                    if (container.getName().equals(templateName)) {
+                for (Container containerEntry : registry.get().getContainers()) {
+                    if (containerEntry.getName().equals(templateName)) {
                         try {
-                            Field name = container.getClass().getDeclaredField("name");
+                            Field name = containerEntry.getClass().getDeclaredField("name");
                             name.setAccessible(true);
-                            name.set(container, newId);
+                            name.set(containerEntry, newId);
                         } catch (NoSuchFieldException | IllegalAccessException e) {
                             log.warning("Could not replace name");
                         }
@@ -125,11 +141,11 @@ public class CubeDockerConfigurator {
 
                 resolvedContainers.put(newId, cubeContainer);
             } else {
-                resolvedContainers.put(containerId, cubeContainerEntry.getValue());
+                resolvedContainers.put(containerId, cubeContainer);
             }
         }
-
         dockerContainersContent.setContainers(resolvedContainers);
+
         return cubeConfiguration;
     }
 }
