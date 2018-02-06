@@ -17,6 +17,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class KubernetesResourcesApplier {
@@ -25,13 +27,15 @@ public class KubernetesResourcesApplier {
 
     private Logger log = Logger.getLogger(KubernetesResourcesApplier.class.getName());
 
+    private Map<String, List<KubernetesResourceHandle>> resourcesMap = new ConcurrentHashMap<>();
+
     public void applyKubernetesResourcesAtClassScope(@Observes(precedence = 10) BeforeClass beforeClass, final KubernetesClient kubernetesClient) {
         final TestClass testClass = beforeClass.getTestClass();
         final KubernetesResource[] kubernetesResources = findAnnotations(testClass);
 
         log.info(String.format("Creating environment for %s", testClass.getName()));
 
-        createResources(kubernetesClient, kubernetesResources);
+        createResources(testClass.getJavaClass().getName(), kubernetesClient, kubernetesResources);
     }
 
     public void applyKubernetesResourcesAtMethodScope(@Observes(precedence = 10) Before beforeMethod, final KubernetesClient kubernetesClient) {
@@ -41,16 +45,15 @@ public class KubernetesResourcesApplier {
 
         log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod.getName()));
 
-        createResources(kubernetesClient, kubernetesResources);
+        createResources(createResourceKey(testClass.getJavaClass(), testMethod), kubernetesClient, kubernetesResources);
     }
-
 
     public void removeKubernetesResourcesAtClassScope(@Observes(precedence = -10) AfterClass afterClass, final KubernetesClient kubernetesClient) {
         final TestClass testClass = afterClass.getTestClass();
 
         log.info(String.format("Deleting environment for %s", testClass.getName()));
 
-        deleteResources(kubernetesClient);
+        deleteResources(testClass.getJavaClass().getName(), kubernetesClient);
     }
 
     public void removeKubernetesResourcesAtMethodScope(@Observes(precedence = -10) After afterMethod, final KubernetesClient kubernetesClient) {
@@ -59,31 +62,7 @@ public class KubernetesResourcesApplier {
 
         log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
 
-        deleteResources(kubernetesClient);
-    }
-
-    private void createResources(KubernetesClient kubernetesClient, KubernetesResource[] kubernetesResources) {
-        Arrays.stream(kubernetesResources)
-            .map(KubernetesResource::value)
-            .map(RunnerExpressionParser::parseExpressions)
-            .map(KubernetesResourceResolver::resolve)
-            .forEach(kubernetesResource -> {
-                try (BufferedInputStream kubernetesResourceStream = new BufferedInputStream(kubernetesResource)) {
-                    kubernetesClient.load(kubernetesResourceStream).createOrReplace();
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                }
-            });
-    }
-
-    private void deleteResources(KubernetesClient kubernetesClient) {
-        try {
-            for (HasMetadata kubernetesResource : createdKubernetesResources) {
-                kubernetesClient.resourceList(kubernetesResource).delete();
-            }
-        } finally {
-            createdKubernetesResources.clear();
-        }
+        deleteResources(createResourceKey(testClass.getJavaClass(), testMethod), kubernetesClient);
     }
 
     private <T> KubernetesResource[] findAnnotations(T type) {
@@ -113,5 +92,46 @@ public class KubernetesResourcesApplier {
             return new KubernetesResource[0];
         }
         return null;
+    }
+
+    private void createResources(String resourcesKey, KubernetesClient kubernetesClient, KubernetesResource[] kubernetesResources) {
+        Arrays.stream(kubernetesResources)
+            .map(KubernetesResource::value)
+            .map(RunnerExpressionParser::parseExpressions)
+            .map(KubernetesResourceResolver::resolve)
+            .forEach(kubernetesResource -> {
+                try (BufferedInputStream kubernetesResourceStream = new BufferedInputStream(kubernetesResource)) {
+                    KubernetesResourceHandle resourceHandle = createResourceFromStream(kubernetesClient, kubernetesResourceStream);
+                    addResourceHandle(resourcesKey, resourceHandle);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+    }
+
+    private KubernetesResourceHandle createResourceFromStream(KubernetesClient kubernetesClient, BufferedInputStream kubernetesResourceStream) {
+        return new KubernetesResourceHandle(kubernetesClient, kubernetesResourceStream);
+    }
+
+    private void deleteResources(String resourcesKey, KubernetesClient kubernetesClient) {
+        List<KubernetesResourceHandle> list = resourcesMap.remove(resourcesKey);
+        if (list != null) {
+            for (KubernetesResourceHandle resource : list) {
+                resource.delete(kubernetesClient);
+            }
+        }
+    }
+
+    private void addResourceHandle(String resourcesKey, KubernetesResourceHandle handle) {
+        List<KubernetesResourceHandle> list = resourcesMap.get(resourcesKey);
+        if (list == null) {
+            list = new ArrayList<>();
+            resourcesMap.put(resourcesKey, list);
+        }
+        list.add(handle);
+    }
+
+    private String createResourceKey(Class<?> testClass, Method testMethod) {
+        return testClass.getName() + "_" + testMethod.getName();
     }
 }
