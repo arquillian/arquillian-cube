@@ -5,7 +5,7 @@ import org.arquillian.cube.docker.impl.client.containerobject.dsl.NetworkBuilder
 
 public class NetworkDsl {
 
-    private NetworkBuilder networkBuilder;
+    private final NetworkBuilder networkBuilder;
     private Network network;
 
     public NetworkDsl(String networkId) {

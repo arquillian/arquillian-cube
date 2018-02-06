@@ -12,7 +12,7 @@ import org.jboss.shrinkwrap.api.Archive;
 
 public class ContainerDsl {
 
-    private ContainerBuilder.ContainerOptionsBuilder containerBuilder;
+    private final ContainerBuilder.ContainerOptionsBuilder containerBuilder;
     private Container container;
 
     public ContainerDsl(File directory, String imageId) {

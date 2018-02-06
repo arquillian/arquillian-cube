@@ -9,7 +9,6 @@ import org.arquillian.cube.docker.impl.client.containerobject.dsl.Network;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.junit.DockerClientInitializer;
 import org.arquillian.cube.docker.junit.Reflections;
-import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.metadata.IsNetworkContainerObject;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -29,14 +28,14 @@ public class NetworkDslResolver implements BeforeAllCallback, BeforeEachCallback
     }
 
     @Override
-    public void afterAll(ExtensionContext extensionContext) throws Exception {
+    public void afterAll(ExtensionContext extensionContext) {
         for (String networkId : networkPerClass) {
             dockerClientExecutor.removeNetwork(networkId);
         }
     }
 
     @Override
-    public void afterEach(ExtensionContext extensionContext) throws Exception {
+    public void afterEach(ExtensionContext extensionContext) {
         for (String networkId : networkPerMethod) {
             dockerClientExecutor.removeNetwork(networkId);
         }
