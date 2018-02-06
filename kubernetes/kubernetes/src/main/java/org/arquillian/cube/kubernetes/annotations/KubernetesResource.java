@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * Annotation to be used to populate Kubernetes resources into the cluster.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Repeatable(KubernetesResource.List.class)
 public @interface KubernetesResource {
     /**
