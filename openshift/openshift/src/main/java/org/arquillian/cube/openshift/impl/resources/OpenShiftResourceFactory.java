@@ -23,6 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.resources;
 
+import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
 import org.arquillian.cube.openshift.api.OpenShiftResource;
 import org.arquillian.cube.openshift.api.RoleBinding;
@@ -35,12 +36,10 @@ import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
 import org.jboss.arquillian.test.spi.TestClass;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,20 +120,7 @@ public class OpenShiftResourceFactory {
         StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
         for (OpenShiftResource osr : openShiftResources) {
             String file = resolver.resolve(osr.value());
-
-            InputStream stream;
-            if (file.startsWith(URL_PREFIX)) {
-                stream = new URL(file).openStream();
-            } else if (file.startsWith(CLASSPATH_PREFIX)) {
-                String resourceName = file.substring(CLASSPATH_PREFIX.length());
-                stream = testClass.getClassLoader().getResourceAsStream(resourceName);
-                if (stream == null) {
-                    throw new IllegalArgumentException("Could not find resource on classpath: " + resourceName);
-                }
-            } else {
-                stream = new ByteArrayInputStream(file.getBytes());
-            }
-
+            InputStream stream = ResourceResolver.resolve(file);
             log.info(String.format("Creating new OpenShift resource: %s", file));
             adapter.createResource(resourcesKey, stream);
         }
@@ -180,7 +166,7 @@ public class OpenShiftResourceFactory {
         OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration)
         throws Exception {
         StringResolver resolver;
-        String templateURL;
+        InputStream templateURL;
         for (Template template : templates) {
             // Delete pods and services related to each template
             resolver = Strings.createStringResolver(configuration.getProperties());

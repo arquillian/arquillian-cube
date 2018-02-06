@@ -3,6 +3,7 @@ package org.arquillian.cube.kubernetes.impl.resources;
 import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import org.arquillian.cube.kubernetes.annotations.KubernetesResource;
+import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.kubernetes.impl.utils.RunnerExpressionParser;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
@@ -98,7 +99,7 @@ public class KubernetesResourcesApplier {
         Arrays.stream(kubernetesResources)
             .map(KubernetesResource::value)
             .map(RunnerExpressionParser::parseExpressions)
-            .map(KubernetesResourceResolver::resolve)
+            .map(ResourceResolver::resolve)
             .forEach(kubernetesResource -> {
                 try (BufferedInputStream kubernetesResourceStream = new BufferedInputStream(kubernetesResource)) {
                     KubernetesResourceHandle resourceHandle = createResourceFromStream(kubernetesClient, kubernetesResourceStream);

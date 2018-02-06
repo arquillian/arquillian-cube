@@ -23,33 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.fabric8;
 
-import io.fabric8.kubernetes.api.model.v3_1.Container;
-import io.fabric8.kubernetes.api.model.v3_1.ContainerPort;
-import io.fabric8.kubernetes.api.model.v3_1.DoneablePod;
-import io.fabric8.kubernetes.api.model.v3_1.EnvVar;
-import io.fabric8.kubernetes.api.model.v3_1.ExecAction;
-import io.fabric8.kubernetes.api.model.v3_1.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.v3_1.Handler;
-import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
-import io.fabric8.kubernetes.api.model.v3_1.IntOrString;
-import io.fabric8.kubernetes.api.model.v3_1.KubernetesList;
-import io.fabric8.kubernetes.api.model.v3_1.Lifecycle;
-import io.fabric8.kubernetes.api.model.v3_1.ObjectMeta;
-import io.fabric8.kubernetes.api.model.v3_1.PersistentVolumeClaim;
-import io.fabric8.kubernetes.api.model.v3_1.Pod;
-import io.fabric8.kubernetes.api.model.v3_1.PodList;
-import io.fabric8.kubernetes.api.model.v3_1.PodSpec;
-import io.fabric8.kubernetes.api.model.v3_1.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.v3_1.Probe;
-import io.fabric8.kubernetes.api.model.v3_1.ReplicationController;
-import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.v3_1.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.v3_1.SecretVolumeSource;
-import io.fabric8.kubernetes.api.model.v3_1.Service;
-import io.fabric8.kubernetes.api.model.v3_1.ServiceAccount;
-import io.fabric8.kubernetes.api.model.v3_1.ServicePort;
-import io.fabric8.kubernetes.api.model.v3_1.Volume;
-import io.fabric8.kubernetes.api.model.v3_1.VolumeMount;
+import io.fabric8.kubernetes.api.model.v3_1.*;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.Deletable;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.ExecListener;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.NonNamespaceOperation;
@@ -72,17 +46,6 @@ import io.fabric8.openshift.clnt.v3_1.OpenShiftConfigBuilder;
 import io.fabric8.openshift.clnt.v3_1.ParameterValue;
 import io.fabric8.openshift.clnt.v3_1.dsl.DeployableScalableResource;
 import io.fabric8.openshift.clnt.v3_1.dsl.TemplateResource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import okhttp3.Response;
 import org.arquillian.cube.openshift.api.MountSecret;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
@@ -98,6 +61,17 @@ import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.Port;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -388,8 +362,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
     }
 
-    public List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, String templateURL,
-        List<ParamValue> values, Map<String, String> labels) throws Exception {
+    public List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, InputStream templateURL,
+                                                                               List<ParamValue> values, Map<String, String> labels) throws Exception {
         List<ParameterValue> pvs = new ArrayList<>();
         for (ParamValue value : values) {
             pvs.add(new ParameterValue(value.getName(), value.getValue()));
@@ -427,18 +401,17 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
     }
 
-    private KubernetesList processTemplate(String templateURL, List<ParameterValue> values, Map<String, String> labels)
+    private KubernetesList processTemplate(InputStream templateURL, List<ParameterValue> values, Map<String, String> labels)
         throws IOException {
-        try (InputStream stream = new URL(templateURL).openStream()) {
-            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
-                client.templates().inNamespace(configuration.getNamespace()).load(stream);
-            Template template = templateHandle.get();
-            if (template.getLabels() == null) {
-                template.setLabels(new HashMap<String, String>());
-            }
-            template.getLabels().putAll(labels);
-            return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
+
+        TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
+            client.templates().inNamespace(configuration.getNamespace()).load(templateURL);
+        Template template = templateHandle.get();
+        if (template.getLabels() == null) {
+            template.setLabels(new HashMap<String, String>());
         }
+        template.getLabels().putAll(labels);
+        return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
     }
 
     private KubernetesList createResources(KubernetesList list) {

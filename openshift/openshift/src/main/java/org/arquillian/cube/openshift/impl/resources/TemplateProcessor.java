@@ -1,11 +1,5 @@
 package org.arquillian.cube.openshift.impl.resources;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.model.DeploymentConfig;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
@@ -17,6 +11,14 @@ import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
 import org.jboss.arquillian.test.spi.TestClass;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public abstract class TemplateProcessor<T> {
 
@@ -73,7 +75,7 @@ public abstract class TemplateProcessor<T> {
 
     private List<? extends OpenShiftResource> processTemplate(Template template) {
         final StringResolver resolver = Strings.createStringResolver(configuration.getProperties());
-        final String templateURL = TemplateUtils.readTemplateUrl(template, testClass.getJavaClass(), configuration, false, resolver);
+        final InputStream templateURL = TemplateUtils.readTemplateUrl(template, testClass.getJavaClass(), configuration, false, resolver);
         final Logger log = logger();
         if (templateURL == null) {
             log.info(noTemplateMessage());

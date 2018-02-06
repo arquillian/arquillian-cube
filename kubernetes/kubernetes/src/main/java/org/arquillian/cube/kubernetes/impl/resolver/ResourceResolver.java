@@ -1,13 +1,11 @@
-package org.arquillian.cube.istio.impl;
+package org.arquillian.cube.kubernetes.impl.resolver;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
-public class IstioResourceResolver {
+public class ResourceResolver {
 
     static final String URL_PREFIX = "http";
     static final String FILE_PREFIX = "file";
@@ -22,7 +20,7 @@ public class IstioResourceResolver {
                     + CLASSPATH_PREFIX.length());
                 final URL resource = Thread.currentThread().getContextClassLoader().getResource(classPathLocation);
 
-                if (resource != null) {
+                if (resource == null) {
                     throw new IllegalArgumentException(String.format("%s location couldn't be found inside classpath.", classPathLocation));
                 }
 
@@ -34,5 +32,4 @@ public class IstioResourceResolver {
             throw new IllegalArgumentException(e);
         }
     }
-
 }

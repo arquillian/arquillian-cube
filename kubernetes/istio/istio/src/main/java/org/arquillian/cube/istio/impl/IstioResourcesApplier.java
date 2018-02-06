@@ -1,18 +1,20 @@
 package org.arquillian.cube.istio.impl;
 
 import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import me.snowdrop.istio.client.IstioClient;
 import org.arquillian.cube.istio.api.IstioResource;
+import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.kubernetes.impl.utils.RunnerExpressionParser;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
 import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class IstioResourcesApplier {
 
@@ -25,7 +27,7 @@ public class IstioResourcesApplier {
         Arrays.stream(findAnnotations(testClass))
             .map(IstioResource::value)
             .map(RunnerExpressionParser::parseExpressions)
-            .map(IstioResourceResolver::resolve)
+            .map(ResourceResolver::resolve)
             .forEach(istioResource -> {
                 try (BufferedInputStream istioResourceStream = new BufferedInputStream(istioResource) ) {
                     createdIstioResources.addAll(istioClient.registerCustomResources(istioResourceStream));
