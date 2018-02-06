@@ -32,6 +32,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-istio-kubernetes</artifactId>
       <scope>test</scope>

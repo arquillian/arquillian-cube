@@ -1,4 +1,4 @@
-package org.arquillian.cube.docker.junit.rule;
+package org.arquillian.cube.docker.junit;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;

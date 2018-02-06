@@ -175,6 +175,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.arquillian.graphene</groupId>
       <artifactId>graphene-webdriver</artifactId>
       <version>${version.graphene}</version>
