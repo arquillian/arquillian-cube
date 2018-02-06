@@ -23,6 +23,18 @@
 
 package org.arquillian.cube.openshift.impl.resources;
 
+import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
+import org.arquillian.cube.openshift.api.OpenShiftResource;
+import org.arquillian.cube.openshift.api.RoleBinding;
+import org.arquillian.cube.openshift.api.Template;
+import org.arquillian.cube.openshift.api.Templates;
+import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.utils.StringResolver;
+import org.arquillian.cube.openshift.impl.utils.Strings;
+import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
+import org.jboss.arquillian.test.spi.TestClass;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,20 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
-import org.arquillian.cube.openshift.api.AddRolesToServiceAccounts;
-import org.arquillian.cube.openshift.api.OpenShiftResource;
-import org.arquillian.cube.openshift.api.OpenShiftResources;
-import org.arquillian.cube.openshift.api.RoleBinding;
-import org.arquillian.cube.openshift.api.RoleBindings;
-import org.arquillian.cube.openshift.api.Template;
-import org.arquillian.cube.openshift.api.Templates;
-import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
-import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.arquillian.cube.openshift.impl.utils.StringResolver;
-import org.arquillian.cube.openshift.impl.utils.Strings;
-import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
-import org.jboss.arquillian.test.spi.TestClass;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -272,44 +270,44 @@ public class OpenShiftResourceFactory {
 
     }
 
-    private static class OSRFinder extends Finder<OpenShiftResources, OpenShiftResource> {
-        protected Class<OpenShiftResources> getWrapperType() {
-            return OpenShiftResources.class;
+    private static class OSRFinder extends Finder<OpenShiftResource.List, OpenShiftResource> {
+        protected Class<OpenShiftResource.List> getWrapperType() {
+            return OpenShiftResource.List.class;
         }
 
         protected Class<OpenShiftResource> getSingleType() {
             return OpenShiftResource.class;
         }
 
-        protected OpenShiftResource[] toSingles(OpenShiftResources openShiftResources) {
+        protected OpenShiftResource[] toSingles(OpenShiftResource.List openShiftResources) {
             return openShiftResources.value();
         }
     }
 
-    private static class RBFinder extends Finder<RoleBindings, RoleBinding> {
-        protected Class<RoleBindings> getWrapperType() {
-            return RoleBindings.class;
+    private static class RBFinder extends Finder<RoleBinding.List, RoleBinding> {
+        protected Class<RoleBinding.List> getWrapperType() {
+            return RoleBinding.List.class;
         }
 
         protected Class<RoleBinding> getSingleType() {
             return RoleBinding.class;
         }
 
-        protected RoleBinding[] toSingles(RoleBindings roleBindings) {
+        protected RoleBinding[] toSingles(RoleBinding.List roleBindings) {
             return roleBindings.value();
         }
     }
 
-    private static class ARSAFinder extends Finder<AddRolesToServiceAccounts, AddRoleToServiceAccount> {
-        protected Class<AddRolesToServiceAccounts> getWrapperType() {
-            return AddRolesToServiceAccounts.class;
+    private static class ARSAFinder extends Finder<AddRoleToServiceAccount.List, AddRoleToServiceAccount> {
+        protected Class<AddRoleToServiceAccount.List> getWrapperType() {
+            return AddRoleToServiceAccount.List.class;
         }
 
         protected Class<AddRoleToServiceAccount> getSingleType() {
             return AddRoleToServiceAccount.class;
         }
 
-        protected AddRoleToServiceAccount[] toSingles(AddRolesToServiceAccounts roleBindings) {
+        protected AddRoleToServiceAccount[] toSingles(AddRoleToServiceAccount.List roleBindings) {
             return roleBindings.value();
         }
     }

@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
-@Repeatable(OpenShiftResources.class)
+@Repeatable(OpenShiftResource.List.class)
 public @interface OpenShiftResource {
     /**
      * The value can either be
@@ -51,4 +51,10 @@ public @interface OpenShiftResource {
      * @return link, classpath resource, archive resource or content
      */
     String value();
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+    @interface List {
+        OpenShiftResource[] value();
+    }
 }
