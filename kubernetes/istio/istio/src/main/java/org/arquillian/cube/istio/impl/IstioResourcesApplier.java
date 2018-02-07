@@ -29,7 +29,7 @@ public class IstioResourcesApplier {
             .map(RunnerExpressionParser::parseExpressions)
             .map(ResourceResolver::resolve)
             .forEach(istioResource -> {
-                try (BufferedInputStream istioResourceStream = new BufferedInputStream(istioResource) ) {
+                try (BufferedInputStream istioResourceStream = new BufferedInputStream(istioResource.openStream()) ) {
                     createdIstioResources.addAll(istioClient.registerCustomResources(istioResourceStream));
                 } catch (IOException e) {
                     throw new IllegalStateException(e);

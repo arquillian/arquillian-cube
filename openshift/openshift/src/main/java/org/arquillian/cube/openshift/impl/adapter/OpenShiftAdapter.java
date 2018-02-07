@@ -23,18 +23,17 @@
 
 package org.arquillian.cube.openshift.impl.adapter;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import org.arquillian.cube.openshift.api.OpenShiftHandle;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.proxy.Proxy;
 import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -53,7 +52,7 @@ public interface OpenShiftAdapter extends Closeable, OpenShiftHandle {
 
     String deployReplicationController(String name, String env, RCContext context) throws Exception;
 
-    List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, InputStream templateURL,
+    List<? extends OpenShiftResource> processTemplateAndCreateResources(String templateKey, String templateURL,
         List<ParamValue> values, Map<String, String> labels) throws Exception;
 
     Object deleteTemplate(String templateKey) throws Exception;

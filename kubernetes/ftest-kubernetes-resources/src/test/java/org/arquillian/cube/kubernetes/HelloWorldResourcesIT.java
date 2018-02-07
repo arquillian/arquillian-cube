@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HelloWorldResourcesIT {
 
     @ArquillianResource
-    KubernetesClient kubernetesClient;
+    private KubernetesClient kubernetesClient;
 
     @Test
     public void shouldFindServiceInstance() throws IOException {

@@ -120,7 +120,7 @@ public class OpenShiftResourceFactory {
         StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
         for (OpenShiftResource osr : openShiftResources) {
             String file = resolver.resolve(osr.value());
-            InputStream stream = ResourceResolver.resolve(file);
+            InputStream stream = ResourceResolver.resolve(file).openStream();
             log.info(String.format("Creating new OpenShift resource: %s", file));
             adapter.createResource(resourcesKey, stream);
         }
@@ -162,15 +162,14 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    public static void deleteTemplates(final String templateKeyPrefix, Class<?> testClass, List<Template> templates,
-        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration)
-        throws Exception {
+    public static void deleteTemplates(final String templateKeyPrefix, List<Template> templates,
+        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration) throws Exception {
         StringResolver resolver;
-        InputStream templateURL;
+        String templateURL;
         for (Template template : templates) {
             // Delete pods and services related to each template
             resolver = Strings.createStringResolver(configuration.getProperties());
-            templateURL = TemplateUtils.readTemplateUrl(template, testClass, configuration, false, resolver);
+            templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
 
             openshiftAdapter.deleteTemplate(templateKeyPrefix + templateURL);
         }
@@ -190,7 +189,7 @@ public class OpenShiftResourceFactory {
         if (configuration.getCubeConfiguration().isNamespaceCleanupEnabled()) {
             final Class<?> javaClass = testClass.getJavaClass();
             log.info(String.format("Deleting environment for %s", testClass.getName()));
-            deleteTemplates(testClass.getName(), javaClass, templates, client, configuration);
+            deleteTemplates(testClass.getName(), templates, client, configuration);
             deleteResources(testClass.getName(), client);
             additionalCleanup(client,
                 Collections.singletonMap("test-case", javaClass.getSimpleName().toLowerCase()));

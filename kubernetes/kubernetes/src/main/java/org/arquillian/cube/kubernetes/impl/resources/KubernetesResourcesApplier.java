@@ -26,7 +26,7 @@ public class KubernetesResourcesApplier {
 
     private List<HasMetadata> createdKubernetesResources = new ArrayList<>();
 
-    private Logger log = Logger.getLogger(KubernetesResourcesApplier.class.getName());
+    private static final Logger log = Logger.getLogger(KubernetesResourcesApplier.class.getName());
 
     private Map<String, List<KubernetesResourceHandle>> resourcesMap = new ConcurrentHashMap<>();
 
@@ -101,7 +101,7 @@ public class KubernetesResourcesApplier {
             .map(RunnerExpressionParser::parseExpressions)
             .map(ResourceResolver::resolve)
             .forEach(kubernetesResource -> {
-                try (BufferedInputStream kubernetesResourceStream = new BufferedInputStream(kubernetesResource)) {
+                try (BufferedInputStream kubernetesResourceStream = new BufferedInputStream(kubernetesResource.openStream())) {
                     KubernetesResourceHandle resourceHandle = createResourceFromStream(kubernetesClient, kubernetesResourceStream);
                     addResourceHandle(resourcesKey, resourceHandle);
                 } catch (IOException e) {
@@ -124,11 +124,7 @@ public class KubernetesResourcesApplier {
     }
 
     private void addResourceHandle(String resourcesKey, KubernetesResourceHandle handle) {
-        List<KubernetesResourceHandle> list = resourcesMap.get(resourcesKey);
-        if (list == null) {
-            list = new ArrayList<>();
-            resourcesMap.put(resourcesKey, list);
-        }
+        List<KubernetesResourceHandle> list = resourcesMap.computeIfAbsent(resourcesKey, k -> new ArrayList<>());
         list.add(handle);
     }
 

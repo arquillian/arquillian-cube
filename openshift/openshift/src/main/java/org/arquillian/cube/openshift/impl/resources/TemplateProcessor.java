@@ -75,7 +75,7 @@ public abstract class TemplateProcessor<T> {
 
     private List<? extends OpenShiftResource> processTemplate(Template template) {
         final StringResolver resolver = Strings.createStringResolver(configuration.getProperties());
-        final InputStream templateURL = TemplateUtils.readTemplateUrl(template, testClass.getJavaClass(), configuration, false, resolver);
+        final String templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
         final Logger log = logger();
         if (templateURL == null) {
             log.info(noTemplateMessage());

@@ -1,14 +1,15 @@
 package org.arquillian.cube.openshift.impl.resources;
 
+import org.arquillian.cube.openshift.api.Template;
+import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.jboss.arquillian.test.spi.TestClass;
+
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.arquillian.cube.openshift.api.Template;
-import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
-import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.jboss.arquillian.test.spi.TestClass;
 
 import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.additionalCleanup;
 import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.createResourceKey;
@@ -62,7 +63,7 @@ public class MethodTemplateProcessor extends TemplateProcessor<Method> {
 
     @Override
     protected void handleExceptionForCreatingResource() throws Exception {
-        deleteTemplates(templateKeyPrefix(), testClass.getJavaClass(), templates, openShiftAdapter, configuration);
+        deleteTemplates(templateKeyPrefix(), templates, openShiftAdapter, configuration);
         additionalCleanup(openShiftAdapter, scopeLabels());
     }
 

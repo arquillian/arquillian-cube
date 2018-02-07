@@ -22,9 +22,6 @@
  */
 package org.arquillian.cube.openshift.impl;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.logging.Logger;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
@@ -43,6 +40,10 @@ import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
 import org.jboss.arquillian.test.spi.event.suite.Before;
 import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.logging.Logger;
 
 import static org.arquillian.cube.openshift.impl.resources.OpenShiftResourceFactory.createResourceKey;
 
@@ -117,7 +118,7 @@ public class CEEnvironmentProcessor {
         log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
 
         OpenShiftResourceFactory.deleteResources(javaClass, testMethod, client);
-        OpenShiftResourceFactory.deleteTemplates(templateKeyPrefix, javaClass, methodTemplateProcessor.getTemplates(), client, cubeOpenShiftConfiguration);
+        OpenShiftResourceFactory.deleteTemplates(templateKeyPrefix, methodTemplateProcessor.getTemplates(), client, cubeOpenShiftConfiguration);
 
     }
 

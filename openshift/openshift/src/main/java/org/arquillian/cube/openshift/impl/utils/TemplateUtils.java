@@ -29,8 +29,6 @@ import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.TemplateParameter;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +59,7 @@ public class TemplateUtils {
         }
     }
 
-    public static InputStream readTemplateUrl(Template template, Class<?> testClass, CubeOpenShiftConfiguration configuration,
+    public static String readTemplateUrl(Template template, CubeOpenShiftConfiguration configuration,
         boolean required, StringResolver resolver) {
         String templateUrl = template == null ? null : template.url();
         if (templateUrl == null || templateUrl.length() == 0) {
@@ -74,10 +72,10 @@ public class TemplateUtils {
 
         if (templateUrl != null) {
             String url = resolver.resolve(templateUrl);
-            return ResourceResolver.resolve(url);
+            templateUrl = ResourceResolver.resolve(url).toString();
         }
 
-        return new ByteArrayInputStream(templateUrl.getBytes());
+        return templateUrl;
     }
 
     public static <T> int readReplicas(T type) {
