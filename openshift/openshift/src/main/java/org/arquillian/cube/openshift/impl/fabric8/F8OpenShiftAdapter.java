@@ -72,17 +72,6 @@ import io.fabric8.openshift.clnt.v3_1.OpenShiftConfigBuilder;
 import io.fabric8.openshift.clnt.v3_1.ParameterValue;
 import io.fabric8.openshift.clnt.v3_1.dsl.DeployableScalableResource;
 import io.fabric8.openshift.clnt.v3_1.dsl.TemplateResource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import okhttp3.Response;
 import org.arquillian.cube.openshift.api.MountSecret;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
@@ -98,6 +87,18 @@ import org.arquillian.cube.openshift.impl.utils.Operator;
 import org.arquillian.cube.openshift.impl.utils.ParamValue;
 import org.arquillian.cube.openshift.impl.utils.Port;
 import org.arquillian.cube.openshift.impl.utils.RCContext;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -429,12 +430,13 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     private KubernetesList processTemplate(String templateURL, List<ParameterValue> values, Map<String, String> labels)
         throws IOException {
+
         try (InputStream stream = new URL(templateURL).openStream()) {
             TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
                 client.templates().inNamespace(configuration.getNamespace()).load(stream);
             Template template = templateHandle.get();
             if (template.getLabels() == null) {
-                template.setLabels(new HashMap<String, String>());
+                template.setLabels(new HashMap<>());
             }
             template.getLabels().putAll(labels);
             return templateHandle.process(values.toArray(new ParameterValue[values.size()]));

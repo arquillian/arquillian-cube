@@ -55,6 +55,7 @@ import org.arquillian.cube.kubernetes.impl.namespace.DefaultNamespaceService;
 import org.arquillian.cube.kubernetes.impl.namespace.NamespaceServiceRegistar;
 import org.arquillian.cube.kubernetes.impl.resolve.DependencyResolverRegistar;
 import org.arquillian.cube.kubernetes.impl.resolve.ShrinkwrapResolver;
+import org.arquillian.cube.kubernetes.impl.resources.KubernetesResourcesApplier;
 import org.arquillian.cube.kubernetes.impl.visitor.DockerRegistryVisitor;
 import org.arquillian.cube.kubernetes.impl.visitor.LoggingVisitor;
 import org.arquillian.cube.kubernetes.impl.visitor.NamespaceVisitor;
@@ -83,7 +84,8 @@ public class KubernetesExtension implements LoadableExtension {
             .observer(SuiteListener.class)
             .observer(ClassListener.class)
             .observer(TestListener.class)
-            .observer(SessionManagerLifecycle.class);
+            .observer(SessionManagerLifecycle.class)
+            .observer(KubernetesResourcesApplier.class);
 
         builder.service(NamespaceService.class, DefaultNamespaceService.class)
             .service(KubernetesResourceLocator.class, DefaultKubernetesResourceLocator.class)

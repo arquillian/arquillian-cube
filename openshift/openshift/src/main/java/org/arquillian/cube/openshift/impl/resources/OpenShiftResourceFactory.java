@@ -23,25 +23,10 @@
 
 package org.arquillian.cube.openshift.impl.resources;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Logger;
+import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
-import org.arquillian.cube.openshift.api.AddRolesToServiceAccounts;
 import org.arquillian.cube.openshift.api.OpenShiftResource;
-import org.arquillian.cube.openshift.api.OpenShiftResources;
 import org.arquillian.cube.openshift.api.RoleBinding;
-import org.arquillian.cube.openshift.api.RoleBindings;
 import org.arquillian.cube.openshift.api.Template;
 import org.arquillian.cube.openshift.api.Templates;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
@@ -50,6 +35,18 @@ import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
 import org.jboss.arquillian.test.spi.TestClass;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -123,20 +120,7 @@ public class OpenShiftResourceFactory {
         StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
         for (OpenShiftResource osr : openShiftResources) {
             String file = resolver.resolve(osr.value());
-
-            InputStream stream;
-            if (file.startsWith(URL_PREFIX)) {
-                stream = new URL(file).openStream();
-            } else if (file.startsWith(CLASSPATH_PREFIX)) {
-                String resourceName = file.substring(CLASSPATH_PREFIX.length());
-                stream = testClass.getClassLoader().getResourceAsStream(resourceName);
-                if (stream == null) {
-                    throw new IllegalArgumentException("Could not find resource on classpath: " + resourceName);
-                }
-            } else {
-                stream = new ByteArrayInputStream(file.getBytes());
-            }
-
+            InputStream stream = ResourceResolver.resolve(file).openStream();
             log.info(String.format("Creating new OpenShift resource: %s", file));
             adapter.createResource(resourcesKey, stream);
         }
@@ -178,15 +162,14 @@ public class OpenShiftResourceFactory {
         }
     }
 
-    public static void deleteTemplates(final String templateKeyPrefix, Class<?> testClass, List<Template> templates,
-        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration)
-        throws Exception {
+    public static void deleteTemplates(final String templateKeyPrefix, List<Template> templates,
+        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration) throws Exception {
         StringResolver resolver;
         String templateURL;
         for (Template template : templates) {
             // Delete pods and services related to each template
             resolver = Strings.createStringResolver(configuration.getProperties());
-            templateURL = TemplateUtils.readTemplateUrl(template, testClass, configuration, false, resolver);
+            templateURL = TemplateUtils.readTemplateUrl(template, configuration, false, resolver);
 
             openshiftAdapter.deleteTemplate(templateKeyPrefix + templateURL);
         }
@@ -206,7 +189,7 @@ public class OpenShiftResourceFactory {
         if (configuration.getCubeConfiguration().isNamespaceCleanupEnabled()) {
             final Class<?> javaClass = testClass.getJavaClass();
             log.info(String.format("Deleting environment for %s", testClass.getName()));
-            deleteTemplates(testClass.getName(), javaClass, templates, client, configuration);
+            deleteTemplates(testClass.getName(), templates, client, configuration);
             deleteResources(testClass.getName(), client);
             additionalCleanup(client,
                 Collections.singletonMap("test-case", javaClass.getSimpleName().toLowerCase()));
@@ -272,44 +255,44 @@ public class OpenShiftResourceFactory {
 
     }
 
-    private static class OSRFinder extends Finder<OpenShiftResources, OpenShiftResource> {
-        protected Class<OpenShiftResources> getWrapperType() {
-            return OpenShiftResources.class;
+    private static class OSRFinder extends Finder<OpenShiftResource.List, OpenShiftResource> {
+        protected Class<OpenShiftResource.List> getWrapperType() {
+            return OpenShiftResource.List.class;
         }
 
         protected Class<OpenShiftResource> getSingleType() {
             return OpenShiftResource.class;
         }
 
-        protected OpenShiftResource[] toSingles(OpenShiftResources openShiftResources) {
+        protected OpenShiftResource[] toSingles(OpenShiftResource.List openShiftResources) {
             return openShiftResources.value();
         }
     }
 
-    private static class RBFinder extends Finder<RoleBindings, RoleBinding> {
-        protected Class<RoleBindings> getWrapperType() {
-            return RoleBindings.class;
+    private static class RBFinder extends Finder<RoleBinding.List, RoleBinding> {
+        protected Class<RoleBinding.List> getWrapperType() {
+            return RoleBinding.List.class;
         }
 
         protected Class<RoleBinding> getSingleType() {
             return RoleBinding.class;
         }
 
-        protected RoleBinding[] toSingles(RoleBindings roleBindings) {
+        protected RoleBinding[] toSingles(RoleBinding.List roleBindings) {
             return roleBindings.value();
         }
     }
 
-    private static class ARSAFinder extends Finder<AddRolesToServiceAccounts, AddRoleToServiceAccount> {
-        protected Class<AddRolesToServiceAccounts> getWrapperType() {
-            return AddRolesToServiceAccounts.class;
+    private static class ARSAFinder extends Finder<AddRoleToServiceAccount.List, AddRoleToServiceAccount> {
+        protected Class<AddRoleToServiceAccount.List> getWrapperType() {
+            return AddRoleToServiceAccount.List.class;
         }
 
         protected Class<AddRoleToServiceAccount> getSingleType() {
             return AddRoleToServiceAccount.class;
         }
 
-        protected AddRoleToServiceAccount[] toSingles(AddRolesToServiceAccounts roleBindings) {
+        protected AddRoleToServiceAccount[] toSingles(AddRoleToServiceAccount.List roleBindings) {
             return roleBindings.value();
         }
     }

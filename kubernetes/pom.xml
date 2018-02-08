@@ -26,6 +26,7 @@
     <module>ftest-kubernetes-logs</module>
     <module>ftest-kubernetes-reporter</module>
     <module>ftest-kubernetes-assistant</module>
+    <module>ftest-kubernetes-resources</module>
   </modules>
 
 </project>

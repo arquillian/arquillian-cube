@@ -34,8 +34,14 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
-@Repeatable(RoleBindings.class)
+@Repeatable(RoleBinding.List.class)
 public @interface RoleBinding {
     String roleRefName();
     String userName();
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @interface List {
+        RoleBinding[] value();
+    }
 }
