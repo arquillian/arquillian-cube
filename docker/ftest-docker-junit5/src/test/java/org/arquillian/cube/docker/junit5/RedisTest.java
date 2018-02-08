@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // end::docs[]
 @Disabled("Test disabled because requirements module has no support for JUnit5 yet")
 // tag::docs[]
-public class RedisIT {
+public class RedisTest {
 
     private ContainerDsl redis = new ContainerDsl("redis:3.2.6")
                                         .withPortBinding(6379);

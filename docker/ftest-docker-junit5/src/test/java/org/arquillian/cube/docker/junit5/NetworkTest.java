@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // end::docs[]
 @Disabled("Test disabled because requirements module has no support for JUnit5 yet")
 // tag::docs[]
-public class NetworkIT {
+public class NetworkTest {
 // end::docs[]
 
     // tag::docs[]
