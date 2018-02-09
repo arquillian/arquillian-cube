@@ -48,6 +48,13 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <!-- We need to skip failsafe plugin because it has no support for JUnit 5 -->
+          <skipITs>true</skipITs>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
