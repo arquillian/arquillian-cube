@@ -45,7 +45,7 @@ public class NetworkDslResolver implements BeforeAllCallback, BeforeEachCallback
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
 
         final Class<?> testClass = extensionContext.getRequiredTestClass();
-        final Optional<Object> testInstance = extensionContext.getTestInstance();
+        final Object testInstance = extensionContext.getTestInstance().orElse(null);
         final List<Field> allStaticNetworkDslFields =
             Reflections.findAllFieldsOfType(testClass, NetworkDsl.class, f -> Modifier
                 .isStatic(f.getModifiers()));
@@ -57,7 +57,7 @@ public class NetworkDslResolver implements BeforeAllCallback, BeforeEachCallback
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
 
         final Class<?> testClass = extensionContext.getRequiredTestClass();
-        final Optional<Object> testInstance = extensionContext.getTestInstance();
+        final Object testInstance = extensionContext.getTestInstance().orElse(null);
         final List<Field> allNetworkDslFields =
             Reflections.findAllFieldsOfType(testClass, NetworkDsl.class, f -> !Modifier
                 .isStatic(f.getModifiers()));
@@ -66,12 +66,10 @@ public class NetworkDslResolver implements BeforeAllCallback, BeforeEachCallback
 
     }
 
-    private List<String> before(Optional<Object> testInstanceOptional, List<Field> allStaticNetworkDslFields)
+    private List<String> before(Object testInstance, List<Field> allStaticNetworkDslFields)
         throws IllegalAccessException {
 
         final List<String> networks = new ArrayList<>();
-
-        final Object testInstance = testInstanceOptional.orElse(null);
 
         for (final Field networkDslField : allStaticNetworkDslFields) {
             NetworkDsl networkDsl = (NetworkDsl) networkDslField.get(testInstance);

@@ -66,7 +66,7 @@ public class ContainerDslResolver implements BeforeAllCallback, BeforeEachCallba
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
 
         final Class<?> testClass = extensionContext.getRequiredTestClass();
-        final Optional<Object> testInstance = extensionContext.getTestInstance();
+        final Object testInstance = extensionContext.getTestInstance().orElse(null);
         final List<Field> allStaticContainerDslFields =
             Reflections.findAllFieldsOfType(testClass, ContainerDsl.class, f -> Modifier
                 .isStatic(f.getModifiers()));
@@ -78,7 +78,7 @@ public class ContainerDslResolver implements BeforeAllCallback, BeforeEachCallba
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
 
         final Class<?> testClass = extensionContext.getRequiredTestClass();
-        final Optional<Object> testInstance = extensionContext.getTestInstance();
+        final Object testInstance = extensionContext.getTestInstance().orElse(null);
         final List<Field> allContainerDslFields =
             Reflections.findAllFieldsOfType(testClass, ContainerDsl.class, f -> !Modifier
                 .isStatic(f.getModifiers()));
@@ -86,11 +86,9 @@ public class ContainerDslResolver implements BeforeAllCallback, BeforeEachCallba
         cubesPerMethod.addAll(before(testInstance, allContainerDslFields));
     }
 
-    private List<DockerCube> before(Optional<Object> testInstanceOptional, List<Field> allStaticContainerDslFields)
+    private List<DockerCube> before(Object testInstance, List<Field> allStaticContainerDslFields)
         throws Exception {
         final List<DockerCube> createdCubes = new ArrayList<>();
-
-        Object testInstance = testInstanceOptional.orElse(null);
 
         final LocalCubeRegistry localCubeRegistry = new LocalCubeRegistry();
         for (Field containerDslField : allStaticContainerDslFields) {
