@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.namespace;
 
 import io.fabric8.kubernetes.api.model.v3_1.Namespace;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.openshift.api.model.v3_1.ProjectRequest;
@@ -47,6 +48,9 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
         public Namespace create(String namespace, Map<String, String> annotations) {
             if (client.isAdaptable(OpenShiftClient.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
+                final Config configuration = client.getConfiguration();
+                configuration.setUsername("developer");
+                configuration.setPassword("developer");
                 logger.status("Creating project: " + namespace);
                 ProjectRequest projectRequest = new ProjectRequestBuilder()
                     .withNewMetadata()
