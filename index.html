@@ -3815,7 +3815,7 @@ jedis.set(<span class="string"><span class="delimiter">&quot;</span><span class=
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-You need to add <code>org.arquillian.cube:rquillian-cube-docker-junit-rule</code> dependency.
+You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit-rule</code> dependency.
 </td>
 </tr>
 </table>
@@ -3829,6 +3829,36 @@ You need to add <code>org.arquillian.cube:rquillian-cube-docker-junit-rule</code
 <span class="directive">public</span> <span class="directive">static</span> ContainerDslRule redisStar = <span class="keyword">new</span> ContainerDslRule(<span class="string"><span class="delimiter">&quot;</span><span class="content">redis:3.2.6</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">redis*</span><span class="delimiter">&quot;</span></span>)
                                                 .withPortBinding(<span class="integer">6379</span>);</code></pre>
 </div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_junit_5"><a class="anchor" href="#_junit_5"></a>JUnit 5</h5>
+<div class="paragraph">
+<p>If you are using <code>JUnit 5</code> and want to use Container DSL approach, you can use <code>JUnit 5 Extension</code> instead of <code>Arquillian Runner</code>.</p>
+</div>
+<div class="paragraph">
+<p>To do use it you need to define the container object using <code>ContainerDsl</code> class and registering <code>ContainerDslResolver</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">RedisIT.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/cop.adoc - include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/RedisIT.java[tag=docs, indent=<span class="integer">0</span>]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If field is static, container is started and stopped just once. If not then it is started and stopped for each test method execution.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit5</code> dependency.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -3879,7 +3909,37 @@ Network network = Network.withDefaultDriver(<span class="string"><span class="de
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-You need to add <code>org.arquillian.cube:rquillian-cube-docker-junit-rule</code> dependency.
+You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit-rule</code> dependency.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_junit_5_2"><a class="anchor" href="#_junit_5_2"></a>JUnit 5</h5>
+<div class="paragraph">
+<p>If you are using <code>JUnit 5</code> and want to use Network DSL approach, you can use <code>JUnit 5 Extension</code> instead of <code>Arquillian Runner</code>.</p>
+</div>
+<div class="paragraph">
+<p>To do use it you need to define the network object using <code>NetowrkDsl</code> class and registering <code>NetworkDslResolver</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">RedisIT.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/cop.adoc - include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/NetworkIT.java[tag=docs, indent=<span class="integer">0</span>]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If field is static, network is created and destroyed just once. If not then it is created and destroyed for each test method execution.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit5</code> dependency.
 </td>
 </tr>
 </table>
@@ -6939,7 +6999,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-01-31 15:59:41 UTC
+Last updated 2018-02-09 11:00:59 UTC
 </div>
 </div>
 </body>
