@@ -68,6 +68,11 @@
       <artifactId>arquillian-testenricher-initialcontext</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.arquillian.cube</groupId>

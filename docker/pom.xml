@@ -39,6 +39,7 @@
     <module>reporter</module>
     <module>restassured</module>
     <module>junit-rule</module>
+    <module>junit5</module>
     <module>ftest</module>
     <module>ftest-standalone</module>
     <module>ftest-boot2docker</module>
@@ -61,6 +62,7 @@
     <module>ftest-docker-junit-rule</module>
     <module>ftest-system-properties</module>
     <module>ftest-junit-rules</module>
+    <module>ftest-docker-junit5</module>
   </modules>
 
 </project>

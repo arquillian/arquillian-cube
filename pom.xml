@@ -95,7 +95,7 @@
     <failsafe.groups />
     <version.istio>0.7</version.istio>
     <version.awaitility>3.0.0</version.awaitility>
-
+    <version.junit5>5.0.3</version.junit5>
   </properties>
 
   <dependencyManagement>
@@ -194,6 +194,11 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-junit-rule</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker-junit5</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -379,6 +384,18 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${version.junit5}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${version.junit5}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.jboss.shrinkwrap.resolver</groupId>
         <artifactId>shrinkwrap-resolver-bom</artifactId>
         <version>${version.shrinkwrap_resolver}</version>
@@ -405,23 +422,19 @@
         <artifactId>undertow-core</artifactId>
         <version>${version.undertow}</version>
       </dependency>
-
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${version.junit}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${version.hamcrest}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${version.junit}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <version>${version.hamcrest}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
