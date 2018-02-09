@@ -85,7 +85,7 @@ public class CEEnvironmentProcessor {
      * Needs to fire before the containers are started.
      */
     public void createEnvironment(@Observes(precedence = 10) BeforeClass event, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration cubeOpenShiftConfiguration) {
+                                  CubeOpenShiftConfiguration cubeOpenShiftConfiguration) {
         final TestClass testClass = event.getTestClass();
         log.info(String.format("Creating environment for %s", testClass.getName()));
         OpenShiftResourceFactory.createResources(testClass.getName(), client, testClass.getJavaClass(),
@@ -96,7 +96,7 @@ public class CEEnvironmentProcessor {
     }
 
     public void createOpenShiftResource(@Observes(precedence = 10) Before event, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration cubeOpenShiftConfiguration) {
+                                        CubeOpenShiftConfiguration cubeOpenShiftConfiguration) {
 
         final TestClass testClass = event.getTestClass();
         final Method testMethod = event.getTestMethod();
@@ -129,7 +129,7 @@ public class CEEnvironmentProcessor {
      * objects, e.g. StopCube(application), DestroyCube(application).
      */
     public void deleteEnvironment(@Observes(precedence = -10) AfterClass event, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration configuration) throws Exception {
+                                  CubeOpenShiftConfiguration configuration) throws Exception {
         OpenShiftResourceFactory.deleteEnvironment(event.getTestClass(), client, configuration, classTemplateProcessor.getTemplates());
     }
 

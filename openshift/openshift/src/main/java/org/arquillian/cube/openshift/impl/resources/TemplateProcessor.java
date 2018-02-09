@@ -12,8 +12,8 @@ import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
 import org.jboss.arquillian.test.spi.TestClass;
 
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +48,7 @@ public abstract class TemplateProcessor<T> {
      */
     public List<? super OpenShiftResource> processTemplateResources() {
         List<? extends OpenShiftResource> resources;
-        final List<? super OpenShiftResource> processedResources = new ArrayList<>();
+        List<? super OpenShiftResource> processedResources = null;
         templates = OpenShiftResourceFactory.getTemplates(getType());
         boolean sync_instantiation = OpenShiftResourceFactory.syncInstantiation(getType());
 
@@ -57,10 +57,14 @@ public abstract class TemplateProcessor<T> {
             resources = processTemplate(template);
             if (resources != null) {
                 if (sync_instantiation) {
-                /* synchronous template instantiation */
+                    /* synchronous template instantiation
+                    the target list should have enough size to copy the list, otherwise a similar issue will happen:
+                    java.lang.IndexOutOfBoundsException: Source does not fit in dest
+                     */
+                    processedResources = new ArrayList<>(Arrays.asList(new OpenShiftResource[resources.size()]));
                     Collections.copy(processedResources, resources);
                 } else {
-                /* asynchronous template instantiation */
+                    /* asynchronous template instantiation */
                     try {
                         delay(openShiftAdapter, resources);
                     } catch (Throwable t) {

@@ -119,9 +119,6 @@ public class BuildablePodCube extends BaseCube<Void> {
                 throw e;
             }
             lifecycle.fire(new AfterStart(id));
-
-            // Add the routes to JVM's name service.
-            ArqCubeNameService.setRoutes(client.getClientExt().routes().list(), this.configuration.getRouterHost());
         } catch (Exception e) {
             this.state = State.START_FAILED;
             throw CubeControlException.failedStart(getId(), e);
