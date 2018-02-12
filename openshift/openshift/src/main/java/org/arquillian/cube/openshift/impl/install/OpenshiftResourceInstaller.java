@@ -6,14 +6,6 @@ import io.fabric8.kubernetes.api.model.v3_1.KubernetesList;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.ResourceInstaller;
-import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
-import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,10 +15,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.install.DefaultResourceInstaller;
+import org.arquillian.cube.kubernetes.impl.visitor.CompositeVisitor;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 
 public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
-
-    private static final String PARAMETERS_FILE = "template.parameters.file";
 
     @Override
     public ResourceInstaller toImmutable() {
@@ -50,7 +47,8 @@ public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
             try (InputStream is = url.openStream()) {
 
                 KubernetesList list;
-                String templateParametersFile = SystemEnvironmentVariables.getPropertyOrEnvironmentVariable(PARAMETERS_FILE);
+                final CubeOpenShiftConfiguration openShiftConfiguration = (CubeOpenShiftConfiguration) this.configuration;
+                String templateParametersFile = openShiftConfiguration.getTemplateParametersFile();
                 if (Strings.isNullOrEmpty(templateParametersFile)){
                     logger.warn("Processing template. No parameters file has been specified, processing without external parameters!");
                     list = openShiftClient.templates().load(is).processLocally();
