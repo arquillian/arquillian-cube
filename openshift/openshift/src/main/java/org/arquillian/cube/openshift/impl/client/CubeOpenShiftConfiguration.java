@@ -58,6 +58,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private static final String TRUST_CERTS = "trustCerts";
     private static final String STARTUP_TIMEOUT = "stratupTimeout";
     private static final String HTTP_CLIENT_TIMEOUT = "httpClientTimeout";
+    private static final String TEMPLATE_PARAMETERS_FILE = "templateParametersFile";
 
 
     private final boolean keepAliveGitServer;
@@ -75,6 +76,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private final String templateURL;
     private final String templateLabels;
     private final String templateParameters;
+    private final String templateParametersFile;
     private final boolean templateProcess;
     private final String username;
     private final String password;
@@ -95,7 +97,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
                                       String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection,
-                                      String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, boolean templateProcess,
+                                      String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, String templateParametersFile, boolean templateProcess,
                                       String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
@@ -124,6 +126,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         this.trustCerts = trustCerts;
         this.startupTimeout = startupTimeout;
         this.httpClientTimeout = httpClientTimeout;
+        this.templateParametersFile = templateParametersFile;
     }
 
     private static String[] split(String str, String regex) {
@@ -203,6 +206,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withTemplateURL(getStringProperty(TEMPLATE_URL, "openshift.template.url", map, null))
                 .withTemplateLabels(getStringProperty(TEMPLATE_LABELS, "openshift.template.labels", map, null))
                 .withTemplateParameters(getStringProperty(TEMPLATE_PARAMETERS, "openshift.template.parameters", map, null))
+                .withTemplateParametersFile(getStringProperty(TEMPLATE_PARAMETERS_FILE, "template.parameters.file", map, null))
                 .withTemplateProcess(getBooleanProperty(TEMPLATE_PROCESS, "openshift.template.process", map, true))
                 .withUsername(getStringProperty(USERNAME, "openshift.username", map, "guest"))
                 .withPassword(getStringProperty(PASSWORD, "openshift.password", map, "guest"))
@@ -331,6 +335,10 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
     public String getTemplateParameters() {
         return templateParameters;
+    }
+
+    public String getTemplateParametersFile() {
+        return templateParametersFile;
     }
 
     public Map<String, String> getTemplateParametersAsMap() {
