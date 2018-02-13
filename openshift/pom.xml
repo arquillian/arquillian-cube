@@ -39,7 +39,7 @@
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>
     <module>openshift-restassured</module>
-    <module>ftest-openshift-assistant-template</module>
+    <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 
 </project>
