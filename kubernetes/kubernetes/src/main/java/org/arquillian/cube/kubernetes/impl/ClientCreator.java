@@ -37,33 +37,30 @@ public class ClientCreator {
 
     public void createClient(@Observes Configuration config) {
 
-        if (config.getMasterUrl() == null) {
-            producer.set(new DefaultKubernetesClient(new ConfigBuilder()
-                .withNamespace(config.getNamespace())
-                .build()));
-        } else {
-            final ConfigBuilder configBuilder = new ConfigBuilder()
-                .withMasterUrl(config.getMasterUrl().toString())
-                .withNamespace(config.getNamespace())
-                .withApiVersion(config.getApiVersion())
-                .withTrustCerts(config.isTrustCerts())
-                .accept(new TypedVisitor<ConfigBuilder>() {
-                    @Override
-                    public void visit(ConfigBuilder b) {
-                        b.withNoProxy(b.getNoProxy() == null ? new String[0] : b.getNoProxy());
-                    }
-                });
+        final ConfigBuilder configBuilder = new ConfigBuilder()
+            .withNamespace(config.getNamespace())
+            .withApiVersion(config.getApiVersion())
+            .withTrustCerts(config.isTrustCerts())
+            .accept(new TypedVisitor<ConfigBuilder>() {
+                @Override
+                public void visit(ConfigBuilder b) {
+                    b.withNoProxy(b.getNoProxy() == null ? new String[0] : b.getNoProxy());
+                }
+            });
 
-            if (Strings.isNotNullOrEmpty(config.getToken())) {
-                configBuilder.withOauthToken(config.getToken());
-            }
-
-            if (Strings.isNotNullOrEmpty(config.getUsername()) && Strings.isNotNullOrEmpty(config.getPassword())) {
-                configBuilder.withUsername(config.getUsername());
-                configBuilder.withPassword(config.getPassword());
-            }
-
-            producer.set(new DefaultKubernetesClient(configBuilder.build()));
+        if (Strings.isNotNullOrEmpty(config.getMasterUrl().toString())) {
+            configBuilder.withMasterUrl(config.getMasterUrl().toString());
         }
+
+        if (Strings.isNotNullOrEmpty(config.getToken())) {
+            configBuilder.withOauthToken(config.getToken());
+        }
+
+        if (Strings.isNotNullOrEmpty(config.getUsername()) && Strings.isNotNullOrEmpty(config.getPassword())) {
+            configBuilder.withUsername(config.getUsername())
+                .withPassword(config.getPassword());
+        }
+
+        producer.set(new DefaultKubernetesClient(configBuilder.build()));
     }
 }
