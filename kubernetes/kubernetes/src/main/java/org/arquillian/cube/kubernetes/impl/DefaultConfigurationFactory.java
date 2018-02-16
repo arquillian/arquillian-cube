@@ -33,7 +33,7 @@ public class DefaultConfigurationFactory<C extends DefaultConfiguration> impleme
         Set<String> handlers = new LinkedHashSet<>();
         handlers.addAll(Strings.splitAndTrimAsList(System.getProperty(JAVA_PROTOCOL_HANDLER, ""), " "));
         handlers.addAll(Strings.splitAndTrimAsList(
-            conf.containsKey(PROTOCOL_HANDLERS) ? conf.get(PROTOCOL_HANDLERS) : DEFAULT_MAVEN_PROTOCOL_HANDLER, " "));
+            conf.getOrDefault(PROTOCOL_HANDLERS, DEFAULT_MAVEN_PROTOCOL_HANDLER), " "));
         System.setProperty(JAVA_PROTOCOL_HANDLER, Strings.join(handlers, " "));
     }
 

@@ -3,7 +3,6 @@ package org.arquillian.cube.kubernetes.impl;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.fabric8.kubernetes.clnt.v3_1.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -35,7 +32,7 @@ public class DefaultConfiguration implements Configuration {
     private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";
     private static final Pattern ENV_VAR_PATTERN = Pattern.compile(ENV_VAR_REGEX);
 
-    public static final String ROOT = "/";
+    private static final String ROOT = "/";
 
     private final String sessionId;
     private final String namespace;
@@ -68,6 +65,12 @@ public class DefaultConfiguration implements Configuration {
     private final String logPath;
     private final String kubernetesDomain;
     private final String dockerRegistry;
+    private final String username;
+    private final String password;
+    private final String apiVersion;
+    private final boolean trustCerts;
+
+    private String token;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
@@ -75,7 +78,8 @@ public class DefaultConfiguration implements Configuration {
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-        String logPath, String kubernetesDomain, String dockerRegistry) {
+        String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
+        String apiVersion, boolean trustCerts) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
@@ -101,6 +105,11 @@ public class DefaultConfiguration implements Configuration {
         this.logPath = logPath;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
+        this.token = token;
+        this.username = username;
+        this.password = password;
+        this.apiVersion = apiVersion;
+        this.trustCerts = trustCerts;
     }
 
     public static DefaultConfiguration fromMap(Map<String, String> map) {
@@ -155,6 +164,11 @@ public class DefaultConfiguration implements Configuration {
                 .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                 .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                 .withDockerRegistry(getDockerRegistry(map))
+                .withToken(getStringProperty(AUTH_TOKEN, map, null))
+                .withUsername(getStringProperty(USERNAME, map, null))
+                .withPassword(getStringProperty(PASSWORD, map, null))
+                .withApiVersion(getStringProperty(API_VERSION, map, "v1"))
+                .withTrustCerts(getBooleanProperty(TRUST_CERTS, map, true))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -401,5 +415,36 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String getDockerRegistry() {
         return dockerRegistry;
+    }
+
+    public boolean hasBasicAuth() {
+        return Strings.isNotNullOrEmpty(username) && Strings.isNotNullOrEmpty(password);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
+    @Override
+    public String getToken() {
+        return token;
+    }
+
+    @Override
+    public boolean isTrustCerts() {
+        return trustCerts;
+    }
+
+    protected void setToken(String token) {
+        this.token = token;
     }
 }
