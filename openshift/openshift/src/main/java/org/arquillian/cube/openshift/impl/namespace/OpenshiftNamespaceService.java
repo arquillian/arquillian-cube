@@ -6,11 +6,9 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import io.fabric8.openshift.api.model.v3_1.ProjectRequest;
 import io.fabric8.openshift.api.model.v3_1.ProjectRequestBuilder;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;
-
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;

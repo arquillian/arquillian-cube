@@ -26,15 +26,15 @@ public class HelloWorldIT {
     @Named("hello-openshift-service")
     @PortForward
     @ArquillianResource
-    Service service;
+    private Service service;
 
     @Named("hello-openshift-service")
     @PortForward
     @ArquillianResource
-    URL url;
+    private URL url;
 
     @ArquillianResource
-    OpenShiftClient client;
+    private OpenShiftClient client;
 
     @Test
     public void client_should_not_be_null() throws IOException {

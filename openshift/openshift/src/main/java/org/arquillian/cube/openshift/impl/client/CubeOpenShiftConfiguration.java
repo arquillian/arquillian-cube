@@ -21,8 +21,6 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getIntProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
-import static org.arquillian.cube.openshift.impl.utils.Strings.isNotNullOrEmpty;
-import static org.arquillian.cube.openshift.impl.utils.Strings.isNullOrEmpty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
@@ -46,16 +44,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private static final String ROUTER_HOST = "routerHost";
     private static final String OPENSHIFT_ROUTER_HTTP_PORT = "openshiftRouterHttpPort";
     private static final String OPENSHIFT_ROUTER_HTTPS_PORT = "openshiftRouterHttpsPort";
-    private static final String AUTH_TOKEN = "authToken";
     private static final String ROUTER_SNI_PORT = "routerSniPort";
     private static final String TEMPLATE_URL = "templateUrl";
     private static final String TEMPLATE_LABELS = "templateLabels";
     private static final String TEMPLATE_PARAMETERS = "templateParameters";
     private static final String TEMPLATE_PROCESS = "templateProcess";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
-    private static final String API_VERSION = "apiVersion";
-    private static final String TRUST_CERTS = "trustCerts";
     private static final String STARTUP_TIMEOUT = "stratupTimeout";
     private static final String HTTP_CLIENT_TIMEOUT = "httpClientTimeout";
 
@@ -70,16 +63,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private final int openshiftRouterHttpPort;
     private final int openshiftRouterHttpsPort;
     private final boolean enableImageStreamDetection;
-    private String token;
     private final int routerSniPort;
     private final String templateURL;
     private final String templateLabels;
     private final String templateParameters;
     private final boolean templateProcess;
-    private final String username;
-    private final String password;
-    private final String apiVersion;
-    private final boolean trustCerts;
     private final long startupTimeout;
     private final long httpClientTimeout;
 
@@ -101,7 +89,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
             environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
-            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry);
+            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -112,16 +100,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         this.openshiftRouterHttpPort = openshiftRouterHttpPort;
         this.openshiftRouterHttpsPort = openshiftRouterHttpsPort;
         this.enableImageStreamDetection = enableImageStreamDetection;
-        this.token = token;
         this.routerSniPort = routerSniPort;
         this.templateLabels = templateLabels;
         this.templateParameters = templateParameters;
         this.templateURL = templateURL;
         this.templateProcess = templateProcess;
-        this.username = username;
-        this.password = password;
-        this.apiVersion = apiVersion;
-        this.trustCerts = trustCerts;
         this.startupTimeout = startupTimeout;
         this.httpClientTimeout = httpClientTimeout;
     }
@@ -204,8 +187,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withTemplateLabels(getStringProperty(TEMPLATE_LABELS, "openshift.template.labels", map, null))
                 .withTemplateParameters(getStringProperty(TEMPLATE_PARAMETERS, "openshift.template.parameters", map, null))
                 .withTemplateProcess(getBooleanProperty(TEMPLATE_PROCESS, "openshift.template.process", map, true))
-                .withUsername(getStringProperty(USERNAME, "openshift.username", map, "guest"))
-                .withPassword(getStringProperty(PASSWORD, "openshift.password", map, "guest"))
+                .withUsername(getStringProperty(USERNAME, "openshift.username", map, null))
+                .withPassword(getStringProperty(PASSWORD, "openshift.password", map, null))
                 .withApiVersion(getStringProperty(API_VERSION, "kubernetes.api.version", map, "v1"))
                 .withTrustCerts(getBooleanProperty(TRUST_CERTS, "kubernetes.trust.certs", map, true))
                 .withStartupTimeout(getLongProperty(STARTUP_TIMEOUT, "arquillian.startup.timeout", map, 600L))
@@ -285,11 +268,12 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     @Override
     public String getToken() {
 
-        if ((token == null || token.isEmpty()) && (client != null)) {
-            token = client.getClientExt().getConfiguration().getOauthToken();
+        if ((super.getToken() == null || super.getToken().isEmpty()) && (client != null)) {
+          String token = client.getClientExt().getConfiguration().getOauthToken();
+          setToken(token);
         }
 
-        return token;
+        return super.getToken();
     }
 
     public Properties getProperties() {
@@ -298,23 +282,13 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         return properties;
     }
 
-    protected void apply(Properties properties) {
+    private void apply(Properties properties) {
         // namespace
         properties.put("kubernetes.namespace", this.getNamespace());
         properties.put("namespace", this.getNamespace());
         // api version
         properties.put("version", getApiVersion());
         properties.put("kubernetes.api.version", getApiVersion());
-    }
-
-    public void validate() {
-
-        if (isNullOrEmpty(this.getMasterUrl().toString()))
-            throw new IllegalArgumentException("NULL master URL");
-
-        if ((isNullOrEmpty(username) || isNullOrEmpty(password)) && isNullOrEmpty(token)) {
-            throw new IllegalArgumentException("Missing OpenShift authentification -- username/password or token!");
-        }
     }
 
     public String getTemplateURL() {
@@ -349,22 +323,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         return this.getMasterUrl().toString();
     }
 
-    public boolean hasOpenshiftBasicAuth() {
-        return isNotNullOrEmpty(username) && isNotNullOrEmpty(password);
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public boolean isTrustCerts() {
-        return trustCerts;
-    }
-
     public long getStartupTimeout() {
         return startupTimeout;
     }
@@ -375,9 +333,5 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
     public OpenShiftClient getClient() {
         return client;
-    }
-
-    public String getApiVersion() {
-        return apiVersion;
     }
 }

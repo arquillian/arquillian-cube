@@ -56,17 +56,17 @@ public class SystemEnvironmentVariables {
     }
 
     public static boolean getPropertyOrEnvironmentVariable(String property, boolean defaultValue) {
-        String result = getPropertyOrEnvironmentVariable(property, new Boolean(defaultValue).toString());
+        String result = getPropertyOrEnvironmentVariable(property, Boolean.toString(defaultValue));
         return Boolean.parseBoolean(result);
     }
 
     public static int getPropertyOrEnvironmentVariable(String property, int defaultValue) {
-        String result = getPropertyOrEnvironmentVariable(property, new Integer(defaultValue).toString());
+        String result = getPropertyOrEnvironmentVariable(property, Integer.toString(defaultValue));
         return Integer.parseInt(result);
     }
 
     public static long getPropertyOrEnvironmentVariable(String property, long defaultValue) {
-        String result = getPropertyOrEnvironmentVariable(property, new Long(defaultValue).toString());
+        String result = getPropertyOrEnvironmentVariable(property, Long.toString(defaultValue));
         return Long.parseLong(result);
     }
 
