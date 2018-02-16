@@ -37,8 +37,8 @@ public class OpenShiftClient {
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
-    public OpenShiftClient(Config config, String namespace, boolean keepAliveGitServer) {
-        this.kubernetes = new DefaultOpenShiftClient(config);
+    public OpenShiftClient(io.fabric8.openshift.clnt.v3_1.OpenShiftClient client, Config config, String namespace, boolean keepAliveGitServer) {
+        this.kubernetes = (NamespacedOpenShiftClient) client;
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
         this.gitserver = new GitServer(this.getClient(), config, namespace);

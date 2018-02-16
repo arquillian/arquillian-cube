@@ -107,30 +107,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     private final NamespacedOpenShiftClient client;
     private Map<String, KubernetesList> templates = new ConcurrentHashMap<>();
 
-    static OpenShiftConfig toOpenShiftConfig(CubeOpenShiftConfiguration configuration) {
-        OpenShiftConfigBuilder builder = new OpenShiftConfigBuilder()
-            .withMasterUrl(configuration.getKubernetesMaster())
-            .withTrustCerts(configuration.isTrustCerts());
-
-        if (configuration.hasOpenshiftBasicAuth()) {
-            builder
-                .withUsername(configuration.getUsername())
-                .withPassword(configuration.getPassword());
-        }
-
-        return builder.build();
-    }
-
-    static NamespacedOpenShiftClient create(CubeOpenShiftConfiguration configuration) {
-        OpenShiftConfig config = toOpenShiftConfig(configuration);
-        return new DefaultOpenShiftClient(config);
-    }
-
-    public F8OpenShiftAdapter(CubeOpenShiftConfiguration configuration) {
-        super(configuration);
-        this.client = create(configuration);
-    }
-
     public F8OpenShiftAdapter(NamespacedOpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         super(configuration);
         this.client = client;

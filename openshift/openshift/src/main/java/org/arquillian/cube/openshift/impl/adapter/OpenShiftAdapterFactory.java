@@ -23,6 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.adapter;
 
+import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
@@ -31,12 +32,12 @@ import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 public class OpenShiftAdapterFactory {
-    public static OpenShiftAdapter getOpenShiftAdapter(CubeOpenShiftConfiguration configuration) {
+    public static OpenShiftAdapter getOpenShiftAdapter(NamespacedOpenShiftClient client, CubeOpenShiftConfiguration configuration) {
         ServiceLoader<OpenShiftAdapterProvider> adapters = ServiceLoader.load(OpenShiftAdapterProvider.class, OpenShiftAdapterFactory.class.getClassLoader());
         //noinspection LoopStatementThatDoesntLoop
         for (OpenShiftAdapterProvider pp : adapters) {
             Logger.getLogger(OpenShiftAdapterFactory.class.getName()).info(String.format("Using %s to access OpenShift API ...", pp.getClass().getSimpleName()));
-            return pp.create(configuration);
+            return pp.create(client, configuration);
         }
         throw new IllegalStateException("No OpenShiftAdapterProvider found!");
     }

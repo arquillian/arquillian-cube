@@ -19,14 +19,14 @@ public class GitServer {
     private static final String GIT_SERVICE = "git";
     private static final String GIT_LOCALPORT = "10001";
     private static final String GIT_REMOTEPORT = "8080";
-    private NamespacedOpenShiftClient client;
+    private io.fabric8.openshift.clnt.v3_1.OpenShiftClient client;
     private String namespace;
     private Pod server;
     private PortForwarder forwarder;
     private Config config;
     private Service service;
 
-    public GitServer(NamespacedOpenShiftClient client, Config config, String namespace) {
+    public GitServer(io.fabric8.openshift.clnt.v3_1.OpenShiftClient client, Config config, String namespace) {
         this.client = client;
         this.config = config;
         this.namespace = namespace;

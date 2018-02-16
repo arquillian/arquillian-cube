@@ -23,11 +23,12 @@
 
 package org.arquillian.cube.openshift.impl.adapter;
 
+import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 public interface OpenShiftAdapterProvider {
-    OpenShiftAdapter create(CubeOpenShiftConfiguration configuration);
+    OpenShiftAdapter create(NamespacedOpenShiftClient namespacedOpenShiftClient, CubeOpenShiftConfiguration configuration);
 }

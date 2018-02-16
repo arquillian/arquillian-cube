@@ -23,6 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.fabric8;
 
+import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapter;
 import org.arquillian.cube.openshift.impl.adapter.OpenShiftAdapterProvider;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
@@ -33,7 +34,8 @@ import org.kohsuke.MetaInfServices;
  */
 @MetaInfServices(OpenShiftAdapterProvider.class)
 public class F8OpenShiftAdapterProvider implements OpenShiftAdapterProvider {
-    public OpenShiftAdapter create(CubeOpenShiftConfiguration configuration) {
-        return new F8OpenShiftAdapter(configuration);
+    @Override
+    public OpenShiftAdapter create(NamespacedOpenShiftClient namespacedOpenShiftClient, CubeOpenShiftConfiguration configuration) {
+        return new F8OpenShiftAdapter(namespacedOpenShiftClient, configuration);
     }
 }
