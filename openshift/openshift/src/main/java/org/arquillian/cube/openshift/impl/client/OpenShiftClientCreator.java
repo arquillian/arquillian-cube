@@ -3,7 +3,6 @@ package org.arquillian.cube.openshift.impl.client;
 import io.fabric8.kubernetes.api.builder.v3_1.TypedVisitor;
 import io.fabric8.kubernetes.clnt.v3_1.Config;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
-import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.jboss.arquillian.core.api.InstanceProducer;
@@ -25,37 +24,26 @@ public class OpenShiftClientCreator {
         CubeOpenShiftConfiguration configuration = (CubeOpenShiftConfiguration) conf;
         System.setProperty("KUBERNETES_TRUST_CERT", "true");
         // override defaults for master and namespace
-        final ConfigBuilder configBuilder = new ConfigBuilder()
+        final Config config = new ConfigBuilder()
             .withMasterUrl(configuration.getMasterUrl().toString())
             .withNamespace(configuration.getNamespace())
-            .withApiVersion(configuration.getApiVersion())
-            .withTrustCerts(configuration.isTrustCerts())
+            .withTrustCerts(true)
             .accept(new TypedVisitor<ConfigBuilder>() {
                 @Override
                 public void visit(ConfigBuilder b) {
                     b.withNoProxy(b.getNoProxy() == null ? new String[0] : b.getNoProxy());
                 }
-            });
-
-        if (Strings.isNotNullOrEmpty(configuration.getToken())) {
-            configBuilder.withOauthToken(configuration.getToken());
-        }
-
-        if (Strings.isNotNullOrEmpty(configuration.getUsername()) && Strings.isNotNullOrEmpty(
-            configuration.getPassword())) {
-            configBuilder.withUsername(configuration.getUsername());
-            configBuilder.withPassword(configuration.getPassword());
-        }
+            }).build();
 
         openShiftClientProducer.set(
-            createClient(configBuilder.build(), configuration.getNamespace(), configuration.shouldKeepAliveGitServer()));
+            createClient(config, configuration.getNamespace(), configuration.shouldKeepAliveGitServer()));
     }
 
     public void clean(@Observes AfterSuite event, OpenShiftClient client) throws Exception {
         client.shutdown();
     }
 
-    private OpenShiftClient createClient(Config openShiftConfig, String namespace, boolean keepAliveGitServer) {
+    public OpenShiftClient createClient(Config openShiftConfig, String namespace, boolean keepAliveGitServer) {
         return new OpenShiftClient(openShiftConfig, namespace, keepAliveGitServer);
     }
 }

@@ -112,7 +112,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             .withMasterUrl(configuration.getKubernetesMaster())
             .withTrustCerts(configuration.isTrustCerts());
 
-        if (configuration.hasBasicAuth()) {
+        if (configuration.hasOpenshiftBasicAuth()) {
             builder
                 .withUsername(configuration.getUsername())
                 .withPassword(configuration.getPassword());
