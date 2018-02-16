@@ -21,7 +21,6 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getIntProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
-import static org.arquillian.cube.openshift.impl.utils.Strings.isNullOrEmpty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
