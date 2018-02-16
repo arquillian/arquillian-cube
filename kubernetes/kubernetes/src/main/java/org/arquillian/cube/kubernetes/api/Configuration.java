@@ -54,11 +54,11 @@ public interface Configuration {
     String LOGS_COPY = "logs.copy";
     String LOGS_PATH = "logs.path";
 
-    String USERNAME = "name";
-    String PASSWORD = "password";
-    String AUTH_TOKEN = "authToken";
-    String API_VERSION = "apiVersion";
-    String TRUST_CERTS = "trustCerts";
+    String USERNAME = "cube.username";
+    String PASSWORD = "cube.password";
+    String AUTH_TOKEN = "cube.auth.token";
+    String API_VERSION = "cube.api.version";
+    String TRUST_CERTS = "cube.trust.certs";
 
     Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;

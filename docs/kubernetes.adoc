@@ -74,11 +74,11 @@ You can configure Kubernetes by using any of the next configuration properties i
 |===
 | Options                             | Type           | Env | Description                                                   
 | kubernetes.master                   | URL            | Any | The URL to the Kubernetes master                               
-| name                                | String         | Any | Username to log in server
-| password                            | String         | Any | Password to log in server
-| authToken                           | String         | Any | Bearer token for authentication to the API server
-| apiVersion                          | String(v1)     | Any | Version for API server
-| trustCerts                          | Boolean(true)  | Any | Boolean to trust Certificate
+| cube.username                       | String         | Any | Username to log in server
+| cube.password                       | String         | Any | Password to log in server
+| cube.auth.token                     | String         | Any | Bearer token for authentication to the API server
+| cube.api.version                    | String(v1)     | Any | Version for API server
+| cube.trust.certs                    | Boolean(true)  | Any | Boolean to trust Certificate
 | kubernetes.domain                   | String         | OSE | Domain to use for creating routes for services
 | docker.registry                     | String         | Any | The docker registry     
 | namespace.use.current               | Boolean (false)| Any | Don't generate a testing namespace use the current instead
