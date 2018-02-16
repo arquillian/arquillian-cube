@@ -3,7 +3,7 @@
   <parent>
     <artifactId>arquillian-cube-kubernetes-parent</artifactId>
     <groupId>org.arquillian.cube</groupId>
-    <version>1.14.1-SNAPSHOT</version>
+    <version>1.15.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -32,6 +32,11 @@
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
       <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

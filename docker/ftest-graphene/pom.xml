@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.14.1-SNAPSHOT</version>
+    <version>1.15.2-SNAPSHOT</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Graphene</name>
   <artifactId>arquillian-cube-docker-ftest-graphene</artifactId>
@@ -68,6 +68,11 @@
       <artifactId>arquillian-drone-webdriver-depchain</artifactId>
       <version>${version.arquillian.drone}</version>
       <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 

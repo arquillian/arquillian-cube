@@ -323,7 +323,7 @@ Jedis jedis = new Jedis(redis.getIpAddress(), redis.getBindPort(6379));
 jedis.set("foo", "bar");
 ----
 
-IMPORTANT: You need to add `org.arquillian.cube:rquillian-cube-docker-junit-rule` dependency.
+IMPORTANT: You need to add `org.arquillian.cube:arquillian-cube-docker-junit-rule` dependency.
 
 In both approaches (Runner and JUnit Rule) of Container Object DSL way, star operator is supported.
 
@@ -334,6 +334,21 @@ public static ContainerDslRule redisStar = new ContainerDslRule("redis:3.2.6", "
                                                 .withPortBinding(6379);
 ----
 
+===== JUnit 5
+
+If you are using `JUnit 5` and want to use Container DSL approach, you can use `JUnit 5 Extension` instead of `Arquillian Runner`.
+
+To do use it you need to define the container object using `ContainerDsl` class and registering `ContainerDslResolver`.
+
+[source, java]
+.RedisIT.java
+----
+include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/RedisIT.java[tag=docs, indent=0]
+----
+
+If field is static, container is started and stopped just once. If not then it is started and stopped for each test method execution.
+
+IMPORTANT: You need to add `org.arquillian.cube:arquillian-cube-docker-junit5` dependency.
 
 ==== Network Objects DSL
 
@@ -363,7 +378,23 @@ To do use it you need to define the network object using an special `JUnit Rule`
 public static final NetworkDslRule network = new NetworkDslRule("mynetwork");
 ----
 
-IMPORTANT: You need to add `org.arquillian.cube:rquillian-cube-docker-junit-rule` dependency.
+IMPORTANT: You need to add `org.arquillian.cube:arquillian-cube-docker-junit-rule` dependency.
+
+===== JUnit 5
+
+If you are using `JUnit 5` and want to use Network DSL approach, you can use `JUnit 5 Extension` instead of `Arquillian Runner`.
+
+To do use it you need to define the network object using `NetowrkDsl` class and registering `NetworkDslResolver`.
+
+[source, java]
+.RedisIT.java
+----
+include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/NetworkIT.java[tag=docs, indent=0]
+----
+
+If field is static, network is created and destroyed just once. If not then it is created and destroyed for each test method execution.
+
+IMPORTANT: You need to add `org.arquillian.cube:arquillian-cube-docker-junit5` dependency.
 
 == Arquillian Standalone and Cube
 

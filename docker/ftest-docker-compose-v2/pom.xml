@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.14.1-SNAPSHOT</version>
+    <version>1.15.2-SNAPSHOT</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Compose v2</name>
   <artifactId>arquillian-cube-docker-ftest-compose-v2</artifactId>
@@ -42,6 +42,11 @@
     <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-docker</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 

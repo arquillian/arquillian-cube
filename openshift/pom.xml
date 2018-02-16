@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.14.1-SNAPSHOT</version>
+    <version>1.15.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -39,7 +39,7 @@
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>
     <module>openshift-restassured</module>
-    <module>ftest-openshift-assistant-template</module>
+    <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 
 </project>

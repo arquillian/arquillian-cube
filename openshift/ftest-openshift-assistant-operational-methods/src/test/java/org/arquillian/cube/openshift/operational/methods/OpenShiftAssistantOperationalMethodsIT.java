@@ -1,5 +1,7 @@
-package org.arquillian.cube.openshift.standalone;
+package org.arquillian.cube.openshift.operational.methods;
 
+import io.fabric8.kubernetes.api.model.v3_1.ObjectMeta;
+import io.fabric8.openshift.api.model.v3_1.Project;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -8,17 +10,20 @@ import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(ArquillianConditionalRunner.class)
+@Category(RequiresOpenshift.class)
 @RequiresOpenshift
-public class HelloOpenShiftAssistantTemplateTest {
+@RunWith(ArquillianConditionalRunner.class)
+public class OpenShiftAssistantOperationalMethodsIT {
 
     @ArquillianResource
     private OpenShiftAssistant openShiftAssistant;
@@ -30,7 +35,6 @@ public class HelloOpenShiftAssistantTemplateTest {
 
     @Test
     public void should_apply_template_programmatically() throws IOException {
-
         openShiftAssistant
                 .usingTemplate(getClass().getClassLoader().getResource("hello-template.yaml"))
                 .parameter("RESPONSE", "Hello from Arquillian Template")
@@ -46,5 +50,31 @@ public class HelloOpenShiftAssistantTemplateTest {
         assertThat(response).isNotNull();
         assertThat(response.code()).isEqualTo(200);
         assertThat(response.body().string()).isEqualTo("Hello from Arquillian Template\n");
+    }
+
+    @Test
+    public void should_list_all_projects_and_verify_list_contains_the_project_with_given_name() {
+        List<Project> projects = openShiftAssistant.listProjects();
+
+        assertThat(projects).extracting(Project::getMetadata)
+            .extracting(ObjectMeta::getName).contains(getCurrentProjectName());
+    }
+
+    @Test
+    public void should_find_and_return_the_project_with_given_name() {
+        Optional<Project> project = openShiftAssistant.findProject(getCurrentProjectName());
+        
+        assertThat(project).isPresent();
+    }
+
+    @Test
+    public void should_check_if_the_project_with_given_name_exists() {
+        boolean projectExists = openShiftAssistant.projectExists(getCurrentProjectName());
+        
+        assertThat(projectExists).isTrue();
+    }
+
+    private String getCurrentProjectName() {
+        return openShiftAssistant.getCurrentProjectName();
     }
 }

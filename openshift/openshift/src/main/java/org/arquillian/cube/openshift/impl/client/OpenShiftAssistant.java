@@ -4,6 +4,7 @@ import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
 import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.Project;
 import io.fabric8.openshift.api.model.v3_1.Route;
 import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import static org.arquillian.cube.openshift.impl.client.OpenShiftRouteLocator.createUrlFromRoute;
@@ -78,10 +80,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
 
             deploymentConfig.ifPresent(name -> this.applicationName = name);
         }
-    }
-
-    private OpenShiftClient getClient() {
-        return client.adapt(OpenShiftClient.class);
     }
 
     /**
@@ -180,5 +178,63 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      */
     public OpenShiftAssistantTemplate usingTemplate(String templateURL) throws MalformedURLException {
         return new OpenShiftAssistantTemplate(new URL(templateURL), getClient());
+    }
+
+    /**
+     * Gets the list of all the OpenShift Projects.
+     *
+     * @return list of OpenShift Projects.
+     */
+    public List<Project> listProjects() {
+        return getClient().projects().list().getItems();
+    }
+
+    /**
+     * Gets the current OpenShift project used for deploying application.
+     *
+     * @return current namespace.
+     */
+    public String getCurrentProjectName() {
+        return getClient().getNamespace();
+    }
+
+    /**
+     * Checks if the given project exists or not.
+     *
+     * @param name project name
+     * @return true/false
+     * @throws IllegalArgumentException
+     */
+    public boolean projectExists(String name) throws IllegalArgumentException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Project name cannot be empty");
+        }
+        return listProjects().stream()
+            .map(p -> p.getMetadata().getName())
+            .anyMatch(Predicate.isEqual(name));
+    }
+
+    /**
+     * Finds for the given project.
+     *
+     * @param name project name
+     * @return given project or an empty {@code Optional} if project does not exist
+     * @throws IllegalArgumentException
+     */
+    public Optional<Project> findProject(String name) throws IllegalArgumentException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Project name cannot be empty");
+        }
+        return getProject(name);
+    }
+
+    private Optional<Project> getProject(String name) {
+        return listProjects().stream()
+            .filter(p -> p.getMetadata().getName().equals(name))
+            .findFirst();
+    }
+
+    private OpenShiftClient getClient() {
+        return client.adapt(OpenShiftClient.class);
     }
 }
