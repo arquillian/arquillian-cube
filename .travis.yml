@@ -2,12 +2,14 @@ sudo: required
 
 matrix:
   include:
-    #https://github.com/openshift/origin/issues/17210
-    #- env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0-rc.0" COMMIT_ID="e92d5c5"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0" COMMIT_ID="7ed6862" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0" COMMIT_ID="7ed6862" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.1" COMMIT_ID="ab0f056" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.1" COMMIT_ID="ab0f056" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
