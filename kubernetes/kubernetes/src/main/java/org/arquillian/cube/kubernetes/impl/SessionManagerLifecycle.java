@@ -30,8 +30,7 @@ public class SessionManagerLifecycle {
 
     private static Logger log = Logger.getLogger(SessionManager.class.getName());
 
-    private String namespace;
-
+    private static final int MAX_NAMESPACE_CHAR_LENGTH = 63;
 
     @Inject
     Instance<KubernetesClient> kubernetesClient;
@@ -62,6 +61,9 @@ public class SessionManagerLifecycle {
 
     AtomicReference<SessionManager> sessionManagerRef = new AtomicReference<>();
 
+    private String classScopeNamespace;
+    private String methodScopeNamespace;
+
     public void start(final @Observes Start event) throws Exception {
 
         Session session = event.getSession();
@@ -77,44 +79,43 @@ public class SessionManagerLifecycle {
         afterStartEvent.fire(new AfterStart(session));
     }
 
-    public void createNamespaceAtClassScope(@Observes BeforeClass beforeClassEvent, Configuration configuration) throws Exception {
+    public void createNamespaceAtClassScope(@Observes(precedence = 10) BeforeClass beforeClassEvent, Configuration configuration) throws Exception {
         final TestClass testClass = beforeClassEvent.getTestClass();
         log.info(String.format("Creating environment for %s", testClass.getName()));
 
         if (configuration.isNamespaceClassScopeEnabled()) {
-            createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName());
+            classScopeNamespace = createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName());
         }
     }
 
-    public void createNamespaceAtMethodScope(@Observes Before beforeMethodEvent, Configuration configuration) throws Exception {
+    public void createNamespaceAtMethodScope(@Observes(precedence = 10) Before beforeMethodEvent, Configuration configuration) throws Exception {
         final TestClass testClass = beforeMethodEvent.getTestClass();
         final Method testMethod = beforeMethodEvent.getTestMethod();
 
         log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod));
 
         if (configuration.isNamespaceMethodScopeEnabled()) {
-            createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName() + "-" + testMethod.getName());
+            methodScopeNamespace = createUniqueNamespace(configuration, testClass.getJavaClass().getSimpleName() + "-" + testMethod.getName());
         }
 
     }
 
-    public void deleteNamespaceAtClassScope(@Observes AfterClass afterClassEvent, Configuration configuration) {
+    public void deleteNamespaceAtClassScope(@Observes(precedence = -10) AfterClass afterClassEvent) {
         final TestClass testClass = afterClassEvent.getTestClass();
         log.info(String.format("Deleting environment for %s", testClass.getName()));
 
-        if (configuration.isNamespaceClassScopeEnabled()) {
-            namespaceService.get().delete(namespace);
+        if (classScopeNamespace != null) {
+            namespaceService.get().delete(classScopeNamespace);
         }
     }
 
-    public void deleteNamespaceAtMethodScope(@Observes After afterMethodEvent, Configuration configuration) {
+    public void deleteNamespaceAtMethodScope(@Observes(precedence = -10) After afterMethodEvent) {
         final TestClass testClass = afterMethodEvent.getTestClass();
         final Method testMethod = afterMethodEvent.getTestMethod();
-        final Class<?> javaClass = testClass.getJavaClass();
         log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
 
-        if (configuration.isNamespaceMethodScopeEnabled()) {
-            namespaceService.get().delete(configuration.getNamespace() + "-" + testMethod.hashCode());
+        if (methodScopeNamespace != null) {
+            namespaceService.get().delete(methodScopeNamespace);
         }
 
     }
@@ -126,13 +127,14 @@ public class SessionManagerLifecycle {
         }
     }
 
-    private void createUniqueNamespace(Configuration configuration, String uniqueKey) {
-        namespace = configuration.getNamespace() + "-" + uniqueKey.toLowerCase().replaceAll("[^a-z0-9-]", "-");
-        if (namespace.chars().count() > 63) {
-            log.warning(String.format("Creating fallback namespace %s as %s is greater than 63 characters", getDefaultNamespace(configuration), namespace));
+    private String createUniqueNamespace(Configuration configuration, String uniqueKey) {
+        String namespace = configuration.getNamespace() + "-" + uniqueKey.toLowerCase().replaceAll("[^a-z0-9-]", "-");
+        if (namespace.chars().count() > MAX_NAMESPACE_CHAR_LENGTH) {
+            log.warning(String.format("Creating fallback namespace %s as %s is greater than %d characters", getDefaultNamespace(configuration), namespace, MAX_NAMESPACE_CHAR_LENGTH));
             namespace = getDefaultNamespace(configuration);
         }
         namespaceService.get().create(namespace);
+        return namespace;
     }
 
     private String getDefaultNamespace(Configuration configuration) {

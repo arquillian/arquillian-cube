@@ -170,6 +170,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                     getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
+                .withNamespaceClassScopeEnabled(getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false))
+                .withNamespaceMethodScopeEnabled(getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false))
 
                 .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
@@ -210,10 +212,6 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 throw new RuntimeException(t);
             }
         }
-    }
-
-    private static boolean isNamespaceScopeConfigured(Map<String, String> map) {
-        return getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false) || getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false);
     }
 
     public String getOriginServer() {
