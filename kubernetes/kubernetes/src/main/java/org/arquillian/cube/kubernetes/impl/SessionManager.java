@@ -1,39 +1,5 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
-import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.api.AnnotationProvider;
-import org.arquillian.cube.kubernetes.api.Configuration;
-import org.arquillian.cube.kubernetes.api.DependencyResolver;
-import org.arquillian.cube.kubernetes.api.FeedbackProvider;
-import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
-import org.arquillian.cube.kubernetes.api.Logger;
-import org.arquillian.cube.kubernetes.api.NamespaceService;
-import org.arquillian.cube.kubernetes.api.ResourceInstaller;
-import org.arquillian.cube.kubernetes.api.Session;
-import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
-import org.jboss.arquillian.core.spi.Validate;
-import org.xnio.IoUtils;
-
 import io.fabric8.kubernetes.api.model.v3_1.Container;
 import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
 import io.fabric8.kubernetes.api.model.v3_1.Event;
@@ -53,6 +19,38 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientTimeoutException;
 import io.fabric8.kubernetes.clnt.v3_1.Watch;
 import io.fabric8.kubernetes.clnt.v3_1.Watcher;
 import io.fabric8.kubernetes.clnt.v3_1.dsl.LogWatch;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.api.AnnotationProvider;
+import org.arquillian.cube.kubernetes.api.Configuration;
+import org.arquillian.cube.kubernetes.api.DependencyResolver;
+import org.arquillian.cube.kubernetes.api.FeedbackProvider;
+import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
+import org.arquillian.cube.kubernetes.api.Logger;
+import org.arquillian.cube.kubernetes.api.NamespaceService;
+import org.arquillian.cube.kubernetes.api.ResourceInstaller;
+import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.jboss.arquillian.core.spi.Validate;
+import org.xnio.IoUtils;
+
+import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
+import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
 
@@ -165,7 +163,8 @@ public class SessionManager implements SessionCreatedListener {
                         resources.addAll(resourceInstaller.install(configUrl));
                     }
                 } else {
-                    log.warn("Did not find any kubernetes configuration.");
+                    log.warn(
+                        "Did not find any kubernetes configuration. If you are using fabric8-maven-plugin, ensure `mvn package fabric8:build` is run first.");
                 }
 
                 List<HasMetadata> resourcesToWait = new ArrayList<>(resources);
