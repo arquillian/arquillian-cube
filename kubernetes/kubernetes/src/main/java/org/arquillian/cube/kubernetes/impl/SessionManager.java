@@ -163,8 +163,8 @@ public class SessionManager implements SessionCreatedListener {
                         resources.addAll(resourceInstaller.install(configUrl));
                     }
                 } else {
-                    log.warn(
-                        "Did not find any kubernetes configuration. If you are using fabric8-maven-plugin, ensure `mvn package fabric8:build` is run first.");
+                    log.warn("Did not find any kubernetes/openshift configuration files. If you are using fabric8-maven-plugin, "
+                        + "ensure mvn package fabric8:resource fabric8:build is run first to generate resources.");
                 }
 
                 List<HasMetadata> resourcesToWait = new ArrayList<>(resources);
