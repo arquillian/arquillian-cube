@@ -27,7 +27,7 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 public class CubeOpenShiftConfigurationFactory extends DefaultConfigurationFactory<CubeOpenShiftConfiguration>
     implements ConfigurationFactory<CubeOpenShiftConfiguration> {
 
-    private static final String OPENSHIFT_EXTENSION_NAME = "openshift";
+    public static final String OPENSHIFT_EXTENSION_NAME = "openshift";
 
     @Inject
     @ApplicationScoped

@@ -6,6 +6,15 @@
 
   <extension qualifier="openshift">
     <property name="env.config.resource.name">hello-openshift.json</property>
+
+    <!-- configuring remote cluster -->
+
+    <!--
+    <property name="namespace.use.existing">existing-namespace</property>
+    <property name="kubernetes.master">https://api.starter-us-east-2.openshift.com</property>
+    <property name="cube.auth.token">token</property>
+    <property name="cube.username">username</property>
+    <property name="cube.password">password</property>-->
   </extension>
 
 </arquillian>

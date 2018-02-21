@@ -27,7 +27,7 @@ import static org.arquillian.cube.kubernetes.impl.Constants.PROTOCOL_HANDLERS;
 
 public class DefaultConfigurationFactory<C extends DefaultConfiguration> implements ConfigurationFactory<C> {
 
-    protected static final String KUBERNETES_EXTENSION_NAME = "kubernetes";
+    public static final String KUBERNETES_EXTENSION_NAME = "kubernetes";
 
     protected static void configureProtocolHandlers(Map<String, String> conf) {
         Set<String> handlers = new LinkedHashSet<>();
