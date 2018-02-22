@@ -98,23 +98,22 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void create() throws CubeControlException {
-        if (state != State.BEFORE_CREATE) {
-            return;
-        }
-        try {
-            lifecycle.fire(new BeforeCreate(id));
+        if (state == State.BEFORE_CREATE || state == State.DESTROYED) {
+            try {
+                lifecycle.fire(new BeforeCreate(id));
 
-            log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
-            long currentTime = System.currentTimeMillis();
-            executor.createContainer(id, configuration);
-            this.startingTimeInMillis = System.currentTimeMillis() - currentTime;
-            log.fine(String.format("Created container with id %s.", id));
+                log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
+                long currentTime = System.currentTimeMillis();
+                executor.createContainer(id, configuration);
+                this.startingTimeInMillis = System.currentTimeMillis() - currentTime;
+                log.fine(String.format("Created container with id %s.", id));
 
-            state = State.CREATED;
-            lifecycle.fire(new AfterCreate(id));
-        } catch (Exception e) {
-            state = State.CREATE_FAILED;
-            throw CubeControlException.failedCreate(id, e);
+                state = State.CREATED;
+                lifecycle.fire(new AfterCreate(id));
+            } catch (Exception e) {
+                state = State.CREATE_FAILED;
+                throw CubeControlException.failedCreate(id, e);
+            }
         }
     }
 
