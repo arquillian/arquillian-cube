@@ -73,6 +73,23 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     }
 
     @Test
+    public void shouldFireLifecycleEventsDuringCreateAfterDestroyed() {
+        // given calling entire lifecycle to destroy cube
+        cube.create();
+        cube.start();
+        cube.stop();
+        cube.destroy();
+
+        // when
+        cube.create();
+
+        // then event count is 2 which is for two cube.create()
+        assertEventFired(BeforeCreate.class, 2);
+        assertEventFired(AfterCreate.class, 2);
+    }
+
+
+    @Test
     public void shouldFireLifecycleEventsDuringStart() {
         cube.start();
         assertEventFired(BeforeStart.class, 1);
