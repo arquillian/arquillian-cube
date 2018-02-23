@@ -76,7 +76,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private OpenShiftClient client;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
+                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
@@ -87,7 +87,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, boolean templateProcess,
                                       String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
-            environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
+            environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);

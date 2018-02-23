@@ -149,6 +149,9 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Boolean exists(String namespace) {
+            if (configuration.isNamespaceUseCurrentEnabled()) {
+                return true;
+            }
             return client.namespaces().withName(namespace).get() != null;
         }
 
