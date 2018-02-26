@@ -15,7 +15,7 @@
  */
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
 import io.fabric8.kubernetes.clnt.v3_1.DefaultKubernetesClient;
 import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -23,8 +23,6 @@ import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
-
-import static org.arquillian.cube.kubernetes.ClientConfigurator.getConfigBuilder;
 
 /**
  * Creates an instances of the {@link KubernetesClient} when a {@link @Configuration} is available.
@@ -36,7 +34,8 @@ public class ClientCreator {
     private InstanceProducer<KubernetesClient> producer;
 
     public void createClient(@Observes Configuration config) {
-        final ConfigBuilder configBuilder = getConfigBuilder(config);
-        producer.set(new DefaultKubernetesClient(configBuilder.build()));
+        final Config buildConfig = new ClientConfigBuilder().configuration(config).build();
+
+        producer.set(new DefaultKubernetesClient(buildConfig));
     }
 }

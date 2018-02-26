@@ -1,13 +1,13 @@
-package org.arquillian.cube.kubernetes;
+package org.arquillian.cube.kubernetes.impl;
 
 import io.fabric8.kubernetes.api.builder.v3_1.TypedVisitor;
 import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 
-public class ClientConfigurator {
+public class ClientConfigBuilder {
 
-    public static ConfigBuilder getConfigBuilder(Configuration config) {
+    public ConfigBuilder configuration(Configuration config) {
         final ConfigBuilder configBuilder = new ConfigBuilder()
             .withNamespace(config.getNamespace())
             .withApiVersion(config.getApiVersion())

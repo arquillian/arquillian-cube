@@ -12,7 +12,9 @@
     <!--
     <property name="namespace.use.existing">existing-namespace</property>
     <property name="kubernetes.master">https://api.starter-us-east-2.openshift.com</property>
+
     <property name="cube.auth.token">token</property>
+    OR
     <property name="cube.username">username</property>
     <property name="cube.password">password</property>-->
   </extension>
