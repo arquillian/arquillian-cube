@@ -22,25 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
 @RunWith(ArquillianConditionalRunner.class)
-@Templates(templates = {@Template(url = "classpath:hello-openshift.yaml",
-        parameters = @TemplateParameter(name = "RESPONSE", value = "Hello from Arquillian Templates")),
+@Templates(templates = {
     @Template(url = "classpath:hello-openshift-templates.yaml",
         parameters = @TemplateParameter(name = "RESPONSE", value = "Hello from Arquillian Templates"))
 })
 public class HelloWorldTemplatesIT {
 
-    @RouteURL("hello-openshift-route")
-    @AwaitRoute
-    private URL helloOpenshift;
-
     @RouteURL("hello-openshift-templates-route")
     @AwaitRoute
     private URL helloOpenshiftTemplates;
-
-    @Test
-    public void should_create_class_template_resources_from_first_template() throws IOException {
-        verifyResponse(helloOpenshift);
-    }
 
     @Test
     public void should_create_class_template_resources_from_second_template() throws IOException {
