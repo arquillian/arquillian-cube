@@ -32,6 +32,9 @@ public class CubeOpenShiftConfigurationFactory extends DefaultConfigurationFacto
         config.putAll(arquillian.extension(OPENSHIFT_EXTENSION_NAME).getExtensionProperties());
 
         configureProtocolHandlers(config);
-        return CubeOpenShiftConfiguration.fromMap(config);
+
+        final CubeOpenShiftConfiguration openShiftConfiguration = CubeOpenShiftConfiguration.fromMap(config);
+        System.out.println(openShiftConfiguration);
+        return openShiftConfiguration;
     }
 }

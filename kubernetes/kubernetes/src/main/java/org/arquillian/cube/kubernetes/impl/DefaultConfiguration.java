@@ -447,4 +447,86 @@ public class DefaultConfiguration implements Configuration {
     protected void setToken(String token) {
         this.token = token;
     }
+
+    @Override
+    public String toString() {
+
+        String SEP = System.getProperty("line.separator");
+        StringBuilder content = new StringBuilder();
+
+        content.append("CubeKubernetesConfiguration: ").append(SEP);
+        if (namespace != null) {
+            content.append("  ").append(NAMESPACE).append(" = ").append(namespace).append(SEP);
+        }
+        if (masterUrl != null) {
+            content.append("  ").append(MASTER_URL).append(" = ").append(masterUrl).append(SEP);
+        }
+        if (scriptEnvironmentVariables != null) {
+            content.append("  ").append(ENVIRONMENT_SCRIPT_ENV).append(" = ").append(scriptEnvironmentVariables).append(SEP);
+        }
+        if (environmentSetupScriptUrl != null) {
+            content.append("  ").append(ENVIRONMENT_SETUP_SCRIPT_URL).append(" = ").append(environmentSetupScriptUrl).append(SEP);
+        }
+
+        if (environmentTeardownScriptUrl != null) {
+            content.append("  ").append(ENVIRONMENT_TEARDOWN_SCRIPT_URL).append(" = ").append(environmentTeardownScriptUrl).append(SEP);
+        }
+        if (environmentConfigUrl != null) {
+            content.append("  ").append(ENVIRONMENT_CONFIG_URL).append(" = ").append(environmentConfigUrl).append(SEP);
+        }
+        if (environmentDependencies != null) {
+            content.append("  ").append(ENVIRONMENT_DEPENDENCIES).append(" = ").append(environmentDependencies).append(SEP);
+        }
+
+        content.append("  ").append(NAMESPACE_LAZY_CREATE_ENABLED).append(" = ").append(namespaceLazyCreateEnabled).append(SEP);
+
+        content.append("  ").append(NAMESPACE_CLEANUP_ENABLED).append(" = ").append(namespaceCleanupEnabled).append(SEP);
+        content.append("  ").append(NAMESPACE_CLEANUP_TIMEOUT).append(" = ").append(namespaceCleanupTimeout).append(SEP);
+        content.append("  ").append(NAMESPACE_CLEANUP_CONFIRM_ENABLED).append(" = ").append(namespaceCleanupConfirmationEnabled).append(SEP);
+
+        content.append("  ").append(NAMESPACE_DESTROY_ENABLED).append(" = ").append(namespaceDestroyEnabled).append(SEP);
+        content.append("  ").append(NAMESPACE_DESTROY_CONFIRM_ENABLED).append(" = ").append(namespaceDestroyConfirmationEnabled).append(SEP);
+        content.append("  ").append(NAMESPACE_DESTROY_TIMEOUT).append(" = ").append(namespaceDestroyTimeout).append(SEP);
+
+        content.append("  ").append(WAIT_ENABLED).append(" = ").append(waitEnabled).append(SEP);
+        content.append("  ").append(WAIT_TIMEOUT).append(" = ").append(waitTimeout).append(SEP);
+        content.append("  ").append(WAIT_POLL_INTERVAL).append(" = ").append(waitPollInterval).append(SEP);
+
+        content.append("  ").append(ANSI_LOGGER_ENABLED).append(" = ").append(ansiLoggerEnabled).append(SEP);
+        content.append("  ").append(ENVIRONMENT_INIT_ENABLED).append(" = ").append(environmentInitEnabled).append(SEP);
+        content.append("  ").append(LOGS_COPY).append(" = ").append(logCopyEnabled).append(SEP);
+
+
+        if (waitForServiceList != null) {
+            content.append("  ").append(WAIT_FOR_SERVICE_LIST).append(" = ").append(waitForServiceList).append(SEP);
+        }
+        if (logPath != null) {
+            content.append("  ").append(LOGS_PATH).append(" = ").append(logPath).append(SEP);
+        }
+        if (kubernetesDomain != null) {
+            content.append("  ").append(KUBERNETES_DOMAIN).append(" = ").append(kubernetesDomain).append(SEP);
+
+        }
+
+        if (dockerRegistry != null) {
+            content.append("  ").append(DOCKER_REGISTY).append(" = ").append(dockerRegistry).append(SEP);
+        }
+        if (apiVersion != null) {
+            content.append("  ").append(API_VERSION).append(" = ").append(apiVersion).append(SEP);
+        }
+
+        if (username != null) {
+            content.append("  ").append(USERNAME).append(" = ").append(username).append(SEP);
+        }
+        if (password != null) {
+            content.append("  ").append(PASSWORD).append(" = ").append(password).append(SEP);
+        }
+
+        if (token != null) {
+            content.append("  ").append(AUTH_TOKEN).append(" = ").append(token).append(SEP);
+        }
+        content.append("  ").append(TRUST_CERTS).append(" = ").append(trustCerts).append(SEP);
+
+        return content.toString();
+    }
 }
