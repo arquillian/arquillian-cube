@@ -33,13 +33,10 @@ public class HelloWorldTemplatesIT {
     private URL helloOpenshiftTemplates;
 
     @Test
-    public void should_create_class_template_resources_from_second_template() throws IOException {
-        verifyResponse(helloOpenshiftTemplates);
-    }
-    private void verifyResponse(URL url) throws IOException {
-        assertThat(url).isNotNull();
+    public void should_create_resources_from_templates() throws IOException {
+        assertThat(helloOpenshiftTemplates).isNotNull();
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().get().url(url).build();
+        Request request = new Request.Builder().get().url(helloOpenshiftTemplates).build();
         Response response = okHttpClient.newCall(request).execute();
 
         assertThat(response).isNotNull();
