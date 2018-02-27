@@ -6,6 +6,7 @@ import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -333,5 +334,65 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
     public OpenShiftClient getClient() {
         return client;
+    }
+
+    @Override
+    public String toString() {
+
+        String lineSeparator = System.lineSeparator();
+        StringBuilder content = new StringBuilder();
+
+        content.append(super.toString()).append(lineSeparator);
+
+        content.append("CubeOpenShiftConfiguration: ").append(lineSeparator);
+
+        content.append("  ").append(KEEP_ALIVE_GIT_SERVER).append(" = ").append(keepAliveGitServer).append(lineSeparator);
+
+        if (definitions != null) {
+            content.append("  ").append(DEFINITIONS).append(" = ").append(definitions).append(lineSeparator);
+        }
+        if (definitionsFile != null) {
+            content.append("  ").append(DEFINITIONS_FILE).append(" = ").append(definitionsFile).append(lineSeparator);
+        }
+
+        if (autoStartContainers != null) {
+            content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(Arrays.toString(autoStartContainers)).append(lineSeparator);
+        }
+
+        if (proxiedContainerPorts != null) {
+            content.append("  ").append(PROXIED_CONTAINER_PORTS).append(" = ").append(proxiedContainerPorts).append(lineSeparator);
+        }
+
+        if (portForwardBindAddress != null) {
+            content.append("  ").append(PORT_FORWARDER_BIND_ADDRESS).append(" = ").append(portForwardBindAddress).append(lineSeparator);
+        }
+
+        if (routerHost != null) {
+            content.append("  ").append(ROUTER_HOST).append(" = ").append(routerHost).append(lineSeparator);
+        }
+
+        content.append("  ").append(OPENSHIFT_ROUTER_HTTP_PORT).append(" = ").append(openshiftRouterHttpPort).append(lineSeparator);
+
+        content.append("  ").append(OPENSHIFT_ROUTER_HTTPS_PORT).append(" = ").append(openshiftRouterHttpsPort).append(lineSeparator);
+
+        content.append("  ").append(ENABLE_IMAGE_STREAM_DETECTION).append(" = ").append(enableImageStreamDetection).append(lineSeparator);
+
+        content.append("  ").append(ROUTER_SNI_PORT).append(" = ").append(routerSniPort).append(lineSeparator);
+
+        if (templateURL != null) {
+            content.append("  ").append(TEMPLATE_URL).append(" = ").append(templateURL).append(lineSeparator);
+        }
+        if (templateLabels != null) {
+            content.append("  ").append(TEMPLATE_LABELS).append(" = ").append(templateLabels).append(lineSeparator);
+        }
+        if (templateParameters != null) {
+            content.append("  ").append(TEMPLATE_PARAMETERS).append(" = ").append(templateParameters).append(lineSeparator);
+        }
+
+        content.append("  ").append(TEMPLATE_PROCESS).append(" = ").append(templateProcess).append(lineSeparator);
+        content.append("  ").append(STARTUP_TIMEOUT).append(" = ").append(startupTimeout).append(lineSeparator);
+        content.append("  ").append(HTTP_CLIENT_TIMEOUT).append(" = ").append(httpClientTimeout).append(lineSeparator);
+
+        return content.toString();
     }
 }

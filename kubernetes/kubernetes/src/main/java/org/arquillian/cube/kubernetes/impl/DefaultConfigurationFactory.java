@@ -41,6 +41,8 @@ public class DefaultConfigurationFactory<C extends DefaultConfiguration> impleme
     public C create(ArquillianDescriptor arquillian) {
         Map<String, String> config = arquillian.extension(KUBERNETES_EXTENSION_NAME).getExtensionProperties();
         configureProtocolHandlers(config);
-        return (C) DefaultConfiguration.fromMap(config);
+        final DefaultConfiguration configuration = DefaultConfiguration.fromMap(config);
+        System.out.println(configuration);
+        return (C)configuration;
     }
 }
