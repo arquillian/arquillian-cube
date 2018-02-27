@@ -451,81 +451,81 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String toString() {
 
-        String SEP = System.getProperty("line.separator");
+        String lineSeparator = System.lineSeparator();
         StringBuilder content = new StringBuilder();
 
-        content.append("CubeKubernetesConfiguration: ").append(SEP);
+        content.append("CubeKubernetesConfiguration: ").append(lineSeparator);
         if (namespace != null) {
-            content.append("  ").append(NAMESPACE).append(" = ").append(namespace).append(SEP);
+            content.append("  ").append(NAMESPACE).append(" = ").append(namespace).append(lineSeparator);
         }
         if (masterUrl != null) {
-            content.append("  ").append(MASTER_URL).append(" = ").append(masterUrl).append(SEP);
+            content.append("  ").append(MASTER_URL).append(" = ").append(masterUrl).append(lineSeparator);
         }
         if (scriptEnvironmentVariables != null) {
-            content.append("  ").append(ENVIRONMENT_SCRIPT_ENV).append(" = ").append(scriptEnvironmentVariables).append(SEP);
+            content.append("  ").append(ENVIRONMENT_SCRIPT_ENV).append(" = ").append(scriptEnvironmentVariables).append(lineSeparator);
         }
         if (environmentSetupScriptUrl != null) {
-            content.append("  ").append(ENVIRONMENT_SETUP_SCRIPT_URL).append(" = ").append(environmentSetupScriptUrl).append(SEP);
+            content.append("  ").append(ENVIRONMENT_SETUP_SCRIPT_URL).append(" = ").append(environmentSetupScriptUrl).append(lineSeparator);
         }
 
         if (environmentTeardownScriptUrl != null) {
-            content.append("  ").append(ENVIRONMENT_TEARDOWN_SCRIPT_URL).append(" = ").append(environmentTeardownScriptUrl).append(SEP);
+            content.append("  ").append(ENVIRONMENT_TEARDOWN_SCRIPT_URL).append(" = ").append(environmentTeardownScriptUrl).append(lineSeparator);
         }
         if (environmentConfigUrl != null) {
-            content.append("  ").append(ENVIRONMENT_CONFIG_URL).append(" = ").append(environmentConfigUrl).append(SEP);
+            content.append("  ").append(ENVIRONMENT_CONFIG_URL).append(" = ").append(environmentConfigUrl).append(lineSeparator);
         }
         if (environmentDependencies != null) {
-            content.append("  ").append(ENVIRONMENT_DEPENDENCIES).append(" = ").append(environmentDependencies).append(SEP);
+            content.append("  ").append(ENVIRONMENT_DEPENDENCIES).append(" = ").append(environmentDependencies).append(lineSeparator);
         }
 
-        content.append("  ").append(NAMESPACE_LAZY_CREATE_ENABLED).append(" = ").append(namespaceLazyCreateEnabled).append(SEP);
+        content.append("  ").append(NAMESPACE_LAZY_CREATE_ENABLED).append(" = ").append(namespaceLazyCreateEnabled).append(lineSeparator);
 
-        content.append("  ").append(NAMESPACE_CLEANUP_ENABLED).append(" = ").append(namespaceCleanupEnabled).append(SEP);
-        content.append("  ").append(NAMESPACE_CLEANUP_TIMEOUT).append(" = ").append(namespaceCleanupTimeout).append(SEP);
-        content.append("  ").append(NAMESPACE_CLEANUP_CONFIRM_ENABLED).append(" = ").append(namespaceCleanupConfirmationEnabled).append(SEP);
+        content.append("  ").append(NAMESPACE_CLEANUP_ENABLED).append(" = ").append(namespaceCleanupEnabled).append(lineSeparator);
+        content.append("  ").append(NAMESPACE_CLEANUP_TIMEOUT).append(" = ").append(namespaceCleanupTimeout).append(lineSeparator);
+        content.append("  ").append(NAMESPACE_CLEANUP_CONFIRM_ENABLED).append(" = ").append(namespaceCleanupConfirmationEnabled).append(lineSeparator);
 
-        content.append("  ").append(NAMESPACE_DESTROY_ENABLED).append(" = ").append(namespaceDestroyEnabled).append(SEP);
-        content.append("  ").append(NAMESPACE_DESTROY_CONFIRM_ENABLED).append(" = ").append(namespaceDestroyConfirmationEnabled).append(SEP);
-        content.append("  ").append(NAMESPACE_DESTROY_TIMEOUT).append(" = ").append(namespaceDestroyTimeout).append(SEP);
+        content.append("  ").append(NAMESPACE_DESTROY_ENABLED).append(" = ").append(namespaceDestroyEnabled).append(lineSeparator);
+        content.append("  ").append(NAMESPACE_DESTROY_CONFIRM_ENABLED).append(" = ").append(namespaceDestroyConfirmationEnabled).append(lineSeparator);
+        content.append("  ").append(NAMESPACE_DESTROY_TIMEOUT).append(" = ").append(namespaceDestroyTimeout).append(lineSeparator);
 
-        content.append("  ").append(WAIT_ENABLED).append(" = ").append(waitEnabled).append(SEP);
-        content.append("  ").append(WAIT_TIMEOUT).append(" = ").append(waitTimeout).append(SEP);
-        content.append("  ").append(WAIT_POLL_INTERVAL).append(" = ").append(waitPollInterval).append(SEP);
+        content.append("  ").append(WAIT_ENABLED).append(" = ").append(waitEnabled).append(lineSeparator);
+        content.append("  ").append(WAIT_TIMEOUT).append(" = ").append(waitTimeout).append(lineSeparator);
+        content.append("  ").append(WAIT_POLL_INTERVAL).append(" = ").append(waitPollInterval).append(lineSeparator);
 
-        content.append("  ").append(ANSI_LOGGER_ENABLED).append(" = ").append(ansiLoggerEnabled).append(SEP);
-        content.append("  ").append(ENVIRONMENT_INIT_ENABLED).append(" = ").append(environmentInitEnabled).append(SEP);
-        content.append("  ").append(LOGS_COPY).append(" = ").append(logCopyEnabled).append(SEP);
+        content.append("  ").append(ANSI_LOGGER_ENABLED).append(" = ").append(ansiLoggerEnabled).append(lineSeparator);
+        content.append("  ").append(ENVIRONMENT_INIT_ENABLED).append(" = ").append(environmentInitEnabled).append(lineSeparator);
+        content.append("  ").append(LOGS_COPY).append(" = ").append(logCopyEnabled).append(lineSeparator);
 
 
         if (waitForServiceList != null) {
-            content.append("  ").append(WAIT_FOR_SERVICE_LIST).append(" = ").append(waitForServiceList).append(SEP);
+            content.append("  ").append(WAIT_FOR_SERVICE_LIST).append(" = ").append(waitForServiceList).append(lineSeparator);
         }
         if (logPath != null) {
-            content.append("  ").append(LOGS_PATH).append(" = ").append(logPath).append(SEP);
+            content.append("  ").append(LOGS_PATH).append(" = ").append(logPath).append(lineSeparator);
         }
         if (kubernetesDomain != null) {
-            content.append("  ").append(KUBERNETES_DOMAIN).append(" = ").append(kubernetesDomain).append(SEP);
+            content.append("  ").append(KUBERNETES_DOMAIN).append(" = ").append(kubernetesDomain).append(lineSeparator);
 
         }
 
         if (dockerRegistry != null) {
-            content.append("  ").append(DOCKER_REGISTY).append(" = ").append(dockerRegistry).append(SEP);
+            content.append("  ").append(DOCKER_REGISTY).append(" = ").append(dockerRegistry).append(lineSeparator);
         }
         if (apiVersion != null) {
-            content.append("  ").append(API_VERSION).append(" = ").append(apiVersion).append(SEP);
+            content.append("  ").append(API_VERSION).append(" = ").append(apiVersion).append(lineSeparator);
         }
 
         if (username != null) {
-            content.append("  ").append(USERNAME).append(" = ").append(username).append(SEP);
+            content.append("  ").append(USERNAME).append(" = ").append(username).append(lineSeparator);
         }
         if (password != null) {
-            content.append("  ").append(PASSWORD).append(" = ").append(password).append(SEP);
+            content.append("  ").append(PASSWORD).append(" = ").append(password).append(lineSeparator);
         }
 
         if (token != null) {
-            content.append("  ").append(AUTH_TOKEN).append(" = ").append(token).append(SEP);
+            content.append("  ").append(AUTH_TOKEN).append(" = ").append(token).append(lineSeparator);
         }
-        content.append("  ").append(TRUST_CERTS).append(" = ").append(trustCerts).append(SEP);
+        content.append("  ").append(TRUST_CERTS).append(" = ").append(trustCerts).append(lineSeparator);
 
         return content.toString();
     }

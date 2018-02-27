@@ -339,130 +339,59 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     @Override
     public String toString() {
 
-        String SEP = System.getProperty("line.separator");
+        String lineSeparator = System.lineSeparator();
         StringBuilder content = new StringBuilder();
 
-        content.append("CubeOpenShiftConfiguration: ").append(SEP);
+        content.append(super.toString()).append(lineSeparator);
 
-        if (getNamespace() != null) {
-            content.append("  ").append(NAMESPACE).append(" = ").append(getNamespace()).append(SEP);
-        }
-        if (getMasterUrl() != null) {
-            content.append("  ").append(MASTER_URL).append(" = ").append(getMasterUrl()).append(SEP);
-        }
-        if (getScriptEnvironmentVariables() != null) {
-            content.append("  ").append(ENVIRONMENT_SCRIPT_ENV).append(" = ").append(getScriptEnvironmentVariables()).append(SEP);
-        }
-        if (getEnvironmentSetupScriptUrl() != null) {
-            content.append("  ").append(ENVIRONMENT_SETUP_SCRIPT_URL).append(" = ").append(getEnvironmentSetupScriptUrl()).append(SEP);
-        }
+        content.append("CubeOpenShiftConfiguration: ").append(lineSeparator);
 
-        if (getEnvironmentTeardownScriptUrl() != null) {
-            content.append("  ").append(ENVIRONMENT_TEARDOWN_SCRIPT_URL).append(" = ").append(getEnvironmentTeardownScriptUrl()).append(SEP);
-        }
-        if (getEnvironmentConfigUrl() != null) {
-            content.append("  ").append(ENVIRONMENT_CONFIG_URL).append(" = ").append(getEnvironmentConfigUrl()).append(SEP);
-        }
-        if (getEnvironmentDependencies() != null) {
-            content.append("  ").append(ENVIRONMENT_DEPENDENCIES).append(" = ").append(getEnvironmentDependencies()).append(SEP);
-        }
-
-        content.append("  ").append(NAMESPACE_LAZY_CREATE_ENABLED).append(" = ").append(isNamespaceLazyCreateEnabled()).append(SEP);
-
-        content.append("  ").append(NAMESPACE_CLEANUP_ENABLED).append(" = ").append(isNamespaceCleanupEnabled()).append(SEP);
-        content.append("  ").append(NAMESPACE_CLEANUP_TIMEOUT).append(" = ").append(getNamespaceCleanupTimeout()).append(SEP);
-        content.append("  ").append(NAMESPACE_CLEANUP_CONFIRM_ENABLED).append(" = ").append(isNamespaceCleanupConfirmationEnabled()).append(SEP);
-
-        content.append("  ").append(NAMESPACE_DESTROY_ENABLED).append(" = ").append(isNamespaceDestroyEnabled()).append(SEP);
-        content.append("  ").append(NAMESPACE_DESTROY_CONFIRM_ENABLED).append(" = ").append(isNamespaceDestroyConfirmationEnabled()).append(SEP);
-        content.append("  ").append(NAMESPACE_DESTROY_TIMEOUT).append(" = ").append(getNamespaceDestroyTimeout()).append(SEP);
-
-        content.append("  ").append(WAIT_ENABLED).append(" = ").append(isWaitEnabled()).append(SEP);
-        content.append("  ").append(WAIT_TIMEOUT).append(" = ").append(getWaitTimeout()).append(SEP);
-        content.append("  ").append(WAIT_POLL_INTERVAL).append(" = ").append(getWaitPollInterval()).append(SEP);
-
-        content.append("  ").append(ANSI_LOGGER_ENABLED).append(" = ").append(isAnsiLoggerEnabled()).append(SEP);
-        content.append("  ").append(ENVIRONMENT_INIT_ENABLED).append(" = ").append(isEnvironmentInitEnabled()).append(SEP);
-        content.append("  ").append(LOGS_COPY).append(" = ").append(isLogCopyEnabled()).append(SEP);
-
-
-        if (getWaitForServiceList() != null) {
-            content.append("  ").append(WAIT_FOR_SERVICE_LIST).append(" = ").append(getWaitForServiceList()).append(SEP);
-        }
-        if (getLogPath() != null) {
-            content.append("  ").append(LOGS_PATH).append(" = ").append(getLogPath()).append(SEP);
-        }
-        if (getKubernetesDomain() != null) {
-            content.append("  ").append(KUBERNETES_DOMAIN).append(" = ").append(getKubernetesDomain()).append(SEP);
-
-        }
-
-        if (getDockerRegistry() != null) {
-            content.append("  ").append(DOCKER_REGISTY).append(" = ").append(getDockerRegistry()).append(SEP);
-        }
-        if (getApiVersion() != null) {
-            content.append("  ").append(API_VERSION).append(" = ").append(getApiVersion()).append(SEP);
-        }
-
-        if (getUsername() != null) {
-            content.append("  ").append(USERNAME).append(" = ").append(getUsername()).append(SEP);
-        }
-        if (getPassword() != null) {
-            content.append("  ").append(PASSWORD).append(" = ").append(getPassword()).append(SEP);
-        }
-
-        if (getToken() != null) {
-            content.append("  ").append(AUTH_TOKEN).append(" = ").append(getToken()).append(SEP);
-        }
-
-        content.append("  ").append(TRUST_CERTS).append(" = ").append(isTrustCerts()).append(SEP);
-
-        content.append("  ").append(KEEP_ALIVE_GIT_SERVER).append(" = ").append(keepAliveGitServer).append(SEP);
+        content.append("  ").append(KEEP_ALIVE_GIT_SERVER).append(" = ").append(keepAliveGitServer).append(lineSeparator);
 
         if (definitions != null) {
-            content.append("  ").append(DEFINITIONS).append(" = ").append(definitions).append(SEP);
+            content.append("  ").append(DEFINITIONS).append(" = ").append(definitions).append(lineSeparator);
         }
         if (definitionsFile != null) {
-            content.append("  ").append(DEFINITIONS_FILE).append(" = ").append(definitionsFile).append(SEP);
+            content.append("  ").append(DEFINITIONS_FILE).append(" = ").append(definitionsFile).append(lineSeparator);
         }
 
         if (autoStartContainers != null) {
-            content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(Arrays.toString(autoStartContainers)).append(SEP);
+            content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(Arrays.toString(autoStartContainers)).append(lineSeparator);
         }
 
         if (proxiedContainerPorts != null) {
-            content.append("  ").append(PROXIED_CONTAINER_PORTS).append(" = ").append(proxiedContainerPorts).append(SEP);
+            content.append("  ").append(PROXIED_CONTAINER_PORTS).append(" = ").append(proxiedContainerPorts).append(lineSeparator);
         }
 
         if (portForwardBindAddress != null) {
-            content.append("  ").append(PORT_FORWARDER_BIND_ADDRESS).append(" = ").append(portForwardBindAddress).append(SEP);
+            content.append("  ").append(PORT_FORWARDER_BIND_ADDRESS).append(" = ").append(portForwardBindAddress).append(lineSeparator);
         }
 
         if (routerHost != null) {
-            content.append("  ").append(ROUTER_HOST).append(" = ").append(routerHost).append(SEP);
+            content.append("  ").append(ROUTER_HOST).append(" = ").append(routerHost).append(lineSeparator);
         }
 
-        content.append("  ").append(OPENSHIFT_ROUTER_HTTP_PORT).append(" = ").append(openshiftRouterHttpPort).append(SEP);
+        content.append("  ").append(OPENSHIFT_ROUTER_HTTP_PORT).append(" = ").append(openshiftRouterHttpPort).append(lineSeparator);
 
-        content.append("  ").append(OPENSHIFT_ROUTER_HTTPS_PORT).append(" = ").append(openshiftRouterHttpsPort).append(SEP);
+        content.append("  ").append(OPENSHIFT_ROUTER_HTTPS_PORT).append(" = ").append(openshiftRouterHttpsPort).append(lineSeparator);
 
-        content.append("  ").append(ENABLE_IMAGE_STREAM_DETECTION).append(" = ").append(enableImageStreamDetection).append(SEP);
+        content.append("  ").append(ENABLE_IMAGE_STREAM_DETECTION).append(" = ").append(enableImageStreamDetection).append(lineSeparator);
 
-        content.append("  ").append(ROUTER_SNI_PORT).append(" = ").append(routerSniPort).append(SEP);
+        content.append("  ").append(ROUTER_SNI_PORT).append(" = ").append(routerSniPort).append(lineSeparator);
 
         if (templateURL != null) {
-            content.append("  ").append(TEMPLATE_URL).append(" = ").append(templateURL).append(SEP);
+            content.append("  ").append(TEMPLATE_URL).append(" = ").append(templateURL).append(lineSeparator);
         }
         if (templateLabels != null) {
-            content.append("  ").append(TEMPLATE_LABELS).append(" = ").append(templateLabels).append(SEP);
+            content.append("  ").append(TEMPLATE_LABELS).append(" = ").append(templateLabels).append(lineSeparator);
         }
         if (templateParameters != null) {
-            content.append("  ").append(TEMPLATE_PARAMETERS).append(" = ").append(templateParameters).append(SEP);
+            content.append("  ").append(TEMPLATE_PARAMETERS).append(" = ").append(templateParameters).append(lineSeparator);
         }
 
-        content.append("  ").append(TEMPLATE_PROCESS).append(" = ").append(templateProcess).append(SEP);
-        content.append("  ").append(STARTUP_TIMEOUT).append(" = ").append(startupTimeout).append(SEP);
-        content.append("  ").append(HTTP_CLIENT_TIMEOUT).append(" = ").append(httpClientTimeout).append(SEP);
+        content.append("  ").append(TEMPLATE_PROCESS).append(" = ").append(templateProcess).append(lineSeparator);
+        content.append("  ").append(STARTUP_TIMEOUT).append(" = ").append(startupTimeout).append(lineSeparator);
+        content.append("  ").append(HTTP_CLIENT_TIMEOUT).append(" = ").append(httpClientTimeout).append(lineSeparator);
 
         return content.toString();
     }
