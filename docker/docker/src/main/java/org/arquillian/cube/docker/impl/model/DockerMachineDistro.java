@@ -1,6 +1,7 @@
 package org.arquillian.cube.docker.impl.model;
 
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
 public enum DockerMachineDistro {
@@ -19,7 +20,7 @@ public enum DockerMachineDistro {
     }
 
     public static String resolveDistro() {
-        OperatingSystemFamily currentOSFamily = new OperatingSystemResolver().currentOperatingSystem().getFamily();
+        OperatingSystemFamilyInterface currentOSFamily = new OperatingSystemResolver().currentOperatingSystem().getFamily();
         for (DockerMachineDistro distro : values()) {
             for (OperatingSystemFamily osFamily : distro.osFamily) {
                 if (osFamily == currentOSFamily) {

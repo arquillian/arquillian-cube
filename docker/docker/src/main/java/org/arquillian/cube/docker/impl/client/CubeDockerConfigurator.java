@@ -1,22 +1,15 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.logging.Logger;
 import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
-import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystem;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -27,6 +20,13 @@ import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 public class CubeDockerConfigurator {
 
@@ -56,19 +56,29 @@ public class CubeDockerConfigurator {
 
     @Inject
     @ApplicationScoped
-    private InstanceProducer<OperatingSystemFamily> operatingSystemFamilyInstanceProducer;
+    private InstanceProducer<OperatingSystemInterface> operatingSystemInstanceProducer;
+
 
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
         configure(arquillianDescriptor);
     }
 
+    OperatingSystemInterface getCurrentOperatingSystem() {
+        return new OperatingSystemResolver().currentOperatingSystem();
+    }
+
     private void configure(ArquillianDescriptor arquillianDescriptor) {
-        operatingSystemFamilyInstanceProducer.set(new OperatingSystemResolver().currentOperatingSystem().getFamily());
+
+        if (!Optional.ofNullable(operatingSystemInstanceProducer.get()).isPresent()) {
+            operatingSystemInstanceProducer.set(getCurrentOperatingSystem());
+        }
+
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
             dockerMachineInstance.get(),
             boot2DockerInstance.get(),
-            operatingSystemFamilyInstanceProducer.get());
+            new DefaultDocker(),
+            operatingSystemInstanceProducer.get());
         resolver.resolve(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());
         cubeConfiguration = resolveDynamicNames(cubeConfiguration);
