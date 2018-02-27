@@ -6,6 +6,7 @@
 
   <extension qualifier="openshift">
     <property name="env.config.resource.name">hello-openshift.json</property>
+    <property name="namespace.method.scope.enabled">true</property>
   </extension>
 
 </arquillian>

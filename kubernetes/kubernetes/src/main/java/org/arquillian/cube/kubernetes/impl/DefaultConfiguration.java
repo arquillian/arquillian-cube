@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -28,6 +29,8 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
 @Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements Configuration {
+
+    private static final Logger log = Logger.getLogger(DefaultConfiguration.class.getName());
 
     private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";
     private static final Pattern ENV_VAR_PATTERN = Pattern.compile(ENV_VAR_REGEX);
@@ -54,6 +57,9 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceDestroyConfirmationEnabled;
     private final long namespaceDestroyTimeout;
 
+    private final boolean namespaceClassScopeEnabled;
+    private final boolean namespaceMethodScopeEnabled;
+
     private final boolean waitEnabled;
     private final long waitTimeout;
     private final long waitPollInterval;
@@ -74,7 +80,7 @@ public class DefaultConfiguration implements Configuration {
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
         URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
-        boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
+        boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout, boolean namespaceClassScopeEnabled, boolean namespaceMethodScopeEnabled,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
@@ -95,6 +101,8 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyEnabled = namespaceDestroyEnabled;
         this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
+        this.namespaceClassScopeEnabled = namespaceClassScopeEnabled;
+        this.namespaceMethodScopeEnabled = namespaceMethodScopeEnabled;
         this.waitEnabled = waitEnabled;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
@@ -115,14 +123,21 @@ public class DefaultConfiguration implements Configuration {
     public static DefaultConfiguration fromMap(Map<String, String> map) {
         try {
             String sessionId = UUID.randomUUID().toString().split("-")[0];
+            String existingNamespace = getStringProperty(NAMESPACE_TO_USE, map, null);
             String namespace = getBooleanProperty(NAMESPACE_USE_CURRENT, map, false)
                 ? new ConfigBuilder().build().getNamespace()
                 : getStringProperty(NAMESPACE_TO_USE, map, null);
 
+            if (existingNamespace != null && isNamespaceScopeConfigured(map)) {
+                log.warning(String.format("%s is ignored as %s or %s is configured.",
+                    NAMESPACE_TO_USE, NAMESPACE_METHOD_SCOPE_ENABLED, NAMESPACE_CLASS_SCOPE_ENABLED));
+            }
+
+
             //When a namespace is provided we want to cleanup our stuff...
             // ... without destroying pre-existing stuff.
             Boolean shouldDestroyNamespace = false;
-            if (Strings.isNullOrEmpty(namespace)) {
+            if (Strings.isNullOrEmpty(namespace) || isNamespaceScopeConfigured(map)) {
                 namespace = getStringProperty(NAMESPACE_PREFIX, map, "itest") + "-" + sessionId;
                 shouldDestroyNamespace = true;
             }
@@ -155,7 +170,8 @@ public class DefaultConfiguration implements Configuration {
                     getBooleanProperty(NAMESPACE_DESTROY_CONFIRM_ENABLED, map, false))
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
-
+                .withNamespaceClassScopeEnabled(getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false))
+                .withNamespaceMethodScopeEnabled(getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false))
                 .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
@@ -177,6 +193,10 @@ public class DefaultConfiguration implements Configuration {
                 throw new RuntimeException(t);
             }
         }
+    }
+
+    public static boolean isNamespaceScopeConfigured(Map<String, String> map) {
+        return getBooleanProperty(NAMESPACE_CLASS_SCOPE_ENABLED, map, false) || getBooleanProperty(NAMESPACE_METHOD_SCOPE_ENABLED, map, false);
     }
 
     public static String getDockerRegistry(Map<String, String> map) throws MalformedURLException {
@@ -360,6 +380,16 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isNamespaceDestroyConfirmationEnabled() {
         return namespaceDestroyConfirmationEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceClassScopeEnabled() {
+        return namespaceClassScopeEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceMethodScopeEnabled() {
+        return namespaceMethodScopeEnabled;
     }
 
     @Override
