@@ -49,6 +49,7 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceCleanupEnabled;
     private final long namespaceCleanupTimeout;
     private final boolean namespaceCleanupConfirmationEnabled;
+    private final boolean namespaceUseCurrentEnabled;
 
     private final boolean namespaceDestroyEnabled;
     private final boolean namespaceDestroyConfirmationEnabled;
@@ -73,7 +74,7 @@ public class DefaultConfiguration implements Configuration {
     private String token;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
-        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
+        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
@@ -95,6 +96,7 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyEnabled = namespaceDestroyEnabled;
         this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
+        this.namespaceUseCurrentEnabled = namespaceUseCurrentEnabled;
         this.waitEnabled = waitEnabled;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
@@ -149,6 +151,7 @@ public class DefaultConfiguration implements Configuration {
                     getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                 .withNamespaceCleanupTimeout(
                     getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+                .withNamespaceUseCurrentEnabled(getBooleanProperty(NAMESPACE_USE_CURRENT, map, false))
 
                 .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, shouldDestroyNamespace))
                 .withNamespaceDestroyConfirmationEnabled(
@@ -360,6 +363,11 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isNamespaceDestroyConfirmationEnabled() {
         return namespaceDestroyConfirmationEnabled;
+    }
+
+    @Override
+    public boolean isNamespaceUseCurrentEnabled() {
+        return namespaceUseCurrentEnabled;
     }
 
     @Override

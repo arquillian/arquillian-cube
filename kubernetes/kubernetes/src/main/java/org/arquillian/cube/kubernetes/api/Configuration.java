@@ -108,6 +108,8 @@ public interface Configuration {
 
     boolean isNamespaceDestroyConfirmationEnabled();
 
+    boolean isNamespaceUseCurrentEnabled();
+
     long getNamespaceDestroyTimeout();
 
     boolean isWaitEnabled();
