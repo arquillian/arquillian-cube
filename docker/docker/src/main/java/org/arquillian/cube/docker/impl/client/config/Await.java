@@ -36,6 +36,9 @@ public class Await {
     //waitforit and log
     private Integer timeout = 15;
 
+    // docker exec
+    private String[] command;
+
     public Await() {
     }
 
@@ -166,4 +169,8 @@ public class Await {
     public void setTimeout(Integer timeout) {
         this.timeout = timeout;
     }
+
+    public String[] getCommand() { return command;}
+
+    public void setCommand(String[] command) { this.command = command; }
 }
