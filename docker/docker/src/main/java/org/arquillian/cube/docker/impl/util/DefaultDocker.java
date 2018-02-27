@@ -6,7 +6,7 @@ import com.github.dockerjava.core.DockerClientBuilder;
 
 public class DefaultDocker {
 
-    public DockerClient GetDefaultDockerClient(String defaultPath) {
+    public DockerClient getDefaultDockerClient(String defaultPath) {
         final DefaultDockerClientConfig.Builder configBuilder = DefaultDockerClientConfig
             .createDefaultConfigBuilder();
         configBuilder.withDockerHost(defaultPath);

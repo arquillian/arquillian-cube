@@ -55,7 +55,7 @@ public class CubeDockerConfigurationResolverTest {
     private static Info info;
 
     public DefaultDocker mockDefaultDocker() {
-        when(defaultDocker.GetDefaultDockerClient(anyString())).thenReturn(dockerClient);
+        when(defaultDocker.getDefaultDockerClient(anyString())).thenReturn(dockerClient);
         when(dockerClient.infoCmd()).thenReturn(infoCmd);
         when(infoCmd.exec()).thenReturn(info);
         return defaultDocker;

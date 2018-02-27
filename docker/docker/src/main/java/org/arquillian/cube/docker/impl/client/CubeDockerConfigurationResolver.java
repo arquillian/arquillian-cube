@@ -214,7 +214,7 @@ public class CubeDockerConfigurationResolver {
             URI uri = URI.create(defaultUri);
             if (Files.exists(FileSystems.getDefault().getPath(uri.getPath()))){
 
-                DockerClient client = defaultDocker.GetDefaultDockerClient(defaultUri);
+                DockerClient client = defaultDocker.getDefaultDockerClient(defaultUri);
                 InfoCmd cmd = client.infoCmd();
                 try {
                     Info info = cmd.exec();
