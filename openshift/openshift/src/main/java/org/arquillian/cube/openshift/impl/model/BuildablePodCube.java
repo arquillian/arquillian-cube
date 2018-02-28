@@ -138,6 +138,9 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public void stop() throws CubeControlException {
+        if (state == State.STOPPED || state == State.PRE_RUNNING || state == State.DESTROYED) {
+            return;
+        }
         try {
             lifecycle.fire(new BeforeStop(id));
             destroyPod(holder.getPod());
@@ -156,6 +159,9 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public void destroy() throws CubeControlException {
+        if (state != State.STOPPED) {
+            return;
+        }
         try {
             lifecycle.fire(new BeforeDestroy(id));
             List<Exception> exceptions = client.clean(holder);
