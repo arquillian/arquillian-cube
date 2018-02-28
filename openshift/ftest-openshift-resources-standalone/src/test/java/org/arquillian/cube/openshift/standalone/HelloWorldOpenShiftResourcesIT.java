@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @OpenShiftResource("classpath:hello-route.yaml")
 public class HelloWorldOpenShiftResourcesIT {
 
-    @RouteURL("hello-world")
+    @RouteURL("${route.name}")
     @AwaitRoute
     private URL url;
 
