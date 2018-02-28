@@ -37,6 +37,8 @@ public class AwaitStrategyFactory {
                         return new SleepingAwaitStrategy(cube, await);
                     case HttpAwaitStrategy.TAG:
                         return new HttpAwaitStrategy(cube, dockerClientExecutor, await);
+                    case DockerHealthAwaitStrategy.TAG:
+                        return new DockerHealthAwaitStrategy(cube, dockerClientExecutor, await);
                     default:
                         return new CustomAwaitStrategyInstantiator(cube, dockerClientExecutor, await);
                 }
