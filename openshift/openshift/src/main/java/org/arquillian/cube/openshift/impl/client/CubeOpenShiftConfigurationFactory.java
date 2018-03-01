@@ -16,14 +16,22 @@ package org.arquillian.cube.openshift.impl.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.arquillian.cube.impl.ConfigurationParameters;
 import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.impl.DefaultConfigurationFactory;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
+import org.jboss.arquillian.core.api.InstanceProducer;
+import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
+import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class CubeOpenShiftConfigurationFactory extends DefaultConfigurationFactory<CubeOpenShiftConfiguration>
     implements ConfigurationFactory<CubeOpenShiftConfiguration> {
 
     private static final String OPENSHIFT_EXTENSION_NAME = "openshift";
+
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<ConfigurationParameters> configurationParamProducer;
 
     @Override
     public CubeOpenShiftConfiguration create(ArquillianDescriptor arquillian) {
@@ -32,6 +40,7 @@ public class CubeOpenShiftConfigurationFactory extends DefaultConfigurationFacto
         config.putAll(arquillian.extension(OPENSHIFT_EXTENSION_NAME).getExtensionProperties());
 
         configureProtocolHandlers(config);
+        configurationParamProducer.set(new ConfigurationParameters(config));
 
         final CubeOpenShiftConfiguration openShiftConfiguration = CubeOpenShiftConfiguration.fromMap(config);
         System.out.println(openShiftConfiguration);

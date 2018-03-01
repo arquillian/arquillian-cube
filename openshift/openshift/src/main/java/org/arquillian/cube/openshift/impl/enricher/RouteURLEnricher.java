@@ -2,6 +2,8 @@ package org.arquillian.cube.openshift.impl.enricher;
 
 import io.fabric8.openshift.api.model.v3_1.Route;
 import io.fabric8.openshift.api.model.v3_1.RouteList;
+import org.arquillian.cube.impl.ConfigurationParameters;
+import org.arquillian.cube.impl.EnricherExpressionResolver;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
@@ -36,6 +38,9 @@ public class RouteURLEnricher implements TestEnricher {
 
     @Inject
     private Instance<Configuration> configurationInstance;
+
+    @Inject
+    private Instance<ConfigurationParameters> configurationParametersInstance;
 
     @Override
     public void enrich(Object testCase) {
@@ -87,7 +92,8 @@ public class RouteURLEnricher implements TestEnricher {
             throw new NullPointerException("RouteURL is null!");
         }
 
-        final String routeName = StringPropertyReplacer.replaceProperties(routeURL.value());
+        final EnricherExpressionResolver expressionResolver = new EnricherExpressionResolver(configurationParametersInstance.get());
+        final String routeName  = expressionResolver.resolve(routeURL.value());
         if (routeName == null || routeName.length() == 0) {
             throw new NullPointerException("Route name is null, must specify a route name!");
         }

@@ -27,9 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @OpenShiftResource("classpath:hello-route.yaml")
 public class HelloWorldOpenShiftResourcesIT {
 
-    @RouteURL("hello-world")
+    // tag::enricher_expression_resolver_example[]
+    @RouteURL("${route.name}")
     @AwaitRoute
     private URL url;
+    // end::enricher_expression_resolver_example[]
 
     @ArquillianResource
     private OpenShiftClient openShiftClient;
