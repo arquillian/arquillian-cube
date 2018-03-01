@@ -2714,9 +2714,25 @@ CubeController cubeController;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This annotation also has a <code>path</code> parameter which can change the path part of the injected URL.
-You can also use an additional annotation <code>@AwaitRoute</code> to wait until the route becomes available.
+<p>This annotation also has a <code>path</code> parameter which can change the path part of the injected URL.</p>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="listingblock">
+<div class="title">RouterURLEnricher.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RouteURL</span>(<span class="string"><span class="delimiter">&quot;</span><span class="content">${route.name}</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@AwaitRoute</span>
+    <span class="directive">private</span> <span class="predefined-type">URL</span> url;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also use an additional annotation <code>@AwaitRoute</code> to wait until the route becomes available.
 That is, it responds with a known good HTTP status code in given timeout.</p>
+</div>
+<div class="paragraph">
+<p>To resolve expression <code>"${route.name}"</code>, it looks in hierarchy of <code>system property</code> &#8594; <code>environment variable</code> &#8594; <code>properties defined in arquillian.xml</code>.</p>
 </div>
 <div class="paragraph">
 <p>If the route is not resolvable, you need to set the <code>routerHost</code> setting to the IP address of the OpenShift router.
@@ -2726,10 +2742,10 @@ You can configure it in arquillian.xml:</p>
 <div class="title">arquillian.xml</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"> <span class="tag">&lt;extension</span> <span class="attribute-name">qualifier</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">openshift</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-        ....
-        <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">routerHost</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>192.168.10.10<span class="tag">&lt;/property&gt;</span>
-        ...
-    <span class="tag">&lt;/extension&gt;</span></code></pre>
+    ....
+    <span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">routerHost</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>192.168.10.10<span class="tag">&lt;/property&gt;</span>
+    ...
+ <span class="tag">&lt;/extension&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7037,7 +7053,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-03-01 06:50:10 UTC
+Last updated 2018-03-01 07:50:20 UTC
 </div>
 </div>
 </body>
