@@ -73,7 +73,7 @@ private URL url;
 
 This annotation also has a `path` parameter which can change the path part of the injected URL.
 
-OR
+or
 
 [source, java]
 .RouterURLEnricher.java
