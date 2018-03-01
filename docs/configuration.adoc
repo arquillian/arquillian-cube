@@ -267,6 +267,7 @@ static:: similar to _polling_ but it uses the host ip and specified list of port
 sleeping:: sleeps current thread for the specified amount of time. You can specify the time in seconds or milliseconds.
 log:: it looking for a specified pattern in container log to detect service startup. This can be used when there is no port to connect or connecting to the port successfully doesn't mean the service is fully initialized.
 http:: polls through a configured http endpoint checking for http response code and optionally the answer content or headers.
+docker_health:: polls the docker API to wait for the container to match the docker healthy definition (see: link:https://docs.docker.com/engine/reference/builder/#healthcheck[here]).
 <fullyqualifiedclassname>:: if you specify a fully qualified class name, Arquillian Cube will instantiate the given class. In this way you can implement your own await strategies. There are two rules to follow, the first one is that class must implement `AwaitStrategy` and the second one is that one default constructor must be provided. Optionally you can add fields/setters for types `Cube`, `DockerClientExecutor` or `Await` to inject them into the await strategy.
 
 By default in case you don't specify any _await_ strategy, polling with _ss_ command is used with automatic fallback to _wait-fo_it_ strategy.
@@ -361,6 +362,22 @@ tomcat:
 <4> Optional parameter to configure sleeping time between each call in case of fail. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
 <5> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
 <6> Optional parameter to check header's value returned by service.
+
+[source, yaml]
+.Example docker_health
+----
+tomcat:
+  image: tutum/tomcat:7.0
+  exposedPorts: [8089/tcp]
+  await:
+    strategy: docker_health
+    iterations: 5 # <1>
+    sleepPollingTime: 200 s # <2>
+    command: ["curl", "localhost:8089"] # <3>
+----
+<1> Optional parameter to configure number of retries to be done. By default 10 iterations are done.
+<2> Optional parameter to configure sleeping time between each call in case of fail. You can set in seconds using _s_ or miliseconds using _ms_. By default time unit is miliseconds and value 500.
+<3> Optional parameter to configure a command line to execute inside the container instead of using the docker API to get container health.
 
 Custom Await strategy:
 
