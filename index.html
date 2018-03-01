@@ -3840,9 +3840,14 @@ You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit-rule</cod
 <p>To do use it you need to define the container object using <code>ContainerDsl</code> class and registering <code>ContainerDslResolver</code>.</p>
 </div>
 <div class="listingblock">
-<div class="title">RedisIT.java</div>
+<div class="title">RedisTest.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/cop.adoc - include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/RedisIT.java[tag=docs, indent=<span class="integer">0</span>]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ExtendWith</span>(ContainerDslResolver.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">RedisTest</span> {
+
+    <span class="directive">private</span> ContainerDsl redis = <span class="keyword">new</span> ContainerDsl(<span class="string"><span class="delimiter">&quot;</span><span class="content">redis:3.2.6</span><span class="delimiter">&quot;</span></span>)
+                                        .withPortBinding(<span class="integer">6379</span>);
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3924,9 +3929,12 @@ You need to add <code>org.arquillian.cube:arquillian-cube-docker-junit-rule</cod
 <p>To do use it you need to define the network object using <code>NetowrkDsl</code> class and registering <code>NetworkDslResolver</code>.</p>
 </div>
 <div class="listingblock">
-<div class="title">RedisIT.java</div>
+<div class="title">NetworkTest.java</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="java">Unresolved directive in docs/cop.adoc - include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/NetworkIT.java[tag=docs, indent=<span class="integer">0</span>]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@ExtendWith</span>(NetworkDslResolver.class)
+<span class="directive">public</span> <span class="type">class</span> <span class="class">NetworkTest</span> {
+    <span class="directive">private</span> NetworkDsl networkDsl = <span class="keyword">new</span> NetworkDsl(<span class="string"><span class="delimiter">&quot;</span><span class="content">mynetwork</span><span class="delimiter">&quot;</span></span>);
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7029,7 +7037,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-02-16 16:28:27 UTC
+Last updated 2018-03-01 06:50:10 UTC
 </div>
 </div>
 </body>
