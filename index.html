@@ -1788,6 +1788,10 @@ By default if you use <em>ss</em> strategy but ss command is not installed into 
 <dd>
 <p>polls through a configured http endpoint checking for http response code and optionally the answer content or headers.</p>
 </dd>
+<dt class="hdlist1">docker_health</dt>
+<dd>
+<p>polls the docker API to wait for the container to match the docker healthy definition (see: <a href="https://docs.docker.com/engine/reference/builder/#healthcheck">here</a>).</p>
+</dd>
 <dt class="hdlist1">&lt;fullyqualifiedclassname&gt;</dt>
 <dd>
 <p>if you specify a fully qualified class name, Arquillian Cube will instantiate the given class. In this way you can implement your own await strategies. There are two rules to follow, the first one is that class must implement <code>AwaitStrategy</code> and the second one is that one default constructor must be provided. Optionally you can add fields/setters for types <code>Cube</code>, <code>DockerClientExecutor</code> or <code>Await</code> to inject them into the await strategy.</p>
@@ -1943,6 +1947,35 @@ By default if you use <em>ss</em> strategy but ss command is not installed into 
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
 <td>Optional parameter to check header&#8217;s value returned by service.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example docker_health</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">tomcat</span>:
+  <span class="key">image</span>: <span class="string"><span class="content">tutum/tomcat:7.0</span></span>
+  <span class="key">exposedPorts</span>: <span class="string"><span class="content">[8089/tcp]</span></span>
+  <span class="key">await</span>:
+    <span class="key">strategy</span>: <span class="string"><span class="content">docker_health</span></span>
+    <span class="key">iterations</span>: <span class="string"><span class="content">5 </span></span><i class="conum" data-value="1"></i><b>(1)</b>
+    <span class="key">sleepPollingTime</span>: <span class="string"><span class="content">200 s </span></span><i class="conum" data-value="2"></i><b>(2)</b>
+    <span class="key">command</span>: <span class="string"><span class="content">[&quot;curl&quot;, &quot;localhost:8089&quot;] </span></span> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Optional parameter to configure number of retries to be done. By default 10 iterations are done.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Optional parameter to configure sleeping time between each call in case of fail. You can set in seconds using <em>s</em> or miliseconds using <em>ms</em>. By default time unit is miliseconds and value 500.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Optional parameter to configure a command line to execute inside the container instead of using the docker API to get container health.</td>
 </tr>
 </table>
 </div>
@@ -7053,7 +7086,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-03-01 07:50:20 UTC
+Last updated 2018-03-05 13:03:48 UTC
 </div>
 </div>
 </body>
