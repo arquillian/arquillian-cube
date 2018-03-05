@@ -10,6 +10,7 @@ import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.await.AwaitStrategy;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -310,5 +311,22 @@ public class AwaitStrategyTest {
         assertThat(log.isStdOut(), is(false));
         assertThat(log.isStdErr(), is(true));
         assertThat(log.getOccurrences(), is(3));
+    }
+
+    @Test
+    public void should_parse_command() {
+        String containerDefinition = "tomcat:\n"
+            + "  image: tutum/tomcat:7.0\n"
+            + "  exposedPorts: [8089/tcp]\n"
+            + "  await:\n"
+            + "    strategy: docker_health\n"
+            + "    iterations: 5 # <1>\n"
+            + "    sleepPollingTime: 200 s # <2>\n"
+            + "    command: [\"curl\", \"localhost:8089\"] # <3>";
+
+        final DockerCompositions load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
+        Await await = load.get("tomcat").getAwait();
+        String[] expected = {"curl", "localhost:8089"};
+        Assert.assertArrayEquals(expected, await.getCommand());
     }
 }
