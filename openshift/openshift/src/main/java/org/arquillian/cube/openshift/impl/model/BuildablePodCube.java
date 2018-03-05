@@ -55,7 +55,8 @@ public class BuildablePodCube extends BaseCube<Void> {
     private OpenShiftClient client;
 
     private PortBindings portBindings;
-    private ResourceHolder holder;
+
+    ResourceHolder holder;
 
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
