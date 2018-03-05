@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.impl.util.Strings;
@@ -183,6 +184,7 @@ public class SessionManager implements SessionCreatedListener {
                             .waitUntilReady(configuration.getWaitTimeout(), TimeUnit.MILLISECONDS);
                     } catch (KubernetesClientTimeoutException t) {
                         log.warn("There are resources in not ready state:");
+                        watchEventLog();
                         for (HasMetadata r : t.getResourcesNotReady()) {
                             log.error(
                                 r.getKind() + " name: " + r.getMetadata().getName() + " namespace:" + r.getMetadata()
@@ -201,6 +203,38 @@ public class SessionManager implements SessionCreatedListener {
             }
             throw new RuntimeException(e);
         }
+    }
+
+    private void watchEventLog() throws InterruptedException {
+        Logger logger = session.getLogger();
+        final CountDownLatch closeLatch = new CountDownLatch(1);
+        logger.info(String.format("%s %21s %14s %5s %28s %10s %10s %10s %10s %25s", "LASTSEEN", "FIRSTSEEN", "COUNT",
+            "NAME", "KIND", "SUBOBJECT", "TYPE", "REASON", "SOURCE", "MESSAGE"));
+        try (final Watch watch = client.events().inNamespace(session.getNamespace()).watch(new Watcher<Event>() {
+            @Override
+            public void eventReceived(Action action, Event resource) {
+                logger.info(String.format("%s %s %s %s %s %s %s %s %s %s", resource.getLastTimestamp(),
+                    resource.getFirstTimestamp(),
+                    resource.getCount(), resource.getMetadata().getName(), resource.getInvolvedObject().getKind(),
+                    resource.getInvolvedObject().getFieldPath()
+                    , resource.getType(), resource.getReason(), resource.getSource(), resource.getMessage()
+                ));
+            }
+
+            @Override
+            public void onClose(KubernetesClientException e) {
+                logger.status("Watcher onClose");
+                if (e != null) {
+                    logger.error(e.getMessage() + e);
+                    closeLatch.countDown();
+                }
+            }
+        })) {
+            closeLatch.await(10, TimeUnit.SECONDS);
+        } catch (KubernetesClientException | InterruptedException e) {
+            logger.error("Could not watch resources" + e);
+        }
+        Thread.sleep(60000l);
     }
 
     @Override
