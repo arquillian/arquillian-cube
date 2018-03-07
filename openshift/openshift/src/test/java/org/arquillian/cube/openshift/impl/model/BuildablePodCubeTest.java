@@ -3,7 +3,8 @@ package org.arquillian.cube.openshift.impl.model;
 import io.fabric8.kubernetes.api.model.v3_1.ObjectMeta;
 import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import io.fabric8.kubernetes.api.model.v3_1.PodSpec;
-import io.fabric8.openshift.clnt.v3_1.DefaultOpenShiftClient;
+import io.fabric8.openshift.api.model.v3_1.RouteList;
+import io.fabric8.openshift.clnt.v3_1.dsl.internal.RouteOperationsImpl;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
@@ -20,7 +21,6 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,7 +29,6 @@ import static org.arquillian.cube.openshift.impl.client.OpenShiftClient.Resource
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
-@Category(OpenShiftClient.class)
 @RunWith(MockitoJUnitRunner.class)
 public class BuildablePodCubeTest extends AbstractManagerTestBase {
 
@@ -38,6 +37,12 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
 
     @Mock
     private OpenShiftClient openShiftClient;
+
+    @Mock
+    private io.fabric8.openshift.clnt.v3_1.OpenShiftClient openShiftClientExt;
+
+    @Mock
+    private RouteOperationsImpl routeOperations;
 
     @Inject
     private Instance<Injector> injectorInst;
@@ -48,13 +53,17 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
     public void setup() throws Exception {
 
         final Pod pod = new Pod("v1", "Pod", new ObjectMeta(), new PodSpec(), null);
+        final ResourceHolder resourceHolder = new ResourceHolder(pod);
+        when(openShiftClient.build(anyObject())).thenReturn(resourceHolder);
 
-        when(openShiftClient.getClientExt()).thenReturn(new DefaultOpenShiftClient());
-        when(openShiftClient.build(anyObject())).thenReturn(new ResourceHolder(pod));
+        when(openShiftClient.getClientExt()).thenReturn(openShiftClientExt);
+        when(openShiftClientExt.routes()).thenReturn(routeOperations);
+        when(routeOperations.list()).thenReturn(new RouteList());
+
         when(cubeOpenShiftConfiguration.isNamespaceCleanupEnabled()).thenReturn(true);
 
         buildablePodCube = injectorInst.get().inject(new BuildablePodCube(pod, openShiftClient, cubeOpenShiftConfiguration));
-        buildablePodCube.holder = new ResourceHolder(pod);
+        buildablePodCube.holder = resourceHolder;
     }
 
     @Test
