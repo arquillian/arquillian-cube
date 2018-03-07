@@ -75,7 +75,7 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldFireLifecycleEventsDuringCreateAfterDestroyed() {
-        // given calling entire lifecycle to destroy cube
+        // given calling entire lifecycle to destroy buildablePodCube
         buildablePodCube.create();
         buildablePodCube.start();
         buildablePodCube.stop();
@@ -84,7 +84,7 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
         // when
         buildablePodCube.create();
 
-        // then event count is 2 which is for two cube.create()
+        // then event count is 2 which is for two buildablePodCube.create()
         assertEventFired(BeforeCreate.class, 2);
         assertEventFired(AfterCreate.class, 2);
     }
@@ -105,7 +105,7 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldFireLifecycleEventsDuringDestroy() {
-        buildablePodCube.stop(); // require a stopped Cube to destroy it.
+        buildablePodCube.stop(); // require a stopped buildablePodCube to destroy it.
         buildablePodCube.destroy();
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
@@ -120,7 +120,7 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
         // when
         buildablePodCube.stop();
 
-        // then - event count is 1 which is for first cube.stop()
+        // then - event count is 1 which is for first buildablePodCube.stop()
         assertEventFired(BeforeStop.class, 1);
         assertEventFired(AfterStop.class, 1);
     }
@@ -133,7 +133,7 @@ public class BuildablePodCubeTest extends AbstractManagerTestBase {
         // when
         buildablePodCube.stop();
 
-        // then  - event count is 1 which is for first cube.stop()
+        // then  - event count is 1 which is for first buildablePodCube.stop()
         assertEventFired(BeforeStop.class, 1);
         assertEventFired(AfterStop.class, 1);
     }
