@@ -32,6 +32,7 @@ import org.arquillian.cube.openshift.impl.graphene.location.OpenShiftCustomizabl
 import org.arquillian.cube.openshift.impl.install.OpenshiftResourceInstaller;
 import org.arquillian.cube.openshift.impl.locator.OpenshiftKubernetesResourceLocator;
 import org.arquillian.cube.openshift.impl.namespace.OpenshiftNamespaceService;
+import org.jboss.arquillian.container.test.impl.client.deployment.AnnotationDeploymentScenarioGenerator;
 import org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender;
 import org.jboss.arquillian.container.test.spi.client.deployment.DeploymentScenarioGenerator;
 import org.jboss.arquillian.core.spi.LoadableExtension;
@@ -81,7 +82,7 @@ public class CubeOpenshiftExtension implements LoadableExtension {
         if (Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")
             && doesNotContainStandaloneExtension()) {
             builder.service(AuxiliaryArchiveAppender.class, UtilsArchiveAppender.class);
-            builder.service(DeploymentScenarioGenerator.class, ExternalDeploymentScenarioGenerator.class);
+            builder.override(DeploymentScenarioGenerator.class, AnnotationDeploymentScenarioGenerator.class, ExternalDeploymentScenarioGenerator.class);
             builder.observer(TemplateContainerStarter.class);
             builder.service(ResourceProvider.class, OpenShiftHandleResourceProvider.class);
         }
