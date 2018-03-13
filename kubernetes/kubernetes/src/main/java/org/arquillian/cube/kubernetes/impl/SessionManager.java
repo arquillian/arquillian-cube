@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.ResourceGeneratorBuilder;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -208,6 +210,15 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
+
+        // generate fabric8 resources using build and resource goals
+        if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
+            new ResourceGeneratorBuilder()
+                .namespace(session.getNamespace())
+                .pluginConfigurationIn(Paths.get("", configuration.getFmpPath()))
+                .build();
+        }
+
         setupConsoleListener();
         setupEventListener();
 
@@ -217,6 +228,15 @@ public class SessionManager implements SessionCreatedListener {
         } catch (Throwable t){
           removeShutdownHook();
           throw t;
+        }
+    }
+
+    private boolean isRunningFromMaven() {
+        try {
+            SessionManager.class.getClassLoader().loadClass("org.apache.maven.surefire.booter.ForkedBooter");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 

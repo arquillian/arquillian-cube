@@ -38,6 +38,7 @@
     <module>ftest-openshift-graphene</module>
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>
+    <module>ftest-openshift-fmp</module>
     <module>openshift-restassured</module>
     <module>ftest-openshift-assistant-operational-methods</module>
   </modules>

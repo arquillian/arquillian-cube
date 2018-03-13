@@ -12,6 +12,7 @@
 
   <properties>
     <version.alpn>8.1.9.v20160720</version.alpn>
+    <version.git.rules>0.0.10</version.git.rules>
   </properties>
 
   <dependencies>
@@ -38,6 +39,10 @@
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-openshift-uberjar</artifactId>
       <classifier>versioned</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven-embedded</artifactId>
     </dependency>
 
     <dependency>
@@ -100,6 +105,12 @@
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-client</artifactId>
       <version>1.4.14</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.smart.testing</groupId>
+      <artifactId>git-rules</artifactId>
+      <version>${version.git.rules}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -52,6 +52,8 @@ public interface Configuration {
 
     String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
     String LOGS_COPY = "logs.copy";
+    String FMP_BUILD = "fmp.build";
+    String FMP_PATH = "fmp.path";
     String LOGS_PATH = "logs.path";
 
     String USERNAME = "cube.username";
@@ -64,6 +66,7 @@ public interface Configuration {
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+    String DEFAULT_FMP_PATH = "pom.xml";
     Long DEFAULT_NAMESPACE_CLEANUP_TIMEOUT = 0L;
     Long DEFAULT_NAMESPACE_DESTROY_TIMEOUT = 0L;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
@@ -126,7 +129,11 @@ public interface Configuration {
 
     boolean isLogCopyEnabled();
 
+    boolean isFmpBuildEnabled();
+
     String getLogPath();
+
+    String getFmpPath();
 
     String getKubernetesDomain();
 

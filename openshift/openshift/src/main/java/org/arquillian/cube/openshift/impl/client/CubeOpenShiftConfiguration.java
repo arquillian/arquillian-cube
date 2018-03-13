@@ -80,8 +80,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
-                                      List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-                                      String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
+                                      List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled, boolean fmpBuildEnabled,
+                                      String fmpPath, String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
                                       String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection,
                                       String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, boolean templateProcess,
@@ -90,7 +90,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
             environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
-            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);
+            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, fmpBuildEnabled, fmpPath, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -141,6 +141,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                 .withLogCopyEnabled(getBooleanProperty(LOGS_COPY, map, false))
+                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
+                .withFmpPath(getStringProperty(FMP_PATH, map, DEFAULT_FMP_PATH))
                 .withLogPath(getStringProperty(LOGS_PATH, map, null))
                 .withEnvironmentSetupScriptUrl(
                     asUrlOrResource(getStringProperty(ENVIRONMENT_SETUP_SCRIPT_URL, map, null)))
