@@ -17,7 +17,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     private String namespace;
     private boolean mvnDebugOutput;
     private boolean quietMode;
-    private String[] profiles;
+    private String[] profiles = new String[0];
     private Map<String, String> properties = new HashMap<>();
 
     public Fabric8MavenPluginResourceGeneratorBuilder namespace(String namespace) {
