@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.containsString;
 import static io.restassured.RestAssured.given;
 
@@ -32,10 +33,10 @@ public class OpenshiftIT {
 
     @Test
     public void testGreetingEndpoint() {
-        given()
-            .when().get()
+            when()
+                .get()
             .then()
-            .statusCode(200)
-            .body(containsString("Greetings from Spring Boot!"));
+                .statusCode(200)
+                .body(containsString("Greetings from Spring Boot!"));
     }
 }

@@ -4,9 +4,9 @@
 
   <extension qualifier="openshift">
     <property name="app.name">arquillian-cube-openshift-fmp-ftest</property>
-    <property name="namespace.use.existing">myproject</property>
     <property name="env.init.enabled">true</property>
-    <property name="fmp.build">true</property>
+    <!--<property name="fmp.build">true</property>-->
+    <property name="fmp.maven.build">true</property>
     <property name="enableImageStreamDetection">false</property>
   </extension>
 
