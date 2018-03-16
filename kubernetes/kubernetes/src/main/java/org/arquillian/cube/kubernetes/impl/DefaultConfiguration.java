@@ -192,7 +192,7 @@ public class DefaultConfiguration implements Configuration {
                 .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
                 .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
                 .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
-                .withFmpProfile(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
+                .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
                 .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
                 .build();
         } catch (Throwable t) {
