@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.ResourceGeneratorBuilder;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -48,10 +47,12 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 import org.xnio.IoUtils;
 
 import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
+import static org.arquillian.cube.kubernetes.impl.utils.MavenUtils.isRunningFromMaven;
 import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
@@ -211,11 +212,12 @@ public class SessionManager implements SessionCreatedListener {
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
 
-        // generate fabric8 resources using build and resource goals
-        if (configuration.isFmpBuildEnabled() && !isRunningFromMaven()) {
-            new ResourceGeneratorBuilder()
+        if (configuration.isFmpBuildEnabled() || (configuration.isFmpBuildForMavenDisable() && !isRunningFromMaven())) {
+            new Fabric8MavenPluginResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
-                .pluginConfigurationIn(Paths.get("", configuration.getFmpPath()))
+                .debug(configuration.isFmpDebugOutput())
+                .quiet(configuration.isFmpLogsEnabled())
+                .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
                 .build();
         }
 
@@ -228,15 +230,6 @@ public class SessionManager implements SessionCreatedListener {
         } catch (Throwable t){
           removeShutdownHook();
           throw t;
-        }
-    }
-
-    private boolean isRunningFromMaven() {
-        try {
-            SessionManager.class.getClassLoader().loadClass("org.apache.maven.surefire.booter.ForkedBooter");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
         }
     }
 

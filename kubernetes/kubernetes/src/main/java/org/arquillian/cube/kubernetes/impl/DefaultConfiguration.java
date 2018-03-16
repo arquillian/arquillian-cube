@@ -63,8 +63,6 @@ public class DefaultConfiguration implements Configuration {
     private final boolean ansiLoggerEnabled;
     private final boolean environmentInitEnabled;
     private final boolean logCopyEnabled;
-    private final boolean fmpBuildEnabled;
-    private final String fmpPath;
     private final String logPath;
     private final String kubernetesDomain;
     private final String dockerRegistry;
@@ -73,6 +71,12 @@ public class DefaultConfiguration implements Configuration {
     private final String apiVersion;
     private final boolean trustCerts;
 
+    private final boolean fmpBuildEnabled;
+    private final boolean fmpBuildForMavenDisable;
+    private final boolean fmpDebugOutput;
+    private final boolean fmpLogsEnabled;
+    private final String fmpPomPath;
+
     private String token;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
@@ -80,8 +84,9 @@ public class DefaultConfiguration implements Configuration {
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
-        long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled, boolean fmpBuildEnabled,
-        String fmpPath, String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
+        long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
+        boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath,
+        String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
         String apiVersion, boolean trustCerts) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
@@ -107,8 +112,11 @@ public class DefaultConfiguration implements Configuration {
         this.environmentInitEnabled = environmentInitEnabled;
         this.logCopyEnabled = logCopyEnabled;
         this.fmpBuildEnabled = fmpBuildEnabled;
+        this.fmpBuildForMavenDisable = fmpBuildForMavenDisable;
+        this.fmpLogsEnabled = fmpLogsEnabled;
+        this.fmpDebugOutput = fmpDebugOutput;
+        this.fmpPomPath = fmpPomPath;
         this.logPath = logPath;
-        this.fmpPath = fmpPath;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
         this.token = token;
@@ -139,9 +147,6 @@ public class DefaultConfiguration implements Configuration {
                     new URL(getStringProperty(MASTER_URL, KUBERNETES_MASTER, map, FALLBACK_CLIENT_CONFIG.getMasterUrl())))
                 .withEnvironmentInitEnabled(getBooleanProperty(ENVIRONMENT_INIT_ENABLED, map, true))
                 .withLogCopyEnabled(getBooleanProperty(LOGS_COPY, map, false))
-                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
-                .withFmpPath(getStringProperty(FMP_PATH, map, DEFAULT_FMP_PATH))
-                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
                 .withLogPath(getStringProperty(LOGS_PATH, map, null))
                 .withScriptEnvironmentVariables(parseMap(map.get(ENVIRONMENT_SCRIPT_ENV)))
                 .withEnvironmentSetupScriptUrl(
@@ -179,6 +184,11 @@ public class DefaultConfiguration implements Configuration {
                 .withPassword(getStringProperty(PASSWORD, map, null))
                 .withApiVersion(getStringProperty(API_VERSION, map, "v1"))
                 .withTrustCerts(getBooleanProperty(TRUST_CERTS, map, true))
+                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
+                .withFmpBuildForMavenDisable(getBooleanProperty(FMP_BUILD_DISABLE_FOR_MAVEN, map, false))
+                .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
+                .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
+                .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -418,18 +428,8 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isFmpBuildEnabled() {
-        return fmpBuildEnabled;
-    }
-
-    @Override
     public String getLogPath() {
         return logPath;
-    }
-
-    @Override
-    public String getFmpPath() {
-        return fmpPath;
     }
 
     @Override
@@ -467,6 +467,31 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public boolean isTrustCerts() {
         return trustCerts;
+    }
+
+    @Override
+    public boolean isFmpBuildForMavenDisable() {
+        return fmpBuildForMavenDisable;
+    }
+
+    @Override
+    public boolean isFmpDebugOutput() {
+        return fmpDebugOutput;
+    }
+
+    @Override
+    public boolean isFmpLogsEnabled() {
+        return fmpLogsEnabled;
+    }
+
+    @Override
+    public boolean isFmpBuildEnabled() {
+        return fmpBuildEnabled;
+    }
+
+    @Override
+    public String getFmpPomPath() {
+        return fmpPomPath;
     }
 
     protected void setToken(String token) {

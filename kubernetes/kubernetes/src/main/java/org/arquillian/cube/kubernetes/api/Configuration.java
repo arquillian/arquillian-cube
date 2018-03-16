@@ -52,8 +52,6 @@ public interface Configuration {
 
     String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
     String LOGS_COPY = "logs.copy";
-    String FMP_BUILD = "fmp.build";
-    String FMP_PATH = "fmp.path";
     String LOGS_PATH = "logs.path";
 
     String USERNAME = "cube.username";
@@ -62,7 +60,14 @@ public interface Configuration {
     String API_VERSION = "cube.api.version";
     String TRUST_CERTS = "cube.trust.certs";
 
-    Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
+    // fabric8 maven plugin properties
+    String FMP_BUILD = "cube.fmp.build";
+    String FMP_BUILD_DISABLE_FOR_MAVEN = "cube.fmp.build.disable.for.mvn";
+    String FMP_POM_PATH = "cube.fmp.pom.path";
+    String FMP_DEBUG_OUTPUT = "cube.fmp.debug.output";
+    String FMP_LOGS = "cube.fmp.logs";
+
+    Long DEFAULT_WAIT_TIMEOUT = 8 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
@@ -129,11 +134,17 @@ public interface Configuration {
 
     boolean isLogCopyEnabled();
 
+    boolean isFmpBuildForMavenDisable();
+
+    boolean isFmpDebugOutput();
+
+    boolean isFmpLogsEnabled();
+
     boolean isFmpBuildEnabled();
 
-    String getLogPath();
+    String getFmpPomPath();
 
-    String getFmpPath();
+    String getLogPath();
 
     String getKubernetesDomain();
 
