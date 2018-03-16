@@ -223,6 +223,8 @@ public class SessionManager implements SessionCreatedListener {
                 .debug(configuration.isFmpDebugOutput())
                 .quiet(!configuration.isFmpLogsEnabled())
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
+                .profiles(configuration.getFmpProfiles())
+                .withProperties(configuration.getFmpSystemProperties())
                 .build();
         }
 

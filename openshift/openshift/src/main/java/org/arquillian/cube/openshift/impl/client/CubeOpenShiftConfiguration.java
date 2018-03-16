@@ -81,7 +81,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
                                       List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-                                      boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath,
+                                      boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath, List<String> fmpProfiles, List<String> fmpSystemProperties,
                                       String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
                                       String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection,
@@ -91,8 +91,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
             environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
-            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, fmpBuildEnabled,
-            fmpBuildForMavenDisable, fmpDebugOutput, fmpLogsEnabled, fmpPomPath, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts);
+            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts, fmpBuildEnabled,  fmpBuildForMavenDisable, fmpDebugOutput, fmpLogsEnabled, fmpPomPath, fmpProfiles, fmpSystemProperties);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -201,6 +200,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
                 .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
                 .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
+                .withFmpProfile(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
+                .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {

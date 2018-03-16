@@ -66,6 +66,8 @@ public interface Configuration {
     String FMP_POM_PATH = "cube.fmp.pom.path";
     String FMP_DEBUG_OUTPUT = "cube.fmp.debug.output";
     String FMP_LOGS = "cube.fmp.logs";
+    String FMP_PROFILES = "cube.fmp.profiles";
+    String FMP_SYSTEM_PROPERTIES = "cube.fmp.system.properties";
 
     Long DEFAULT_WAIT_TIMEOUT = 8 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
@@ -143,6 +145,10 @@ public interface Configuration {
     boolean isFmpBuildEnabled();
 
     String getFmpPomPath();
+
+    List<String> getFmpProfiles();
+
+    List<String> getFmpSystemProperties();
 
     String getLogPath();
 

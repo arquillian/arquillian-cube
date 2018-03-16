@@ -76,6 +76,8 @@ public class DefaultConfiguration implements Configuration {
     private final boolean fmpDebugOutput;
     private final boolean fmpLogsEnabled;
     private final String fmpPomPath;
+    private final List<String> fmpProfiles;
+    private final List<String> fmpSystemProperties;
 
     private String token;
 
@@ -85,9 +87,8 @@ public class DefaultConfiguration implements Configuration {
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-        boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath,
         String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
-        String apiVersion, boolean trustCerts) {
+        String apiVersion, boolean trustCerts, boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled,  String fmpPomPath, List<String> fmpProfiles, List<String> fmpSystemProperties) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
@@ -111,11 +112,6 @@ public class DefaultConfiguration implements Configuration {
         this.ansiLoggerEnabled = ansiLoggerEnabled;
         this.environmentInitEnabled = environmentInitEnabled;
         this.logCopyEnabled = logCopyEnabled;
-        this.fmpBuildEnabled = fmpBuildEnabled;
-        this.fmpBuildForMavenDisable = fmpBuildForMavenDisable;
-        this.fmpLogsEnabled = fmpLogsEnabled;
-        this.fmpDebugOutput = fmpDebugOutput;
-        this.fmpPomPath = fmpPomPath;
         this.logPath = logPath;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
@@ -124,6 +120,13 @@ public class DefaultConfiguration implements Configuration {
         this.password = password;
         this.apiVersion = apiVersion;
         this.trustCerts = trustCerts;
+        this.fmpBuildEnabled = fmpBuildEnabled;
+        this.fmpBuildForMavenDisable = fmpBuildForMavenDisable;
+        this.fmpLogsEnabled = fmpLogsEnabled;
+        this.fmpDebugOutput = fmpDebugOutput;
+        this.fmpPomPath = fmpPomPath;
+        this.fmpProfiles = fmpProfiles;
+        this.fmpSystemProperties = fmpSystemProperties;
     }
 
     public static DefaultConfiguration fromMap(Map<String, String> map) {
@@ -189,6 +192,8 @@ public class DefaultConfiguration implements Configuration {
                 .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
                 .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
                 .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
+                .withFmpProfile(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
+                .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -494,6 +499,16 @@ public class DefaultConfiguration implements Configuration {
         return fmpPomPath;
     }
 
+    @Override
+    public List<String> getFmpProfiles() {
+        return fmpProfiles;
+    }
+
+    @Override
+    public List<String> getFmpSystemProperties() {
+        return fmpSystemProperties;
+    }
+
     protected void setToken(String token) {
         this.token = token;
     }
@@ -577,6 +592,19 @@ public class DefaultConfiguration implements Configuration {
         }
         content.append("  ").append(TRUST_CERTS).append(" = ").append(trustCerts).append(lineSeparator);
 
+        content.append("  ").append(FMP_BUILD).append(" = ").append(fmpBuildEnabled).append(lineSeparator);
+        content.append("  ").append(FMP_BUILD_DISABLE_FOR_MAVEN).append(" = ").append(fmpBuildForMavenDisable).append(lineSeparator);
+        content.append("  ").append(FMP_POM_PATH).append(" = ").append(fmpPomPath).append(lineSeparator);
+        content.append("  ").append(FMP_DEBUG_OUTPUT).append(" = ").append(fmpDebugOutput).append(lineSeparator);
+        content.append("  ").append(FMP_LOGS).append(" = ").append(fmpLogsEnabled).append(lineSeparator);
+
+        if (!fmpProfiles.isEmpty()) {
+            content.append("  ").append(FMP_PROFILES).append(" = ").append(fmpProfiles).append(lineSeparator);
+        }
+
+        if (!fmpSystemProperties.isEmpty()) {
+            content.append("  ").append(FMP_SYSTEM_PROPERTIES).append(" = ").append(fmpSystemProperties).append(lineSeparator);
+        }
         return content.toString();
     }
 }

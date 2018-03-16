@@ -33,7 +33,7 @@ public class ResourceGeneratorBuilderIT {
         // when
         new Fabric8MavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
-            .quiet(true)
+            .quiet()
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
             .build();
 

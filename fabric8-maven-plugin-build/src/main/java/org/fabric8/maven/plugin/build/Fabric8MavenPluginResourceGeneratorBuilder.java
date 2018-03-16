@@ -1,6 +1,11 @@
 package org.fabric8.maven.plugin.build;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
@@ -12,6 +17,8 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     private String namespace;
     private boolean mvnDebugOutput;
     private boolean quietMode;
+    private String[] profiles;
+    private Map<String, String> properties = new HashMap<>();
 
     public Fabric8MavenPluginResourceGeneratorBuilder namespace(String namespace) {
         this.namespace = namespace;
@@ -26,6 +33,10 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     public Fabric8MavenPluginResourceGeneratorBuilder pluginConfigurationIn(Path pom) {
         this.pom = pom;
         return this;
+    }
+
+    public Fabric8MavenPluginResourceGeneratorBuilder quiet() {
+        return quiet(true);
     }
 
     public Fabric8MavenPluginResourceGeneratorBuilder quiet(boolean quiet) {
@@ -47,6 +58,34 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
         return this;
     }
 
+    public Fabric8MavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
+        return profiles(profiles.toArray(new String[profiles.size()]));
+    }
+
+    public Fabric8MavenPluginResourceGeneratorBuilder profiles(String... profiles) {
+        this.profiles = profiles;
+        return this;
+    }
+
+    public Fabric8MavenPluginResourceGeneratorBuilder withProperties(List<String> propertiesPairs) {
+        return withProperties(propertiesPairs.toArray(new String[propertiesPairs.size()]));
+    }
+
+    public Fabric8MavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
+        if (propertiesPairs.length % 2 != 0) {
+            throw new IllegalArgumentException("Expecting even amount of variable name - value pairs to be passed. Got "
+                + propertiesPairs.length
+                + " entries. "
+                + Arrays.toString(propertiesPairs));
+        }
+
+        for (int i = 0; i < propertiesPairs.length; i += 2) {
+            this.properties.put(propertiesPairs[i], propertiesPairs[i + 1]);
+        }
+
+        return this;
+    }
+
     public void build() {
         final ConfigurationDistributionStage distributionStage = EmbeddedMaven
             .forProject(pom.toFile())
@@ -62,6 +101,14 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             distributionStage.addShellEnvironment("JAVA_HOME", "/usr/lib/jvm/java-1.8.0");
         }
 
+        if (profiles.length > 0) {
+            distributionStage.setProfiles(profiles);
+        }
+
+        if (properties.isEmpty()) {
+            distributionStage.setProperties(asProperties(properties));
+        }
+
         final BuiltProject builtProject = distributionStage.ignoreFailure()
             .build();
 
@@ -69,5 +116,11 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             System.out.println(builtProject.getMavenLog());
             throw new IllegalStateException("Maven build has failed, see logs for details");
         }
+    }
+
+    private Properties asProperties(Map<String, String> propertyMap) {
+        final Properties properties = new Properties();
+        properties.putAll(propertyMap);
+        return properties;
     }
 }

@@ -54,7 +54,7 @@ public final class Strings {
      * splits a string into a list of strings.  Trims the results and ignores empty strings
      */
     public static List<String> splitAndTrimAsList(String text, String sep) {
-        ArrayList<String> answer = new ArrayList<String>();
+        ArrayList<String> answer = new ArrayList<>();
         if (text != null && text.length() > 0) {
             for (String v : text.split(sep)) {
                 String trim = v.trim();
