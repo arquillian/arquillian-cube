@@ -443,6 +443,11 @@ public class TakeKubernetesResourcesInformationTest {
             }
 
             @Override
+            public URL locateFromTargetDir() {
+                return null;
+            }
+
+            @Override
             public Collection<URL> locateAdditionalResources() {
                 return Collections.emptyList();
             }

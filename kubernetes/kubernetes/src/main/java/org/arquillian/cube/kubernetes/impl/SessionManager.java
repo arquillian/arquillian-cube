@@ -160,6 +160,11 @@ public class SessionManager implements SessionCreatedListener {
                     configUrl = kubernetesResourceLocator.locate();
                 }
 
+                // This is needed only for maven build, because it can't identify updated classpath during the build
+                if (configUrl == null && configuration.isFmpBuildEnabled()) {
+                    configUrl = kubernetesResourceLocator.locateFromTargetDir();
+                }
+
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
@@ -216,7 +221,7 @@ public class SessionManager implements SessionCreatedListener {
             new Fabric8MavenPluginResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
                 .debug(configuration.isFmpDebugOutput())
-                .quiet(configuration.isFmpLogsEnabled())
+                .quiet(!configuration.isFmpLogsEnabled())
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
                 .build();
         }

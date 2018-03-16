@@ -1,9 +1,17 @@
 package org.arquillian.cube.kubernetes.impl.locator;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 
+import java.util.Optional;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
 
 public class DefaultKubernetesResourceLocator implements KubernetesResourceLocator {
@@ -26,6 +34,41 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
     }
 
     @Override
+    public URL locateFromTargetDir() {
+        for (String resource : getResourceNames()) {
+            for (String suffix : getAllowedSuffixes()) {
+                URL candidate = getResourceFromTarget(resource + suffix);
+                if (candidate != null) {
+                    return candidate;
+                }
+            }
+        }
+        return null;
+    }
+
+    private URL getResourceFromTarget(String resourceName) {
+        File targetDir = new File(System.getProperty("basedir", ".") + "/target/classes");
+
+        try {
+            return Files.walk(Paths.get(targetDir.toString()))
+                .filter(path -> Files.isRegularFile(path) && path.endsWith(resourceName))
+                .findFirst()
+                .map(this::toUrl)
+                .orElse(null);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private URL toUrl(Path path) {
+        try {
+            return path.toUri().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Collection<URL> locateAdditionalResources() {
         return Collections.emptyList();
     }
@@ -38,7 +81,7 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
         return ALLOWED_SUFFIXES;
     }
 
-    URL getResource(String resource) {
+    private URL getResource(String resource) {
         return KubernetesResourceLocator.class.getResource(resource.startsWith(ROOT) ? resource : ROOT + resource);
     }
 
