@@ -120,8 +120,6 @@ filesystem - as individual files, one for each pod. Filenames will be "ClassName
 If the pod has multiple containers, one log file for each container will be created. Kubernetes events (`kubectl get events`)
 will also be captured if this flag is enabled. Filenames will end with `-KUBE_EVENTS.log`
 | logs.path | String | Any | Directory where to save the pods logs. Defaults to "target/surefire-reports".
-| fmp.path  | String | Any | Path to pom.xml where fmp plugin configuration is present. Defaults to "pom.xml".
-| fmp.build | Bool (false) | Any | Whether to generate resources using fmp when running test from IDE
 |===
 
 ==== Openshift Configuration Parameters
