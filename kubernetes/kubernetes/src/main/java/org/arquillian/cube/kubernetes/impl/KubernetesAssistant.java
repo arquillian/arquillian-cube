@@ -403,7 +403,7 @@ public class KubernetesAssistant {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
                 return list.stream()
-                    .filter(pod -> pod.getMetadata().getName().startsWith(applicationName))
+                    .filter(pod -> pod.getMetadata().getName().startsWith(applicationName) && !pod.getMetadata().getName().endsWith("-deploy"))
                     .filter(this::isRunning)
                     .collect(Collectors.toList()).size() >= 1;
             }

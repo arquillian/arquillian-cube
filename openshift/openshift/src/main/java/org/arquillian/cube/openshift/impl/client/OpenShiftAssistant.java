@@ -234,7 +234,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
             .findFirst();
     }
 
-    private OpenShiftClient getClient() {
+    public OpenShiftClient getClient() {
         return client.adapt(OpenShiftClient.class);
     }
 }

@@ -30,6 +30,21 @@ public class HelloWorldOpenShiftAssistantIT {
     }
 
     @Test
+    public void should_deploy_app_programmatically() throws IOException {
+        openShiftAssistant.deployApplication("hello-openshift-deployment-config", "deployment.yml");
+
+        openShiftAssistant.awaitApplicationReadinessOrFail();
+
+        assertThat(openShiftAssistant.getClient()
+            .pods()
+            .inNamespace(openShiftAssistant.getCurrentProjectName())
+            .withLabel("name", "hello-openshift-deployment-config")
+            .list()
+            .getItems()
+            .size()).isGreaterThan(1);
+    }
+
+    @Test
     public void should_apply_route_programmatically() throws IOException {
 
         openShiftAssistant.deployApplication("hello-world", "hello-route.json");
