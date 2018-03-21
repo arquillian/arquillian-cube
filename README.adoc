@@ -57,8 +57,6 @@ include::{asciidoctor-source}/polyglot.adoc[]
 
 include::{asciidoctor-source}/kubernetes.adoc[]
 
-include::{asciidoctor-source}/fabric8-maven-plugin.adoc[]
-
 include::{asciidoctor-source}/fabric8.adoc[]
 
 include::{asciidoctor-source}/forge.adoc[]
