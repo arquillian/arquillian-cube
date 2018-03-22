@@ -11,8 +11,9 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 
-import java.util.Optional;
 import org.arquillian.cube.kubernetes.api.KubernetesResourceLocator;
+
+import static org.arquillian.cube.kubernetes.impl.utils.FileUtils.isResourceAllowed;
 
 public class DefaultKubernetesResourceLocator implements KubernetesResourceLocator {
 
@@ -35,23 +36,11 @@ public class DefaultKubernetesResourceLocator implements KubernetesResourceLocat
 
     @Override
     public URL locateFromTargetDir() {
-        for (String resource : getResourceNames()) {
-            for (String suffix : getAllowedSuffixes()) {
-                URL candidate = getResourceFromTarget(resource + suffix);
-                if (candidate != null) {
-                    return candidate;
-                }
-            }
-        }
-        return null;
-    }
-
-    private URL getResourceFromTarget(String resourceName) {
         File targetDir = new File(System.getProperty("basedir", ".") + "/target/classes");
 
         try {
             return Files.walk(Paths.get(targetDir.toString()))
-                .filter(path -> Files.isRegularFile(path) && path.endsWith(resourceName))
+                .filter(path -> Files.isRegularFile(path) && isResourceAllowed(path, getResourceNames(), getAllowedSuffixes()))
                 .findFirst()
                 .map(this::toUrl)
                 .orElse(null);
