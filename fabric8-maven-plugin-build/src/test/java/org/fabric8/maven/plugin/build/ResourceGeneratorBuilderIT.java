@@ -1,13 +1,17 @@
 package org.fabric8.maven.plugin.build;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -25,12 +29,20 @@ public class ResourceGeneratorBuilderIT {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    private String namespace;
+    private KubernetesClient kubernetesClient;
+
+    @Before
+    public void getNamespace() {
+        kubernetesClient = new DefaultKubernetesClient();
+        namespace = kubernetesClient.getNamespace();
+    }
+
     @Test
     public void should_build_images_and_generate_resources() throws IOException {
         // given
         final String rootPath = temporaryFolder.getRoot().toString() + "spring-boot-http-booster";
         copyDirectory(Paths.get("src/test/resources/spring-boot-http-booster"), Paths.get(rootPath));
-        final String namespace = new DefaultKubernetesClient().getNamespace();
 
         // when
         new Fabric8MavenPluginResourceGeneratorBuilder()
@@ -56,6 +68,18 @@ public class ResourceGeneratorBuilderIT {
             .collect(toList());
         for (int i = 0; i < sources.size(); i++) {
             Files.copy(sources.get(i), targets.get(i));
+        }
+    }
+
+    @After
+    public void removeBuildPod() {
+        final List<String> pods = kubernetesClient.pods().inNamespace(namespace).list().getItems().stream()
+            .filter(pod -> pod.getMetadata().getName().startsWith("spring-boot-rest-http-s2i"))
+            .map(pod -> pod.getMetadata().getName())
+            .collect(Collectors.toList());
+
+        for (String pod : pods) {
+            kubernetesClient.pods().inNamespace(namespace).withName(pod).delete();
         }
     }
 }
