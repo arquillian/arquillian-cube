@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
 
 public class Fabric8MavenPluginResourceGeneratorBuilder {
+
+    private static final Logger logger = Logger.getLogger(Fabric8MavenPluginResourceGeneratorBuilder.class.getName());
 
     private Path pom;
     private String[] goals = new String[] {"package", "fabric8:build", "fabric8:resource"};
@@ -96,6 +99,9 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
 
         // TODO: https://github.com/arquillian/arquillian-cube/issues/1017
         if (System.getenv("JAVA_HOME") == null) {
+            logger.warning(
+                "No JAVA_HOME defined. Defaulting to /usr/lib/jvm/java-1.8.0. If that's not where it should be, "
+                    + "please define JAVA_HOME environment variable and re-run this test. See https://git.io/vxWo9 for reasons.");
             distributionStage.addShellEnvironment("JAVA_HOME", "/usr/lib/jvm/java-1.8.0");
         }
 
