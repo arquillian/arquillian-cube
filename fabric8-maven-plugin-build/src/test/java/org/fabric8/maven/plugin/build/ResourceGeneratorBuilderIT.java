@@ -16,7 +16,7 @@ import org.junit.rules.TemporaryFolder;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-// To run this test from IDE. make sure you update `arquillian-cube.version` with current project.version.
+// If you want to run it from the IDE against latest code changes you have to set system property `arquillian-cube.version` with latest project.version.
 
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
@@ -36,7 +36,7 @@ public class ResourceGeneratorBuilderIT {
         new Fabric8MavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
             .quiet()
-            .withProperties("arquillian-cube.version", System.getProperty("arquillian-cube.version", "1.15.3-SNAPSHOT"))
+            .withProperties("arquillian-cube.version", System.getProperty("arquillian-cube.version", "1.15.3"))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
             .build();
 

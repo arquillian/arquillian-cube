@@ -30,7 +30,7 @@
   <description>Booster for FMP Integration Test with Cube</description>
 
   <properties>
-    <arquillian-cube.version>1.15.3-SNAPSHOT</arquillian-cube.version>
+    <arquillian-cube.version/>
   </properties>
 
   <dependencyManagement>
