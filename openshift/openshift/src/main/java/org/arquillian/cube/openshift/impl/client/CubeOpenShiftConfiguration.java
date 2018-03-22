@@ -355,52 +355,50 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
 
         content.append("CubeOpenShiftConfiguration: ").append(lineSeparator);
 
-        content.append("  ").append(KEEP_ALIVE_GIT_SERVER).append(" = ").append(keepAliveGitServer).append(lineSeparator);
+        appendPropertyWithValue(content, KEEP_ALIVE_GIT_SERVER, keepAliveGitServer);
 
         if (definitions != null) {
-            content.append("  ").append(DEFINITIONS).append(" = ").append(definitions).append(lineSeparator);
+            appendPropertyWithValue(content, DEFINITIONS , definitions);
         }
         if (definitionsFile != null) {
-            content.append("  ").append(DEFINITIONS_FILE).append(" = ").append(definitionsFile).append(lineSeparator);
+            appendPropertyWithValue(content,DEFINITIONS_FILE ,definitionsFile );
         }
 
         if (autoStartContainers != null) {
-            content.append("  ").append(AUTO_START_CONTAINERS).append(" = ").append(Arrays.toString(autoStartContainers)).append(lineSeparator);
+            appendPropertyWithValue(content, AUTO_START_CONTAINERS, Arrays.toString(autoStartContainers));
         }
 
         if (proxiedContainerPorts != null) {
-            content.append("  ").append(PROXIED_CONTAINER_PORTS).append(" = ").append(proxiedContainerPorts).append(lineSeparator);
+            appendPropertyWithValue(content,PROXIED_CONTAINER_PORTS , proxiedContainerPorts);
         }
 
         if (portForwardBindAddress != null) {
-            content.append("  ").append(PORT_FORWARDER_BIND_ADDRESS).append(" = ").append(portForwardBindAddress).append(lineSeparator);
+            appendPropertyWithValue(content, PORT_FORWARDER_BIND_ADDRESS, portForwardBindAddress);
         }
 
         if (routerHost != null) {
-            content.append("  ").append(ROUTER_HOST).append(" = ").append(routerHost).append(lineSeparator);
+            appendPropertyWithValue(content, ROUTER_HOST,routerHost );
         }
 
-        content.append("  ").append(OPENSHIFT_ROUTER_HTTP_PORT).append(" = ").append(openshiftRouterHttpPort).append(lineSeparator);
+        appendPropertyWithValue(content, OPENSHIFT_ROUTER_HTTP_PORT,openshiftRouterHttpPort );
+        appendPropertyWithValue(content,OPENSHIFT_ROUTER_HTTPS_PORT ,openshiftRouterHttpsPort );
 
-        content.append("  ").append(OPENSHIFT_ROUTER_HTTPS_PORT).append(" = ").append(openshiftRouterHttpsPort).append(lineSeparator);
-
-        content.append("  ").append(ENABLE_IMAGE_STREAM_DETECTION).append(" = ").append(enableImageStreamDetection).append(lineSeparator);
-
-        content.append("  ").append(ROUTER_SNI_PORT).append(" = ").append(routerSniPort).append(lineSeparator);
+        appendPropertyWithValue(content,ENABLE_IMAGE_STREAM_DETECTION ,enableImageStreamDetection );
+        appendPropertyWithValue(content,ROUTER_SNI_PORT ,routerSniPort );
 
         if (templateURL != null) {
-            content.append("  ").append(TEMPLATE_URL).append(" = ").append(templateURL).append(lineSeparator);
+            appendPropertyWithValue(content, TEMPLATE_URL, templateURL);
         }
         if (templateLabels != null) {
-            content.append("  ").append(TEMPLATE_LABELS).append(" = ").append(templateLabels).append(lineSeparator);
+            appendPropertyWithValue(content,TEMPLATE_LABELS , templateLabels);
         }
         if (templateParameters != null) {
-            content.append("  ").append(TEMPLATE_PARAMETERS).append(" = ").append(templateParameters).append(lineSeparator);
+            appendPropertyWithValue(content,TEMPLATE_PARAMETERS , templateParameters);
         }
 
-        content.append("  ").append(TEMPLATE_PROCESS).append(" = ").append(templateProcess).append(lineSeparator);
-        content.append("  ").append(STARTUP_TIMEOUT).append(" = ").append(startupTimeout).append(lineSeparator);
-        content.append("  ").append(HTTP_CLIENT_TIMEOUT).append(" = ").append(httpClientTimeout).append(lineSeparator);
+        appendPropertyWithValue(content, TEMPLATE_PROCESS, templateProcess);
+        appendPropertyWithValue(content, STARTUP_TIMEOUT, startupTimeout);
+        appendPropertyWithValue(content, HTTP_CLIENT_TIMEOUT, httpClientTimeout);
 
         return content.toString();
     }
