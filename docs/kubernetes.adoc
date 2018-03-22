@@ -240,6 +240,31 @@ a possible location of resources needed to be accessed during tests, usually wit
 you are testing made some changes in state of services in another namespaces, you can specify the secondary
 namespace in a field of @Named annotation to reach them.
 
+[NOTE]
+====
+Necessary configuration to avoid permission conflicts for creating namespaces.
+
+1. If using `MiniShift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
+use `current` or `existing` namespace configured using properties `namespace.use.current` and `namespace.use.existing`
+respectively if logged in as any other user.
+
+2. In case of remote cluster use `current` or `existing` namespace for the user authenticated by token using property
+`cube.auth.token` or by username and password using properties `cube.username` and `cube.password` respectively.
+
+[source, xml]
+.arquillian.xml
+----
+<!-- configuring remote cluster -->
+
+<property name="namespace.use.existing">existing-namespace</property>
+<property name="kubernetes.master">https://api.starter-us-east-2.openshift.com</property>
+
+<property name="cube.auth.token">token</property>
+OR
+<property name="cube.username">username</property>
+<property name="cube.password">password</property>
+====
+
 ### Creating the environment
 
 After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage
