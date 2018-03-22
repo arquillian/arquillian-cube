@@ -27,8 +27,7 @@
   <version>1.5.10-5-SNAPSHOT</version>
 
   <name>Spring Boot - HTTP Booster</name>
-  <description>Spring Boot - HTTP Booster</description>
-
+  <description>Booster for FMP Integration Test with Cube</description>
 
   <properties>
     <arquillian-cube.version>1.15.3-SNAPSHOT</arquillian-cube.version>

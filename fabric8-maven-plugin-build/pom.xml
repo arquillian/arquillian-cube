@@ -42,4 +42,18 @@
   </dependency>
 </dependencies>
 
+  <build>
+    <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <configuration>
+            <systemPropertyVariables>
+              <arquillian-cube.version>${project.version}</arquillian-cube.version>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+    </plugins>
+  </build>
+
 </project>

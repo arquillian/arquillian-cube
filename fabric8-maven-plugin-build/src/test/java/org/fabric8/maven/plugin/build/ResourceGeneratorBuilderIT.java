@@ -16,6 +16,8 @@ import org.junit.rules.TemporaryFolder;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+// To run this test from IDE. make sure you update `arquillian-cube.version` with current project.version.
+
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
 public class ResourceGeneratorBuilderIT {
@@ -24,7 +26,7 @@ public class ResourceGeneratorBuilderIT {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void should_generate_build_and_resources() throws IOException {
+    public void should_build_images_and_generate_resources() throws IOException {
         // given
         final String rootPath = temporaryFolder.getRoot().toString() + "spring-boot-http-booster";
         copyDirectory(Paths.get("src/test/resources/spring-boot-http-booster"), Paths.get(rootPath));
@@ -34,6 +36,7 @@ public class ResourceGeneratorBuilderIT {
         new Fabric8MavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
             .quiet()
+            .withProperties("arquillian-cube.version", System.getProperty("arquillian-cube.version", "1.15.3-SNAPSHOT"))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
             .build();
 

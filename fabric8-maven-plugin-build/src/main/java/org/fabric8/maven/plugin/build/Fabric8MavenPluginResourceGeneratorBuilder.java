@@ -73,10 +73,8 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
 
     public Fabric8MavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
         if (propertiesPairs.length % 2 != 0) {
-            throw new IllegalArgumentException("Expecting even amount of variable name - value pairs to be passed. Got "
-                + propertiesPairs.length
-                + " entries. "
-                + Arrays.toString(propertiesPairs));
+            throw new IllegalArgumentException(
+                String.format("Expecting even amount of variable name - value pairs to be passed. Got %s entries. %s", propertiesPairs.length, Arrays.toString(propertiesPairs)));
         }
 
         for (int i = 0; i < propertiesPairs.length; i += 2) {
@@ -96,7 +94,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             .setGoals(goals)
             .addProperty("fabric8.namespace", namespace);
 
-        //Remove this after fixing issue  https://github.com/eclipse/che/issues/9105
+        // TODO: https://github.com/arquillian/arquillian-cube/issues/1017
         if (System.getenv("JAVA_HOME") == null) {
             distributionStage.addShellEnvironment("JAVA_HOME", "/usr/lib/jvm/java-1.8.0");
         }
@@ -105,7 +103,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             distributionStage.setProfiles(profiles);
         }
 
-        if (properties.isEmpty()) {
+        if (!properties.isEmpty()) {
             distributionStage.setProperties(asProperties(properties));
         }
 
