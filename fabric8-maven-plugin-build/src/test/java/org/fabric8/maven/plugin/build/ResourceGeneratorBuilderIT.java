@@ -36,7 +36,7 @@ public class ResourceGeneratorBuilderIT {
         new Fabric8MavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
             .quiet()
-            .withProperties("arquillian-cube.version", System.getProperty("arquillian-cube.version", "1.15.3"))
+            .withProperties("version.cube", System.getProperty("version.cube", "1.15.3"))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
             .build();
 

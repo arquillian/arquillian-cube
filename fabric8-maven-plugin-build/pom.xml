@@ -49,7 +49,7 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <configuration>
             <systemPropertyVariables>
-              <arquillian-cube.version>${project.version}</arquillian-cube.version>
+              <version.cube>${project.version}</version.cube>
             </systemPropertyVariables>
           </configuration>
         </plugin>
