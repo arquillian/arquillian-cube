@@ -43,8 +43,9 @@ install:
   - |
       # OpenShift >= 3.7 requires nsenter https://github.com/openshift/origin/issues/17638
       if [ ${OC_VERSION} == "v3.7.1" ] || [ ${OC_VERSION} == "v3.7.0" ] ; then
-        sudo chmod +x nsetter_and_systemd_run_setup.sh
+        cd .travis && sudo chmod +x nsetter_and_systemd_run_setup.sh
         ./nsetter_and_systemd_run_setup.sh
+        cd ..
       fi
       if [ ${OC_CLUSTER_UP} ]; then
         tmp=`mktemp`
