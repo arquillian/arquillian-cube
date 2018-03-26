@@ -2,10 +2,10 @@ sudo: required
 
 matrix:
   include:
-     - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.0" COMMIT_ID="c4dd4cf" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.6.1" COMMIT_ID="008f2d5" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
-     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.0" COMMIT_ID="7ed6862" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.1" COMMIT_ID="ab0f056" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.2" COMMIT_ID="282e43f" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0-alpha.3" COMMIT_ID="78ddc10" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes,org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
 services:
@@ -42,7 +42,7 @@ before_install:
 install:
   - |
       # OpenShift >= 3.7 requires nsenter https://github.com/openshift/origin/issues/17638
-      if [ ${OC_VERSION} == "v3.7.1" ] || [ ${OC_VERSION} == "v3.7.0" ] ; then
+      if [ ${OC_VERSION} == "v3.7.1" ] || [ ${OC_VERSION} == "v3.7.2" ] ; then
         ./.travis/nsetter_and_systemd_run_setup.sh
       fi
       if [ ${OC_CLUSTER_UP} ]; then
@@ -60,7 +60,7 @@ install:
         oc cluster up --version=${OC_VERSION} --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
         sleep 10
         oc login -u system:admin
-        oc get all -n default
+        oc get event --all-namespaces
       fi
 
 before_script: ./mvnw install -q -U -DskipTests=true
@@ -83,6 +83,13 @@ after_error:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
+      fi
 
 after_failure:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
@@ -90,6 +97,8 @@ after_failure:
     fi'
   - |
       if [ ${OC_CLUSTER_UP} ]; then
-        oc project default
-        oc get event -w
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
       fi
