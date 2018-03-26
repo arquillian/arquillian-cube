@@ -11,16 +11,17 @@
 		"containers": [{
 			"name": "hello-openshift",
 			"image": "arquillian:./src/test/resources/wildfly",
-            "ports": [
-                {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
-                },
-                {
-                    "containerPort": 9990,
-                    "protocol": "TCP"
-                }
-            ],
+      "imagePullPolicy": "IfNotPresent",
+      "ports": [
+          {
+              "containerPort": 8080,
+              "protocol": "TCP"
+          },
+          {
+              "containerPort": 9990,
+              "protocol": "TCP"
+          }
+      ],
 			"readinessProbe" : {
 				"exec": {
 					"command": [

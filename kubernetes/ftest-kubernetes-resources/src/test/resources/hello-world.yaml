@@ -27,6 +27,7 @@ spec:
     spec:
       containers:
       - image: openshift/hello-openshift:v3.6.0
+        imagePullPolicy: IfNotPresent
         name: hello-world-container
         ports:
         - name: http

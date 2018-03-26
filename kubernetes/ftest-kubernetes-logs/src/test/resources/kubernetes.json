@@ -12,6 +12,7 @@
                 "containers": [
                     {
                         "image": "busybox",
+                        "imagePullPolicy": "IfNotPresent",
                         "name": "only-container",
                         "command": ["/bin/sh"],
                         "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo only-one; done"],
@@ -37,6 +38,7 @@
                 "containers": [
                     {
                         "image": "busybox",
+                        "imagePullPolicy": "IfNotPresent",
                         "name": "first-container",
                         "command": ["/bin/sh"],
                         "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo first; done"],
@@ -50,6 +52,7 @@
                     },
                     {
                         "image": "busybox",
+                        "imagePullPolicy": "IfNotPresent",
                         "name": "second-container",
                         "command": ["/bin/sh"],
                         "args": ["-c", "while true; do  sleep 1; file=\"/tmp/healthy\"; if [[ ! -f $file ]]; then touch $file; fi; echo second; done"],
