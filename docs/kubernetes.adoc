@@ -258,10 +258,10 @@ properties can be set in `arquillian.xml` as shown in the snippet below or as sy
 <!-- configuring remote cluster -->
 
 <property name="namespace.use.existing">existing-namespace</property>
-<property name="kubernetes.master">https://api.starter-us-east-2.openshift.com</property>
+<property name="kubernetes.master">https://api.yourcluster.openshift.com</property>
 
 <property name="cube.auth.token">token</property>
-OR
+<!-- OR -->
 <property name="cube.username">username</property>
 <property name="cube.password">password</property>
 ====
