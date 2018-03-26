@@ -251,7 +251,7 @@ respectively if logged in as any other user.
 2. In case of remote cluster use `current` or `existing` namespace for the user authenticated by token using property
 `cube.auth.token` or by username and password using properties `cube.username` and `cube.password` respectively. The
 properties can be set in `arquillian.xml` as shown in the snippet below or as system properties with the latter taking
-the precedence.
+ precedence.
 
 [source, xml]
 .arquillian.xml
