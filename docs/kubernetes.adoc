@@ -244,7 +244,7 @@ namespace in a field of @Named annotation to reach them.
 ====
 Necessary configuration to avoid permission conflicts for creating namespaces.
 
-1. If using `Minishift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
+1. When using `Minishift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
 use `current` or `existing` namespace configured using properties `namespace.use.current` and `namespace.use.existing`
 respectively if logged in as any other user.
 
