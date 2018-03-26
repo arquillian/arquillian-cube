@@ -244,12 +244,14 @@ namespace in a field of @Named annotation to reach them.
 ====
 Necessary configuration to avoid permission conflicts for creating namespaces.
 
-1. If using `MiniShift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
+1. When using `Minishift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
 use `current` or `existing` namespace configured using properties `namespace.use.current` and `namespace.use.existing`
 respectively if logged in as any other user.
 
 2. In case of remote cluster use `current` or `existing` namespace for the user authenticated by token using property
-`cube.auth.token` or by username and password using properties `cube.username` and `cube.password` respectively.
+`cube.auth.token` or by username and password using properties `cube.username` and `cube.password` respectively. The
+properties can be set in arquillian.xml as shown in the snippet below or as system properties with the later taking
+the precedence.
 
 [source, xml]
 .arquillian.xml
