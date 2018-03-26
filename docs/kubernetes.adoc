@@ -229,16 +229,16 @@ Last but not least, you can just tell arquillian, that you are going to use the 
 In this case, arquillian cube will delegate to
 https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that in turn will use:
 
-- ~/.kube/config
-- /var/run/secrets/kubernetes.io/serviceaccount/namespace
-- the KUBERNETES_NAMESPACE environmnet variable
+- `~/.kube/config`
+- `/var/run/secrets/kubernetes.io/serviceaccount/namespace`
+- the `KUBERNETES_NAMESPACE` environmnet variable
 
 to determine the current testing namespace.
 
 In addition to the primary testing namespace a number of secondary namespaces could participate in tests, but only as
 a possible location of resources needed to be accessed during tests, usually with verifying purpose. When the service
 you are testing made some changes in state of services in another namespaces, you can specify the secondary
-namespace in a field of @Named annotation to reach them.
+namespace in a field of `@Named` annotation to reach them.
 
 [NOTE]
 ====
