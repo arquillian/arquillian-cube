@@ -60,7 +60,7 @@ install:
         oc cluster up --version=${OC_VERSION} --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
         sleep 10
         oc login -u system:admin
-        oc get all -n default
+        oc get event --all-namespaces
       fi
 
 before_script: ./mvnw install -q -U -DskipTests=true
@@ -83,6 +83,13 @@ after_error:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
+      fi
 
 after_failure:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
@@ -90,6 +97,8 @@ after_failure:
     fi'
   - |
       if [ ${OC_CLUSTER_UP} ]; then
-        oc project default
-        oc get event -w
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
       fi
