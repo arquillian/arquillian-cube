@@ -40,6 +40,7 @@
           "containers" : [ {
             "image" : "openshift/hello-openshift:v3.6.0",
             "name" : "hello-openshift-container",
+            "imagePullPolicy": "IfNotPresent",
             "ports" : [ {
               "name" : "http",
               "protocol" : "TCP",
