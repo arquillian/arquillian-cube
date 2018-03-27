@@ -27,7 +27,7 @@ public class HelloWorldIT {
         final List<String> namespaces = commandExecutor.execCommand("kubectl get ns -o=name");
 
         // then
-        assertThat(namespaces).contains("namespaces/default");
+        assertThat(namespaces).contains("namespace/default");
     }
 
     @Test
