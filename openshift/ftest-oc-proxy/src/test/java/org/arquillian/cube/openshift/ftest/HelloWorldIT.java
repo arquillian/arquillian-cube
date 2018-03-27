@@ -24,10 +24,13 @@ public class HelloWorldIT {
     @Test
     public void should_be_able_get_namespace_using_kubectl() {
         // when
-        final List<String> namespaces = commandExecutor.execCommand("kubectl get ns -o=name");
+        final List<String> output = commandExecutor.execCommand("kubectl get ns -o jsonpath='{..name}'");
+
+        final String firstLine = output.get(0);
+        final String[] namespaces = firstLine.substring(1, firstLine.length() - 1).split(" ");
 
         // then
-        assertThat(namespaces).contains("namespace/default");
+        assertThat(namespaces).contains("default");
     }
 
     @Test
