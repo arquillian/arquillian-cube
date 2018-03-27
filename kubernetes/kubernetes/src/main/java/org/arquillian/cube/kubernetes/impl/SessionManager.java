@@ -222,6 +222,7 @@ public class SessionManager implements SessionCreatedListener {
                 .namespace(session.getNamespace())
                 .debug(configuration.isFmpDebugOutput())
                 .quiet(!configuration.isFmpLogsEnabled())
+                .addMavenOpts(configuration.getFmpBuildOptions())
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
                 .profiles(configuration.getFmpProfiles())
                 .withProperties(configuration.getFmpSystemProperties())

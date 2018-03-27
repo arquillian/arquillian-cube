@@ -78,6 +78,7 @@ public class DefaultConfiguration implements Configuration {
     private final String fmpPomPath;
     private final List<String> fmpProfiles;
     private final List<String> fmpSystemProperties;
+    private final String fmpBuildOptions;
 
     private String token;
 
@@ -88,7 +89,9 @@ public class DefaultConfiguration implements Configuration {
         boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
         String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
-        String apiVersion, boolean trustCerts, boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled,  String fmpPomPath, List<String> fmpProfiles, List<String> fmpSystemProperties) {
+        String apiVersion, boolean trustCerts, boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable,
+        boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath, List<String> fmpProfiles,
+        List<String> fmpSystemProperties, String fmpBuildOptions) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
@@ -127,6 +130,7 @@ public class DefaultConfiguration implements Configuration {
         this.fmpPomPath = fmpPomPath;
         this.fmpProfiles = fmpProfiles;
         this.fmpSystemProperties = fmpSystemProperties;
+        this.fmpBuildOptions = fmpBuildOptions;
     }
 
     public static DefaultConfiguration fromMap(Map<String, String> map) {
@@ -194,6 +198,7 @@ public class DefaultConfiguration implements Configuration {
                 .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
                 .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
                 .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
+                .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, ""))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -497,6 +502,11 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String getFmpPomPath() {
         return fmpPomPath;
+    }
+
+    @Override
+    public String getFmpBuildOptions() {
+        return fmpBuildOptions;
     }
 
     @Override

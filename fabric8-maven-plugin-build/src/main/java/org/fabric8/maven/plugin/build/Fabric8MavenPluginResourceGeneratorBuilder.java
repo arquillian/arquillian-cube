@@ -20,6 +20,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     private String namespace;
     private boolean mvnDebugOutput;
     private boolean quietMode;
+    private String mavenOpts = "-Xms512m -Xmx1024m";
     private String[] profiles = new String[0];
     private Map<String, String> properties = new HashMap<>();
 
@@ -61,6 +62,11 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
         return this;
     }
 
+    public Fabric8MavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
+        this.mavenOpts += " " + options;
+        return this;
+    }
+
     public Fabric8MavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
         return profiles(profiles.toArray(new String[profiles.size()]));
     }
@@ -94,6 +100,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             .useDefaultDistribution()
             .setDebug(mvnDebugOutput)
             .setDebugLoggerLevel()
+            .setMavenOpts(mavenOpts)
             .setGoals(goals)
             .addProperty("fabric8.namespace", namespace);
 

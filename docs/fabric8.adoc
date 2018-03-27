@@ -26,6 +26,7 @@ You can use following configuration options with kubernetes and openshift extens
 | cube.fmp.build | Bool (false) | Any | Whether to generate resources using fmp when running test from Maven or IDE
 | cube.fmp.build.disable.for.mvn | Bool (false) | Any | Whether to generate resources using fmp only when running test from IDE, not from maven
 | cube.fmp.pom.path  | String | Any | Path to pom.xml where fmp plugin configuration is present. Defaults to `pom.xml`
+| cube.fmp.build.options  | String | Any | Parameters used to start up the JVM running Embedded Maven and can be used to supply additional options to Embedded Maven. Defaults to `-Xms512m -Xmx1024m`
 | cube.fmp.debug.output  | Bool (false) | Any | Whether to show debug output(-X) for generating resources using fabric8 maven plugin
 | cube.fmp.logs  | Bool (true) | Any | Whether to show logs for generating resources using fabric8 maven plugin
 | cube.fmp.profiles  | List | Any | Comma-separated list of profiles which you want to activate while generating resources
