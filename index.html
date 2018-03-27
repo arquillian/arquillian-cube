@@ -6082,13 +6082,13 @@ In this case, arquillian cube will delegate to
 <div class="ulist">
 <ul>
 <li>
-<p>~/.kube/config</p>
+<p><code>~/.kube/config</code></p>
 </li>
 <li>
-<p>/var/run/secrets/kubernetes.io/serviceaccount/namespace</p>
+<p><code>/var/run/secrets/kubernetes.io/serviceaccount/namespace</code></p>
 </li>
 <li>
-<p>the KUBERNETES_NAMESPACE environmnet variable</p>
+<p>the <code>KUBERNETES_NAMESPACE</code> environmnet variable</p>
 </li>
 </ul>
 </div>
@@ -6099,7 +6099,49 @@ In this case, arquillian cube will delegate to
 <p>In addition to the primary testing namespace a number of secondary namespaces could participate in tests, but only as
 a possible location of resources needed to be accessed during tests, usually with verifying purpose. When the service
 you are testing made some changes in state of services in another namespaces, you can specify the secondary
-namespace in a field of @Named annotation to reach them.</p>
+namespace in a field of <code>@Named</code> annotation to reach them.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Necessary configuration to avoid permission conflicts for creating namespaces.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>When using <code>Minishift</code> to spin up a local Kubernetes cluster, login in as <code>admin</code> to create the default namespace or
+use <code>current</code> or <code>existing</code> namespace configured using properties <code>namespace.use.current</code> and <code>namespace.use.existing</code>
+respectively if logged in as any other user.</p>
+</li>
+<li>
+<p>In case of remote cluster use <code>current</code> or <code>existing</code> namespace for the user authenticated by token using property
+<code>cube.auth.token</code> or by username and password using properties <code>cube.username</code> and <code>cube.password</code> respectively. The
+properties can be set in <code>arquillian.xml</code> as shown in the snippet below or as system properties with the latter taking precedence.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">arquillian.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="comment">&lt;!-- configuring remote cluster --&gt;</span>
+
+<span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">namespace.use.existing</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>existing-namespace<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">kubernetes.master</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>https://api.yourcluster.openshift.com<span class="tag">&lt;/property&gt;</span>
+
+<span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cube.auth.token</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>token<span class="tag">&lt;/property&gt;</span>
+<span class="comment">&lt;!-- OR --&gt;</span>
+<span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cube.username</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>username<span class="tag">&lt;/property&gt;</span>
+<span class="tag">&lt;property</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">cube.password</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>password<span class="tag">&lt;/property&gt;</span></code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -7086,7 +7128,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-03-05 13:03:48 UTC
+Last updated 2018-03-27 05:27:19 UTC
 </div>
 </div>
 </body>
