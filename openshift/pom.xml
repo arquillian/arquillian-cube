@@ -39,6 +39,7 @@
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>
     <module>openshift-restassured</module>
+    <module>ftest-openshift-fabric8-maven-plugin</module>
     <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 

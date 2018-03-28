@@ -60,10 +60,21 @@ public interface Configuration {
     String API_VERSION = "cube.api.version";
     String TRUST_CERTS = "cube.trust.certs";
 
-    Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
+    // fabric8 maven plugin properties
+    String FMP_BUILD = "cube.fmp.build";
+    String FMP_BUILD_DISABLE_FOR_MAVEN = "cube.fmp.build.disable.for.mvn";
+    String FMP_POM_PATH = "cube.fmp.pom.path";
+    String FMP_DEBUG_OUTPUT = "cube.fmp.debug.output";
+    String FMP_LOGS = "cube.fmp.logs";
+    String FMP_PROFILES = "cube.fmp.profiles";
+    String FMP_SYSTEM_PROPERTIES = "cube.fmp.system.properties";
+    String FMP_BUILD_OPTIONS = "cube.fmp.build.options";
+
+    Long DEFAULT_WAIT_TIMEOUT = 8 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+    String DEFAULT_FMP_PATH = "pom.xml";
     Long DEFAULT_NAMESPACE_CLEANUP_TIMEOUT = 0L;
     Long DEFAULT_NAMESPACE_DESTROY_TIMEOUT = 0L;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
@@ -125,6 +136,22 @@ public interface Configuration {
     boolean isEnvironmentInitEnabled();
 
     boolean isLogCopyEnabled();
+
+    boolean isFmpBuildForMavenDisable();
+
+    boolean isFmpDebugOutput();
+
+    boolean isFmpLogsEnabled();
+
+    boolean isFmpBuildEnabled();
+
+    String getFmpPomPath();
+
+    String getFmpBuildOptions();
+
+    List<String> getFmpProfiles();
+
+    List<String> getFmpSystemProperties();
 
     String getLogPath();
 

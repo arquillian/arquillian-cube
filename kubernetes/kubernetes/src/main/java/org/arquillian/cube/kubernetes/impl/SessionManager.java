@@ -16,6 +16,7 @@ import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientTimeoutException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,9 +34,11 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
 import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
+import static org.arquillian.cube.kubernetes.impl.utils.MavenUtils.isRunningFromMaven;
 import static org.arquillian.cube.kubernetes.impl.utils.ProcessUtil.runCommand;
 
 public class SessionManager implements SessionCreatedListener {
@@ -139,6 +142,11 @@ public class SessionManager implements SessionCreatedListener {
                     configUrl = kubernetesResourceLocator.locate();
                 }
 
+                // This is needed only for maven build, because it can't identify updated classpath during the build
+                if (configUrl == null && configuration.isFmpBuildEnabled()) {
+                    configUrl = kubernetesResourceLocator.locateFromTargetDir();
+                }
+
                 if (configUrl != null) {
                     log.status("Applying kubernetes configuration from: " + configUrl);
                     try (InputStream is = configUrl.openStream()) {
@@ -191,6 +199,19 @@ public class SessionManager implements SessionCreatedListener {
         Logger log = session.getLogger();
         log.status("Using Kubernetes at: " + client.getMasterUrl());
         createNamespace();
+
+        if (configuration.isFmpBuildEnabled() || (configuration.isFmpBuildForMavenDisable() && !isRunningFromMaven())) {
+            new Fabric8MavenPluginResourceGeneratorBuilder()
+                .namespace(session.getNamespace())
+                .debug(configuration.isFmpDebugOutput())
+                .quiet(!configuration.isFmpLogsEnabled())
+                .addMavenOpts(configuration.getFmpBuildOptions())
+                .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
+                .profiles(configuration.getFmpProfiles())
+                .withProperties(configuration.getFmpSystemProperties())
+                .build();
+        }
+
         watchListener.setupConsoleListener();
         if (configuration.isLogCopyEnabled()) {
             watchListener.setupEventListener();

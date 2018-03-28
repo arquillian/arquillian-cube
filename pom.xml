@@ -36,6 +36,7 @@
     <module>arquillian-cube-docker-starter</module>
     <module>arquillian-cube-kubernetes-starter</module>
     <module>arquillian-cube-openshift-starter</module>
+    <module>fabric8-maven-plugin-build</module>
   </modules>
 
   <developers>
@@ -164,6 +165,11 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes-fabric8</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>fabric8-maven-plugin-build</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -431,6 +437,18 @@
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-library</artifactId>
         <version>${version.hamcrest}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>kubernetes-client</artifactId>
+        <version>${version.kubernetes_client}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>openshift-client</artifactId>
+        <version>${version.kubernetes_client}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
