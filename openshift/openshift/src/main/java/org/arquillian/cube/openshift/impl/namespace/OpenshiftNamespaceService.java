@@ -101,7 +101,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
                         .anyMatch(Predicate.isEqual(namespace));
                 } catch (KubernetesClientException e) {
                     logger.warn(
-                        String.format("Next exception has been thrown while checking the existence of % namespace and the namespace is going to be created. The exception is %s",
+                        String.format("Next exception has been thrown while checking the existence of %s namespace and the namespace is going to be created. The exception is %s",
                             namespace, e.toString())
                     );
                     return false;
