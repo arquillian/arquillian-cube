@@ -20,7 +20,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     private String namespace;
     private boolean mvnDebugOutput;
     private boolean quietMode;
-    private String mavenOpts = "-Xms512m -Xmx1024m";
+    private String mavenOpts;
     private String[] profiles = new String[0];
     private Map<String, String> properties = new HashMap<>();
 
@@ -63,7 +63,7 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     }
 
     public Fabric8MavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
-        this.mavenOpts += " " + options;
+        this.mavenOpts = options;
         return this;
     }
 
@@ -100,7 +100,6 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             .useDefaultDistribution()
             .setDebug(mvnDebugOutput)
             .setDebugLoggerLevel()
-            .setMavenOpts(mavenOpts)
             .setGoals(goals)
             .addProperty("fabric8.namespace", namespace);
 
@@ -118,6 +117,10 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
 
         if (!properties.isEmpty()) {
             distributionStage.setProperties(asProperties(properties));
+        }
+
+        if (mavenOpts != null && !mavenOpts.isEmpty()) {
+            distributionStage.setMavenOpts(mavenOpts);
         }
 
         final BuiltProject builtProject = distributionStage.ignoreFailure()

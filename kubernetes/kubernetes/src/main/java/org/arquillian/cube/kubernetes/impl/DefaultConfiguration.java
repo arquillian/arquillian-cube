@@ -198,7 +198,7 @@ public class DefaultConfiguration implements Configuration {
                 .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
                 .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
                 .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
-                .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, ""))
+                .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, null))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
