@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-istio-kubernetes-parent</artifactId>
-    <version>1.15.3</version>
+    <version>1.15.4-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube Istio Kubernetes API</name>
