@@ -1,9 +1,8 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.utils.Utils;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.utils.Utils;
 import io.sundr.builder.annotations.Buildable;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -29,13 +26,13 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_6", generateBuilderPackage = false, editableEnabled = false)
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements Configuration {
 
     private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";
     private static final Pattern ENV_VAR_PATTERN = Pattern.compile(ENV_VAR_REGEX);
 
-    public static final String ROOT = "/";
+    private static final String ROOT = "/";
 
     private final String sessionId;
     private final String namespace;
@@ -52,11 +49,13 @@ public class DefaultConfiguration implements Configuration {
     private final boolean namespaceCleanupEnabled;
     private final long namespaceCleanupTimeout;
     private final boolean namespaceCleanupConfirmationEnabled;
+    private final boolean namespaceUseCurrentEnabled;
 
     private final boolean namespaceDestroyEnabled;
     private final boolean namespaceDestroyConfirmationEnabled;
     private final long namespaceDestroyTimeout;
 
+    private final boolean waitEnabled;
     private final long waitTimeout;
     private final long waitPollInterval;
     private final List<String> waitForServiceList;
@@ -67,14 +66,32 @@ public class DefaultConfiguration implements Configuration {
     private final String logPath;
     private final String kubernetesDomain;
     private final String dockerRegistry;
+    private final String username;
+    private final String password;
+    private final String apiVersion;
+    private final boolean trustCerts;
+
+    private final boolean fmpBuildEnabled;
+    private final boolean fmpBuildForMavenDisable;
+    private final boolean fmpDebugOutput;
+    private final boolean fmpLogsEnabled;
+    private final String fmpPomPath;
+    private final List<String> fmpProfiles;
+    private final List<String> fmpSystemProperties;
+    private final String fmpBuildOptions;
+
+    private String token;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables,  URL environmentSetupScriptUrl,
-        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
+        URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
         boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
         boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
-        boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, long waitTimeout,
+        boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
         long waitPollInterval, List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
-        String logPath, String kubernetesDomain, String dockerRegistry) {
+        String logPath, String kubernetesDomain, String dockerRegistry, String token, String username, String password,
+        String apiVersion, boolean trustCerts, boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable,
+        boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath, List<String> fmpProfiles,
+        List<String> fmpSystemProperties, String fmpBuildOptions) {
         this.masterUrl = masterUrl;
         this.scriptEnvironmentVariables = scriptEnvironmentVariables;
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
@@ -90,6 +107,8 @@ public class DefaultConfiguration implements Configuration {
         this.namespaceDestroyEnabled = namespaceDestroyEnabled;
         this.namespaceDestroyConfirmationEnabled = namespaceDestroyConfirmationEnabled;
         this.namespaceDestroyTimeout = namespaceDestroyTimeout;
+        this.namespaceUseCurrentEnabled = namespaceUseCurrentEnabled;
+        this.waitEnabled = waitEnabled;
         this.waitTimeout = waitTimeout;
         this.waitPollInterval = waitPollInterval;
         this.waitForServiceList = waitForServiceList;
@@ -99,6 +118,19 @@ public class DefaultConfiguration implements Configuration {
         this.logPath = logPath;
         this.kubernetesDomain = kubernetesDomain;
         this.dockerRegistry = dockerRegistry;
+        this.token = token;
+        this.username = username;
+        this.password = password;
+        this.apiVersion = apiVersion;
+        this.trustCerts = trustCerts;
+        this.fmpBuildEnabled = fmpBuildEnabled;
+        this.fmpBuildForMavenDisable = fmpBuildForMavenDisable;
+        this.fmpLogsEnabled = fmpLogsEnabled;
+        this.fmpDebugOutput = fmpDebugOutput;
+        this.fmpPomPath = fmpPomPath;
+        this.fmpProfiles = fmpProfiles;
+        this.fmpSystemProperties = fmpSystemProperties;
+        this.fmpBuildOptions = fmpBuildOptions;
     }
 
     public static DefaultConfiguration fromMap(Map<String, String> map) {
@@ -130,7 +162,7 @@ public class DefaultConfiguration implements Configuration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
-                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
+                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
@@ -138,6 +170,7 @@ public class DefaultConfiguration implements Configuration {
                     getBooleanProperty(NAMESPACE_CLEANUP_CONFIRM_ENABLED, map, false))
                 .withNamespaceCleanupTimeout(
                     getLongProperty(NAMESPACE_CLEANUP_TIMEOUT, map, DEFAULT_NAMESPACE_CLEANUP_TIMEOUT))
+                .withNamespaceUseCurrentEnabled(getBooleanProperty(NAMESPACE_USE_CURRENT, map, false))
 
                 .withNamespaceDestroyEnabled(getBooleanProperty(NAMESPACE_DESTROY_ENABLED, map, shouldDestroyNamespace))
                 .withNamespaceDestroyConfirmationEnabled(
@@ -145,13 +178,27 @@ public class DefaultConfiguration implements Configuration {
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
+                .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
-                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s+"))
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s*,\\s*"))
                 .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                 .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                 .withDockerRegistry(getDockerRegistry(map))
+                .withToken(getStringProperty(AUTH_TOKEN, map, null))
+                .withUsername(getStringProperty(USERNAME, map, null))
+                .withPassword(getStringProperty(PASSWORD, map, null))
+                .withApiVersion(getStringProperty(API_VERSION, map, "v1"))
+                .withTrustCerts(getBooleanProperty(TRUST_CERTS, map, true))
+                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
+                .withFmpBuildForMavenDisable(getBooleanProperty(FMP_BUILD_DISABLE_FOR_MAVEN, map, false))
+                .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
+                .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
+                .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
+                .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
+                .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
+                .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, null))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -346,8 +393,18 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isNamespaceUseCurrentEnabled() {
+        return namespaceUseCurrentEnabled;
+    }
+
+    @Override
     public long getNamespaceDestroyTimeout() {
         return namespaceDestroyTimeout;
+    }
+
+    @Override
+    public boolean isWaitEnabled() {
+        return waitEnabled;
     }
 
     @Override
@@ -393,5 +450,174 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String getDockerRegistry() {
         return dockerRegistry;
+    }
+
+    public boolean hasBasicAuth() {
+        return Strings.isNotNullOrEmpty(username) && Strings.isNotNullOrEmpty(password);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
+    @Override
+    public String getToken() {
+        return token;
+    }
+
+    @Override
+    public boolean isTrustCerts() {
+        return trustCerts;
+    }
+
+    @Override
+    public boolean isFmpBuildForMavenDisable() {
+        return fmpBuildForMavenDisable;
+    }
+
+    @Override
+    public boolean isFmpDebugOutput() {
+        return fmpDebugOutput;
+    }
+
+    @Override
+    public boolean isFmpLogsEnabled() {
+        return fmpLogsEnabled;
+    }
+
+    @Override
+    public boolean isFmpBuildEnabled() {
+        return fmpBuildEnabled;
+    }
+
+    @Override
+    public String getFmpPomPath() {
+        return fmpPomPath;
+    }
+
+    @Override
+    public String getFmpBuildOptions() {
+        return fmpBuildOptions;
+    }
+
+    @Override
+    public List<String> getFmpProfiles() {
+        return fmpProfiles;
+    }
+
+    @Override
+    public List<String> getFmpSystemProperties() {
+        return fmpSystemProperties;
+    }
+
+    protected void setToken(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder content = new StringBuilder();
+        content.append("CubeKubernetesConfiguration: ").append(System.lineSeparator());
+        if (namespace != null) {
+            appendPropertyWithValue(content, NAMESPACE, namespace);
+        }
+        if (masterUrl != null) {
+            appendPropertyWithValue(content, MASTER_URL, masterUrl);
+        }
+        if (!scriptEnvironmentVariables.isEmpty()) {
+            appendPropertyWithValue(content, ENVIRONMENT_SCRIPT_ENV, scriptEnvironmentVariables);
+        }
+        if (environmentSetupScriptUrl != null) {
+            appendPropertyWithValue(content, ENVIRONMENT_SETUP_SCRIPT_URL, environmentSetupScriptUrl);
+        }
+
+        if (environmentTeardownScriptUrl != null) {
+            appendPropertyWithValue(content, ENVIRONMENT_TEARDOWN_SCRIPT_URL, environmentTeardownScriptUrl);
+        }
+        if (environmentConfigUrl != null) {
+            appendPropertyWithValue(content, ENVIRONMENT_CONFIG_URL, environmentConfigUrl);
+        }
+        if (!environmentDependencies.isEmpty()) {
+            appendPropertyWithValue(content, ENVIRONMENT_DEPENDENCIES, environmentDependencies.toString());
+        }
+
+        appendPropertyWithValue(content, NAMESPACE_LAZY_CREATE_ENABLED, namespaceLazyCreateEnabled);
+
+        appendPropertyWithValue(content, NAMESPACE_CLEANUP_ENABLED, namespaceCleanupEnabled);
+        appendPropertyWithValue(content, NAMESPACE_CLEANUP_TIMEOUT, namespaceCleanupTimeout);
+        appendPropertyWithValue(content, NAMESPACE_CLEANUP_CONFIRM_ENABLED, namespaceCleanupConfirmationEnabled);
+
+        appendPropertyWithValue(content, NAMESPACE_DESTROY_ENABLED, namespaceDestroyEnabled);
+        appendPropertyWithValue(content, NAMESPACE_DESTROY_CONFIRM_ENABLED, namespaceDestroyConfirmationEnabled);
+        appendPropertyWithValue(content, NAMESPACE_DESTROY_TIMEOUT, namespaceDestroyTimeout);
+
+        appendPropertyWithValue(content, WAIT_ENABLED, waitEnabled);
+        appendPropertyWithValue(content, WAIT_TIMEOUT, waitTimeout);
+        appendPropertyWithValue(content, WAIT_POLL_INTERVAL, waitPollInterval);
+
+        appendPropertyWithValue(content, ANSI_LOGGER_ENABLED, ansiLoggerEnabled);
+        appendPropertyWithValue(content, ENVIRONMENT_INIT_ENABLED, environmentInitEnabled);
+
+        appendPropertyWithValue(content, LOGS_COPY, logCopyEnabled);
+
+        if (!waitForServiceList.isEmpty()) {
+            appendPropertyWithValue(content, WAIT_FOR_SERVICE_LIST, waitForServiceList);
+        }
+        if (logPath != null) {
+            appendPropertyWithValue(content, LOGS_PATH, logPath);
+        }
+        if (kubernetesDomain != null) {
+            appendPropertyWithValue(content, KUBERNETES_DOMAIN, kubernetesDomain);
+        }
+        if (dockerRegistry != null) {
+            appendPropertyWithValue(content, DOCKER_REGISTY, dockerRegistry);
+        }
+        if (apiVersion != null) {
+            appendPropertyWithValue(content, API_VERSION, apiVersion);
+        }
+        if (username != null) {
+            appendPropertyWithValue(content, USERNAME, username);
+        }
+        if (password != null) {
+            appendPropertyWithValue(content, PASSWORD, password);
+        }
+        if (token != null) {
+            appendPropertyWithValue(content, AUTH_TOKEN, token);
+        }
+
+        appendPropertyWithValue(content, TRUST_CERTS, trustCerts);
+
+        appendPropertyWithValue(content, FMP_BUILD, fmpBuildEnabled);
+        appendPropertyWithValue(content, FMP_BUILD_DISABLE_FOR_MAVEN, fmpBuildForMavenDisable);
+        appendPropertyWithValue(content, FMP_POM_PATH, fmpPomPath);
+        appendPropertyWithValue(content, FMP_DEBUG_OUTPUT, fmpDebugOutput);
+        appendPropertyWithValue(content, FMP_LOGS, fmpLogsEnabled);
+        if (!fmpProfiles.isEmpty()) {
+            appendPropertyWithValue(content, FMP_PROFILES, fmpProfiles);
+        }
+
+        if (!fmpSystemProperties.isEmpty()) {
+            appendPropertyWithValue(content, FMP_SYSTEM_PROPERTIES, fmpSystemProperties);
+        }
+
+        if (fmpBuildOptions != null) {
+            appendPropertyWithValue(content, FMP_BUILD_OPTIONS, fmpBuildOptions);
+        }
+
+        return content.toString();
+    }
+
+    protected void appendPropertyWithValue(StringBuilder content, String property, Object value) {
+        content.append("  ").append(property).append(" = ").append(value).append(System.lineSeparator());
     }
 }

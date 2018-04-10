@@ -1,16 +1,14 @@
 package org.arquillian.cube.openshift.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v2_6.Namespace;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClientException;
-import io.fabric8.openshift.api.model.v2_6.ProjectRequest;
-import io.fabric8.openshift.api.model.v2_6.ProjectRequestBuilder;
-import io.fabric8.openshift.clnt.v2_6.OpenShiftClient;
-
+import io.fabric8.kubernetes.api.model.v3_1.Namespace;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
+import io.fabric8.openshift.api.model.v3_1.ProjectRequest;
+import io.fabric8.openshift.api.model.v3_1.ProjectRequestBuilder;
+import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;
-
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -102,6 +100,10 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
                         .map(project -> project.getMetadata().getName())
                         .anyMatch(Predicate.isEqual(namespace));
                 } catch (KubernetesClientException e) {
+                    logger.warn(
+                        String.format("Next exception has been thrown while checking the existence of %s namespace and the namespace is going to be created. The exception is %s",
+                            namespace, e.toString())
+                    );
                     return false;
                 }
             } else {

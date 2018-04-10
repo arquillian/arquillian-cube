@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.9.2-SNAPSHOT</version>
+    <version>1.15.4-SNAPSHOT</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test</name>
   <artifactId>arquillian-cube-docker-ftest</artifactId>
@@ -42,6 +42,11 @@
     <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 

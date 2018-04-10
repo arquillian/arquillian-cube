@@ -40,13 +40,21 @@ public class ReplicationControllerInjection {
     @ArquillianResource
     private ReplicationController controller;
 
+    @Named(value = "test-controller-second", namespace = "test-secondary-namespace")
+    @ArquillianResource
+    private ReplicationController controllerInSecondaryNamespace;
+
     @Test
-    public void testPodListInjection() {
+    public void testReplicationControllersInjection() {
         assertNotNull(controllerList);
         assertEquals(1, controllerList.getItems().size());
         assertEquals("test-controller", controllerList.getItems().get(0).getMetadata().getName());
 
         assertNotNull(controller);
         assertEquals("test-controller", controller.getMetadata().getName());
+
+        assertNotNull(controller);
+        assertEquals("test-controller-second", controllerInSecondaryNamespace.getMetadata().getName());
+        assertEquals("test-secondary-namespace", controllerInSecondaryNamespace.getMetadata().getNamespace());
     }
 }

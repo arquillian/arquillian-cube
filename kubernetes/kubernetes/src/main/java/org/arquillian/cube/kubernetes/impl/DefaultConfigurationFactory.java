@@ -27,13 +27,13 @@ import static org.arquillian.cube.kubernetes.impl.Constants.PROTOCOL_HANDLERS;
 
 public class DefaultConfigurationFactory<C extends DefaultConfiguration> implements ConfigurationFactory<C> {
 
-    protected static final String KUBERNETES_EXTENSION_NAME = "kubernetes";
+    public static final String KUBERNETES_EXTENSION_NAME = "kubernetes";
 
     protected static void configureProtocolHandlers(Map<String, String> conf) {
         Set<String> handlers = new LinkedHashSet<>();
         handlers.addAll(Strings.splitAndTrimAsList(System.getProperty(JAVA_PROTOCOL_HANDLER, ""), " "));
         handlers.addAll(Strings.splitAndTrimAsList(
-            conf.containsKey(PROTOCOL_HANDLERS) ? conf.get(PROTOCOL_HANDLERS) : DEFAULT_MAVEN_PROTOCOL_HANDLER, " "));
+            conf.getOrDefault(PROTOCOL_HANDLERS, DEFAULT_MAVEN_PROTOCOL_HANDLER), " "));
         System.setProperty(JAVA_PROTOCOL_HANDLER, Strings.join(handlers, " "));
     }
 
@@ -41,6 +41,8 @@ public class DefaultConfigurationFactory<C extends DefaultConfiguration> impleme
     public C create(ArquillianDescriptor arquillian) {
         Map<String, String> config = arquillian.extension(KUBERNETES_EXTENSION_NAME).getExtensionProperties();
         configureProtocolHandlers(config);
-        return (C) DefaultConfiguration.fromMap(config);
+        final DefaultConfiguration configuration = DefaultConfiguration.fromMap(config);
+        System.out.println(configuration);
+        return (C)configuration;
     }
 }

@@ -2,7 +2,7 @@ package org.arquillian.cube.openshift.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.openshift.api.model.v2_6.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;

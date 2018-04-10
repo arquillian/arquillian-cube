@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.locator;
 
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
-import io.fabric8.openshift.clnt.v2_6.OpenShiftClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.locator.DefaultKubernetesResourceLocator;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;

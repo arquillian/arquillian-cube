@@ -10,7 +10,7 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 
-import static org.arquillian.cube.requirement.Requirements.checkRequirement;
+import static org.arquillian.cube.requirement.Constraints.checkConstraint;
 
 public class ArquillianConditionalRunner extends Arquillian {
 
@@ -36,11 +36,11 @@ public class ArquillianConditionalRunner extends Arquillian {
 
     private void checkRequirements(Class<?> testClass) throws UnsatisfiedRequirementException {
         //Check if Requires is used directly.
-        checkRequirement(testClass.getAnnotation(Requires.class), null);
+        checkConstraint(testClass.getAnnotation(Requires.class), null);
 
         for (Annotation annotation : testClass.getAnnotations()) {
             //Check if Requires is annotating an other annotation
-            checkRequirement(annotation.annotationType().getAnnotation(Requires.class), annotation);
+            checkConstraint(annotation.annotationType().getAnnotation(Requires.class), annotation);
         }
     }
 }

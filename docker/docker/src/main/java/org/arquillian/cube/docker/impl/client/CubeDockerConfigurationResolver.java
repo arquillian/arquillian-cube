@@ -1,22 +1,30 @@
 package org.arquillian.cube.docker.impl.client;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InfoCmd;
+import com.github.dockerjava.api.model.Info;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.GitHubUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Machine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
 import org.arquillian.spacelift.Spacelift;
 import org.arquillian.spacelift.task.net.DownloadTool;
 
+import javax.ws.rs.ProcessingException;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -39,14 +47,16 @@ public class CubeDockerConfigurationResolver {
     private final Top top;
     private final DockerMachine dockerMachine;
     private final Boot2Docker boot2Docker;
-    private final OperatingSystemFamily operatingSystemFamily;
+    private final DefaultDocker defaultDocker;
+    private final OperatingSystemInterface operatingSystem;
 
     public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
-                                           OperatingSystemFamily operatingSystemFamily) {
+                                           DefaultDocker defaultDocker, OperatingSystemInterface operatingSystem) {
         this.top = top;
         this.dockerMachine = dockerMachine;
         this.boot2Docker = boot2Docker;
-        this.operatingSystemFamily = operatingSystemFamily;
+        this.operatingSystem = operatingSystem;
+        this.defaultDocker = defaultDocker;
     }
 
     /**
@@ -57,6 +67,7 @@ public class CubeDockerConfigurationResolver {
      */
     public Map<String, String> resolve(Map<String, String> config) {
         config = resolveSystemEnvironmentVariables(config);
+        config = resolveSystemDefaultSetup(config);
         config = resolveDockerInsideDocker(config);
         config = resolveDownloadDockerMachine(config);
         config = resolveAutoStartDockerMachine(config);
@@ -196,6 +207,30 @@ public class CubeDockerConfigurationResolver {
 
         return config;
     }
+    
+    private Map<String, String> resolveSystemDefaultSetup(Map<String, String> config) {
+        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
+            final String defaultUri = operatingSystem.getDefaultFamily().getServerUri();
+            URI uri = URI.create(defaultUri);
+            if (Files.exists(FileSystems.getDefault().getPath(uri.getPath()))){
+
+                DockerClient client = defaultDocker.getDefaultDockerClient(defaultUri);
+                InfoCmd cmd = client.infoCmd();
+                try {
+                    Info info = cmd.exec();
+                    config.put(CubeDockerConfiguration.DOCKER_URI, defaultUri);
+                    log.info(String.format("Connected to docker (%s) using default settings version: %s kernel: %s",
+                        info.getName(), info.getServerVersion(), info.getKernelVersion()));
+                } catch (ProcessingException e){
+                    log.info(String.format("Could not connect to default socket %s. Go on with ",
+                        operatingSystem.getDefaultFamily().getServerUri()));
+                }
+
+            }
+        }
+
+        return config;
+    }
 
     private Map<String, String> resolveServerIp(Map<String, String> config) {
         String dockerServerUri = config.get(CubeDockerConfiguration.DOCKER_URI);
@@ -217,10 +252,6 @@ public class CubeDockerConfigurationResolver {
         }
 
         config.put(CubeDockerConfiguration.DOCKER_URI, dockerServerUri);
-        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
-            config.put(CubeDockerConfiguration.CERT_PATH,
-                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
-        }
 
         resolveDockerServerIp(config, dockerServerUri);
 
@@ -231,6 +262,11 @@ public class CubeDockerConfigurationResolver {
 
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
+
+        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
+            config.put(CubeDockerConfiguration.CERT_PATH,
+                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
+        }
 
         if (scheme.equals(HTTP_SCHEME)) {
             config.remove(CubeDockerConfiguration.TLS_VERIFY);
@@ -255,10 +291,14 @@ public class CubeDockerConfigurationResolver {
             }
         }
 
+        if (scheme.equals("unix") || scheme.equals("npipe")){
+            config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
+        }
+
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
             config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
 
-            if (operatingSystemFamily == OperatingSystemFamily.LINUX) {
+            if (operatingSystem.getFamily() == OperatingSystemFamily.LINUX) {
 
                 String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
 
@@ -350,7 +390,7 @@ public class CubeDockerConfigurationResolver {
                 String serverUri = OperatingSystemFamily.MACHINE.getServerUri();
                 cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
             } else {
-                String serverUri = operatingSystemFamily.getServerUri();
+                String serverUri = operatingSystem.getFamily().getServerUri();
                 cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
             }
         }

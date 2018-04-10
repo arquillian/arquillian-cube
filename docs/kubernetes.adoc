@@ -4,15 +4,22 @@ The kubernetes extension helps you write and run integration tests for your Kube
 
 === Overview
 
-This extension, wll create and manage a temporary namespace for your tests, apply all Kubernetes resources required to create your environment and once everything is ready it will run your tests. The tests will be enriched with resources required to access services. Finally when testing is over it will cleanup everything.
+This extension will create and manage one temporary namespace for your tests, apply all Kubernetes resources required to
+create your environment and once everything is ready it will run your tests. The tests will be enriched with resources 
+required to access services. Finally when testing is over it will cleanup everything.
 
-This extension, will not mutate neither your containers *(by deploying, reconfiguring etc)* nor your Kubernetes resources, and takes a black box approach to testing.
+In addition to the main testing namespace additional secondary namespaces could be used during testing. Cube
+would not modify them, but tests could be enriched with resources from secondary namespaces to access services in them
+in case you need to verify changes made by services you are testing.
+
+This extension  will neither mutate your containers *(by deploying, reconfiguring etc)* nor your Kubernetes resources 
+and takes a black box approach to testing.
 
 === Modules
 The main modules of this extension are the following:
 
-- Kubernetes (default feature set)
-- Openshift (work in progress)
+- Kubernetes
+- Openshift
 - Fabric8 Microservices Platform (Fabric8 label and annotation support)
 
 === Features
@@ -21,84 +28,140 @@ The main modules of this extension are the following:
 - Dependency management *(for maven based projects)*
 - Auto align with Docker Registry
 - Enrichers for:
-    - Kubernetes/Openshift client
-    - Pods
-    - Replication Controllers
-    - Services
+    ** Kubernetes/Openshift client
+    ** Pods
+    ** Replication Controllers
+    ** Services
 - Integration with Fabric8 Modules:
-    - link:https://fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]
-    - link:https://fabric8.io/guide/fabric8DevOps.html[Microservices Platform]
+    ** link:https://fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]
+    ** link:https://fabric8.io/guide/fabric8DevOps.html[Microservices Platform]
 - "Bring your own client" support
 
 === Pre-requisites
 - To use kubernetes extension, your host should have running kubernetes cluster.
 - To use openshift extension, your host should have running openshift cluster.
 
+=== Setup
+
+To use Kubernetes extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-kubernetes:${version}`.
+
+To use OpenShift extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-openshift:${version}`.
+
 === Configuring the extension
 
-The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables (in that particular order).
-Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn't contain an entry, the system properties will be used.
+The plugin can be configured using the traditional arquillian.xml, via system properties or environment variables
+(in that particular order).
+Which means that for every supported configuration parameter, the arquillian.xml will be looked up first, if it doesn't 
+contain an entry, the system properties will be used.
 If no result has been found so far the environment variables will be used.
 
-**Note:** When checking for environment variables, property names will get capitalized, and symbols like "." will be converted to "_".
+**Note:** When checking for environment variables, property names will get capitalized, and symbols like "." will be 
+converted to "_".
 For example **foo.bar.baz** will be converted to **FOO_BAR_BAZ**.
 
 ==== Kubernetes Configuration Parameters
 
-[width="80%"]
-|===============================================================================================================================================
-| Option                              | Type           | Env | Description
-| kubernetes.master                   | URL            | Any | The URL to the Kubernetes master
+You can configure Kubernetes by using any of the next configuration properties in `arquillian.xml`.
+
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="kubernetes">
+</extension>
+----
+
+[cols="2,1,1,3", options="header"]
+|===
+| Options                             | Type           | Env | Description                                                   
+| kubernetes.master                   | URL            | Any | The URL to the Kubernetes master                               
+| cube.username                       | String         | Any | Username to log in server
+| cube.password                       | String         | Any | Password to log in server
+| cube.auth.token                     | String         | Any | Bearer token for authentication to the API server
+| cube.api.version                    | String(v1)     | Any | Version for API server
+| cube.trust.certs                    | Boolean(true)  | Any | Boolean to trust Certificate
 | kubernetes.domain                   | String         | OSE | Domain to use for creating routes for services
-| docker.registry                     | String         | Any | The docker registry
-| namespace.use.current               | Boolean (false)| Any | Don't generate a namespace use the current instead
-| namespace.use.existing              | String         | Any | Don't generate a namespace use the specified one instead
-| namespace.prefix                    | String (itest) | Any | If you don't specify a namespace, a random one will be created, with this prefix
-| namespace.lazy.enabled              | Bool (true)    | Any | Should the specified namespace be created if not exists, or throw exception?
-| namespace.destroy.enabled           | Bool (true)    | Any | Flag to destroy the namespace after the end of the test suite
-| namespace.destroy.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the namespace
-| namespace.destroy.timeout           | Long           | Any | Time to wait before destroying the namespace
-| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to clean (delete resources) the namespace after the end of the test suite
-| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the namespace
-| namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the namespace
-| env.init.enabled                    | Bool (true)    | Any | Flag to initialize the environment (apply kubernetes resources)
-| env.config.url                      | URL            | Any | URL to the Kubernetes JSON/YAML (defaults to classpath resource kubernetes.json)
-| env.config.resource.name            | String         | Any | Option to select a different classpath resource (other than kubernetes.json)
-| env.script.env                      | String         | Any | Key/Value pairs to pass to setup scripts as environment variables
-| env.setup.script.url                | URL            | Any | Option to select a shell script that will setup the environment
-| env.teardown.script.url             | URL            | Any | Option to select a shell script to tear down / cleanup the environment
-| env.dependencies                    | List           | Any | Whitespace separated list of URLs to more dependency kubernetes.json
+| docker.registry                     | String         | Any | The docker registry     
+| namespace.use.current               | Boolean (false)| Any | Don't generate a testing namespace use the current instead
+| namespace.use.existing              | String         | Any | Don't generate a testing namespace use the specified one instead
+| namespace.prefix                    | String (itest) | Any | If you don't specify a testing namespace, a random one will be
+created, with this prefix 
+| namespace.lazy.enabled              | Bool (true)    | Any | Should the specified testing namespace be created if not exists,
+or throw exception?
+| namespace.destroy.enabled           | Bool (true)    | Any | Flag to destroy the testing namespace after the end of the test
+suite
+| namespace.destroy.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to delete the testing namespace
+| namespace.destroy.timeout           | Long           | Any | Time to wait before destroying the testing namespace
+| namespace.cleanup.enabled           | Bool (true)    | Any | Flag to clean (delete resources) the testing namespace after the
+end of the test suite
+| namespace.cleanup.confirm.enabled   | Bool (false)   | Any | Flag to ask for confirmation to clean the testing namespace
+| namespace.cleanup.timeout           | Long           | Any | Time to wait when cleaning up the testing namespace
+| env.init.enabled                    | Bool (true)    | Any | Flag to initialize the environment (apply kubernetes 
+resources)                  
+| env.config.url                      | URL            | Any | URL to the Kubernetes JSON/YAML (defaults to classpath 
+resource kubernetes.json) 
+| env.config.resource.name            | String         | Any | Option to select a different classpath resource (other
+than kubernetes.json)
+| env.setup.script.url                | URL            | Any | Option to select a shell script that will setup the 
+environment                  
+| env.teardown.script.url             | URL            | Any | Option to select a shell script to tear down / cleanup
+the environment
+| env.dependencies                    | List           | Any | Comma-separated list of URLs to more environment dependencies
+kubernetes.json             
+| wait.enabled                        | Bool (true)    | Any | Whether to wait until the env is ready
 | wait.timeout                        | Long (5mins)   | Any | The total amount of time to wait until the env is ready
-| wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment is ready
-| wait.for.service.list               | List           | Any | Explicitly specify a list of services to wait upon
-| ansi.logger.enabled                 | Bool (true)    | Any | Flag to enable colorful output
-| logs.copy                           | Bool (false)   | Any | Whether to capture the pods logs and save them into the filesystem - as individual files, one for each pod. Filenames will be "ClassName-[MethodName-]-PodName[-ContainerName].log". If the pod has multiple containers, one log file for each container will be created. Kubernetes events (`kubectl get events`) will also be captured if this flag is enabled. Filenames will end with `-KUBE_EVENTS.log`
-| logs.path                           | String         | Any | Directory where to save the pods logs. Defaults to "target/surefire-reports".
-| kubernetes.client.creator.class.name| Bool (true)    | Any | Fully qualified class name of a kubernetes client creator class (byon)
-|===============================================================================================================================================
+| wait.poll.interval                  | Long (5secs)   | Any | The poll interval to use for checking if the environment
+is ready
+| wait.for.service.list               | List           | Any | Comma-separated list of additional services to wait upon
+| ansi.logger.enabled                 | Bool (true)    | Any | Flag to enable colorful output                                 
+| kubernetes.client.creator.class.name| Bool (true)    | Any | Fully qualified class name of a kubernetes client
+creator class (byon)
+| logs.copy                           | Bool (false)   | Any | Whether to capture the pods logs and save them into the
+filesystem - as individual files, one for each pod. Filenames will be "ClassName-[MethodName-]-PodName[-ContainerName].log".
+If the pod has multiple containers, one log file for each container will be created. Kubernetes events (`kubectl get events`)
+will also be captured if this flag is enabled. Filenames will end with `-KUBE_EVENTS.log`
+| logs.path | String | Any | Directory where to save the pods logs. Defaults to "target/surefire-reports".
+|===
 
 ==== Openshift Configuration Parameters
 
-[width="80%"]
-|===============================================================================================================================================
-| Option                              | Type           | Env | Description
-| autoStartContainers                 | List           | Any | Comma Separated List of Pods which you want to auto start
-| definitionsFile                     | String         | Any | Definitions file path
-| proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR Pod:MappedPort:ContainerPort
-| routerHost                          | String         | Any | Define OpenShift router address thats is used to resolve the pod's address and to get its route
-| enableImageStreamDetection          | Bool (true)    | Any | Define if you want that Arquillian Cube apply Image Stream files (`*-is.yml`) to Openshift before deploying
-|===============================================================================================================================================
+When using OpenShift you can use `arquillian.xml` to configure ANY of the configuration properties introduced at <<Kubernetes Configuration Parameters>> mixed with some specific configuration parameters related to OpenShift.
+In cas of using OpenShift, then you need to use `openshift` qualifier instead of `kubernetes`, but as noticed in previous paragraph you can use it to set any Kubernetes configuration parameters as well.
 
+[source, xml]
+.src/test/resources/arquillian.xml
+----
+<extension qualifier="openshift">
+</extension>
+----
+
+[cols="2,1,1,3", options="header"]
+|===
+| Option                              | Type           | Env | Description                                                   
+| autoStartContainers                 | List           | Any | Comma Separated List of Pods which you want to auto
+start
+| definitionsFile                     | String         | Any | Definitions file path                                         
+| proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR 
+Pod:MappedPort:ContainerPort
+| enableImageStreamDetection          | Bool (true)    | Any | Enable detecting ImageStream resources located at target/XXX-is.(json|yaml)
+| portForwardBindAddress              | String (127.0.0.1) | Any | If using port forwarding you can set the host
+| templateUrl                         | URL            | Any | URL where template is stored. This template is executed before any execution
+| templateLabels                      | CSV            | Any | Sets a comma separated value of template labels in form <key>=<value>
+| templateParameters                  | CSV            | Any | Sets a comma separated value of template parameters in form <key>=<value>
+| templateProcess                     | Bool (true)    | Any | Sets if templates must be processed or not
+
+|===
 
 ==== Openshift DNS Naming Service
+
 The OpenShift module provides a easy way to run tests against your public application's route.
 The Arquillian Naming Service allows you to run tests annotated with @RunsAsClient without have to add the routes
-manually to your /etc/hosts to make its name resolvable. The arquillian cube generates a custon namespaces prefix
-that will be used to define the application's route when running your tests against an OpenShift instance, even if you specify
-a namepsace manually it will be transparent and the application's endpoint will be resolvable within your java tests.
+manually to your /etc/hosts to make its name resolvable. The arquillian Cube generates a custom namespaces prefix
+that will be used to define the application's route when running your tests against an OpenShift instance, even if you
+specify a namespace manually it will be transparent and the application's endpoint will be resolvable within your java
+tests.
 
-To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test or
-by setting a System properties.
+To use it, you need to setup your tests to use the ArquillianNameService, you can either configure it inside your test
+or by setting a System properties.
 
 Configuring inside a test class:
 [source, java]
@@ -114,39 +177,119 @@ public void prepareEnv(){
 Or just setting the following System Properties:
 `-Dsun.net.spi.nameservice.provider.1=dns,ArquillianCubeNameService -Dsun.net.spi.nameservice.provider.2=default`
 
+==== OpenShift Annotations
+
+OpenShift extension comes with some annotations that let you define resources at test level instead of globally.
+
+===== `@Template`
+
+A template describes a set of objects that can be parameterized and processed to produce a list of objects for creation by OpenShift.
+
+You can set template location as configuration parameter or using `@Template` annotation at class level.
+
+Here's a small example:
+[source, java]
+----
+include::../openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateIT.java[tag=openshift_template_example]
+----
+
+However in `@Template`, url can be set using `url = https://git.io/vNRQm` or using
+`url = "classpath:hello-openshift.yaml"` if template is on Test class path.
+
+===== `@OpenShiftResource`
+
+You can apply OpenShift resources files before test execution.
+These resources creation are meant to be used for resources that aren't tied to a living thing.
+Examples of these are service accounts, credentials, routes, ...
+
+The value can either be:
+
+* link (https://www.github.com/alesj/template-testing/some.json)
+* test classpath resource (classpath:some.json)
+* or plain content ({"kind" : "Secret", ...}
+
+You can use `@OpenShiftResource` either at class level which implies that resource is created before test class execution and they are deleted after class execution or at method level which implies that resources are created and deleted after each test method execution.
+
+You can see an example of OpenShift resources usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java
+
 === Namespaces
 
-The default behavior of the extension is to create a unique namespace per test suite. The namespace is created Before the suite is started and destroyed in the end.
-For debugging purposes, you can set the **namespace.cleanup.enabled** and **namespace.destroy.enabled**  to false and keep the namespace around.
+The default behavior of the extension is to create a unique testing namespace per test suite. The namespace is created
+Before the suite is started and destroyed in the end.
+For debugging purposes, you can set the **namespace.cleanup.enabled** and **namespace.destroy.enabled**  to false and
+keep the testing namespace around.
 
-In other cases you may find it useful to manually create and manage the environment rather than having **arquillian** do that for you.
-In this case you can use the **namespace.use.existing** option to select an existing namespace. This option goes hand in hand with **env.init.enabled** which can be
-used to prevent the extension from modifying the environment.
+In other cases you may find it useful to manually create and manage the environment rather than having **arquillian**
+do that for you.
+In this case you can use the **namespace.use.existing** option to select an existing testing namespace.
+This option goes hand in hand with **env.init.enabled** which can be used to prevent the extension from modifying
+the environment.
 
-Last but not least, you can just tell arquillian, that you are going to use the current namespace. In this case, arquillian cube will delegate to the link:https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that will use:
+Last but not least, you can just tell arquillian, that you are going to use the current namespace as testing namespace.
+In this case, arquillian cube will delegate to
+https://github.com/fabric8io/kubernetes-client/[Kubernetes Client] that in turn will use:
 
-- ~/.kube/config
-- /var/run/secrets/kubernetes.io/serviceaccount/namespace
-- the KUBERNETES_NAMESPACE environmnet variable
+- `~/.kube/config`
+- `/var/run/secrets/kubernetes.io/serviceaccount/namespace`
+- the `KUBERNETES_NAMESPACE` environmnet variable
 
-to determine the current namespace.
+to determine the current testing namespace.
+
+In addition to the primary testing namespace a number of secondary namespaces could participate in tests, but only as
+a possible location of resources needed to be accessed during tests, usually with verifying purpose. When the service
+you are testing made some changes in state of services in another namespaces, you can specify the secondary
+namespace in a field of `@Named` annotation to reach them.
+
+[NOTE]
+====
+Necessary configuration to avoid permission conflicts for creating namespaces.
+
+1. When using `Minishift` to spin up a local Kubernetes cluster, login in as `admin` to create the default namespace or
+use `current` or `existing` namespace configured using properties `namespace.use.current` and `namespace.use.existing`
+respectively if logged in as any other user.
+
+2. In case of remote cluster use `current` or `existing` namespace for the user authenticated by token using property
+`cube.auth.token` or by username and password using properties `cube.username` and `cube.password` respectively. The
+properties can be set in `arquillian.xml` as shown in the snippet below or as system properties with the latter taking precedence.
+
+[source, xml]
+.arquillian.xml
+----
+<!-- configuring remote cluster -->
+
+<property name="namespace.use.existing">existing-namespace</property>
+<property name="kubernetes.master">https://api.yourcluster.openshift.com</property>
+
+<property name="cube.auth.token">token</property>
+<!-- OR -->
+<property name="cube.username">username</property>
+<property name="cube.password">password</property>
+====
 
 ### Creating the environment
-After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage where all the required Kubernetes configuration will be applied.
+
+After creating or selecting an existing namespace, the next step is the environment preparation. This is the stage
+where all the required Kubernetes configuration will be applied.
 
 #### How to run kubernetes with multiple configuration files?
-1. Out of the box, the extension will use the classpath and try to find a resource named **kubernetes.json** or **kubernetes.yaml***. The name of the resource can be changed using the **env.config.resource.name**.
-  Of course it is also possible to specify an external resource by URL using the **env.config.url**.
+1. Out of the box, the extension will use the classpath and try to find a resource named **kubernetes.json** or 
+**kubernetes.yaml***. The name of the resource can be changed using the **env.config.resource.name**.
+Of course it is also possible to specify an external resource by URL using the **env.config.url**.
 
-2. While finding resource in classpath with property **env.config.resource.name**, cube will look into classpath with given name, if not found, then cube will continue to look into classpath under META-INF/fabric8/ directory.
-  Using this you can put multiple resources(openshift.json, openshift.yml) inside META-INF/fabric8, and choose only required one by specifying **env.config.resource.name** property.
+2. While finding resource in classpath with property **env.config.resource.name**, cube will look into classpath
+with given name, if not found, then cube will continue to look into classpath under META-INF/fabric8/ directory.
+Using this you can put multiple resources(openshift.json, openshift.yml) inside META-INF/fabric8, and choose only
+required one by specifying **env.config.resource.name** property.
 
-3. Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also possible that your environment configuration is split in multiple files.
-  To cover cases like this the **env.dependencies** is provided which accepts a space separated list of URLs.
+3. Either way, it is possible that the kubernetes configuration used, depends on other configurations. It is also
+possible that your environment configuration is split in multiple files.
+To cover cases like this the **env.dependencies** is provided which accepts a comma-separated list of URLs.
 
-4. There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup the environment. For those cases you can use the **env.setup.script.url** / **env.teardown.script.url** to pass the
- scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the namespace is created and cleaned up respectively.
- Both scripts will be executed using visible environment variables the following:
+4. There are cases, where instead of specifying the resources, you want to specify some shell scripts that will setup
+the environment. For those cases you can use the **env.setup.script.url** / **env.teardown.script.url** to pass the
+scripts for setting up and tearing down the environment. Note that these scripts are going to be called right after the
+namespace is created and cleaned up respectively.
+Both scripts will be executed using visible environment variables the following:
 
  * KUBERNETES_MASTER
  * KUBERNETES_NAMESPACE
@@ -157,27 +300,35 @@ After creating or selecting an existing namespace, the next step is the environm
 
 (You can use any custom URL provided the appropriate URL stream handler.)
 
-**Note:** Out of the box mvn urls are supported, so you can use values like: **mvn:my.groupId/artifactId/1.0.0/json/kubernetes** (work in progress)
+**Note:** Out of the box mvn urls are supported, so you can use values like: 
+**mvn:my.groupId/artifactId/1.0.0/json/kubernetes** (work in progress)
 
-**Also:** If your project is using maven and dependencies like the above are expressed in the pom, the will be used *automatically*. (work in progress)
+**Also:** If your project is using maven and dependencies like the above are expressed in the pom, the will be used 
+*automatically*. (work in progress)
 
 [IMPORTANT]
 ====
 Arquillian Cube Kubernetes needs to authenticate into Kubernetes.
 To do it, Cube reads from `~/.kube/config` user information (token, password).
 
-For example in case of OpenShift you can use `oc login --username=admin --password=admin` for creating a token for connecting as admin, or `oc config set-credentials myself --username=admin --password=admin` for statically add the username and password and will communicate with Kubernetes to update the `~/.kube/config` file with the info provided.
+For example in case of OpenShift you can use `oc login --username=admin --password=admin` for creating a token for
+connecting as admin, or `oc config set-credentials myself --username=admin --password=admin` for statically adding the
+username and password and communicate with Kubernetes to update the `~/.kube/config` file with the info provided.
 
 You can read more about Kubernetes config file at http://kubernetes.io/docs/user-guide/kubectl/kubectl_config/
 ====
 
 === Readiness and waiting
-Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a remote repository and this make take even several minutes.
-Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything is ready.
+Creating an environment does not guarantee its readiness. For example a Docker image may be required to get pulled by a 
+remote repository and this make take even several minutes.
+Running a test against a Pod which is not Running state is pretty much pointless, so we need to wait until everything
+is ready.
 
-This extension will wait up to **wait.timeout** until everything is up and running. Everything? It will wait for all Pods and Service *(that were created during the test suite initialization)* to become ready.
-It will poll them every **wait.poll.interval** milliseconds. For services there is also the option to perform a simple "connection test"  by setting the flag **wait.for.service.connection.enabled** to true.
-In this case it will not just wait for the service to ready, but also to be usable/connectable.
+This extension will wait up to **wait.timeout** until everything is up and running. Everything? It will wait for all
+Pods and Service *(that were created during the test suite initialization)* to become ready.
+It will poll them every **wait.poll.interval** milliseconds. For services there is also the option to perform a simple 
+"connection test"  by setting the flag **wait.for.service.connection.enabled** to true.
+In this case it will not just wait for the service to be ready, but also to be usable/connectable.
 
 === Immutable infrastructure and integration testing
 
@@ -187,19 +338,22 @@ It doesn't even need to run inside Kubernetes (it can just run in your laptop an
 
 So what exactly is your test case going to test?
 
-The test cases are meant to consume and test the provided services and assert that the environment is in the expected state.
+The test cases are meant to consume and test the provided services and assert that the environment is in the
+expected state.
 
-The test case may obtain everything it needs, by accessing the Kubernetes resources that are provided by the plugin as @ArquillianResources (see resource providers below).
+The test case may obtain everything it needs, by accessing the Kubernetes resources that are provided by the plugin as 
+@ArquillianResources (see resource providers below).
 
 === Resource Providers
 
 The resource providers available, can be used to inject to your test cases the following resources:
 
 - A kubernetes client as an instance of KubernetesClient
-- Session object that contains information (e.g. the namespace) or the uuid of the test session.
+- Session object that contains information (e.g. the testing namespace) or the uuid of the test session.
 - Deployments *(by id or as a list of all deployments created during the session, optionally filtered by label)*
 - Pods *(by id or as a list of all pods created during the session, optionally filtered by label)*
-- Replication Controllers *(by id or as a list of all replication controllers created during the session, optionally filtered by label)*
+- Replication Controllers *(by id or as a list of all replication controllers created during the session, optionally
+filtered by label)*
 - Replica Sets *(by id or as a list of all replica sets created during the session, optionally filtered by label)*
 - Services *(by id or as a list of all services created during the session, optionally filtered by label)*
 
@@ -228,9 +382,22 @@ Here's a small example:
     }
 ----
 
-The test code above, demonstrates how you can inject an use inside your test the *KubernetesClient* and the *Session* object. It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on [assert4j](http://assertj.org) for performing assertions on top of the Kubernetes model.
+The test code above, demonstrates how you can inject an use inside your test the *KubernetesClient* and the
+*Session* object.
+It also demonstrates the use of **kubernetes-assertions** which is a nice little library based on 
+http://assertj.org[assert4j] for performing assertions on top of the Kubernetes model.
 
-The next example is intended to how you can inject a resource by id.
+Also, you can gather control of what to deploy, when to deploy or when to wait for resources readiness.
+To control you need to inject into test the `org.arquillian.cube.kubernetes.impl.KubernetesAssistant`.
+
+[source, java]
+----
+include::../kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
+----
+<1> Sets the application name where everything is deployed.
+<2> You can get the url of the deployed service on the cluster.
+
+The next example is intended to show how you can inject a resource by id.
 
 [source, java]
 .ResourceByIdTest.java
@@ -240,7 +407,7 @@ The next example is intended to how you can inject a resource by id.
     public class ResourceByIdTest {
 
      @ArquillianResource
-     @Named("my-serivce")
+     @Named("my-service")
      Service service;
 
      @ArquillianResource
@@ -257,7 +424,33 @@ The next example is intended to how you can inject a resource by id.
       }
     }
 ----
+The next example is intended to show how you can inject a resource from secondary namespace.
 
+[source, java]
+.ResourceByIdInSecondaryNamespaceTest.java
+----
+
+    @RunWith(Arquillian.class)
+    public class ResourceByIdInSecondaryNamespaceTest {
+
+     @ArquillianResource
+     @Named(value = "my-service", namespace = "my-predefined-namespace")
+     Service service;
+
+     @ArquillianResource
+     @Named(value = "my-pod", namespace = "my-predefined-namespace")
+     Pod pod;
+
+     @ArquillianResource
+     @Named(value = "my-contoller", namespace = "my-predefined-namespace")
+     ReplicationController controller;
+
+      @Test
+      public void testStuff() throws Exception {
+       //Do stuff...
+      }
+    }
+----
 The next example shows how to inject a resource filtering by label.
 
 [source, java]
@@ -329,14 +522,27 @@ public class HelloWorldTest {
     @ArquillianResource
     URL url;
 
+    @Named(value = "another-openshift-service", namespace = "my-predefined-namespace")
+    @PortForward
+    @ArquillianResource
+    Service anotherService;
+
+    @Named(value = "another-openshift-service", namespace = "my-predefined-namespace")
+    @PortForward
+    @ArquillianResource
+    URL anotherUrl;
+
     @Test
-    public void service_instance_should_not_be_null() throws Exception {
+    public void service_instances_should_not_be_null() throws Exception {
         assertThat(service).isNotNull();
+        assertThat(anotherService).isNotNull();
     }
 
     @Test
     public void testStuff() throws Exception {
         //Do stuff...
+        //Modify something with request to url...
+        //Check results with request to anotherUrl...
     }
 }
 ----
@@ -354,12 +560,280 @@ public class HelloWorldTest {
 }
 ----
 
+Also you can gather control of what to deploy, when to deploy or  when to wait for resources readiness.
+To control you need to inject into test the `org.arquillian.cube.openshift.impl.client.OpenShiftAssistant`.
+
+[source, java]
+----
+public class HelloWorldOpenShiftAssistantTest {
+
+    @ArquillianResource
+    OpenShiftAssistant openShiftAssistant;
+
+     @Test
+     public void should_apply_route_programmatically() throws IOException {
+
+         openShiftAssistant.deployApplication("hello-world", "hello-route.json"); // <1> <2>
+         final Optional<URL> route = openShiftAssistant.getRoute(); // <3>
+     }
+
+}
+----
+<1> Sets the application name where everything is deployed
+<2> Sets the resource to apply, in this case creation of an OpenShift `route`
+<3> You can get the first defined route from cluster
+
+Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
+
+[source, java]
+.OpenshiftAndK8sExample.java
+----
+include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldIT.java[tag=client_cli_execution]
+----
+
+=== OpenShift Integration with Graphene
+
+Integration with Graphene allows for auto-resolution of the host and the context of the application deployed within the
+OpenShift cluster by using the cluster's `route` definition for configuring Graphene.
+
+In case, multiple routes are defined, user can select a `route`, by setting the route name as the host part in the URL
+property for Graphene.
+
+For example, as shown in the below snippet (1), a route named `hello-world` is selected for configuring the URL for
+graphene.
+
+[source, xml]
+.arquillian.xml
+----
+<extension qualifier="graphene">
+    <property name="url">http://hello-world:8080</property>   <!--1-->
+</extension>
+----
+
+If there is a single route or no route name is set, a default route from the definition is used for Graphene
+configuration.
+
+==== Example
+Apart from adding arquillian and arquillian-cube-openshift, obviously you also need to add the dependencies for
+arquillian-drone, selenium-bom and aquillian-graphene.
+
+[source, xml]
+.pom.xml
+----
+<dependencyManagement>
+    <dependencies>
+        <!-- arquillian-drone-bom dependencies -->
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-drone-bom</artifactId>
+            <version>2.0.0.Final</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+        <!-- selenium-bom dependencies -->
+        <dependency>
+            <groupId>org.jboss.arquillian.selenium</groupId>
+            <artifactId>selenium-bom</artifactId>
+            <version>2.53.1</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<!-- arquillian-drone webdriver dependency -->
+<dependency>
+    <groupId>org.jboss.arquillian.extension</groupId>
+    <artifactId>arquillian-drone-webdriver-depchain</artifactId>
+    <version>2.0.0.Final</version>
+    <type>pom</type>
+    <scope>test</scope>
+</dependency>
+
+<!-- arquillian-graphene dependencies -->
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver</artifactId>
+    <version>2.1.0.Final</version>
+    <type>pom</type>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.jboss.arquillian.graphene</groupId>
+    <artifactId>graphene-webdriver-impl</artifactId>
+    <version>2.1.0.Final</version>
+    <scope>test</scope>
+</dependency>
+----
+
+You can see the example using Graphene at
+https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-graphene .
+
+Also, you can learn more about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/ .
+
+=== OpenShift Integration with Rest-Assured
+
+Integration with Rest-Assured allows for auto-resolution of the base URI of the application deployed within the
+OpenShift cluster by using `OpenShift Route` definition for configuring Rest-Assured.
+
+==== Configuration
+
+You can configure a specific base URI using the `baseUri` property from restassured configuration. In this case, the
+hostname is going to be resolved as OpenShift route name, and if there is no route with that name, then the base URI is
+treated as is. For example:
+
+[source, xml]
+.arquillian.xml
+----
+include::../openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
+----
+
+As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
+and inject its IP. If there is no route with that name, then the base URI field is considered to be the final base URI.
+
+If however, no specific base URI is configured, a default route from the definition is used for rest-assured
+configuration.
+
+==== Dependency
+
+To use Arquillian Cube OpenShift RestAssured integration you only need to add as dependency.
+
+[source, xml]
+.pom.xml
+----
+<dependency>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-openshift-restassured</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+==== Example
+
+After setting the dependencies for OpenShift and OpenShift-RestAssured and configuring the extensions, you are all set
+to write your Arquillian Cube test as :
+
+[source, java]
+.HelloOpenShiftRestAssuredIT.java
+----
+include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/HelloOpenShiftRestAssuredIT.java[tag=openshift_restassured_example]
+----
+
+Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
+
+You can see the full example using OpenShift and Rest-Assured at
+https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-restassured .
+
+=== Istio in Kubernetes/OpenShift
+
+Arquillian Cube also support Istio, so you can apply Istio resources before executing tests.
+
+As it happens with Arquillian Kubernetes/OpenShift integration, the integration is provided as annotation and as assistant.
+
+==== Dependency
+
+To use Istio integration you just need to add next dependency.
+
+[source, xml]
+.pom.xml
+----
+include::../pom.xml[indent=0, tag=istio_dependency]
+----
+
+TIP: Same dependency can be used for OpenShift
+
+==== `@IstioResource`
+
+You can define at class level which Istio resource to apply before any test method execution, and it will be unregistered after all test methods are executed.
+
+The location of Istio Resource can start with `http(s):` or `file:` which then the value is treated as `URL.
+If location is prefixed with `classpath:`, then the resource is considered to be located at classpath.
+
+If it is not prefixed, then the resource is considered to be the content text.
+
+For example: `@IstioResource("classpath:istio_route_rule.yaml")`
+
+The value also supports like `${property:defaultValue}` where `property is resolved against system property, if not set then environment variable, and if not set the default value (if specified) is returned.
+
+[IMPORTANT]
+====
+When applying any resource, Istio notifies that the resource has been correctly registered, but this does not mean that all the configuration has been populated across all the cluster.
+
+This means that when test method is executed, all Istio elements might not be updated yet.
+At this time, Istio does not cover to query its state, so the only thing you can do is either sleeping some amount of time before executing the test or create some polling against a service that should be reachable after applying the rule.
+
+<<Istio Assistant>> provides some helper methd based on `awaitility` and `OkHttp`.
+
+====
+
+==== Istio Assistant
+
+You can register and unregister Istio resources programmatically using `IstioAssistant`.
+Notice that both annotations and assistant approaches can be mixed in the same test.
+
+[source, java]
+----
+include::../openshift/ftest-istio-openshift/src/test/java/org/arquillian/cube/openshift/standalone/ReviewsIT.java[indent=0, tag=istio_assistant]
+----
+
+The assistant provides you `deployIstioResources` and `undeployIstioResources` to deploy and undeploy Istio resources.
+
+Assistant also provides a helper method to poll a URL based on `awaitility` and `OkHttp`.
+
+For example:
+
+[source, java]
+----
+final Request request = new Request.Builder()
+    .url(url.toString() + "api/v1/products/0/reviews")
+    .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+    .build(); // <1>
+
+istioAssistant.await(request, response -> "2.0.0".equals(response.header("version"))); // <2>
+----
+<1> Creates the request to reach version 2.0.0 of the service
+<2> When all proxies are updated the request will finally get service 2 (instead of 1) and return the version in header
+
+=== Arquillian Kubernetes and OpenShift Recipes
+
+To help you get started with ease, listed below are specially curated examples for Kubernetes and OpenShift Extensions.
+
+==== Example 1
+
+Deploying a sample PHP Guestbook application with Redis on Kubernetes from the resource descriptor
+manifest file and testing it using Arquillian Cube Extension for Kubernetes and Kubernetes custom assertions.
+
+Source: https://github.com/arquillian-testing-microservices/kubernetes-deployment-testing[arquillian-testing-microservices/kubernetes-deployment-testing]
+
+==== Example 2
+
+Deploying a Wordpress and My SQL application to OpenShift from a Template file and testing it using Arquillian
+Cube Extension for OpenShift and  Fabric8 OpenShift Client.
+
+Source: https://github.com/arquillian-testing-microservices/openshift-deployment-testing[arquillian-testing-microservices/openshift-deployment-testing]
+
+==== Example 3
+
+Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
+https://maven.fabric8.io/[Fabric8 Maven Plugin] and
+https://github.com/arquillian/arquillian-cube[Arquillian Cube Extension].
+
+Fabric8 Maven Plugin aids in building Docker images and creating Kubernetes and OpenShift resource
+descriptors for the application that allows for a quick ramp-up with some opinionated defaults and Arquillian
+Cube Extension deploys the application from the generated resource descriptors and then executes deployment tests.
+
+Source: https://github.com/arquillian-testing-microservices/zero-config-deployment-test[arquillian-testing-microservices/zero-config-deployment-test]
+
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.
 This client is also used in wide range of frameworks, so its not that long of a shot to encounter version conflicts.
 
-To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned package (with major and minor version).
+To eliminate such issues, arquillian as of 1.1.0 is using a shaded uberjar of the client which contains versioned
+package (with major and minor version).
 
-All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with whatever version of the client that is found in the classpath.
+All enrichers provided by the arquillian modules, are configured to work both with the internal types, but also with
+whatever version of the client that is found in the classpath.
 
-Note: If your existing tests don't have a dependency to the kubernetes-client, you will either need to add kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.
+NOTE: If your existing tests don't have a dependency to the kubernetes-client, you will either need to add
+kubernetes-client, to your classpath or use the internal classes. It is recommended to do the first.

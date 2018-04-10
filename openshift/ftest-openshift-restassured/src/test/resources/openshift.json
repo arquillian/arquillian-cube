@@ -1,0 +1,76 @@
+{
+  "apiVersion" : "v1",
+  "kind" : "List",
+  "items" : [ {
+    "apiVersion" : "v1",
+    "kind" : "Service",
+    "metadata" : {
+      "name" : "hello-openshift"
+    },
+    "spec" : {
+      "ports" : [ {
+        "port" : 8080,
+        "protocol" : "TCP",
+        "targetPort" : 8080
+      } ],
+      "selector" : {
+        "app" : "hello-openshift"
+      }
+    }
+  }, {
+    "apiVersion" : "extensions/v1beta1",
+    "kind" : "Deployment",
+    "metadata" : {
+      "name" : "hello-openshift"
+    },
+    "spec" : {
+      "replicas" : 1,
+      "selector" : {
+        "matchLabels": {
+          "app": "hello-openshift"
+        }
+      },
+      "template" : {
+        "metadata" : {
+          "labels" : {
+            "app" : "hello-openshift"
+          }
+        },
+        "spec" : {
+          "containers" : [ {
+            "image" : "openshift/hello-openshift:v3.6.0",
+            "name" : "hello-openshift-container",
+            "imagePullPolicy": "IfNotPresent",
+            "ports" : [ {
+              "name" : "http",
+              "protocol" : "TCP",
+              "containerPort" : 8080
+            } ],
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 8080
+              },
+              "initialDelaySeconds": 1
+            }
+          } ]
+        }
+      }
+    }
+  }, {
+      "apiVersion": "v1",
+      "kind": "Route",
+      "metadata": {
+        "name": "hello-openshift"
+      },
+      "spec": {
+        "port": {
+          "targetPort": 8080
+        },
+        "to": {
+          "kind": "Service",
+          "name": "hello-openshift"
+        }
+      }
+    }]
+}

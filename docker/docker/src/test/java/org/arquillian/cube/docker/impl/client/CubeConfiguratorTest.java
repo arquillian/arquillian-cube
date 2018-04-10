@@ -1,17 +1,13 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.SystemUtils;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -19,6 +15,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.StringEndsWith;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
+import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assume;
@@ -28,16 +25,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {
@@ -48,6 +49,10 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     ArquillianDescriptor arquillianDescriptor;
     @Mock
     ExtensionDef extensionDef;
+    @Mock
+    OperatingSystemInterface operatingSystem;
+    @Mock
+    OperatingSystemFamilyInterface operatingSystemFamily;
     @Mock
     Top top;
 
@@ -63,6 +68,14 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         return new PathStringEndsWithMatcher(suffix);
     }
 
+    private void bindNonExistingDockerSocketOS() {
+        when(operatingSystem.getDefaultFamily()).thenReturn(operatingSystemFamily);
+        when(operatingSystem.getFamily()).thenReturn(OperatingSystemFamily.MAC);
+        when(operatingSystemFamily.getServerUri()).thenReturn("non/existing/path");
+
+        bind(ApplicationScoped.class, OperatingSystemInterface.class, operatingSystem);
+    }
+
     @Override
     protected void addExtensions(List<Class<?>> extensions) {
         extensions.add(CubeDockerConfigurator.class);
@@ -75,6 +88,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, DockerMachine.class, new DockerMachine(commandLineExecutor));
         bind(ApplicationScoped.class, ArquillianDescriptor.class, arquillianDescriptor);
         bind(ApplicationScoped.class, Top.class, top);
+
         when(top.isSpinning()).thenReturn(false);
     }
 
@@ -187,6 +201,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("docker-machine"))
             .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
+        bindNonExistingDockerSocketOS();
+
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.99.100:2376"));
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_MACHINE_NAME, "dev"));
@@ -214,6 +230,9 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("docker-machine"))
             .thenReturn("Usage: docker-machine [OPTIONS] COMMAND [arg...]");
 
+
+        bindNonExistingDockerSocketOS();
+
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));
     }
@@ -232,6 +251,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
 
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new IllegalArgumentException());
+
+        bindNonExistingDockerSocketOS();
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:2376"));

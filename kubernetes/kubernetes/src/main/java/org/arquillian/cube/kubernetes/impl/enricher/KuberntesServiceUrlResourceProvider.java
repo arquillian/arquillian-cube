@@ -1,13 +1,13 @@
 package org.arquillian.cube.kubernetes.impl.enricher;
 
-import io.fabric8.kubernetes.api.model.v2_6.EndpointAddress;
-import io.fabric8.kubernetes.api.model.v2_6.EndpointSubset;
-import io.fabric8.kubernetes.api.model.v2_6.Endpoints;
-import io.fabric8.kubernetes.api.model.v2_6.Pod;
-import io.fabric8.kubernetes.api.model.v2_6.Service;
-import io.fabric8.kubernetes.api.model.v2_6.ServicePort;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointAddress;
+import io.fabric8.kubernetes.api.model.v3_1.EndpointSubset;
+import io.fabric8.kubernetes.api.model.v3_1.Endpoints;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.Service;
+import io.fabric8.kubernetes.api.model.v3_1.ServicePort;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
@@ -32,7 +32,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v2_6.ServiceList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v3_1.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResourceProvider {
@@ -44,7 +44,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
     private static final String DEFAULT_PATH = "/";
 
     private static final String POD = "Pod";
-    private static final String LOCALHOST = "127.0.0.1";
+    public static final String LOCALHOST = "127.0.0.1";
 
     private static final String SERVICE_A_RECORD_FORMAT = "%s.%s.svc.cluster.local";
 
@@ -285,7 +285,7 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
                 return delegate.lookup(resource, qualifiers);
             }
         }
-        String namespace = getSession().getNamespace();
+        String namespace = getNamespace(qualifiers);
         Service service = getClient().services().inNamespace(namespace).withName(name).get();
         String scheme = getScheme(service, qualifiers);
         String path = getPath(service, qualifiers);
@@ -296,11 +296,11 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         if (isPortForwardingEnabled(qualifiers)) {
             Pod pod = getRandomPod(getClient(), name, namespace);
             int containerPort = getContainerPort(service, qualifiers);
-            port = portForward(getSession(), pod.getMetadata().getName(), containerPort);
+            port = portForward(getSession(), pod.getMetadata().getName(), containerPort, namespace);
             ip = LOCALHOST;
         } else if (isUseDnsEnabled(qualifiers)) {
-          ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
-          port = getPort(service, qualifiers);
+            ip = String.format(SERVICE_A_RECORD_FORMAT, name, namespace);
+            port = getPort(service, qualifiers);
 
         } else {
             port = getPort(service, qualifiers);
@@ -335,14 +335,14 @@ public class KuberntesServiceUrlResourceProvider extends AbstractKubernetesResou
         return next;
     }
 
-    private int portForward(Session session, String podName, int targetPort) {
-        return portForward(session, podName, findRandomFreeLocalPort(), targetPort);
+    private int portForward(Session session, String podName, int targetPort, String namespace) {
+        return portForward(session, podName, findRandomFreeLocalPort(), targetPort, namespace);
     }
 
-    private int portForward(Session session, String podName, int sourcePort, int targetPort) {
+    private int portForward(Session session, String podName, int sourcePort, int targetPort, String namespace) {
         try {
             final PortForwarder portForwarder = new PortForwarder(
-                new ConfigBuilder(getClient().getConfiguration()).withNamespace(session.getNamespace()).build(), podName);
+                new ConfigBuilder(getClient().getConfiguration()).withNamespace(namespace).build(), podName);
             final PortForwarder.PortForwardServer server = portForwarder.forwardPort(sourcePort, targetPort);
             session.addListener(new SessionListener() {
                 @Override

@@ -1,4 +1,13 @@
 sudo: required
+
+matrix:
+  include:
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.2" COMMIT_ID="282e43f" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.7.2" COMMIT_ID="282e43f" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0" COMMIT_ID="191fece" CATEGORY="org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes"
+     - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0" COMMIT_ID="191fece" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
+     - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
+
 services:
   - docker
 addons:
@@ -30,10 +39,34 @@ before_install:
       docker pull rochdev/alpine-asciidoctor:mini;
     fi'
 
+install:
+  - |
+      # OpenShift >= 3.7 requires nsenter https://github.com/openshift/origin/issues/17638
+      if [ ${OC_VERSION} == "v3.7.1" ] || [ ${OC_VERSION} == "v3.7.2" ] ; then
+        ./.travis/nsetter_and_systemd_run_setup.sh
+      fi
+      if [ ${OC_CLUSTER_UP} ]; then
+        tmp=`mktemp`
+        echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry 172.30.0.0/16"' > ${tmp}
+        sudo mv ${tmp} /etc/default/docker
+        sudo mount --make-shared /
+        sudo service docker restart
+        docker pull openshift/wildfly-101-centos7
+        docker pull aslakknutsen/openshift-arquillian-gitserver
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
+            chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+        client_tools="openshift-origin-client-tools-${OC_VERSION}-${COMMIT_ID}-linux-64bit" && curl -LO https://github.com/openshift/origin/releases/download/${OC_VERSION}/${client_tools}.tar.gz && \
+          tar -xvzf ${client_tools}.tar.gz && sudo mv $PWD/${client_tools}/oc /usr/local/bin/ && rm -rf ${client_tools}.tar.gz
+        oc cluster up --version=${OC_VERSION} --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
+        sleep 10
+        oc login -u system:admin
+        oc get event --all-namespaces
+      fi
+
 before_script: ./mvnw install -q -U -DskipTests=true
 
 script:
-  - ./mvnw clean install
+  - ./mvnw clean verify -Dfailsafe.groups=${CATEGORY}
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker run -v $TRAVIS_BUILD_DIR:/docs/ --name adoc-to-html rochdev/alpine-asciidoctor:mini asciidoctor /docs/README.adoc -a generated-doc=true -a asciidoctor-source=/docs/docs -o /docs/gh-pages/index.html;
     fi'
@@ -45,13 +78,34 @@ after_success:
       git commit -m"Publishes new documentation";
       git push --quiet "${GH_REF}" gh-pages > /dev/null 2>&1;
     fi'
+  - |
+        if [ ${OC_CLUSTER_UP} ]; then
+          echo "oc get pods --all-namespaces"
+          oc get pods --all-namespaces
+          echo "oc get event --all-namespaces"
+          oc get event --all-namespaces
+        fi
 
 after_error:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
+      fi
 
 after_failure:
   - 'if [ $FORCE_DOC_GEN == 0 ] || [ $GENERATE_DOC == 0 ]; then
       docker logs adoc-to-html;
     fi'
+  - |
+      if [ ${OC_CLUSTER_UP} ]; then
+        echo "oc get pods --all-namespaces"
+        oc get pods --all-namespaces
+        echo "oc get event --all-namespaces"
+        oc get event --all-namespaces
+      fi

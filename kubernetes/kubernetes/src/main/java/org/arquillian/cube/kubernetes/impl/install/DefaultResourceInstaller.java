@@ -1,9 +1,9 @@
 package org.arquillian.cube.kubernetes.impl.install;
 
-import io.fabric8.kubernetes.api.builder.v2_6.Visitor;
-import io.fabric8.kubernetes.api.model.v2_6.HasMetadata;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClientException;
+import io.fabric8.kubernetes.api.builder.v3_1.Visitor;
+import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -68,10 +68,10 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
     public static class ImmutableResourceInstaller implements ResourceInstaller, WithToImmutable<ResourceInstaller> {
 
-        private final KubernetesClient client;
-        private final Configuration configuration;
-        private final Logger logger;
-        private final List<Visitor> visitors;
+        protected final KubernetesClient client;
+        protected final Configuration configuration;
+        protected final Logger logger;
+        protected final List<Visitor> visitors;
 
         public ImmutableResourceInstaller(KubernetesClient client, Configuration configuration, Logger logger,
             List<Visitor> visitors) {
@@ -93,7 +93,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
 
         @Override
         public Map<HasMetadata, Boolean> uninstall(URL url) {
-            Map<HasMetadata, Boolean> result = new HashMap<>();
             CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
 
             try (InputStream is = url.openStream()) {
@@ -127,7 +126,6 @@ public class DefaultResourceInstaller implements ResourceInstaller {
                 Scanner scanner = new Scanner(System.in);
                 scanner.nextLine();
                 logger.info("Cleaning up...");
-                return;
             } else {
                 long timeout = configuration.getNamespaceCleanupTimeout();
                 if (timeout > 0L) {

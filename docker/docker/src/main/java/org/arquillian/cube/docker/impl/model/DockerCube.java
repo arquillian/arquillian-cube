@@ -49,7 +49,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     private static final Logger log = Logger.getLogger(DockerCube.class.getName());
     private final PortBindings portBindings;
-    private State state = State.DESTROYED;
+    private State state = State.BEFORE_CREATE;
     private String id;
     private Binding binding = null;
     private CubeContainer configuration;
@@ -98,23 +98,22 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void create() throws CubeControlException {
-        if (state != State.DESTROYED) {
-            return;
-        }
-        try {
-            lifecycle.fire(new BeforeCreate(id));
+        if (state == State.BEFORE_CREATE || state == State.DESTROYED) {
+            try {
+                lifecycle.fire(new BeforeCreate(id));
 
-            log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
-            long currentTime = System.currentTimeMillis();
-            executor.createContainer(id, configuration);
-            this.startingTimeInMillis = System.currentTimeMillis() - currentTime;
-            log.fine(String.format("Created container with id %s.", id));
+                log.fine(String.format("Creating container with name %s and configuration %s.", id, configuration));
+                long currentTime = System.currentTimeMillis();
+                executor.createContainer(id, configuration);
+                this.startingTimeInMillis = System.currentTimeMillis() - currentTime;
+                log.fine(String.format("Created container with id %s.", id));
 
-            state = State.CREATED;
-            lifecycle.fire(new AfterCreate(id));
-        } catch (Exception e) {
-            state = State.CREATE_FAILED;
-            throw CubeControlException.failedCreate(id, e);
+                state = State.CREATED;
+                lifecycle.fire(new AfterCreate(id));
+            } catch (Exception e) {
+                state = State.CREATE_FAILED;
+                throw CubeControlException.failedCreate(id, e);
+            }
         }
     }
 
@@ -145,7 +144,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void stop() throws CubeControlException {
-        if (state == State.STOPPED || state == State.PRE_RUNNING) {
+        if (state == State.STOPPED || state == State.PRE_RUNNING || state == State.DESTROYED) {
             return;
         }
         try {
@@ -191,7 +190,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
             state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch (Exception e) {
-            state = State.DESTORY_FAILED;
+            state = State.DESTROY_FAILED;
             throw CubeControlException.failedDestroy(id, e);
         }
     }
@@ -246,7 +245,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void changeToPreRunning() {
-        if (state != State.DESTROYED && state != State.STARTED) {
+        if (state != State.BEFORE_CREATE && state != State.STARTED) {
             return;
         }
 

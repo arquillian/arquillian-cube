@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-docker-parent</artifactId>
-    <version>1.9.2-SNAPSHOT</version>
+    <version>1.15.4-SNAPSHOT</version>
   </parent>
   <name>Arquillian Cube Docker Functional Test Drone</name>
   <artifactId>arquillian-cube-docker-ftest-drone</artifactId>
@@ -32,18 +32,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.arquillian.junit</groupId>
-      <artifactId>arquillian-junit-standalone</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-docker</artifactId>
+      <artifactId>arquillian-cube-docker-starter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -60,6 +55,11 @@
       <artifactId>arquillian-drone-webdriver-depchain</artifactId>
       <version>${version.arquillian.drone}</version>
       <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 

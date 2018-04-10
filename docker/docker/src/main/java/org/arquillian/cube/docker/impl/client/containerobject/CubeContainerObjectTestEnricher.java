@@ -80,7 +80,7 @@ public class CubeContainerObjectTestEnricher implements TestEnricher {
         final Volume[] volumesFromAnnotations = field.getAnnotationsByType(Volume.class);
         if (volumesFromAnnotations != null && volumesFromAnnotations.length > 0) {
             final List<String> volumeBindings = Arrays.stream(volumesFromAnnotations)
-                .map(volume -> volume.hostPath() + ":" + volume.containerPath() + ":rw")
+                .map(volume -> volume.hostPath() + ":" + volume.containerPath() + ":Z")
                 .collect(Collectors.toList());
             cubeContainer.setBinds(volumeBindings);
         }

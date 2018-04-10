@@ -97,7 +97,7 @@ public class SeleniumContainers {
         cubeContainer.setImage(Image.valueOf(CONVERSION_IMAGE));
 
         cubeContainer.setBinds(
-            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "rw"))
+            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "Z"))
         );
 
         // Using log await strategy to match the echo string indicating completion of conversion
@@ -120,7 +120,7 @@ public class SeleniumContainers {
         cubeContainer.setImage(Image.valueOf(VNC_IMAGE));
 
         cubeContainer.setBinds(
-            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "rw"))
+            Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "Z"))
         );
 
         final Link link = Link.valueOf(seleniumContainerName + ":" + VNC_HOSTNAME);

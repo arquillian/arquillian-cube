@@ -73,6 +73,23 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     }
 
     @Test
+    public void shouldFireLifecycleEventsDuringCreateAfterDestroyed() {
+        // given calling entire lifecycle to destroy cube
+        cube.create();
+        cube.start();
+        cube.stop();
+        cube.destroy();
+
+        // when
+        cube.create();
+
+        // then event count is 2 which is for two cube.create()
+        assertEventFired(BeforeCreate.class, 2);
+        assertEventFired(AfterCreate.class, 2);
+    }
+
+
+    @Test
     public void shouldFireLifecycleEventsDuringStart() {
         cube.start();
         assertEventFired(BeforeStart.class, 1);
@@ -111,5 +128,40 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         cube.destroy();
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
+    }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyDestroyedCube() {
+        // given
+        cube.stop();
+        cube.destroy();
+
+        // when
+        cube.stop();
+
+        // then - event count is 1 which is for first cube.stop()
+        assertEventFired(BeforeStop.class, 1);
+        assertEventFired(AfterStop.class, 1);
+    }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyStoppedCube() {
+        // given
+        cube.stop();
+
+        // when
+        cube.stop();
+
+        // then  - event count is 1 which is for first cube.stop()
+        assertEventFired(BeforeStop.class, 1);
+        assertEventFired(AfterStop.class, 1);
+    }
+
+    @Test
+    public void shouldNotFireLifecycleEventsIfTryingToStopPreRunningCube() {
+        cube.changeToPreRunning();
+        cube.stop();
+        assertEventFired(BeforeStop.class, 0);
+        assertEventFired(AfterStop.class, 0);
     }
 }

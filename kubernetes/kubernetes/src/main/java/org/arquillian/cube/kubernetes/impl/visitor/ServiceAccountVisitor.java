@@ -1,8 +1,8 @@
 package org.arquillian.cube.kubernetes.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v2_6.Visitor;
-import io.fabric8.kubernetes.api.model.v2_6.PodSpecBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.api.builder.v3_1.Visitor;
+import io.fabric8.kubernetes.api.model.v3_1.PodSpecBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Logger;

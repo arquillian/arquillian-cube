@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,7 @@ public interface Configuration {
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
 
+    String WAIT_ENABLED = "wait.enabled";
     String WAIT_TIMEOUT = "wait.timeout";
     String WAIT_POLL_INTERVAL = "wait.poll.interval";
 
@@ -53,10 +54,27 @@ public interface Configuration {
     String LOGS_COPY = "logs.copy";
     String LOGS_PATH = "logs.path";
 
-    Long DEFAULT_WAIT_TIMEOUT = 5 * 60 * 1000L;
+    String USERNAME = "cube.username";
+    String PASSWORD = "cube.password";
+    String AUTH_TOKEN = "cube.auth.token";
+    String API_VERSION = "cube.api.version";
+    String TRUST_CERTS = "cube.trust.certs";
+
+    // fabric8 maven plugin properties
+    String FMP_BUILD = "cube.fmp.build";
+    String FMP_BUILD_DISABLE_FOR_MAVEN = "cube.fmp.build.disable.for.mvn";
+    String FMP_POM_PATH = "cube.fmp.pom.path";
+    String FMP_DEBUG_OUTPUT = "cube.fmp.debug.output";
+    String FMP_LOGS = "cube.fmp.logs";
+    String FMP_PROFILES = "cube.fmp.profiles";
+    String FMP_SYSTEM_PROPERTIES = "cube.fmp.system.properties";
+    String FMP_BUILD_OPTIONS = "cube.fmp.build.options";
+
+    Long DEFAULT_WAIT_TIMEOUT = 8 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
 
     String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+    String DEFAULT_FMP_PATH = "pom.xml";
     Long DEFAULT_NAMESPACE_CLEANUP_TIMEOUT = 0L;
     Long DEFAULT_NAMESPACE_DESTROY_TIMEOUT = 0L;
     Boolean DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED = true;
@@ -79,6 +97,16 @@ public interface Configuration {
 
     String getNamespace();
 
+    String getUsername();
+
+    String getPassword();
+
+    String getApiVersion();
+
+    String getToken();
+
+    boolean isTrustCerts();
+
     boolean isNamespaceLazyCreateEnabled();
 
     boolean isNamespaceCleanupEnabled();
@@ -91,7 +119,11 @@ public interface Configuration {
 
     boolean isNamespaceDestroyConfirmationEnabled();
 
+    boolean isNamespaceUseCurrentEnabled();
+
     long getNamespaceDestroyTimeout();
+
+    boolean isWaitEnabled();
 
     long getWaitTimeout();
 
@@ -104,6 +136,22 @@ public interface Configuration {
     boolean isEnvironmentInitEnabled();
 
     boolean isLogCopyEnabled();
+
+    boolean isFmpBuildForMavenDisable();
+
+    boolean isFmpDebugOutput();
+
+    boolean isFmpLogsEnabled();
+
+    boolean isFmpBuildEnabled();
+
+    String getFmpPomPath();
+
+    String getFmpBuildOptions();
+
+    List<String> getFmpProfiles();
+
+    List<String> getFmpSystemProperties();
 
     String getLogPath();
 

@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.junit.rule;
 
-import org.arquillian.cube.HostIpContext;
 import org.arquillian.cube.docker.impl.client.SystemPropertiesCubeSetter;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.BindMode;
@@ -8,14 +7,12 @@ import org.arquillian.cube.docker.impl.client.containerobject.dsl.Container;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.ContainerBuilder;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
+import org.arquillian.cube.docker.junit.DockerClientInitializer;
+import org.arquillian.cube.docker.junit.Injector;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
 import org.arquillian.cube.spi.CubeOutput;
-import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
-import org.arquillian.cube.spi.event.lifecycle.CubeLifecyleEvent;
-import org.jboss.arquillian.core.api.Event;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.jboss.shrinkwrap.api.Archive;
@@ -25,10 +22,8 @@ import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ContainerDslRule implements TestRule {
 
@@ -179,35 +174,8 @@ public class ContainerDslRule implements TestRule {
 
                 // Inject Arquillian resources
                 container = containerBuilder.build();
-                final Optional<Field> hostIpContextField = Reflections.findFieldByGenericType(Container.class, Instance.class, HostIpContext.class);
-
-                if (hostIpContextField.isPresent()) {
-                    Reflections.injectObject(container, hostIpContextField.get(), (Instance) () -> new HostIpContext(dockerClientExecutor.getDockerServerIp()));
-                }
-
-                final Optional<Field> dockerClientExecutorField = Reflections.findFieldByGenericType(Container.class, Instance.class, DockerClientExecutor.class);
-
-                if (dockerClientExecutorField.isPresent()) {
-                    Reflections.injectObject(container, dockerClientExecutorField.get(), (Instance) () -> dockerClientExecutor);
-                }
-
-                DockerCube dockerCube = new DockerCube(container.getContainerName(), container.getCubeContainer(), dockerClientExecutor);
-                LocalCubeRegistry localCubeRegistry = new LocalCubeRegistry();
-                localCubeRegistry.addCube(dockerCube);
-
-                final Optional<Field> cubeRegistryField = Reflections.findFieldByGenericType(Container.class, Instance.class, CubeRegistry.class);
-
-                if (cubeRegistryField.isPresent()) {
-                    Reflections.injectObject(container, cubeRegistryField.get(), (Instance) () -> localCubeRegistry);
-                }
-
-                final Optional<Field> eventField = Reflections.findFieldByGenericType(DockerCube.class, Event.class, CubeLifecyleEvent.class);
-
-                if (eventField.isPresent()) {
-                    Reflections.injectObject(dockerCube, eventField.get(), (Event) o -> {
-                    });
-                }
-
+                final LocalCubeRegistry localCubeRegistry = new LocalCubeRegistry();
+                final DockerCube dockerCube = Injector.prepareContainer(container, dockerClientExecutor, localCubeRegistry);
 
                 try {
                     dockerCube.create();

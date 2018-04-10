@@ -30,6 +30,11 @@ Let's see an example:
     ping*:
       image: jonmorehouse/ping-pong
       exposedPorts: [8089/tcp]
+    pong*:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+      depends_on:
+        - "ping*"
 </property>
 ----
 
@@ -38,7 +43,7 @@ You add the special character `*` to indicate that cube name should be randomize
 With previous example Cube will:
 
 . Generate a unique _UUID_.
-. Substitute cube name and links using the name + UUID
+. Substitute cube name, links and depends_on using the name + UUID
 . In case of using an alias, don't add the `*` since it is extended from the service name
 . Bind port is going to be changed to a random private port (49152 - 65535)
 . Add an environment variable with new hostname. This environment variable is <name>_HOSTNAME
@@ -58,10 +63,39 @@ So for example the result file could look like:
     ping_123456:
       image: jonmorehouse/ping-pong
       exposedPorts: [8089/tcp]
+    pong_123456:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+      depends_on:
+        - "ping_123456"
 </property>
 ----
 
 Since now the ports are unique and names are unique, you can run tests using same orchestration in parallel against same docker host.
+
+The same approach can work for ensuring that each test run has a unique network. As docker allows multiple networks to have the same name, it will not throw an error if two concurrent tests create networks with the same name. However, as cube networks are specified by name in the cube specification, if there are multiple networks with the same name, the cube could end up in any one of them, resulting in hard to debug test failures.
+
+Again, adding the special character `*` to the end of the network name will cause a random network name to be used. The name can then be used for a cube's networkMode or in the cube's network list, and it will be substituted correctly when the test runs.
+
+[source, yml]
+.arquillian.xml
+----
+<property name="dockerContainers">
+    networks:
+      testnetwork*:
+        driver: bridge
+    tomcat*:
+      image: tutum/tomcat:8.0
+      portBindings: [8080/tcp]
+      networkMode: testnetwork*
+    ping*:
+      image: jonmorehouse/ping-pong
+      exposedPorts: [8089/tcp]
+      networks:
+        - testnetwork*
+</property>
+----
+
 
 NOTE: You can use the same approach for _docker-compose_ files not only with _cube_ format. But then your _docker-compose_ will be tight to Arquillian Cube. The best approach if you want to use docker-compose format is using `extends`.
 

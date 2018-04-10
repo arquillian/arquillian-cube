@@ -1,8 +1,8 @@
 package org.arquillian.cube.openshift.impl.model;
 
-import io.fabric8.kubernetes.api.model.v2_6.Container;
-import io.fabric8.kubernetes.api.model.v2_6.ContainerPort;
-import io.fabric8.kubernetes.api.model.v2_6.Pod;
+import io.fabric8.kubernetes.api.model.v3_1.Container;
+import io.fabric8.kubernetes.api.model.v3_1.ContainerPort;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
@@ -55,7 +55,8 @@ public class BuildablePodCube extends BaseCube<Void> {
     private OpenShiftClient client;
 
     private PortBindings portBindings;
-    private ResourceHolder holder;
+
+    ResourceHolder holder;
 
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
@@ -138,6 +139,9 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public void stop() throws CubeControlException {
+        if (state == State.STOPPED || state == State.PRE_RUNNING || state == State.DESTROYED) {
+            return;
+        }
         try {
             lifecycle.fire(new BeforeStop(id));
             destroyPod(holder.getPod());
@@ -156,6 +160,9 @@ public class BuildablePodCube extends BaseCube<Void> {
 
     @Override
     public void destroy() throws CubeControlException {
+        if (state != State.STOPPED) {
+            return;
+        }
         try {
             lifecycle.fire(new BeforeDestroy(id));
             List<Exception> exceptions = client.clean(holder);
@@ -165,7 +172,7 @@ public class BuildablePodCube extends BaseCube<Void> {
             this.state = State.DESTROYED;
             lifecycle.fire(new AfterDestroy(id));
         } catch (Exception e) {
-            this.state = State.DESTORY_FAILED;
+            this.state = State.DESTROY_FAILED;
             throw CubeControlException.failedDestroy(getId(), e);
         }
     }

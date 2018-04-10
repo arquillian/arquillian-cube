@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-parent</artifactId>
-    <version>1.9.2-SNAPSHOT</version>
+    <version>1.15.4-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -18,11 +18,29 @@
 
   <name>Arquillian Cube OpenShift Parent</name>
 
+  <properties>
+    <version.graphene>2.1.0.Final</version.graphene>
+    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
+    <version.selenium>2.53.1</version.selenium>
+  </properties>
+
   <modules>
+    <module>api</module>
+    <module>shrinkwrap</module>
     <module>openshift</module>
     <module>ftest</module>
     <module>ftest-containerless</module>
     <module>ftest-standalone</module>
+    <module>ftest-template-standalone</module>
+    <module>ftest-openshift-resources-standalone</module>
+    <module>ftest-oc-proxy</module>
+    <module>ftest-openshift-assistant</module>
+    <module>ftest-openshift-graphene</module>
+    <module>ftest-openshift-restassured</module>
+    <module>ftest-istio-openshift</module>
+    <module>openshift-restassured</module>
+    <module>ftest-openshift-fabric8-maven-plugin</module>
+    <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 
 </project>

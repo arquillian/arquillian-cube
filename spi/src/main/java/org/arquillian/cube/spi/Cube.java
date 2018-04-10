@@ -47,7 +47,7 @@ public interface Cube<T> {
 
     <X extends CubeMetadata> X getMetadata(Class<X> type);
 
-    public enum State {
+    enum State {
         CREATED,
         CREATE_FAILED,
         STARTED,
@@ -55,7 +55,8 @@ public interface Cube<T> {
         STOPPED,
         STOP_FAILED,
         DESTROYED,
-        DESTORY_FAILED,
-        PRE_RUNNING
+        DESTROY_FAILED,
+        PRE_RUNNING,
+        BEFORE_CREATE,
     }
 }

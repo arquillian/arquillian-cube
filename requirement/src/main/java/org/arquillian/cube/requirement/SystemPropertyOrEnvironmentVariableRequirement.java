@@ -1,10 +1,10 @@
 package org.arquillian.cube.requirement;
 
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
 public class SystemPropertyOrEnvironmentVariableRequirement
-    implements Requirement<RequiresSystemPropertyOrEnvironmentVariable> {
+    implements Constraint<RequiresSystemPropertyOrEnvironmentVariable> {
 
     public static String convertSystemPropertyNameToEnvVar(String systemPropertyName) {
         return systemPropertyName.toUpperCase().replaceAll("[.-]", "_");

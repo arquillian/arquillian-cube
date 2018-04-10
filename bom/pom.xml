@@ -6,7 +6,7 @@
   <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-bom</artifactId>
   <packaging>pom</packaging>
-  <version>1.9.2-SNAPSHOT</version>
+  <version>1.15.4-SNAPSHOT</version>
 
   <name>Arquillian Cube Universe Aggregator</name>
   <url>http://arquillian.org/arquillian-cube</url>
@@ -81,6 +81,11 @@
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-docker-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-docker-junit-rule</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -111,6 +116,11 @@
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-kubernetes-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-kubernetes-reporter</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -122,6 +132,16 @@
       <dependency>
         <groupId>org.arquillian.cube</groupId>
         <artifactId>arquillian-cube-openshift</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-openshift-shrinkwrap</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

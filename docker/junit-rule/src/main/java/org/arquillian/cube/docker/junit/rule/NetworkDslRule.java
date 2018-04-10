@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.junit.rule;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.Network;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.NetworkBuilder;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.junit.DockerClientInitializer;
 import org.arquillian.cube.spi.metadata.IsNetworkContainerObject;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;

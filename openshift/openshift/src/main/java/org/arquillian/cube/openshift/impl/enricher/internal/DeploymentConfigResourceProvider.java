@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.openshift.api.model.v2_6.DeploymentConfig;
-import io.fabric8.openshift.api.model.v2_6.DeploymentConfigList;
+import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.DeploymentConfigList;
 
 import org.arquillian.cube.openshift.impl.enricher.AbstractOpenshiftResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -24,16 +24,17 @@ public class DeploymentConfigResourceProvider extends AbstractOpenshiftResourceP
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         String name = getName(qualifiers);
+        String namespace = getNamespace(qualifiers);
         if (name != null) {
             return getOpenshiftClient().deploymentConfigs()
-                .inNamespace(getSession().getNamespace())
-                .withName(getName(qualifiers))
+                .inNamespace(namespace)
+                .withName(name)
                 .get();
         }
 
         // Gets the first deployment config that matches the labels.
         Map<String, String> labels = getLabels(qualifiers);
-        DeploymentConfigList list = getOpenshiftClient().deploymentConfigs().inNamespace(getSession().getNamespace()).withLabels(labels).list();
+        DeploymentConfigList list = getOpenshiftClient().deploymentConfigs().inNamespace(namespace).withLabels(labels).list();
         List<DeploymentConfig> deploymentConfigs = list.getItems();
         if( !deploymentConfigs.isEmpty() ) {
             return deploymentConfigs.get(0);

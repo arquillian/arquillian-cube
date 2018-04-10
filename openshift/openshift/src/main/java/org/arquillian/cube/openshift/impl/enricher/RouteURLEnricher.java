@@ -1,10 +1,14 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
-import io.fabric8.openshift.api.model.v2_6.Route;
+import io.fabric8.openshift.api.model.v3_1.Route;
+import io.fabric8.openshift.api.model.v3_1.RouteList;
+import org.arquillian.cube.impl.ConfigurationParameters;
+import org.arquillian.cube.impl.EnricherExpressionResolver;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
+import org.jboss.arquillian.config.impl.extension.StringPropertyReplacer;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -12,9 +16,15 @@ import org.jboss.arquillian.test.spi.TestEnricher;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
 
 /**
  * RouteProxyProvider
@@ -29,24 +39,26 @@ public class RouteURLEnricher implements TestEnricher {
     @Inject
     private Instance<Configuration> configurationInstance;
 
+    @Inject
+    private Instance<ConfigurationParameters> configurationParametersInstance;
+
     @Override
     public void enrich(Object testCase) {
         for (Field field : ReflectionUtil.getFieldsWithAnnotation(testCase.getClass(), RouteURL.class)) {
-            URL url;
+            Object url;
             AwaitRoute await;
             try {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
-                RouteURL routeURL = getRouteURLAnnotation(field.getAnnotations());
-                url = lookup(routeURL);
+                RouteURL routeURL = getAnnotation(RouteURL.class, field.getAnnotations());
+                url = lookup(routeURL, field.getType());
                 field.set(testCase, url);
-                await = routeURL.await();
+                await = getAnnotation(AwaitRoute.class, field.getAnnotations());
             } catch (Exception e) {
                 throw new RuntimeException("Could not set RouteURL value on field " + field, e);
             }
-
-            awaitRoute(url, await);
+            configureAwaitRoute(url, await);
         }
     }
 
@@ -55,30 +67,35 @@ public class RouteURLEnricher implements TestEnricher {
         Object[] values = new Object[method.getParameterTypes().length];
         Class<?>[] parameterTypes = method.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
-            RouteURL routeURL = getRouteURLAnnotation(method.getParameterAnnotations()[i]);
+            RouteURL routeURL = getAnnotation(RouteURL.class, method.getParameterAnnotations()[i]);
             if (routeURL != null) {
-                URL url = lookup(routeURL);
+                Object url = lookup(routeURL, method.getParameterTypes()[i]);
                 values[i] = url;
-                awaitRoute(url, routeURL.await());
+                AwaitRoute await = getAnnotation(AwaitRoute.class, method.getParameterAnnotations()[i]);
+                configureAwaitRoute(url, await);
             }
         }
         return values;
     }
 
-    private RouteURL getRouteURLAnnotation(Annotation[] annotations) {
+    private <T extends Annotation> T getAnnotation(Class<T> annotationClass, Annotation[] annotations) {
         for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == RouteURL.class) {
-                return (RouteURL) annotation;
+            if (annotation.annotationType() == annotationClass) {
+                return annotationClass.cast(annotation);
             }
         }
         return null;
     }
 
-    private URL lookup(RouteURL routeURL) {
+    private Object lookup(RouteURL routeURL, Class<?> returnType) {
+        if (routeURL == null) {
+            throw new NullPointerException("RouteURL is null!");
+        }
 
-        final String routeName = routeURL.value();
-        if (routeURL == null || routeName == null || routeName.length() == 0) {
-            throw new NullPointerException("RouteURL is null, must specify a route name!");
+        final EnricherExpressionResolver expressionResolver = new EnricherExpressionResolver(configurationParametersInstance.get());
+        final String routeName  = expressionResolver.resolve(routeURL.value());
+        if (routeName == null || routeName.length() == 0) {
+            throw new NullPointerException("Route name is null, must specify a route name!");
         }
 
         final CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
@@ -89,61 +106,57 @@ public class RouteURLEnricher implements TestEnricher {
         final OpenShiftClient client = clientInstance.get();
         final Route route = client.getClient().routes().inNamespace(config.getNamespace()).withName(routeName).get();
         if (route == null) {
-            throw new IllegalArgumentException("Could not resolve route: " + routeName);
+            List<Route> availableRoutes = client.getClient().routes().inNamespace(config.getNamespace()).list().getItems();
+            throw new IllegalArgumentException("Could not resolve route: " + routeName + ". Available routes: " + availableRoutes.stream().map(r -> r.getMetadata().getName()).collect(Collectors.toList()));
         }
 
         final String protocol = route.getSpec().getTls() == null ? "http" : "https";
-        final int port = protocol.equals("http") ? config.getOpenshiftRouterHttpPort() : config.getOpenshiftRouterHttpsPort();
+        // adding the port number to the URL if it's equal to the default port number for given protocol
+        // is 100% correct, but unexpected
+        final int port;
+        if ("http".equals(protocol)) {
+            port = config.getOpenshiftRouterHttpPort() == 80 ? -1 : config.getOpenshiftRouterHttpPort();
+        } else {
+            port = config.getOpenshiftRouterHttpsPort() == 443 ? -1 : config.getOpenshiftRouterHttpsPort();
+        }
 
         try {
-            return new URL(protocol, route.getSpec().getHost(), port, "/");
-        } catch (MalformedURLException e) {
+            URL url = new URL(protocol, route.getSpec().getHost(), port, routeURL.path());
+            if (returnType == URL.class) {
+                return url;
+            } else if (returnType == URI.class) {
+                return url.toURI();
+            } else if (returnType == String.class) {
+                return url.toExternalForm();
+            } else {
+                throw new IllegalArgumentException("Invalid route injection type (can only handle URL, URI, String): " + returnType.getName());
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
             throw new IllegalArgumentException("Unable to create route URL", e);
         }
     }
 
-    private void awaitRoute(URL url, AwaitRoute await) {
+    private void configureAwaitRoute(Object route, AwaitRoute await) {
+        // we _intentionally_ don't check if `configurationInstance.get().isWaitEnabled()` here;
+        // even if awaiting readiness is disabled, we still want to await the route, because the user
+        // explicitly opted into it, maybe because they want to workaround a Fabric8 Kubernetes Client
+        // issue and rely on @AwaitRoute instead
+
         if (await == null) {
             return;
         }
 
-        String path = await.path();
-        // url always ends with '/' (see the lookup method above) and we don't want to duplicate that
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
+        URL url;
         try {
-            url = new URL(url + path);
+            url = new URL(route.toString());
+            if (!AwaitRoute.DEFAULT_PATH_FOR_ROUTE_AVAILABILITY_CHECK.equals(await.path())) {
+                url = new URL(url.getProtocol(), url.getHost(), url.getPort(), await.path());
+            }
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-
-        long end = System.currentTimeMillis() + await.timeoutUnit().toMillis(await.timeout());
-
-        while (System.currentTimeMillis() < end) {
-            HttpURLConnection urlConnection = null;
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setConnectTimeout(1000);
-                urlConnection.setReadTimeout(1000);
-                urlConnection.connect();
-                int connectionResponseCode = urlConnection.getResponseCode();
-                for (int expectedStatusCode : await.statusCode()) {
-                    if (expectedStatusCode == connectionResponseCode) {
-                        // OK
-                        return;
-                    }
-                }
-            } catch (Exception e) {
-                // retry
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-        }
-
-        // timed out
-        throw new RuntimeException(url + " not available after " + await.timeout() + " " + await.timeoutUnit());
+        awaitRoute(url, await.timeout(), await.timeoutUnit(), await.statusCode());
     }
 }

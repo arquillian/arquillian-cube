@@ -7,7 +7,7 @@ import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.UNIX;
 import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.UNKNOWN;
 import static org.arquillian.cube.docker.impl.util.OperatingSystemFamily.WINDOWS;
 
-public enum OperatingSystem {
+public enum OperatingSystem implements OperatingSystemInterface {
     LINUX_OS("Linux", LINUX),
     MAC_OSX("Mac OS X", MAC),
     MAC_OS("Mac OS", MAC),
@@ -36,10 +36,16 @@ public enum OperatingSystem {
 
     final private String label;
     final private OperatingSystemFamily family;
+    final private OperatingSystemFamily default_family;
 
     private OperatingSystem(String label, OperatingSystemFamily family) {
         this.label = label;
         this.family = family;
+        if (label.startsWith("Windows")) {
+            this.default_family = OperatingSystemFamily.WINDOWS_NPIPE;
+        } else {
+            this.default_family = OperatingSystemFamily.UNIX;
+        }
     }
 
     static public OperatingSystem resolve(String osName) {
@@ -55,6 +61,10 @@ public enum OperatingSystem {
 
     public OperatingSystemFamily getFamily() {
         return family;
+    }
+
+    public OperatingSystemFamily getDefaultFamily() {
+        return default_family;
     }
 
 }

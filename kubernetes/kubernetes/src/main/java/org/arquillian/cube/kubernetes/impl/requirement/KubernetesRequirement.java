@@ -1,21 +1,33 @@
 package org.arquillian.cube.kubernetes.impl.requirement;
 
-import io.fabric8.kubernetes.clnt.v2_6.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.utils.URLUtils;
+import io.fabric8.kubernetes.clnt.v3_1.DefaultKubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.utils.URLUtils;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.arquillian.cube.spi.requirement.Requirement;
+import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
+import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
+import org.arquillian.cube.kubernetes.impl.ExtensionRegistrar;
+import org.arquillian.cube.spi.requirement.Constraint;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
+import static org.arquillian.cube.kubernetes.impl.DefaultConfigurationFactory.KUBERNETES_EXTENSION_NAME;
+
 //TODO: The kubernetes client currently doesn't expose a method to do a version check. An issue has been raised, but until its done we do the work here. See https://github.com/fabric8io/kubernetes-client/issues/477.
-public class KubernetesRequirement implements Requirement<RequiresKubernetes> {
+public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
 
     @Override
     public void check(RequiresKubernetes context) throws UnsatisfiedRequirementException {
-        KubernetesClient client = new DefaultKubernetesClient();
+
+        final List<String> extension = Collections.singletonList(KUBERNETES_EXTENSION_NAME);
+
+        final DefaultConfiguration config = new ExtensionRegistrar().loadExtension(extension);
+
+        KubernetesClient client = new DefaultKubernetesClient(new ClientConfigBuilder().configuration(config).build());
 
         OkHttpClient httpClient = client.adapt(OkHttpClient.class);
         Request versionRequest = new Request.Builder()

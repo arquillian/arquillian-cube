@@ -15,9 +15,9 @@
  */
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v2_6.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v2_6.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.DefaultKubernetesClient;
+import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
@@ -34,15 +34,8 @@ public class ClientCreator {
     private InstanceProducer<KubernetesClient> producer;
 
     public void createClient(@Observes Configuration config) {
-        if (config.getMasterUrl() != null) {
-            producer.set(new DefaultKubernetesClient(new ConfigBuilder()
-                .withMasterUrl(config.getMasterUrl().toString())
-                .withNamespace(config.getNamespace())
-                .build()));
-        } else {
-            producer.set(new DefaultKubernetesClient(new ConfigBuilder()
-                .withNamespace(config.getNamespace())
-                .build()));
-        }
+        final Config buildConfig = new ClientConfigBuilder().configuration(config).build();
+
+        producer.set(new DefaultKubernetesClient(buildConfig));
     }
 }

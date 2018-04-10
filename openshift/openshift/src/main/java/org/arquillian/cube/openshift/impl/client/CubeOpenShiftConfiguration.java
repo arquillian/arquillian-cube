@@ -1,22 +1,21 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.clnt.v2_6.Config;
-import io.fabric8.kubernetes.clnt.v2_6.ConfigBuilder;
+import io.fabric8.kubernetes.clnt.v3_1.Config;
+import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
-import org.arquillian.cube.impl.util.Strings;
-import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
-
-import java.io.File;
-import java.net.MalformedURLException;
+import java.io.Serializable;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import org.arquillian.cube.impl.util.Strings;
+import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
+import org.arquillian.cube.openshift.api.ConfigurationHandle;
 
 import static org.arquillian.cube.impl.util.ConfigUtil.asURL;
 import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
@@ -24,10 +23,11 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getIntProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v2_6", generateBuilderPackage = false, editableEnabled = false, refs = {
+@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder.v3_1", generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
 })
-public class CubeOpenShiftConfiguration extends DefaultConfiguration {
+public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
+    ConfigurationHandle, Serializable{
 
     private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
 
@@ -45,6 +45,14 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private static final String ROUTER_HOST = "routerHost";
     private static final String OPENSHIFT_ROUTER_HTTP_PORT = "openshiftRouterHttpPort";
     private static final String OPENSHIFT_ROUTER_HTTPS_PORT = "openshiftRouterHttpsPort";
+    private static final String ROUTER_SNI_PORT = "routerSniPort";
+    private static final String TEMPLATE_URL = "templateUrl";
+    private static final String TEMPLATE_LABELS = "templateLabels";
+    private static final String TEMPLATE_PARAMETERS = "templateParameters";
+    private static final String TEMPLATE_PROCESS = "templateProcess";
+    private static final String STARTUP_TIMEOUT = "stratupTimeout";
+    private static final String HTTP_CLIENT_TIMEOUT = "httpClientTimeout";
+
 
     private final boolean keepAliveGitServer;
     private final String definitions;
@@ -56,21 +64,34 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
     private final int openshiftRouterHttpPort;
     private final int openshiftRouterHttpsPort;
     private final boolean enableImageStreamDetection;
+    private final int routerSniPort;
+    private final String templateURL;
+    private final String templateLabels;
+    private final String templateParameters;
+    private final boolean templateProcess;
+    private final long startupTimeout;
+    private final long httpClientTimeout;
+
+
+    private OpenShiftClient client;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies,
+                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
-                                      boolean namespaceDestroyConfirmationEnabled, long waitTimeout, long waitPollInterval,
+                                      boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
                                       List<String> waitForServiceList, boolean ansiLoggerEnabled, boolean environmentInitEnabled, boolean logCopyEnabled,
+                                      boolean fmpBuildEnabled, boolean fmpBuildForMavenDisable, boolean fmpDebugOutput, boolean fmpLogsEnabled, String fmpPomPath, List<String> fmpProfiles, List<String> fmpSystemProperties, String fmpBuildOptions,
                                       String logPath, String kubernetesDomain, String dockerRegistry, boolean keepAliveGitServer, String definitions,
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
-                                      String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection) {
+                                      String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection,
+                                      String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, boolean templateProcess,
+                                      String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
-            environmentConfigUrl, environmentDependencies, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
+            environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
-            namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitTimeout, waitPollInterval,
-            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry);
+            namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
+            waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts, fmpBuildEnabled,  fmpBuildForMavenDisable, fmpDebugOutput, fmpLogsEnabled, fmpPomPath, fmpProfiles, fmpSystemProperties,  fmpBuildOptions);
         this.keepAliveGitServer = keepAliveGitServer;
         this.definitions = definitions;
         this.definitionsFile = definitionsFile;
@@ -81,6 +102,13 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
         this.openshiftRouterHttpPort = openshiftRouterHttpPort;
         this.openshiftRouterHttpsPort = openshiftRouterHttpsPort;
         this.enableImageStreamDetection = enableImageStreamDetection;
+        this.routerSniPort = routerSniPort;
+        this.templateLabels = templateLabels;
+        this.templateParameters = templateParameters;
+        this.templateURL = templateURL;
+        this.templateProcess = templateProcess;
+        this.startupTimeout = startupTimeout;
+        this.httpClientTimeout = httpClientTimeout;
     }
 
     private static String[] split(String str, String regex) {
@@ -121,7 +149,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                     asUrlOrResource(getStringProperty(ENVIRONMENT_TEARDOWN_SCRIPT_URL, map, null)))
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
-                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s+")))
+                    asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*")))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
@@ -136,10 +164,11 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withNamespaceDestroyTimeout(
                     getLongProperty(NAMESPACE_DESTROY_TIMEOUT, map, DEFAULT_NAMESPACE_DESTROY_TIMEOUT))
 
+                .withWaitEnabled(getBooleanProperty(WAIT_ENABLED, map, true))
                 .withWaitTimeout(getLongProperty(WAIT_TIMEOUT, map, DEFAULT_WAIT_TIMEOUT))
                 .withWaitPollInterval(getLongProperty(WAIT_POLL_INTERVAL, map, DEFAULT_WAIT_POLL_INTERVAL))
                 .withWaitForServiceList(
-                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s+"))
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICE_LIST, map, ""), "\\s*,\\s*"))
                 .withAnsiLoggerEnabled(getBooleanProperty(ANSI_LOGGER_ENABLED, map, true))
                 .withKubernetesDomain(getStringProperty(DOMAIN, KUBERNETES_DOMAIN, map, null))
                 .withDockerRegistry(getDockerRegistry(map))
@@ -151,9 +180,29 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
                 .withProxiedContainerPorts(split(getStringProperty(PROXIED_CONTAINER_PORTS, map, ""), ","))
                 .withPortForwardBindAddress(getStringProperty(PORT_FORWARDER_BIND_ADDRESS, map, "127.0.0.1"))
                 .withRouterHost(getStringProperty(ROUTER_HOST, "openshift.router.host", map, null))
-                .withOpenshiftRouterHttpPort(getIntProperty(OPENSHIFT_ROUTER_HTTP_PORT, Optional.of("openshift.router.httpPort"), map, 80))
-                .withOpenshiftRouterHttpsPort(getIntProperty(OPENSHIFT_ROUTER_HTTPS_PORT, Optional.of("openshift.router.httpsPort"), map, 443))
+                .withOpenshiftRouterHttpPort(getIntProperty(OPENSHIFT_ROUTER_HTTP_PORT, "openshift.router.httpPort", map, 80))
+                .withOpenshiftRouterHttpsPort(getIntProperty(OPENSHIFT_ROUTER_HTTPS_PORT, "openshift.router.httpsPort", map, 443))
                 .withEnableImageStreamDetection(getBooleanProperty(ENABLE_IMAGE_STREAM_DETECTION, map, true))
+                .withToken(getStringProperty(AUTH_TOKEN, "kubernetes.auth.token", map, null))
+                .withRouterSniPort(getIntProperty(ROUTER_SNI_PORT, "openshift.router.sniPort", map, 443))
+                .withTemplateURL(getStringProperty(TEMPLATE_URL, "openshift.template.url", map, null))
+                .withTemplateLabels(getStringProperty(TEMPLATE_LABELS, "openshift.template.labels", map, null))
+                .withTemplateParameters(getStringProperty(TEMPLATE_PARAMETERS, "openshift.template.parameters", map, null))
+                .withTemplateProcess(getBooleanProperty(TEMPLATE_PROCESS, "openshift.template.process", map, true))
+                .withUsername(getStringProperty(USERNAME, "openshift.username", map, null))
+                .withPassword(getStringProperty(PASSWORD, "openshift.password", map, null))
+                .withApiVersion(getStringProperty(API_VERSION, "kubernetes.api.version", map, "v1"))
+                .withTrustCerts(getBooleanProperty(TRUST_CERTS, "kubernetes.trust.certs", map, true))
+                .withStartupTimeout(getLongProperty(STARTUP_TIMEOUT, "arquillian.startup.timeout", map, 600L))
+                .withHttpClientTimeout(getLongProperty(HTTP_CLIENT_TIMEOUT, "arquillian.http.client.timeout", map, 120L))
+                .withFmpBuildEnabled(getBooleanProperty(FMP_BUILD, map, false))
+                .withFmpBuildForMavenDisable(getBooleanProperty(FMP_BUILD_DISABLE_FOR_MAVEN, map, false))
+                .withFmpDebugOutput(getBooleanProperty(FMP_DEBUG_OUTPUT, map, false))
+                .withFmpLogsEnabled(getBooleanProperty(FMP_LOGS, map, true))
+                .withFmpPomPath(getStringProperty(FMP_POM_PATH, map, DEFAULT_FMP_PATH))
+                .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
+                .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
+                .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, ""))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -216,5 +265,141 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration {
 
     public boolean isEnableImageStreamDetection() {
         return enableImageStreamDetection;
+    }
+
+    public void setClient(OpenShiftClient client) {
+        this.client = client;
+    }
+
+    public int getRouterSniPort() {
+        return routerSniPort;
+    }
+
+    @Override
+    public String getToken() {
+
+        if ((super.getToken() == null || super.getToken().isEmpty()) && (client != null)) {
+          String token = client.getClientExt().getConfiguration().getOauthToken();
+          setToken(token);
+        }
+
+        return super.getToken();
+    }
+
+    public Properties getProperties() {
+        Properties properties = new Properties();
+        apply(properties);
+        return properties;
+    }
+
+    private void apply(Properties properties) {
+        // namespace
+        properties.put("kubernetes.namespace", this.getNamespace());
+        properties.put("namespace", this.getNamespace());
+        // api version
+        properties.put("version", getApiVersion());
+        properties.put("kubernetes.api.version", getApiVersion());
+    }
+
+    public String getTemplateURL() {
+        return templateURL;
+    }
+
+    protected String getTemplateLabels() {
+        return templateLabels;
+    }
+
+    public Map<String, String> getTemplateLabelsAsMap() {
+        return org.arquillian.cube.openshift.impl.utils.Strings.splitKeyValueList(templateLabels);
+    }
+
+    public String getTemplateParameters() {
+        return templateParameters;
+    }
+
+    public Map<String, String> getTemplateParametersAsMap() {
+        return org.arquillian.cube.openshift.impl.utils.Strings.splitKeyValueList(templateParameters);
+    }
+
+    public boolean isTemplateProcess() {
+        return templateProcess;
+    }
+
+    public org.arquillian.cube.kubernetes.api.Configuration getCubeConfiguration() {
+        return this;
+    }
+
+    public String getKubernetesMaster() {
+        return this.getMasterUrl().toString();
+    }
+
+    public long getStartupTimeout() {
+        return startupTimeout;
+    }
+
+    public long getHttpClientTimeout() {
+        return httpClientTimeout;
+    }
+
+    public OpenShiftClient getClient() {
+        return client;
+    }
+
+    @Override
+    public String toString() {
+
+        String lineSeparator = System.lineSeparator();
+        StringBuilder content = new StringBuilder();
+
+        content.append(super.toString()).append(lineSeparator);
+
+        content.append("CubeOpenShiftConfiguration: ").append(lineSeparator);
+
+        appendPropertyWithValue(content, KEEP_ALIVE_GIT_SERVER, keepAliveGitServer);
+
+        if (definitions != null) {
+            appendPropertyWithValue(content, DEFINITIONS , definitions);
+        }
+        if (definitionsFile != null) {
+            appendPropertyWithValue(content,DEFINITIONS_FILE ,definitionsFile );
+        }
+
+        if (autoStartContainers != null) {
+            appendPropertyWithValue(content, AUTO_START_CONTAINERS, Arrays.toString(autoStartContainers));
+        }
+
+        if (proxiedContainerPorts != null) {
+            appendPropertyWithValue(content,PROXIED_CONTAINER_PORTS , proxiedContainerPorts);
+        }
+
+        if (portForwardBindAddress != null) {
+            appendPropertyWithValue(content, PORT_FORWARDER_BIND_ADDRESS, portForwardBindAddress);
+        }
+
+        if (routerHost != null) {
+            appendPropertyWithValue(content, ROUTER_HOST,routerHost );
+        }
+
+        appendPropertyWithValue(content, OPENSHIFT_ROUTER_HTTP_PORT,openshiftRouterHttpPort );
+        appendPropertyWithValue(content,OPENSHIFT_ROUTER_HTTPS_PORT ,openshiftRouterHttpsPort );
+
+        appendPropertyWithValue(content,ENABLE_IMAGE_STREAM_DETECTION ,enableImageStreamDetection );
+        appendPropertyWithValue(content,ROUTER_SNI_PORT ,routerSniPort );
+
+        if (templateURL != null) {
+            appendPropertyWithValue(content, TEMPLATE_URL, templateURL);
+        }
+        if (templateLabels != null) {
+            appendPropertyWithValue(content,TEMPLATE_LABELS , templateLabels);
+        }
+        if (templateParameters != null) {
+            appendPropertyWithValue(content,TEMPLATE_PARAMETERS , templateParameters);
+        }
+
+        appendPropertyWithValue(content, TEMPLATE_PROCESS, templateProcess);
+        appendPropertyWithValue(content, STARTUP_TIMEOUT, startupTimeout);
+        appendPropertyWithValue(content, HTTP_CLIENT_TIMEOUT, httpClientTimeout);
+
+        return content.toString();
     }
 }
