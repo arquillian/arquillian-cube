@@ -1,6 +1,7 @@
 package org.arquillian.cube.impl.client;
 
 import org.arquillian.cube.impl.client.container.ContainerConfigurationController;
+import org.arquillian.cube.impl.client.container.ContainerMetadataUpdater;
 import org.arquillian.cube.impl.client.container.CubeContainerLifecycleController;
 import org.arquillian.cube.impl.client.container.CubeRemoteCommandObserver;
 import org.arquillian.cube.impl.client.container.ProtocolMetadataUpdater;
@@ -38,7 +39,8 @@ public class CubeExtension implements LoadableExtension {
         // Arquillian Container integration
         // Only register if container-test-spi is on classpath
         if (Validate.classExists("org.jboss.arquillian.container.test.spi.client.deployment.AuxiliaryArchiveAppender")) {
-            builder.observer(ProtocolMetadataUpdater.class)
+            builder.observer(ContainerMetadataUpdater.class)
+                .observer(ProtocolMetadataUpdater.class)
                 .observer(CubeContainerLifecycleController.class)
                 .observer(ContainerConfigurationController.class)
                 .observer(CubeRemoteCommandObserver.class);
