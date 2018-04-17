@@ -212,6 +212,44 @@ You can use `@OpenShiftResource` either at class level which implies that resour
 
 You can see an example of OpenShift resources usage at https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java
 
+===== `@OpenShiftDynamicImageStreamResource`
+
+The `@OpenShiftResource` annotation makes it possible to add image stream definitions. To run some specific tests
+we need to be able to override the image stream definition and point to the container image we want to test.
+Very often these images are stored in insecure registries and the tags applied are different (in many cases newer)
+than expected by the original image stream definition.
+
+For this purpose the `@OpenShiftDynamicImageStreamResource` was created. We can create an image stream definition
+by providing only required information, without the need to construct the JSON or YAML object expected by OpenShift.
+Required resource will be created dynamically and deployed in OpenShift together with other resources.
+
+[cols="2,1", options="header"]
+|===
+| Parameter                              | Description
+
+| `name`                                 | Image stream name
+| `version`                              | Image stream version
+| `image`                                | Image name with registry and tag
+| `insecure`                             | If the registry is insecure, by default `true`
+
+|===
+
+[source, java]
+.OpenShiftDynamicImageStreamResourceTest.java
+----
+
+    @RunWith(Arquillian.class)
+    @Template(url = "https://raw.githubusercontent.com/${template.repository:jboss-openshift}/application-templates/${template.branch:master}/eap/eap71-sso-s2i.json")
+    @OpenShiftDynamicImageStreamResource(name = "${imageStream.eap64.name:jboss-eap64-openshift}", image = "${imageStream.eap64.image:registry.access.redhat.com/jboss-eap-6/eap64-openshift:1.8}", version = "${imageStream.eap64.version:1.8}")
+    public class OpenShiftDynamicImageStreamResourceTest {
+
+      @Test
+      public void testStuff() throws Exception {
+       //Do stuff...
+      }
+    }
+----
+
 === Namespaces
 
 The default behavior of the extension is to create a unique testing namespace per test suite. The namespace is created
