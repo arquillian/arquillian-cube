@@ -63,6 +63,7 @@
     <module>ftest-system-properties</module>
     <module>ftest-junit-rules</module>
     <module>ftest-docker-junit5</module>
+    <module>ftest-container-star-operator</module>
   </modules>
 
 </project>

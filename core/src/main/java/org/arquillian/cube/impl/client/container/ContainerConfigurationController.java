@@ -106,13 +106,7 @@ public class ContainerConfigurationController {
                 return -1;
             }
             return (int) method.invoke(configurationInstance);
-        } catch (SecurityException e) {
-            throw new IllegalArgumentException(e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e);
-        } catch (InvocationTargetException e) {
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
     }
