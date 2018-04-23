@@ -86,11 +86,7 @@ public class StarOperator {
         if (cubeContainer.getNetworks() != null) {
             ArrayList<String> networks = new ArrayList<>();
             for (String network : cubeContainer.getNetworks()) {
-                if (networkResolutions.containsKey(network)) {
-                    networks.add(networkResolutions.get(network));
-                } else {
-                    networks.add(network);
-                }
+                networks.add(networkResolutions.getOrDefault(network, network));
             }
             cubeContainer.setNetworks(networks);
         }
