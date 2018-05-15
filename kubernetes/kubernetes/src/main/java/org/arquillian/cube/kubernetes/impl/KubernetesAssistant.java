@@ -397,21 +397,16 @@ public class KubernetesAssistant {
     }
 
     /**
-     * Awaits at most 5 minutes until all pods are running.
+     * Awaits at most 5 minutes until all pods of the application are running.
      */
     public void awaitApplicationReadinessOrFail() {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
-                List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
-                return list.stream()
-                    .filter(pod -> pod.getMetadata().getName().startsWith(applicationName) && !pod.getMetadata().getName().endsWith("-deploy"))
-                    .filter(this::isRunning)
-                    .collect(Collectors.toList()).size() >= 1;
+                return client
+                    .replicationControllers()
+                    .inNamespace(this.namespace)
+                    .withName(this.applicationName).isReady();
             }
         );
-    }
-
-    private boolean isRunning(Pod pod) {
-        return "running".equalsIgnoreCase(pod.getStatus().getPhase());
     }
 
     public String project() {
@@ -428,7 +423,7 @@ public class KubernetesAssistant {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
                 return list.stream()
                     .filter(filter)
-                    .filter(this::isRunning)
+                    .filter(Readiness::isPodReady)
                     .collect(Collectors.toList()).size() >= 1;
             }
         );
