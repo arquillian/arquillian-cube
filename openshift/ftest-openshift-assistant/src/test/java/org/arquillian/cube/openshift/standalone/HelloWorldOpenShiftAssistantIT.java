@@ -2,6 +2,7 @@ package org.arquillian.cube.openshift.standalone;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,6 +14,9 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,13 +39,14 @@ public class HelloWorldOpenShiftAssistantIT {
 
         openShiftAssistant.awaitApplicationReadinessOrFail();
 
-        assertThat(openShiftAssistant.getClient()
+        List<Pod> pods = openShiftAssistant.getClient()
             .pods()
             .inNamespace(openShiftAssistant.getCurrentProjectName())
             .withLabel("name", "hello-openshift-deployment-config")
             .list()
-            .getItems()
-            .size()).isGreaterThan(1);
+            .getItems();
+        assertThat(pods.size()).isGreaterThan(1);
+        assertThat(pods).allMatch(Readiness::isPodReady);
     }
 
     @Test
