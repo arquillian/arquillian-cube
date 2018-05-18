@@ -1,0 +1,28 @@
+kind: "DeploymentConfig"
+apiVersion: "v1"
+metadata:
+  name: "hello-openshift-scale-deployment-config"
+spec:
+  template:
+    metadata:
+      labels:
+        name: "hello-openshift-scale-deployment-config"
+    spec:
+      containers:
+        - name: "helloworld"
+          image: "openshift/hello-openshift:v3.6.0"
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 8080
+            initialDelaySeconds: 1
+  replicas: 1
+  selector:
+      name: "hello-openshift-scale-deployment-config"
+  triggers:
+    - type: "ConfigChange"
+  strategy:
+    type: "Rolling"
