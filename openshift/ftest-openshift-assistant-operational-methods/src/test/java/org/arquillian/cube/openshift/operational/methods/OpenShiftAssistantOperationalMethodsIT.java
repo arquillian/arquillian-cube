@@ -1,6 +1,8 @@
 package org.arquillian.cube.openshift.operational.methods;
 
 import io.fabric8.kubernetes.api.model.v3_1.ObjectMeta;
+import io.fabric8.kubernetes.api.model.v3_1.Pod;
+import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.v3_1.Project;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -74,7 +76,39 @@ public class OpenShiftAssistantOperationalMethodsIT {
         assertThat(projectExists).isTrue();
     }
 
+    @Test
+    public void should_scale_project_and_verify_number_of_pods_is_expected() throws IOException {
+        final String applicationName = "hello-openshift-scale-deployment-config";
+        openShiftAssistant.deployApplication(applicationName, "hello-scale-template.yaml");
+        openShiftAssistant.awaitApplicationReadinessOrFail();
+        // scale to 2 using the last deployed project by openShiftAssistant
+        openShiftAssistant.scale(2);
+
+        List<Pod> pods = podsByLabelName(applicationName);
+
+        assertThat(pods.size()).isEqualTo(2);
+        assertThat(pods).allMatch(Readiness::isPodReady);
+
+        // scale to 3 specifying target application name
+        openShiftAssistant.scale(applicationName, 3);
+
+        pods = podsByLabelName(applicationName);
+
+        assertThat(pods.size()).isEqualTo(3);
+        assertThat(pods).allMatch(Readiness::isPodReady);
+    }
+
     private String getCurrentProjectName() {
         return openShiftAssistant.getCurrentProjectName();
     }
+
+    private List<Pod> podsByLabelName(final String podLabelName) {
+        return openShiftAssistant.getClient()
+                .pods()
+                .inNamespace(openShiftAssistant.getCurrentProjectName())
+                .withLabel("name", podLabelName)
+                .list()
+                .getItems();
+    }
+
 }

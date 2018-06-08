@@ -1,13 +1,8 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
-import io.fabric8.kubernetes.api.model.v3_1.Pod;
-import io.fabric8.kubernetes.clnt.v3_1.internal.readiness.Readiness;
-import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
-import io.fabric8.openshift.api.model.v3_1.Project;
-import io.fabric8.openshift.api.model.v3_1.Route;
-import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
-import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
+import static org.arquillian.cube.openshift.impl.client.OpenShiftRouteLocator.createUrlFromRoute;
+import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
+import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +14,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import static org.arquillian.cube.openshift.impl.client.OpenShiftRouteLocator.createUrlFromRoute;
-import static org.arquillian.cube.openshift.impl.client.ResourceUtil.awaitRoute;
-import static org.awaitility.Awaitility.await;
+import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
+
+import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.openshift.api.model.v3_1.DeploymentConfig;
+import io.fabric8.openshift.api.model.v3_1.Project;
+import io.fabric8.openshift.api.model.v3_1.Route;
+import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
 
 /**
  * Class that allows you to deploy undeploy and wait for resources programmatically in a test.
@@ -120,32 +119,55 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     }
 
     /**
-     * Scaling the application to given replicas
+     * Scaling the last deployed application to given replicas
+     * 
      * @param replicas to scale the application
      */
     @Override
     public void scale(final int replicas) {
-        log.info(String.format("Scaling replicas from %s to %s.", getPods("deploymentconfig").size(), replicas));
-        getClient()
+        scale(this.applicationName, replicas);
+    }
+
+    /**
+     * Scaling the application to given replicas
+     * 
+     * @param applicationName name of the application to scale
+     * @param replicas to scale the application
+     */
+    @Override
+    public void scale(final String applicationName, final int replicas) {
+        final DeploymentConfig deploymentConfig = getClient()
             .deploymentConfigs()
             .inNamespace(this.namespace)
-            .withName(this.applicationName)
+            .withName(applicationName)
             .scale(replicas);
+        final int availableReplicas = deploymentConfig.getStatus().getAvailableReplicas();
+        log.info(String.format("Scaling replicas from %d to %d for application %s.", availableReplicas, replicas, applicationName));
+        awaitApplicationReadinessOrFail(applicationName);
+    }
 
-        // ideally, we'd look at deployment config's status.availableReplicas field,
-        // but that's only available since OpenShift 3.5
-        await().atMost(5, TimeUnit.MINUTES)
-            .until(() -> {
-                final List<Pod> pods = getPods("deploymentconfig");
-                try {
-                    return pods.size() == replicas && pods.stream()
-                        .allMatch(Readiness::isPodReady);
-                } catch (final IllegalStateException e) {
-                    // the 'Ready' condition can be missing sometimes, in which case Readiness.isPodReady throws an exception
-                    // here, we'll swallow that exception in hope that the 'Ready' condition will appear later
-                    return false;
-                }
-            });
+    /**
+     * Awaits at most 5 minutes until all pods of the last deployed application are running.
+     */
+    @Override
+    public void awaitApplicationReadinessOrFail() {
+        awaitApplicationReadinessOrFail(this.applicationName);
+    }
+
+    /**
+     * Awaits at most 5 minutes until all pods of the application are running.
+     * 
+     * @param applicationName name of the application to wait for pods readiness
+     */
+    @Override
+    public void awaitApplicationReadinessOrFail(final String applicationName) {
+        await().atMost(5, TimeUnit.MINUTES).until(() -> {
+                return getClient()
+                    .deploymentConfigs()
+                    .inNamespace(this.namespace)
+                    .withName(applicationName).isReady();
+            }
+        );
     }
 
     /**
