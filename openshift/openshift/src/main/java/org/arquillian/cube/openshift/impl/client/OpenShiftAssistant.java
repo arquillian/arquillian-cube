@@ -171,20 +171,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
     }
 
     /**
-     * Awaits at most 5 minutes until all pods of the application are running.
-     */
-    @Override
-    public void awaitApplicationReadinessOrFail() {
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
-                return getClient()
-                    .deploymentConfigs()
-                    .inNamespace(this.namespace)
-                    .withName(this.applicationName).isReady();
-            }
-        );
-    }
-
-    /**
      * Method that returns the current deployment configuration object
      * @return Current deployment config object.
      */
