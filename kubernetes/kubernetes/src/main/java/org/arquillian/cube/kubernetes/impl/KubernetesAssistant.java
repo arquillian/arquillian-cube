@@ -397,21 +397,25 @@ public class KubernetesAssistant {
     }
 
     /**
-     * Awaits at most 5 minutes until all pods are running.
+     * Awaits at most 5 minutes until all pods of the last deployed application are running.
      */
     public void awaitApplicationReadinessOrFail() {
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
-                List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
-                return list.stream()
-                    .filter(pod -> pod.getMetadata().getName().startsWith(applicationName) && !pod.getMetadata().getName().endsWith("-deploy"))
-                    .filter(this::isRunning)
-                    .collect(Collectors.toList()).size() >= 1;
-            }
-        );
+        awaitApplicationReadinessOrFail(this.applicationName);
     }
 
-    private boolean isRunning(Pod pod) {
-        return "running".equalsIgnoreCase(pod.getStatus().getPhase());
+    /**
+     * Awaits at most 5 minutes until all pods of the application are running.
+     * 
+     * @param applicationName name of the application to wait for pods readiness
+     */
+    public void awaitApplicationReadinessOrFail(final String applicationName) {
+        await().atMost(5, TimeUnit.MINUTES).until(() -> {
+                return client
+                    .replicationControllers()
+                    .inNamespace(this.namespace)
+                    .withName(applicationName).isReady();
+            }
+        );
     }
 
     public String project() {
@@ -428,39 +432,36 @@ public class KubernetesAssistant {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
                 return list.stream()
                     .filter(filter)
-                    .filter(this::isRunning)
+                    .filter(Readiness::isPodReady)
                     .collect(Collectors.toList()).size() >= 1;
             }
         );
     }
 
     /**
-     * Scaling the application to given replicas
+     * Scaling the last deployed application to given replicas
      *
      * @param replicas to scale the application
      */
     public void scale(final int replicas) {
-        log.info(String.format("Scaling replicas from %s to %s.", getPods("deployment").size(), replicas));
-        this.client
+        scale(this.applicationName, replicas);
+    }
+
+    /**
+     * Scaling the application to given replicas
+     * 
+     * @param applicationName name of the application to scale
+     * @param replicas to scale the application
+     */
+    public void scale(final String applicationName, final int replicas) {
+        final ReplicationController replicationController = this.client
             .replicationControllers()
             .inNamespace(this.namespace)
-            .withName(this.applicationName)
+            .withName(applicationName)
             .scale(replicas);
-
-        // ideally, we'd look at deployment status.availableReplicas field,
-        // but that's only available since OpenShift 3.5
-        await().atMost(5, TimeUnit.MINUTES)
-            .until(() -> {
-                final List<Pod> pods = getPods("deployment");
-                try {
-                    return pods.size() == replicas && pods.stream()
-                        .allMatch(Readiness::isPodReady);
-                } catch (final IllegalStateException e) {
-                    // the 'Ready' condition can be missing sometimes, in which case Readiness.isPodReady throws an exception
-                    // here, we'll swallow that exception in hope that the 'Ready' condition will appear later
-                    return false;
-                }
-            });
+        final int availableReplicas = replicationController.getStatus().getAvailableReplicas();
+        log.info(String.format("Scaling replicas from %d to %d for application %s.", availableReplicas, replicas, applicationName));
+        awaitApplicationReadinessOrFail(applicationName);
     }
 
     protected List<Pod> getPods(String label) {

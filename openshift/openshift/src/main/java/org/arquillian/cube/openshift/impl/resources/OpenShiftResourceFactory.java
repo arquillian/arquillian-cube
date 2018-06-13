@@ -25,6 +25,7 @@ package org.arquillian.cube.openshift.impl.resources;
 
 import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.openshift.api.AddRoleToServiceAccount;
+import org.arquillian.cube.openshift.api.OpenShiftDynamicImageStreamResource;
 import org.arquillian.cube.openshift.api.OpenShiftResource;
 import org.arquillian.cube.openshift.api.RoleBinding;
 import org.arquillian.cube.openshift.api.Template;
@@ -35,7 +36,10 @@ import org.arquillian.cube.openshift.impl.utils.StringResolver;
 import org.arquillian.cube.openshift.impl.utils.Strings;
 import org.arquillian.cube.openshift.impl.utils.TemplateUtils;
 import org.jboss.arquillian.test.spi.TestClass;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -55,11 +59,8 @@ import java.util.logging.Logger;
 public class OpenShiftResourceFactory {
     private static final Logger log = Logger.getLogger(OpenShiftResourceFactory.class.getName());
 
-    public static final String CLASSPATH_PREFIX = "classpath:";
-    public static final String ARCHIVE_PREFIX = "archive:";
-    public static final String URL_PREFIX = "http";
-
     private static final OSRFinder OSR_FINDER = new OSRFinder();
+    private static final OSISRFinder OSISR_FINDER = new OSISRFinder();
     private static final RBFinder RB_FINDER = new RBFinder();
     private static final ARSAFinder ARSA_FINDER = new ARSAFinder();
     private static final TEMPFinder TEMP_FINDER = new TEMPFinder();
@@ -67,6 +68,10 @@ public class OpenShiftResourceFactory {
     public static void createResources(String resourcesKey, OpenShiftAdapter adapter, Class<?> testClass, Properties properties) {
         try {
             final StringResolver resolver = Strings.createStringResolver(properties);
+
+            List<OpenShiftDynamicImageStreamResource> openShiftDynamicImageStreamResources = new ArrayList<>();
+            OSISR_FINDER.findAnnotations(openShiftDynamicImageStreamResources, testClass);
+            createDynamicOpenShiftImageStreamResources(resourcesKey, adapter, testClass, resolver, openShiftDynamicImageStreamResources);
 
             List<OpenShiftResource> openShiftResources = new ArrayList<>();
             OSR_FINDER.findAnnotations(openShiftResources, testClass);
@@ -96,7 +101,7 @@ public class OpenShiftResourceFactory {
     }
 
     private static void createRolesToServiceAccounts(String resourcesKey, OpenShiftAdapter adapter,
-        StringResolver resolver, List<AddRoleToServiceAccount> arsaBindings) {
+                                                     StringResolver resolver, List<AddRoleToServiceAccount> arsaBindings) {
         for (AddRoleToServiceAccount arsa : arsaBindings) {
             String role = resolver.resolve(arsa.role());
             String saPattern = String.format("system:serviceaccount:${kubernetes.namespace}:%s", arsa.serviceAccount());
@@ -107,7 +112,7 @@ public class OpenShiftResourceFactory {
     }
 
     private static void createRoleBindings(String resourcesKey, OpenShiftAdapter adapter, StringResolver resolver,
-        List<RoleBinding> roleBindings) {
+                                           List<RoleBinding> roleBindings) {
         for (RoleBinding rb : roleBindings) {
             String roleRefName = resolver.resolve(rb.roleRefName());
             String userName = resolver.resolve(rb.userName());
@@ -117,13 +122,79 @@ public class OpenShiftResourceFactory {
     }
 
     private static void createOpenShiftResources(String resourcesKey, OpenShiftAdapter adapter, Class<?> testClass,
-        StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
+                                                 StringResolver resolver, List<OpenShiftResource> openShiftResources) throws IOException {
         for (OpenShiftResource osr : openShiftResources) {
             String file = resolver.resolve(osr.value());
             InputStream stream = ResourceResolver.resolve(file).openStream();
             log.info(String.format("Creating new OpenShift resource: %s", file));
             adapter.createResource(resourcesKey, stream);
         }
+    }
+
+    private static void createDynamicOpenShiftImageStreamResources(String resourcesKey, OpenShiftAdapter adapter, Class<?> testClass,
+                                                                   StringResolver resolver, List<OpenShiftDynamicImageStreamResource> openShiftDynamicImageStreamResources) throws IOException {
+        for (OpenShiftDynamicImageStreamResource imageStreamResource : openShiftDynamicImageStreamResources) {
+            String name = resolver.resolve(imageStreamResource.name());
+            String image = resolver.resolve(imageStreamResource.image());
+            String version = resolver.resolve(imageStreamResource.version());
+            boolean insecure = Boolean.valueOf(resolver.resolve(imageStreamResource.insecure()));
+
+            String imageStream = createImageStreamRequest(name, version, image, insecure);
+
+            log.info(String.format("Creating new OpenShift image stream resource: '%s'", imageStream));
+
+            adapter.createResource(resourcesKey, new ByteArrayInputStream(imageStream.getBytes()));
+        }
+    }
+
+    /**
+     * Creates image stream request and returns it in JSON formatted string.
+     *
+     * @param name     Name of the image stream
+     * @param insecure If the registry where the image is stored is insecure
+     * @param image    Image name, includes registry information and tag
+     * @param version  Image stream version.
+     * @return JSON formatted string
+     */
+    private static String createImageStreamRequest(String name, String version, String image, boolean insecure) {
+        JSONObject imageStream = new JSONObject();
+        JSONObject metadata = new JSONObject();
+        JSONObject annotations = new JSONObject();
+
+        metadata.put("name", name);
+        annotations.put("openshift.io/image.insecureRepository", insecure);
+        metadata.put("annotations", annotations);
+
+        // Definition of the image
+        JSONObject from = new JSONObject();
+        from.put("kind", "DockerImage");
+        from.put("name", image);
+
+        JSONObject importPolicy = new JSONObject();
+        importPolicy.put("insecure", insecure);
+
+        JSONObject tag = new JSONObject();
+        tag.put("name", version);
+        tag.put("from", from);
+        tag.put("importPolicy", importPolicy);
+
+        JSONObject tagAnnotations = new JSONObject();
+        tagAnnotations.put("version", version);
+        tag.put("annotations", tagAnnotations);
+
+        JSONArray tags = new JSONArray();
+        tags.add(tag);
+
+        // Add image definition to image stream
+        JSONObject spec = new JSONObject();
+        spec.put("tags", tags);
+
+        imageStream.put("kind", "ImageStream");
+        imageStream.put("apiVersion", "v1");
+        imageStream.put("metadata", metadata);
+        imageStream.put("spec", spec);
+
+        return imageStream.toJSONString();
     }
 
     /**
@@ -147,8 +218,8 @@ public class OpenShiftResourceFactory {
         List<Template> templates = new ArrayList<>();
         Templates tr = TEMP_FINDER.findAnnotations(templates, objectType);
         if (tr == null) {
-        	/* Default to synchronous instantiation */
-        	return true;
+            /* Default to synchronous instantiation */
+            return true;
         } else {
             return tr.syncInstantiation();
         }
@@ -163,7 +234,7 @@ public class OpenShiftResourceFactory {
     }
 
     public static void deleteTemplates(final String templateKeyPrefix, List<Template> templates,
-        OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration) throws Exception {
+                                       OpenShiftAdapter openshiftAdapter, CubeOpenShiftConfiguration configuration) throws Exception {
         StringResolver resolver;
         String templateURL;
         for (Template template : templates) {
@@ -184,7 +255,7 @@ public class OpenShiftResourceFactory {
     }
 
     public static void deleteEnvironment(final TestClass testClass, OpenShiftAdapter client,
-        CubeOpenShiftConfiguration configuration, List<Template> templates)
+                                         CubeOpenShiftConfiguration configuration, List<Template> templates)
         throws Exception {
         if (configuration.getCubeConfiguration().isNamespaceCleanupEnabled()) {
             final Class<?> javaClass = testClass.getJavaClass();
@@ -253,6 +324,20 @@ public class OpenShiftResourceFactory {
             }
         }
 
+    }
+
+    private static class OSISRFinder extends Finder<OpenShiftDynamicImageStreamResource.List, OpenShiftDynamicImageStreamResource> {
+        protected Class<OpenShiftDynamicImageStreamResource.List> getWrapperType() {
+            return OpenShiftDynamicImageStreamResource.List.class;
+        }
+
+        protected Class<OpenShiftDynamicImageStreamResource> getSingleType() {
+            return OpenShiftDynamicImageStreamResource.class;
+        }
+
+        protected OpenShiftDynamicImageStreamResource[] toSingles(OpenShiftDynamicImageStreamResource.List openShiftResources) {
+            return openShiftResources.value();
+        }
     }
 
     private static class OSRFinder extends Finder<OpenShiftResource.List, OpenShiftResource> {
