@@ -6,7 +6,7 @@
   <groupId>org.arquillian.cube</groupId>
   <artifactId>arquillian-cube-bom</artifactId>
   <packaging>pom</packaging>
-  <version>1.15.4-SNAPSHOT</version>
+  <version>1.16.1-SNAPSHOT</version>
 
   <name>Arquillian Cube Universe Aggregator</name>
   <url>http://arquillian.org/arquillian-cube</url>
