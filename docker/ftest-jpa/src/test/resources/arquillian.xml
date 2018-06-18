@@ -23,7 +23,12 @@
         image: postgres:9.3
         exposedPorts: [5432/tcp]
         await:
-          strategy: polling
+          strategy: log
+          match: 'LOG:  database system is ready to accept connections'
+          stdOut: true
+          stdErr: true
+          timeout: 15
+          occurrences: 2
         portBindings: [5432->5432/tcp]
     </property>
   </extension>
@@ -39,7 +44,8 @@
     <configuration>
       <property name="username">admin</property>
       <property name="password">Admin#70365</property>
-      <property name="jbossHome">/home/dipak/Downloads/wildfly-12.0.0.Final</property>
+      <property name="jbossHome">target/wildfly-${version.org.wildfly:12.0.0.Final}</property>
+      <property name="modulePath">target/wildfly-${version.org.wildfly:12.0.0.Final}/modules</property>
     </configuration>
   </container>
 </arquillian>

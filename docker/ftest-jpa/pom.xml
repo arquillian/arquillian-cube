@@ -14,6 +14,7 @@
     <version.javaee_7>1.0.1.Final</version.javaee_7>
     <version.wildfly>8.2.1.Final</version.wildfly>
     <version.postgres>9.3-1102-jdbc41</version.postgres>
+    <version.org.wildfly>12.0.0.Final</version.org.wildfly>
   </properties>
 
   <dependencyManagement>
@@ -116,6 +117,9 @@
   <profiles>
     <profile>
       <id>wildfly-12-managed</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <properties>
         <arquillian.launch>wildfly-managed</arquillian.launch>
         <arquillian.cube.autostart>postgres</arquillian.cube.autostart>
@@ -130,6 +134,31 @@
       </dependencies>
       <build>
         <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-dependency-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>unpack</id>
+                  <phase>process-test-classes</phase>
+                  <goals>
+                    <goal>unpack</goal>
+                  </goals>
+                  <configuration>
+                    <artifactItems>
+                      <artifactItem>
+                        <groupId>org.wildfly</groupId>
+                        <artifactId>wildfly-dist</artifactId>
+                        <version>${version.org.wildfly}</version>
+                        <type>zip</type>
+                        <overWrite>false</overWrite>
+                        <outputDirectory>${project.build.directory}</outputDirectory>
+                      </artifactItem>
+                    </artifactItems>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration combine.self="override">
@@ -144,9 +173,6 @@
     </profile>
     <profile>
       <id>wildfly-12-remote</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <properties>
         <arquillian.launch>wildfly</arquillian.launch>
         <arquillian.cube.autostart>postgres</arquillian.cube.autostart>
