@@ -144,10 +144,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
     @Override
     public void stop() throws CubeControlException {
-        if (state == State.STOPPED || state == State.PRE_RUNNING || state == State.DESTROYED) {
+        if (state == State.STOPPED || state == State.PRE_RUNNING || state == State.DESTROYED || state == State.BEFORE_CREATE) {
             return;
         }
         try {
+
             lifecycle.fire(new BeforeStop(id));
 
             long currentTime = System.currentTimeMillis();

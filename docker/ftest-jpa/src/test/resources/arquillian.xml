@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<arquillian xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://jboss.org/schema/arquillian"
+  xsi:schemaLocation="http://jboss.org/schema/arquillian
+    http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+  <extension qualifier="docker">
+    <property name="autoStartContainers">${arquillian.cube.autostart}</property>
+    <property name="definitionFormat">CUBE</property>
+    <property name="dockerContainers">
+      wildfly:
+        buildImage:
+          dockerfileLocation: src/test/resources/wildfly
+          noCache: true
+          remove: true
+        exposedPorts: [8080/tcp, 9990/tcp]
+        await:
+          strategy: polling
+        portBindings: [8081->8080/tcp, 9991->9990/tcp]
+        links:
+          - postgres:postgres
+      postgres:
+        image: postgres:9.3
+        exposedPorts: [5432/tcp]
+        await:
+          strategy: polling
+        portBindings: [5432->5432/tcp]
+    </property>
+  </extension>
+
+  <container qualifier="wildfly">
+    <configuration>
+      <property name="username">admin</property>
+      <property name="password">Admin#70365</property>
+    </configuration>
+  </container>
+
+  <container qualifier="wildfly-managed">
+    <configuration>
+      <property name="username">admin</property>
+      <property name="password">Admin#70365</property>
+      <property name="jbossHome">/home/dipak/Downloads/wildfly-12.0.0.Final</property>
+    </configuration>
+  </container>
+</arquillian>
