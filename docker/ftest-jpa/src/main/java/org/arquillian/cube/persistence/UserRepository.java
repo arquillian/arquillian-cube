@@ -10,7 +10,7 @@ import javax.persistence.Query;
 
 @DataSourceDefinition(name = "java:app/datasources/postgresql_ds",
     className = "org.postgresql.ds.PGSimpleDataSource",
-    url = "jdbc:postgresql://postgres:5432/",
+    url = "jdbc:postgresql://postgres:5433/",
     databaseName = "test_database",
     user = "postgres",
     password = "postgres")

@@ -16,7 +16,7 @@
         exposedPorts: [8080/tcp, 9990/tcp]
         await:
           strategy: polling
-        portBindings: [8081->8080/tcp, 9991->9990/tcp]
+        portBindings: [8080->8080/tcp, 9990->9990/tcp]
         links:
           - postgres:postgres
       postgres:
@@ -29,7 +29,7 @@
           stdErr: true
           timeout: 15
           occurrences: 2
-        portBindings: [5432->5432/tcp]
+        portBindings: [5433->5432/tcp]
     </property>
   </extension>
 
