@@ -1,6 +1,5 @@
 package org.arquillian.cube.persistence;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
@@ -25,17 +24,14 @@ public class UserRepositoryIT {
 
     @Deployment
     public static WebArchive create() {
-        final File[] files = Maven.configureResolver()
-            .loadPomFromFile("pom.xml")
-            .resolve("org.postgresql:postgresql:9.3-1102-jdbc41")
-            .withTransitivity()
-            .asFile();
-
         return ShrinkWrap.create(WebArchive.class)
-            .addAsLibraries(files)
-            .addClasses(User.class, UserRepository.class, UserRepositoryIT.class)
+            .addClasses(User.class, UserRepository.class)
+            .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-            .addAsResource("test-persistence.xml", "META-INF/persistence.xml");
+            .addAsLibraries(Maven.configureResolver()
+                .loadPomFromFile("pom.xml")
+                .resolve("org.postgresql:postgresql:9.3-1102-jdbc41", "org.arquillian.cube:arquillian-cube-requirement")
+                .withTransitivity().asFile());
     }
 
     @Test

@@ -2,7 +2,8 @@ package org.arquillian.cube.persistence;
 
 import java.util.List;
 import javax.annotation.sql.DataSourceDefinition;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -13,7 +14,8 @@ import javax.persistence.Query;
     databaseName = "test_database",
     user = "postgres",
     password = "postgres")
-@Stateless
+@Singleton
+@Startup
 public class UserRepository {
 
     @PersistenceContext
