@@ -17,15 +17,15 @@ import org.junit.runner.RunWith;
 
 @Category({RequiresDocker.class})
 @RunWith(ArquillianConditionalRunner.class)
-public class UserRepositoryIT {
+public class EmployeeRepositoryIT {
 
     @Inject
-    private UserRepository repository;
+    private EmployeeRepository repository;
 
     @Deployment
     public static WebArchive create() {
         return ShrinkWrap.create(WebArchive.class)
-            .addClasses(User.class, UserRepository.class)
+            .addClasses(Employee.class, EmployeeRepository.class)
             .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
             .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
             .addAsLibraries(Maven.configureResolver()
@@ -36,10 +36,10 @@ public class UserRepositoryIT {
 
     @Test
     public void shouldStoreUser() throws IOException {
-        repository.store(new User("test"));
+        repository.store(new Employee("test"));
 
-        final List<User> allUsers = repository.findAllUsers();
-        Assert.assertEquals(allUsers.size(), 1);
+        final List<Employee> allEmployees = repository.findAllUsers();
+        Assert.assertEquals(allEmployees.size(), 1);
     }
 
 }

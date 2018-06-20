@@ -3,19 +3,21 @@ package org.arquillian.cube.persistence;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class User {
+@Table
+public class Employee {
 
     @Id
     private String id;
 
     private String name;
 
-    protected User() {
+    protected Employee() {
     }
 
-    public User(String name) {
+    public Employee(String name) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
     }
