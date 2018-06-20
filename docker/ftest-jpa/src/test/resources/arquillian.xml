@@ -21,6 +21,7 @@
           - postgres:postgres
       postgres:
         image: postgres:9.3
+        env: [POSTGRES_DB=test_database]
         exposedPorts: [5432/tcp]
         await:
           strategy: log
