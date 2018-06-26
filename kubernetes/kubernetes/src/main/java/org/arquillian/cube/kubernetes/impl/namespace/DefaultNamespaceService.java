@@ -1,7 +1,8 @@
 package org.arquillian.cube.kubernetes.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v3_1.Namespace;
-import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.api.model.v4_0.Namespace;
+import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
@@ -162,7 +163,10 @@ public class DefaultNamespaceService implements NamespaceService {
             client.pods().inNamespace(namespace).delete();
             client.extensions().ingresses().inNamespace(namespace).delete();
             client.services().inNamespace(namespace).delete();
-            client.securityContextConstraints().withName(namespace).delete();
+            if (client.isAdaptable(OpenShiftClient.class)) {
+                client.adapt(OpenShiftClient.class)
+                      .securityContextConstraints().withName(namespace).delete();
+            }
         }
 
         public void destroy(String namespace) {

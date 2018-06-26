@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v3_1.Namespace;
-import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v3_1.KubernetesClientException;
-import io.fabric8.openshift.api.model.v3_1.ProjectRequest;
-import io.fabric8.openshift.api.model.v3_1.ProjectRequestBuilder;
-import io.fabric8.openshift.clnt.v3_1.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.v4_0.Namespace;
+import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v4_0.KubernetesClientException;
+import io.fabric8.openshift.api.model.v4_0.ProjectRequest;
+import io.fabric8.openshift.api.model.v4_0.ProjectRequestBuilder;
+import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;

@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
-import io.fabric8.openshift.api.model.v3_1.Route;
-import io.fabric8.openshift.api.model.v3_1.RouteList;
+import io.fabric8.openshift.api.model.v4_0.Route;
+import io.fabric8.openshift.api.model.v4_0.RouteList;
 import org.arquillian.cube.impl.ConfigurationParameters;
 import org.arquillian.cube.impl.EnricherExpressionResolver;
 import org.arquillian.cube.impl.util.ReflectionUtil;

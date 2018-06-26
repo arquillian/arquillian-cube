@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.clnt.v3_1.Config;
-import io.fabric8.kubernetes.clnt.v3_1.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v4_0.Config;
+import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.jboss.arquillian.core.api.Instance;
@@ -29,8 +29,8 @@ public class OpenShiftClientCreator {
         final CubeOpenShiftConfiguration configuration = (CubeOpenShiftConfiguration) conf;
 
         final KubernetesClient kubernetesClient = kubernetesClientInstance.get();
-        if (kubernetesClient != null && kubernetesClient.isAdaptable(io.fabric8.openshift.clnt.v3_1.OpenShiftClient.class)) {
-            io.fabric8.openshift.clnt.v3_1.OpenShiftClient client = kubernetesClient.adapt(io.fabric8.openshift.clnt.v3_1.OpenShiftClient.class);
+        if (kubernetesClient != null && kubernetesClient.isAdaptable(io.fabric8.openshift.clnt.v4_0.OpenShiftClient.class)) {
+            io.fabric8.openshift.clnt.v4_0.OpenShiftClient client = kubernetesClient.adapt(io.fabric8.openshift.clnt.v4_0.OpenShiftClient.class);
             openShiftClientProducer.set(
                 createClient(client, client.getConfiguration(), client.getNamespace(), configuration.shouldKeepAliveGitServer()));
 
@@ -41,7 +41,7 @@ public class OpenShiftClientCreator {
         client.shutdown();
     }
 
-    public OpenShiftClient createClient(io.fabric8.openshift.clnt.v3_1.OpenShiftClient client, Config openShiftConfig, String namespace, boolean keepAliveGitServer) {
+    public OpenShiftClient createClient(io.fabric8.openshift.clnt.v4_0.OpenShiftClient client, Config openShiftConfig, String namespace, boolean keepAliveGitServer) {
         return new OpenShiftClient(client, openShiftConfig, namespace, keepAliveGitServer);
     }
 }

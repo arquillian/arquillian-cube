@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.builder.v3_1.TypedVisitor;
-import io.fabric8.kubernetes.clnt.v3_1.ConfigBuilder;
+import io.fabric8.kubernetes.api.builder.v4_0.TypedVisitor;
+import io.fabric8.kubernetes.clnt.v4_0.ConfigBuilder;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 
