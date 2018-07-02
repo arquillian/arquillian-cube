@@ -21,7 +21,7 @@ public class ForceStopDockerContainersShutdownHook {
                 try {
                     cube.stop();
                 } catch (final Throwable e) {
-                    Logger.getLogger(ForceStopDockerContainersShutdownHook.class.getName()).log(Level.WARNING, "Falied to stop: " + cube.getId(), e);
+                    Logger.getLogger(ForceStopDockerContainersShutdownHook.class.getName()).log(Level.WARNING, "Failed to stop container: " + cube.getId(), e);
                 } finally {
                     try {
                         cube.destroy();
