@@ -16,7 +16,7 @@ public class ForceStopDockerContainersShutdownHook {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             final List<Cube<?>> cubes = cubeRegistry.getCubes();
-            for (Cube cube: cubes) {
+            for (Cube cube : cubes) {
 
                 try {
                     cube.stop();
