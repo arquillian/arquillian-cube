@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.fabric8.impl;
 
-import io.fabric8.kubernetes.api.builder.v3_1.Visitor;
+import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.NamespaceService;

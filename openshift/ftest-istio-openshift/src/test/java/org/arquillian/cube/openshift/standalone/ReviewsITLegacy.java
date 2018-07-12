@@ -1,10 +1,5 @@
 package org.arquillian.cube.openshift.standalone;
 
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.hasKey;
-
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
@@ -22,18 +17,24 @@ import org.arquillian.cube.openshift.impl.enricher.AwaitRoute;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasKey;
+
 @RunWith(ArquillianConditionalRunner.class)
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
-@IstioResource("classpath:route-rule-reviews-test-v${serviceVersion:2}.yaml")
+@IstioResource("classpath:route-rule-reviews-test-v${serviceVersion:2}-legacy.yaml")
 @Ignore("This test assumes that you have a cluster installed with Istio and BookInfo application deployed. We could make a full test preparing all this, but it will take lot of time, not error safe and test execution would take like 10 minutes")
-public class ReviewsIT {
+public class ReviewsITLegacy {
 
     @RouteURL("productpage")
     @AwaitRoute

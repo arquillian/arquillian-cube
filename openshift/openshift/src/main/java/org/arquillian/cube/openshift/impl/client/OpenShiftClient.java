@@ -1,21 +1,21 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
-import io.fabric8.kubernetes.api.model.v3_1.KubernetesListBuilder;
-import io.fabric8.kubernetes.api.model.v3_1.KubernetesResource;
-import io.fabric8.kubernetes.api.model.v3_1.Pod;
-import io.fabric8.kubernetes.api.model.v3_1.PodBuilder;
-import io.fabric8.kubernetes.api.model.v3_1.Service;
-import io.fabric8.kubernetes.clnt.v3_1.Config;
-import io.fabric8.openshift.api.model.v3_1.Build;
-import io.fabric8.openshift.api.model.v3_1.BuildConfig;
-import io.fabric8.openshift.api.model.v3_1.BuildConfigBuilder;
-import io.fabric8.openshift.api.model.v3_1.BuildRequest;
-import io.fabric8.openshift.api.model.v3_1.BuildRequestBuilder;
-import io.fabric8.openshift.api.model.v3_1.ImageStream;
-import io.fabric8.openshift.api.model.v3_1.ImageStreamBuilder;
-import io.fabric8.openshift.clnt.v3_1.DefaultOpenShiftClient;
-import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
+import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
+import io.fabric8.kubernetes.api.model.v4_0.KubernetesListBuilder;
+import io.fabric8.kubernetes.api.model.v4_0.KubernetesResource;
+import io.fabric8.kubernetes.api.model.v4_0.Pod;
+import io.fabric8.kubernetes.api.model.v4_0.PodBuilder;
+import io.fabric8.kubernetes.api.model.v4_0.Service;
+import io.fabric8.kubernetes.clnt.v4_0.Config;
+import io.fabric8.openshift.api.model.v4_0.Build;
+import io.fabric8.openshift.api.model.v4_0.BuildConfig;
+import io.fabric8.openshift.api.model.v4_0.BuildConfigBuilder;
+import io.fabric8.openshift.api.model.v4_0.BuildRequest;
+import io.fabric8.openshift.api.model.v4_0.BuildRequestBuilder;
+import io.fabric8.openshift.api.model.v4_0.ImageStream;
+import io.fabric8.openshift.api.model.v4_0.ImageStreamBuilder;
+import io.fabric8.openshift.clnt.v4_0.DefaultOpenShiftClient;
+import io.fabric8.openshift.clnt.v4_0.NamespacedOpenShiftClient;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class OpenShiftClient {
     private GitServer gitserver;
     private boolean keepAliveGitServer;
 
-    public OpenShiftClient(io.fabric8.openshift.clnt.v3_1.OpenShiftClient client, Config config, String namespace, boolean keepAliveGitServer) {
+    public OpenShiftClient(io.fabric8.openshift.clnt.v4_0.OpenShiftClient client, Config config, String namespace, boolean keepAliveGitServer) {
         this.kubernetes = (NamespacedOpenShiftClient) client;
         this.namespace = namespace;
         this.keepAliveGitServer = keepAliveGitServer;
@@ -195,7 +195,7 @@ public class OpenShiftClient {
         return kubernetes;
     }
 
-    public io.fabric8.openshift.clnt.v3_1.OpenShiftClient getClientExt() {
+    public io.fabric8.openshift.clnt.v4_0.OpenShiftClient getClientExt() {
         return kubernetes;
     }
 

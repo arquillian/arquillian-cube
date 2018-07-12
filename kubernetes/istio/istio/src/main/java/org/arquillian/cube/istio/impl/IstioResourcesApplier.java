@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.kubernetes.api.model.v3_1.HasMetadata;
+import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
 import me.snowdrop.istio.client.IstioClient;
 import org.arquillian.cube.istio.api.IstioResource;
 import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;

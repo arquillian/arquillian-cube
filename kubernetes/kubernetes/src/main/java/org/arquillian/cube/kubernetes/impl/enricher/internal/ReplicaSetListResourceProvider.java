@@ -7,7 +7,7 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v3_1.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSetList;
 
 /**
  * A {@link ResourceProvider} for {@link ReplicaSetList}.

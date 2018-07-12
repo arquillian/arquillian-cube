@@ -23,7 +23,7 @@
 
 package org.arquillian.cube.openshift.impl.adapter;
 
-import io.fabric8.openshift.clnt.v3_1.NamespacedOpenShiftClient;
+import io.fabric8.openshift.clnt.v4_0.NamespacedOpenShiftClient;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
