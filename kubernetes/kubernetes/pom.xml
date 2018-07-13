@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes-parent</artifactId>
-    <version>1.17.1-SNAPSHOT</version>
+    <version>1.16.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube Kubernetes</name>
