@@ -103,10 +103,12 @@ public class RouteURLEnricher implements TestEnricher {
             throw new NullPointerException("CubeOpenShiftConfiguration is null.");
         }
 
+        final String namespace = "".equals(routeURL.namespace()) ? config.getNamespace() : routeURL.namespace();
+
         final OpenShiftClient client = clientInstance.get();
-        final Route route = client.getClient().routes().inNamespace(config.getNamespace()).withName(routeName).get();
+        final Route route = client.getClient().routes().inNamespace(namespace).withName(routeName).get();
         if (route == null) {
-            List<Route> availableRoutes = client.getClient().routes().inNamespace(config.getNamespace()).list().getItems();
+            List<Route> availableRoutes = client.getClient().routes().inNamespace(namespace).list().getItems();
             throw new IllegalArgumentException("Could not resolve route: " + routeName + ". Available routes: " + availableRoutes.stream().map(r -> r.getMetadata().getName()).collect(Collectors.toList()));
         }
 

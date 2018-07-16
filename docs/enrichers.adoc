@@ -73,6 +73,9 @@ private URL url;
 
 This annotation also has a `path` parameter which can change the path part of the injected URL.
 
+Furthermore, the annotation also provides the `namespace` parameter which can be used when a test needs the URL of a Route
+that exists in a namespace other than the namespace the test uses (which is the default behavior when no value is provided to `namespace`).
+
 or
 
 [source, java]

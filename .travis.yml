@@ -61,6 +61,10 @@ install:
         sleep 10
         oc login -u system:admin
         oc get event --all-namespaces
+
+        # Expose the docker-registry as a Route
+        # This is done in order for some of the tests that assume an existing Route to work
+        oc expose service docker-registry -n default
       fi
 
 before_script: ./mvnw install -q -U -DskipTests=true
