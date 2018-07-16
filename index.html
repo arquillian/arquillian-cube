@@ -2751,6 +2751,10 @@ CubeController cubeController;</code></pre>
 <p>This annotation also has a <code>path</code> parameter which can change the path part of the injected URL.</p>
 </div>
 <div class="paragraph">
+<p>Furthermore, the annotation also provides the <code>namespace</code> parameter which can be used when a test needs the URL of a Route
+that exists in a namespace other than the namespace the test uses (which is the default behavior when no value is provided to <code>namespace</code>).</p>
+</div>
+<div class="paragraph">
 <p>or</p>
 </div>
 <div class="listingblock">
@@ -6058,6 +6062,65 @@ Examples of these are service accounts, credentials, routes, &#8230;&#8203;</p>
 <p>You can see an example of OpenShift resources usage at <a href="https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java" class="bare">https://github.com/arquillian/arquillian-cube/blob/master/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java</a></p>
 </div>
 </div>
+<div class="sect4">
+<h5 id="__code_openshiftdynamicimagestreamresource_code"><a class="anchor" href="#__code_openshiftdynamicimagestreamresource_code"></a><code>@OpenShiftDynamicImageStreamResource</code></h5>
+<div class="paragraph">
+<p>The <code>@OpenShiftResource</code> annotation makes it possible to add image stream definitions. To run some specific tests
+we need to be able to override the image stream definition and point to the container image we want to test.
+Very often these images are stored in insecure registries and the tags applied are different (in many cases newer)
+than expected by the original image stream definition.</p>
+</div>
+<div class="paragraph">
+<p>For this purpose the <code>@OpenShiftDynamicImageStreamResource</code> was created. We can create an image stream definition
+by providing only required information, without the need to construct the JSON or YAML object expected by OpenShift.
+Required resource will be created dynamically and deployed in OpenShift together with other resources.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 66.6666%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image stream name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image stream version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>image</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image name with registry and tag</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>insecure</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If the registry is insecure, by default <code>true</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="title">OpenShiftDynamicImageStreamResourceTest.java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">    <span class="annotation">@RunWith</span>(Arquillian.class)
+    <span class="annotation">@Template</span>(url = <span class="string"><span class="delimiter">&quot;</span><span class="content">https://raw.githubusercontent.com/${template.repository:jboss-openshift}/application-templates/${template.branch:master}/eap/eap71-sso-s2i.json</span><span class="delimiter">&quot;</span></span>)
+    <span class="annotation">@OpenShiftDynamicImageStreamResource</span>(name = <span class="string"><span class="delimiter">&quot;</span><span class="content">${imageStream.eap64.name:jboss-eap64-openshift}</span><span class="delimiter">&quot;</span></span>, image = <span class="string"><span class="delimiter">&quot;</span><span class="content">${imageStream.eap64.image:registry.access.redhat.com/jboss-eap-6/eap64-openshift:1.8}</span><span class="delimiter">&quot;</span></span>, version = <span class="string"><span class="delimiter">&quot;</span><span class="content">${imageStream.eap64.version:1.8}</span><span class="delimiter">&quot;</span></span>)
+    <span class="directive">public</span> <span class="type">class</span> <span class="class">OpenShiftDynamicImageStreamResourceTest</span> {
+
+      <span class="annotation">@Test</span>
+      <span class="directive">public</span> <span class="type">void</span> testStuff() <span class="directive">throws</span> <span class="exception">Exception</span> {
+       <span class="comment">//Do stuff...</span>
+      }
+    }</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -7249,7 +7312,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-04-02 09:57:34 UTC
+Last updated 2018-07-16 16:25:27 UTC
 </div>
 </div>
 </body>
