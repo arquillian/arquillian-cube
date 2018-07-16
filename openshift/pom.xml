@@ -35,6 +35,7 @@
     <module>ftest-openshift-resources-standalone</module>
     <module>ftest-oc-proxy</module>
     <module>ftest-openshift-assistant</module>
+    <module>ftest-openshift-routeurl</module>
     <module>ftest-openshift-graphene</module>
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>

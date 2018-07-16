@@ -25,6 +25,11 @@ public @interface RouteURL {
     String value() default "";
 
     /**
+     * @return the namespace the route is located in. If not specified, the namespace the test used will be used
+     */
+    String namespace() default "";
+
+    /**
      * The {@code path} part of the URL that will be appended to the root route URL. Useful if you only need a single URL
      * to the application behind the route and don't want to construct that URL programmatically. Defaults to {@code /}.
      */
