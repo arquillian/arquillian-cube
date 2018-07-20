@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.awaitility.Awaitility.await;
@@ -181,16 +182,29 @@ public final class ResourceUtil {
      *                    If not set, default timeout value is set to 5.
      * @param timeoutUnit TimeUnit used for timeout duration.
      *                    If not set, Minutes is used as default TimeUnit.
+     * @param repetitions How many times in a row the route must respond successfully to be considered available.
      * @param statusCodes list of status code that might return that service is up and running.
      *                    It is used as OR, so if one returns true, then the route is considered valid.
      *                    If not set, then only 200 status code is used.
      */
+    public static void awaitRoute(URL routeUrl, int timeout, TimeUnit timeoutUnit, int repetitions, int... statusCodes) {
+        AtomicInteger successfulAwaitsInARow = new AtomicInteger(0);
+        await().atMost(timeout, timeoutUnit).until(() -> {
+            if (tryConnect(routeUrl, statusCodes)) {
+                successfulAwaitsInARow.incrementAndGet();
+            } else {
+                successfulAwaitsInARow.set(0);
+            }
+            return successfulAwaitsInARow.get() >= repetitions;
+        });
+    }
+
     public static void awaitRoute(URL routeUrl, int timeout, TimeUnit timeoutUnit, int... statusCodes) {
-        await().atMost(timeout, timeoutUnit).until(() -> tryConnect(routeUrl, statusCodes));
+        awaitRoute(routeUrl, timeout, timeoutUnit, 1, statusCodes);
     }
 
     public static void awaitRoute(URL routeUrl, int... statusCodes) {
-        awaitRoute(routeUrl, 5, TimeUnit.MINUTES, statusCodes);
+        awaitRoute(routeUrl, 5, TimeUnit.MINUTES, 1, statusCodes);
     }
 
     private static boolean tryConnect(URL routeUrl, int[] statusCodes) {

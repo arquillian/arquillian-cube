@@ -49,4 +49,12 @@ public @interface AwaitRoute {
     int timeout() default 5;
 
     TimeUnit timeoutUnit() default TimeUnit.MINUTES;
+
+    /**
+     * How many times in a row the route must respond successfully to be considered available. Defaults to 1.
+     * <p/>
+     * If the {@code awaitRouteRepetitions} configuration property is set to {@code > 1},
+     * this annotation parameter is ignored.
+     */
+    int repetitions() default 1;
 }

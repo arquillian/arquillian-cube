@@ -1,14 +1,12 @@
 package org.arquillian.cube.openshift.impl.enricher;
 
 import io.fabric8.openshift.api.model.v4_0.Route;
-import io.fabric8.openshift.api.model.v4_0.RouteList;
 import org.arquillian.cube.impl.ConfigurationParameters;
 import org.arquillian.cube.impl.EnricherExpressionResolver;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.client.OpenShiftClient;
-import org.jboss.arquillian.config.impl.extension.StringPropertyReplacer;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
@@ -19,8 +17,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -159,6 +155,14 @@ public class RouteURLEnricher implements TestEnricher {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        awaitRoute(url, await.timeout(), await.timeoutUnit(), await.statusCode());
+
+        // `config` is guaranteed to be non-null at this point -- the `lookup` method checks this,
+        // and calls to `configureAwaitRoute` are always preceded by calls to `lookup`
+        CubeOpenShiftConfiguration config = (CubeOpenShiftConfiguration) configurationInstance.get();
+        int configuredRepetitions = config.getAwaitRouteRepetitions();
+        int annotationRepetitions = await.repetitions();
+        int repetitions = configuredRepetitions > 1 ? configuredRepetitions : annotationRepetitions;
+
+        awaitRoute(url, await.timeout(), await.timeoutUnit(), repetitions, await.statusCode());
     }
 }

@@ -142,12 +142,14 @@ start
 | definitionsFile                     | String         | Any | Definitions file path                                         
 | proxiedContainerPorts               | List           | Any | Comma Separated List following Pod:containerPort OR 
 Pod:MappedPort:ContainerPort
-| enableImageStreamDetection          | Bool (true)    | Any | Enable detecting ImageStream resources located at target/XXX-is.(json|yaml)
+| enableImageStreamDetection          | Bool (true)    | Any | Enable detecting ImageStream resources located at target/XXX-is.(json/yaml)
 | portForwardBindAddress              | String (127.0.0.1) | Any | If using port forwarding you can set the host
 | templateUrl                         | URL            | Any | URL where template is stored. This template is executed before any execution
 | templateLabels                      | CSV            | Any | Sets a comma separated value of template labels in form <key>=<value>
 | templateParameters                  | CSV            | Any | Sets a comma separated value of template parameters in form <key>=<value>
 | templateProcess                     | Bool (true)    | Any | Sets if templates must be processed or not
+| awaitRouteRepetitions               | Int (1)        | Any | If `@AwaitRoute` is used, this option specifies how many times in a row
+the route must respond successfully to be considered available; useful in environments where the route intermittently fails for a short while at the beginning
 
 |===
 
