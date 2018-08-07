@@ -50,7 +50,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private static final String TEMPLATE_LABELS = "templateLabels";
     private static final String TEMPLATE_PARAMETERS = "templateParameters";
     private static final String TEMPLATE_PROCESS = "templateProcess";
-    private static final String STARTUP_TIMEOUT = "stratupTimeout";
+    private static final String STARTUP_TIMEOUT = "startupTimeout";
     private static final String HTTP_CLIENT_TIMEOUT = "httpClientTimeout";
 
 
