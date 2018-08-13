@@ -1,20 +1,42 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import org.arquillian.cube.docker.impl.client.config.*;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Device;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.ExposedPort;
+import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.*;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 
 public class ContainerBuilder {
