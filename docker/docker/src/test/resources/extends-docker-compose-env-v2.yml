@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  web:
+    extends:
+      file: commons-env.yml
+      service: web
+    environment:
+      - REDIS_HOST=redis-production.example.com

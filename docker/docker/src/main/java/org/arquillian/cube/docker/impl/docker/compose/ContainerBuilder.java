@@ -1,23 +1,25 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
-import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Device;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.ExposedPort;
+import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -28,15 +30,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.Device;
-import org.arquillian.cube.docker.impl.client.config.ExposedPort;
-import org.arquillian.cube.docker.impl.client.config.Image;
-import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.client.config.RestartPolicy;
-import org.yaml.snakeyaml.Yaml;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asBoolean;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asInt;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asListOfString;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asLong;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMap;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asMapOfStrings;
+import static org.arquillian.cube.docker.impl.util.YamlUtil.asString;
 
 
 public class ContainerBuilder {
@@ -682,21 +682,15 @@ public class ContainerBuilder {
     }
 
     public ContainerBuilder extend(Path location, String service) {
-        File extendLocation = this.dockerComposeRootLocation.resolve(location).toFile();
-        try(FileInputStream inputStream = new FileInputStream(extendLocation)) {
-            // resolve parameters
-            String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
-            Map<String, Object> extendedDockerComposeFile = (Map<String, Object>) new Yaml().load(content);
-            Map<String, Object> serviceDockerComposeConfiguration = asMap(extendedDockerComposeFile, service);
+        Path extendLocation = this.dockerComposeRootLocation.resolve(location);
+        DockerCompositions dockerCompositions = DockerComposeConverter.create(extendLocation).convert();
+        CubeContainer cubeContainer = dockerCompositions.getContainers().get(service);
+
+        if (cubeContainer == null) {
+            throw new IllegalArgumentException(String.format("Service name %s is not present at %s", service, extendLocation.toAbsolutePath()));
+        } else {
             ContainerBuilder containerBuilder = new ContainerBuilder(dockerComposeRootLocation, configuration);
-            configuration = containerBuilder.build(serviceDockerComposeConfiguration);
-
-            if(serviceDockerComposeConfiguration == null) {
-                throw new IllegalArgumentException(String.format("Service name %s is not present at %s", service, extendLocation.getAbsolutePath()));
-            }
-
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+            configuration.merge(cubeContainer);
         }
         return this;
     }
