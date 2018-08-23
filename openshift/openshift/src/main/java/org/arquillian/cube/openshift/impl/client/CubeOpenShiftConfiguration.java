@@ -52,6 +52,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private static final String TEMPLATE_PROCESS = "templateProcess";
     private static final String STARTUP_TIMEOUT = "startupTimeout";
     private static final String HTTP_CLIENT_TIMEOUT = "httpClientTimeout";
+    private static final String AWAIT_ROUTE_REPETITIONS = "awaitRouteRepetitions";
 
 
     private final boolean keepAliveGitServer;
@@ -71,6 +72,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private final boolean templateProcess;
     private final long startupTimeout;
     private final long httpClientTimeout;
+    private final int awaitRouteRepetitions;
 
 
     private OpenShiftClient client;
@@ -86,7 +88,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       String definitionsFile, String[] autoStartContainers, Set<String> proxiedContainerPorts,
                                       String portForwardBindAddress, String routerHost, int openshiftRouterHttpPort, int openshiftRouterHttpsPort, boolean enableImageStreamDetection,
                                       String token, int routerSniPort, String templateURL, String templateLabels, String templateParameters, boolean templateProcess,
-                                      String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout) {
+                                      String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout,
+                                      int awaitRouteRepetitions) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
             environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
@@ -109,6 +112,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         this.templateProcess = templateProcess;
         this.startupTimeout = startupTimeout;
         this.httpClientTimeout = httpClientTimeout;
+        this.awaitRouteRepetitions = awaitRouteRepetitions;
     }
 
     private static String[] split(String str, String regex) {
@@ -203,6 +207,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withFmpProfiles(Strings.splitAndTrimAsList(getStringProperty(FMP_PROFILES, map, ""), "\\s*,\\s*"))
                 .withFmpSystemProperties(Strings.splitAndTrimAsList(getStringProperty(FMP_SYSTEM_PROPERTIES, map, ""), "\\s*,\\s*"))
                 .withFmpBuildOptions(getStringProperty(FMP_BUILD_OPTIONS, map, ""))
+                .withAwaitRouteRepetitions(getIntProperty(AWAIT_ROUTE_REPETITIONS, "arquillian.await.route.repetitions", map, 1))
                 .build();
         } catch (Throwable t) {
             if (t instanceof RuntimeException) {
@@ -341,6 +346,10 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         return httpClientTimeout;
     }
 
+    public int getAwaitRouteRepetitions() {
+        return awaitRouteRepetitions;
+    }
+
     public OpenShiftClient getClient() {
         return client;
     }
@@ -399,6 +408,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
         appendPropertyWithValue(content, TEMPLATE_PROCESS, templateProcess);
         appendPropertyWithValue(content, STARTUP_TIMEOUT, startupTimeout);
         appendPropertyWithValue(content, HTTP_CLIENT_TIMEOUT, httpClientTimeout);
+
+        appendPropertyWithValue(content, AWAIT_ROUTE_REPETITIONS, awaitRouteRepetitions);
 
         return content.toString();
     }
