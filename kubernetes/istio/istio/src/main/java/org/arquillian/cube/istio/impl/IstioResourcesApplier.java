@@ -29,7 +29,7 @@ public class IstioResourcesApplier {
     public void applyIstioResourcesAtClassScope(@Observes(precedence = -20) BeforeClass beforeClass, final IstioClient istioClient) {
         final TestClass testClass = beforeClass.getTestClass();
 
-        log.info(String.format("Creating environment for %s", testClass.getName()));
+        log.info(String.format("Creating Istio resource for %s", testClass.getName()));
 
         createResources(createResourceKey(testClass), istioClient, findAnnotations(testClass));
     }
@@ -38,7 +38,7 @@ public class IstioResourcesApplier {
         final TestClass testClass = beforeMethod.getTestClass();
         final Method testMethod = beforeMethod.getTestMethod();
 
-        log.info(String.format("Creating environment for %s method %s", testClass.getName(), testMethod.getName()));
+        log.info(String.format("Creating Istio resource for %s method %s", testClass.getName(), testMethod.getName()));
 
         createResources(createResourceKey(testMethod), istioClient, findAnnotations(testMethod));
     }
@@ -46,7 +46,7 @@ public class IstioResourcesApplier {
     public void removeIstioResourcesAtClassScope(@Observes(precedence = 20) AfterClass afterClass, final IstioClient istioClient) {
         final TestClass testClass = afterClass.getTestClass();
 
-        log.info(String.format("Deleting environment for %s", testClass.getName()));
+        log.info(String.format("Deleting Istio resource for %s", testClass.getName()));
 
         deleteResources(createResourceKey(testClass), istioClient);
     }
@@ -55,7 +55,7 @@ public class IstioResourcesApplier {
         final TestClass testClass = afterMethod.getTestClass();
         final Method testMethod = afterMethod.getTestMethod();
 
-        log.info(String.format("Deleting environment for %s method %s", testClass.getName(), testMethod.getName()));
+        log.info(String.format("Deleting Istio resource for %s method %s", testClass.getName(), testMethod.getName()));
 
         deleteResources(createResourceKey(testMethod), istioClient);
     }
