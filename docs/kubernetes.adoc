@@ -785,7 +785,7 @@ TIP: Same dependency can be used for OpenShift
 
 ==== `@IstioResource`
 
-You can define at class level which Istio resource to apply before any test method execution, and it will be unregistered after all test methods are executed.
+You can define at a class or method level which Istio resource to apply before any test class or method execution. Those resources will be unregistered after all corresponding test class or methods are executed.
 
 The location of Istio Resource can start with `http(s):` or `file:` which then the value is treated as `URL.
 If location is prefixed with `classpath:`, then the resource is considered to be located at classpath.
