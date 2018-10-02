@@ -65,8 +65,8 @@ public class DockerComposeConverter implements Converter {
 
         Set<String> names = dockerComposeDefinitionMap.keySet();
 
-        boolean isV2 = names.contains(DOCKER_COMPOSE_VERSION_KEY) && DOCKER_COMPOSE_VERSION_2_VALUE.equals(dockerComposeDefinitionMap.get(DOCKER_COMPOSE_VERSION_KEY));
-        if (isV2) {
+        boolean isV2OrGreater = names.contains(DOCKER_COMPOSE_VERSION_KEY) && Integer.parseInt((String) dockerComposeDefinitionMap.get(DOCKER_COMPOSE_VERSION_KEY)) > 1;
+        if (isV2OrGreater) {
             dockerCompositions = convertCompose(dockerComposeDefinitionMap);
         } else {
             for(String name : names) {
