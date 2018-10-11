@@ -24,7 +24,7 @@ public class IstioResourcesApplier {
 
     private static final Logger log = Logger.getLogger(KubernetesResourcesApplier.class.getName());
 
-    private Map<String, List<me.snowdrop.istio.api.model.IstioResource>> resourcesMap = new ConcurrentHashMap<>();
+    private Map<String, List<me.snowdrop.istio.api.IstioResource>> resourcesMap = new ConcurrentHashMap<>();
 
     public void applyIstioResourcesAtClassScope(@Observes(precedence = -20) BeforeClass beforeClass, final IstioClient istioClient) {
         final TestClass testClass = beforeClass.getTestClass();
