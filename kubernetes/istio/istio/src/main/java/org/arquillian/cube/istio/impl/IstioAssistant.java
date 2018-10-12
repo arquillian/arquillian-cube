@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import me.snowdrop.istio.api.model.IstioResource;
+import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.client.IstioClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
