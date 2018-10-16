@@ -77,7 +77,7 @@ public class IstioAssistantTest {
 
         // then
         assertThat(istioResources)
-            .hasSize(2);
+            .hasSize(3);
     }
 
 
