@@ -1,15 +1,18 @@
 package org.arquillian.cube.istio.impl;
 
+import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import me.snowdrop.istio.client.IstioClient;
 import org.arquillian.cube.istio.api.IstioResource;
+import org.arquillian.cube.istio.api.RestoreIstioResource;
 import org.arquillian.cube.kubernetes.impl.resolver.ResourceResolver;
 import org.arquillian.cube.kubernetes.impl.resources.KubernetesResourcesApplier;
 import org.arquillian.cube.kubernetes.impl.utils.RunnerExpressionParser;
@@ -25,6 +28,7 @@ public class IstioResourcesApplier {
     private static final Logger log = Logger.getLogger(KubernetesResourcesApplier.class.getName());
 
     private Map<String, List<me.snowdrop.istio.api.IstioResource>> resourcesMap = new ConcurrentHashMap<>();
+    private Map<String, List<me.snowdrop.istio.api.IstioResource>> restoredResourcesMap = new ConcurrentHashMap<>();
 
     public void applyIstioResourcesAtClassScope(@Observes(precedence = -20) BeforeClass beforeClass, final IstioClient istioClient) {
         final TestClass testClass = beforeClass.getTestClass();
@@ -48,7 +52,7 @@ public class IstioResourcesApplier {
 
         log.info(String.format("Deleting Istio resource for %s", testClass.getName()));
 
-        deleteResources(createResourceKey(testClass), istioClient);
+        deleteResources(createResourceKey(testClass), istioClient, findRestoreAnnotations(testClass));
     }
 
     public void removeIstioResourcesAtMethodScope(@Observes(precedence = 20) After afterMethod, final IstioClient istioClient) {
@@ -57,7 +61,7 @@ public class IstioResourcesApplier {
 
         log.info(String.format("Deleting Istio resource for %s method %s", testClass.getName(), testMethod.getName()));
 
-        deleteResources(createResourceKey(testMethod), istioClient);
+        deleteResources(createResourceKey(testMethod), istioClient, findRestoreAnnotations(testMethod));
     }
 
     private String createResourceKey(TestClass testClass) {
@@ -83,15 +87,58 @@ public class IstioResourcesApplier {
             });
     }
 
-    private void deleteResources(String resourceKey, IstioClient istioClient) {
+    private void deleteResources(String resourceKey, IstioClient istioClient, RestoreIstioResource[] annotations) {
+
+        // We apply the restore method first so the restored rules are populated.
+        createRestoreResources(resourceKey, istioClient, annotations);
+
         if(!resourcesMap.containsKey(resourceKey)) {
             return;
         }
         try {
-            resourcesMap.get(resourceKey).forEach(istioClient::unregisterCustomResource);
+            final List<me.snowdrop.istio.api.IstioResource> istioResources = resourcesMap.get(resourceKey);
+
+            for (me.snowdrop.istio.api.IstioResource resource : istioResources) {
+
+                // If no restore or an Istio Resource has not been restored then we need to delete
+                if(!restoredResourcesMap.containsKey(resourceKey) || !restored(resourceKey, resource.getMetadata())) {
+                    istioClient.unregisterCustomResource(resource);
+                }
+            }
+
         } finally {
             resourcesMap.remove(resourceKey);
         }
+    }
+
+    private boolean restored(String resourceKey, ObjectMeta istioResourceToDelete) {
+        final List<me.snowdrop.istio.api.IstioResource> listRestoredIstioResources = restoredResourcesMap.get(resourceKey);
+
+        for (me.snowdrop.istio.api.IstioResource restoredIstioResources : listRestoredIstioResources) {
+            final ObjectMeta restoredMetadata = restoredIstioResources.getMetadata();
+            if (restoredMetadata.getName().equals(istioResourceToDelete.getName())
+                && restoredMetadata.getNamespace().equals(istioResourceToDelete.getNamespace())) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    private void createRestoreResources(String resourceKey, IstioClient istioClient,
+        RestoreIstioResource[] annotations) {
+        Arrays.stream(annotations)
+            .map(RestoreIstioResource::value)
+            .map(RunnerExpressionParser::parseExpressions)
+            .map(ResourceResolver::resolve)
+            .forEach(istioResource -> {
+                try (BufferedInputStream istioResourceStream = new BufferedInputStream(istioResource.openStream()) ) {
+                    restoredResourcesMap.put(resourceKey, istioClient.registerCustomResources(istioResourceStream));
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
     }
 
     private IstioResource[] findAnnotations(TestClass testClass) {
@@ -117,4 +164,34 @@ public class IstioResourcesApplier {
         return new IstioResource[0];
     }
 
+    private RestoreIstioResource[] findRestoreAnnotations(TestClass testClass) {
+        if (testClass.isAnnotationPresent(RestoreIstioResource.class)) {
+            return new RestoreIstioResource[] {testClass.getAnnotation(RestoreIstioResource.class)};
+        } else {
+            if (testClass.isAnnotationPresent(RestoreIstioResource.List.class)) {
+                return testClass.getAnnotation(RestoreIstioResource.List.class).value();
+            }
+        }
+
+        return new RestoreIstioResource[0];
+    }
+
+    private RestoreIstioResource[] findRestoreAnnotations(Method testMethod) {
+        if (testMethod.isAnnotationPresent(RestoreIstioResource.class)) {
+            return new RestoreIstioResource[] {testMethod.getAnnotation(RestoreIstioResource.class)};
+        } else {
+            if (testMethod.isAnnotationPresent(RestoreIstioResource.List.class)) {
+                return testMethod.getAnnotation(RestoreIstioResource.List.class).value();
+            }
+        }
+        return new RestoreIstioResource[0];
+    }
+
+    public Map<String, List<me.snowdrop.istio.api.IstioResource>> getResourcesMap() {
+        return Collections.unmodifiableMap(resourcesMap);
+    }
+
+    public Map<String, List<me.snowdrop.istio.api.IstioResource>> getRestoredResourcesMap() {
+        return Collections.unmodifiableMap(restoredResourcesMap);
+    }
 }
