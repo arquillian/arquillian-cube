@@ -807,6 +807,10 @@ At this time, Istio does not cover to query its state, so the only thing you can
 
 ====
 
+==== `@RestoreIstioResource`
+
+Same as `@IstioResource`, there is a `@RestoreIstioResource` which is applied after execution (test class or test method depending on the scope).
+
 ==== Istio Assistant
 
 You can register and unregister Istio resources programmatically using `IstioAssistant`.
