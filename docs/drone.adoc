@@ -47,6 +47,7 @@ browserImage:: Docker image to be used as custom browser image instead of the of
 browserDockerfileLocation:: Dockerfile location to be used to built custom docker image instead of the official one. This property has preference over browserImage.
 containerNameStrategy:: Sets the strategy for generating the container name. Valid values are `STATIC, STATIC_PREFIX, RANDOM` with the default being `STATIC`. `STATIC` will always use the same name, `STATIC_PREFIX` lets you define a prefix and enables running different tests in parallel and `RANDOM` generates a unique container name on every test run enabling running the same test in parallel.
 containerNamePrefix:: The prefix for the `STATIC_PREFIX` container name strategy.
+dockerRegistry:: Use this to override the default docker registry with a user specified registry.
 
 IMPORTANT: Your custom images must expose the webdriver port `4444` and if you plan to use VNC, expose the default port `5900` as well
 

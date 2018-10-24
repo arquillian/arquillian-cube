@@ -36,6 +36,8 @@ public class CubeDroneConfiguration {
      */
     private String containerNamePrefix = null;
 
+    private String dockerRegistry = "";
+
     public static CubeDroneConfiguration fromMap(Map<String, String> config) {
         CubeDroneConfiguration cubeDroneConfiguration = new CubeDroneConfiguration();
 
@@ -61,6 +63,21 @@ public class CubeDroneConfiguration {
 
         if (config.containsKey("containerNamePrefix")) {
             cubeDroneConfiguration.containerNamePrefix = config.get("containerNamePrefix");
+        }
+
+        if (config.containsKey("dockerRegistry")) {
+            String dockerRegistry = config.get("dockerRegistry");
+
+            if(null != dockerRegistry) {
+
+                dockerRegistry = dockerRegistry.trim();
+
+                if(!dockerRegistry.endsWith("/")){
+                    dockerRegistry = dockerRegistry + "/";
+                }
+
+                cubeDroneConfiguration.dockerRegistry = dockerRegistry;
+            }
         }
 
         return cubeDroneConfiguration;
@@ -109,7 +126,11 @@ public class CubeDroneConfiguration {
     public String getContainerNamePrefix(){
         return this.containerNamePrefix;
     }
-    
+
+    public String getDockerRegistry() {
+        return dockerRegistry;
+    }
+
     public static enum RecordMode {
         ALL, ONLY_FAILING, NONE;
     }
