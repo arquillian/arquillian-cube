@@ -1,10 +1,11 @@
 package org.arquillian.cube.docker.impl.docker.compose;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.Network;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,13 +14,14 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
-import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.Network;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class DockerComposeConverterTest {
 
@@ -299,4 +301,20 @@ public class DockerComposeConverterTest {
     assertThat(webapp.getAliases()).containsOnly("foo", "bar");
   }
 
+    @Test
+    public void shouldResolveBinding() throws URISyntaxException {
+        URI simpleDockerComposeVolumes = DockerComposeConverterTest.class.getResource("/simple-docker-compose-volumes.yml").toURI();
+        DockerComposeConverter dockerComposeConverter = DockerComposeConverter.create(Paths.get(simpleDockerComposeVolumes));
+
+        DockerCompositions convert = dockerComposeConverter.convert();
+        CubeContainer webapp = convert.get("webapp");
+
+        Collection<String> binds = webapp.getBinds();
+        assertEquals(3, binds.size());
+        assertTrue(binds.toString().contains("docker/local:container"));
+        assertFalse(binds.toString().contains("\\"));
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            assertTrue(binds.toString().contains("//"));
+        }
+    }
 }
