@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
 import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.spi.Cube;
+import org.arquillian.cube.spi.CubeControlException;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.jboss.arquillian.core.api.Event;
 import org.jboss.arquillian.core.api.Instance;
@@ -34,13 +38,17 @@ public class VncRecorderLifecycleManager {
     public void startRecording(@Observes Before beforeTestMethod, CubeDroneConfiguration cubeDroneConfiguration,
         CubeRegistry cubeRegistry) {
 
-        if (cubeDroneConfiguration.isRecording()) {
+        try {
+            if (cubeDroneConfiguration.isRecording()) {
 
-            // lazy init
-            initVncCube(cubeRegistry);
+                // lazy init
+                initVncCube(cubeRegistry);
 
-            vnc.create();
-            vnc.start();
+                vnc.create();
+                vnc.start();
+            }
+        } catch (CubeControlException e) {
+            Logger.getLogger(VncRecorderLifecycleManager.class.getName()).log(Level.WARNING, "Failed to start vnc", e);
         }
     }
 
@@ -61,23 +69,27 @@ public class VncRecorderLifecycleManager {
     public void stopRecording(@Observes After afterTestMethod, TestResult testResult,
         CubeDroneConfiguration cubeDroneConfiguration, SeleniumContainers seleniumContainers) {
 
-        if (this.vnc != null) {
-            vnc.stop();
-            
-            Path finalLocation = null;
-            if (shouldRecordOnlyOnFailure(testResult, cubeDroneConfiguration)) {
-                finalLocation =
-                    moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
-            } else {
-                if (shouldRecordAlways(cubeDroneConfiguration)) {
+        try {
+            if (this.vnc != null) {
+                vnc.stop();
+
+                Path finalLocation = null;
+                if (shouldRecordOnlyOnFailure(testResult, cubeDroneConfiguration)) {
                     finalLocation =
                         moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
+                } else {
+                    if (shouldRecordAlways(cubeDroneConfiguration)) {
+                        finalLocation =
+                            moveFromVolumeFolderToBuildDirectory(afterTestMethod, cubeDroneConfiguration, seleniumContainers);
+                    }
                 }
+
+                vnc.destroy();
+
+                this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(afterTestMethod, finalLocation));
             }
-
-            vnc.destroy();
-
-            this.afterVideoRecordedEvent.fire(new AfterVideoRecorded(afterTestMethod, finalLocation));
+        } catch (CubeControlException e) {
+            Logger.getLogger(VncRecorderLifecycleManager.class.getName()).log(Level.WARNING, "Failed to stop vnc", e);
         }
     }
 

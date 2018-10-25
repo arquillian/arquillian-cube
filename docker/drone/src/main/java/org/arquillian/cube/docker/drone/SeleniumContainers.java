@@ -51,6 +51,7 @@ public class SeleniumContainers {
     private final String vncContainerName;
     private final String conversionContainerName;
     private final int seleniumBoundedPort;
+    private final String dockerRegistry;
 
     private SeleniumContainers(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         this.browser = browser;
@@ -77,24 +78,23 @@ public class SeleniumContainers {
                 this.seleniumBoundedPort = 14444;
                 break;
         }
-        
+
+        this.dockerRegistry = cubeDroneConfiguration.getDockerRegistry();
         this.videoRecordingFolder = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
-        
-        this.seleniumContainer = createSeleniumContainer(browser, cubeDroneConfiguration, this.seleniumBoundedPort);
-        this.vncContainer = createVncContainer(this.videoRecordingFolder, this.seleniumContainerName);
+        this.seleniumContainer = createSeleniumContainer(browser, cubeDroneConfiguration, this.seleniumBoundedPort, this.dockerRegistry);
+        this.vncContainer = createVncContainer(this.videoRecordingFolder, this.seleniumContainerName, this.dockerRegistry);
         final Path targetVolume = VideoFileDestination.resolveTargetDirectory(cubeDroneConfiguration);
-        this.videoConverterContainer = createVideoConverterContainer(targetVolume);
-        
+        this.videoConverterContainer = createVideoConverterContainer(targetVolume, this.dockerRegistry);
     }
 
     public static SeleniumContainers create(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         return new SeleniumContainers(browser, cubeDroneConfiguration);
     }
 
-    private static CubeContainer createVideoConverterContainer(Path dockerVolume) {
+    private static CubeContainer createVideoConverterContainer(Path dockerVolume, String dockerRegistry) {
 
         CubeContainer cubeContainer = new CubeContainer();
-        cubeContainer.setImage(Image.valueOf(CONVERSION_IMAGE));
+        cubeContainer.setImage(Image.valueOf(dockerRegistry + CONVERSION_IMAGE));
 
         cubeContainer.setBinds(
             Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "Z"))
@@ -114,10 +114,10 @@ public class SeleniumContainers {
         return cubeContainer;
     }
 
-    private static CubeContainer createVncContainer(final Path dockerVolume, String seleniumContainerName) {
+    private static CubeContainer createVncContainer(final Path dockerVolume, String seleniumContainerName, String dockerRegistry) {
 
         CubeContainer cubeContainer = new CubeContainer();
-        cubeContainer.setImage(Image.valueOf(VNC_IMAGE));
+        cubeContainer.setImage(Image.valueOf(dockerRegistry + VNC_IMAGE));
 
         cubeContainer.setBinds(
             Arrays.asList(convertToBind(dockerVolume, VOLUME_DIR, "Z"))
@@ -175,7 +175,7 @@ public class SeleniumContainers {
         }
     }
 
-    private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration, int seleniumBoundedPort) {
+    private static CubeContainer createSeleniumContainer(String browser, CubeDroneConfiguration cubeDroneConfiguration, int seleniumBoundedPort, String dockerRegistry) {
 
         if (cubeDroneConfiguration.isBrowserDockerfileDirectorySet()) {
             return createCube(cubeDroneConfiguration.getBrowserDockerfileLocation(), seleniumBoundedPort);
@@ -183,19 +183,19 @@ public class SeleniumContainers {
             if (cubeDroneConfiguration.isBrowserImageSet()) {
                 return configureCube(cubeDroneConfiguration.getBrowserImage(), seleniumBoundedPort);
             } else {
-                return useOfficialSeleniumImages(browser, seleniumBoundedPort);
+                return useOfficialSeleniumImages(browser, seleniumBoundedPort, dockerRegistry);
             }
         }
     }
 
-    private static CubeContainer useOfficialSeleniumImages(String browser, int seleniumBoundedPort) {
+    private static CubeContainer useOfficialSeleniumImages(String browser, int seleniumBoundedPort, String dockerRegistry) {
         String version = SeleniumVersionExtractor.fromClassPath();
 
         switch (browser) {
             case "firefox":
-                return configureCube(String.format(FIREFOX_IMAGE, version), seleniumBoundedPort);
+                return configureCube(dockerRegistry + String.format(FIREFOX_IMAGE, version), seleniumBoundedPort);
             case "chrome":
-                return configureCube(String.format(CHROME_IMAGE, version), seleniumBoundedPort);
+                return configureCube(dockerRegistry + String.format(CHROME_IMAGE, version), seleniumBoundedPort);
             default:
                 throw new UnsupportedOperationException(
                     "Unsupported browser " + browser + ". Only firefox and chrome are supported.");

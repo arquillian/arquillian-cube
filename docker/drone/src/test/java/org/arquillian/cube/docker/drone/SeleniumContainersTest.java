@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
+
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
@@ -95,6 +97,7 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getDockerRegistry()).thenReturn("");
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
@@ -109,6 +112,7 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getDockerRegistry()).thenReturn("");
 
         final SeleniumContainers firefox = SeleniumContainers.create("chrome", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("chrome"));
@@ -155,5 +159,45 @@ public class SeleniumContainersTest {
         assertThat(seleniumContainers.getSeleniumContainerName(), is("browser"));
         assertThat(seleniumContainers.getVncContainerName(), is("vnc"));
         assertThat(seleniumContainers.getVideoConverterContainerName(), is("flv2mp4"));
+    }
+
+    @Test
+    public void shouldHaveDockerRegistry() {
+
+        final CubeDroneConfiguration conf = CubeDroneConfiguration.fromMap( new HashMap<String, String>() {{
+            put("containerNameStrategy",ContainerNameStrategy.STATIC_PREFIX.toString());
+            put("dockerRegistry","my.registry");
+        }});
+
+        checkRegistry(conf);
+    }
+
+    @Test
+    public void shouldHaveDockerRegistrySlash() {
+
+        final CubeDroneConfiguration conf = CubeDroneConfiguration.fromMap( new HashMap<String, String>() {{
+            put("containerNameStrategy",ContainerNameStrategy.STATIC_PREFIX.toString());
+            put("dockerRegistry","my.registry/");
+        }});
+
+        checkRegistry(conf);
+    }
+
+    @Test
+    public void shouldHaveDockerRegistryNewline() {
+
+        final CubeDroneConfiguration conf = CubeDroneConfiguration.fromMap( new HashMap<String, String>() {{
+            put("containerNameStrategy",ContainerNameStrategy.STATIC_PREFIX.toString());
+            put("dockerRegistry","my.registry/\r\n ");
+        }});
+
+        checkRegistry(conf);
+    }
+
+    private void checkRegistry(CubeDroneConfiguration conf) {
+        final SeleniumContainers seleniumContainers = SeleniumContainers.create("firefox", conf);
+        assertThat(seleniumContainers.getSeleniumContainer().getImage().toString(), startsWith("my.registry/selenium"));
+        assertThat(seleniumContainers.getVideoConverterContainer().getImage().toString(), startsWith("my.registry/arquillian"));
+        assertThat(seleniumContainers.getVncContainer().getImage().toString(), startsWith("my.registry/richnorth"));
     }
 }

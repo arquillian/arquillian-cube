@@ -17,7 +17,7 @@ public class VolumeCreator {
 
     /**
      * Creates a new temporary folder with password file for VNC server.
-     * The folder is relative to the root of the project.
+     * The folder is relative to the root of the project target/vnc folder.
      *
      * @param password
      *     value to generate password file.
@@ -25,7 +25,7 @@ public class VolumeCreator {
      * @return Path of generated file.
      */
     public static final Path createTemporaryVolume(String password) {
-        final File tmpFile = new File(".tmp" + System.currentTimeMillis());
+        final File tmpFile = new File("target/vnc/.tmp" + System.currentTimeMillis());
 
         if (!tmpFile.mkdirs()) {
             throw new IllegalArgumentException("Temporary Folder for storing recordings could not be created.");
