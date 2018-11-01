@@ -1,0 +1,8 @@
+webapp:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes:
+    - "/local"
+    - "//C/local:container"
+    - "./local:container"
