@@ -1,10 +1,5 @@
 package org.arquillian.cube.docker.impl.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.ConnectionMode;
 import org.arquillian.cube.spi.CubeConfiguration;
@@ -25,6 +20,14 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.core.api.threading.ExecutorService;
 import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CubeSuiteLifecycleController {
 
@@ -101,10 +104,10 @@ public class CubeSuiteLifecycleController {
             try {
                 RuntimeException e = result.getValue().get();
                 if (e != null) {
-                    throw e;
+                    Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, message + ": " + result.getKey(), e);
                 }
             } catch (Exception e) {
-                throw new RuntimeException(message + " " + result.getKey(), e);
+                Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, message + " process: " + result.getKey(), e);
             }
         }
     }
