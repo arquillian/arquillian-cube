@@ -49,7 +49,7 @@ public class ContainerBuilder {
     private static final String LABELS = "labels";
     private static final String LOG_DRIVER = "log_driver";
     private static final String SECURITY_OPT = "security_opt";
-    private static final String DOCKERFILE= "dockerfile";
+    private static final String DOCKERFILE = "dockerfile";
     private static final String READ_ONLY = "read_only";
     private static final String EXTENDS = "extends";
     private static final String PORTS = "ports";
@@ -181,8 +181,9 @@ public class ContainerBuilder {
             this.addExpose(asListOfString(dockerComposeContainerDefinition, EXPOSE));
         }
         if (dockerComposeContainerDefinition.containsKey(VOLUMES)) {
-            this.addVolumes(asListOfString(dockerComposeContainerDefinition, VOLUMES));
-            this.addBinds(asListOfString(dockerComposeContainerDefinition, VOLUMES));
+            Collection<String> volumes = asListOfString(dockerComposeContainerDefinition, VOLUMES);
+            this.addVolumes(volumes);
+            this.addBinds(normalizePaths(volumes));
         }
         if(dockerComposeContainerDefinition.containsKey(LABELS)) {
             this.addLabels(asMapOfStrings(dockerComposeContainerDefinition, LABELS));
@@ -296,6 +297,37 @@ public class ContainerBuilder {
 
         this.logUnsupportedOperations(dockerComposeContainerDefinition.keySet());
         return this.build();
+    }
+
+    private Collection<String> normalizePaths(Collection<String> volumes) {
+        final ArrayList<String> expanded = new ArrayList<>(volumes.size());
+
+        for (final String volume : volumes) {
+            final String[] split = volume.split(":");
+            try {
+                expanded.add(volume.replace(split[0], normalizePath(split[0])));
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to normalize volume: " + volume, e);
+                expanded.add(volume);
+            }
+        }
+        return expanded;
+    }
+
+    private String normalizePath(String bind) throws IOException {
+        if (bind.startsWith("//")) {
+            //Windows escaped syntax
+            bind = bind.substring(2).replaceFirst("/", ":/");
+        }
+
+        String absolutePath = new File(bind).getCanonicalPath().replace("\\", "/");
+
+        if (':' == absolutePath.charAt(1)) {
+            //Windows escaped syntax
+            absolutePath = "//" + absolutePath.replaceFirst(":", "");
+        }
+
+        return absolutePath;
     }
 
     private ContainerBuilder addNetworks(Collection<String> networks) {
