@@ -1,10 +1,5 @@
 package org.arquillian.cube.docker.drone;
 
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
 import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
@@ -17,6 +12,12 @@ import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.logging.Logger;
 
 public class SeleniumContainers {
 
@@ -222,8 +223,17 @@ public class SeleniumContainers {
     }
 
     private static void setDefaultSeleniumCubeProperties(CubeContainer cubeContainer, int seleniumBoundedPort) {
+        final ArrayList<PortBinding> portBindings = new ArrayList<>();
+        portBindings.add(PortBinding.valueOf(seleniumBoundedPort + "->4444"));
+
+        final Image image = cubeContainer.getImage();
+        if (null != image && image.getName().toLowerCase().contains("debug")) {
+            //Expose VNC
+            portBindings.add(PortBinding.valueOf("5900->5900"));
+        }
+
         cubeContainer.setPortBindings(
-            Arrays.asList(PortBinding.valueOf(seleniumBoundedPort + "-> 4444"))
+            portBindings
         );
 
         Await await = new Await();
