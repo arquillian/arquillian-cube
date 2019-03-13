@@ -63,6 +63,10 @@ public class CubeConfigurationTest {
             "  image: tutum/tomcat:8.0\n" +
             "  await:\n" +
             "    strategy: polling\n" +
+            "  afterStart: \n" +
+            "    - copy:\n" +
+            "        from: /tmp\n" +
+            "        to: /test\n" +
             "  beforeStop: \n" +
             "    - copy:\n" +
             "        from: /test\n" +
@@ -417,6 +421,7 @@ public class CubeConfigurationTest {
         assertThat(tomcat, is(notNullValue()));
         assertThat(tomcat.getImage().getTag(), is("7.0"));
         assertThat(tomcat.getAwait().getStrategy(), is("polling"));
+        assertThat(tomcat.getAfterStart().size(), is(1));
         assertThat(tomcat.getBeforeStop().size(), is(1));
     }
 

@@ -66,6 +66,7 @@ public class CubeContainer {
 
     private BuildImage buildImage;
 
+    private Collection<AfterStart> afterStart;
     private Collection<BeforeStop> beforeStop;
 
     public Image getImage() {
@@ -422,6 +423,18 @@ public class CubeContainer {
 
     public void setExtends(String extendsImage) {
         this.extendsImage = extendsImage;
+    }
+
+    public Collection<AfterStart> getAfterStart() {
+        return afterStart;
+    }
+
+    public void setAfterStart(Collection<AfterStart> afterStart) {
+        this.afterStart = afterStart;
+    }
+
+    public boolean hasAfterStart() {
+        return this.afterStart != null && !this.afterStart.isEmpty();
     }
 
     public Collection<BeforeStop> getBeforeStop() {
