@@ -43,6 +43,10 @@ public class CubeIpTestEnricherTest {
         final CubeIpTestEnricherTest.MyTestExternal testCase = new CubeIpTestEnricherTest.MyTestExternal();
         cubeIpTestEnricher.enrich(testCase);
         assertThat(testCase.ip, is("192.168.99.101"));
+        assertThat(CubeIpTestEnricherTest.MyTestExternal.ipStatic, is("192.168.99.101"));
+
+        final String ip = cubeIpTestEnricher.cubeRegistryInstance.get().getCube("test").getMetadata(HasPortBindings.class).getContainerIP();
+        assertThat(ip, is("192.168.99.101"));
     }
 
     @Test
@@ -71,6 +75,10 @@ public class CubeIpTestEnricherTest {
         final CubeIpTestEnricherTest.MyTest testCase = new CubeIpTestEnricherTest.MyTest();
         cubeIpTestEnricher.enrich(testCase);
         assertThat(testCase.ip, is("192.168.99.100"));
+        assertThat(MyTest.ipStatic, is("192.168.99.100"));
+
+        final String ip = cubeIpTestEnricher.cubeRegistryInstance.get().getCube("test").getMetadata(HasPortBindings.class).getInternalIP();
+        assertThat(ip, is("192.168.99.100"));
     }
 
     @Test
@@ -105,6 +113,8 @@ public class CubeIpTestEnricherTest {
     public static class MyTest {
         @CubeIp(containerName = "test")
         String ip;
+        @CubeIp(containerName = "test")
+        static String ipStatic;
 
         public void myMethod(String first, @CubeIp(containerName = "test") String ip) {
 
@@ -114,5 +124,7 @@ public class CubeIpTestEnricherTest {
     public static class MyTestExternal {
         @CubeIp(containerName = "test", internal = false)
         String ip;
+        @CubeIp(containerName = "test", internal = false)
+        static String ipStatic;
     }
 }

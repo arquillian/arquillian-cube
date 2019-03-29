@@ -53,7 +53,7 @@ public class CubeSuiteLifecycleController {
     private Instance<DockerClientExecutor> dockerClientExecutor;
 
     public void startAutoContainers(@Observes(precedence = 100) BeforeSuite event, CubeConfiguration cubeConfiguration,
-        CubeDockerConfiguration dockerConfiguration) {
+                                    CubeDockerConfiguration dockerConfiguration) {
         beforeAutoStartEvent.fire(new BeforeAutoStart());
         final DockerAutoStartOrder dockerAutoStartOrder = dockerConfiguration.getDockerAutoStartOrder();
         List<String[]> autoStartSteps = dockerAutoStartOrder.getAutoStartOrder(dockerConfiguration);
@@ -104,10 +104,10 @@ public class CubeSuiteLifecycleController {
             try {
                 RuntimeException e = result.getValue().get();
                 if (e != null) {
-                    Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, message + ": " + result.getKey(), e);
+                    Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, "Error starting: " + result.getKey(), e);
                 }
             } catch (Exception e) {
-                Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, message + " process: " + result.getKey(), e);
+                Logger.getLogger(CubeSuiteLifecycleController.class.getName()).log(Level.SEVERE, "Failed to start: " + result.getKey(), e);
             }
         }
     }

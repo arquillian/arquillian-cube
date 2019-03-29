@@ -1,7 +1,14 @@
 package org.arquillian.cube.docker.impl.await;
 
-import java.util.concurrent.TimeUnit;
+import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.api.model.NetworkSettings;
+import org.apache.commons.lang3.StringUtils;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.spi.await.AwaitStrategy;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
 
@@ -45,4 +52,5 @@ public abstract class SleepingAwaitStrategyBase implements AwaitStrategy {
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
+
 }

@@ -1,37 +1,15 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.arquillian.cube.ContainerObjectConfiguration;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.HostPort;
-import org.arquillian.cube.containerobject.Cube;
-import org.arquillian.cube.containerobject.CubeDockerFile;
-import org.arquillian.cube.containerobject.Environment;
 import org.arquillian.cube.containerobject.Image;
-import org.arquillian.cube.containerobject.Volume;
+import org.arquillian.cube.containerobject.*;
 import org.arquillian.cube.docker.impl.await.PollingAwaitStrategy;
-import org.arquillian.cube.docker.impl.client.config.Await;
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.*;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.docker.impl.model.DockerCube;
 import org.arquillian.cube.docker.impl.util.ContainerObjectUtil;
@@ -45,6 +23,20 @@ import org.arquillian.cube.spi.metadata.IsContainerObject;
 import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Instantiate container objects. This class is not thread safe.
@@ -83,7 +75,7 @@ public class DockerContainerObjectBuilder<T> {
     private DockerCube dockerCube;
 
     public DockerContainerObjectBuilder(DockerClientExecutor dockerClientExecutor, CubeController cubeController,
-        CubeRegistry cubeRegistry) {
+                                        CubeRegistry cubeRegistry) {
         this.dockerClientExecutor = dockerClientExecutor;
         this.cubeController = cubeController;
         this.cubeRegistry = cubeRegistry;
@@ -161,11 +153,8 @@ public class DockerContainerObjectBuilder<T> {
      * is stored as part of the metadata of the container object. This object is expected to control the lifecycle of
      * the container object
      *
-     * @param containerObjectContainer
-     *     the container object's container
-     *
+     * @param containerObjectContainer the container object's container
      * @return the current builder instance
-     *
      * @see IsContainerObject
      */
     public DockerContainerObjectBuilder<T> withContainerObjectContainer(Object containerObjectContainer) {
@@ -176,9 +165,7 @@ public class DockerContainerObjectBuilder<T> {
     /**
      * Specifies the container object class to be instantiated
      *
-     * @param containerObjectClass
-     *     container object class to be instantiated
-     *
+     * @param containerObjectClass container object class to be instantiated
      * @return the current builder instance
      */
     public DockerContainerObjectBuilder<T> withContainerObjectClass(Class<T> containerObjectClass) {
@@ -247,11 +234,8 @@ public class DockerContainerObjectBuilder<T> {
      * <p>
      * Currently only supports instances of {@link CubeContainerObjectConfiguration}
      *
-     * @param configuration
-     *     partial configuration to override default container object cube configuration
-     *
+     * @param configuration partial configuration to override default container object cube configuration
      * @return the current builder instance
-     *
      * @see CubeContainerObjectConfiguration
      * @see CubeContainer
      */
@@ -274,9 +258,7 @@ public class DockerContainerObjectBuilder<T> {
     /**
      * Specifies the list of enrichers that will be used to enrich the container object.
      *
-     * @param enrichers
-     *     list of enrichers that will be used to enrich the container object
-     *
+     * @param enrichers list of enrichers that will be used to enrich the container object
      * @return the current builder instance
      */
     public DockerContainerObjectBuilder<T> withEnrichers(Collection<TestEnricher> enrichers) {
@@ -292,9 +274,7 @@ public class DockerContainerObjectBuilder<T> {
      * by the cube controller. Callers must use this callback to register anything necesary for the controller to work
      * and also if they want to keep an instance of the created cube.
      *
-     * @param cubeCreatedCallback
-     *     consumer that will be called when the cube instance is created
-     *
+     * @param cubeCreatedCallback consumer that will be called when the cube instance is created
      * @return the current builder instance
      */
     public DockerContainerObjectBuilder<T> onCubeCreated(Consumer<DockerCube> cubeCreatedCallback) {
@@ -307,13 +287,9 @@ public class DockerContainerObjectBuilder<T> {
      * container object, creates the container object and returns it
      *
      * @return the created container object
-     *
-     * @throws IllegalAccessException
-     *     if there is an error accessing the container object fields
-     * @throws IOException
-     *     if there is an I/O error while preparing the docker build
-     * @throws InvocationTargetException
-     *     if there is an error while calling the DockerFile archive creation
+     * @throws IllegalAccessException    if there is an error accessing the container object fields
+     * @throws IOException               if there is an I/O error while preparing the docker build
+     * @throws InvocationTargetException if there is an error while calling the DockerFile archive creation
      */
     public T build() throws IllegalAccessException, IOException, InvocationTargetException {
         generatedConfigutation = new CubeContainer();
@@ -519,6 +495,8 @@ public class DockerContainerObjectBuilder<T> {
             }
             cubeController.create(containerName);
             cubeController.start(containerName);
+            logger.log(Level.INFO, "Started container:\n" +
+                dockerClientExecutor.getDockerClient().inspectContainerCmd(containerName).exec().toString());
         }
     }
 
@@ -534,7 +512,7 @@ public class DockerContainerObjectBuilder<T> {
     }
 
     private <T extends Annotation> void enrichAnnotatedPortBuildingFields(Class<T> annotationType,
-        BiFunction<T, HasPortBindings, ?> fieldEnricher) throws IllegalAccessException {
+                                                                          BiFunction<T, HasPortBindings, ?> fieldEnricher) throws IllegalAccessException {
         final List<Field> annotatedFields = ReflectionUtil.getFieldsWithAnnotation(containerObjectClass, annotationType);
         if (annotatedFields.isEmpty()) return;
 

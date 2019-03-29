@@ -23,6 +23,7 @@ import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,7 +39,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Mock
     private DockerClientExecutor executor;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DockerClient dockerClient;
 
     @Mock

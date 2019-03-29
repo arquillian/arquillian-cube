@@ -1,12 +1,16 @@
 package org.jboss.arquillian.drone.webdriver.factory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.api.model.NetworkSettings;
+import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.docker.drone.SeleniumContainers;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.InstanceProducer;
+import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.drone.spi.Configurator;
 import org.jboss.arquillian.drone.spi.Destructor;
@@ -16,6 +20,13 @@ import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Custom Remote WebDriver Factory that generates a RemoteWebDriver pointing to Docker Selenium Docker IP.
  */
@@ -24,12 +35,17 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
     Destructor<RemoteWebDriver> {
 
     private static final Logger log = Logger.getLogger(DockerRemoteWebDriverFactory.class.getName());
+    private static final String BROWSER = "browser";
 
     @Inject
     Instance<CubeDockerConfiguration> cubeDockerConfigurationInstance;
 
     @Inject
     Instance<SeleniumContainers> seleniumContainersInstance;
+
+    @Inject
+    @ApplicationScoped
+    private InstanceProducer<DockerClientExecutor> dockerClientExecutorProducer;
 
     @Override
     public void destroyInstance(RemoteWebDriver remoteWebDriver) {
@@ -44,8 +60,7 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
 
     @Override
     public RemoteWebDriver createInstance(WebDriverConfiguration webDriverConfiguration) {
-        RemoteWebDriver remoteWebDriver = new RemoteWebDriver(createSeleniumUrl(), getDesiredCapabilities());
-        return remoteWebDriver;
+        return new RemoteWebDriver(createSeleniumUrl(), getDesiredCapabilities());
     }
 
     private DesiredCapabilities getDesiredCapabilities() {
@@ -58,19 +73,53 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
                 return DesiredCapabilities.chrome();
             // Never should happen since it is protected inside selenium containers class
             default:
+                log.log(Level.WARNING, "Using Firefox as fallback browser");
                 return DesiredCapabilities.firefox();
         }
     }
 
     private URL createSeleniumUrl() {
+
+        final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurationInstance.get();
+        final CubeContainer browser = cubeDockerConfiguration.getDockerContainersContent().get(BROWSER);
+
+        final NetworkSettings networkSettings = Optional.ofNullable(this.getNetworkSettings(cubeDockerConfiguration))
+            .orElse(new NetworkSettings());
+
+        //It is highly unlikely that we'll find more than one, so we'll use the first
+        final Map<String, ContainerNetwork> networks = networkSettings.getNetworks();
+        String ip = "localhost";
+        if (null != networks && !networks.isEmpty()) {
+            final String ipAddress = networks.values().iterator().next().getIpAddress();
+            if (StringUtils.isNotBlank(ipAddress)) {
+                ip = ipAddress;
+            }
+        }
+
         try {
-            final CubeDockerConfiguration cubeDockerConfiguration = cubeDockerConfigurationInstance.get();
-            final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
-            final String dockerServerIp = cubeDockerConfiguration.getDockerServerIp();
-            return new URL("http", dockerServerIp, seleniumContainers.getSeleniumBoundedPort(), "/wd/hub");
+            final URL url = new URL("http", ip, this.getSeleniumPort(browser), "/wd/hub");
+            log.log(Level.INFO, "Using Selenium server network address: " + url.toExternalForm());
+            return url;
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private NetworkSettings getNetworkSettings(final CubeDockerConfiguration cubeDockerConfiguration) {
+        return (cubeDockerConfiguration.isDockerInsideDockerResolution()
+            ? dockerClientExecutorProducer.get()
+            .getDockerClient()
+            .inspectContainerCmd(BROWSER)
+            .exec().getNetworkSettings()
+            : null); //Returning null will default to localhost
+    }
+
+    private int getSeleniumPort(final CubeContainer browser) {
+        return browser.getPortBindings()
+            .stream()
+            .filter(p -> (p.getBound() != 5900)) //VNC
+            .findFirst()
+            .orElse(PortBinding.valueOf("14444->4444")).getBound();
     }
 
     @Override

@@ -1,21 +1,12 @@
 package org.arquillian.cube.docker.impl.client;
 
 import org.apache.commons.lang.SystemUtils;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
-import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.OperatingSystem;
-import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
-import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
-import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
-import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
-import org.arquillian.cube.docker.impl.util.Top;
+import org.arquillian.cube.docker.impl.util.*;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.StringEndsWith;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
-import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assume;
@@ -26,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -57,11 +49,11 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     Top top;
 
     private static Matcher<String> defaultDockerMachineCertPath() {
-        return containsString(".docker/machine/machines");
+        return containsString(".docker" + File.separator + "machine" + File.separator + "machines");
     }
 
     private static Matcher<String> defaultBootToDockerCertPath() {
-        return containsString(".boot2docker/certs");
+        return containsString(".boot2docker" + File.separator + "certs");
     }
 
     private static Matcher<String> pathEndsWith(String suffix) {

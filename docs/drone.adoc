@@ -28,9 +28,9 @@ You can check available the images at https://github.com/SeleniumHQ/docker-selen
 
 With these images and using Selenium WebDriver you can run your functional tests for web UI applications without having to install any browser.
 
-It seems logic an integration of Arquillian Drone with Cube, so you can use all powerful features of Drone, and let Cube configure Docker things for you.
+It seems logical to integrate Arquillian Drone with Cube in order to utilize the powerful features of Drone, and let Cube configure Docker things for you.
 
-This integration does next things for you:
+This integration automatically performs the following operations:
 
 . Inspect classpath to get selenium version used
 . Starts a docker container with configured browser in Drone and same selenium version as your `JARs`. If not Firefox is used
@@ -45,11 +45,15 @@ recordingMode:: Configures mode for recording. The valid values are: `ALL, ONLY_
 videoOutput:: Directory where videos are stored. By default is `target/reports/videos` or if target does not exists `build/reports/videos` and if not creates a `target/reports/videos` by default.
 browserImage:: Docker image to be used as custom browser image instead of the official one (https://github.com/SeleniumHQ/docker-selenium). Notice that browser property will be used for setting `WebDriver` capabilities.
 browserDockerfileLocation:: Dockerfile location to be used to built custom docker image instead of the official one. This property has preference over browserImage.
+browserSeleniumPort:: When using the default `containerNameStrategy` of `STATIC`, then you can optionally provide a port to override the default of `14444`
 containerNameStrategy:: Sets the strategy for generating the container name. Valid values are `STATIC, STATIC_PREFIX, RANDOM` with the default being `STATIC`. `STATIC` will always use the same name, `STATIC_PREFIX` lets you define a prefix and enables running different tests in parallel and `RANDOM` generates a unique container name on every test run enabling running the same test in parallel.
 containerNamePrefix:: The prefix for the `STATIC_PREFIX` container name strategy.
-dockerRegistry:: Use this to override the default docker registry with a user specified registry.
+dockerRegistry:: Use this to override the default docker registry with a user specified registry - Don't forget the trailing slash (i.e. _your.repo**/**_)
 
 IMPORTANT: Your custom images must expose the webdriver port `4444` and if you plan to use VNC, expose the default port `5900` as well
+
+TIP: Even when using the `STATIC` naming strategy it may be useful to override the container name for the 'browser' container, eg. when using parallel builds.
+You can provide an override name via the `SELENIUM_CONTAINER_BASE_NAME` environment variable or as a system property on the command line.
 
 
 An example of configuration might look like:

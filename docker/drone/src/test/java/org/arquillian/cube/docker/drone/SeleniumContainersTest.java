@@ -56,6 +56,8 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
         when(cubeDroneConfiguration.getBrowserImage()).thenReturn("mycompany/mybrowser:1.0");
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
+
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
@@ -69,12 +71,13 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(24444);
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
         assertThat(firefox.getSeleniumContainer().getBuildImage().getDockerfileLocation().toString(),
             is("src/test/resources/browser"));
-        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
+        assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("24444->4444")));
     }
 
     @Test
@@ -83,6 +86,7 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
         when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
@@ -98,6 +102,7 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
         when(cubeDroneConfiguration.getDockerRegistry()).thenReturn("");
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
@@ -113,6 +118,7 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
         when(cubeDroneConfiguration.getDockerRegistry()).thenReturn("");
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
 
         final SeleniumContainers firefox = SeleniumContainers.create("chrome", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("chrome"));
@@ -153,12 +159,41 @@ public class SeleniumContainersTest {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
         when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
 
         final SeleniumContainers seleniumContainers = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(seleniumContainers.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
         assertThat(seleniumContainers.getSeleniumContainerName(), is("browser"));
         assertThat(seleniumContainers.getVncContainerName(), is("vnc"));
         assertThat(seleniumContainers.getVideoConverterContainerName(), is("flv2mp4"));
+    }
+
+    @Test
+    public void shouldOverrideBrowserContainerName(){
+        try {
+            final String myBaseName = "MyBaseName";
+            System.setProperty("SELENIUM_CONTAINER_BASE_NAME", myBaseName);
+            when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
+            when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
+            when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+            when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
+            final SeleniumContainers seleniumContainers = SeleniumContainers.create("chrome", cubeDroneConfiguration);
+
+            assertThat(seleniumContainers.getSeleniumContainerName(), is(myBaseName));
+        } finally {
+            System.clearProperty("SELENIUM_CONTAINER_BASE_NAME");
+        }
+    }
+
+    @Test
+    public void shouldNotOverrideBrowserContainerName(){
+        when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(false);
+        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
+        when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
+        when(cubeDroneConfiguration.getBrowserSeleniumPort()).thenReturn(14444);
+        final SeleniumContainers seleniumContainers = SeleniumContainers.create("chrome", cubeDroneConfiguration);
+
+        assertThat(seleniumContainers.getSeleniumContainerName(), is("browser"));
     }
 
     @Test

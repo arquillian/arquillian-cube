@@ -5,14 +5,7 @@ import com.github.dockerjava.api.command.InfoCmd;
 import com.github.dockerjava.api.model.Info;
 import javax.ws.rs.ProcessingException;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
-import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
-import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.OperatingSystem;
-import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
-import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
-import org.arquillian.cube.docker.impl.util.Top;
+import org.arquillian.cube.docker.impl.util.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -73,9 +66,14 @@ public class CubeDockerConfigurationResolverTest {
         when(info.getName()).thenReturn("docker-ce");
         when(info.getServerVersion()).thenReturn("arquillian-test");
         when(info.getKernelVersion()).thenReturn("0.0.0");
-        URL sockURL = this.getClass().getClassLoader().getResource("docker.sock");
+        final URL sockURL = this.getClass().getClassLoader().getResource("docker.sock");
 
-        String sockUri = "unix://" + sockURL;
+        boolean isWindows = new OperatingSystemResolver().currentOperatingSystem().getFamily() == OperatingSystemFamily.WINDOWS;
+
+        //file:/C:/Users/kt26ph/GitHub/arquillian/arquillian-cube-pxc/docker/docker/target/test-classes/docker.sock
+
+
+        String sockUri = isWindows ?sockURL.toExternalForm().replace("file:/", "") : "unix://" + sockURL.toExternalForm();
         when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
         when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
         when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
@@ -84,8 +82,11 @@ public class CubeDockerConfigurationResolverTest {
 
         Map<String, String> resolvedConfig = resolver.resolve(config);
 
-        assertThat(Boolean.valueOf(resolvedConfig.get(CubeDockerConfiguration.TLS_VERIFY)), is(false));
-        assertThat(resolvedConfig.get(CubeDockerConfiguration.CERT_PATH), is(nullValue()));
+        if(!isWindows){
+            assertThat(Boolean.valueOf(resolvedConfig.get(CubeDockerConfiguration.TLS_VERIFY)), is(false));
+            assertThat(resolvedConfig.get(CubeDockerConfiguration.CERT_PATH), is(nullValue()));
+        }
+
         assertThat(resolvedConfig.get(CubeDockerConfiguration.DOCKER_URI), is(sockUri));
     }
 

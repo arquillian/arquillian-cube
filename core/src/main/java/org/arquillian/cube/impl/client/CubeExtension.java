@@ -12,6 +12,7 @@ import org.arquillian.cube.impl.client.enricher.CubeIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostIpTestEnricher;
 import org.arquillian.cube.impl.client.enricher.HostPortTestEnricher;
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
+import org.arquillian.cube.impl.client.observer.BeforeClassEnricherObserver;
 import org.arquillian.cube.impl.reporter.DockerReportKey;
 import org.arquillian.cube.impl.reporter.TakeCubeInformation;
 import org.arquillian.reporter.api.model.StringKey;
@@ -29,6 +30,7 @@ public class CubeExtension implements LoadableExtension {
             .observer(CubeLifecycleController.class)
             //.observer(CubeSuiteLifecycleController.class)
             .observer(ClientCubeControllerCreator.class)
+            .observer(BeforeClassEnricherObserver.class)
             .observer(ForceStopDockerContainersShutdownHook.class);
 
         builder.service(ResourceProvider.class, CubeControllerProvider.class)

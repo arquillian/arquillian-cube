@@ -1,27 +1,23 @@
 package org.arquillian.cube.docker.impl.await;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
 import org.arquillian.cube.impl.util.IOUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeOutput;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.HasPortBindings.PortAddress;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
 
@@ -38,15 +34,17 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
     private DockerClientExecutor dockerClientExecutor;
     private Cube<?> cube;
     private List<Integer> ports = null;
+    private final boolean dind;
 
     // To avoid having to copy the script for all ports, state is saved.
     private boolean alreadyCopiedWaitForIt = false;
 
-    public PollingAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor, Await params) {
+    public PollingAwaitStrategy(Cube<?> cube, DockerClientExecutor dockerClientExecutor, Await params, final boolean dind) {
         super(params.getSleepPollingTime());
 
         this.cube = cube;
         this.dockerClientExecutor = dockerClientExecutor;
+        this.dind = dind;
 
         if (params.getIterations() != null) {
             this.pollIterations = params.getIterations();
@@ -93,9 +91,9 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                         throw new IllegalArgumentException(
                             "Can not use polling of type " + type + " on non externally bound port " + port);
                     }
-                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
+                    log.fine(String.format("Pinging host %s and port %s with type %s", mapping.getIP(), mapping.getPort(),
                         this.type));
-                    if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
+                    if (!Ping.ping((this.dind ? BindingUtil.getContainerIp(dockerClientExecutor, cube.getId()) : mapping.getIP()), mapping.getPort(), this.pollIterations, this.getSleepTime(),
                         this.getTimeUnit())) {
                         return false;
                     }
@@ -121,7 +119,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                                     "Can not use polling of type " + type + " on non externally bound port " + port);
                             }
                             log.fine(
-                                String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
+                                String.format("Pinging host %s and port %s with type %s", mapping.getIP(), mapping.getPort(),
                                     this.type));
                             if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
                                 this.getTimeUnit())) {

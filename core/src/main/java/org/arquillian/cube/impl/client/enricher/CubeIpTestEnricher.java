@@ -1,12 +1,5 @@
 package org.arquillian.cube.impl.client.enricher;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.impl.util.ReflectionUtil;
 import org.arquillian.cube.spi.Cube;
@@ -15,6 +8,14 @@ import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.spi.TestEnricher;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CubeIpTestEnricher implements TestEnricher {
 
@@ -43,7 +44,7 @@ public class CubeIpTestEnricher implements TestEnricher {
                         if (ip != null) {
                             dockerContainerIpField.set(testCase, ip);
                         } else {
-                            logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
+                            logger.log(Level.WARNING, String.format("There is no container to enrich with id %s.", containerName));
                         }
                     } catch (IllegalAccessException e) {
                         throw new IllegalArgumentException(e);
@@ -69,7 +70,7 @@ public class CubeIpTestEnricher implements TestEnricher {
                     if (ip != null) {
                         values[i] = ip;
                     } else {
-                        logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
+                        logger.log(Level.WARNING, String.format("There was no IP to resolve for container '%s'", containerName));
                     }
                 }
             }
@@ -104,18 +105,24 @@ public class CubeIpTestEnricher implements TestEnricher {
         final Cube cube = getCube(containerName);
 
         if (cube == null) {
+            logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
             return null;
         }
 
         if (cube.hasMetadata(HasPortBindings.class)) {
             final HasPortBindings metadata = (HasPortBindings) cube.getMetadata(HasPortBindings.class);
+
+            final Cube.State state = cube.state();
+            logger.log(Level.INFO, String.format("Container '%s' has state '%s' in '%s'", containerName, state, cube.getClass().getName()));
+
             if (internal) {
                 return metadata.getInternalIP();
             } else {
                 return metadata.getContainerIP();
             }
         } else {
-            return null;
+            logger.log(Level.WARNING, String.format("Container '%s' does not have port bindings, falling back to localhost", containerName));
+            return "localhost";
         }
     }
 

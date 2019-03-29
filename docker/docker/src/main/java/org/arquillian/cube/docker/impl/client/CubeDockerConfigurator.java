@@ -58,7 +58,11 @@ public class CubeDockerConfigurator {
     @ApplicationScoped
     private InstanceProducer<ContainerMetadata> containerMetadataInstanceProducer;
 
-
+    /**
+     *
+     * @param event CubeConfiguration
+     * @param arquillianDescriptor ArquillianDescriptor
+     */
     public void configure(@Observes CubeConfiguration event, ArquillianDescriptor arquillianDescriptor) {
         configure(arquillianDescriptor);
     }

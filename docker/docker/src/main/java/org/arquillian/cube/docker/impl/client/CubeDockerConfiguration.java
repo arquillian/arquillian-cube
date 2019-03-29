@@ -37,7 +37,7 @@ public class CubeDockerConfiguration {
     public static final String CLEAN = "clean";
     public static final String REMOVE_VOLUMES = "removeVolumes";
     public static final String CLEAN_BUILD_IMAGE = "cleanBuildImage";
-    static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
+    public static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
     private static final String DOCKER_VERSION = "serverVersion";
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
@@ -63,7 +63,7 @@ public class CubeDockerConfiguration {
     private boolean tlsVerify;
     private String dockerServerIp;
     private DefinitionFormat definitionFormat = DefinitionFormat.COMPOSE;
-    private boolean dockerInsideDockerResolution = true;
+    private boolean dockerInsideDockerResolution = false;
     private boolean clean = false;
     private boolean removeVolumes = true;
     private boolean cleanBuildImage = true;

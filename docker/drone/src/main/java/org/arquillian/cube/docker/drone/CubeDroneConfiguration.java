@@ -38,6 +38,11 @@ public class CubeDroneConfiguration {
 
     private String dockerRegistry = "";
 
+    /**
+     * Default selenium port when using ContainerNameStrategy.STATIC
+     */
+    private int browserSeleniumPort = 14444;
+
     public static CubeDroneConfiguration fromMap(Map<String, String> config) {
         CubeDroneConfiguration cubeDroneConfiguration = new CubeDroneConfiguration();
 
@@ -57,6 +62,10 @@ public class CubeDroneConfiguration {
             cubeDroneConfiguration.browserDockerfileLocation = config.get("browserDockerfileLocation");
         }
 
+        if (config.containsKey("browserSeleniumPort")) {
+            cubeDroneConfiguration.browserSeleniumPort = Integer.parseInt(config.get("browserSeleniumPort"));
+        }
+
         if (config.containsKey("containerNameStrategy")) {
             cubeDroneConfiguration.containerNameStrategy = ContainerNameStrategy.valueOf(config.get("containerNameStrategy"));
         }
@@ -68,11 +77,11 @@ public class CubeDroneConfiguration {
         if (config.containsKey("dockerRegistry")) {
             String dockerRegistry = config.get("dockerRegistry");
 
-            if(null != dockerRegistry) {
+            if (null != dockerRegistry) {
 
                 dockerRegistry = dockerRegistry.trim();
 
-                if(!dockerRegistry.endsWith("/")){
+                if (!dockerRegistry.endsWith("/")) {
                     dockerRegistry = dockerRegistry + "/";
                 }
 
@@ -118,12 +127,12 @@ public class CubeDroneConfiguration {
     public String getBrowserDockerfileLocation() {
         return browserDockerfileLocation;
     }
-    
-    public ContainerNameStrategy getContainerNameStrategy(){
+
+    public ContainerNameStrategy getContainerNameStrategy() {
         return this.containerNameStrategy;
     }
 
-    public String getContainerNamePrefix(){
+    public String getContainerNamePrefix() {
         return this.containerNamePrefix;
     }
 
@@ -131,10 +140,14 @@ public class CubeDroneConfiguration {
         return dockerRegistry;
     }
 
+    public int getBrowserSeleniumPort() {
+        return browserSeleniumPort;
+    }
+
     public static enum RecordMode {
         ALL, ONLY_FAILING, NONE;
     }
-    
+
     public static enum ContainerNameStrategy {
         STATIC, STATIC_PREFIX, RANDOM;
     }

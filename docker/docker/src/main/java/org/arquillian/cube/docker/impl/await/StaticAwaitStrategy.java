@@ -1,10 +1,15 @@
 package org.arquillian.cube.docker.impl.await;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.Ping;
 import org.arquillian.cube.spi.Cube;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StaticAwaitStrategy extends SleepingAwaitStrategyBase {
 
@@ -17,11 +22,19 @@ public class StaticAwaitStrategy extends SleepingAwaitStrategyBase {
     private String ip;
     private List<Integer> ports = new ArrayList<Integer>();
 
-    public StaticAwaitStrategy(Cube<?> cube, Await params) {
+    public StaticAwaitStrategy(final Cube<?> cube, final DockerClientExecutor dockerClientExecutor, final Await params, final boolean dind) {
         super(params.getSleepPollingTime());
 
-        this.ip = params.getIp();
+        this.ip = (null != params.getIp() ? params.getIp() : "localhost");
+
+        if (dind) {
+            this.ip = BindingUtil.getContainerIp(dockerClientExecutor, cube.getId());
+        }
+
         this.ports.addAll(params.getPorts());
+
+        Logger.getLogger(StaticAwaitStrategy.class.getName()).log(Level.INFO, String.format("Static await strategy for dind:%s '%s' is: %s:%s"
+            , dind, cube.getId(), this.ip, this.ports));
 
         if (params.getIterations() != null) {
             this.pollIterations = params.getIterations();

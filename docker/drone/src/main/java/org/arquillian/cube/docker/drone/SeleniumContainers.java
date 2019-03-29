@@ -3,19 +3,14 @@ package org.arquillian.cube.docker.drone;
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
 import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
-import org.arquillian.cube.docker.impl.client.config.Await;
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.Image;
-import org.arquillian.cube.docker.impl.client.config.Link;
-import org.arquillian.cube.docker.impl.client.config.PortBinding;
-import org.arquillian.cube.docker.impl.client.config.StarOperator;
+import org.arquillian.cube.docker.impl.client.config.*;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -23,7 +18,9 @@ public class SeleniumContainers {
 
     private static final Logger logger = Logger.getLogger(SeleniumContainers.class.getName());
 
-    private static final String SELENIUM_CONTAINER_BASE_NAME = "browser";
+    public static final String SELENIUM_CONTAINER_BASE_NAME = Optional.ofNullable(System.getenv("SELENIUM_CONTAINER_BASE_NAME"))
+        .orElse(System.getProperty("SELENIUM_CONTAINER_BASE_NAME", "browser"));
+
     private static final String VNC_CONTAINER_BASE_NAME = "vnc";
     private static final String CONVERSION_CONTAINER_BASE_NAME = "flv2mp4";
     private static final String CHROME_IMAGE = "selenium/standalone-chrome-debug:%s";
@@ -34,7 +31,7 @@ public class SeleniumContainers {
     private static final String VNC_HOSTNAME = "vnchost";
     private static final String VOLUME_DIR = "/recording";
     private static final int VNC_EXPOSED_PORT = 5900;
-    public static final String[] FLVREC_COMMAND = new String[] {
+    public static final String[] FLVREC_COMMAND = new String[]{
         "-o",
         VOLUME_DIR + "/screen.flv",
         "-P",
@@ -47,45 +44,44 @@ public class SeleniumContainers {
     private CubeContainer videoConverterContainer;
     private String browser;
     private Path videoRecordingFolder;
-    
+
     private final String seleniumContainerName;
     private final String vncContainerName;
     private final String conversionContainerName;
-    private final int seleniumBoundedPort;
-    private final String dockerRegistry;
 
     private SeleniumContainers(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
         this.browser = browser;
-        
-        switch(cubeDroneConfiguration.getContainerNameStrategy()) {
+        final int seleniumBoundedPort;
+
+        switch (cubeDroneConfiguration.getContainerNameStrategy()) {
             case RANDOM:
                 UUID uuid = UUID.randomUUID();
                 this.seleniumContainerName = StarOperator.generateNewName(SELENIUM_CONTAINER_BASE_NAME, uuid);
                 this.vncContainerName = StarOperator.generateNewName(VNC_CONTAINER_BASE_NAME, uuid);
                 this.conversionContainerName = StarOperator.generateNewName(CONVERSION_CONTAINER_BASE_NAME, uuid);
-                this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
+                seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
                 break;
             case STATIC_PREFIX:
                 this.seleniumContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + SELENIUM_CONTAINER_BASE_NAME;
                 this.vncContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + VNC_CONTAINER_BASE_NAME;
                 this.conversionContainerName = cubeDroneConfiguration.getContainerNamePrefix() + "_" + CONVERSION_CONTAINER_BASE_NAME;
-                this.seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
+                seleniumBoundedPort = StarOperator.generateRandomPrivatePort();
                 break;
             case STATIC:
             default:
                 this.seleniumContainerName = SELENIUM_CONTAINER_BASE_NAME;
                 this.vncContainerName = VNC_CONTAINER_BASE_NAME;
                 this.conversionContainerName = CONVERSION_CONTAINER_BASE_NAME;
-                this.seleniumBoundedPort = 14444;
+                seleniumBoundedPort = cubeDroneConfiguration.getBrowserSeleniumPort();
                 break;
         }
 
-        this.dockerRegistry = cubeDroneConfiguration.getDockerRegistry();
+        final String dockerRegistry = cubeDroneConfiguration.getDockerRegistry();
         this.videoRecordingFolder = VolumeCreator.createTemporaryVolume(DEFAULT_PASSWORD);
-        this.seleniumContainer = createSeleniumContainer(browser, cubeDroneConfiguration, this.seleniumBoundedPort, this.dockerRegistry);
-        this.vncContainer = createVncContainer(this.videoRecordingFolder, this.seleniumContainerName, this.dockerRegistry);
+        this.seleniumContainer = createSeleniumContainer(browser, cubeDroneConfiguration, seleniumBoundedPort, dockerRegistry);
+        this.vncContainer = createVncContainer(this.videoRecordingFolder, this.seleniumContainerName, dockerRegistry);
         final Path targetVolume = VideoFileDestination.resolveTargetDirectory(cubeDroneConfiguration);
-        this.videoConverterContainer = createVideoConverterContainer(targetVolume, this.dockerRegistry);
+        this.videoConverterContainer = createVideoConverterContainer(targetVolume, dockerRegistry);
     }
 
     public static SeleniumContainers create(String browser, CubeDroneConfiguration cubeDroneConfiguration) {
@@ -130,7 +126,8 @@ public class SeleniumContainers {
         // Using sleeping strategy since VNC client is a CLI without exposing a port
         Await await = new Await();
         await.setStrategy("sleeping");
-        await.setSleepTime("100 ms");
+        await.setSleepTime("1 s");
+        await.setIterations(30);
 
         cubeContainer.setAwait(await);
 
@@ -141,37 +138,37 @@ public class SeleniumContainers {
 
         return cubeContainer;
     }
-    
+
     private static String convertToBind(Path hostPath, String containterPath, String mode) {
         boolean isWindows = new OperatingSystemResolver().currentOperatingSystem().getFamily() == OperatingSystemFamily.WINDOWS;
         Path absoluteHostPath = hostPath.toAbsolutePath();
-        if(isWindows) {
+        if (isWindows) {
             StringBuilder convertedHostPath = new StringBuilder();
             String hostRoot = absoluteHostPath.getRoot().toString();
-            if(hostRoot.matches("[a-zA-Z]:\\\\")) {
+            if (hostRoot.matches("[a-zA-Z]:\\\\")) {
                 // local path, converts C:\ to /c
                 convertedHostPath.append('/');
                 convertedHostPath.append(hostRoot.toLowerCase().charAt(0));
             } else {
                 // network share, converts \\servername\share\ to /servername/share
                 convertedHostPath.append(hostRoot.replace("\\\\", "/").replace("\\", "/"));
-                if(convertedHostPath.charAt(convertedHostPath.length() - 1) == '/'){
+                if (convertedHostPath.charAt(convertedHostPath.length() - 1) == '/') {
                     convertedHostPath.deleteCharAt(convertedHostPath.length() - 1);
                 }
             }
-            
+
             // join remaining path elements
-            for(Path pathElem : absoluteHostPath){
+            for (Path pathElem : absoluteHostPath) {
                 convertedHostPath.append('/');
                 convertedHostPath.append(pathElem.toString());
             }
 
-            if(!absoluteHostPath.startsWith("C:\\Users")) {
+            if (!absoluteHostPath.startsWith("C:\\Users")) {
                 logger.warning(String.format("You're not running below the default shared path 'C:\\Users'. Make sure you have set up a shared folder making the host path '%s' accessible as '%s' in your Docker virtual machine.", absoluteHostPath, convertedHostPath));
             }
-            
+
             return convertedHostPath + ":" + containterPath + ":" + mode;
-        }else {
+        } else {
             return absoluteHostPath + ":" + containterPath + ":" + mode;
         }
     }
@@ -236,6 +233,8 @@ public class SeleniumContainers {
             portBindings
         );
 
+        cubeContainer.setShmSize(2147483648L);
+
         Await await = new Await();
         await.setStrategy("http");
         await.setResponseCode(getSeleniumExpectedResponseCode());
@@ -245,16 +244,16 @@ public class SeleniumContainers {
         cubeContainer.setKillContainer(true);
     }
 
-    private static int getSeleniumExpectedResponseCode(){
+    private static int getSeleniumExpectedResponseCode() {
         // Selenium from 3.x onwards returns 200 if started
         int expectedResponseCode = 200;
-            String seleniumVersion = SeleniumVersionExtractor.fromClassPath();
-            if(seleniumVersion.matches("[0-9]+\\.?.*")){
-                int seleniumMajorVersion = Integer.parseInt(seleniumVersion.substring(0, seleniumVersion.indexOf('.')));
-                if(seleniumMajorVersion < 3){
-                    // Doing an http request to selenium node returns a 403 if Jetty is up and running for Selenium < 3
-                    expectedResponseCode = 403;
-                }
+        String seleniumVersion = SeleniumVersionExtractor.fromClassPath();
+        if (seleniumVersion.matches("[0-9]+\\.?.*")) {
+            int seleniumMajorVersion = Integer.parseInt(seleniumVersion.substring(0, seleniumVersion.indexOf('.')));
+            if (seleniumMajorVersion < 3) {
+                // Doing an http request to selenium node returns a 403 if Jetty is up and running for Selenium < 3
+                expectedResponseCode = 403;
+            }
         }
         return expectedResponseCode;
     }
@@ -277,10 +276,6 @@ public class SeleniumContainers {
 
     public Path getVideoRecordingFile() {
         return videoRecordingFolder.resolve("screen.flv");
-    }
-
-    public int getSeleniumBoundedPort() {
-        return seleniumBoundedPort;
     }
 
     public String getSeleniumContainerName() {

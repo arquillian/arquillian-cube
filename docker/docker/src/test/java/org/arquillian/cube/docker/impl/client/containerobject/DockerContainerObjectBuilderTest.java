@@ -8,10 +8,8 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.github.dockerjava.api.DockerClient;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeIp;
@@ -67,6 +66,7 @@ public class DockerContainerObjectBuilderTest {
     public void initMocks() {
         cubeController = mock(CubeController.class);
         dockerClientExecutor = mock(DockerClientExecutor.class);
+        when(dockerClientExecutor.getDockerClient()).thenReturn(mock(DockerClient.class, RETURNS_DEEP_STUBS));
         cubeRegistry = mock(CubeRegistry.class);
         cubeContainerObjectTestEnricher = mock(CubeContainerObjectTestEnricher.class);
         doAnswer(DockerContainerObjectBuilderTest::objectContainerEnricherMockEnrich)

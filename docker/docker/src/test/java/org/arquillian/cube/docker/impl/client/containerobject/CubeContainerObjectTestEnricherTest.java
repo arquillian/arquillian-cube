@@ -6,10 +6,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.github.dockerjava.api.DockerClient;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
@@ -42,6 +40,9 @@ import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
+import org.mockito.MockSettings;
+import org.mockito.stubbing.Answer;
 
 public class CubeContainerObjectTestEnricherTest {
 
@@ -66,6 +67,7 @@ public class CubeContainerObjectTestEnricherTest {
         injector = mock(Injector.class);
         serviceLoader = mock(ServiceLoader.class);
         when(serviceLoader.all(any(Class.class))).thenReturn(Collections.emptyList());
+        when(dockerClientExecutor.getDockerClient()).thenReturn(mock(DockerClient.class, RETURNS_DEEP_STUBS));
 
         dockerContainerObjectFactory.serviceLoaderInstance = () -> serviceLoader;
         dockerContainerObjectFactory.dockerClientExecutorInstance = () -> dockerClientExecutor;

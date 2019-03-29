@@ -1,83 +1,42 @@
 package org.arquillian.cube.docker.impl.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateNetworkCmd;
-import com.github.dockerjava.api.command.CreateNetworkResponse;
-import com.github.dockerjava.api.command.ExecCreateCmdResponse;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.InspectExecResponse;
-import com.github.dockerjava.api.command.LogContainerCmd;
-import com.github.dockerjava.api.command.PingCmd;
-import com.github.dockerjava.api.command.PullImageCmd;
-import com.github.dockerjava.api.command.StartContainerCmd;
-import com.github.dockerjava.api.command.StatsCmd;
-import com.github.dockerjava.api.command.TopContainerResponse;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
-import com.github.dockerjava.api.model.AuthConfig;
-import com.github.dockerjava.api.model.AuthConfigurations;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Capability;
-import com.github.dockerjava.api.model.ChangeLog;
-import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.Device;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.Link;
-import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.api.model.Ports.Binding;
+import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.api.model.RestartPolicy;
-import com.github.dockerjava.api.model.Statistics;
-import com.github.dockerjava.api.model.Version;
-import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.api.model.VolumesFrom;
+import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.ResultCallbackTemplate;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
-import com.github.dockerjava.core.command.ExecStartResultCallback;
-import com.github.dockerjava.core.command.LogContainerResultCallback;
-import com.github.dockerjava.core.command.PullImageResultCallback;
-import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.github.dockerjava.core.command.*;
 import org.apache.http.conn.UnsupportedSchemeException;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.await.StatsLogsResultCallback;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
-import org.arquillian.cube.docker.impl.client.config.BuildImage;
-import org.arquillian.cube.docker.impl.client.config.CubeContainer;
-import org.arquillian.cube.docker.impl.client.config.IPAMConfig;
 import org.arquillian.cube.docker.impl.client.config.Image;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.*;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.spi.CubeOutput;
 
 import javax.ws.rs.ProcessingException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -189,6 +148,18 @@ public class DockerClientExecutor {
         this.cubeConfiguration = cubeConfiguration;
 
         this.dockerClient = buildDockerClient();
+
+        //There needs to be this guarantee that we always try and remove networks
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            final List<com.github.dockerjava.api.model.Network> networks = DockerClientExecutor.this.getNetworks();
+            for (final com.github.dockerjava.api.model.Network network : networks) {
+                try {
+                    DockerClientExecutor.this.removeNetwork(network.getId());
+                } catch (final Exception ignore) {
+                    //no-op
+                }
+            }
+        }));
     }
 
     public static String getImageId(String fullLog) {
@@ -563,7 +534,7 @@ public class DockerClientExecutor {
     }
 
     private Set<ExposedPort> resolveExposedPorts(CubeContainer containerConfiguration,
-        CreateContainerCmd createContainerCmd) {
+                                                 CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
         if (containerConfiguration.getPortBindings() != null) {
             for (PortBinding binding : containerConfiguration.getPortBindings()) {
@@ -788,12 +759,12 @@ public class DockerClientExecutor {
         if (params.containsKey(DOCKERFILE_NAME)) {
             buildImageCmd.withDockerfile(new File((String) params.get(DOCKERFILE_NAME)));
         }
-        
-        if(this.dockerClientConfig.getRegistryUsername() != null && this.dockerClientConfig.getRegistryPassword() != null){
+
+        if (this.dockerClientConfig.getRegistryUsername() != null && this.dockerClientConfig.getRegistryPassword() != null) {
             AuthConfig buildAuthConfig = new AuthConfig().withUsername(this.dockerClientConfig.getRegistryUsername())
-                    .withPassword(this.dockerClientConfig.getRegistryPassword())
-                    .withEmail(this.dockerClientConfig.getRegistryEmail())
-                    .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
+                .withPassword(this.dockerClientConfig.getRegistryPassword())
+                .withEmail(this.dockerClientConfig.getRegistryEmail())
+                .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
             final AuthConfigurations authConfigurations = new AuthConfigurations();
             authConfigurations.addConfig(buildAuthConfig);
             buildImageCmd.withBuildAuthConfigs(authConfigurations);
@@ -861,7 +832,7 @@ public class DockerClientExecutor {
 
         @Override
         public void onNext(Frame frame) {
-            if(collectFrames) collectedFrames.add(frame);
+            if (collectFrames) collectedFrames.add(frame);
             log.append(new String(frame.getPayload()));
         }
 
@@ -922,8 +893,7 @@ public class DockerClientExecutor {
      * EXecutes command to given container returning the inspection object as well. This method does 3 calls to
      * dockerhost. Create, Start and Inspect.
      *
-     * @param containerId
-     *     to execute command.
+     * @param containerId to execute command.
      */
     public ExecInspection execStartVerbose(String containerId, String... commands) {
         this.readWriteLock.readLock().lock();
@@ -1027,7 +997,7 @@ public class DockerClientExecutor {
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) throws IOException {
+                        OutputStream outputStream) throws IOException {
         this.readWriteLock.readLock().lock();
         try {
             LogContainerCmd logContainerCmd =
@@ -1112,6 +1082,8 @@ public class DockerClientExecutor {
         this.readWriteLock.readLock().lock();
         try {
             this.dockerClient.removeNetworkCmd(id).exec();
+        } catch (final DockerException de) {
+            log.warning("Failed to remove docker network: " + id);
         } finally {
             this.readWriteLock.readLock().unlock();
         }
