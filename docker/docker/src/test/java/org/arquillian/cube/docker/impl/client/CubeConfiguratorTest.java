@@ -1,7 +1,14 @@
 package org.arquillian.cube.docker.impl.client;
 
 import org.apache.commons.lang.SystemUtils;
-import org.arquillian.cube.docker.impl.util.*;
+import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
+import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.CubeConfiguration;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.StringEndsWith;
@@ -25,12 +32,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {

@@ -1,19 +1,5 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
 import com.github.dockerjava.api.DockerClient;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
@@ -40,9 +26,24 @@ import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Answers;
-import org.mockito.MockSettings;
-import org.mockito.stubbing.Answer;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CubeContainerObjectTestEnricherTest {
 
@@ -264,10 +265,12 @@ public class CubeContainerObjectTestEnricherTest {
         @Cube("image")
         ImageContainerObject imageContainerObject;
     }
+
     private static class FifthInjectableTest {
         @Cube("image")
         ImageWithEnvContainerObject imageContainerObject;
     }
+
     private static class SixthInjectableTest {
         @Cube("image")
         @Volume(hostPath = "/mypath2", containerPath = "/containerPath2")
@@ -285,7 +288,7 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
     }
 
@@ -295,7 +298,7 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
 
         @Cube("inner")
@@ -310,7 +313,7 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("tomee").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
 
         @Cube("inner")
@@ -324,13 +327,13 @@ public class CubeContainerObjectTestEnricherTest {
 
     @Image("tomee:8-jre-1.7.2-webprofile")
     @Environment(key = "a", value = "b")
-    @Environment(key = "c",  value = "d")
+    @Environment(key = "c", value = "d")
     public static class ImageWithEnvContainerObject {
     }
 
     @Image("tomee:8-jre-1.7.2-webprofile")
     @Volume(hostPath = "/mypath", containerPath = "/containerPath")
-    public static class VolumesContainerObject{
+    public static class VolumesContainerObject {
     }
 
     public static class TestLinkContainerObject {
@@ -338,14 +341,14 @@ public class CubeContainerObjectTestEnricherTest {
         public static Archive<?> createDockerfile() {
             String dockerDescriptor = Descriptors.create(DockerDescriptor.class).from("mysql").exportAsString();
             return ShrinkWrap.create(GenericArchive.class)
-                    .add(new StringAsset(dockerDescriptor), "Dockerfile");
+                .add(new StringAsset(dockerDescriptor), "Dockerfile");
         }
     }
 
     private static void deleteTestDirectory() {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
-        for (File testDirectory: testsDirectories) {
+        for (File testDirectory : testsDirectories) {
             try {
                 FileUtils.deleteDirectory(testDirectory);
             } catch (IOException e) {
@@ -366,7 +369,7 @@ public class CubeContainerObjectTestEnricherTest {
 
     private static boolean testDirectoryFilter(File dir, String name) {
         return dir.isDirectory()
-                && name.startsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_PREFIX)
-                && name.endsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_SUFFIX);
+            && name.startsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_PREFIX)
+            && name.endsWith(DockerContainerObjectBuilder.TEMPORARY_FOLDER_SUFFIX);
     }
 }

@@ -1,7 +1,11 @@
 package org.arquillian.cube.docker.impl.util;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.api.model.ContainerConfig;
+import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.NetworkSettings;
 import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;

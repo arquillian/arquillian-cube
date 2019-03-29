@@ -3,20 +3,27 @@ package org.arquillian.cube.docker.impl.client;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InfoCmd;
 import com.github.dockerjava.api.model.Info;
-import javax.ws.rs.ProcessingException;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.*;
+import org.arquillian.cube.docker.impl.util.Boot2Docker;
+import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
+import org.arquillian.cube.docker.impl.util.DefaultDocker;
+import org.arquillian.cube.docker.impl.util.DockerMachine;
+import org.arquillian.cube.docker.impl.util.OperatingSystem;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
+import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
+import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
+import org.arquillian.cube.docker.impl.util.Top;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.ProcessingException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -73,7 +80,7 @@ public class CubeDockerConfigurationResolverTest {
         //file:/C:/Users/kt26ph/GitHub/arquillian/arquillian-cube-pxc/docker/docker/target/test-classes/docker.sock
 
 
-        String sockUri = isWindows ?sockURL.toExternalForm().replace("file:/", "") : "unix://" + sockURL.toExternalForm();
+        String sockUri = isWindows ? sockURL.toExternalForm().replace("file:/", "") : "unix://" + sockURL.toExternalForm();
         when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
         when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
         when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
@@ -82,7 +89,7 @@ public class CubeDockerConfigurationResolverTest {
 
         Map<String, String> resolvedConfig = resolver.resolve(config);
 
-        if(!isWindows){
+        if (!isWindows) {
             assertThat(Boolean.valueOf(resolvedConfig.get(CubeDockerConfiguration.TLS_VERIFY)), is(false));
             assertThat(resolvedConfig.get(CubeDockerConfiguration.CERT_PATH), is(nullValue()));
         }

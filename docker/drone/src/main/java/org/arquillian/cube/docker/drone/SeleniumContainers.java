@@ -3,7 +3,13 @@ package org.arquillian.cube.docker.drone;
 import org.arquillian.cube.docker.drone.util.SeleniumVersionExtractor;
 import org.arquillian.cube.docker.drone.util.VideoFileDestination;
 import org.arquillian.cube.docker.drone.util.VolumeCreator;
-import org.arquillian.cube.docker.impl.client.config.*;
+import org.arquillian.cube.docker.impl.client.config.Await;
+import org.arquillian.cube.docker.impl.client.config.BuildImage;
+import org.arquillian.cube.docker.impl.client.config.CubeContainer;
+import org.arquillian.cube.docker.impl.client.config.Image;
+import org.arquillian.cube.docker.impl.client.config.Link;
+import org.arquillian.cube.docker.impl.client.config.PortBinding;
+import org.arquillian.cube.docker.impl.client.config.StarOperator;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 
