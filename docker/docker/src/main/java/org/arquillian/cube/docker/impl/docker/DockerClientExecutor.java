@@ -1017,6 +1017,17 @@ public class DockerClientExecutor {
         }
     }
 
+    public void copyStreamToContainer(String containerId, File from, String to) {
+        this.readWriteLock.readLock().lock();
+        try {
+            dockerClient.copyArchiveToContainerCmd(containerId)
+                .withRemotePath(to)
+                .withHostResource(from.getAbsolutePath()).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     public void connectToNetwork(String networkId, String containerID) {
         this.readWriteLock.readLock().lock();
         try {
