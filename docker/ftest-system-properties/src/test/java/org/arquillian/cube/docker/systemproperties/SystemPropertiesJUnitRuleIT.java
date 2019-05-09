@@ -4,13 +4,11 @@ import java.util.Properties;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
 import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.docker.junit.rule.ContainerDslRule;
-import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.arquillian.cube.requirement.RequirementRule;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

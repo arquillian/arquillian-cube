@@ -1,7 +1,6 @@
 package org.arquillian.cube.docker.graphene.location;
 
 import java.net.URL;
-import org.arquillian.cube.docker.drone.SeleniumContainers;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;

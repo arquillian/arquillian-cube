@@ -32,8 +32,11 @@ public class SystemPropertiesCubeSetter {
 
         final Binding bindings = cube.bindings();
         final String cubePrefix = String.format("%s.%s", PREFIX, cubeId);
-        System.setProperty(String.format("%s.ip", cubePrefix), bindings.getIP());
-        System.setProperty(String.format("%s.internal.ip", cubePrefix), bindings.getInternalIP());
+
+        final String ip = bindings.getIP();
+        final String internalIP = bindings.getInternalIP();
+        System.setProperty(String.format("%s.ip", cubePrefix), null != ip ? ip : "");
+        System.setProperty(String.format("%s.internal.ip", cubePrefix), null != internalIP ? internalIP : "");
 
         for (Binding.PortBinding portBinding : bindings.getPortBindings()) {
             final int exposedPort = portBinding.getExposedPort();

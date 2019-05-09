@@ -2,6 +2,7 @@ package org.arquillian.cube.persistence;
 
 import java.io.IOException;
 import javax.inject.Inject;
+import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -9,9 +10,11 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
+@Category({RequiresRemoteResource.class})
 public class UserRepositoryTest {
 
     @Inject

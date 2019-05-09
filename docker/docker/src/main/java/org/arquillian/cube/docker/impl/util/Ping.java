@@ -1,12 +1,13 @@
 package org.arquillian.cube.docker.impl.util;
 
+import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
+import org.arquillian.cube.spi.CubeOutput;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.spi.CubeOutput;
 
 public final class Ping {
 
@@ -17,19 +18,23 @@ public final class Ping {
     }
 
     public static boolean ping(int totalIterations, long sleep, TimeUnit timeUnit, PingCommand command) {
-        boolean result = false;
+        boolean result;
+        boolean loop;
         int iteration = 0;
 
         do {
             result = command.call();
-            if (!result) {
-                iteration++;
+            iteration++;
+            loop = !result && iteration < totalIterations;
+            if (loop) {
                 try {
                     timeUnit.sleep(sleep);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignore) {
+                    break;
                 }
             }
-        } while (!result && iteration < totalIterations);
+
+        } while (loop);
 
         return result;
     }

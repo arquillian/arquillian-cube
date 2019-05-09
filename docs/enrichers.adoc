@@ -110,8 +110,8 @@ URL will be `http://<docker_host>:<bind_port>/`
 
 === Docker Inside Docker / Docker On Docker
 
-If you are running your tests inside your continuous integration/delivery server (for example in Jenkins) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
-So you effectively face the Docker inside Docker problem.
+If you are running your tests on your continuous integration/delivery server (for example on Jenkins or GitLab runners) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
+So you effectively face the Docker inside Docker problem - DockerHost is **not** the machine where your test is running.
 
 From Arquillian Cube perspective we cannot do a lot of things, more then adapting to this situation by changing the `serverUri`.
 Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`.

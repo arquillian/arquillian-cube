@@ -1,11 +1,19 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
@@ -21,30 +29,38 @@ import org.arquillian.reporter.config.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Event;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.util.*;
-
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.*;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_HOST_INFORMATION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category({RequiresRemoteResource.class})
 public class TakeDockerEnvironmentTest {
 
     private static final String MULTIPLE_PORT_BINDING_SCENARIO =
-            "helloworld:\n" +
-                    "  image: dockercloud/hello-world\n" +
-                    "  exposedPorts: [8089/tcp]\n" +
-                    "  networkMode: host\n" +
-                    "  portBindings: [8080->80/tcp, 8081->81/tcp]";
+        "helloworld:\n" +
+            "  image: dockercloud/hello-world\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  networkMode: host\n" +
+            "  portBindings: [8080->80/tcp, 8081->81/tcp]";
 
     private static final String CUBE_ID = "tomcat";
 
@@ -71,6 +87,7 @@ public class TakeDockerEnvironmentTest {
 
     @Before
     public void setUpCubeDockerExecutorAndBuilder() throws IOException {
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
         configureDockerExecutor();
         configureCube();
         BuilderLoader.load();
@@ -115,21 +132,21 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(Standalone.getStandaloneId())
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(DOCKER_HOST_INFORMATION)
-                .hasNumberOfEntries(5)
-                .hasEntriesContaining(
-                        new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
-                        new KeyValueEntry(DOCKER_OS, "linux"),
-                        new KeyValueEntry(DOCKER_KERNEL, "3.1.0"),
-                        new KeyValueEntry(DOCKER_API_VERSION, "1.12"),
-                        new KeyValueEntry(DOCKER_ARCH, "x86"));
+            .hasName(DOCKER_HOST_INFORMATION)
+            .hasNumberOfEntries(5)
+            .hasEntriesContaining(
+                new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
+                new KeyValueEntry(DOCKER_OS, "linux"),
+                new KeyValueEntry(DOCKER_KERNEL, "3.1.0"),
+                new KeyValueEntry(DOCKER_API_VERSION, "1.12"),
+                new KeyValueEntry(DOCKER_ARCH, "x86"));
     }
 
 
@@ -142,17 +159,17 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(Standalone.getStandaloneId())
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(DOCKER_ENVIRONMENT)
-                .hasNumberOfSubReports(1)
-                .hasEntriesContaining(
-                        new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports/schemas/docker_composition.png")),
-                        new KeyValueEntry(NETWORK_TOPOLOGY_SCHEMA, new FileEntry("reports/networks/docker_network_topology.png")));
+            .hasName(DOCKER_ENVIRONMENT)
+            .hasNumberOfSubReports(1)
+            .hasEntriesContaining(
+                new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports" + File.separatorChar + "schemas" + File.separatorChar + "docker_composition.png")),
+                new KeyValueEntry(NETWORK_TOPOLOGY_SCHEMA, new FileEntry("reports" + File.separatorChar + "networks" + File.separatorChar + "docker_network_topology.png")));
     }
 
     @Test
@@ -166,14 +183,14 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(CUBE_ID)
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(CUBE_ID)
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new KeyValueEntry(LOG_PATH, new FileEntry("reports/logs/tomcat.log")));
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(new KeyValueEntry(LOG_PATH, new FileEntry("reports" + File.separatorChar + "logs" + File.separatorChar + "tomcat.log")));
     }
 
     /* @Test

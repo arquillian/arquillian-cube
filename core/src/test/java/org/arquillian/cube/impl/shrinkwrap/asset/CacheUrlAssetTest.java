@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +52,7 @@ public class CacheUrlAssetTest {
         CacheUrlAsset cacheUrlAsset = new CacheUrlAsset(new URL("http://arquillian.org/images/arq.txt"));
         CacheUrlAsset.TEMP_LOCATION = newFolder.getAbsolutePath();
         final Path path = Paths.get(newFolder.getAbsolutePath(), "arq.txt");
-        Files.write(path, "Hello".getBytes("UTF-8"));
+        Files.write(path, "Hello".getBytes(StandardCharsets.UTF_8));
         InputStream is = cacheUrlAsset.openStream();
         String content = slurp(is);
 
@@ -62,7 +63,7 @@ public class CacheUrlAssetTest {
     public void shouldDownloadFileIfExpired() throws IOException, InterruptedException {
         final File newFolder = temporaryFolder.newFolder();
         final Path path = Paths.get(newFolder.getAbsolutePath(), "arquillian_crown_icon_glossy_256.png");
-        Files.write(path, "invalidchunk".getBytes("UTF-8"));
+        Files.write(path, "invalidchunk".getBytes(StandardCharsets.UTF_8));
         Thread.sleep(3000);
         CacheUrlAsset cacheUrlAsset =
             new CacheUrlAsset(new URL("http://arquillian.org/images/arquillian_crown_icon_glossy_256.png"), 2,
