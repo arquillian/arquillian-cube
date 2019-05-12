@@ -87,7 +87,6 @@ public class TakeDockerEnvironmentTest {
 
     @Before
     public void setUpCubeDockerExecutorAndBuilder() throws IOException {
-        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
         configureDockerExecutor();
         configureCube();
         BuilderLoader.load();
