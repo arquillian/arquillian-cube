@@ -99,6 +99,7 @@ public class TakeDockerEnvironmentTest {
         when(version.getApiVersion()).thenReturn("1.12");
         when(version.getArch()).thenReturn("x86");
         when(dockerClientExecutor.dockerHostVersion()).thenReturn(version);
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
     }
 
     private void configureCube() throws IOException {
