@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import com.github.dockerjava.api.exception.NotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.arquillian.cube.ContainerObjectConfiguration;
 import org.arquillian.cube.CubeController;
@@ -504,8 +506,16 @@ public class DockerContainerObjectBuilder<T> {
             }
             cubeController.create(containerName);
             cubeController.start(containerName);
-            logger.log(Level.INFO, "Started container:\n" +
-                dockerClientExecutor.getDockerClient().inspectContainerCmd(containerName).exec().toString());
+            logger.log(Level.INFO, "Started container: " + getContainerInfo(containerName));
+        }
+    }
+
+    private String getContainerInfo(final String containerName) {
+        try {
+            final String detail = dockerClientExecutor.getDockerClient().inspectContainerCmd(containerName).exec().toString();
+            return null != detail ? detail : containerName;
+        } catch (Exception e) {
+            return containerName;
         }
     }
 
