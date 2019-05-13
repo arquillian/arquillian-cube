@@ -2798,8 +2798,8 @@ And look for the Endpoints field.</p>
 <div class="sect2">
 <h3 id="_docker_inside_docker_docker_on_docker"><a class="anchor" href="#_docker_inside_docker_docker_on_docker"></a>10.1. Docker Inside Docker / Docker On Docker</h3>
 <div class="paragraph">
-<p>If you are running your tests inside your continuous integration/delivery server (for example in Jenkins) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
-So you effectively face the Docker inside Docker problem.</p>
+<p>If you are running your tests on your continuous integration/delivery server (for example on Jenkins or GitLab runners) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
+So you effectively face the Docker inside Docker problem - DockerHost is <strong>not</strong> the machine where your test is running.</p>
 </div>
 <div class="paragraph">
 <p>From Arquillian Cube perspective we cannot do a lot of things, more then adapting to this situation by changing the <code>serverUri</code>.
@@ -7329,7 +7329,7 @@ Although we are going to try to not break compatibility with previous versions, 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-10-25 04:38:03 UTC
+Last updated 2019-05-13 05:04:18 UTC
 </div>
 </div>
 </body>
