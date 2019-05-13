@@ -35,6 +35,7 @@ public class ContainerNetworkObjectDslTestEnricherTest {
         networkRegistry = new LocalDockerNetworkRegistry();
         cubeController = mock(CubeController.class);
         dockerClientExecutor = mock(DockerClientExecutor.class);
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
     }
 
     @Test
