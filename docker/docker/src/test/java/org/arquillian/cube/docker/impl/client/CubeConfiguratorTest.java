@@ -1,10 +1,17 @@
 package org.arquillian.cube.docker.impl.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.SystemUtils;
 import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DockerMachine;
-import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
@@ -15,7 +22,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.StringEndsWith;
 import org.jboss.arquillian.config.descriptor.api.ArquillianDescriptor;
 import org.jboss.arquillian.config.descriptor.api.ExtensionDef;
-import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Assume;
@@ -25,20 +31,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CubeConfiguratorTest extends AbstractManagerTestBase {
@@ -57,11 +59,11 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     Top top;
 
     private static Matcher<String> defaultDockerMachineCertPath() {
-        return containsString(".docker/machine/machines");
+        return containsString(".docker" + File.separator + "machine" + File.separator + "machines");
     }
 
     private static Matcher<String> defaultBootToDockerCertPath() {
-        return containsString(".boot2docker/certs");
+        return containsString(".boot2docker" + File.separator + "certs");
     }
 
     private static Matcher<String> pathEndsWith(String suffix) {

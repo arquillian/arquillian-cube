@@ -1,7 +1,5 @@
 package org.fabric8.maven.plugin.build;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +7,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
+import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // If you want to run it from the IDE against latest code changes you have to set system property `arquillian-cube.version` with latest project.version.
 
-@Category(RequiresOpenshift.class)
+@Category({RequiresOpenshift.class, RequiresRemoteResource.class})
 @RequiresOpenshift
 public class ResourceGeneratorBuilderIT {
 

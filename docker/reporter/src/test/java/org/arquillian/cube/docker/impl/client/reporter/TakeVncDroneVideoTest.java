@@ -1,5 +1,9 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import org.arquillian.cube.docker.drone.event.AfterVideoRecorded;
 import org.arquillian.reporter.api.builder.BuilderLoader;
 import org.arquillian.reporter.api.event.SectionEvent;
@@ -17,10 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.lang.reflect.Method;
-import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
@@ -97,7 +97,7 @@ public class TakeVncDroneVideoTest {
         assertThatReport(report)
                 .hasName(methodName)
                 .hasNumberOfEntries(1)
-                .hasEntriesContaining(new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("surefire-report/myvideo.mp4")));
+                .hasEntriesContaining(new KeyValueEntry(DockerEnvironmentReportKey.VIDEO_PATH, new FileEntry("surefire-report" + File.separatorChar + "myvideo.mp4")));
     }
 
     private ReporterConfiguration getReporterConfiguration() {

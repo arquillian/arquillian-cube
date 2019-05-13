@@ -1,5 +1,21 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Version;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -27,24 +43,16 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.test.spi.event.suite.After;
 import org.jboss.arquillian.test.spi.event.suite.Before;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.*;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_HOST_INFORMATION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 
 /**
  * Class that reports generic Docker information like orchestration or docker version.
