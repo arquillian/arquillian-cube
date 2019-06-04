@@ -17,7 +17,9 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -33,12 +35,6 @@ public class DockerHealthAwaitStrategyTest {
     private static String healthSuccessImageId;
     private static String healthFailureImageId;
 
-    static {
-        System.setProperty(DOCKER_HOST,
-            System.getProperty("os.name").toLowerCase().contains("win") ? "tcp://localhost:2375" : "unix:///var/run/docker.sock");
-        System.setProperty("DOCKER_TLS_VERIFY", "0");
-    }
-
     @Mock
     private DockerClientExecutor dockerClientExecutor;
 
@@ -49,8 +45,17 @@ public class DockerHealthAwaitStrategyTest {
 
     private static boolean runTests = true;
 
+    @ClassRule
+    public static final EnvironmentVariables environmentVariables = new EnvironmentVariables();
+
     @BeforeClass
-    public static void createDockerClient() throws Exception {
+    public static void createDockerClient() {
+
+        environmentVariables.set("DOCKER_TLS_VERIFY", "0");
+
+        if (!System.getenv().containsKey(DOCKER_HOST) || System.getenv(DOCKER_HOST).equals("")){
+            environmentVariables.set(DOCKER_HOST, System.getProperty("os.name").toLowerCase().contains("win") ? "tcp://localhost:2375" : "unix:///var/run/docker.sock");
+        }
 
         final DefaultDockerClientConfig dockerClientConfig = DefaultDockerClientConfig
             .createDefaultConfigBuilder()
@@ -89,6 +94,8 @@ public class DockerHealthAwaitStrategyTest {
     public static void cleanImages() {
         dockerRmi(healthSuccessImageId);
         dockerRmi(healthFailureImageId);
+        environmentVariables.clear(DOCKER_HOST);
+        environmentVariables.clear("DOCKER_TLS_VERIFY");
     }
 
     @Test
