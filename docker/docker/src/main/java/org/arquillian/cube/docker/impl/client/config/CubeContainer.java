@@ -68,6 +68,7 @@ public class CubeContainer {
 
     private Collection<AfterStart> afterStart;
     private Collection<BeforeStop> beforeStop;
+    private Collection<AfterStop> afterStop;
 
     public Image getImage() {
         return image;
@@ -447,6 +448,18 @@ public class CubeContainer {
 
     public boolean hasBeforeStop() {
         return this.beforeStop != null && !this.beforeStop.isEmpty();
+    }
+
+    public Collection<AfterStop> getAfterStop() {
+        return afterStop;
+    }
+
+    public void setAfterStop(Collection<AfterStop> afterStop) {
+        this.afterStop = afterStop;
+    }
+
+    public boolean hasAfterStop() {
+        return this.afterStop != null && !this.afterStop.isEmpty();
     }
 
     public String getContainerName() {

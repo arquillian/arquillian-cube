@@ -131,6 +131,10 @@ public class DockerCompositions {
                     cubeContainer.setBeforeStop(overrideCubeContainer.getBeforeStop());
                 }
 
+                if (overrideCubeContainer.hasAfterStop()) {
+                    cubeContainer.setAfterStop(overrideCubeContainer.getAfterStop());
+                }
+
                 if (overrideCubeContainer.isManual()) {
                     cubeContainer.setManual(overrideCubeContainer.isManual());
                 }
