@@ -1002,7 +1002,7 @@ public class DockerClientExecutor {
     public InputStream getFileOrDirectoryFromContainerAsTar(String containerId, String from) {
         this.readWriteLock.readLock().lock();
         try {
-            InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
+            InputStream response = dockerClient.copyArchiveFromContainerCmd(containerId, from).exec();
             return response;
         } finally {
             this.readWriteLock.readLock().unlock();

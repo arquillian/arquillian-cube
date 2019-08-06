@@ -70,6 +70,10 @@ public class CubeConfigurationTest {
             "  beforeStop: \n" +
             "    - copy:\n" +
             "        from: /test\n" +
+            "        to: /tmp\n" +
+            "  afterStop: \n" +
+            "    - copy:\n" +
+            "        from: /test\n" +
             "        to: /tmp";
 
     private static final String VERSION_2_WITH_VOLUMES = "version: '2'\n" +
