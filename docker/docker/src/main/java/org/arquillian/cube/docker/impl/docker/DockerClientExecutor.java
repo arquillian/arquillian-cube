@@ -348,7 +348,7 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getReadonlyRootfs() != null) {
-                createContainerCmd.withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
+                createContainerCmd.getHostConfig().withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
             }
 
             if (containerConfiguration.getLabels() != null) {
@@ -387,11 +387,11 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getMemoryLimit() != null) {
-                createContainerCmd.withMemory(containerConfiguration.getMemoryLimit());
+                createContainerCmd.getHostConfig().withMemory(containerConfiguration.getMemoryLimit());
             }
 
             if (containerConfiguration.getMemorySwap() != null) {
-                createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
+                createContainerCmd.getHostConfig().withMemorySwap(containerConfiguration.getMemorySwap());
             }
 
             if (containerConfiguration.getShmSize() != null) {
@@ -399,15 +399,15 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getCpuShares() != null) {
-                createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
+                createContainerCmd.getHostConfig().withCpuShares(containerConfiguration.getCpuShares());
             }
 
             if (containerConfiguration.getCpuSet() != null) {
-                createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
+                createContainerCmd.getHostConfig().withCpusetCpus(containerConfiguration.getCpuSet());
             }
 
             if (containerConfiguration.getCpuQuota() != null) {
-                createContainerCmd.getHostConfig().withCpuQuota(containerConfiguration.getCpuQuota());
+                createContainerCmd.getHostConfig().withCpuQuota(containerConfiguration.getCpuQuota().longValue());
             }
 
             if (containerConfiguration.getAttachStdin() != null) {
@@ -428,7 +428,7 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getDns() != null) {
-                createContainerCmd.withDns(containerConfiguration.getDns().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withDns(containerConfiguration.getDns().toArray(new String[0]));
             }
 
             if (containerConfiguration.getVolumes() != null) {
@@ -436,56 +436,56 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getVolumesFrom() != null) {
-                createContainerCmd.withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
+                createContainerCmd.getHostConfig().withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
             }
 
             if (containerConfiguration.getBinds() != null) {
-                createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
+                createContainerCmd.getHostConfig().withBinds(toBinds(containerConfiguration.getBinds()));
             }
 
             // Dependencies is precedence over links
             if (containerConfiguration.getLinks() != null && containerConfiguration.getDependsOn() == null) {
-                createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
+                createContainerCmd.getHostConfig().withLinks(toLinks(containerConfiguration.getLinks()));
             }
 
             if (containerConfiguration.getPortBindings() != null) {
-                createContainerCmd.withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
+                createContainerCmd.getHostConfig().withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
             }
 
             if (containerConfiguration.getPrivileged() != null) {
-                createContainerCmd.withPrivileged(containerConfiguration.getPrivileged());
+                createContainerCmd.getHostConfig().withPrivileged(containerConfiguration.getPrivileged());
             }
 
             if (containerConfiguration.getPublishAllPorts() != null) {
-                createContainerCmd.withPublishAllPorts(containerConfiguration.getPublishAllPorts());
+                createContainerCmd.getHostConfig().withPublishAllPorts(containerConfiguration.getPublishAllPorts());
             }
 
             if (containerConfiguration.getNetworkMode() != null) {
-                createContainerCmd.withNetworkMode(containerConfiguration.getNetworkMode());
+                createContainerCmd.getHostConfig().withNetworkMode(containerConfiguration.getNetworkMode());
             }
 
             if (containerConfiguration.getDnsSearch() != null) {
-                createContainerCmd.withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
             }
 
             if (containerConfiguration.getDevices() != null) {
-                createContainerCmd.withDevices(toDevices(containerConfiguration.getDevices()));
+                createContainerCmd.getHostConfig().withDevices(toDevices(containerConfiguration.getDevices()));
             }
 
             if (containerConfiguration.getRestartPolicy() != null) {
-                createContainerCmd.withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
+                createContainerCmd.getHostConfig().withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
             }
 
             if (containerConfiguration.getCapAdd() != null) {
-                createContainerCmd.withCapAdd(toCapability(containerConfiguration.getCapAdd()));
+                createContainerCmd.getHostConfig().withCapAdd(toCapability(containerConfiguration.getCapAdd()));
             }
 
             if (containerConfiguration.getCapDrop() != null) {
-                createContainerCmd.withCapDrop(toCapability(containerConfiguration.getCapDrop()));
+                createContainerCmd.getHostConfig().withCapDrop(toCapability(containerConfiguration.getCapDrop()));
             }
 
             if (containerConfiguration.getExtraHosts() != null) {
-                createContainerCmd.withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
             }
             if (containerConfiguration.getEntryPoint() != null) {
                 createContainerCmd.withEntrypoint(containerConfiguration.getEntryPoint().toArray(new String[0]));

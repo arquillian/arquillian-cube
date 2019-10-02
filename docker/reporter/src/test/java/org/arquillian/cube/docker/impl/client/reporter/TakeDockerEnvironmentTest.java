@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.github.dockerjava.api.model.BlkioStatEntry;
+import com.github.dockerjava.api.model.BlkioStatsConfig;
+import com.github.dockerjava.api.model.MemoryStatsConfig;
+import com.github.dockerjava.api.model.StatsConfig;
+import com.github.dockerjava.api.model.StatisticNetworksConfig;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
@@ -48,6 +53,7 @@ import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentR
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -106,9 +112,12 @@ public class TakeDockerEnvironmentTest {
         cubeRegistry = new LocalCubeRegistry();
         when(cube.getId()).thenReturn(CUBE_ID);
         cubeRegistry.addCube(cube);
-        when(statistics.getNetworks()).thenReturn(getNetworks());
-        when(statistics.getMemoryStats()).thenReturn(getMemory());
-        when(statistics.getBlkioStats()).thenReturn(getIOStats());
+        Map<String, StatisticNetworksConfig> networks = getNetworks();
+        when(statistics.getNetworks()).thenReturn(networks);
+        MemoryStatsConfig memory = getMemory();
+        when(statistics.getMemoryStats()).thenReturn(memory);
+        BlkioStatsConfig ioStats = getIOStats();
+        when(statistics.getBlkioStats()).thenReturn(ioStats);
         when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
     }
 
@@ -295,54 +304,54 @@ public class TakeDockerEnvironmentTest {
         return ReporterConfiguration.fromMap(new LinkedHashMap<>());
     }
 
-    private Map<String, Object> getNetworks() {
-        Map<String, Object> nw = new LinkedHashMap<>();
-        Map<String, Integer> bytes = new LinkedHashMap<>();
-        bytes.put("rx_bytes", 724);
-        bytes.put("tx_bytes", 418);
-        bytes.put("rx_packets", 19);
+    private Map<String, StatisticNetworksConfig> getNetworks() {
+        Map<String, StatisticNetworksConfig> nw = new LinkedHashMap<>();
+        StatisticNetworksConfig bytes = mock(StatisticNetworksConfig.class);
+        when(bytes.getRxBytes()).thenReturn(724L);
+        when(bytes.getTxBytes()).thenReturn(418L);
+        when(bytes.getRxPackets()).thenReturn(19L);
         nw.put("eth0", bytes);
 
         return nw;
     }
 
-    private Map<String, Object> getMemory() {
-        Map<String, Object> memory = new LinkedHashMap<>();
-        memory.put("usage", 35135488);
-        memory.put("max_usage", 35770368);
-        memory.put("limit", 20444532736L);
-        memory.put("stats", new LinkedHashMap<>());
+    private MemoryStatsConfig getMemory() {
+        MemoryStatsConfig memory = mock(MemoryStatsConfig.class);
+        when(memory.getUsage()).thenReturn(35135488L);
+        when(memory.getMaxUsage()).thenReturn(35770368L);
+        when(memory.getLimit()).thenReturn(20444532736L);
+        when(memory.getStats()).thenReturn(new StatsConfig());
 
         return memory;
     }
 
-    private Map<String, Object> getIOStats() {
-        Map<String, Object> blkIO = new LinkedHashMap<>();
-        List<LinkedHashMap<String, ?>> io = new ArrayList<>();
-        LinkedHashMap ioServiceRead = new LinkedHashMap();
+    private BlkioStatsConfig getIOStats() {
+        BlkioStatsConfig blkIO = mock(BlkioStatsConfig.class);
+        List<BlkioStatEntry> io = new ArrayList<>();
 
-        ioServiceRead.put("major", 7);
-        ioServiceRead.put("minor", 0);
-        ioServiceRead.put("op", "Read");
-        ioServiceRead.put("value", 50688);
+        BlkioStatEntry ioServiceRead = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMajor(0L)
+            .withOp("Read")
+            .withValue(50688L);
         io.add(ioServiceRead);
 
-        LinkedHashMap ioServiceWrite = new LinkedHashMap();
-        ioServiceWrite.put("major", 7);
-        ioServiceWrite.put("minor", 0);
-        ioServiceWrite.put("op", "Write");
-        ioServiceWrite.put("value", 0);
+        BlkioStatEntry ioServiceWrite = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMajor(0L)
+            .withOp("Write")
+            .withValue(0L);
         io.add(ioServiceWrite);
 
-        LinkedHashMap ioServiceSync = new LinkedHashMap();
-        ioServiceSync.put("major", 7);
-        ioServiceSync.put("minor", 0);
-        ioServiceSync.put("op", "Sync");
-        ioServiceSync.put("value", 0);
+        BlkioStatEntry ioServiceSync = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMinor(0L)
+            .withOp("Sync")
+            .withValue(0L);
         io.add(ioServiceSync);
 
-        blkIO.put("io_service_bytes_recursive", io);
-        blkIO.put("io_time_recursive", new ArrayList<>());
+        when(blkIO.getIoServiceBytesRecursive()).thenReturn(io);
+        when(blkIO.getIoTimeRecursive()).thenReturn(new ArrayList<>());
 
         return blkIO;
     }
