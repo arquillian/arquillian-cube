@@ -8,6 +8,7 @@ matrix:
      - env: OC_CLUSTER_UP=true OC_VERSION="v3.9.0" COMMIT_ID="191fece" CATEGORY="org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"
      - env: CATEGORY="org.arquillian.cube.docker.impl.requirement.RequiresDocker"
 
+dist: trusty
 services:
   - docker
 addons:
@@ -19,7 +20,7 @@ addons:
 
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 cache:
   directories:
     - $HOME/.m2
