@@ -111,7 +111,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                     } catch (UnsupportedOperationException e) {
                         // In case of not having ss command installed on container, it automatically fall back to waitforit approach
                         try {
-                            if (!executeWaitForIt(portBindings.getInternalIP(), port)) {
+                            if (!executeWaitForIt(getReadyCheckIp(portBindings), port)) {
                                 return false;
                             }
                         } catch (UnsupportedOperationException ex) {
@@ -132,7 +132,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                 }
                 break;
                 case "waitforit": {
-                    if (!executeWaitForIt(portBindings.getInternalIP(), port)) {
+                    if (!executeWaitForIt(getReadyCheckIp(portBindings), port)) {
                         return false;
                     }
                 }
@@ -140,6 +140,17 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
         }
 
         return true;
+    }
+
+    private String getReadyCheckIp(HasPortBindings portBindings) {
+        String ip = portBindings.getInternalIP();
+        if (ip == null || "".equals(ip)) {
+            ip = portBindings.getContainerIP();
+        }
+        if (ip == null || "".equals(ip)) {
+            ip = "localhost";
+        }
+        return ip;
     }
 
     private boolean executeWaitForIt(String containerIp, int port) {
