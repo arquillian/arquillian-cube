@@ -95,7 +95,7 @@
     <!-- Empty property for failsafe groups to avoid conflict with maven-javadoc-plugin's groups -->
     <failsafe.groups />
     <version.istio>1.0.0.Beta4</version.istio>
-    <version.awaitility>3.0.0</version.awaitility>
+    <version.awaitility>4.0.1</version.awaitility>
     <version.junit5>5.4.2</version.junit5>
   </properties>
 
