@@ -68,7 +68,7 @@
   </issueManagement>
 
   <properties>
-    <version.arquillian_core>1.4.0.Final</version.arquillian_core>
+    <version.arquillian_core>1.5.0.Final</version.arquillian_core>
     <version.junit>4.12</version.junit>
     <version.hamcrest>1.3</version.hamcrest>
     <version.docker-java>3.1.5</version.docker-java>
@@ -83,7 +83,7 @@
     <version.arquillian_spacelift>1.0.2</version.arquillian_spacelift>
     <version.assertj>3.8.0</version.assertj>
     <version.arquillian.reporter>0.0.3</version.arquillian.reporter>
-    <version.restassured>3.0.6</version.restassured>
+    <version.restassured>4.1.2</version.restassured>
     <version.jgit>4.9.2.201712150930-r</version.jgit>
     <version.systemrules>1.17.0</version.systemrules>
     <version.dmr>1.2.0.Final</version.dmr>
