@@ -11,7 +11,7 @@
 
   <properties>
     <version.javaee_7>1.0.1.Final</version.javaee_7>
-    <version.wildfly>8.2.0.Final</version.wildfly>
+    <version.wildfly>8.2.1.Final</version.wildfly>
   </properties>
 
   <dependencyManagement>
