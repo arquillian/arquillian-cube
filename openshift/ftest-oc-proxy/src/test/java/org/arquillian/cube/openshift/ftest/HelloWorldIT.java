@@ -47,26 +47,26 @@ public class HelloWorldIT {
     @Test
     public void should_be_able_deploy_resources_using_oc_3_11() {
         // given
+        assumeThat(ocVersion).contains("v3.11");
         String commandToExecute = "oc create -f " + getResource("openshift.json");
 
         // when
         final List<String> resources = commandExecutor.execCommand(commandToExecute);
 
         // then
-        assumeThat(ocVersion).contains("v3.11");
         assertThat(resources).contains("service \"hello-world\" created", "deployment.extensions \"hello-world\" created");
     }
 
     @Test
     public void should_be_able_deploy_resources_using_oc_3_9() {
         // given
+        assumeThat(ocVersion).contains("v3.9");
         String commandToExecute = "oc create -f " + getResource("openshift.json");
 
         // when
         final List<String> resources = commandExecutor.execCommand(commandToExecute);
 
         // then
-        assumeThat(ocVersion).contains("v3.9");
         assertThat(resources).contains("service \"hello-world\" created", "deployment \"hello-world\" created");
     }
 
