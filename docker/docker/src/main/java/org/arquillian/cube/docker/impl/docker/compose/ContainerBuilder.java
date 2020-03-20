@@ -192,7 +192,11 @@ public class ContainerBuilder {
             this.addVolumesFrom(asListOfString(dockerComposeContainerDefinition, VOLUMES_FROM));
         }
         if (dockerComposeContainerDefinition.containsKey(ENVIRONMENT)) {
-            this.addEnvironment(asListOfString(dockerComposeContainerDefinition, ENVIRONMENT));
+            try {
+                this.addEnvironment(asListOfString(dockerComposeContainerDefinition, ENVIRONMENT));
+            } catch (ClassCastException e) {
+                this.addEnvironment(asListOfString(asMap(dockerComposeContainerDefinition, ENVIRONMENT)));
+            }
         }
         if (dockerComposeContainerDefinition.containsKey(ENV_FILE)) {
             if(dockerComposeContainerDefinition.get(ENV_FILE) instanceof List) {
@@ -233,7 +237,11 @@ public class ContainerBuilder {
             this.addWorkingDir(asString(dockerComposeContainerDefinition, WORKING_DIR));
         }
         if (dockerComposeContainerDefinition.containsKey(ENTRYPOINT)) {
-            this.addEntrypoint(asString(dockerComposeContainerDefinition, ENTRYPOINT));
+            try {
+                this.addEntrypoint(asString(dockerComposeContainerDefinition, ENTRYPOINT));
+            } catch (ClassCastException e) {
+                this.addEntrypoint(asListOfString(dockerComposeContainerDefinition, ENTRYPOINT));
+            }
         }
         if (dockerComposeContainerDefinition.containsKey(USER)) {
             this.addUser(asString(dockerComposeContainerDefinition, USER));
@@ -776,6 +784,11 @@ public class ContainerBuilder {
 
     public ContainerBuilder addEntrypoint(String entrypoint) {
         configuration.setEntryPoint(Arrays.asList(entrypoint));
+        return this;
+    }
+
+    public ContainerBuilder addEntrypoint(Collection<String> entrypoint) {
+        configuration.setEntryPoint(entrypoint);
         return this;
     }
 
