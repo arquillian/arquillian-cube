@@ -29,7 +29,6 @@
   "Driver": "aufs",
   "MountLabel": "",
   "ProcessLabel": "",
-  "AppArmorProfile": "",
   "ExecIDs": null,
   "HostConfig": {
     "Binds": [
@@ -83,7 +82,6 @@
     "Isolation": "",
     "CpuShares": 0,
     "Memory": 0,
-    "NanoCpus": 0,
     "CgroupParent": "",
     "BlkioWeight": 0,
     "BlkioWeightDevice": null,
@@ -117,12 +115,10 @@
   },
   "Mounts": [
     {
-      "Type": "bind",
       "Source": "/Users/eddumelendez/docker-repository/ci_env/jenkins",
       "Destination": "/var/jenkins_home",
       "Mode": "rw",
-      "RW": true,
-      "Propagation": ""
+      "RW": true
     }
   ],
   "Config": {
@@ -156,7 +152,6 @@
       "COPY_REFERENCE_FILE_LOG=/var/jenkins_home/copy_reference_file.log"
     ],
     "Cmd": null,
-    "ArgsEscaped": true,
     "Image": "cienv_jenkins-server",
     "Volumes": {
       "/var/jenkins_home": {}
