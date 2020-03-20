@@ -54,7 +54,7 @@ public class HelloWorldIT {
         final List<String> resources = commandExecutor.execCommand(commandToExecute);
 
         // then
-        assertThat(resources).contains("service \"hello-world\" created", "deployment.extensions \"hello-world\" created");
+        assertThat(resources).contains("service/hello-world created", "deployment.extensions/hello-world created");
     }
 
     @Test
