@@ -11,7 +11,7 @@
 
   <properties>
     <arquillian.cube.autostart />
-    <version.javaee_7>1.0.1.Final</version.javaee_7>
+    <version.javaee_7>1.1.1.Final</version.javaee_7>
     <version.chameleon>1.0.0.Alpha2</version.chameleon>
   </properties>
 
