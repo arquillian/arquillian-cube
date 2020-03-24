@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.arquillian.cube.docker.impl.client.CubeDockerConfigurator.DOCKER_HOST;
@@ -100,15 +101,18 @@ public class CubeDockerConfigurationResolver {
                 String machineVersion = GitHubUtil.getDockerMachineLatestVersion();
                 String machineCustomPath = config.get(CubeDockerConfiguration.DOCKER_MACHINE_CUSTOM_PATH);
                 File dockerMachineFile = CubeDockerConfiguration.resolveMachinePath(machineCustomPath, machineVersion);
-                String dockerMachinePath = dockerMachineFile.getPath();
 
-                boolean dockerMachineFileExist = dockerMachineFile != null && dockerMachineFile.exists();
+                boolean dockerMachineFileExist = dockerMachineFile.exists();
+                String dockerMachinePath = dockerMachineFile.getPath();
 
                 String machineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
                 String machineUrl = CubeDockerConfiguration.resolveUrl(machineVersion);
 
                 if (!dockerMachineFileExist) {
-                    dockerMachineFile.getParentFile().mkdirs();
+                    final File parentFile = dockerMachineFile.getParentFile();
+                    if(!parentFile.exists() && !parentFile.mkdirs()){
+                        log.log(Level.SEVERE, "Failed to create directory: " + parentFile);
+                    }
                     Spacelift.task(DownloadTool.class)
                         .from(machineUrl)
                         .to(dockerMachineFile)

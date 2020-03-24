@@ -1,8 +1,8 @@
 package org.arquillian.cube.docker.impl.client;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class CubeDockerConfiguration {
     public static final String CLEAN = "clean";
     public static final String REMOVE_VOLUMES = "removeVolumes";
     public static final String CLEAN_BUILD_IMAGE = "cleanBuildImage";
-    static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
+    public static final String DIND_RESOLUTION = "dockerInsideDockerResolution";
     private static final String DOCKER_VERSION = "serverVersion";
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
@@ -185,8 +185,8 @@ public class CubeDockerConfiguration {
             if (stream != null) {
                 cubeConfiguration.dockerContainersContent =
                     DockerContainerDefinitionParser.convert(
-                            IOUtil.asStringPreservingNewLines(stream),
-                            cubeConfiguration.definitionFormat);
+                        IOUtil.asStringPreservingNewLines(stream),
+                        cubeConfiguration.definitionFormat);
             } else {
                 throw new IllegalArgumentException("Resource " + resource + " not found in classpath");
             }
@@ -379,7 +379,8 @@ public class CubeDockerConfiguration {
         return cleanBuildImage;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         String lineSeparator = System.lineSeparator();
         StringBuilder content = new StringBuilder();
 

@@ -1,11 +1,24 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.github.dockerjava.api.model.BlkioStatEntry;
+import com.github.dockerjava.api.model.BlkioStatsConfig;
+import com.github.dockerjava.api.model.MemoryStatsConfig;
+import com.github.dockerjava.api.model.StatsConfig;
+import com.github.dockerjava.api.model.StatisticNetworksConfig;
 import com.github.dockerjava.api.model.Statistics;
 import com.github.dockerjava.api.model.Version;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.DefinitionFormat;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
 import org.arquillian.cube.impl.model.LocalCubeRegistry;
+import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.CubeRegistry;
 import org.arquillian.cube.spi.event.lifecycle.AfterAutoStart;
@@ -21,30 +34,39 @@ import org.arquillian.reporter.config.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Event;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.util.*;
-
-import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.*;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_COMPOSITION_SCHEMA;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ENVIRONMENT;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_HOST_INFORMATION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_KERNEL;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_OS;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_VERSION;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
+import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Category({RequiresRemoteResource.class})
 public class TakeDockerEnvironmentTest {
 
     private static final String MULTIPLE_PORT_BINDING_SCENARIO =
-            "helloworld:\n" +
-                    "  image: dockercloud/hello-world\n" +
-                    "  exposedPorts: [8089/tcp]\n" +
-                    "  networkMode: host\n" +
-                    "  portBindings: [8080->80/tcp, 8081->81/tcp]";
+        "helloworld:\n" +
+            "  image: dockercloud/hello-world\n" +
+            "  exposedPorts: [8089/tcp]\n" +
+            "  networkMode: host\n" +
+            "  portBindings: [8080->80/tcp, 8081->81/tcp]";
 
     private static final String CUBE_ID = "tomcat";
 
@@ -83,15 +105,19 @@ public class TakeDockerEnvironmentTest {
         when(version.getApiVersion()).thenReturn("1.12");
         when(version.getArch()).thenReturn("x86");
         when(dockerClientExecutor.dockerHostVersion()).thenReturn(version);
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
     }
 
     private void configureCube() throws IOException {
         cubeRegistry = new LocalCubeRegistry();
         when(cube.getId()).thenReturn(CUBE_ID);
         cubeRegistry.addCube(cube);
-        when(statistics.getNetworks()).thenReturn(getNetworks());
-        when(statistics.getMemoryStats()).thenReturn(getMemory());
-        when(statistics.getBlkioStats()).thenReturn(getIOStats());
+        Map<String, StatisticNetworksConfig> networks = getNetworks();
+        when(statistics.getNetworks()).thenReturn(networks);
+        MemoryStatsConfig memory = getMemory();
+        when(statistics.getMemoryStats()).thenReturn(memory);
+        BlkioStatsConfig ioStats = getIOStats();
+        when(statistics.getBlkioStats()).thenReturn(ioStats);
         when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
     }
 
@@ -115,21 +141,21 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(Standalone.getStandaloneId())
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         final List<Report> subReports = report.getSubReports();
         assertThatReport(subReports.get(0))
-                .hasName(DOCKER_HOST_INFORMATION)
-                .hasNumberOfEntries(5)
-                .hasEntriesContaining(
-                        new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
-                        new KeyValueEntry(DOCKER_OS, "linux"),
-                        new KeyValueEntry(DOCKER_KERNEL, "3.1.0"),
-                        new KeyValueEntry(DOCKER_API_VERSION, "1.12"),
-                        new KeyValueEntry(DOCKER_ARCH, "x86"));
+            .hasName(DOCKER_HOST_INFORMATION)
+            .hasNumberOfEntries(5)
+            .hasEntriesContaining(
+                new KeyValueEntry(DOCKER_VERSION, "1.1.0"),
+                new KeyValueEntry(DOCKER_OS, "linux"),
+                new KeyValueEntry(DOCKER_KERNEL, "3.1.0"),
+                new KeyValueEntry(DOCKER_API_VERSION, "1.12"),
+                new KeyValueEntry(DOCKER_ARCH, "x86"));
     }
 
 
@@ -142,17 +168,17 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(Standalone.getStandaloneId())
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(Standalone.getStandaloneId())
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasName(DOCKER_ENVIRONMENT)
-                .hasNumberOfSubReports(1)
-                .hasEntriesContaining(
-                        new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports/schemas/docker_composition.png")),
-                        new KeyValueEntry(NETWORK_TOPOLOGY_SCHEMA, new FileEntry("reports/networks/docker_network_topology.png")));
+            .hasName(DOCKER_ENVIRONMENT)
+            .hasNumberOfSubReports(1)
+            .hasEntriesContaining(
+                new KeyValueEntry(DOCKER_COMPOSITION_SCHEMA, new FileEntry("reports" + File.separatorChar + "schemas" + File.separatorChar + "docker_composition.png")),
+                new KeyValueEntry(NETWORK_TOPOLOGY_SCHEMA, new FileEntry("reports" + File.separatorChar + "networks" + File.separatorChar + "docker_network_topology.png")));
     }
 
     @Test
@@ -166,14 +192,14 @@ public class TakeDockerEnvironmentTest {
         final SectionEvent sectionEvent = reportEventArgumentCaptor.getValue();
 
         assertThatSection(sectionEvent)
-                .hasSectionId(CUBE_ID)
-                .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
+            .hasSectionId(CUBE_ID)
+            .hasReportOfTypeThatIsAssignableFrom(BasicReport.class);
 
         final Report report = sectionEvent.getReport();
 
         assertThatReport(report)
-                .hasNumberOfEntries(1)
-                .hasEntriesContaining(new KeyValueEntry(LOG_PATH, new FileEntry("reports/logs/tomcat.log")));
+            .hasNumberOfEntries(1)
+            .hasEntriesContaining(new KeyValueEntry(LOG_PATH, new FileEntry("reports" + File.separatorChar + "logs" + File.separatorChar + "tomcat.log")));
     }
 
     /* @Test
@@ -278,54 +304,54 @@ public class TakeDockerEnvironmentTest {
         return ReporterConfiguration.fromMap(new LinkedHashMap<>());
     }
 
-    private Map<String, Object> getNetworks() {
-        Map<String, Object> nw = new LinkedHashMap<>();
-        Map<String, Integer> bytes = new LinkedHashMap<>();
-        bytes.put("rx_bytes", 724);
-        bytes.put("tx_bytes", 418);
-        bytes.put("rx_packets", 19);
+    private Map<String, StatisticNetworksConfig> getNetworks() {
+        Map<String, StatisticNetworksConfig> nw = new LinkedHashMap<>();
+        StatisticNetworksConfig bytes = mock(StatisticNetworksConfig.class);
+        when(bytes.getRxBytes()).thenReturn(724L);
+        when(bytes.getTxBytes()).thenReturn(418L);
+        when(bytes.getRxPackets()).thenReturn(19L);
         nw.put("eth0", bytes);
 
         return nw;
     }
 
-    private Map<String, Object> getMemory() {
-        Map<String, Object> memory = new LinkedHashMap<>();
-        memory.put("usage", 35135488);
-        memory.put("max_usage", 35770368);
-        memory.put("limit", 20444532736L);
-        memory.put("stats", new LinkedHashMap<>());
+    private MemoryStatsConfig getMemory() {
+        MemoryStatsConfig memory = mock(MemoryStatsConfig.class);
+        when(memory.getUsage()).thenReturn(35135488L);
+        when(memory.getMaxUsage()).thenReturn(35770368L);
+        when(memory.getLimit()).thenReturn(20444532736L);
+        when(memory.getStats()).thenReturn(new StatsConfig());
 
         return memory;
     }
 
-    private Map<String, Object> getIOStats() {
-        Map<String, Object> blkIO = new LinkedHashMap<>();
-        List<LinkedHashMap<String, ?>> io = new ArrayList<>();
-        LinkedHashMap ioServiceRead = new LinkedHashMap();
+    private BlkioStatsConfig getIOStats() {
+        BlkioStatsConfig blkIO = mock(BlkioStatsConfig.class);
+        List<BlkioStatEntry> io = new ArrayList<>();
 
-        ioServiceRead.put("major", 7);
-        ioServiceRead.put("minor", 0);
-        ioServiceRead.put("op", "Read");
-        ioServiceRead.put("value", 50688);
+        BlkioStatEntry ioServiceRead = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMajor(0L)
+            .withOp("Read")
+            .withValue(50688L);
         io.add(ioServiceRead);
 
-        LinkedHashMap ioServiceWrite = new LinkedHashMap();
-        ioServiceWrite.put("major", 7);
-        ioServiceWrite.put("minor", 0);
-        ioServiceWrite.put("op", "Write");
-        ioServiceWrite.put("value", 0);
+        BlkioStatEntry ioServiceWrite = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMajor(0L)
+            .withOp("Write")
+            .withValue(0L);
         io.add(ioServiceWrite);
 
-        LinkedHashMap ioServiceSync = new LinkedHashMap();
-        ioServiceSync.put("major", 7);
-        ioServiceSync.put("minor", 0);
-        ioServiceSync.put("op", "Sync");
-        ioServiceSync.put("value", 0);
+        BlkioStatEntry ioServiceSync = new BlkioStatEntry()
+            .withMajor(7L)
+            .withMinor(0L)
+            .withOp("Sync")
+            .withValue(0L);
         io.add(ioServiceSync);
 
-        blkIO.put("io_service_bytes_recursive", io);
-        blkIO.put("io_time_recursive", new ArrayList<>());
+        when(blkIO.getIoServiceBytesRecursive()).thenReturn(io);
+        when(blkIO.getIoTimeRecursive()).thenReturn(new ArrayList<>());
 
         return blkIO;
     }

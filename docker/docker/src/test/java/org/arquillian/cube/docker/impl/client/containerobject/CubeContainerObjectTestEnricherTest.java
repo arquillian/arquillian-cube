@@ -1,22 +1,11 @@
 package org.arquillian.cube.docker.impl.client.containerobject;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
+import com.github.dockerjava.api.DockerClient;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.CubeController;
 import org.arquillian.cube.containerobject.Cube;
@@ -43,6 +32,19 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@SuppressWarnings("unchecked")
 public class CubeContainerObjectTestEnricherTest {
 
     private CubeRegistry cubeRegistry;
@@ -63,9 +65,11 @@ public class CubeContainerObjectTestEnricherTest {
         dockerContainerObjectFactory = new DockerContainerObjectFactory();
         cubeController = mock(CubeController.class);
         dockerClientExecutor = mock(DockerClientExecutor.class);
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
         injector = mock(Injector.class);
         serviceLoader = mock(ServiceLoader.class);
         when(serviceLoader.all(any(Class.class))).thenReturn(Collections.emptyList());
+        when(dockerClientExecutor.getDockerClient()).thenReturn(mock(DockerClient.class, RETURNS_DEEP_STUBS));
 
         dockerContainerObjectFactory.serviceLoaderInstance = () -> serviceLoader;
         dockerContainerObjectFactory.dockerClientExecutorInstance = () -> dockerClientExecutor;
@@ -73,7 +77,7 @@ public class CubeContainerObjectTestEnricherTest {
         dockerContainerObjectFactory.cubeControllerInstance = () -> cubeController;
         dockerContainerObjectFactory.injectorInstance = () -> injector;
 
-        //We asure that there is no previous executions there.
+        //We ensure that there is no previous executions there.
         deleteTestDirectory();
     }
 
@@ -343,11 +347,13 @@ public class CubeContainerObjectTestEnricherTest {
     private static void deleteTestDirectory() {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
-        for (File testDirectory: testsDirectories) {
-            try {
-                FileUtils.deleteDirectory(testDirectory);
-            } catch (IOException e) {
-                // ignore
+        if (testsDirectories != null) {
+            for (File testDirectory: testsDirectories) {
+                try {
+                    FileUtils.deleteDirectory(testDirectory);
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         }
     }
@@ -355,11 +361,13 @@ public class CubeContainerObjectTestEnricherTest {
     private static File findGeneratedDirectory() {
         File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
         final File[] testsDirectories = tempDirectory.listFiles(CubeContainerObjectTestEnricherTest::testDirectoryFilter);
-        if (testsDirectories.length > 0) {
-            return testsDirectories[0];
-        } else {
-            return null;
+        if (testsDirectories != null) {
+            if (testsDirectories.length > 0) {
+                return testsDirectories[0];
+            }
         }
+
+        return null;
     }
 
     private static boolean testDirectoryFilter(File dir, String name) {

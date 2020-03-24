@@ -1,9 +1,11 @@
 package org.arquillian.cube.docker.impl.client.reporter;
 
+import com.github.dockerjava.api.model.BlkioStatEntry;
+import com.github.dockerjava.api.model.BlkioStatsConfig;
+import com.github.dockerjava.api.model.MemoryStatsConfig;
+import com.github.dockerjava.api.model.StatisticNetworksConfig;
 import com.github.dockerjava.api.model.Statistics;
-import org.arquillian.cube.docker.impl.client.utils.NumberConversion;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,42 +17,38 @@ public class ContainerStatsBuilder {
         CubeStatistics stats = new CubeStatistics();
 
         Map<String, Long> blkio = extractIORW(statistics.getBlkioStats());
-        Map<String, Long> memory = extractMemoryStats(statistics.getMemoryStats(), "usage", "max_usage", "limit");
-
         stats.setIoBytesRead(blkio.get("io_bytes_read"));
         stats.setIoBytesWrite(blkio.get("io_bytes_write"));
-        stats.setMaxUsage(memory.get("max_usage"));
-        stats.setUsage(memory.get("usage"));
-        stats.setLimit(memory.get("limit"));
+
+        MemoryStatsConfig memoryStats = statistics.getMemoryStats();
+        stats.setMaxUsage(memoryStats.getMaxUsage());
+        stats.setUsage(memoryStats.getUsage());
+        stats.setLimit(memoryStats.getLimit());
 
         stats.setNetworks(extractNetworksStats(statistics.getNetworks()));
-
 
         return stats;
     }
 
-    private static Map<String, Map<String, Long>> extractNetworksStats(Map<String, Object> map) {
+    private static Map<String, Map<String, Long>> extractNetworksStats(Map<String, StatisticNetworksConfig> map) {
         Map<String, Map<String, Long>> nwStatsForEachNICAndTotal = new LinkedHashMap<>();
         if (map != null) {
             long totalRxBytes = 0, totalTxBytes = 0;
 
-            for (Map.Entry<String, Object> entry: map.entrySet()) {
+            for (Map.Entry<String, StatisticNetworksConfig> entry: map.entrySet()) {
                 Map<String, Long> nwStats = new LinkedHashMap<>();
                 String adapterName = entry.getKey();
-                if (entry.getValue() instanceof LinkedHashMap) {
+                StatisticNetworksConfig adapter = entry.getValue();
 
-                    Map<String, ?> adapter = (LinkedHashMap) entry.getValue();
+                long rxBytes = adapter.getRxBytes();
+                long txBytes = adapter.getTxBytes();
 
-                    long rxBytes = NumberConversion.convertToLong(adapter.get("rx_bytes"));
-                    long txBytes = NumberConversion.convertToLong(adapter.get("tx_bytes"));
+                nwStats.put("rx_bytes", rxBytes);
+                nwStats.put("tx_bytes", txBytes);
+                nwStatsForEachNICAndTotal.put(adapterName, nwStats);
 
-                    nwStats.put("rx_bytes", rxBytes);
-                    nwStats.put("tx_bytes", txBytes);
-                    nwStatsForEachNICAndTotal.put(adapterName, nwStats);
-
-                    totalRxBytes += rxBytes;
-                    totalTxBytes += txBytes;
-                }
+                totalRxBytes += rxBytes;
+                totalTxBytes += txBytes;
             }
 
             Map<String, Long> total = new LinkedHashMap<>();
@@ -62,20 +60,20 @@ public class ContainerStatsBuilder {
         return nwStatsForEachNICAndTotal;
     }
 
-    private static Map<String, Long> extractIORW(Map<String, Object> blkioStats) {
+    private static Map<String, Long> extractIORW(BlkioStatsConfig blkioStats) {
         Map<String, Long> blkrwStats = new LinkedHashMap<>();
-        if (blkioStats != null && !blkioStats.isEmpty()) {
-            List<LinkedHashMap> bios = (ArrayList<LinkedHashMap>) blkioStats.get("io_service_bytes_recursive");
+        if (blkioStats != null) {
+            List<BlkioStatEntry> bios = blkioStats.getIoServiceBytesRecursive();
             long read = 0, write = 0;
             if (bios != null) {
-                for (Map<String, ?> io : bios) {
-                    if (io != null) {
-                        switch ((String) io.get("op")) {
+                for (BlkioStatEntry blkioStatEntry : bios) {
+                    if (blkioStatEntry != null) {
+                        switch (blkioStatEntry.getOp()) {
                             case "Read":
-                                read = NumberConversion.convertToLong(io.get("value"));
+                                read =blkioStatEntry.getValue();
                                 break;
                             case "Write":
-                                write = NumberConversion.convertToLong(io.get("value"));
+                                write = blkioStatEntry.getValue();
                                 break;
                         }
                     }
@@ -85,16 +83,5 @@ public class ContainerStatsBuilder {
             blkrwStats.put("io_bytes_write", write);
         }
         return blkrwStats;
-    }
-
-    private static Map<String, Long> extractMemoryStats(Map<String, Object> map, String... fields) {
-        Map<String, Long> memory = new LinkedHashMap<>();
-        if (map != null) {
-            for (String field: fields) {
-                long usage = NumberConversion.convertToLong(map.get(field));
-                memory.put(field, usage);
-            }
-        }
-        return memory;
     }
 }

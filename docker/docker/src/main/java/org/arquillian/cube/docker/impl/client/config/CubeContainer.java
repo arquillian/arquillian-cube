@@ -66,7 +66,9 @@ public class CubeContainer {
 
     private BuildImage buildImage;
 
+    private Collection<AfterStart> afterStart;
     private Collection<BeforeStop> beforeStop;
+    private Collection<AfterStop> afterStop;
 
     public Image getImage() {
         return image;
@@ -424,6 +426,18 @@ public class CubeContainer {
         this.extendsImage = extendsImage;
     }
 
+    public Collection<AfterStart> getAfterStart() {
+        return afterStart;
+    }
+
+    public void setAfterStart(Collection<AfterStart> afterStart) {
+        this.afterStart = afterStart;
+    }
+
+    public boolean hasAfterStart() {
+        return this.afterStart != null && !this.afterStart.isEmpty();
+    }
+
     public Collection<BeforeStop> getBeforeStop() {
         return beforeStop;
     }
@@ -434,6 +448,18 @@ public class CubeContainer {
 
     public boolean hasBeforeStop() {
         return this.beforeStop != null && !this.beforeStop.isEmpty();
+    }
+
+    public Collection<AfterStop> getAfterStop() {
+        return afterStop;
+    }
+
+    public void setAfterStop(Collection<AfterStop> afterStop) {
+        this.afterStop = afterStop;
+    }
+
+    public boolean hasAfterStop() {
+        return this.afterStop != null && !this.afterStop.isEmpty();
     }
 
     public String getContainerName() {

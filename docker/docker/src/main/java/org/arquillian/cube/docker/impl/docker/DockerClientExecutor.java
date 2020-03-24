@@ -1,5 +1,33 @@
 package org.arquillian.cube.docker.impl.docker;
 
+import javax.ws.rs.ProcessingException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -15,6 +43,7 @@ import com.github.dockerjava.api.command.StartContainerCmd;
 import com.github.dockerjava.api.command.StatsCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
 import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.exception.NotModifiedException;
 import com.github.dockerjava.api.model.AuthConfig;
@@ -57,35 +86,6 @@ import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.util.BindingUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.spi.CubeOutput;
-
-import javax.ws.rs.ProcessingException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DockerClientExecutor {
 
@@ -142,6 +142,7 @@ public class DockerClientExecutor {
     private static final Pattern IMAGEID_PATTERN = Pattern.compile(".*Successfully built\\s(\\p{XDigit}+)");
     private final URI dockerUri;
     private final String dockerServerIp;
+    private final boolean isDockerInsideDockerResolution;
     private DockerClient dockerClient;
     private CubeDockerConfiguration cubeConfiguration;
     private DockerClientConfig dockerClientConfig;
@@ -150,16 +151,16 @@ public class DockerClientExecutor {
     // It seems to be a problem with go and should be fixed in go 1.6 (and maybe in Docker 1.11.0). #320
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    public DockerClientExecutor(CubeDockerConfiguration cubeConfiguration) {
+    public DockerClientExecutor(CubeDockerConfiguration cdc) {
+
+        this.cubeConfiguration = cdc;
+        this.isDockerInsideDockerResolution = cubeConfiguration.isDockerInsideDockerResolution();
+
+        this.dockerUri = URI.create(cubeConfiguration.getDockerServerUri());
+        this.dockerServerIp = cubeConfiguration.getDockerServerIp();
 
         final DefaultDockerClientConfig.Builder configBuilder = DefaultDockerClientConfig
             .createDefaultConfigBuilder();
-
-        String dockerServerUri = cubeConfiguration.getDockerServerUri();
-
-        dockerUri = URI.create(dockerServerUri);
-        dockerServerIp = cubeConfiguration.getDockerServerIp();
-
         configBuilder.withApiVersion(cubeConfiguration.getDockerServerVersion())
             .withDockerHost(dockerUri.toString());
 
@@ -186,9 +187,21 @@ public class DockerClientExecutor {
         configBuilder.withDockerTlsVerify(cubeConfiguration.getTlsVerify());
 
         this.dockerClientConfig = configBuilder.build();
-        this.cubeConfiguration = cubeConfiguration;
 
         this.dockerClient = buildDockerClient();
+
+
+        //There needs to be this guarantee that we always try and remove networks
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            final List<com.github.dockerjava.api.model.Network> networks = DockerClientExecutor.this.getNetworks();
+            for (final com.github.dockerjava.api.model.Network network : networks) {
+                try {
+                    DockerClientExecutor.this.removeNetwork(network.getId());
+                } catch (final Exception ignore) {
+                    //no-op
+                }
+            }
+        }));
     }
 
     public static String getImageId(String fullLog) {
@@ -335,7 +348,7 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getReadonlyRootfs() != null) {
-                createContainerCmd.withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
+                createContainerCmd.getHostConfig().withReadonlyRootfs(containerConfiguration.getReadonlyRootfs());
             }
 
             if (containerConfiguration.getLabels() != null) {
@@ -374,11 +387,11 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getMemoryLimit() != null) {
-                createContainerCmd.withMemory(containerConfiguration.getMemoryLimit());
+                createContainerCmd.getHostConfig().withMemory(containerConfiguration.getMemoryLimit());
             }
 
             if (containerConfiguration.getMemorySwap() != null) {
-                createContainerCmd.withMemorySwap(containerConfiguration.getMemorySwap());
+                createContainerCmd.getHostConfig().withMemorySwap(containerConfiguration.getMemorySwap());
             }
 
             if (containerConfiguration.getShmSize() != null) {
@@ -386,15 +399,15 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getCpuShares() != null) {
-                createContainerCmd.withCpuShares(containerConfiguration.getCpuShares());
+                createContainerCmd.getHostConfig().withCpuShares(containerConfiguration.getCpuShares());
             }
 
             if (containerConfiguration.getCpuSet() != null) {
-                createContainerCmd.withCpusetCpus(containerConfiguration.getCpuSet());
+                createContainerCmd.getHostConfig().withCpusetCpus(containerConfiguration.getCpuSet());
             }
 
             if (containerConfiguration.getCpuQuota() != null) {
-                createContainerCmd.getHostConfig().withCpuQuota(containerConfiguration.getCpuQuota());
+                createContainerCmd.getHostConfig().withCpuQuota(containerConfiguration.getCpuQuota().longValue());
             }
 
             if (containerConfiguration.getAttachStdin() != null) {
@@ -415,7 +428,7 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getDns() != null) {
-                createContainerCmd.withDns(containerConfiguration.getDns().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withDns(containerConfiguration.getDns().toArray(new String[0]));
             }
 
             if (containerConfiguration.getVolumes() != null) {
@@ -423,56 +436,56 @@ public class DockerClientExecutor {
             }
 
             if (containerConfiguration.getVolumesFrom() != null) {
-                createContainerCmd.withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
+                createContainerCmd.getHostConfig().withVolumesFrom(toVolumesFrom(containerConfiguration.getVolumesFrom()));
             }
 
             if (containerConfiguration.getBinds() != null) {
-                createContainerCmd.withBinds(toBinds(containerConfiguration.getBinds()));
+                createContainerCmd.getHostConfig().withBinds(toBinds(containerConfiguration.getBinds()));
             }
 
             // Dependencies is precedence over links
             if (containerConfiguration.getLinks() != null && containerConfiguration.getDependsOn() == null) {
-                createContainerCmd.withLinks(toLinks(containerConfiguration.getLinks()));
+                createContainerCmd.getHostConfig().withLinks(toLinks(containerConfiguration.getLinks()));
             }
 
             if (containerConfiguration.getPortBindings() != null) {
-                createContainerCmd.withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
+                createContainerCmd.getHostConfig().withPortBindings(toPortBindings(containerConfiguration.getPortBindings()));
             }
 
             if (containerConfiguration.getPrivileged() != null) {
-                createContainerCmd.withPrivileged(containerConfiguration.getPrivileged());
+                createContainerCmd.getHostConfig().withPrivileged(containerConfiguration.getPrivileged());
             }
 
             if (containerConfiguration.getPublishAllPorts() != null) {
-                createContainerCmd.withPublishAllPorts(containerConfiguration.getPublishAllPorts());
+                createContainerCmd.getHostConfig().withPublishAllPorts(containerConfiguration.getPublishAllPorts());
             }
 
             if (containerConfiguration.getNetworkMode() != null) {
-                createContainerCmd.withNetworkMode(containerConfiguration.getNetworkMode());
+                createContainerCmd.getHostConfig().withNetworkMode(containerConfiguration.getNetworkMode());
             }
 
             if (containerConfiguration.getDnsSearch() != null) {
-                createContainerCmd.withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withDnsSearch(containerConfiguration.getDnsSearch().toArray(new String[0]));
             }
 
             if (containerConfiguration.getDevices() != null) {
-                createContainerCmd.withDevices(toDevices(containerConfiguration.getDevices()));
+                createContainerCmd.getHostConfig().withDevices(toDevices(containerConfiguration.getDevices()));
             }
 
             if (containerConfiguration.getRestartPolicy() != null) {
-                createContainerCmd.withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
+                createContainerCmd.getHostConfig().withRestartPolicy(toRestartPolicy(containerConfiguration.getRestartPolicy()));
             }
 
             if (containerConfiguration.getCapAdd() != null) {
-                createContainerCmd.withCapAdd(toCapability(containerConfiguration.getCapAdd()));
+                createContainerCmd.getHostConfig().withCapAdd(toCapability(containerConfiguration.getCapAdd()));
             }
 
             if (containerConfiguration.getCapDrop() != null) {
-                createContainerCmd.withCapDrop(toCapability(containerConfiguration.getCapDrop()));
+                createContainerCmd.getHostConfig().withCapDrop(toCapability(containerConfiguration.getCapDrop()));
             }
 
             if (containerConfiguration.getExtraHosts() != null) {
-                createContainerCmd.withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
+                createContainerCmd.getHostConfig().withExtraHosts(containerConfiguration.getExtraHosts().toArray(new String[0]));
             }
             if (containerConfiguration.getEntryPoint() != null) {
                 createContainerCmd.withEntrypoint(containerConfiguration.getEntryPoint().toArray(new String[0]));
@@ -563,7 +576,7 @@ public class DockerClientExecutor {
     }
 
     private Set<ExposedPort> resolveExposedPorts(CubeContainer containerConfiguration,
-        CreateContainerCmd createContainerCmd) {
+                                                 CreateContainerCmd createContainerCmd) {
         Set<ExposedPort> allExposedPorts = new HashSet<>();
         if (containerConfiguration.getPortBindings() != null) {
             for (PortBinding binding : containerConfiguration.getPortBindings()) {
@@ -788,12 +801,12 @@ public class DockerClientExecutor {
         if (params.containsKey(DOCKERFILE_NAME)) {
             buildImageCmd.withDockerfile(new File((String) params.get(DOCKERFILE_NAME)));
         }
-        
-        if(this.dockerClientConfig.getRegistryUsername() != null && this.dockerClientConfig.getRegistryPassword() != null){
+
+        if (this.dockerClientConfig.getRegistryUsername() != null && this.dockerClientConfig.getRegistryPassword() != null) {
             AuthConfig buildAuthConfig = new AuthConfig().withUsername(this.dockerClientConfig.getRegistryUsername())
-                    .withPassword(this.dockerClientConfig.getRegistryPassword())
-                    .withEmail(this.dockerClientConfig.getRegistryEmail())
-                    .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
+                .withPassword(this.dockerClientConfig.getRegistryPassword())
+                .withEmail(this.dockerClientConfig.getRegistryEmail())
+                .withRegistryAddress(this.dockerClientConfig.getRegistryUrl());
             final AuthConfigurations authConfigurations = new AuthConfigurations();
             authConfigurations.addConfig(buildAuthConfig);
             buildImageCmd.withBuildAuthConfigs(authConfigurations);
@@ -861,7 +874,7 @@ public class DockerClientExecutor {
 
         @Override
         public void onNext(Frame frame) {
-            if(collectFrames) collectedFrames.add(frame);
+            if (collectFrames) collectedFrames.add(frame);
             log.append(new String(frame.getPayload()));
         }
 
@@ -922,8 +935,7 @@ public class DockerClientExecutor {
      * EXecutes command to given container returning the inspection object as well. This method does 3 calls to
      * dockerhost. Create, Start and Inspect.
      *
-     * @param containerId
-     *     to execute command.
+     * @param containerId to execute command.
      */
     public ExecInspection execStartVerbose(String containerId, String... commands) {
         this.readWriteLock.readLock().lock();
@@ -990,7 +1002,7 @@ public class DockerClientExecutor {
     public InputStream getFileOrDirectoryFromContainerAsTar(String containerId, String from) {
         this.readWriteLock.readLock().lock();
         try {
-            InputStream response = dockerClient.copyFileFromContainerCmd(containerId, from).exec();
+            InputStream response = dockerClient.copyArchiveFromContainerCmd(containerId, from).exec();
             return response;
         } finally {
             this.readWriteLock.readLock().unlock();
@@ -1017,6 +1029,17 @@ public class DockerClientExecutor {
         }
     }
 
+    public void copyStreamToContainer(String containerId, File from, String to) {
+        this.readWriteLock.readLock().lock();
+        try {
+            dockerClient.copyArchiveToContainerCmd(containerId)
+                .withRemotePath(to)
+                .withHostResource(from.getAbsolutePath()).exec();
+        } finally {
+            this.readWriteLock.readLock().unlock();
+        }
+    }
+
     public void connectToNetwork(String networkId, String containerID) {
         this.readWriteLock.readLock().lock();
         try {
@@ -1027,7 +1050,7 @@ public class DockerClientExecutor {
     }
 
     public void copyLog(String containerId, boolean follow, boolean stdout, boolean stderr, boolean timestamps, int tail,
-        OutputStream outputStream) throws IOException {
+                        OutputStream outputStream) throws IOException {
         this.readWriteLock.readLock().lock();
         try {
             LogContainerCmd logContainerCmd =
@@ -1112,6 +1135,8 @@ public class DockerClientExecutor {
         this.readWriteLock.readLock().lock();
         try {
             this.dockerClient.removeNetworkCmd(id).exec();
+        } catch (final DockerException de) {
+            log.warning("Failed to remove docker network: " + id);
         } finally {
             this.readWriteLock.readLock().unlock();
         }
@@ -1155,6 +1180,10 @@ public class DockerClientExecutor {
      */
     public URI getDockerUri() {
         return dockerUri;
+    }
+
+    public boolean isDockerInsideDockerResolution() {
+        return isDockerInsideDockerResolution;
     }
 
     public DockerClient getDockerClient() {

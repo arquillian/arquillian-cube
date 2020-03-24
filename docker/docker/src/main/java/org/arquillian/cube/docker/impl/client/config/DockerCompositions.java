@@ -123,8 +123,16 @@ public class DockerCompositions {
                     cubeContainer.setAwait(overrideCubeContainer.getAwait());
                 }
 
+                if (overrideCubeContainer.hasAfterStart()) {
+                    cubeContainer.setAfterStart(overrideCubeContainer.getAfterStart());
+                }
+
                 if (overrideCubeContainer.hasBeforeStop()) {
                     cubeContainer.setBeforeStop(overrideCubeContainer.getBeforeStop());
+                }
+
+                if (overrideCubeContainer.hasAfterStop()) {
+                    cubeContainer.setAfterStop(overrideCubeContainer.getAfterStop());
                 }
 
                 if (overrideCubeContainer.isManual()) {
