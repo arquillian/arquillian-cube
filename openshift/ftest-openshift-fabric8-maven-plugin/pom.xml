@@ -14,7 +14,7 @@
   <artifactId>arquillian-cube-openshift-fmp-ftest</artifactId>
 
   <properties>
-    <version.spring.boot>2.0.0.RELEASE</version.spring.boot>
+    <version.spring.boot>2.1.4.RELEASE</version.spring.boot>
     <version.fabric8.maven.plugin>3.5.38</version.fabric8.maven.plugin>
   </properties>
 
