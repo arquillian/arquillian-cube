@@ -1,4 +1,4 @@
-import io.fabric8.kubernetes.api.model.v4_0.Service;
+import io.fabric8.kubernetes.api.model.v4_10.Service;
 import java.io.IOException;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;

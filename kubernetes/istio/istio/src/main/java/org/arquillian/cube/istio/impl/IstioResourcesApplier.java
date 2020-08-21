@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
+import io.fabric8.kubernetes.api.model.v4_10.ObjectMeta;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;

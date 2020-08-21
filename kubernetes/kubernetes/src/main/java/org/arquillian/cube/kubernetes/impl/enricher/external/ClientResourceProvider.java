@@ -3,16 +3,16 @@ package org.arquillian.cube.kubernetes.impl.enricher.external;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
-import io.fabric8.kubernetes.clnt.v4_0.Config;
-import io.fabric8.kubernetes.clnt.v4_0.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v4_10.Config;
+import io.fabric8.kubernetes.clnt.v4_10.DefaultKubernetesClient;
+import io.fabric8.kubernetes.clnt.v4_10.KubernetesClient;
 
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.clnt.v4_0.KubernetesClient}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.clnt.v4_10.KubernetesClient}.
  */
 public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
 

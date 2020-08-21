@@ -1,7 +1,7 @@
 package org.arquillian.cube.openshift.impl.enricher.internal;
 
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.clnt.v4_10.KubernetesClient;
+import io.fabric8.openshift.clnt.v4_10.OpenShiftClient;
 import java.lang.annotation.Annotation;
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;

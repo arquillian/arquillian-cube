@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
+import io.fabric8.kubernetes.api.model.v4_10.HasMetadata;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;

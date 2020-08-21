@@ -1,16 +1,16 @@
 package org.arquillian.cube.kubernetes.reporter;
 
-import io.fabric8.kubernetes.api.model.v4_0.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.PodListBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationController;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationControllerBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationControllerListBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceListBuilder;
-import io.fabric8.kubernetes.clnt.v4_0.server.mock.KubernetesMockServer;
+import io.fabric8.kubernetes.api.model.v4_10.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.Pod;
+import io.fabric8.kubernetes.api.model.v4_10.PodBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.PodListBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.ReplicationController;
+import io.fabric8.kubernetes.api.model.v4_10.ReplicationControllerBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.ReplicationControllerListBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.Service;
+import io.fabric8.kubernetes.api.model.v4_10.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.v4_10.ServiceListBuilder;
+import io.fabric8.kubernetes.clnt.v4_10.server.mock.KubernetesMockServer;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;

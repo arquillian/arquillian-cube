@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
+import io.fabric8.kubernetes.api.model.v4_10.ObjectMeta;
 import java.io.InputStream;
 import java.util.Arrays;
 import me.snowdrop.istio.api.IstioResource;

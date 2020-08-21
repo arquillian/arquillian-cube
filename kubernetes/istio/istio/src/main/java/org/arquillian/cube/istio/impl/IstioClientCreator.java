@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.clnt.v4_10.KubernetesClient;
 import me.snowdrop.istio.client.IstioClient;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;

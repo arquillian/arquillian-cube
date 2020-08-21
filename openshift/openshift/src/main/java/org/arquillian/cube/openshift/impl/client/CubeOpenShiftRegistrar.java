@@ -1,8 +1,8 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
+import io.fabric8.kubernetes.api.model.v4_10.HasMetadata;
+import io.fabric8.kubernetes.api.model.v4_10.Pod;
+import io.fabric8.kubernetes.api.model.v4_10.Service;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;

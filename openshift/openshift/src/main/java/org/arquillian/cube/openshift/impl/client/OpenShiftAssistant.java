@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfig;
-import io.fabric8.openshift.api.model.v4_0.Project;
-import io.fabric8.openshift.api.model.v4_0.Route;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.v4_10.HasMetadata;
+import io.fabric8.openshift.api.model.v4_10.DeploymentConfig;
+import io.fabric8.openshift.api.model.v4_10.Project;
+import io.fabric8.openshift.api.model.v4_10.Route;
+import io.fabric8.openshift.clnt.v4_10.OpenShiftClient;
 
 /**
  * Class that allows you to deploy undeploy and wait for resources programmatically in a test.

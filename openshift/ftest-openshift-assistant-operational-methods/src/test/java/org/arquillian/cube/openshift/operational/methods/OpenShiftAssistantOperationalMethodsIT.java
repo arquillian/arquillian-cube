@@ -1,9 +1,9 @@
 package org.arquillian.cube.openshift.operational.methods;
 
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.clnt.v4_0.internal.readiness.Readiness;
-import io.fabric8.openshift.api.model.v4_0.Project;
+import io.fabric8.kubernetes.api.model.v4_10.ObjectMeta;
+import io.fabric8.kubernetes.api.model.v4_10.Pod;
+import io.fabric8.kubernetes.clnt.v4_10.internal.readiness.Readiness;
+import io.fabric8.openshift.api.model.v4_10.Project;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

@@ -8,8 +8,8 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v4_0.apps.Deployment;
-import io.fabric8.kubernetes.api.model.v4_0.apps.DeploymentList;
+import io.fabric8.kubernetes.api.model.v4_10.apps.Deployment;
+import io.fabric8.kubernetes.api.model.v4_10.apps.DeploymentList;
 
 /**
  * A {@link ResourceProvider} for {@link Deployment}.

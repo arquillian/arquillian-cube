@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v4_0.KubernetesList;
-import io.fabric8.openshift.api.model.v4_0.DoneableTemplate;
-import io.fabric8.openshift.api.model.v4_0.Template;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.ParameterValue;
-import io.fabric8.openshift.clnt.v4_0.dsl.TemplateResource;
+import io.fabric8.kubernetes.api.model.v4_10.KubernetesList;
+import io.fabric8.openshift.api.model.v4_10.DoneableTemplate;
+import io.fabric8.openshift.api.model.v4_10.Template;
+import io.fabric8.openshift.clnt.v4_10.OpenShiftClient;
+import io.fabric8.openshift.clnt.v4_10.ParameterValue;
+import io.fabric8.openshift.clnt.v4_10.dsl.TemplateResource;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -4,15 +4,15 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceList;
+import io.fabric8.kubernetes.api.model.v4_10.Service;
+import io.fabric8.kubernetes.api.model.v4_10.ServiceList;
 
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v4_0.ServiceList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v4_10.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class ServiceResourceProvider extends AbstractKubernetesResourceProvider {

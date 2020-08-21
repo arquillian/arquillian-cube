@@ -3,7 +3,7 @@ package org.arquillian.cube.openshift.impl.enricher.internal;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v4_0.apps.DeploymentList;
+import io.fabric8.kubernetes.api.model.v4_10.apps.DeploymentList;
 
 import org.arquillian.cube.openshift.impl.enricher.AbstractOpenshiftResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;

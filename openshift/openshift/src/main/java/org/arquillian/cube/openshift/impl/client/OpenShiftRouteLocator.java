@@ -1,6 +1,6 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.openshift.api.model.v4_0.Route;
+import io.fabric8.openshift.api.model.v4_10.Route;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.jboss.arquillian.core.api.Instance;
 
