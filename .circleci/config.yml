@@ -1,0 +1,30 @@
+version: 2.1
+jobs:
+  build:
+    parameters:
+      jdk-version:
+        type: string
+    working_directory: ~/circleci-arquillian-cube
+    docker:
+      - image: circleci/openjdk:<< parameters.jdk-version >>
+    steps:
+      - checkout
+      - restore_cache:
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+      - run: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
+      - run: ./mvnw package
+      - store_test_results:
+          path: target/surefire-reports
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+
+workflows:
+  version: 2.1
+  circleci_build:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              jdk-version: ["8", "11"]
