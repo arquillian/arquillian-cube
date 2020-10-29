@@ -1,0 +1,97 @@
+defaults:
+  machine-conf: &machine-conf
+    image: ubuntu-1604:201903-01
+  skip-e2e-check: &skip-e2e-check
+    name: "Check for /skip-e2e directive"
+    command: |
+      COMMIT_MSG=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+      if [[ $COMMIT_MSG == *"/skip-e2e"* ]]; then
+        echo "/skip-e2e directive detected. Explictly stopping e2e tests."
+        circleci step halt
+      fi
+
+version: 2.1
+jobs:
+  build:
+    parameters:
+      jdk-version:
+        type: string
+     working_directory: ~/circleci-arquillian-cube
+    docker:
+      - image: circleci/openjdk:<< parameters.jdk-version >>
+    steps:
+      - checkout
+      - restore_cache:
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+      - run: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
+#      - run: ./mvnw verify -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker
+      - store_test_results:
+          path: target/surefire-reports
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+
+  test_openshift:
+    parameters:
+      oc-version:
+        type: string
+      category:
+        type: string
+      working_directory: ~/circleci-arquillian-cube
+    machine:
+      <<: *machine-conf
+    steps:
+      - checkout
+      - run:
+            <<: *skip-e2e-check
+      - restore_cache:
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+      - run:
+          name: "Start Openshift Cluster"
+          command: |
+            OC_VERSION = << parameters.oc-version >>
+            COMMIT_ID="0cbc58b"
+            tmp=`mktemp`
+            echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry 172.30.0.0/16"' > ${tmp}
+            sudo mv ${tmp} /etc/default/docker
+            sudo mount --make-shared /
+            sudo service docker restart
+            docker pull openshift/wildfly-101-centos7
+            docker pull aslakknutsen/openshift-arquillian-gitserver
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
+                chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+            client_tools="openshift-origin-client-tools-${OC_VERSION}-${COMMIT_ID}-linux-64bit" && curl -LO https://github.com/openshift/origin/releases/download/${OC_VERSION}/${client_tools}.tar.gz && \
+              tar -xvzf ${client_tools}.tar.gz && sudo mv $PWD/${client_tools}/oc /usr/local/bin/ && rm -rf ${client_tools}.tar.gz
+            oc cluster up --routing-suffix="127.0.0.1.${OC_DOMAIN:-nip.io}"
+            sleep 10
+            oc login -u system:admin
+            oc get event --all-namespaces
+
+            # Expose the docker-registry as a Route
+            # This is done in order for some of the tests that assume an existing Route to work
+            oc expose service docker-registry -n default
+
+      - run: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
+      - run: ./mvnw clean -Dfailsafe.groups=<< parameters.category >>
+      - store_test_results:
+          path: target/surefire-reports
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+
+workflows:
+  version: 2.1
+  circleci_build:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              jdk-version: ["8", "11"]
+      - test_openshift:
+          matrix:
+            parameters:
+              - oc-version: [ "3.11" ]
+              - category: ["org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes", "org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"]
+
