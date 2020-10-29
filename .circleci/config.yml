@@ -16,7 +16,7 @@ jobs:
     parameters:
       jdk-version:
         type: string
-     working_directory: ~/circleci-arquillian-cube
+    working_directory: ~/circleci-arquillian-cube
     docker:
       - image: circleci/openjdk:<< parameters.jdk-version >>
     steps:
@@ -33,12 +33,12 @@ jobs:
           key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
 
   test_openshift:
+    working_directory: ~/circleci-arquillian-cube
     parameters:
       oc-version:
         type: string
       category:
         type: string
-      working_directory: ~/circleci-arquillian-cube
     machine:
       <<: *machine-conf
     steps:
@@ -89,9 +89,10 @@ workflows:
           matrix:
             parameters:
               jdk-version: ["8", "11"]
+  circleci_test:
+    jobs:
       - test_openshift:
           matrix:
             parameters:
-              - oc-version: [ "3.11" ]
-              - category: ["org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes", "org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift"]
-
+              oc-version: [ "3.11" ]
+              category: [ "org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes", "org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift" ]
