@@ -45,9 +45,13 @@ recordingMode:: Configures mode for recording. The valid values are: `ALL, ONLY_
 videoOutput:: Directory where videos are stored. By default is `target/reports/videos` or if target does not exists `build/reports/videos` and if not creates a `target/reports/videos` by default.
 browserImage:: Docker image to be used as custom browser image instead of the official one (https://github.com/SeleniumHQ/docker-selenium). Notice that browser property will be used for setting `WebDriver` capabilities.
 browserDockerfileLocation:: Dockerfile location to be used to built custom docker image instead of the official one. This property has preference over browserImage.
+browserSeleniumPort:: When using the default `containerNameStrategy` of `STATIC`, then you can optionally provide a port to override the default of `14444`
 containerNameStrategy:: Sets the strategy for generating the container name. Valid values are `STATIC, STATIC_PREFIX, RANDOM` with the default being `STATIC`. `STATIC` will always use the same name, `STATIC_PREFIX` lets you define a prefix and enables running different tests in parallel and `RANDOM` generates a unique container name on every test run enabling running the same test in parallel.
 containerNamePrefix:: The prefix for the `STATIC_PREFIX` container name strategy.
-dockerRegistry:: Use this to override the default docker registry with a user specified registry.
+dockerRegistry:: Use this to override the default docker registry with a user specified registry - A trailing slash will be added if missing (i.e. _your.repo**/**_)
+
+TIP: To override the base `"browser"` name for all `containerNameStrategy` options you can specify the `SELENIUM_CONTAINER_BASE_NAME` System property or environment variable.
+This can be useful when running on a build server and you want to distinguish between multiple browser images, eg. `export SELENIUM_CONTAINER_BASE_NAME=MyProjectName`.
 
 IMPORTANT: Your custom images must expose the webdriver port `4444` and if you plan to use VNC, expose the default port `5900` as well
 

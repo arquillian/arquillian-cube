@@ -1,11 +1,10 @@
 package org.arquillian.cube.docker.impl.util;
 
+import java.util.Map.Entry;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.NetworkSettings;
-import java.util.Map.Entry;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
@@ -18,19 +17,16 @@ public final class BindingUtil {
     private BindingUtil() {
     }
 
-    public static Binding binding(DockerClientExecutor executor, String cubeId) {
-        InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd(cubeId).exec();
+    public static Binding binding(final DockerClientExecutor executor, final String cubeId) {
 
-        String dockerIp = getDockerServerIp(executor);
-        String inernalIp = null;
-        NetworkSettings networkSettings = inspectResponse.getNetworkSettings();
-        if (networkSettings != null) {
-            inernalIp = networkSettings.getIpAddress();
-        }
+        final String dockerIp = executor.getDockerServerIp();
+        final String internal = executor.isDockerInsideDockerResolution() ? dockerIp : executor.getDockerUri().getHost();
 
-        Binding binding = new Binding(dockerIp, inernalIp);
+        Binding binding = new Binding(dockerIp, internal);
 
-        HostConfig hostConfig = inspectResponse.getHostConfig();
+        final InspectContainerResponse inspectResponse = executor.getDockerClient().inspectContainerCmd(cubeId).exec();
+        final HostConfig hostConfig = inspectResponse.getHostConfig();
+
         if (hostConfig.getPortBindings() != null) {
             for (Entry<ExposedPort, com.github.dockerjava.api.model.Ports.Binding[]> bind : hostConfig.getPortBindings()
                 .getBindings().entrySet()) {
@@ -51,13 +47,9 @@ public final class BindingUtil {
         return binding;
     }
 
-    private static String getDockerServerIp(DockerClientExecutor executor) {
-        return executor.getDockerServerIp();
-    }
+    public static Binding binding(final CubeContainer cubeConfiguration, final DockerClientExecutor executor) {
 
-    public static Binding binding(CubeContainer cubeConfiguration, DockerClientExecutor executor) {
-
-        Binding binding = new Binding(executor.getDockerServerIp());
+        Binding binding = new Binding(executor.isDockerInsideDockerResolution() ? executor.getDockerServerIp() : executor.getDockerUri().getHost());
 
         if (cubeConfiguration.getPortBindings() != null) {
             for (PortBinding cubePortBinding : cubeConfiguration.getPortBindings()) {

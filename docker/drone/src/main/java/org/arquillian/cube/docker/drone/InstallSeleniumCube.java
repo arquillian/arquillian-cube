@@ -1,6 +1,5 @@
 package org.arquillian.cube.docker.drone;
 
-import java.util.Map;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.util.ConfigUtil;
@@ -11,6 +10,9 @@ import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class that modifies the docker composition to add Selenium docker container and if configured the VNC client container
@@ -29,19 +31,33 @@ public class InstallSeleniumCube {
 
     // ten less than Cube Q
     public void install(@Observes(precedence = 90) CubeDockerConfiguration configuration,
-        ArquillianDescriptor arquillianDescriptor) {
+                        ArquillianDescriptor arquillianDescriptor) {
 
-        DockerCompositions cubes = configuration.getDockerContainersContent();
+        final DockerCompositions cubes = configuration.getDockerContainersContent();
+        final Set<String> containerIds = cubes.getContainerIds();
 
         final SeleniumContainers seleniumContainers =
             SeleniumContainers.create(getBrowser(arquillianDescriptor), cubeDroneConfigurationInstance.get());
-        cubes.add(seleniumContainers.getSeleniumContainerName(), seleniumContainers.getSeleniumContainer());
+        final String idBrowser = seleniumContainers.getSeleniumContainerName();
+
+        if (!containerIds.contains(idBrowser)) {
+            cubes.add(idBrowser, seleniumContainers.getSeleniumContainer());
+        }
 
         final boolean recording = cubeDroneConfigurationInstance.get().isRecording();
+
         if (recording) {
-            cubes.add(seleniumContainers.getVncContainerName(), seleniumContainers.getVncContainer());
-            cubes.add(seleniumContainers.getVideoConverterContainerName(),
-                seleniumContainers.getVideoConverterContainer());
+            final String idVnc = seleniumContainers.getVncContainerName();
+
+            if (!containerIds.contains(idVnc)) {
+                cubes.add(idVnc, seleniumContainers.getVncContainer());
+            }
+
+            final String idVideo = seleniumContainers.getVideoConverterContainerName();
+
+            if (!containerIds.contains(idVideo)) {
+                cubes.add(idVideo, seleniumContainers.getVideoConverterContainer());
+            }
         }
 
         seleniumContainersInstanceProducer.set(seleniumContainers);
@@ -63,10 +79,6 @@ public class InstallSeleniumCube {
             return DEFAULT_BROWSER;
         }
 
-        if (extensionProperties.containsKey("browser")) {
-            return extensionProperties.get("browser");
-        } else {
-            return DEFAULT_BROWSER;
-        }
+        return extensionProperties.getOrDefault("browser", DEFAULT_BROWSER);
     }
 }

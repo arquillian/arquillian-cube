@@ -11,8 +11,10 @@ import org.arquillian.cube.docker.impl.util.ConfigUtil;
 import org.arquillian.cube.spi.Cube;
 import org.arquillian.cube.spi.await.AwaitStrategy;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -20,14 +22,23 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AwaitStrategyTest {
 
+    private static final String TEST_IP = "testIP";
     @Mock
     private Cube<?> cube;
-    @Mock
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DockerClientExecutor dockerClientExecutor;
+
+    @Before
+    public void before(){
+        when(dockerClientExecutor.getDockerServerIp()).thenReturn(TEST_IP);
+        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
+    }
 
     @Test
     public void should_be_able_to_create_http_await_strategy() {
@@ -47,13 +58,40 @@ public class AwaitStrategyTest {
         final DockerCompositions load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
         final CubeContainer tomcat = load.getContainers().get("tomcat");
 
-        HttpAwaitStrategy awaitStrategy = new HttpAwaitStrategy(cube, dockerClientExecutor, tomcat.getAwait());
+        final HttpAwaitStrategy awaitStrategy = new HttpAwaitStrategy(cube, dockerClientExecutor, tomcat.getAwait());
         assertThat(awaitStrategy.getPollIterations(), is(10));
         assertThat(awaitStrategy.getUrl(), is("http://localhost:8080/ping"));
         assertThat(awaitStrategy.getResponseCode(), is(201));
         assertThat(awaitStrategy.getMatcher(), is("Server startup"));
 
-        assertThat((String) awaitStrategy.getHeaders().get("X-Cube"), is("Docker"));
+        assertThat(awaitStrategy.getHeaders().get("X-Cube"), is("Docker"));
+    }
+
+    @Test
+    public void should_be_able_to_create_http_dind_await_strategy() {
+        String containerDefinition = "tomcat:\n" +
+            "            image: tutum/tomcat:7.0\n" +
+            "            exposedPorts: [8089/tcp]\n" +
+            "            await:\n" +
+            "              strategy: http\n" +
+            "              iterations: 10\n" +
+            "              sleepPollingTime: 200 s\n" +
+            "              url: http://dockerHost:8080/ping\n" +
+            "              responseCode: 201\n" +
+            "              match: 'Server startup'\n" +
+            "              headers: \n" +
+            "                   X-Cube: Docker\n";
+
+        final DockerCompositions load = ConfigUtil.load(new ByteArrayInputStream(containerDefinition.getBytes()));
+        final CubeContainer tomcat = load.getContainers().get("tomcat");
+
+        final HttpAwaitStrategy awaitStrategy = new HttpAwaitStrategy(cube, this.dockerClientExecutor, tomcat.getAwait());
+        assertThat(awaitStrategy.getPollIterations(), is(10));
+        assertThat(awaitStrategy.getUrl(), is("http://" + TEST_IP + ":8080/ping"));
+        assertThat(awaitStrategy.getResponseCode(), is(201));
+        assertThat(awaitStrategy.getMatcher(), is("Server startup"));
+
+        assertThat(awaitStrategy.getHeaders().get("X-Cube"), is("Docker"));
     }
 
     @Test
@@ -84,12 +122,12 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(StaticAwaitStrategy.class));
         StaticAwaitStrategy staticAwaitStrategy = (StaticAwaitStrategy) strategy;
 
-        assertThat(staticAwaitStrategy.getIp(), is("localhost"));
+        assertThat(staticAwaitStrategy.getIp(), is(TEST_IP));
         assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
         assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
     }
@@ -107,12 +145,12 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(StaticAwaitStrategy.class));
         StaticAwaitStrategy staticAwaitStrategy = (StaticAwaitStrategy) strategy;
 
-        assertThat(staticAwaitStrategy.getIp(), is("localhost"));
+        assertThat(staticAwaitStrategy.getIp(), is(TEST_IP));
         assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
         assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
         assertThat(staticAwaitStrategy.getPollIterations(), is(3));
@@ -132,12 +170,12 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(StaticAwaitStrategy.class));
         StaticAwaitStrategy staticAwaitStrategy = (StaticAwaitStrategy) strategy;
 
-        assertThat(staticAwaitStrategy.getIp(), is("localhost"));
+        assertThat(staticAwaitStrategy.getIp(), is(TEST_IP));
         assertThat(staticAwaitStrategy.getPorts().get(0), is(8080));
         assertThat(staticAwaitStrategy.getPorts().get(1), is(8089));
         assertThat(staticAwaitStrategy.getPollIterations(), is(3));
@@ -150,7 +188,7 @@ public class AwaitStrategyTest {
 
         CubeContainer cubeContainer = new CubeContainer();
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
     }
@@ -164,7 +202,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
     }
@@ -178,7 +216,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy) strategy).getPorts(), hasItems(80));
@@ -195,7 +233,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy) strategy).getPollIterations(), is(3));
@@ -212,7 +250,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(SleepingAwaitStrategy.class));
         assertThat(((SleepingAwaitStrategy) strategy).getSleepTime(), is(200));
@@ -229,7 +267,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy) strategy).getPollIterations(), is(3));
@@ -250,7 +288,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(PollingAwaitStrategy.class));
         assertThat(((PollingAwaitStrategy) strategy).getType(), is("sscommand"));
@@ -265,7 +303,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(NativeAwaitStrategy.class));
     }
@@ -280,7 +318,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
         final LogScanningAwaitStrategy log = (LogScanningAwaitStrategy) strategy;
@@ -303,7 +341,7 @@ public class AwaitStrategyTest {
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setAwait(await);
 
-        AwaitStrategy strategy = AwaitStrategyFactory.create(null, cube, cubeContainer);
+        AwaitStrategy strategy = AwaitStrategyFactory.create(this.dockerClientExecutor, cube, cubeContainer);
 
         assertThat(strategy, instanceOf(LogScanningAwaitStrategy.class));
         final LogScanningAwaitStrategy log = (LogScanningAwaitStrategy) strategy;

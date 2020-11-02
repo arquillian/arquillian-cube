@@ -18,6 +18,8 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
 
@@ -31,6 +33,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
     public void shouldStartNetworks() {
 
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
 
         String config =
             "networks:\n" +
@@ -69,6 +72,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
     public void shouldStopNetworks() {
 
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
 
         String config =
             "networks:\n" +

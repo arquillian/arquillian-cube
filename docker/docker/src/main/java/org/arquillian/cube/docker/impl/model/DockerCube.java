@@ -1,7 +1,5 @@
 package org.arquillian.cube.docker.impl.model;
 
-import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.exception.NotModifiedException;
 import java.net.InetAddress;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -11,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.exception.NotModifiedException;
 import org.arquillian.cube.docker.impl.await.AwaitStrategyFactory;
+import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.metadata.ChangesOnFilesystem;
 import org.arquillian.cube.docker.impl.client.metadata.CopyFromContainer;
@@ -25,6 +26,7 @@ import org.arquillian.cube.spi.BaseCube;
 import org.arquillian.cube.spi.Binding;
 import org.arquillian.cube.spi.Binding.PortBinding;
 import org.arquillian.cube.spi.CubeControlException;
+import org.arquillian.cube.spi.await.AwaitStrategy;
 import org.arquillian.cube.spi.event.lifecycle.AfterCreate;
 import org.arquillian.cube.spi.event.lifecycle.AfterDestroy;
 import org.arquillian.cube.spi.event.lifecycle.AfterStart;
@@ -43,6 +45,7 @@ import org.arquillian.cube.spi.metadata.CanSeeTop;
 import org.arquillian.cube.spi.metadata.HasPortBindings;
 import org.arquillian.cube.spi.metadata.IsBuildable;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 
 public class DockerCube extends BaseCube<CubeContainer> {
@@ -59,7 +62,7 @@ public class DockerCube extends BaseCube<CubeContainer> {
     @Inject
     private Event<CubeLifecyleEvent> lifecycle;
 
-    private DockerClientExecutor executor;
+    private final DockerClientExecutor executor;
 
     public DockerCube(String id, CubeContainer configuration, DockerClientExecutor executor) {
         this.id = id;
@@ -132,8 +135,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
 
             state = State.STARTED;
             portBindings.containerStarted();
-            if (!AwaitStrategyFactory.create(executor, this, configuration).await()) {
-                throw new IllegalArgumentException(String.format("Cannot connect to %s container", id));
+            final AwaitStrategy awaitStrategy = AwaitStrategyFactory.create(executor, this, configuration);
+            if (!awaitStrategy.await()) {
+                throw new IllegalArgumentException(String.format("Cannot connect to %s container using: " + awaitStrategy.getClass().getSimpleName(), id));
             }
             lifecycle.fire(new AfterStart(id));
         } catch (Exception e) {
@@ -158,7 +162,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
                     executor.stopContainer(id);
                 }
             } catch (NotFoundException e) {
+                log.info(String.format("Stopping container '%s' was not found, probably already removed", id));
             } catch (NotModifiedException e) {
+                log.info(String.format("Stopping container '%s' was not modified, probably already removed", id));
             }
             this.stoppingTimeInMillis = System.currentTimeMillis() - currentTime;
 
@@ -182,7 +188,9 @@ public class DockerCube extends BaseCube<CubeContainer> {
             try {
                 executor.removeContainer(id, configuration.getRemoveVolumes());
             } catch (NotFoundException e) {
+                log.info(String.format("Destroying container '%s' was not found, probably already removed", id));
             } catch (NotModifiedException e) {
+                log.info(String.format("Destroying container '%s' was not modified, probably already removed", id));
             }
             long partialDuration = System.currentTimeMillis() - currentTime;
             this.stoppingTimeInMillis = this.stoppingTimeInMillis + partialDuration;
@@ -272,8 +280,11 @@ public class DockerCube extends BaseCube<CubeContainer> {
         private PortBindings() {
             this.mappedPorts = new HashMap<Integer, PortAddress>();
             this.containerPorts = new LinkedHashSet<Integer>();
+
             final Binding configuredBindings = configuredBindings();
             containerIP = configuredBindings.getIP();
+            internalIP = configuredBindings.getInternalIP();
+
             for (PortBinding portBinding : configuredBindings.getPortBindings()) {
                 final int exposedPort = portBinding.getExposedPort();
                 final Integer boundPort = portBinding.getBindingPort();
@@ -298,6 +309,10 @@ public class DockerCube extends BaseCube<CubeContainer> {
         @Override
         public String getInternalIP() {
             return internalIP;
+        }
+
+        public void setInternalIP(String internalIP) {
+            this.internalIP = internalIP;
         }
 
         @Override
@@ -328,8 +343,10 @@ public class DockerCube extends BaseCube<CubeContainer> {
          */
         private synchronized void containerStarted() {
             final Binding bindings = bindings();
+
             containerIP = bindings.getIP();
             internalIP = bindings.getInternalIP();
+
             for (PortBinding portBinding : bindings.getPortBindings()) {
                 final int exposedPort = portBinding.getExposedPort();
                 final Integer boundPort = portBinding.getBindingPort();

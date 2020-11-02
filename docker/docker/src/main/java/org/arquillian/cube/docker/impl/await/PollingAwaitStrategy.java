@@ -93,9 +93,13 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                         throw new IllegalArgumentException(
                             "Can not use polling of type " + type + " on non externally bound port " + port);
                     }
-                    log.fine(String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
-                        this.type));
-                    if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
+
+                    final String host = (dockerClientExecutor.isDockerInsideDockerResolution()
+                        ? dockerClientExecutor.getDockerServerIp() : dockerClientExecutor.getDockerUri().getHost());
+
+                    log.fine(String.format("Pinging host %s:%s with type %s", host, mapping.getPort(), this.type));
+
+                    if (!Ping.ping(host, mapping.getPort(), this.pollIterations, this.getSleepTime(),
                         this.getTimeUnit())) {
                         return false;
                     }
@@ -121,7 +125,7 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
                                     "Can not use polling of type " + type + " on non externally bound port " + port);
                             }
                             log.fine(
-                                String.format("Pinging host %s and port %s with type", mapping.getIP(), mapping.getPort(),
+                                String.format("Pinging host %s and port %s with type %s", mapping.getIP(), mapping.getPort(),
                                     this.type));
                             if (!Ping.ping(mapping.getIP(), mapping.getPort(), this.pollIterations, this.getSleepTime(),
                                 this.getTimeUnit())) {

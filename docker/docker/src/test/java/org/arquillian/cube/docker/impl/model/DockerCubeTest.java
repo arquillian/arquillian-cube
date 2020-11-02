@@ -23,6 +23,7 @@ import org.jboss.arquillian.core.test.AbstractManagerTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,7 +39,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Mock
     private DockerClientExecutor executor;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DockerClient dockerClient;
 
     @Mock
@@ -60,6 +61,8 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         when(inspectContainerCmd.exec()).thenReturn(inspectContainerResponse);
         when(dockerClient.inspectContainerCmd(anyString())).thenReturn(inspectContainerCmd);
         when(executor.getDockerClient()).thenReturn(dockerClient);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
+        when(executor.getDockerServerIp()).thenReturn("localhost");
         CubeContainer cubeContainer = new CubeContainer();
         cubeContainer.setRemoveVolumes(false);
         cube = injectorInst.get().inject(new DockerCube(ID, cubeContainer, executor));

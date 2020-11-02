@@ -37,6 +37,7 @@ public class DockerImageControllerTest extends AbstractManagerTestBase {
     @Test
     public void should_remove_docker_image_if_built_by_cube() {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
         String config = "pingpong:\n" +
             "  buildImage:\n" +
             "    dockerfileLocation: src/test/resources/tomcat\n" +
@@ -72,6 +73,7 @@ public class DockerImageControllerTest extends AbstractManagerTestBase {
     @Test
     public void should_not_remove_docker_image_as_not_built_by_cube() {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
 
         String config = "pingpong:\n" +
             "  image: jonmorehouse/ping-pong\n" +

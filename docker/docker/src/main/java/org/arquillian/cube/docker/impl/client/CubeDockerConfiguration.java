@@ -46,7 +46,7 @@ public class CubeDockerConfiguration {
     private static final String DOCKER_CONTAINERS_FILES = "dockerContainersFiles";
     private static final String DOCKER_CONTAINERS_RESOURCE = "dockerContainersResource";
     private static final String IGNORE_CONTAINERS_DEFINITION = "ignoreContainersDefinition";
-    private static final String DOCKER_REGISTRY = "dockerRegistry";
+    public static final String DOCKER_REGISTRY = "dockerRegistry";
     private static final String AUTO_START_CONTAINERS = "autoStartContainers";
     private static final String DEFINITION_FORMAT = "definitionFormat";
     private static final String CUBE_ENVIRONMENT = "cube.environment";

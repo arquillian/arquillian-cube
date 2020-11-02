@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CubeRegistrarTestCase extends AbstractManagerTestBase {
 
@@ -38,6 +40,7 @@ public class CubeRegistrarTestCase extends AbstractManagerTestBase {
     @Before
     public void setup() {
         bind(ApplicationScoped.class, CubeRegistry.class, registry);
+        when(executor.isDockerInsideDockerResolution()).thenReturn(true);
     }
 
     @Test
