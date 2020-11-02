@@ -14,7 +14,7 @@
     <version.javax.inject>1</version.javax.inject>
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
-    <version.selenium>3.6.0</version.selenium>
+    <version.selenium>3.4.0</version.selenium>
     <version.graphene>2.3.1</version.graphene>
   </properties>
   <dependencyManagement>
