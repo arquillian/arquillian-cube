@@ -101,9 +101,9 @@ public class SeleniumContainersTest {
 
         final SeleniumContainers firefox = SeleniumContainers.create("firefox", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("firefox"));
-        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:2.53.0"));
+        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-firefox-debug:4.1.1"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
-        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
+        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(200));
     }
 
     @Test
@@ -116,9 +116,9 @@ public class SeleniumContainersTest {
 
         final SeleniumContainers firefox = SeleniumContainers.create("chrome", cubeDroneConfiguration);
         assertThat(firefox.getBrowser(), is("chrome"));
-        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-chrome-debug:2.53.0"));
+        assertThat(firefox.getSeleniumContainer().getImage().toString(), is("selenium/standalone-chrome-debug:4.1.1"));
         assertThat(firefox.getSeleniumContainer().getPortBindings(), hasItem(PortBinding.valueOf("14444->4444")));
-        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(403));
+        assertThat(firefox.getSeleniumContainer().getAwait().getResponseCode(), is(200));
     }
 
     @Test

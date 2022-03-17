@@ -115,7 +115,8 @@ public class SessionManager implements SessionCreatedListener {
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<URL> dependencyUrls =
-                !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies()
+            	configuration.getEnvironmentDependencies() != null && !configuration.getEnvironmentDependencies().isEmpty()
+            		? configuration.getEnvironmentDependencies()
                     : dependencyResolver.resolve(session);
 
             if (configuration.isEnvironmentInitEnabled()) {
