@@ -98,6 +98,9 @@ public class IOUtil {
                 if (!entry.isDirectory()) {
                     String entryName = entry.getName();
                     File toFile = new File(toDir, entryName);
+                    if (!toFile.toPath().normalize().startsWith(toDir.toPath().normalize())) {
+                        throw new IOException("Bad zip entry");
+                    }
                     toFile.getParentFile().mkdirs();
                     OutputStream os = new FileOutputStream(toFile);
                     try {
