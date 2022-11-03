@@ -41,6 +41,7 @@
     <module>junit-rule</module>
     <module>junit5</module>
     <module>ftest</module>
+    <module>ftest-jpa</module>
     <module>ftest-standalone</module>
     <module>ftest-boot2docker</module>
     <module>ftest-docker-compose</module>
