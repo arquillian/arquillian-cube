@@ -11,6 +11,8 @@ jobs:
       - checkout
       - restore_cache:
           key: circleci-arquillian-cube-{{ checksum "pom.xml" }}
+      - setup_remote_docker:
+          version: 20.10.18
       - run: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
       - run: ./mvnw package
       - store_test_results:
