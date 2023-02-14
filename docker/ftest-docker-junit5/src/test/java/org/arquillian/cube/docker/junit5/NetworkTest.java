@@ -2,12 +2,11 @@ package org.arquillian.cube.docker.junit5;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 // tag::docs[]
-@ExtendWith(NetworkDslResolver.class)
+//@ExtendWith(NetworkDslResolver.class)
 // end::docs[]
 @Disabled("Test disabled because requirements module has no support for JUnit5 yet")
 // tag::docs[]
