@@ -27,11 +27,11 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
 
         final DefaultConfiguration config = new ExtensionRegistrar().loadExtension(extension);
 
-        KubernetesClient client = new DefaultKubernetesClient(new ClientConfigBuilder().configuration(config).build());
+        try (KubernetesClient client = new DefaultKubernetesClient(
+            new ClientConfigBuilder().configuration(config).build())) {
 
-        OkHttpClient httpClient = client.adapt(OkHttpClient.class);
+            OkHttpClient httpClient = client.adapt(OkHttpClient.class);
 
-        try {
             Request versionRequest = new Request.Builder()
                 .get()
                 .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
