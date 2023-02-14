@@ -1,9 +1,45 @@
 version: 2.1
+
+commands:
+  mvn-build:
+    parameters:
+      category:
+        type: enum
+        enum: ["docker", "kubernetes", "openshift"]
+    steps:
+      - run:
+          name: "Maven pre-fetch dependencies"
+          command: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
+      - when:
+          condition:
+            equal: [ docker, << parameters.category >> ]
+          steps:   
+            - run:
+                name: "Maven build for Docker"
+                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker
+      - when:
+          condition:
+            equal: [ kubernetes, << parameters.category >> ]
+          steps:   
+            - run:
+                name: "Maven build for Kubernetes"
+                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker          
+      - when:
+          condition:
+            equal: [ openshift, << parameters.category >> ]
+          steps:   
+            - run:
+                name: "Maven build for OpenShift" 
+                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker        
+
 jobs:
   build:
     parameters:
       jdk-version:
         type: string
+      category:
+        type: enum
+        enum: ["docker", "kubernetes", "openshift"]
     working_directory: ~/circleci-arquillian-cube
     docker:
       - image: cimg/openjdk:<< parameters.jdk-version >>
@@ -21,8 +57,8 @@ jobs:
               echo 'Changing owner of /var/run/docker.sock to circleci' 
                   sudo chown circleci /var/run/docker.sock
               fi
-      - run: ./mvnw verify -q -U -DskipTests # pre-fetch dependencies (dependency:resolve fails)
-      - run: ./mvnw package
+      - mvn-build:
+          category: << parameters.category >> 
       - store_test_results:
           path: target/surefire-reports
       - save_cache:
@@ -38,3 +74,4 @@ workflows:
           matrix:
             parameters:
               jdk-version: ["8.0"] # TODO: Add JDK 11.0 when builds for JDK8 work
+              category: ["docker"] # TODO: Add builds for kubernetes and openshift
