@@ -30,21 +30,24 @@ public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
         KubernetesClient client = new DefaultKubernetesClient(new ClientConfigBuilder().configuration(config).build());
 
         OkHttpClient httpClient = client.adapt(OkHttpClient.class);
-        Request versionRequest = new Request.Builder()
-            .get()
-            .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
-            .build();
 
         try {
+            Request versionRequest = new Request.Builder()
+                .get()
+                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
+                .build();
+
             Response response = httpClient.newCall(versionRequest).execute();
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify Openshift version, due to: [" + response.message() + "]");
             } else if (!client.isAdaptable(OpenShiftClient.class)) {
-                throw new UnsatisfiedRequirementException("A valid Kubernetes environmnet was found, but not Openshift.");
+                throw new UnsatisfiedRequirementException(
+                    "A valid Kubernetes environmnet was found, but not Openshift.");
             }
-        } catch (IOException e) {
-            throw new UnsatisfiedRequirementException("Error while checking Openshift version: [" + e.getMessage() + "]");
+        } catch (IOException | IllegalArgumentException e) {
+            throw new UnsatisfiedRequirementException(
+                "Error while checking Openshift version: [" + e.getMessage() + "]");
         }
     }
 }
