@@ -15,7 +15,10 @@ import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,11 +28,19 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DockerRequirementTest {
 
+    @ClassRule
+    public static final EnvironmentVariables environmentVariables = new EnvironmentVariables();
+
     @Mock
     CubeDockerConfigurationResolver configResolver;
 
     @Mock
     CommandLineExecutor commandLineExecutor;
+
+    @BeforeClass
+    public static void beforeEach() {
+        environmentVariables.clear("DOCKER_HOST", "DOCKER_MACHINE_NAME", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH");
+    }
 
     @Test(expected = UnsatisfiedRequirementException.class)
     public void testDockerRequirementCheckWhenExecutionExceptionThrown() throws UnsatisfiedRequirementException {
@@ -101,7 +112,8 @@ public class DockerRequirementTest {
         }
 
         public String getConnectionString() {
-            return "tcp://" + serverSocket.getInetAddress().getHostName() + ":" + serverSocket.getLocalPort();
+            return "tcp://" + serverSocket.getInetAddress()
+                .getHostName() + ":" + serverSocket.getLocalPort();
         }
 
         @Override
@@ -110,7 +122,8 @@ public class DockerRequirementTest {
             Socket socket = null;
             try {
                 socket = serverSocket.accept();
-                socket.getInputStream().read(); // Will hang on windows if stream is not read
+                socket.getInputStream()
+                    .read(); // Will hang on windows if stream is not read
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 
                 String versionJSON = "{\"Client\":{\"Version\":\"0.0.0\",\"ApiVersion\":\"0.00\"}}";
