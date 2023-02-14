@@ -110,6 +110,7 @@ public class DockerRequirementTest {
             Socket socket = null;
             try {
                 socket = serverSocket.accept();
+                socket.getInputStream().read(); // Will hang on windows if stream is not read
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 
                 String versionJSON = "{\"Client\":{\"Version\":\"0.0.0\",\"ApiVersion\":\"0.00\"}}";
