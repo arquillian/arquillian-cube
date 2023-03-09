@@ -74,7 +74,7 @@
     <version.docker-java>3.2.13</version.docker-java>
     <version.kubernetes_client>4.0.7</version.kubernetes_client>
     <version.sundrio>0.80.1</version.sundrio>
-    <version.snakeyaml>1.30</version.snakeyaml>
+    <version.snakeyaml>2.0</version.snakeyaml>
     <version.shrinkwrap_resolver>3.1.4</version.shrinkwrap_resolver>
     <version.shrinkwrap>2.0.0-beta-1</version.shrinkwrap>
     <version.mockito>1.10.19</version.mockito>

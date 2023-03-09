@@ -13,6 +13,8 @@ import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.docker.compose.DockerComposeEnvironmentVarResolver;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
@@ -54,7 +56,8 @@ public final class ConfigUtil {
     }
 
     public static String dump(DockerCompositions containers) {
-        Yaml yaml = new Yaml(new CubeRepresenter());
+        DumperOptions dumperOptions = new DumperOptions();
+        Yaml yaml = new Yaml(new CubeRepresenter(dumperOptions), dumperOptions);
         return yaml.dump(containers);
     }
 
@@ -70,7 +73,8 @@ public final class ConfigUtil {
 
         final String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
 
-        Yaml yaml = new Yaml(new CubeConstructor());
+        LoaderOptions loadingOptions = new LoaderOptions();
+        Yaml yaml = new Yaml(new CubeConstructor(loadingOptions));
         Map<String, Object> rawLoad = (Map<String, Object>) yaml.load(content);
 
         DockerCompositions containers = new DockerCompositions();
@@ -115,7 +119,8 @@ public final class ConfigUtil {
     }
 
     private static class CubeRepresenter extends Representer {
-        public CubeRepresenter() {
+        public CubeRepresenter(DumperOptions options) {
+        	super(options);
             this.representers.put(PortBinding.class, new ToStringRepresent());
             this.representers.put(ExposedPort.class, new ToStringRepresent());
             this.representers.put(Image.class, new ToStringRepresent());
@@ -141,7 +146,8 @@ public final class ConfigUtil {
     }
 
     public static class CubeConstructor extends Constructor {
-        public CubeConstructor() {
+        public CubeConstructor(LoaderOptions loadingConfig) {
+        	super(loadingConfig);
             this.yamlClassConstructors.put(NodeId.scalar, new CubeMapping());
         }
 
