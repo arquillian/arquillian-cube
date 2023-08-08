@@ -27,21 +27,22 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
 
         final DefaultConfiguration config = new ExtensionRegistrar().loadExtension(extension);
 
-        KubernetesClient client = new DefaultKubernetesClient(new ClientConfigBuilder().configuration(config).build());
+        try (KubernetesClient client = new DefaultKubernetesClient(
+            new ClientConfigBuilder().configuration(config).build())) {
 
-        OkHttpClient httpClient = client.adapt(OkHttpClient.class);
-        Request versionRequest = new Request.Builder()
-            .get()
-            .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
-            .build();
+            OkHttpClient httpClient = client.adapt(OkHttpClient.class);
 
-        try {
+            Request versionRequest = new Request.Builder()
+                .get()
+                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
+                .build();
+
             Response response = httpClient.newCall(versionRequest).execute();
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify kubernetes version, due to: [" + response.message() + "]");
             }
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             throw new UnsatisfiedRequirementException(
                 "Error while checking kubernetes version: [" + e.getMessage() + "]");
         }

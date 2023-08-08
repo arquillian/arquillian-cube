@@ -17,7 +17,11 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -32,6 +36,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CubeDockerConfigurationResolverTest {
 
+    @ClassRule
+    public static final EnvironmentVariables environmentVariables = new EnvironmentVariables();
+    
     @Mock
     private static OperatingSystemInterface operatingSystemInterface;
 
@@ -58,6 +65,11 @@ public class CubeDockerConfigurationResolverTest {
         when(dockerClient.infoCmd()).thenReturn(infoCmd);
         when(infoCmd.exec()).thenReturn(info);
         return defaultDocker;
+    }
+    
+    @BeforeClass
+    public static void beforeEach() {
+        environmentVariables.clear("DOCKER_HOST", "DOCKER_MACHINE_NAME", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH");
     }
 
     @Test
