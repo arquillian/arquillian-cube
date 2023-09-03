@@ -84,7 +84,7 @@ public class Timespan implements Serializable {
         final List<TimeUnit> timeUnits = Arrays.asList(TimeUnit.values());
         Collections.reverse(timeUnits);
 
-        TIME_UNIT_ORDER = (TimeUnit[]) timeUnits.toArray();
+        TIME_UNIT_ORDER = timeUnits.toArray(new TimeUnit[0]);
     }
 
     static {

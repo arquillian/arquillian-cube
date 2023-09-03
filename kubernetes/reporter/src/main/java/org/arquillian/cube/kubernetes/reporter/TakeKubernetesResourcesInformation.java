@@ -142,7 +142,8 @@ public class TakeKubernetesResourcesInformation {
 
         if (configuration.isEnvironmentInitEnabled()) {
             List<URL> dependencyUrls =
-                !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies()
+                configuration.getEnvironmentDependencies() != null && !configuration.getEnvironmentDependencies().isEmpty()
+                    ? configuration.getEnvironmentDependencies()
                     : dependencyResolver.get().resolve(session);
 
             for (URL dependencyUrl : dependencyUrls) {

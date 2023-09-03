@@ -14,20 +14,9 @@
     <version.javax.inject>1</version.javax.inject>
     <version.jgit>4.0.0.201506090130-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
-    <version.selenium>3.6.0</version.selenium>
-    <version.graphene>2.3.1</version.graphene>
+    <version.selenium>4.1.2</version.selenium>
+    <version.graphene>3.0.0-alpha.3</version.graphene>
   </properties>
-  <dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.jboss.arquillian.selenium</groupId>
-      <artifactId>selenium-bom</artifactId>
-      <version>${version.selenium}</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-  </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -152,8 +141,6 @@
     <dependency>
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
-      <version>0.2.8</version>
-      <scope>compile</scope>
       <optional>true</optional>
     </dependency>
 
@@ -194,12 +181,14 @@
     </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-support</artifactId>
+	  <artifactId>selenium-support</artifactId>
+	  <version>${version.selenium}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-remote-driver</artifactId>
+	  <version>${version.selenium}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

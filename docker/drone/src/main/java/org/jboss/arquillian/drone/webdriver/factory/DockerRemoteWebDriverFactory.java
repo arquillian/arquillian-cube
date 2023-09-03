@@ -13,6 +13,7 @@ import org.jboss.arquillian.drone.spi.Destructor;
 import org.jboss.arquillian.drone.spi.Instantiator;
 import org.jboss.arquillian.drone.webdriver.configuration.WebDriverConfiguration;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.remote.Browser;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -53,12 +54,12 @@ public class DockerRemoteWebDriverFactory extends AbstractWebDriverFactory<Remot
         final SeleniumContainers seleniumContainers = seleniumContainersInstance.get();
         switch (seleniumContainers.getBrowser()) {
             case "firefox":
-                return DesiredCapabilities.firefox();
+                return new DesiredCapabilities(Browser.FIREFOX.browserName(), null, null);
             case "chrome":
-                return DesiredCapabilities.chrome();
+                return new DesiredCapabilities(Browser.CHROME.browserName(), null, null);
             // Never should happen since it is protected inside selenium containers class
             default:
-                return DesiredCapabilities.firefox();
+                return new DesiredCapabilities(Browser.FIREFOX.browserName(), null, null);
         }
     }
 

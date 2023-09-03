@@ -19,9 +19,9 @@
   <name>Arquillian Cube OpenShift Parent</name>
 
   <properties>
-    <version.graphene>2.1.0.Final</version.graphene>
-    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-    <version.selenium>2.53.1</version.selenium>
+    <version.graphene>3.0.0-alpha.3</version.graphene>
+    <version.arquillian.drone>3.0.0-alpha.4</version.arquillian.drone>
+    <version.selenium>4.1.2</version.selenium>
   </properties>
 
   <modules>

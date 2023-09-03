@@ -547,7 +547,7 @@ public class DefaultConfiguration implements Configuration {
         if (environmentConfigUrl != null) {
             appendPropertyWithValue(content, ENVIRONMENT_CONFIG_URL, environmentConfigUrl);
         }
-        if (!environmentDependencies.isEmpty()) {
+        if (environmentDependencies != null && !environmentDependencies.isEmpty()) {
             appendPropertyWithValue(content, ENVIRONMENT_DEPENDENCIES, environmentDependencies.toString());
         }
 
