@@ -12,7 +12,7 @@
   <properties>
     <version.openshift_restclient>1.0.0-SNAPSHOT</version.openshift_restclient>
     <version.javax.inject>1</version.javax.inject>
-    <version.jgit>4.0.0.201506090130-r</version.jgit>
+    <version.jgit>6.6.1.202309021850-r</version.jgit>
     <version.alpn>8.1.9.v20160720</version.alpn>
     <version.selenium>3.6.0</version.selenium>
     <version.graphene>2.3.1</version.graphene>

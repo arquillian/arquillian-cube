@@ -84,7 +84,7 @@
     <version.assertj>3.15.0</version.assertj>
     <version.arquillian.reporter>0.0.3</version.arquillian.reporter>
     <version.restassured>4.1.2</version.restassured>
-    <version.jgit>4.9.2.201712150930-r</version.jgit>
+    <version.jgit>6.6.1.202309021850-r</version.jgit>
     <version.systemrules>1.17.0</version.systemrules>
     <version.dmr>1.5.0.Final</version.dmr>
     <version.jackson>2.10.0</version.jackson>
