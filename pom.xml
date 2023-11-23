@@ -97,6 +97,7 @@
     <version.istio>1.0.0.Beta4</version.istio>
     <version.awaitility>4.0.1</version.awaitility>
     <version.junit5>5.4.2</version.junit5>
+    <maven.repository.url>https://repository.jboss.org/nexus/content/groups/public/</maven.repository.url>
   </properties>
 
   <dependencyManagement>
@@ -453,7 +454,41 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <!-- The org.jboss.osgi.metadata:jbosgi-metadata:jar:3.0.1.Final is missing from central repo
+  This artifact is resolved by this chain:
+   Could not resolve dependencies for project org.arquillian.cube:arquillian-cube-docker-ftest-container-star-operator:jar:1.18.3-SNAPSHOT:
+   Failed to collect dependencies at org.wildfly:wildfly-arquillian-container-remote:jar:8.2.1.Final -> org.wildfly:wildfly-arquillian-protocol-jmx:jar:8.2.1.Final
+    -> org.jboss.osgi.metadata:jbosgi-metadata:jar:3.0.1.Final-->
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Repository Group</name>
+      <url>${maven.repository.url}</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Repository Group</name>
+      <url>${maven.repository.url}</url>
+    </pluginRepository>
+  </pluginRepositories>
   <build>
     <plugins>
       <plugin>
