@@ -1,11 +1,15 @@
 package org.arquillian.cube.kubernetes.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v4_0.Namespace;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.StatusDetails;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -115,15 +119,16 @@ public class DefaultNamespaceService implements NamespaceService {
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
             logger.status("Creating namespace: " + namespace + "...");
-            Namespace result = client.namespaces().createNew().withNewMetadata()
-                .withName(namespace)
-                .withAnnotations(annotations)
-                .addToLabels(labelProvider.getLabels())
-                .addToLabels(PROJECT_LABEL, client.getNamespace())
-                .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                .endMetadata()
-                .done();
+            Namespace result = client.namespaces().create(
+                new NamespaceBuilder().withNewMetadata()
+                    .withName(namespace)
+                    .withAnnotations(annotations)
+                    .addToLabels(labelProvider.getLabels())
+                    .addToLabels(PROJECT_LABEL, client.getNamespace())
+                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                    .endMetadata()
+                .build());
             logger.info(
                 "To switch to the new namespace: kubectl config set-context `kubectl config current-context` --namespace="
                     + namespace);
@@ -132,16 +137,18 @@ public class DefaultNamespaceService implements NamespaceService {
 
         @Override
         public Namespace annotate(String namespace, Map<String, String> annotations) {
-            return client.namespaces().withName(namespace).edit()
+            return client.namespaces().withName(namespace).edit(n -> new NamespaceBuilder(n)
                 .editMetadata()
                 .addToAnnotations(annotations)
-                .endMetadata().done();
+                .endMetadata().build());
         }
 
         @Override
         public Boolean delete(String namespace) {
             logger.info("Deleting namespace: " + namespace + "...");
-            Boolean deleted = client.namespaces().withName(namespace).delete();
+            List<StatusDetails> details = client.namespaces().withName(namespace).delete();
+            // TODO - check
+            Boolean deleted = details.stream().allMatch(d -> d.getCauses().isEmpty());
             if (deleted) {
                 logger.info("Namespace: " + namespace + ", successfully deleted");
             }

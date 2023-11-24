@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
-import io.fabric8.kubernetes.clnt.v4_0.Config;
-import io.fabric8.kubernetes.clnt.v4_0.internal.SSLUtils;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.internal.SSLUtils;
 import io.undertow.UndertowOptions;
 import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;

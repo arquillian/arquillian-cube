@@ -1,9 +1,9 @@
 package org.arquillian.cube.kubernetes.impl.install;
 
-import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClientException;
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -108,7 +108,8 @@ public class DefaultResourceInstaller implements ResourceInstaller {
             preUninstallCheck();
             for (HasMetadata h : list) {
                 try {
-                    Boolean deleted = client.resource(h).delete();
+                    //  TODO - check
+                    Boolean deleted = client.resource(h).delete().stream().allMatch(d -> d.getCauses().isEmpty());
                     result.put(h, deleted);
                 } catch (Throwable t) {
                     result.put(h, false);
