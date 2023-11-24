@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+
+import io.fabric8.kubernetes.client.readiness.Readiness;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,8 +17,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.clnt.v4_0.internal.readiness.Readiness;
+import io.fabric8.kubernetes.api.model.Pod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

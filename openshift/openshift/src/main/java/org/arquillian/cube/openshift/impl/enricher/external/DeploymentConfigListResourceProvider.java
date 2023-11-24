@@ -2,8 +2,8 @@ package org.arquillian.cube.openshift.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.api.model.v4_0.apps.DeploymentList;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfigList;
+import io.fabric8.kubernetes.api.model.apps.DeploymentList;
+import io.fabric8.openshift.api.model.DeploymentConfigList;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;

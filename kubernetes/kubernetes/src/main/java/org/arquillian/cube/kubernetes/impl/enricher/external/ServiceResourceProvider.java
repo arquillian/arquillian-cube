@@ -2,13 +2,13 @@ package org.arquillian.cube.kubernetes.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.api.model.v4_0.Service;
+import io.fabric8.kubernetes.api.model.Service;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.v4_0.ServiceList}.
+ * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class ServiceResourceProvider extends org.arquillian.cube.kubernetes.impl.enricher.internal.ServiceResourceProvider {

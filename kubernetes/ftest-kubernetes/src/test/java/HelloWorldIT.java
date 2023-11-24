@@ -1,4 +1,4 @@
-import io.fabric8.kubernetes.api.model.v4_0.Service;
+import io.fabric8.kubernetes.api.model.Service;
 import java.io.IOException;
 import java.net.URL;
 import okhttp3.OkHttpClient;

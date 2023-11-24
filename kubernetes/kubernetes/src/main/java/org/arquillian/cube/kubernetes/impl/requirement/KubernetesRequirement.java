@@ -1,11 +1,18 @@
 package org.arquillian.cube.kubernetes.impl.requirement;
 
-import io.fabric8.kubernetes.clnt.v4_0.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.utils.URLUtils;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.http.StandardHttpRequest;
+import io.fabric8.kubernetes.client.utils.URLUtils;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -30,19 +37,21 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
         try (KubernetesClient client = new DefaultKubernetesClient(
             new ClientConfigBuilder().configuration(config).build())) {
 
-            OkHttpClient httpClient = client.adapt(OkHttpClient.class);
+            // TODO - check
+            HttpClient httpClient = client.getHttpClient();
 
-            Request versionRequest = new Request.Builder()
-                .get()
-                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
+            // TODO - check
+            HttpRequest versionRequest = new StandardHttpRequest.Builder()
+                .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version")))
                 .build();
 
-            Response response = httpClient.newCall(versionRequest).execute();
+            // TODO - check
+            HttpResponse response = httpClient.sendAsync(versionRequest, String.class).get();
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify kubernetes version, due to: [" + response.message() + "]");
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | ExecutionException | InterruptedException e) {
             throw new UnsatisfiedRequirementException(
                 "Error while checking kubernetes version: [" + e.getMessage() + "]");
         }

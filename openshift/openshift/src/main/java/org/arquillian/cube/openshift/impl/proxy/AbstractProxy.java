@@ -23,17 +23,32 @@
 
 package org.arquillian.cube.openshift.impl.proxy;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.net.ssl.SSLContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.http.StandardHttpRequest;
+import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,6 +57,7 @@ import okhttp3.Response;
 import org.arquillian.cube.openshift.api.ManagementHandle;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.utils.ManagementHandleImpl;
+import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -114,13 +130,12 @@ public abstract class AbstractProxy<P> implements Proxy {
         }
     }
 
-    protected abstract OkHttpClient getHttpClient();
+    protected abstract HttpClient getHttpClient();
 
     public <T> T post(String url, Class<T> returnType, Object requestObject) throws Exception {
-        final OkHttpClient httpClient = getHttpClient();
+        final HttpClient httpClient = getHttpClient();
 
-        Request.Builder builder = new Request.Builder();
-        builder.url(url);
+        HttpRequest.Builder builder = httpClient.newHttpRequestBuilder().url(new URL(url));
 
         if (requestObject != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -130,20 +145,19 @@ public abstract class AbstractProxy<P> implements Proxy {
             } catch (Exception e) {
                 throw new RuntimeException("Error sending request Object, " + requestObject, e);
             }
-            RequestBody body = RequestBody.create(MediaType.parse("application/octet-stream"), baos.toByteArray());
-            builder.post(body);
+            // TODO - check MediaType::parse, any alternatives? do we want to keep relying on okHttp just for that?
+            builder.post(MediaType.parse("application/octet-stream").type(), baos.toByteArray());
         }
 
-        Request request = builder.build();
-        Response response = httpClient.newCall(request).execute();
+        HttpRequest request = builder.build();
+        HttpResponse<T> response = httpClient.sendAsync(request, returnType).get();
 
         int responseCode = response.code();
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             Object o;
-            try (ObjectInputStream ois = new ObjectInputStream(response.body().byteStream())) {
-                o = ois.readObject();
-            }
+            // TODO - TBD rea
+            o = new ObjectMapper().readValue(response.bodyString(), returnType);
 
             if (returnType.isInstance(o) == false) {
                 throw new IllegalStateException("Error reading results, expected a " + returnType.getName() + " but got " + o);
@@ -160,20 +174,23 @@ public abstract class AbstractProxy<P> implements Proxy {
     }
 
     public InputStream post(String url, String encoding, byte[] bytes) throws IOException {
-        final OkHttpClient httpClient = getHttpClient();
-
-        Request.Builder builder = new Request.Builder();
-        builder.url(url);
-
+        final HttpClient httpClient = getHttpClient();
+        // TODO - check
+        HttpRequest.Builder builder = httpClient.newHttpRequestBuilder().url(new URL(url));
         if (bytes != null) {
-            RequestBody body = RequestBody.create(MediaType.parse(encoding), bytes);
-            builder.post(body);
+            // TODO - check MediaType::parse, any alternatives? do we want to keep relying on okHttp just for that?
+            builder.post(MediaType.parse(encoding).type(), bytes);
         }
-
-        Request request = builder.build();
-        Response response = httpClient.newCall(request).execute();
-
-        return response.body().byteStream();
+        try {
+            HttpRequest request = builder.build();
+            final HttpResponse<byte[]> response = httpClient
+                .sendAsync(request, byte[].class)
+                .get(10, TimeUnit.SECONDS);
+            // TODO - check, send bytes, receive bytes
+            return new ByteArrayInputStream(response.body());
+        } catch (InterruptedException  | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public InputStream post(String podName, int port, String path) throws Exception {
@@ -192,9 +209,10 @@ public abstract class AbstractProxy<P> implements Proxy {
 
     public int status(String url) {
         try {
-            OkHttpClient httpClient = getHttpClient();
-            Request request = new Request.Builder().url(url).build();
-            Response response = httpClient.newCall(request).execute();
+            // TODO - check, Void.class since we don't care at all to infer the response body type
+            HttpClient httpClient = getHttpClient();
+            HttpRequest request = httpClient.newHttpRequestBuilder().url(new URL(url)).build();
+            HttpResponse response = httpClient.sendAsync(request, Void.class).get();
             return response.code();
         } catch (Exception e) {
             throw new IllegalStateException(e);

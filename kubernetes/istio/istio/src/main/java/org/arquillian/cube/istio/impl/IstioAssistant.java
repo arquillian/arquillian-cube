@@ -1,5 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
+import io.fabric8.istio.client.IstioClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import java.io.IOException;
@@ -8,15 +9,16 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.client.IstioClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
+import org.arquillian.cube.istio.api.IstioResource;
+
 import org.awaitility.Awaitility;
 
 public class IstioAssistant {
@@ -30,13 +32,14 @@ public class IstioAssistant {
     }
 
     public List<IstioResource> deployIstioResources(final InputStream inputStream) {
-        return istioClient.registerCustomResources(inputStream);
+//        return istioClient.registerCustomResources(inputStream);
+        return new ArrayList<>();
     }
 
     public void undeployIstioResources(final List<IstioResource> istioResources) {
-        for (IstioResource istioResource : istioResources) {
-            istioClient.unregisterCustomResource(istioResource);
-        }
+//        for (IstioResource istioResource : istioResources) {
+//            istioClient.unregisterCustomResource(istioResource);
+//        }
     }
 
     public List<IstioResource> deployIstioResources(final URL...urls) throws IOException {
@@ -112,7 +115,8 @@ public class IstioAssistant {
      * @return
      */
     public List<IstioResource> deployIstioResources(String content) {
-        return istioClient.registerCustomResources(content);
+//        return istioClient.registerCustomResources(content);
+        return new ArrayList<>();
     }
 
     public void await(final URL url, Function<Response, Boolean> checker) {

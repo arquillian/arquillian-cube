@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import me.snowdrop.istio.client.IstioClient;
+import io.fabric8.istio.client.IstioClient;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
