@@ -12,6 +12,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +42,7 @@ public class ResourceGeneratorBuilderIT {
 
     @Test
     public void should_build_images_and_generate_resources() throws IOException {
+        Assume.assumeNotNull(namespace);
         // given
         final String rootPath = temporaryFolder.getRoot().toString() + "spring-boot-http-booster";
         copyDirectory(Paths.get("src/test/resources/spring-boot-http-booster"), Paths.get(rootPath));
@@ -74,6 +76,9 @@ public class ResourceGeneratorBuilderIT {
 
     @After
     public void removeBuildPod() {
+        if (namespace == null) {
+            return;
+        }
         final List<String> pods = kubernetesClient.pods().inNamespace(namespace).list().getItems().stream()
             .filter(pod -> pod.getMetadata().getName().startsWith("spring-boot-rest-http-s2i"))
             .map(pod -> pod.getMetadata().getName())

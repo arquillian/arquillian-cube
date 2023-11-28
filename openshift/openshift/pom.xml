@@ -220,4 +220,19 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <sun.net.spi.nameservice.provider.1>dns,ArquillianCubeNameService</sun.net.spi.nameservice.provider.1>
+            <sun.net.spi.nameservice.provider.2>default</sun.net.spi.nameservice.provider.2>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
