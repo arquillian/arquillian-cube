@@ -1,13 +1,13 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectReference;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.PodBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.PodTemplateSpecBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.Secret;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
 import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;
@@ -65,16 +65,20 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
 
 
         if (client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).get() == null) {
+            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
             client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
                     .withNewMetadata()
                     .withName(serviceAccount)
                     .endMetadata()
                     .withSecrets(refs)
                     .done();
+            **/
         } else {
+            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
             client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).edit()
                     .withSecrets(refs)
                     .done();
+            **/
         }
     }
 
@@ -104,14 +108,14 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
                             for (String c : Secrets.getContents(value, name)) {
                                 data.put(c, keyType.generate());
                             }
-
+                            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
                             secret = client.secrets().inNamespace(configuration.getNamespace()).createNew()
                                     .withNewMetadata()
                                     .withName(name)
                                     .endMetadata()
                                     .withData(data)
                                     .done();
-
+                            **/
                             secrets.add(secret);
                         }
                     }

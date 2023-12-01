@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceBuilder;
-import io.fabric8.kubernetes.clnt.v4_0.Config;
-import io.fabric8.openshift.clnt.v4_0.NamespacedOpenShiftClient;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
@@ -19,14 +19,14 @@ public class GitServer {
     private static final String GIT_SERVICE = "git";
     private static final String GIT_LOCALPORT = "10001";
     private static final String GIT_REMOTEPORT = "8080";
-    private io.fabric8.openshift.clnt.v4_0.OpenShiftClient client;
+    private io.fabric8.openshift.client.OpenShiftClient client;
     private String namespace;
     private Pod server;
     private PortForwarder forwarder;
     private Config config;
     private Service service;
 
-    public GitServer(io.fabric8.openshift.clnt.v4_0.OpenShiftClient client, Config config, String namespace) {
+    public GitServer(io.fabric8.openshift.client.OpenShiftClient client, Config config, String namespace) {
         this.client = client;
         this.config = config;
         this.namespace = namespace;

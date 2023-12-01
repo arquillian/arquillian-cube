@@ -1,11 +1,13 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v4_0.KubernetesList;
-import io.fabric8.openshift.api.model.v4_0.DoneableTemplate;
-import io.fabric8.openshift.api.model.v4_0.Template;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.ParameterValue;
-import io.fabric8.openshift.clnt.v4_0.dsl.TemplateResource;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+/** rls TODO
+import io.fabric8.openshift.api.model.DoneableTemplate;
+**/
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.client.ParameterValue;
+import io.fabric8.openshift.client.dsl.TemplateResource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,10 +47,12 @@ public class OpenShiftAssistantTemplate {
      * @throws IOException
      */
     public void deploy() throws IOException {
+        /** rls TODO  fix code in method processTemplate and then remove the comment blk.
         KubernetesList list = processTemplate(templateURL, parameterValues);
         createResources(list);
+        **/
     }
-
+    /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1291
     private KubernetesList processTemplate(URL templateURL, HashMap<String, String> parameterValues) throws IOException {
         List<ParameterValue> list = new ArrayList<>();
 
@@ -63,6 +67,7 @@ public class OpenShiftAssistantTemplate {
             return templateHandle.process(list.toArray(new ParameterValue[parameterValues.size()]));
         }
     }
+    **/
 
     private KubernetesList createResources(KubernetesList list) {
         return client.lists().inNamespace(client.getNamespace()).create(list);

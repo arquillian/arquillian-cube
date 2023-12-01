@@ -1,8 +1,8 @@
 package org.arquillian.cube.kubernetes.impl.requirement;
 
-import io.fabric8.kubernetes.clnt.v4_0.DefaultKubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.utils.URLUtils;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.utils.URLUtils;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

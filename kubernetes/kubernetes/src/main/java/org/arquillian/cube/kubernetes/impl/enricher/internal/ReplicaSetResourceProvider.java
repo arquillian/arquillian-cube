@@ -8,8 +8,16 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSet;
-import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSetList;
+/* rls TODO  There are 2 identical classes except for the package names.
+   Switching to other version for a clean compile.  Must confirm
+   this is a proper change.   https://github.com/arquillian/arquillian-cube/issues/1286
+ */
+//import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+//import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
+
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
+
 
 /**
  * A {@link ResourceProvider} for {@link ReplicaSet}.
