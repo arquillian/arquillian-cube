@@ -23,14 +23,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -116,7 +116,7 @@ public class CubeDockerConfigurationResolverTest {
             new Boot2Docker(boot2dockerCommandLineExecutor),
             mockDefaultDocker(),
             operatingSystemInterface);
-        when(boot2dockerCommandLineExecutor.execCommand(Matchers.<String>anyVararg())).thenReturn("127.0.0.1");
+        when(boot2dockerCommandLineExecutor.execCommand(ArgumentMatchers.<String>any())).thenReturn("127.0.0.1");
 
         String sockUri = "unix:///a/path-that/does/not/exist";
         when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);

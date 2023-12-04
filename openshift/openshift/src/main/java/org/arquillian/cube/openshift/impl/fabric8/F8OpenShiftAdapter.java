@@ -23,55 +23,61 @@
 
 package org.arquillian.cube.openshift.impl.fabric8;
 
-import io.fabric8.kubernetes.api.model.v4_0.Container;
-import io.fabric8.kubernetes.api.model.v4_0.ContainerPort;
-import io.fabric8.kubernetes.api.model.v4_0.DoneablePod;
-import io.fabric8.kubernetes.api.model.v4_0.EnvVar;
-import io.fabric8.kubernetes.api.model.v4_0.ExecAction;
-import io.fabric8.kubernetes.api.model.v4_0.HTTPGetAction;
-import io.fabric8.kubernetes.api.model.v4_0.Handler;
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.api.model.v4_0.IntOrString;
-import io.fabric8.kubernetes.api.model.v4_0.KubernetesList;
-import io.fabric8.kubernetes.api.model.v4_0.Lifecycle;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
-import io.fabric8.kubernetes.api.model.v4_0.PersistentVolumeClaim;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodList;
-import io.fabric8.kubernetes.api.model.v4_0.PodSpec;
-import io.fabric8.kubernetes.api.model.v4_0.PodTemplateSpec;
-import io.fabric8.kubernetes.api.model.v4_0.Probe;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationController;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationControllerSpec;
-import io.fabric8.kubernetes.api.model.v4_0.SecretVolumeSource;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceAccount;
-import io.fabric8.kubernetes.api.model.v4_0.ServicePort;
-import io.fabric8.kubernetes.api.model.v4_0.Volume;
-import io.fabric8.kubernetes.api.model.v4_0.VolumeMount;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.Deletable;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.ExecListener;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.NonNamespaceOperation;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.PodResource;
-import io.fabric8.openshift.api.model.v4_0.Build;
-import io.fabric8.openshift.api.model.v4_0.BuildList;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfig;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfigList;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfigStatus;
-import io.fabric8.openshift.api.model.v4_0.DoneableDeploymentConfig;
-import io.fabric8.openshift.api.model.v4_0.DoneableTemplate;
-import io.fabric8.openshift.api.model.v4_0.Project;
-import io.fabric8.openshift.api.model.v4_0.RoleBinding;
-import io.fabric8.openshift.api.model.v4_0.RoleBindingBuilder;
-import io.fabric8.openshift.api.model.v4_0.Template;
-import io.fabric8.openshift.clnt.v4_0.DefaultOpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.NamespacedOpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftConfig;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftConfigBuilder;
-import io.fabric8.openshift.clnt.v4_0.ParameterValue;
-import io.fabric8.openshift.clnt.v4_0.dsl.DeployableScalableResource;
-import io.fabric8.openshift.clnt.v4_0.dsl.TemplateResource;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+/** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
+import io.fabric8.kubernetes.api.model.DoneablePod;
+**/
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.ExecAction;
+import io.fabric8.kubernetes.api.model.HTTPGetAction;
+/** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
+import io.fabric8.kubernetes.api.model.Handler;
+**/
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.Lifecycle;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.Probe;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.SecretVolumeSource;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.client.dsl.Deletable;
+import io.fabric8.kubernetes.client.dsl.ExecListener;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
+import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.openshift.api.model.Build;
+import io.fabric8.openshift.api.model.BuildList;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigList;
+import io.fabric8.openshift.api.model.DeploymentConfigStatus;
+/** rls TODO https://github.com/arquillian/arquillian-cube/issues/1291
+import io.fabric8.openshift.api.model.DoneableDeploymentConfig;
+import io.fabric8.openshift.api.model.DoneableTemplate;
+**/
+import io.fabric8.openshift.api.model.Project;
+import io.fabric8.openshift.api.model.RoleBinding;
+import io.fabric8.openshift.api.model.RoleBindingBuilder;
+import io.fabric8.openshift.api.model.Template;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import io.fabric8.openshift.client.NamespacedOpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftConfig;
+import io.fabric8.openshift.client.OpenShiftConfigBuilder;
+import io.fabric8.openshift.client.ParameterValue;
+import io.fabric8.openshift.client.dsl.DeployableScalableResource;
+import io.fabric8.openshift.client.dsl.TemplateResource;
 import okhttp3.Response;
 import org.arquillian.cube.openshift.api.MountSecret;
 import org.arquillian.cube.openshift.api.model.OpenShiftResource;
@@ -155,12 +161,15 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     private Object createProject() {
         // oc new-project <namespace>
+        return null; // rls TODO remove this stmt
+        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
         return client.projectrequests()
             .createNew()
             .withNewMetadata()
             .withName(configuration.getNamespace())
             .endMetadata()
             .done();
+        **/
     }
 
     public boolean checkProject() {
@@ -178,6 +187,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     public void deletePod(String podName, long gracePeriodSeconds) {
+        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
         PodResource<Pod, DoneablePod> resource =
             client.pods().inNamespace(configuration.getNamespace()).withName(podName);
         Deletable<Boolean> deletable = resource;
@@ -185,12 +195,14 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             deletable = resource.withGracePeriod(gracePeriodSeconds);
         }
         deletable.delete();
+        **/
     }
 
     public void triggerDeploymentConfigUpdate(String prefix, boolean wait, Map<String, String> variables)
         throws Exception {
         DeploymentConfigList list = client.deploymentConfigs().inNamespace(configuration.getNamespace()).list();
         String actualName = getActualName(prefix, list.getItems(), "No such deployment config: " + prefix);
+        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
         final DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> ccr =
             client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
         List<Container> containers = ccr.get().getSpec().getTemplate().getSpec().getContainers();
@@ -234,6 +246,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
                 }
             });
         }
+        **/
     }
 
     public void triggerDeploymentConfigUpdate(String prefix, boolean wait) throws Exception {
@@ -310,8 +323,11 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         Lifecycle lifecycle = null;
         if (!context.isIgnorePreStop() && context.getLifecycleHook() != null && context.getPreStopPath() != null) {
             lifecycle = new Lifecycle();
+            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
             Handler preStopHandler = createHandler(context.getLifecycleHook(), context.getPreStopPath(), cps);
-            lifecycle.setPreStop(preStopHandler);
+             lifecycle.setPreStop(preStopHandler);
+             **/
+            lifecycle.setPreStop(null); // rls TODO remove this stmt
         }
 
         Probe probe = null;
@@ -328,7 +344,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
         return Collections.singletonList(container);
     }
-
+    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
     private Handler createHandler(HookType hookType, String preStopPath, List<ContainerPort> ports) {
         Handler preStopHandler = new Handler();
         switch (hookType) {
@@ -347,6 +363,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
         return preStopHandler;
     }
+    **/
 
     private void handleProbe(Probe probe, HookType hookType, List<String> probeCommands, List<ContainerPort> ports) {
         switch (hookType) {
@@ -408,6 +425,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         throws IOException {
 
         try (InputStream stream = new URL(templateURL).openStream()) {
+            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
             TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
                 client.templates().inNamespace(configuration.getNamespace()).load(stream);
             Template template = templateHandle.get();
@@ -416,6 +434,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             }
             template.getLabels().putAll(labels);
             return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
+            **/
+            return null;
         }
     }
 
@@ -468,10 +488,14 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         return client.services().inNamespace(namespace).withName(serviceName).get();
     }
 
+    private Object getDC(String prefix) throws Exception {
+    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
     private DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> getDC(String prefix) throws Exception {
         DeploymentConfigList list = client.deploymentConfigs().inNamespace(configuration.getNamespace()).list();
         String actualName = getActualName(prefix, list.getItems(), "No DC found starting with " + prefix);
         return client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
+       **/
+        return null;  // rls TODO  remove this stmt
     }
 
     private void delayDeployment(DeploymentConfig dc, String prefix, int replicas, Operator op) throws Exception {
@@ -485,11 +509,17 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     protected Map<String, String> getLabels(String prefix) throws Exception {
+        /** rls todo
         return getDC(prefix).get().getSpec().getSelector();
+        **/
+        return new HashMap<String, String>();   // rls TODO remove this stmt
     }
 
     public void scaleDeployment(final String prefix, final int replicas) throws Exception {
+        /** rls TODO
         DeploymentConfig dc = getDC(prefix).scale(replicas);
+        **/
+        DeploymentConfig dc = null; // rls TODO remove this stmt
         delayDeployment(dc, prefix, replicas, Operator.EQUAL);
     }
 
@@ -518,6 +548,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     public String getLog(String prefix, Map<String, String> labels) throws Exception {
         List<Pod> pods;
+        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
         NonNamespaceOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> allPods =
             client.pods().inNamespace(configuration.getNamespace());
 
@@ -526,6 +557,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         } else {
             pods = allPods.withLabels(labels).list().getItems();
         }
+         **/
+        pods = new ArrayList<>(); // rls TODO remove this stmt
 
         String actualName;
 

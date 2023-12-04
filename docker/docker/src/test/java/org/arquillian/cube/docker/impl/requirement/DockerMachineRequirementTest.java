@@ -10,8 +10,8 @@ import org.arquillian.spacelift.execution.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import static org.mockito.Matchers.anyVararg;
+import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -22,7 +22,7 @@ public class DockerMachineRequirementTest {
 
     @Test(expected = UnsatisfiedRequirementException.class)
     public void estDockerMachineRequirementCheckWhenExecutionExceptionThrown() throws UnsatisfiedRequirementException {
-        when(commandLineExecutor.execCommandAsArray(anyVararg())).thenThrow(ExecutionException.class);
+        when(commandLineExecutor.execCommandAsArray(any())).thenThrow(ExecutionException.class);
 
         DockerMachineRequirement dockerMachineRequirement = new DockerMachineRequirement(commandLineExecutor);
         dockerMachineRequirement.check(createContext("testing"));
@@ -30,7 +30,7 @@ public class DockerMachineRequirementTest {
 
     @Test(expected = UnsatisfiedRequirementException.class)
     public void testDockerMachineRequirementCheckNoMatchingNameFound() throws Exception {
-        when(commandLineExecutor.execCommandAsArray(anyVararg())).thenReturn(Collections.emptyList());
+        when(commandLineExecutor.execCommandAsArray(any())).thenReturn(Collections.emptyList());
 
         DockerMachineRequirement dockerMachineRequirement = new DockerMachineRequirement(commandLineExecutor);
         dockerMachineRequirement.check(createContext("testing"));
@@ -38,7 +38,7 @@ public class DockerMachineRequirementTest {
 
     @Test(expected = UnsatisfiedRequirementException.class)
     public void testDockerMachineRequirementCheckNoMachineFound() throws Exception {
-        when(commandLineExecutor.execCommandAsArray(anyVararg())).thenReturn(Arrays.asList(new String[] {"foo", "bar"}));
+        when(commandLineExecutor.execCommandAsArray(any())).thenReturn(Arrays.asList(new String[] {"foo", "bar"}));
 
         DockerMachineRequirement dockerMachineRequirement = new DockerMachineRequirement(commandLineExecutor);
         dockerMachineRequirement.check(createContext(""));
@@ -46,7 +46,7 @@ public class DockerMachineRequirementTest {
 
     @Test(expected = UnsatisfiedRequirementException.class)
     public void testDockerMachineRequirementCheckNoMatchingNameNotMatched() throws Exception {
-        when(commandLineExecutor.execCommandAsArray(anyVararg())).thenReturn(Arrays.asList(new String[] {"my-docker-machine"}));
+        when(commandLineExecutor.execCommandAsArray(any())).thenReturn(Arrays.asList(new String[] {"my-docker-machine"}));
 
         DockerMachineRequirement dockerMachineRequirement = new DockerMachineRequirement(commandLineExecutor);
         dockerMachineRequirement.check(createContext("testing"));
@@ -54,7 +54,7 @@ public class DockerMachineRequirementTest {
 
     @Test
     public void testDockerMachineRequirementCheckNoMatchingNameMatched() throws Exception {
-        when(commandLineExecutor.execCommandAsArray(anyVararg())).thenReturn(Arrays.asList(new String[] {"testing"}));
+        when(commandLineExecutor.execCommandAsArray(any())).thenReturn(Arrays.asList(new String[] {"testing"}));
 
         DockerMachineRequirement dockerMachineRequirement = new DockerMachineRequirement(commandLineExecutor);
         dockerMachineRequirement.check(createContext("testing"));

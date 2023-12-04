@@ -1,22 +1,22 @@
 package org.arquillian.cube.kubernetes.impl.feedback;
 
-import io.fabric8.kubernetes.api.model.v4_0.Container;
-import io.fabric8.kubernetes.api.model.v4_0.Endpoints;
-import io.fabric8.kubernetes.api.model.v4_0.Event;
-import io.fabric8.kubernetes.api.model.v4_0.EventList;
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.api.model.v4_0.LabelSelectorRequirement;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodList;
-import io.fabric8.kubernetes.api.model.v4_0.PodListBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationController;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.apps.Deployment;
-import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSet;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.Watch;
-import io.fabric8.kubernetes.clnt.v4_0.Watcher;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.Event;
+import io.fabric8.kubernetes.api.model.EventList;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.LabelSelectorRequirement;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodListBuilder;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import java.util.HashMap;
 import java.util.Map;
 import org.arquillian.cube.kubernetes.api.FeedbackProvider;
@@ -120,8 +120,11 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 fields.put("involvedObject.name", pod.getMetadata().getName());
                 fields.put("involvedObject.namespace", pod.getMetadata().getNamespace());
 
+                EventList eventList = null;  // rls TODO remove this stmt
+                /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
                 EventList eventList = client.events().inNamespace(pod.getMetadata().getNamespace()).withFields(fields).list();
-                if (eventList == null) {
+                **/
+                 if (eventList == null) {
                     return;
                 }
                 logger.warn("Events of matching pod: [" + pod.getMetadata().getName() + "]");
@@ -177,6 +180,8 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
          *     The {@link Deployment}
          */
         public PodList findMatching(Deployment deployment) {
+            return new PodList(); // rls TODO remove this line
+            /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
             FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
                 client.pods().inNamespace(deployment.getMetadata().getNamespace());
             if (deployment.getSpec().getSelector().getMatchLabels() != null) {
@@ -201,6 +206,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 }
             }
             return podLister.list();
+             **/
         }
 
         /**
@@ -210,6 +216,8 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
          *     The {@link ReplicaSet}
          */
         public PodList findMatching(ReplicaSet replicaSet) {
+            return new PodList(); // rls TODO remove this line
+            /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
             FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
                 client.pods().inNamespace(replicaSet.getMetadata().getNamespace());
             if (replicaSet.getSpec().getSelector().getMatchLabels() != null) {
@@ -234,6 +242,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 }
             }
             return podLister.list();
+             **/
         }
 
         @Override

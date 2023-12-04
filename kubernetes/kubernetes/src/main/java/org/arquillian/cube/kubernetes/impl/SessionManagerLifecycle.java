@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import java.util.concurrent.atomic.AtomicReference;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;

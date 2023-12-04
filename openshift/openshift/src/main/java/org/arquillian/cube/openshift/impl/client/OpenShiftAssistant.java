@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.openshift.api.model.v4_0.DeploymentConfig;
-import io.fabric8.openshift.api.model.v4_0.Project;
-import io.fabric8.openshift.api.model.v4_0.Route;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.Project;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.client.OpenShiftClient;
 
 /**
  * Class that allows you to deploy undeploy and wait for resources programmatically in a test.
@@ -161,6 +161,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      */
     @Override
     public void awaitApplicationReadinessOrFail(final String applicationName) {
+        /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1282
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 return getClient()
                     .deploymentConfigs()
@@ -168,6 +169,7 @@ public class OpenShiftAssistant extends KubernetesAssistant {
                     .withName(applicationName).isReady();
             }
         );
+        **/
     }
 
     /**

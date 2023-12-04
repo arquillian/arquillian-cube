@@ -3,6 +3,7 @@ package org.arquillian.cube.docker.impl.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.arquillian.cube.docker.impl.client.config.CubeContainer;
@@ -13,6 +14,10 @@ import org.arquillian.cube.docker.impl.client.config.Link;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.PortBinding;
 import org.arquillian.cube.docker.impl.docker.compose.DockerComposeEnvironmentVarResolver;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
@@ -54,7 +59,10 @@ public final class ConfigUtil {
     }
 
     public static String dump(DockerCompositions containers) {
-        Yaml yaml = new Yaml(new CubeRepresenter());
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setPrettyFlow(true);
+        dumperOptions.setDefaultFlowStyle(FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(new CubeRepresenter(dumperOptions));
         return yaml.dump(containers);
     }
 
@@ -70,7 +78,10 @@ public final class ConfigUtil {
 
         final String content = DockerComposeEnvironmentVarResolver.replaceParameters(inputStream);
 
-        Yaml yaml = new Yaml(new CubeConstructor());
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setAllowDuplicateKeys(false);
+        loaderOptions.setProcessComments(true);
+        Yaml yaml = new Yaml(new CubeConstructor(loaderOptions));
         Map<String, Object> rawLoad = (Map<String, Object>) yaml.load(content);
 
         DockerCompositions containers = new DockerCompositions();
@@ -115,7 +126,8 @@ public final class ConfigUtil {
     }
 
     private static class CubeRepresenter extends Representer {
-        public CubeRepresenter() {
+        public CubeRepresenter(DumperOptions options) {
+            super(options);
             this.representers.put(PortBinding.class, new ToStringRepresent());
             this.representers.put(ExposedPort.class, new ToStringRepresent());
             this.representers.put(Image.class, new ToStringRepresent());
@@ -141,8 +153,21 @@ public final class ConfigUtil {
     }
 
     public static class CubeConstructor extends Constructor {
-        public CubeConstructor() {
-            this.yamlClassConstructors.put(NodeId.scalar, new CubeMapping());
+        public CubeConstructor(Class<? extends Object> theRoot, LoaderOptions loadingConfig) {
+            super(theRoot,loadingConfig);
+        }
+        public CubeConstructor(LoaderOptions loadingConfig) {
+            super(loadingConfig);
+        }
+        public CubeConstructor(String theRoot, LoaderOptions loadingConfig) throws ClassNotFoundException {
+            super(theRoot,loadingConfig);
+        }
+        public CubeConstructor(TypeDescription theRoot, Collection<TypeDescription> moreTDs,
+                           LoaderOptions loadingConfig) {
+            super (theRoot, moreTDs,loadingConfig);
+        }
+        public CubeConstructor(TypeDescription theRoot, LoaderOptions loadingConfig) {
+            super(theRoot,loadingConfig);
         }
 
         private class CubeMapping extends Constructor.ConstructScalar {

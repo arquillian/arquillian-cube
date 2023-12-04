@@ -1,18 +1,26 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.v4_0.Endpoints;
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodList;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationController;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServiceList;
-import io.fabric8.kubernetes.api.model.v4_0.ServicePort;
-import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSet;
-import io.fabric8.kubernetes.api.model.v4_0.apps.ReplicaSetList;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClientTimeoutException;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+/* rls TODO  There are 2 identical classes except for the package names.
+   Switching to other version for a clean compile.  Must confirm
+   this is a proper change. https://github.com/arquillian/arquillian-cube/issues/1286
+ */
+//import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+//import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
+
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
+import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
+
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

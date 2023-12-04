@@ -17,7 +17,7 @@ package org.arquillian.cube.kubernetes.impl;
 
 public class Constants {
 
-    public static final String CLIENT_CREATOR_CLASS_NAME = "kubernetes.clnt.creator.class.name";
+    public static final String CLIENT_CREATOR_CLASS_NAME = "kubernetes.client.creator.class.name";
 
     // Non-config constants
     public static final String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";

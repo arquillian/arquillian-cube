@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-kubernetes-parent</artifactId>
-    <version>1.18.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube Kubernetes</name>
@@ -11,7 +11,8 @@
   <packaging>jar</packaging>
 
   <properties>
-    <version.alpn>8.1.9.v20160720</version.alpn>
+    <version.alpn>8.1.13.v20181017</version.alpn>
+
   </properties>
 
   <dependencies>
@@ -37,23 +38,24 @@
       <groupId>org.arquillian.cube</groupId>
       <artifactId>fabric8-maven-plugin-build</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-openshift-uberjar</artifactId>
-      <classifier>versioned</classifier>
     </dependency>
-
     <dependency>
       <groupId>org.fusesource.jansi</groupId>
       <artifactId>jansi</artifactId>
-      <version>1.11</version>
+      <version>2.4.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-depchain</artifactId>
-      <version>2.2.2</version>
+      <version>3.2.1</version>
       <type>pom</type>
     </dependency>
 
@@ -73,7 +75,7 @@
     <dependency>
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
-      <version>0.2.8</version>
+      <version>0.103.1</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -121,7 +123,6 @@
       <groupId>org.jboss.arquillian.config</groupId>
       <artifactId>arquillian-config-impl-base</artifactId>
     </dependency>
-
   </dependencies>
 
   <build>

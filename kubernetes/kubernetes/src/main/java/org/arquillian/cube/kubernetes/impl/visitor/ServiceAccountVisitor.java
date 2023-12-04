@@ -1,8 +1,8 @@
 package org.arquillian.cube.kubernetes.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
-import io.fabric8.kubernetes.api.model.v4_0.PodSpecBuilder;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.PodSpecBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -42,10 +42,12 @@ public class ServiceAccountVisitor implements Visitor {
     private void createServiceAccount(String serviceAccount) {
         KubernetesClient client = this.client.get();
         Configuration configuration = this.configuration.get();
+        /** rls TODO find replacement for method createNew
         client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
             .withNewMetadata()
             .withName(serviceAccount)
             .endMetadata()
             .done();
+        **/
     }
 }

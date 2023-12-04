@@ -1,8 +1,8 @@
 package org.arquillian.cube.openshift.impl;
 
-import io.fabric8.openshift.api.model.v4_0.Route;
-import io.fabric8.openshift.api.model.v4_0.RouteList;
-import io.fabric8.openshift.api.model.v4_0.RouteSpec;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteList;
+import io.fabric8.openshift.api.model.RouteSpec;
 import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
 import org.junit.Assert;
 import org.junit.Before;
