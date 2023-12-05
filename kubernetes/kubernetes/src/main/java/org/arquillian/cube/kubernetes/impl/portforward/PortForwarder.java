@@ -8,10 +8,10 @@ import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;
 import io.undertow.client.ClientRequest;
 import io.undertow.client.UndertowClient;
-import io.undertow.client.spdy.SpdyClientConnection;
+import io.undertow.client.http2.Http2ClientConnection;
 import io.undertow.connector.ByteBufferPool;
-import io.undertow.protocols.spdy.SpdyChannel;
-import io.undertow.protocols.spdy.SpdyChannelWithoutFlowControl;
+import io.undertow.protocols.http2.Http2Channel;
+import io.undertow.protocols.http2.Http2ChannelWithoutFlowControl;
 import io.undertow.server.XnioByteBufferPool;
 import io.undertow.util.Headers;
 import io.undertow.util.Methods;
@@ -247,17 +247,17 @@ public final class PortForwarder implements Closeable {
                 }
             }.setup(result.getResponseChannel());
 
-            // Create the upgraded SPDY connection
+            // Create the upgraded Http2 connection
             ByteBufferPool heapBufferPool =
                 new XnioByteBufferPool(new ByteBufferSlicePool(BufferAllocator.BYTE_BUFFER_ALLOCATOR, 8196, 8196));
-            SpdyChannel spdyChannel =
-                new SpdyChannelWithoutFlowControl(connection.performUpgrade(), bufferPool, null, heapBufferPool, true,
+            Http2Channel http2Channel =
+                new Http2ChannelWithoutFlowControl(connection.performUpgrade(), bufferPool, null, heapBufferPool, true,
                     OptionMap.EMPTY);
             Integer idleTimeout = DEFAULT_OPTIONS.get(UndertowOptions.IDLE_TIMEOUT);
             if (idleTimeout != null && idleTimeout > 0) {
-                spdyChannel.setIdleTimeout(idleTimeout);
+                http2Channel.setIdleTimeout(idleTimeout);
             }
-            connection = new SpdyClientConnection(spdyChannel, null);
+            connection = new Http2ClientConnection(http2Channel, false, this.portForwardURI.getHost(), null);
         } else {
             throw new IOException("Failed to upgrade connection");
         }
