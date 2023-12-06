@@ -16,6 +16,7 @@ import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.api.model.WatchEvent;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetBuilder;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 
 import java.io.IOException;
@@ -35,9 +36,10 @@ import org.junit.runners.Suite;
     }
 )
 @RequiresKubernetes
+@EnableKubernetesMockClient
 public class MockTest {
 
-    private static final KubernetesMockServer MOCK = new KubernetesMockServer();
+    final static KubernetesMockServer MOCK = new KubernetesMockServer();
 
     @BeforeClass
     public static void setUpClass() throws IOException {

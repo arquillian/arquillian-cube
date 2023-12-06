@@ -12,7 +12,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
- * A {@link ResourceProvider} for {@link io.fabric8.kubernetes.client.KubernetesClient}.
+ * A {@link ResourceProvider} for {@link KubernetesClient}.
  */
 public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
 

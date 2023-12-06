@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import io.fabric8.kubernetes.client.http.HttpClient;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
@@ -42,7 +44,7 @@ import okhttp3.OkHttpClient;
 public class OkHttpClientUtils {
     private static final SimpleCookieJar COOKIE_JAR = new SimpleCookieJar();
 
-    public static void applyConnectTimeout(OkHttpClient.Builder builder, long timeout) {
+    public static void applyConnectTimeout(HttpClient.Builder builder, long timeout) {
         //Increasing timeout to avoid this issue:
         //Caused by: io.fabric8.kubernetes.client.KubernetesClientException: Error executing: GET at:
         //https://localhost:8443/api/v1/namespaces/cearq-jws-tcznhcfw354/pods?labelSelector=deploymentConfig%3Djws-app. Cause: timeout

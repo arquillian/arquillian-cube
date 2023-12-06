@@ -14,11 +14,15 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.EventingAPIGroupDSL;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.kubernetes.client.dsl.Resource;
 import org.arquillian.cube.kubernetes.api.FeedbackProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
 import org.arquillian.cube.kubernetes.api.WithToImmutable;
@@ -119,12 +123,9 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 fields.put("involvedObject.uid", pod.getMetadata().getUid());
                 fields.put("involvedObject.name", pod.getMetadata().getName());
                 fields.put("involvedObject.namespace", pod.getMetadata().getNamespace());
-
-                EventList eventList = null;  // rls TODO remove this stmt
-                /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
-                EventList eventList = client.events().inNamespace(pod.getMetadata().getNamespace()).withFields(fields).list();
-                **/
-                 if (eventList == null) {
+                // TODO - check
+                EventList eventList = client.events().resources(Event.class, EventList.class).inNamespace(pod.getMetadata().getNamespace()).withFields(fields).list();
+                if (eventList == null) {
                     return;
                 }
                 logger.warn("Events of matching pod: [" + pod.getMetadata().getName() + "]");
@@ -180,9 +181,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
          *     The {@link Deployment}
          */
         public PodList findMatching(Deployment deployment) {
-            return new PodList(); // rls TODO remove this line
-            /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
-            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
+            FilterWatchListDeletable<Pod, PodList, PodResource> podLister =
                 client.pods().inNamespace(deployment.getMetadata().getNamespace());
             if (deployment.getSpec().getSelector().getMatchLabels() != null) {
                 podLister.withLabels(deployment.getSpec().getSelector().getMatchLabels());
@@ -206,7 +205,6 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 }
             }
             return podLister.list();
-             **/
         }
 
         /**
@@ -216,9 +214,7 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
          *     The {@link ReplicaSet}
          */
         public PodList findMatching(ReplicaSet replicaSet) {
-            return new PodList(); // rls TODO remove this line
-            /** rls TODO uncomment this code and resolve return type  https://github.com/arquillian/arquillian-cube/issues/1285
-            FilterWatchListDeletable<Pod, PodList, Boolean, Watch, Watcher<Pod>> podLister =
+            FilterWatchListDeletable<Pod, PodList, PodResource> podLister =
                 client.pods().inNamespace(replicaSet.getMetadata().getNamespace());
             if (replicaSet.getSpec().getSelector().getMatchLabels() != null) {
                 podLister.withLabels(replicaSet.getSpec().getSelector().getMatchLabels());
@@ -242,7 +238,6 @@ public class DefaultFeedbackProvider implements FeedbackProvider {
                 }
             }
             return podLister.list();
-             **/
         }
 
         @Override

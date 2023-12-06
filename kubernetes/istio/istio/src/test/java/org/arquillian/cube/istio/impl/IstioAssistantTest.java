@@ -6,8 +6,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.client.IstioClient;
+
+import io.fabric8.istio.client.IstioClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import org.arquillian.cube.istio.api.IstioResource;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IstioAssistantTest {
@@ -29,8 +30,8 @@ public class IstioAssistantTest {
 
     @Before
     public void setup_mock_expectations() {
-        when(istioClient.registerCustomResources(any(InputStream.class)))
-            .thenReturn(Arrays.asList(istioResource));
+//        when(istioClient.registerCustomResources(any(InputStream.class)))
+//            .thenReturn(Arrays.asList(istioResource));
     }
 
     @Test

@@ -2,11 +2,11 @@ package org.arquillian.cube.openshift.operational.methods;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.internal.readiness.Readiness;
 import io.fabric8.openshift.api.model.Project;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import io.fabric8.kubernetes.client.readiness.Readiness;
 import org.arquillian.cube.openshift.impl.client.OpenShiftAssistant;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;

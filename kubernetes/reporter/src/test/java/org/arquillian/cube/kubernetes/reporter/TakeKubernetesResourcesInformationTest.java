@@ -10,6 +10,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerListBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceListBuilder;
+import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 import java.io.IOException;
 import java.net.URL;
@@ -56,6 +57,7 @@ import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSecti
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
+@EnableKubernetesMockClient
 public class TakeKubernetesResourcesInformationTest {
 
     private static final KubernetesMockServer server = new KubernetesMockServer();

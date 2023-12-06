@@ -8,11 +8,12 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
-import io.fabric8.kubernetes.client.internal.readiness.Readiness;
+import io.fabric8.kubernetes.client.readiness.Readiness;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -315,7 +316,7 @@ public class KubernetesAssistant {
 
     private int portForward(String podName, int sourcePort, int targetPort, String namespace) {
         try {
-            final io.fabric8.kubernetes.client.Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
+            final Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
             final PortForwarder portForwarder = new PortForwarder(build, podName);
             portForwarder.forwardPort(sourcePort, targetPort);
             return sourcePort;
@@ -379,7 +380,8 @@ public class KubernetesAssistant {
             retryCounter++;
             try {
                 // returns false when successfully deleted
-                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete();
+                // TODO - check
+                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete().stream().allMatch(d -> d.getCauses().isEmpty());
             } catch (KubernetesClientException e) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);

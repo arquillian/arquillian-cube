@@ -23,13 +23,13 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getIntProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false, refs = {
+@Buildable(generateBuilderPackage = false, editableEnabled = false, refs = {
     @BuildableReference(DefaultConfiguration.class)
 })
 public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     ConfigurationHandle, Serializable{
 
-    private static final Config FALLBACK_CONFIG = new ConfigBuilder().build();
+    private static final Config FALLBACK_CONFIG = new io.fabric8.kubernetes.client.ConfigBuilder().build();
 
     //Deprecated Property Names: {
     private static final String ORIGIN_SERVER = "originServer";

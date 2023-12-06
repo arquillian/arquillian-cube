@@ -26,14 +26,17 @@ package org.arquillian.cube.openshift.impl.fabric8;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.api.model.PodStatus;
-import io.fabric8.kubernetes.client.Adapters;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.http.HttpClient;
 import io.fabric8.kubernetes.client.internal.SSLUtils;
+import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
 import okhttp3.OkHttpClient;
+import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.proxy.AbstractProxy;
 import org.arquillian.cube.openshift.impl.utils.OkHttpClientUtils;
@@ -43,7 +46,7 @@ import org.arquillian.cube.openshift.impl.utils.OkHttpClientUtils;
  */
 public class F8Proxy extends AbstractProxy<Pod> {
     private final OpenShiftClient client;
-    private OkHttpClient httpClient;
+    private HttpClient httpClient;
 
     public F8Proxy(CubeOpenShiftConfiguration configuration, NamespacedOpenShiftClient client) {
         super(configuration);
@@ -58,12 +61,13 @@ public class F8Proxy extends AbstractProxy<Pod> {
         }
     }
 
-    protected synchronized OkHttpClient getHttpClient() {
+    protected synchronized HttpClient getHttpClient() {
         if (httpClient == null) {
-            OkHttpClient okHttpClient = Adapters.get(OkHttpClient.class).adapt(client);
-            OkHttpClient.Builder builder = okHttpClient.newBuilder(); // clone
+            final Config httpClientConfig = new ClientConfigBuilder().configuration(configuration).build();
+            final HttpClient.Factory httpClientFactory = new OkHttpClientFactory();
+            HttpClient.Builder builder = httpClientFactory.newBuilder(httpClientConfig);  // clone
             OkHttpClientUtils.applyConnectTimeout(builder, configuration.getHttpClientTimeout());
-            OkHttpClientUtils.applyCookieJar(builder);
+            // TODO - TBD - OkHttpClientUtils.applyCookieJar(builder);
             httpClient = builder.build();
         }
         return httpClient;

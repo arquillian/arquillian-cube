@@ -26,7 +26,7 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(builderPackage = "io.fabric8.kubernetes.api.builder", generateBuilderPackage = false, editableEnabled = false)
+@Buildable(generateBuilderPackage = false, editableEnabled = false)
 public class DefaultConfiguration implements Configuration {
 
     private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";

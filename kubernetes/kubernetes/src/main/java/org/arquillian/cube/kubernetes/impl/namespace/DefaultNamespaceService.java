@@ -1,11 +1,15 @@
 package org.arquillian.cube.kubernetes.impl.namespace;
 
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.StatusDetails;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.openshift.client.OpenShiftClient;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -115,39 +119,36 @@ public class DefaultNamespaceService implements NamespaceService {
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
             logger.status("Creating namespace: " + namespace + "...");
-            /** rls TODO  file replacement for method createNew() https://github.com/arquillian/arquillian-cube/issues/1284
-            Namespace result = client.namespaces().createNew().withNewMetadata()
-                .withName(namespace)
-                .withAnnotations(annotations)
-                .addToLabels(labelProvider.getLabels())
-                .addToLabels(PROJECT_LABEL, client.getNamespace())
-                .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
-                .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
-                .endMetadata()
-                .done();
+            Namespace result = client.namespaces().create(
+                new NamespaceBuilder().withNewMetadata()
+                    .withName(namespace)
+                    .withAnnotations(annotations)
+                    .addToLabels(labelProvider.getLabels())
+                    .addToLabels(PROJECT_LABEL, client.getNamespace())
+                    .addToLabels(FRAMEWORK_LABEL, ARQUILLIAN_FRAMEWORK)
+                    .addToLabels(COMPONENT_LABEL, ITEST_COMPONENT)
+                    .endMetadata()
+                .build());
             logger.info(
                 "To switch to the new namespace: kubectl config set-context `kubectl config current-context` --namespace="
                     + namespace);
-            **/
-            Namespace result = null; // rls TODO remove this stmt
             return result;
         }
 
         @Override
         public Namespace annotate(String namespace, Map<String, String> annotations) {
-            /** rls TODO  file replacement for method createNew() https://github.com/arquillian/arquillian-cube/issues/1284
-            return client.namespaces().withName(namespace).edit()
+            return client.namespaces().withName(namespace).edit(n -> new NamespaceBuilder(n)
                 .editMetadata()
                 .addToAnnotations(annotations)
-                .endMetadata().done();
-             **/
-            return null;  // rls TODO remove this stmt
+                .endMetadata().build());
         }
 
         @Override
         public Boolean delete(String namespace) {
             logger.info("Deleting namespace: " + namespace + "...");
-            Boolean deleted = client.namespaces().withName(namespace).delete();
+            List<StatusDetails> details = client.namespaces().withName(namespace).delete();
+            // TODO - check
+            Boolean deleted = details.stream().allMatch(d -> d.getCauses().isEmpty());
             if (deleted) {
                 logger.info("Namespace: " + namespace + ", successfully deleted");
             }

@@ -25,19 +25,15 @@ package org.arquillian.cube.openshift.impl.fabric8;
 
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerPort;
-/** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-import io.fabric8.kubernetes.api.model.DoneablePod;
-**/
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.ExecAction;
 import io.fabric8.kubernetes.api.model.HTTPGetAction;
-/** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-import io.fabric8.kubernetes.api.model.Handler;
-**/
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.KubernetesListBuilder;
 import io.fabric8.kubernetes.api.model.Lifecycle;
+import io.fabric8.kubernetes.api.model.LifecycleHandler;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -48,6 +44,7 @@ import io.fabric8.kubernetes.api.model.Probe;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSpec;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretVolumeSource;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
@@ -61,20 +58,16 @@ import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildList;
 import io.fabric8.openshift.api.model.DeploymentConfig;
+import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
 import io.fabric8.openshift.api.model.DeploymentConfigList;
 import io.fabric8.openshift.api.model.DeploymentConfigStatus;
-/** rls TODO https://github.com/arquillian/arquillian-cube/issues/1291
-import io.fabric8.openshift.api.model.DoneableDeploymentConfig;
-import io.fabric8.openshift.api.model.DoneableTemplate;
-**/
 import io.fabric8.openshift.api.model.Project;
+import io.fabric8.openshift.api.model.ProjectBuilder;
+import io.fabric8.openshift.api.model.ProjectRequestBuilder;
 import io.fabric8.openshift.api.model.RoleBinding;
 import io.fabric8.openshift.api.model.RoleBindingBuilder;
 import io.fabric8.openshift.api.model.Template;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
-import io.fabric8.openshift.client.OpenShiftConfig;
-import io.fabric8.openshift.client.OpenShiftConfigBuilder;
 import io.fabric8.openshift.client.ParameterValue;
 import io.fabric8.openshift.client.dsl.DeployableScalableResource;
 import io.fabric8.openshift.client.dsl.TemplateResource;
@@ -161,15 +154,12 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     private Object createProject() {
         // oc new-project <namespace>
-        return null; // rls TODO remove this stmt
-        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
         return client.projectrequests()
-            .createNew()
+            .create(new ProjectRequestBuilder()
             .withNewMetadata()
             .withName(configuration.getNamespace())
             .endMetadata()
-            .done();
-        **/
+            .build());
     }
 
     public boolean checkProject() {
@@ -183,29 +173,27 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     public boolean deleteProject() {
-        return client.projects().withName(configuration.getNamespace()).delete();
+        // TODO - check
+        return client.projects().withName(configuration.getNamespace()).delete().stream().allMatch(d -> d.getCauses().isEmpty());
     }
 
     public void deletePod(String podName, long gracePeriodSeconds) {
-        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-        PodResource<Pod, DoneablePod> resource =
+        PodResource resource =
             client.pods().inNamespace(configuration.getNamespace()).withName(podName);
-        Deletable<Boolean> deletable = resource;
+        Deletable deletable = resource;
         if (gracePeriodSeconds >= 0) {
             deletable = resource.withGracePeriod(gracePeriodSeconds);
         }
         deletable.delete();
-        **/
     }
 
     public void triggerDeploymentConfigUpdate(String prefix, boolean wait, Map<String, String> variables)
         throws Exception {
         DeploymentConfigList list = client.deploymentConfigs().inNamespace(configuration.getNamespace()).list();
         String actualName = getActualName(prefix, list.getItems(), "No such deployment config: " + prefix);
-        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-        final DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> ccr =
-            client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
-        List<Container> containers = ccr.get().getSpec().getTemplate().getSpec().getContainers();
+        final DeploymentConfig ccr =
+            client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName).get();
+        List<Container> containers = ccr.getSpec().getTemplate().getSpec().getContainers();
         if (containers.size() > 0) {
             // there should be one to do upgrade
             Container container = containers.get(0);
@@ -221,7 +209,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             }
             container.setEnv(newEnv);
 
-            ccr.edit()
+            client.deploymentConfigs().resource(ccr).edit(d -> new DeploymentConfigBuilder(d)
                 .editSpec()
                 .editTemplate()
                 .editSpec()
@@ -229,13 +217,13 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
                 .endSpec()
                 .endTemplate()
                 .endSpec()
-                .done();
+                .build());
         }
         if (wait) {
-            final int replicas = ccr.get().getSpec().getReplicas();
+            final int replicas = ccr.getSpec().getReplicas();
             Containers.delay(configuration.getStartupTimeout(), 3000L, new Checker() {
                 public boolean check() {
-                    DeploymentConfigStatus status = ccr.get().getStatus();
+                    DeploymentConfigStatus status = ccr.getStatus();
                     Integer updatedReplicas = status.getUpdatedReplicas();
                     if (updatedReplicas != null && replicas == updatedReplicas) {
                         Integer availableReplicas = status.getAvailableReplicas();
@@ -246,7 +234,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
                 }
             });
         }
-        **/
     }
 
     public void triggerDeploymentConfigUpdate(String prefix, boolean wait) throws Exception {
@@ -323,11 +310,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         Lifecycle lifecycle = null;
         if (!context.isIgnorePreStop() && context.getLifecycleHook() != null && context.getPreStopPath() != null) {
             lifecycle = new Lifecycle();
-            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-            Handler preStopHandler = createHandler(context.getLifecycleHook(), context.getPreStopPath(), cps);
-             lifecycle.setPreStop(preStopHandler);
-             **/
-            lifecycle.setPreStop(null); // rls TODO remove this stmt
+            LifecycleHandler preStopHandler = createHandler(context.getLifecycleHook(), context.getPreStopPath(), cps);
+            lifecycle.setPreStop(preStopHandler);
         }
 
         Probe probe = null;
@@ -344,9 +328,9 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
         return Collections.singletonList(container);
     }
-    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-    private Handler createHandler(HookType hookType, String preStopPath, List<ContainerPort> ports) {
-        Handler preStopHandler = new Handler();
+
+    private LifecycleHandler createHandler(HookType hookType, String preStopPath, List<ContainerPort> ports) {
+        LifecycleHandler preStopHandler = new LifecycleHandler();
         switch (hookType) {
             case HTTP_GET:
                 HTTPGetAction httpGet = new HTTPGetAction();
@@ -363,7 +347,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
         return preStopHandler;
     }
-    **/
 
     private void handleProbe(Probe probe, HookType hookType, List<String> probeCommands, List<ContainerPort> ports) {
         switch (hookType) {
@@ -425,8 +408,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         throws IOException {
 
         try (InputStream stream = new URL(templateURL).openStream()) {
-            /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
+            TemplateResource templateHandle =
                 client.templates().inNamespace(configuration.getNamespace()).load(stream);
             Template template = templateHandle.get();
             if (template.getLabels() == null) {
@@ -434,13 +416,14 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             }
             template.getLabels().putAll(labels);
             return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
-            **/
-            return null;
         }
     }
 
     private KubernetesList createResources(KubernetesList list) {
-        return client.lists().inNamespace(configuration.getNamespace()).create(list);
+        // TODO - check
+        return new KubernetesListBuilder()
+            .withItems(client.resourceList(list).inNamespace(configuration.getNamespace()).create())
+            .build();
     }
 
     protected OpenShiftResourceHandle createResourceFromStream(InputStream stream) throws IOException {
@@ -452,12 +435,12 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         }
     }
 
-    public Object deleteTemplate(String templateKey) throws Exception {
+    public Object deleteTemplate(String templateKey) {
         KubernetesList config = templates.get(templateKey);
         if (config != null) {
-            return client.lists().inNamespace(configuration.getNamespace()).delete(config);
+            return client.resourceList(config).inNamespace(configuration.getNamespace()).delete();
         }
-        return config;
+        return null;
     }
 
     protected OpenShiftResourceHandle createRoleBinding(String roleRefName, String userName) {
@@ -488,14 +471,10 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         return client.services().inNamespace(namespace).withName(serviceName).get();
     }
 
-    private Object getDC(String prefix) throws Exception {
-    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-    private DeployableScalableResource<DeploymentConfig, DoneableDeploymentConfig> getDC(String prefix) throws Exception {
+    private DeployableScalableResource<DeploymentConfig> getDC(String prefix) throws Exception {
         DeploymentConfigList list = client.deploymentConfigs().inNamespace(configuration.getNamespace()).list();
         String actualName = getActualName(prefix, list.getItems(), "No DC found starting with " + prefix);
         return client.deploymentConfigs().inNamespace(configuration.getNamespace()).withName(actualName);
-       **/
-        return null;  // rls TODO  remove this stmt
     }
 
     private void delayDeployment(DeploymentConfig dc, String prefix, int replicas, Operator op) throws Exception {
@@ -509,17 +488,11 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     protected Map<String, String> getLabels(String prefix) throws Exception {
-        /** rls todo
         return getDC(prefix).get().getSpec().getSelector();
-        **/
-        return new HashMap<String, String>();   // rls TODO remove this stmt
     }
 
     public void scaleDeployment(final String prefix, final int replicas) throws Exception {
-        /** rls TODO
         DeploymentConfig dc = getDC(prefix).scale(replicas);
-        **/
-        DeploymentConfig dc = null; // rls TODO remove this stmt
         delayDeployment(dc, prefix, replicas, Operator.EQUAL);
     }
 
@@ -548,8 +521,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     public String getLog(String prefix, Map<String, String> labels) throws Exception {
         List<Pod> pods;
-        /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1291
-        NonNamespaceOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> allPods =
+        NonNamespaceOperation<Pod, PodList, PodResource> allPods =
             client.pods().inNamespace(configuration.getNamespace());
 
         if (labels == null) {
@@ -557,8 +529,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         } else {
             pods = allPods.withLabels(labels).list().getItems();
         }
-         **/
-        pods = new ArrayList<>(); // rls TODO remove this stmt
 
         String actualName;
 
@@ -651,8 +621,10 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanServices(String... ids) throws Exception {
         for (String id : ids) {
             try {
+                // TODO - check
                 boolean exists =
-                    client.services().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete();
+                    client.services().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete()
+                        .stream().allMatch(d -> d.getCauses().isEmpty());
                 log.info(String.format("Service [%s] delete: %s.", id, exists));
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Exception while deleting service [%s]: %s", id, e), e);
@@ -663,11 +635,12 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanReplicationControllers(String... ids) throws Exception {
         for (String id : ids) {
             try {
+                // TODO - check
                 boolean exists = client.replicationControllers()
                     .inNamespace(configuration.getNamespace())
                     .withName(id)
                     .cascading(false)
-                    .delete();
+                    .delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("RC [%s] delete: %s.", id, exists));
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("Exception while deleting RC [%s]: %s", id, e), e);
@@ -680,7 +653,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             for (Pod pod : pods.getItems()) {
                 String podId = getName(pod.getMetadata());
-                boolean exists = client.pods().inNamespace(configuration.getNamespace()).withName(podId).delete();
+                // TODO - check
+                boolean exists = client.pods().inNamespace(configuration.getNamespace()).withName(podId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("Pod [%s] delete: %s.", podId, exists));
             }
         } catch (Exception e) {
@@ -700,7 +674,8 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             for (Build build : builds.getItems()) {
                 String buildId =
                     getName(build.getMetadata());
-                boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete();
+                // TODO - check
+                boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("Build [%s] delete: %s.", buildId, exists));
             }
         } catch (Exception e) {
@@ -715,8 +690,9 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             for (ReplicationController rc : rcs.getItems()) {
                 String rcId = getName(rc.getMetadata());
                 client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).scale(0, true);
+                // TODO - check
                 boolean exists =
-                    client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete();
+                    client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("ReplicationController [%s] delete: %s.", rcId, exists));
             }
         } catch (Exception e) {
@@ -733,7 +709,7 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
 
     static IntOrString toIntOrString(ContainerPort port) {
         IntOrString intOrString = new IntOrString();
-        intOrString.setIntVal(port.getContainerPort());
+        intOrString.setValue(port.getContainerPort());
         return intOrString;
     }
 

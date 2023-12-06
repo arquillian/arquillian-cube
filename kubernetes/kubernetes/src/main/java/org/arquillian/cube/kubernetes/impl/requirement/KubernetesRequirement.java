@@ -1,11 +1,23 @@
 package org.arquillian.cube.kubernetes.impl.requirement;
 
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.http.StandardHttpClient;
+import io.fabric8.kubernetes.client.http.StandardHttpClientBuilder;
+import io.fabric8.kubernetes.client.http.StandardHttpRequest;
+import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
+import io.fabric8.kubernetes.client.okhttp.OkHttpClientImpl;
 import io.fabric8.kubernetes.client.utils.URLUtils;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -27,22 +39,24 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
 
         final DefaultConfiguration config = new ExtensionRegistrar().loadExtension(extension);
 
-        try (KubernetesClient client = new DefaultKubernetesClient(
-            new ClientConfigBuilder().configuration(config).build())) {
+        final Config httpClientConfig = new ClientConfigBuilder().configuration(config).build();
+        try (KubernetesClient client = new DefaultKubernetesClient(httpClientConfig)) {
 
-            OkHttpClient httpClient = client.adapt(OkHttpClient.class);
+            HttpClient.Factory httpClientFactory = new OkHttpClientFactory();
+            HttpClient httpClient = httpClientFactory.newBuilder(httpClientConfig).build();
 
-            Request versionRequest = new Request.Builder()
-                .get()
-                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
+            // TODO - check
+            HttpRequest versionRequest =  new StandardHttpRequest.Builder()
+                .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version").toString()))
+                .method("GET", "*/*", null)
                 .build();
 
-            Response response = httpClient.newCall(versionRequest).execute();
+            HttpResponse<String> response = httpClient.sendAsync(versionRequest, String.class).get();
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify kubernetes version, due to: [" + response.message() + "]");
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | InterruptedException | ExecutionException e) {
             throw new UnsatisfiedRequirementException(
                 "Error while checking kubernetes version: [" + e.getMessage() + "]");
         }

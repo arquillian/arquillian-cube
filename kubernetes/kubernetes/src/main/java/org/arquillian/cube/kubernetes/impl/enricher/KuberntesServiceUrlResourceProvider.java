@@ -7,7 +7,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
@@ -17,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.annotations.Port;
 import org.arquillian.cube.kubernetes.annotations.PortForward;

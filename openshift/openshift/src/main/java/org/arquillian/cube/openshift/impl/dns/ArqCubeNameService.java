@@ -1,9 +1,7 @@
 package org.arquillian.cube.openshift.impl.dns;
 
 import io.fabric8.openshift.api.model.RouteList;
-/** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1290
-import sun.net.spi.nameservice.NameService;
-**/
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
@@ -16,12 +14,7 @@ import java.util.Set;
  * @author Rob Cernich
  * @author fspolti
  */
-public class ArqCubeNameService
-    /** rls TODO  https://github.com/arquillian/arquillian-cube/issues/1290
-    implements NameService
-     **/
-{
-
+public class ArqCubeNameService implements INameService {
     private static final Set<String> hosts = new HashSet<>();
     private static InetAddress routerAddr;
 
@@ -41,9 +34,8 @@ public class ArqCubeNameService
                 });
         }
     }
-    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1290
+
     @Override
-    **/
     public InetAddress[] lookupAllHostAddr(String host) throws UnknownHostException {
         synchronized (hosts) {
             if (routerAddr != null && hosts.contains(host)) {
@@ -53,9 +45,7 @@ public class ArqCubeNameService
         }
     }
 
-    /** rls TODO    https://github.com/arquillian/arquillian-cube/issues/1290
     @Override
-    **/
     public String getHostByAddr(byte[] addr) throws UnknownHostException {
         throw new UnknownHostException();
     }
