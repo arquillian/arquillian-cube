@@ -11,7 +11,7 @@
 
   <properties>
     <version.javaee_7>1.1.1.Final</version.javaee_7>
-    <version.wildfly>8.2.1.Final</version.wildfly>
+    <version.wildfly>5.0.1.Final</version.wildfly>
   </properties>
 
   <dependencyManagement>
@@ -64,7 +64,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.wildfly</groupId>
+      <groupId>org.wildfly.arquillian</groupId>
       <artifactId>wildfly-arquillian-container-remote</artifactId>
       <version>${version.wildfly}</version>
       <scope>test</scope>
