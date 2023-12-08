@@ -19,7 +19,6 @@ import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
@@ -31,6 +30,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -94,7 +94,7 @@ public class CubeDockerConfigurationResolverTest {
         String sockUri = isWindows ?sockURL.toExternalForm().replace("file:/", "") : "unix://" + sockURL.toExternalForm();
         when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
         when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
-        when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
+        lenient().when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
 
         Map<String, String> config = new HashMap<>();
 
@@ -116,7 +116,7 @@ public class CubeDockerConfigurationResolverTest {
             new Boot2Docker(boot2dockerCommandLineExecutor),
             mockDefaultDocker(),
             operatingSystemInterface);
-        when(boot2dockerCommandLineExecutor.execCommand(ArgumentMatchers.<String>any())).thenReturn("127.0.0.1");
+        when(boot2dockerCommandLineExecutor.execCommand(anyString(), anyString())).thenReturn("127.0.0.1");
 
         String sockUri = "unix:///a/path-that/does/not/exist";
         when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
@@ -139,11 +139,11 @@ public class CubeDockerConfigurationResolverTest {
             mockDefaultDocker(),
             operatingSystemInterface);
 
-        when(infoCmd.exec()).thenThrow(new ProcessingException("test exception"));
+        lenient().when(infoCmd.exec()).thenThrow(new ProcessingException("test exception"));
         String sockUri = "unix:///a/path-that/does/not/exist";
-        when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
-        when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
-        when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
+        lenient().when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
+        lenient().when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
+        lenient().when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://localhost:2376");
@@ -161,12 +161,12 @@ public class CubeDockerConfigurationResolverTest {
             new Boot2Docker(null),
             mockDefaultDocker(),
             operatingSystemInterface);
-        when(infoCmd.exec()).thenThrow(new ProcessingException("test exception"));
+        lenient().when(infoCmd.exec()).thenThrow(new ProcessingException("test exception"));
 
         String sockUri = "unix:///a/path-that/does/not/exist";
-        when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
-        when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
-        when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.LINUX_OS.getFamily());
+        lenient().when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
+        lenient().when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
+        lenient().when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.LINUX_OS.getFamily());
 
         Map<String, String> config = new HashMap<>();
         config.put(CubeDockerConfiguration.DOCKER_URI, "tcp://localhost:2376");

@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -65,8 +66,8 @@ public class SeleniumContainersTest {
 
     @Test
     public void shouldCreateCustomContainerFromDockerfile() {
-        when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(true);
-        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
+        lenient().when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(true);
+        lenient().when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(false);
         when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
 
@@ -80,7 +81,7 @@ public class SeleniumContainersTest {
     @Test
     public void shouldTakePrecedenceDockerfileDirectoryThanImage() {
         when(cubeDroneConfiguration.isBrowserDockerfileDirectorySet()).thenReturn(true);
-        when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
+        lenient().when(cubeDroneConfiguration.isBrowserImageSet()).thenReturn(true);
         when(cubeDroneConfiguration.getBrowserDockerfileLocation()).thenReturn("src/test/resources/browser");
         when(cubeDroneConfiguration.getContainerNameStrategy()).thenReturn(ContainerNameStrategy.STATIC);
 

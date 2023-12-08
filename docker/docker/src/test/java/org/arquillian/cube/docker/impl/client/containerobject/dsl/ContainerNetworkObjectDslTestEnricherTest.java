@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +47,7 @@ public class ContainerNetworkObjectDslTestEnricherTest {
         containerNetworkObjectDslTestEnricher.networkRegistryInstance = () -> networkRegistry;
         containerNetworkObjectDslTestEnricher.dockerClientExecutorInstance = () -> dockerClientExecutor;
 
-        when(injector.inject(any(Network.class))).then(invocation -> invocation.getArgument(0, Network.class));
+        lenient().when(injector.inject(any(Network.class))).then(invocation -> invocation.getArgument(0, Network.class));
         when(dockerClientExecutor.createNetwork(eq("default"), any(org.arquillian.cube.docker.impl.client.config.Network.class))).thenReturn("default");
 
         containerNetworkObjectDslTestEnricher.enrich(new NetworkTest());

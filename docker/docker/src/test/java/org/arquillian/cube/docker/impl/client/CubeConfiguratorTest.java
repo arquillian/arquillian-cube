@@ -40,6 +40,7 @@ import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,8 +77,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
     }
 
     private void bindNonExistingDockerSocketOS() {
-        when(operatingSystem.getDefaultFamily()).thenReturn(operatingSystemFamily);
-        when(operatingSystem.getFamily()).thenReturn(OperatingSystemFamily.MAC);
+        lenient().when(operatingSystem.getDefaultFamily()).thenReturn(operatingSystemFamily);
+        lenient().when(operatingSystem.getFamily()).thenReturn(OperatingSystemFamily.MAC);
         when(operatingSystemFamily.getServerUri()).thenReturn("non/existing/path");
 
         bind(ApplicationScoped.class, OperatingSystemInterface.class, operatingSystem);
@@ -107,8 +108,8 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         config.put(CubeDockerConfiguration.DOCKER_URI, "https://dockerHost:22222");
 
         when(extensionDef.getExtensionProperties()).thenReturn(config);
-        when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
-        when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
+        lenient().when(arquillianDescriptor.extension("docker")).thenReturn(extensionDef);
+        lenient().when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new RuntimeException());
         when(top.isSpinning()).thenReturn(true);
 
@@ -127,7 +128,7 @@ public class CubeConfiguratorTest extends AbstractManagerTestBase {
         when(commandLineExecutor.execCommand("boot2docker", "ip")).thenReturn("192.168.0.1");
         when(commandLineExecutor.execCommand("docker-machine")).thenThrow(new RuntimeException());
 
-        when(top.isSpinning()).thenReturn(true);
+        lenient().when(top.isSpinning()).thenReturn(true);
 
         fire(new CubeConfiguration());
         assertThat(config, hasEntry(CubeDockerConfiguration.DOCKER_URI, "tcp://192.168.0.1:22222"));

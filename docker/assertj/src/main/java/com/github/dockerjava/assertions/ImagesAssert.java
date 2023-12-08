@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.assertj.core.api.ListAssert;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Eddú Meléndez
  */
@@ -22,12 +20,12 @@ public class ImagesAssert extends ListAssert<Image> {
         for (Image image : this.actual) {
             imageList.add(image.getId());
         }
-    /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1289
-        assertThat(this.actual)
+
+        org.assertj.core.api.Assertions.assertThat(this.actual)
             .extracting("id")
             .overridingErrorMessage("%nExpecting:%n <%s>%nto contain:%n <%s>", imageList, Arrays.asList(imageIds))
             .contains(imageIds);
-     **/
+
         return this;
     }
 }
