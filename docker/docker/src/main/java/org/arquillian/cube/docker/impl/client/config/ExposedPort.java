@@ -15,6 +15,12 @@ public class ExposedPort {
         }
     }
 
+    public ExposedPort(final String exp) {
+        final ExposedPort parsed = valueOf(exp);
+        this.exposed = parsed.exposed;
+        this.type = parsed.type;
+    }
+
     public static ExposedPort valueOf(String exp) {
         int exposed;
         String type = null;
