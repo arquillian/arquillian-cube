@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,7 +68,7 @@ public class ContainerConfigurationControllerTest extends AbstractManagerTestBas
         Map<String, Object> content = (Map<String, Object>) yaml.load(CONTENT);
 
         when(cube.getId()).thenReturn(CUBE_ID);
-        when(cube.configuration()).thenReturn(content);
+        lenient().when(cube.configuration()).thenReturn(content);
         when(cube.getMetadata(HasPortBindings.class)).thenReturn(
             new TestPortBindings(new Binding("localhost").addPortBinding(8089, 8090)));
         when(container.getName()).thenReturn(CUBE_ID);
