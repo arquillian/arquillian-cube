@@ -87,7 +87,7 @@
     <version.systemrules>1.19.0</version.systemrules>
     <version.dmr>1.7.0.Final</version.dmr>
     <version.jackson>2.16.0</version.jackson>
-    <version.ok-http-client>4.12.0</version.ok-http-client>
+    <version.ok-http-client>3.12.12</version.ok-http-client>  <!-- otherwise Fabric8 would blow up -->
     <version.meta-inf>1.11</version.meta-inf>
     <version.jolokia>1.7.2</version.jolokia>
     <version.fast-classpath-scanner>3.1.13</version.fast-classpath-scanner>
@@ -469,17 +469,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- rls added start -->
-        <!-- resolves failure to find TestSetFailedException.
-          but can't find com.sun:tools:jar:1.7
-        -->
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-api</artifactId>
-            <version>3.2.2</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
