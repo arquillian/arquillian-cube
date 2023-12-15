@@ -39,14 +39,6 @@
       <artifactId>fabric8-maven-plugin-build</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-openshift-uberjar</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-client-api</artifactId>
     </dependency>

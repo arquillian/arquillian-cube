@@ -35,6 +35,7 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.codehaus.plexus.util.CollectionUtils;
 import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
@@ -116,7 +117,7 @@ public class SessionManager implements SessionCreatedListener {
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<URL> dependencyUrls =
-                !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies()
+                (configuration.getEnvironmentDependencies() != null && !configuration.getEnvironmentDependencies().isEmpty()) ? configuration.getEnvironmentDependencies()
                     : dependencyResolver.resolve(session);
 
             if (configuration.isEnvironmentInitEnabled()) {

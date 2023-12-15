@@ -534,7 +534,7 @@ public class DefaultConfiguration implements Configuration {
         if (masterUrl != null) {
             appendPropertyWithValue(content, MASTER_URL, masterUrl);
         }
-        if (!scriptEnvironmentVariables.isEmpty()) {
+        if (scriptEnvironmentVariables != null && !scriptEnvironmentVariables.isEmpty()) {
             appendPropertyWithValue(content, ENVIRONMENT_SCRIPT_ENV, scriptEnvironmentVariables);
         }
         if (environmentSetupScriptUrl != null) {
@@ -547,7 +547,7 @@ public class DefaultConfiguration implements Configuration {
         if (environmentConfigUrl != null) {
             appendPropertyWithValue(content, ENVIRONMENT_CONFIG_URL, environmentConfigUrl);
         }
-        if (!environmentDependencies.isEmpty()) {
+        if (environmentDependencies != null && !environmentDependencies.isEmpty()) {
             appendPropertyWithValue(content, ENVIRONMENT_DEPENDENCIES, environmentDependencies.toString());
         }
 
@@ -570,7 +570,7 @@ public class DefaultConfiguration implements Configuration {
 
         appendPropertyWithValue(content, LOGS_COPY, logCopyEnabled);
 
-        if (!waitForServiceList.isEmpty()) {
+        if (waitForServiceList != null && !waitForServiceList.isEmpty()) {
             appendPropertyWithValue(content, WAIT_FOR_SERVICE_LIST, waitForServiceList);
         }
         if (logPath != null) {
@@ -602,11 +602,11 @@ public class DefaultConfiguration implements Configuration {
         appendPropertyWithValue(content, FMP_POM_PATH, fmpPomPath);
         appendPropertyWithValue(content, FMP_DEBUG_OUTPUT, fmpDebugOutput);
         appendPropertyWithValue(content, FMP_LOGS, fmpLogsEnabled);
-        if (!fmpProfiles.isEmpty()) {
+        if (fmpProfiles != null && !fmpProfiles.isEmpty()) {
             appendPropertyWithValue(content, FMP_PROFILES, fmpProfiles);
         }
 
-        if (!fmpSystemProperties.isEmpty()) {
+        if (fmpSystemProperties != null && !fmpSystemProperties.isEmpty()) {
             appendPropertyWithValue(content, FMP_SYSTEM_PROPERTIES, fmpSystemProperties);
         }
 
