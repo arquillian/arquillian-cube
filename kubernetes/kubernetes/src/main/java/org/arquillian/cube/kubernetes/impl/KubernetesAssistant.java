@@ -411,15 +411,13 @@ public class KubernetesAssistant {
      * @param applicationName name of the application to wait for pods readiness
      */
     public void awaitApplicationReadinessOrFail(final String applicationName) {
-        /** rls TODO uncomment code and resolve compile issue. https://github.com/arquillian/arquillian-cube/issues/1282
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
+        org.awaitility.Awaitility.await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 return client
                     .replicationControllers()
                     .inNamespace(this.namespace)
                     .withName(applicationName).isReady();
             }
         );
-        **/
     }
 
     public String project() {
@@ -432,7 +430,6 @@ public class KubernetesAssistant {
      * @param filter used to wait to detect that a pod is up and running.
      */
     public void awaitPodReadinessOrFail(Predicate<Pod> filter) {
-        /** rls TODO uncomment code and resolve compile issue. https://github.com/arquillian/arquillian-cube/issues/1282
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
                 return list.stream()
@@ -441,7 +438,6 @@ public class KubernetesAssistant {
                     .collect(Collectors.toList()).size() >= 1;
             }
         );
-        **/
     }
 
     /**

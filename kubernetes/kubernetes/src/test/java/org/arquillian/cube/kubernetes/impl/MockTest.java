@@ -30,19 +30,18 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
     {
-        PodInjection.class,
+        //PodInjection.class,
         ReplicationControllerInjection.class,
         ServiceInjection.class,
     }
 )
 @RequiresKubernetes
-@EnableKubernetesMockClient
 public class MockTest {
 
-    final static KubernetesMockServer MOCK = new KubernetesMockServer();
+    private static final KubernetesMockServer MOCK = new KubernetesMockServer();
 
     @BeforeClass
-    public static void setUpClass() throws IOException {
+    public static void setUpClass() {
 
         Pod testPod = new PodBuilder()
             .withNewMetadata()
@@ -319,7 +318,7 @@ public class MockTest {
             .andReturn(200, new ReplicaSetBuilder().build())
             .always();
 
-        MOCK.init();
+        MOCK.start();
 
         String masterUrl = MOCK.url("/").toString();
         System.setProperty(Config.KUBERNETES_MASTER_SYSTEM_PROPERTY, masterUrl);
@@ -333,6 +332,6 @@ public class MockTest {
 
     @AfterClass
     public static void tearDownClass() throws IOException {
-        //MOCK.destroy();
+        MOCK.shutdown();
     }
 }

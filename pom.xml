@@ -93,7 +93,7 @@
     <version.fast-classpath-scanner>3.1.13</version.fast-classpath-scanner>
     <!-- Empty property for failsafe groups to avoid conflict with maven-javadoc-plugin's groups -->
     <failsafe.groups />
-    <version.awaitility>4.2.0</version.awaitility>
+    <version.awaitility>4.0.1</version.awaitility>
     <version.junit5>5.10.1</version.junit5>
   </properties>
 
@@ -431,7 +431,7 @@
       </dependency>
       <dependency>
         <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
+        <artifactId>hamcrest</artifactId>
         <version>${version.hamcrest}</version>
         <scope>test</scope>
       </dependency>
