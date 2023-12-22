@@ -13,7 +13,7 @@ public class IstioAssistantCreator {
     private InstanceProducer<IstioAssistant> istioAssistantInstanceProducer;
 
     public void createIstioAssistant(@Observes IstioClient istioClient) {
-        IstioAssistant istioAssistant = new IstioAssistant(istioClient);
+        IstioAssistant istioAssistant = new IstioAssistant(new IstioClientAdapter(istioClient));
         istioAssistantInstanceProducer.set(istioAssistant);
     }
 }

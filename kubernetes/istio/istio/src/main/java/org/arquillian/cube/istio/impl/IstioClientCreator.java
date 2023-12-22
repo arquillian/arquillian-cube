@@ -15,7 +15,7 @@ public class IstioClientCreator {
 
     public void createIstioClient(@Observes final KubernetesClient client) {
 
-        IstioClient istioClient = client.adapt(IstioClient.class);
+        IstioClient istioClient = client.adapt(IstioClientAdapter.class);
         istioClientInstanceProducer.set(istioClient);
 
     }

@@ -29,6 +29,11 @@
       <artifactId>awaitility</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-istio-kubernetes-api</artifactId>
       <version>${project.version}</version>

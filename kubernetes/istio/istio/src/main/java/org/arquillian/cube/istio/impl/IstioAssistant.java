@@ -3,43 +3,44 @@ package org.arquillian.cube.istio.impl;
 import io.fabric8.istio.client.IstioClient;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
+import org.awaitility.Awaitility;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
-import org.arquillian.cube.istio.api.IstioResource;
-
-import org.awaitility.Awaitility;
 
 public class IstioAssistant {
 
-    private final IstioClient istioClient;
     private final OkHttpClient httpClient;
+    private final IstioClientAdapter istioClientAdapter;
 
-    public IstioAssistant(IstioClient istioClient) {
-        this.istioClient = istioClient;
+    public IstioAssistant(IstioClientAdapter istioClientAdapter) {
         this.httpClient = new OkHttpClient();
+        this.istioClientAdapter = istioClientAdapter;
     }
 
     public List<IstioResource> deployIstioResources(final InputStream inputStream) {
-//        return istioClient.registerCustomResources(inputStream);
-        return new ArrayList<>();
+        return istioClientAdapter.registerCustomResources(inputStream);
+    }
+
+    public void undeployIstioResource(final IstioResource istioResource) {
+        istioClientAdapter.unregisterCustomResource(istioResource);
     }
 
     public void undeployIstioResources(final List<IstioResource> istioResources) {
-//        for (IstioResource istioResource : istioResources) {
-//            istioClient.unregisterCustomResource(istioResource);
-//        }
+        for (IstioResource istioResource : istioResources) {
+            undeployIstioResource(istioResource);
+        }
     }
 
     public List<IstioResource> deployIstioResources(final URL...urls) throws IOException {
@@ -115,8 +116,7 @@ public class IstioAssistant {
      * @return
      */
     public List<IstioResource> deployIstioResources(String content) {
-//        return istioClient.registerCustomResources(content);
-        return new ArrayList<>();
+        return istioClientAdapter.registerCustomResources(content);
     }
 
     public void await(final URL url, Function<Response, Boolean> checker) {
@@ -128,7 +128,6 @@ public class IstioAssistant {
     }
 
     public void await(final Request request, Function<Response, Boolean> checker) {
-        /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1282
         Awaitility.await()
             .atMost(30, TimeUnit.SECONDS)
             .ignoreExceptions()
@@ -137,6 +136,5 @@ public class IstioAssistant {
                     return checker.apply(response);
                 }
             });
-        **/
     }
 }
