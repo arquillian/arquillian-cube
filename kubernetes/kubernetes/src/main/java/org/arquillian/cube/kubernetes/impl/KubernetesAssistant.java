@@ -380,8 +380,7 @@ public class KubernetesAssistant {
             retryCounter++;
             try {
                 // returns false when successfully deleted
-                // TODO - check
-                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete().stream().allMatch(d -> d.getCauses().isEmpty());
+                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete().stream().anyMatch(d -> !d.getCauses().isEmpty());
             } catch (KubernetesClientException e) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
