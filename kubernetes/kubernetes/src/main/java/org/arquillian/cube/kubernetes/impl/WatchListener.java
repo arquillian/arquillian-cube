@@ -84,7 +84,6 @@ public class WatchListener {
             public void onClose(WatcherException cause) {
             }
         };
-        // TODO - check
         watchEvents = client.resources(Event.class).inNamespace(session.getNamespace()).watch(watcher);
     }
 

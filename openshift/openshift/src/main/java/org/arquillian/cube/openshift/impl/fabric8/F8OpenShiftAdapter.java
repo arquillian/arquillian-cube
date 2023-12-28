@@ -173,7 +173,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     public boolean deleteProject() {
-        // TODO - check
         return client.projects().withName(configuration.getNamespace()).delete().stream().allMatch(d -> d.getCauses().isEmpty());
     }
 
@@ -420,7 +419,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     }
 
     private KubernetesList createResources(KubernetesList list) {
-        // TODO - check
         return new KubernetesListBuilder()
             .withItems(client.resourceList(list).inNamespace(configuration.getNamespace()).create())
             .build();
@@ -621,7 +619,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanServices(String... ids) throws Exception {
         for (String id : ids) {
             try {
-                // TODO - check
                 boolean exists =
                     client.services().inNamespace(configuration.getNamespace()).withName(id).cascading(false).delete()
                         .stream().allMatch(d -> d.getCauses().isEmpty());
@@ -635,7 +632,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
     public void cleanReplicationControllers(String... ids) throws Exception {
         for (String id : ids) {
             try {
-                // TODO - check
                 boolean exists = client.replicationControllers()
                     .inNamespace(configuration.getNamespace())
                     .withName(id)
@@ -653,7 +649,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try {
             for (Pod pod : pods.getItems()) {
                 String podId = getName(pod.getMetadata());
-                // TODO - check
                 boolean exists = client.pods().inNamespace(configuration.getNamespace()).withName(podId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("Pod [%s] delete: %s.", podId, exists));
             }
@@ -674,7 +669,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             for (Build build : builds.getItems()) {
                 String buildId =
                     getName(build.getMetadata());
-                // TODO - check
                 boolean exists = client.builds().inNamespace(configuration.getNamespace()).withName(buildId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("Build [%s] delete: %s.", buildId, exists));
             }
@@ -690,7 +684,6 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
             for (ReplicationController rc : rcs.getItems()) {
                 String rcId = getName(rc.getMetadata());
                 client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).scale(0, true);
-                // TODO - check
                 boolean exists =
                     client.replicationControllers().inNamespace(configuration.getNamespace()).withName(rcId).delete().stream().allMatch(d -> d.getCauses().isEmpty());;
                 log.info(String.format("ReplicationController [%s] delete: %s.", rcId, exists));

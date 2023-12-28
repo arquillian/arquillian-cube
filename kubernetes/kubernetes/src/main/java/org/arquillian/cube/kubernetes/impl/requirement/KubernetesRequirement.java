@@ -45,7 +45,6 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
             HttpClient.Factory httpClientFactory = new OkHttpClientFactory();
             HttpClient httpClient = httpClientFactory.newBuilder(httpClientConfig).build();
 
-            // TODO - check
             HttpRequest versionRequest =  new StandardHttpRequest.Builder()
                 .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version").toString()))
                 .method("GET", "*/*", null)

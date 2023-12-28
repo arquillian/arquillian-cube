@@ -135,7 +135,7 @@ public abstract class AbstractProxy<P> implements Proxy {
 
     public <T> T post(String url, Class<T> returnType, Object requestObject) throws Exception {
         final HttpClient httpClient = getHttpClient();
-        // TODO - check
+
         HttpRequest.Builder builder = httpClient.newHttpRequestBuilder().url(new URL(url));
 
         if (requestObject != null) {
@@ -146,7 +146,6 @@ public abstract class AbstractProxy<P> implements Proxy {
             } catch (Exception e) {
                 throw new RuntimeException("Error sending request Object, " + requestObject, e);
             }
-            // TODO - check MediaType::parse, any alternatives? do we want to keep relying on okHttp just for that?
             builder.post(MediaType.parse("application/octet-stream").type(), baos.toByteArray());
         }
 
@@ -157,7 +156,6 @@ public abstract class AbstractProxy<P> implements Proxy {
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
             Object o;
-            // TODO - TBD rea
             o = new ObjectMapper().readValue(response.bodyString(), returnType);
 
             if (returnType.isInstance(o) == false) {
@@ -176,10 +174,9 @@ public abstract class AbstractProxy<P> implements Proxy {
 
     public InputStream post(String url, String encoding, byte[] bytes) throws IOException {
         final HttpClient httpClient = getHttpClient();
-        // TODO - check
+
         HttpRequest.Builder builder = httpClient.newHttpRequestBuilder().url(new URL(url));
         if (bytes != null) {
-            // TODO - check MediaType::parse, any alternatives? do we want to keep relying on okHttp just for that?
             builder.post(MediaType.parse(encoding).type(), bytes);
         }
         try {
@@ -187,7 +184,6 @@ public abstract class AbstractProxy<P> implements Proxy {
             final HttpResponse<byte[]> response = httpClient
                 .sendAsync(request, byte[].class)
                 .get(10, TimeUnit.SECONDS);
-            // TODO - check, send bytes, receive bytes
             return new ByteArrayInputStream(response.body());
         } catch (InterruptedException  | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
@@ -210,7 +206,6 @@ public abstract class AbstractProxy<P> implements Proxy {
 
     public int status(String url) {
         try {
-            // TODO - check, Void.class since we don't care at all to infer the response body type
             HttpClient httpClient = getHttpClient();
             HttpRequest request = httpClient.newHttpRequestBuilder().url(new URL(url)).build();
             HttpResponse response = httpClient.sendAsync(request, Void.class).get();

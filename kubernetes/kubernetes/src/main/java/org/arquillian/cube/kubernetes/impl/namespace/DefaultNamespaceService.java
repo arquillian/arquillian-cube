@@ -147,7 +147,6 @@ public class DefaultNamespaceService implements NamespaceService {
         public Boolean delete(String namespace) {
             logger.info("Deleting namespace: " + namespace + "...");
             List<StatusDetails> details = client.namespaces().withName(namespace).delete();
-            // TODO - check
             Boolean deleted = details.stream().allMatch(d -> d.getCauses().isEmpty());
             if (deleted) {
                 logger.info("Namespace: " + namespace + ", successfully deleted");

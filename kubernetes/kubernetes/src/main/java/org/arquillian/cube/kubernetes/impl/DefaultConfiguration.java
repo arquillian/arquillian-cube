@@ -26,7 +26,7 @@ import static org.arquillian.cube.impl.util.ConfigUtil.getBooleanProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getLongProperty;
 import static org.arquillian.cube.impl.util.ConfigUtil.getStringProperty;
 
-@Buildable(generateBuilderPackage = false, editableEnabled = false)
+@Buildable(generateBuilderPackage = false, editableEnabled = false, lazyCollectionInitEnabled = false, lazyMapInitEnabled = false)
 public class DefaultConfiguration implements Configuration {
 
     private static final String ENV_VAR_REGEX = "env.([a-zA-Z0-9_]+)";
@@ -43,6 +43,7 @@ public class DefaultConfiguration implements Configuration {
     private final URL environmentTeardownScriptUrl;
 
     private final URL environmentConfigUrl;
+
     private final List<URL> environmentDependencies;
 
     private final boolean namespaceLazyCreateEnabled;
