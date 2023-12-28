@@ -17,6 +17,17 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>builder-annotations</artifactId>
+      <version>0.103.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
       <scope>test</scope>
