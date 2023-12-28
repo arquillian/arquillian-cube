@@ -60,5 +60,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <!-- Compile Only Dependencies -->
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>builder-annotations</artifactId>
+      <version>0.103.1</version>
+    </dependency>
   </dependencies>
 </project>

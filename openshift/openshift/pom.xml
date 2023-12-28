@@ -170,8 +170,6 @@
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
       <version>0.103.1</version>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
