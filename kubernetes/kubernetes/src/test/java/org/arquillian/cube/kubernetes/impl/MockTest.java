@@ -3,7 +3,9 @@ package org.arquillian.cube.kubernetes.impl;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsBuilder;
 import io.fabric8.kubernetes.api.model.EndpointsListBuilder;
+import io.fabric8.kubernetes.api.model.EventBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodListBuilder;
@@ -16,10 +18,8 @@ import io.fabric8.kubernetes.api.model.ServiceListBuilder;
 import io.fabric8.kubernetes.api.model.WatchEvent;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetBuilder;
 import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 import io.fabric8.kubernetes.client.server.mock.KubernetesMockServer;
 
-import java.io.IOException;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.junit.AfterClass;
@@ -30,7 +30,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
     {
-        //PodInjection.class,
+        PodInjection.class,
         ReplicationControllerInjection.class,
         ServiceInjection.class,
     }
@@ -175,6 +175,20 @@ public class MockTest {
 
         //test-controller
         MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/replicationcontrollers?fieldSelector=metadata.name%3Dtest-controller")
+            .andReturn(200, testController)
+            .once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/replicationcontrollers?allowWatchBookmarks=true&fieldSelector=metadata.name%3Dtest-controller&timeoutSeconds=600&watch=true")
+            .andUpgradeToWebSocket()
+            .open()
+            .waitFor(50)
+            .andEmit(new WatchEvent(testController, "ADDED"))
+            .done()
+            .once();
+        MOCK.expect()
             .post()
             .withPath("/api/v1/namespaces/arquillian/replicationcontrollers")
             .andReturn(201, testController)
@@ -222,8 +236,39 @@ public class MockTest {
             .always();
 
         //test-pod
-        MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/pods").andReturn(201, testPod).always();
-        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(404, "").once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/pods?fieldSelector=metadata.name%3Dtest-pod")
+            .andReturn(200, testPod)
+            .once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/pods?allowWatchBookmarks=true&fieldSelector=metadata.name%3Dtest-pod&timeoutSeconds=600&watch=true")
+            .andUpgradeToWebSocket()
+            .open()
+            .waitFor(50)
+            .andEmit(new WatchEvent(testPod, "ADDED"))
+            .done()
+            .once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/events?allowWatchBookmarks=true&watch=true")
+            .andUpgradeToWebSocket()
+            .open()
+            .waitFor(50)
+            .andEmit(new WatchEvent(new EventBuilder()
+                .withInvolvedObject(new ObjectReferenceBuilder()
+                    .withName(testPod.getMetadata().getName())
+                    .withKind(testPod.getKind())
+                    .build())
+                .withNewMetadata()
+                .withName("boh")
+                .withNamespace("arquillian")
+                .endMetadata()
+                .build(), "ADDED"))
+            .done()
+            .once();
+        MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/pods").andReturn(201, testPod).once();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods/test-pod").andReturn(200, testPod).always();
         MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/pods").andReturn(200, new PodListBuilder()
             .withNewMetadata()
@@ -244,8 +289,21 @@ public class MockTest {
 
 
         //test-service
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/services?fieldSelector=metadata.name%3Dtest-service")
+            .andReturn(200, testService)
+            .once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/services?allowWatchBookmarks=true&fieldSelector=metadata.name%3Dtest-service&timeoutSeconds=600&watch=true")
+            .andUpgradeToWebSocket()
+            .open()
+            .waitFor(50)
+            .andEmit(new WatchEvent(testService, "ADDED"))
+            .done()
+            .once();
         MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/services").andReturn(201, testService).always();
-        MOCK.expect().get().withPath("/api/v1/namespaces/arquillian/services/test-service").andReturn(404, "").once();
         MOCK.expect()
             .get()
             .withPath("/api/v1/namespaces/arquillian/services/test-service")
@@ -277,6 +335,20 @@ public class MockTest {
             .build()).always();
 
         //test-service endpoints
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/endpoints?fieldSelector=metadata.name%3Dtest-service")
+            .andReturn(200, testEndpoints)
+            .once();
+        MOCK.expect()
+            .get()
+            .withPath("/api/v1/namespaces/arquillian/endpoints?allowWatchBookmarks=true&fieldSelector=metadata.name%3Dtest-service&timeoutSeconds=600&watch=true")
+            .andUpgradeToWebSocket()
+            .open()
+            .waitFor(50)
+            .andEmit(new WatchEvent(readyTestEndpoints, "ADDED"))
+            .done()
+            .always();
         MOCK.expect().post().withPath("/api/v1/namespaces/arquillian/endpoints").andReturn(201, testEndpoints).always();
 
         MOCK.expect()
@@ -331,7 +403,7 @@ public class MockTest {
     }
 
     @AfterClass
-    public static void tearDownClass() throws IOException {
-        MOCK.shutdown();
+    public static void tearDownClass() {
+        //MOCK.shutdown();
     }
 }
