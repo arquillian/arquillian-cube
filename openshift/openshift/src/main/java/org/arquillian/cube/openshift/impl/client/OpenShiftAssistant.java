@@ -161,7 +161,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
      */
     @Override
     public void awaitApplicationReadinessOrFail(final String applicationName) {
-        /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1282
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 return getClient()
                     .deploymentConfigs()
@@ -169,7 +168,6 @@ public class OpenShiftAssistant extends KubernetesAssistant {
                     .withName(applicationName).isReady();
             }
         );
-        **/
     }
 
     /**
