@@ -1,5 +1,6 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
+import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,7 +20,7 @@ import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;
 import io.undertow.client.ClientRequest;
 import io.undertow.connector.ByteBufferPool;
-import io.undertow.protocols.spdy.SpdyStreamStreamSinkChannel;
+import io.undertow.protocols.http2.Http2StreamSinkChannel;
 import io.undertow.server.AbstractServerConnection;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.HttpUpgradeListener;
@@ -259,7 +260,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                     getBufferPool());
 
                 // keep alive
-                timer.scheduleAtFixedRate(new PingSpdyStream((SpdyStreamStreamSinkChannel) result.getRequestChannel()),
+                timer.scheduleAtFixedRate(new PingHttp2Stream((Http2StreamSinkChannel) result.getRequestChannel()),
                     15000, 15000); // OSE times out after 30s
 
                 // need to wait for the client to close the request channel
@@ -317,11 +318,11 @@ public class PortForwardServerConnection extends AbstractServerConnection {
         }
     }
 
-    private final class PingSpdyStream extends TimerTask {
+    private final class PingHttp2Stream extends TimerTask {
 
-        private final SpdyStreamStreamSinkChannel stream;
+        private final Http2StreamSinkChannel stream;
 
-        private PingSpdyStream(SpdyStreamStreamSinkChannel stream) {
+        private PingHttp2Stream(Http2StreamSinkChannel stream) {
             super();
             this.stream = stream;
         }
@@ -332,7 +333,7 @@ public class PortForwardServerConnection extends AbstractServerConnection {
                 @Override
                 public void run() {
                     if (stream.isOpen()) {
-                        stream.getChannel().sendPing(stream.getStreamId());
+                        stream.getChannel().sendPing(ByteBuffer.allocate(4).putInt(stream.getStreamId()).array());
                     }
                 }
             });
