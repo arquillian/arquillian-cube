@@ -29,17 +29,17 @@ import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.http.HttpClient;
 import io.fabric8.kubernetes.client.internal.SSLUtils;
-import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.fabric8.openshift.client.NamespacedOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
-import okhttp3.OkHttpClient;
 import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.proxy.AbstractProxy;
-import org.arquillian.cube.openshift.impl.utils.OkHttpClientUtils;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -64,9 +64,12 @@ public class F8Proxy extends AbstractProxy<Pod> {
     protected synchronized HttpClient getHttpClient() {
         if (httpClient == null) {
             final Config httpClientConfig = new ClientConfigBuilder().configuration(configuration).build();
-            final HttpClient.Factory httpClientFactory = new OkHttpClientFactory();
+            final HttpClient.Factory httpClientFactory = new JdkHttpClientFactory();
             HttpClient.Builder builder = httpClientFactory.newBuilder(httpClientConfig);  // clone
-            OkHttpClientUtils.applyConnectTimeout(builder, configuration.getHttpClientTimeout());
+            //Increasing timeout to avoid this issue:
+            //Caused by: io.fabric8.kubernetes.client.KubernetesClientException: Error executing: GET at:
+            //https://localhost:8443/api/v1/namespaces/cearq-jws-tcznhcfw354/pods?labelSelector=deploymentConfig%3Djws-app. Cause: timeout
+            builder.connectTimeout(configuration.getHttpClientTimeout(), TimeUnit.SECONDS);
             // TODO - TBD - OkHttpClientUtils.applyCookieJar(builder);
             httpClient = builder.build();
         }

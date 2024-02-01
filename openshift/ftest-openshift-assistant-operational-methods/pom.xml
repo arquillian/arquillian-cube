@@ -31,11 +31,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-openshift-uberjar</artifactId>
       <scope>test</scope>
@@ -43,6 +38,11 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-client-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

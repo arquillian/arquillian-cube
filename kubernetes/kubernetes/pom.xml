@@ -47,11 +47,6 @@
       <artifactId>openshift-client-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-httpclient-okhttp</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.fusesource.jansi</groupId>
       <artifactId>jansi</artifactId>
       <version>2.4.1</version>
@@ -130,6 +125,10 @@
     <dependency>
       <groupId>org.jboss.arquillian.config</groupId>
       <artifactId>arquillian-config-impl-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-httpclient-jdk</artifactId>
     </dependency>
   </dependencies>
 

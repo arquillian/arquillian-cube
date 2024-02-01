@@ -1,16 +1,17 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.istio.client.IstioClient;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
 import org.awaitility.Awaitility;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,11 +22,12 @@ import java.util.function.Function;
 
 public class IstioAssistant {
 
-    private final OkHttpClient httpClient;
+    private final HttpClient.Factory httpClientFactory = new JdkHttpClientFactory();
+    private final HttpClient httpClient;
     private final IstioClientAdapter istioClientAdapter;
 
     public IstioAssistant(IstioClientAdapter istioClientAdapter) {
-        this.httpClient = new OkHttpClient();
+        this.httpClient = httpClientFactory.newBuilder().build();
         this.istioClientAdapter = istioClientAdapter;
     }
 
@@ -119,22 +121,20 @@ public class IstioAssistant {
         return istioClientAdapter.registerCustomResources(content);
     }
 
-    public void await(final URL url, Function<Response, Boolean> checker) {
-        final Request request = new Request.Builder()
-            .url(url)
+    public void await(final URL url, Function<HttpResponse<String>, Boolean> checker) throws URISyntaxException {
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .uri(url.toURI().toString())
             .build();
 
         this.await(request, checker);
     }
 
-    public void await(final Request request, Function<Response, Boolean> checker) {
+    public void await(final HttpRequest request, Function<HttpResponse<String>, Boolean> checker) {
         Awaitility.await()
             .atMost(30, TimeUnit.SECONDS)
             .ignoreExceptions()
             .until(() -> {
-                try (Response response = httpClient.newCall(request).execute()) {
-                    return checker.apply(response);
-                }
+                return checker.apply(httpClient.sendAsync(request, String.class).get());
             });
     }
 }

@@ -8,6 +8,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+/**
+ * Provides an invocation handler to register a DNS service 
+ *
+ * See https://stackoverflow.com/questions/11647629/how-to-configure-hostname-resolution-to-use-a-custom-dns-server-in-java
+ */
 public interface INameService extends InvocationHandler {
     public static void install(final INameService dns) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, ClassNotFoundException {
         final Class<?> inetAddressClass = InetAddress.class;

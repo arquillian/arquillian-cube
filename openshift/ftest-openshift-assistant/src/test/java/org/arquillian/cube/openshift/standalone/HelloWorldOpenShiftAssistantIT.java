@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import io.fabric8.kubernetes.client.readiness.Readiness;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import io.restassured.RestAssured;
 import org.arquillian.cube.openshift.impl.client.OpenShiftAssistant;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -20,6 +18,7 @@ import org.junit.runner.RunWith;
 import io.fabric8.kubernetes.api.model.Pod;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
@@ -58,15 +57,12 @@ public class HelloWorldOpenShiftAssistantIT {
         final Optional<URL> route = openShiftAssistant.getRoute();
         openShiftAssistant.awaitUrl(route.get());
 
-
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().get().url(route.get()).build();
-        Response response = okHttpClient.newCall(request).execute();
-
-        assertThat(response).isNotNull();
-        assertThat(response.code()).isEqualTo(200);
-        assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
+        RestAssured.given()
+            .when()
+            .get(route.get())
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body(is("Hello OpenShift!\n"));
     }
-
-
 }

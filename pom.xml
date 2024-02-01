@@ -87,7 +87,7 @@
     <version.systemrules>1.19.0</version.systemrules>
     <version.dmr>1.7.0.Final</version.dmr>
     <version.jackson>2.16.0</version.jackson>
-    <version.ok-http-client>3.12.12</version.ok-http-client>  <!-- otherwise Fabric8 would blow up -->
+<!--    <version.ok-http-client>3.12.12</version.ok-http-client>  &lt;!&ndash; otherwise Fabric8 would blow up &ndash;&gt;-->
     <version.meta-inf>1.11</version.meta-inf>
     <version.jolokia>1.7.2</version.jolokia>
     <version.fast-classpath-scanner>3.1.13</version.fast-classpath-scanner>
@@ -247,11 +247,6 @@
         <artifactId>org.eclipse.jgit</artifactId>
         <version>${version.jgit}</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>${version.ok-http-client}</version>
       </dependency>
       <dependency>
         <groupId>io.github.lukehutch</groupId>
@@ -459,7 +454,7 @@
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-httpclient-okhttp</artifactId>
+        <artifactId>kubernetes-httpclient-jdk</artifactId>
         <version>${version.kubernetes_client}</version>
       </dependency>
     </dependencies>

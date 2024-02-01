@@ -23,16 +23,22 @@
 
 package org.arquillian.cube.openshift.impl.proxy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import org.arquillian.cube.openshift.api.ManagementHandle;
+import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
+import org.arquillian.cube.openshift.impl.utils.ManagementHandleImpl;
+
+import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,25 +46,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.net.ssl.SSLContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
-import io.fabric8.kubernetes.client.http.HttpClient;
-import io.fabric8.kubernetes.client.http.HttpRequest;
-import io.fabric8.kubernetes.client.http.HttpResponse;
-import io.fabric8.kubernetes.client.http.StandardHttpRequest;
-import io.fabric8.kubernetes.client.okhttp.OkHttpClientFactory;
-import io.fabric8.kubernetes.client.utils.URLUtils;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.arquillian.cube.openshift.api.ManagementHandle;
-import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
-import org.arquillian.cube.openshift.impl.utils.ManagementHandleImpl;
-import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
@@ -146,7 +133,7 @@ public abstract class AbstractProxy<P> implements Proxy {
             } catch (Exception e) {
                 throw new RuntimeException("Error sending request Object, " + requestObject, e);
             }
-            builder.post(MediaType.parse("application/octet-stream").type(), baos.toByteArray());
+            builder.post("application/octet-stream", baos.toByteArray());
         }
 
         HttpRequest request = builder.build();
@@ -177,7 +164,7 @@ public abstract class AbstractProxy<P> implements Proxy {
 
         HttpRequest.Builder builder = httpClient.newHttpRequestBuilder().url(new URL(url));
         if (bytes != null) {
-            builder.post(MediaType.parse(encoding).type(), bytes);
+            builder.post(encoding, bytes);
         }
         try {
             HttpRequest request = builder.build();
