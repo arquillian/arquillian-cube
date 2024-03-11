@@ -29,13 +29,30 @@
       <artifactId>awaitility</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-istio-kubernetes-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>me.snowdrop</groupId>
-      <artifactId>istio-client-uberjar</artifactId>
+      <groupId>io.fabric8</groupId>
+      <artifactId>istio-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.test</groupId>
+      <artifactId>arquillian-test-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.lukehutch</groupId>
+      <artifactId>fast-classpath-scanner</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-httpclient-jdk</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>

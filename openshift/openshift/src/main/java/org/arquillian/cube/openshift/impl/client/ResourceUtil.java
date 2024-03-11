@@ -190,7 +190,6 @@ public final class ResourceUtil {
      */
     public static void awaitRoute(URL routeUrl, int timeout, TimeUnit timeoutUnit, int repetitions, int... statusCodes) {
         AtomicInteger successfulAwaitsInARow = new AtomicInteger(0);
-        /** rls TODO https://github.com/arquillian/arquillian-cube/issues/1282
         await().atMost(timeout, timeoutUnit).until(() -> {
             if (tryConnect(routeUrl, statusCodes)) {
                 successfulAwaitsInARow.incrementAndGet();
@@ -199,7 +198,6 @@ public final class ResourceUtil {
             }
             return successfulAwaitsInARow.get() >= repetitions;
         });
-        **/
     }
 
     public static void awaitRoute(URL routeUrl, int timeout, TimeUnit timeoutUnit, int... statusCodes) {

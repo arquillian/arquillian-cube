@@ -4,6 +4,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteList;
 import io.fabric8.openshift.api.model.RouteSpec;
 import org.arquillian.cube.openshift.impl.dns.ArqCubeNameService;
+import org.arquillian.cube.openshift.impl.dns.INameService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +20,8 @@ public class DnsServiceTest {
     private static String ROUTER_HOST = "127.0.0.1";
 
     @Before
-    public void prepareEnv(){
-        System.setProperty("sun.net.spi.nameservice.provider.1", "dns,ArquillianCubeNameService");
-        System.setProperty("sun.net.spi.nameservice.provider.2","default");
+    public void prepareEnv() throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
+        INameService.install(new ArqCubeNameService());
     }
 
     @Test

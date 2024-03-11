@@ -39,12 +39,12 @@
       <artifactId>fabric8-maven-plugin-build</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client-api</artifactId>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-openshift-uberjar</artifactId>
+      <artifactId>openshift-client-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.fusesource.jansi</groupId>
@@ -76,8 +76,6 @@
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
       <version>0.103.1</version>
-      <scope>compile</scope>
-      <optional>true</optional>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -98,7 +96,7 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>mockwebserver</artifactId>
+      <artifactId>kubernetes-server-mock</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -120,8 +118,17 @@
       <artifactId>awaitility</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.arquillian.config</groupId>
       <artifactId>arquillian-config-impl-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-httpclient-jdk</artifactId>
     </dependency>
   </dependencies>
 

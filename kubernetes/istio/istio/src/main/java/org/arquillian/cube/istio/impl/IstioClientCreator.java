@@ -1,7 +1,7 @@
 package org.arquillian.cube.istio.impl;
 
+import io.fabric8.istio.client.IstioClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import me.snowdrop.istio.client.IstioClient;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -15,7 +15,7 @@ public class IstioClientCreator {
 
     public void createIstioClient(@Observes final KubernetesClient client) {
 
-        IstioClient istioClient = client.adapt(IstioClient.class);
+        IstioClient istioClient = client.adapt(IstioClientAdapter.class);
         istioClientInstanceProducer.set(istioClient);
 
     }

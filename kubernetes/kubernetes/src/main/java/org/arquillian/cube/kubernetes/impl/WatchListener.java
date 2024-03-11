@@ -1,14 +1,9 @@
 package org.arquillian.cube.kubernetes.impl;
-// io/fabric8/kubernetes/api/model/Event.class
+
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.Event;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
-import io.fabric8.kubernetes.client.dsl.LogWatch;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +15,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.dsl.LogWatch;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.Logger;
@@ -83,10 +84,7 @@ public class WatchListener {
             public void onClose(WatcherException cause) {
             }
         };
-        /** rls TODO  find replacement for method inNamespace  https://github.com/arquillian/arquillian-cube/issues/1281
-        watchEvents = client.events().inNamespace(session.getNamespace()).watch(watcher);
-        **/
-        watchEvents = null;  // rls TODO remove this line
+        watchEvents = client.resources(Event.class).inNamespace(session.getNamespace()).watch(watcher);
     }
 
     void cleanupEventsListener() {

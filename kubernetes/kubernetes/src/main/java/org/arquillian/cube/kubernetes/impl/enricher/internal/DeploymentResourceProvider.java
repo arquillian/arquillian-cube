@@ -8,10 +8,6 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-/** rls TODO verify pkg change is appropriate  https://github.com/arquillian/arquillian-cube/issues/1280
-import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DeploymentList;
-**/
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
 

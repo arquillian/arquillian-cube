@@ -53,7 +53,7 @@ public class OpenShiftClient {
             }
         }
         try {
-            getClient().lists().delete(new KubernetesListBuilder().withItems(resourcesToDelete).build());
+            getClient().resourceList(resourcesToDelete).delete();
         } catch (Exception e) {
             exceptions.add(e);
         }

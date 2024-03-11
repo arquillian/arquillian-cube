@@ -9,18 +9,9 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
-/* rls TODO  There are 2 identical classes except for the package names.
-   Switching to other version for a clean compile.  Must confirm
-   this is a proper change. https://github.com/arquillian/arquillian-cube/issues/1286
- */
-//import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
-//import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
-
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
 import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
-
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -42,6 +35,7 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.codehaus.plexus.util.CollectionUtils;
 import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
@@ -123,7 +117,7 @@ public class SessionManager implements SessionCreatedListener {
         try {
             URL configUrl = configuration.getEnvironmentConfigUrl();
             List<URL> dependencyUrls =
-                !configuration.getEnvironmentDependencies().isEmpty() ? configuration.getEnvironmentDependencies()
+                (configuration.getEnvironmentDependencies() != null && !configuration.getEnvironmentDependencies().isEmpty()) ? configuration.getEnvironmentDependencies()
                     : dependencyResolver.resolve(session);
 
             if (configuration.isEnvironmentInitEnabled()) {

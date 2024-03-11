@@ -71,7 +71,7 @@
     <version.junit>4.13.2</version.junit>
     <version.hamcrest>2.2</version.hamcrest>
     <version.docker-java>3.3.4</version.docker-java>
-    <version.kubernetes_client>5.12.4</version.kubernetes_client>
+    <version.kubernetes_client>6.9.2</version.kubernetes_client>
     <version.snakeyaml>2.2</version.snakeyaml>
     <version.shrinkwrap_resolver>3.2.1</version.shrinkwrap_resolver>
     <version.shrinkwrap>1.2.6</version.shrinkwrap>
@@ -87,14 +87,13 @@
     <version.systemrules>1.19.0</version.systemrules>
     <version.dmr>1.7.0.Final</version.dmr>
     <version.jackson>2.16.0</version.jackson>
-    <version.ok-http-client>4.12.0</version.ok-http-client>
+<!--    <version.ok-http-client>3.12.12</version.ok-http-client>  &lt;!&ndash; otherwise Fabric8 would blow up &ndash;&gt;-->
     <version.meta-inf>1.11</version.meta-inf>
     <version.jolokia>1.7.2</version.jolokia>
     <version.fast-classpath-scanner>3.1.13</version.fast-classpath-scanner>
     <!-- Empty property for failsafe groups to avoid conflict with maven-javadoc-plugin's groups -->
     <failsafe.groups />
-    <version.istio>1.7.7.1</version.istio>
-    <version.awaitility>4.2.0</version.awaitility>
+    <version.awaitility>4.0.1</version.awaitility>
     <version.junit5>5.10.1</version.junit5>
   </properties>
 
@@ -250,11 +249,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>${version.ok-http-client}</version>
-      </dependency>
-      <dependency>
         <groupId>io.github.lukehutch</groupId>
         <artifactId>fast-classpath-scanner</artifactId>
         <version>${version.fast-classpath-scanner}</version>
@@ -341,12 +335,12 @@
         <artifactId>mockito-core</artifactId>
         <version>${version.mockito}</version>
         <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-          </exclusion>
-        </exclusions>
+<!--        <exclusions>-->
+<!--          <exclusion>-->
+<!--            <groupId>org.hamcrest</groupId>-->
+<!--            <artifactId>hamcrest-core</artifactId>-->
+<!--          </exclusion>-->
+<!--        </exclusions>-->
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>
@@ -376,14 +370,14 @@
         <version>${version.kubernetes_client}</version>
       </dependency>
       <dependency>
-        <groupId>me.snowdrop</groupId>
-        <artifactId>istio-client-uberjar</artifactId>
-        <version>${version.istio}</version>
+        <groupId>io.fabric8</groupId>
+        <artifactId>istio-client</artifactId>
+        <version>${version.kubernetes_client}</version>
       </dependency>
       <dependency>
         <groupId>io.fabric8</groupId>
-        <artifactId>mockwebserver</artifactId>
-        <version>${version.fabric8_mockwebserver}</version>
+        <artifactId>kubernetes-server-mock</artifactId>
+        <version>${version.kubernetes_client}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -432,7 +426,7 @@
       </dependency>
       <dependency>
         <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
+        <artifactId>hamcrest</artifactId>
         <version>${version.hamcrest}</version>
         <scope>test</scope>
       </dependency>
@@ -452,7 +446,16 @@
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-client-api</artifactId>
         <version>${version.kubernetes_client}</version>
-        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>openshift-client-api</artifactId>
+        <version>${version.kubernetes_client}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>kubernetes-httpclient-jdk</artifactId>
+        <version>${version.kubernetes_client}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -461,17 +464,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- rls added start -->
-        <!-- resolves failure to find TestSetFailedException.
-          but can't find com.sun:tools:jar:1.7
-        -->
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-api</artifactId>
-            <version>3.2.2</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>

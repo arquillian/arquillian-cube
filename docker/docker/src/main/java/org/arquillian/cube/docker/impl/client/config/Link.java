@@ -14,6 +14,12 @@ public class Link {
         this.alias = alias;
     }
 
+    public Link(final String links) {
+        final Link parsed = valueOf(links);
+        this.name = parsed.name;
+        this.alias = parsed.alias;
+    }
+
     public static Link valueOf(String links) {
         String[] link = links.split(":");
         String name = link[0];

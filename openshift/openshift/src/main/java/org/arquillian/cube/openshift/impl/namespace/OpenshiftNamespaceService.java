@@ -76,7 +76,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
                 logger.info("Deleting project: " + namespace + "...");
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-                Boolean deleted = openShiftClient.projects().withName(namespace).delete();
+                Boolean deleted = openShiftClient.projects().withName(namespace).delete().stream().allMatch(d -> d.getCauses().isEmpty());
                 if (deleted) {
                     logger.info("Project: " + namespace + ", successfully deleted");
                 }

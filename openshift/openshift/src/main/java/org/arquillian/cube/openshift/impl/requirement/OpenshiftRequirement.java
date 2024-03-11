@@ -1,15 +1,20 @@
 package org.arquillian.cube.openshift.impl.requirement;
 
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import io.fabric8.openshift.client.OpenShiftClient;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.util.concurrent.ExecutionException;
+
 import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 import org.arquillian.cube.kubernetes.impl.ExtensionRegistrar;
@@ -27,17 +32,18 @@ public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
 
         final DefaultConfiguration config = new ExtensionRegistrar().loadExtension(extension);
 
-        try (KubernetesClient client = new DefaultKubernetesClient(
-            new ClientConfigBuilder().configuration(config).build())) {
+        final Config httpClientConfig = new ClientConfigBuilder().configuration(config).build();
+        try (KubernetesClient client = new DefaultKubernetesClient(httpClientConfig)) {
 
-            OkHttpClient httpClient = client.adapt(OkHttpClient.class);
+            HttpClient.Factory httpClientFactory = new JdkHttpClientFactory();
+            HttpClient httpClient = httpClientFactory.newBuilder(httpClientConfig).build();
 
-            Request versionRequest = new Request.Builder()
-                .get()
-                .url(URLUtils.join(client.getMasterUrl().toString(), "version"))
+            HttpRequest versionRequest =  httpClient.newHttpRequestBuilder()
+                .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version").toString()))
+                .method("GET", "*/*", null)
                 .build();
 
-            Response response = httpClient.newCall(versionRequest).execute();
+            HttpResponse<String> response = httpClient.sendAsync(versionRequest, String.class).get();
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify Openshift version, due to: [" + response.message() + "]");
@@ -45,7 +51,7 @@ public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
                 throw new UnsatisfiedRequirementException(
                     "A valid Kubernetes environmnet was found, but not Openshift.");
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | InterruptedException | ExecutionException e) {
             throw new UnsatisfiedRequirementException(
                 "Error while checking Openshift version: [" + e.getMessage() + "]");
         }

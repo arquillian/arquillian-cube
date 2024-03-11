@@ -8,11 +8,12 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
-import io.fabric8.kubernetes.client.internal.readiness.Readiness;
+import io.fabric8.kubernetes.client.readiness.Readiness;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -315,7 +316,7 @@ public class KubernetesAssistant {
 
     private int portForward(String podName, int sourcePort, int targetPort, String namespace) {
         try {
-            final io.fabric8.kubernetes.client.Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
+            final Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
             final PortForwarder portForwarder = new PortForwarder(build, podName);
             portForwarder.forwardPort(sourcePort, targetPort);
             return sourcePort;
@@ -379,7 +380,7 @@ public class KubernetesAssistant {
             retryCounter++;
             try {
                 // returns false when successfully deleted
-                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete();
+                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete().stream().anyMatch(d -> !d.getCauses().isEmpty());
             } catch (KubernetesClientException e) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
@@ -409,15 +410,13 @@ public class KubernetesAssistant {
      * @param applicationName name of the application to wait for pods readiness
      */
     public void awaitApplicationReadinessOrFail(final String applicationName) {
-        /** rls TODO uncomment code and resolve compile issue. https://github.com/arquillian/arquillian-cube/issues/1282
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
+        org.awaitility.Awaitility.await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 return client
                     .replicationControllers()
                     .inNamespace(this.namespace)
                     .withName(applicationName).isReady();
             }
         );
-        **/
     }
 
     public String project() {
@@ -430,7 +429,6 @@ public class KubernetesAssistant {
      * @param filter used to wait to detect that a pod is up and running.
      */
     public void awaitPodReadinessOrFail(Predicate<Pod> filter) {
-        /** rls TODO uncomment code and resolve compile issue. https://github.com/arquillian/arquillian-cube/issues/1282
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 List<Pod> list = client.pods().inNamespace(namespace).list().getItems();
                 return list.stream()
@@ -439,7 +437,6 @@ public class KubernetesAssistant {
                     .collect(Collectors.toList()).size() >= 1;
             }
         );
-        **/
     }
 
     /**

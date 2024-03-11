@@ -52,13 +52,20 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>mockwebserver</artifactId>
+      <artifactId>kubernetes-server-mock</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <!-- Compile Only Dependencies -->
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>builder-annotations</artifactId>
+      <version>0.103.1</version>
     </dependency>
   </dependencies>
 </project>

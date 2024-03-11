@@ -5,15 +5,15 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.client.Config;
-import io.fabric8.openshift.client.NamespacedOpenShiftClient;
-import java.io.File;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
+
+import java.io.File;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GitServer {
     private static final String GIT_SERVICE = "git";

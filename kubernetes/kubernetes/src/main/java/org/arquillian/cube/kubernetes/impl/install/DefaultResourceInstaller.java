@@ -108,7 +108,7 @@ public class DefaultResourceInstaller implements ResourceInstaller {
             preUninstallCheck();
             for (HasMetadata h : list) {
                 try {
-                    Boolean deleted = client.resource(h).delete();
+                    Boolean deleted = client.resource(h).delete().stream().allMatch(d -> d.getCauses().isEmpty());
                     result.put(h, deleted);
                 } catch (Throwable t) {
                     result.put(h, false);
