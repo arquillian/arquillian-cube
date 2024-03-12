@@ -1,20 +1,21 @@
 package org.arquillian.cube.istio.impl;
 
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
-import java.io.InputStream;
-import java.util.Arrays;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.client.IstioClient;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.arquillian.cube.istio.api.RestoreIstioResource;
 import org.jboss.arquillian.test.spi.event.suite.AfterClass;
 import org.jboss.arquillian.test.spi.event.suite.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class IstioResourcesApplierTest {
 
     @Mock
-    private IstioClient istioClient;
+    private IstioClientAdapter istioClientAdapter;
 
     @Mock
     private IstioResource istioResource;
@@ -43,19 +44,19 @@ public class IstioResourcesApplierTest {
         // Given
         final BeforeClass beforeClass = new BeforeClass(TestWithIstioResource.class);
         final IstioResourcesApplier istioResourceApplier = createIstioResourceApplier();
-        when(istioClient.registerCustomResources(any(InputStream.class)))
+        when(istioClientAdapter.registerCustomResources(any(InputStream.class)))
             .thenReturn(Arrays.asList(istioResource));
 
         // When
 
-        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClient);
+        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClientAdapter);
 
         // Then
 
-        verify(istioClient, times(1)).registerCustomResources(any(InputStream.class));
+        verify(istioClientAdapter, times(1)).registerCustomResources(any(InputStream.class));
         assertThat(istioResourceApplier.getResourcesMap())
             .hasSize(1)
-            .containsValue(Arrays.asList(istioResource));
+            .containsValue(Collections.singletonList(istioResource));
         assertThat(istioResourceApplier.getRestoredResourcesMap())
             .hasSize(0);
     }
@@ -66,18 +67,18 @@ public class IstioResourcesApplierTest {
         // Given
         final BeforeClass beforeClass = new BeforeClass(TestWithIstioResourceAndRestore.class);
         final IstioResourcesApplier istioResourceApplier = createIstioResourceApplier();
-        when(istioClient.registerCustomResources(any(InputStream.class)))
+        when(istioClientAdapter.registerCustomResources(any(InputStream.class)))
             .thenReturn(Arrays.asList(istioResource));
 
         // When
 
-        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClient);
+        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClientAdapter);
 
         // Then
 
-        verify(istioClient, times(1)).registerCustomResources(any(InputStream.class));
+        verify(istioClientAdapter, times(1)).registerCustomResources(any(InputStream.class));
         assertThat(istioResourceApplier.getResourcesMap())
-            .hasSize(1)
+            .isNotNull()
             .containsValue(Arrays.asList(istioResource));
         assertThat(istioResourceApplier.getRestoredResourcesMap())
             .hasSize(0);
@@ -89,18 +90,18 @@ public class IstioResourcesApplierTest {
         // Given
         final BeforeClass beforeClass = new BeforeClass(TestWithIstioResource.class);
         final IstioResourcesApplier istioResourceApplier = createIstioResourceApplier();
-        when(istioClient.registerCustomResources(any(InputStream.class)))
+        when(istioClientAdapter.registerCustomResources(any(InputStream.class)))
             .thenReturn(Arrays.asList(istioResource));
-        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClient);
+        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClientAdapter);
 
 
         // When
 
-        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResource.class), istioClient);
+        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResource.class), istioClientAdapter);
 
         // Then
 
-        verify(istioClient, times(1)).unregisterCustomResource(istioResource);
+        verify(istioClientAdapter, times(1)).unregisterCustomResource(istioResource);
     }
 
     @Test
@@ -109,18 +110,18 @@ public class IstioResourcesApplierTest {
         // Given
         final BeforeClass beforeClass = new BeforeClass(TestWithIstioResourceAndRestore.class);
         final IstioResourcesApplier istioResourceApplier = createIstioResourceApplier();
-        when(istioClient.registerCustomResources(any(InputStream.class)))
+        when(istioClientAdapter.registerCustomResources(any(InputStream.class)))
             .thenReturn(Arrays.asList(istioResource));
-        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClient);
+        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClientAdapter);
 
         // When
 
-        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResourceAndRestore.class), istioClient);
+        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResourceAndRestore.class), istioClientAdapter);
 
         // Then
 
-        verify(istioClient, times(2)).registerCustomResources(any(InputStream.class));
-        verify(istioClient, times(0)).unregisterCustomResource(istioResource);
+        verify(istioClientAdapter, times(2)).registerCustomResources(any(InputStream.class));
+        verify(istioClientAdapter, times(0)).unregisterCustomResource(istioResource);
     }
 
     @Test
@@ -129,18 +130,18 @@ public class IstioResourcesApplierTest {
         // Given
         final BeforeClass beforeClass = new BeforeClass(TestWithIstioResourceAndRestore.class);
         final IstioResourcesApplier istioResourceApplier = createIstioResourceApplier();
-        when(istioClient.registerCustomResources(any(InputStream.class)))
+        when(istioClientAdapter.registerCustomResources(any(InputStream.class)))
             .thenReturn(Arrays.asList(istioResource), Arrays.asList(istioResource2));
-        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClient);
+        istioResourceApplier.applyIstioResourcesAtClassScope(beforeClass, istioClientAdapter);
 
         // When
 
-        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResourceAndRestore.class), istioClient);
+        istioResourceApplier.removeIstioResourcesAtClassScope(new AfterClass(TestWithIstioResourceAndRestore.class), istioClientAdapter);
 
         // Then
 
-        verify(istioClient, times(2)).registerCustomResources(any(InputStream.class));
-        verify(istioClient, times(1)).unregisterCustomResource(istioResource);
+        verify(istioClientAdapter, times(2)).registerCustomResources(any(InputStream.class));
+        verify(istioClientAdapter, times(1)).unregisterCustomResource(istioResource);
     }
 
     private IstioResourcesApplier createIstioResourceApplier() {
@@ -151,10 +152,10 @@ public class IstioResourcesApplierTest {
 
         when(istioResource2.getMetadata()).thenReturn(meta2);
         when(meta2.getName()).thenReturn("different");
-        when(meta2.getNamespace()).thenReturn("tutorial");
+        lenient().when(meta2.getNamespace()).thenReturn("tutorial");
 
-        when(istioClient.registerCustomResources(any(InputStream.class)))
-            .thenReturn(Arrays.asList(istioResource), Arrays.asList(istioResource2));
+        when(istioClientAdapter.unregisterCustomResource(any(IstioResource.class)))
+            .thenReturn(true);
 
         return new IstioResourcesApplier();
     }

@@ -2,6 +2,8 @@ package org.arquillian.cube.openshift.standalone;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+
 import org.arquillian.cube.istio.api.IstioResource;
 import org.arquillian.cube.istio.impl.IstioAssistant;
 import org.arquillian.cube.openshift.impl.enricher.AwaitRoute;
@@ -36,7 +38,7 @@ public class ReviewsIT extends AbstractReviewsTest {
     }
 
     @Test
-    public void alex_should_use_reviews_v2_version() throws IOException {
+    public void alex_should_use_reviews_v2_version() throws IOException, ExecutionException, InterruptedException {
         alex_should_use_reviews_v2_version(url, istioAssistant);
     }
 

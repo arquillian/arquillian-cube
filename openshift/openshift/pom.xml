@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-openshift-parent</artifactId>
-    <version>1.18.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Arquillian Cube OpenShift</name>
@@ -12,10 +12,10 @@
   <properties>
     <version.openshift_restclient>1.0.0-SNAPSHOT</version.openshift_restclient>
     <version.javax.inject>1</version.javax.inject>
-    <version.jgit>4.0.0.201506090130-r</version.jgit>
-    <version.alpn>8.1.9.v20160720</version.alpn>
-    <version.selenium>3.6.0</version.selenium>
-    <version.graphene>2.3.1</version.graphene>
+    <version.jgit>6.7.0.202309050840-r</version.jgit>
+    <version.alpn>8.1.13.v20181017</version.alpn>
+    <version.selenium>3.13.0</version.selenium>
+    <version.graphene>2.5.4</version.graphene>
   </properties>
   <dependencyManagement>
   <dependencies>
@@ -46,6 +46,10 @@
       <artifactId>arquillian-cube-kubernetes</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-openshift-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.arquillian.core</groupId>
       <artifactId>arquillian-core-spi</artifactId>
     </dependency>
@@ -71,11 +75,10 @@
       <groupId>io.github.lukehutch</groupId>
       <artifactId>fast-classpath-scanner</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>${version.javax.inject}</version>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
 
     <dependency>
@@ -93,13 +96,27 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-openshift-uberjar</artifactId>
-      <classifier>versioned</classifier>
     </dependency>
 
     <dependency>
-      <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-openshift-api</artifactId>
-      <version>${project.version}</version>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-httpclient-jdk</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client-api</artifactId>
     </dependency>
 
     <dependency>
@@ -126,17 +143,12 @@
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.18.1-GA</version>
+      <version>3.29.2-GA</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
     </dependency>
 
     <dependency>
@@ -152,9 +164,7 @@
     <dependency>
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
-      <version>0.2.8</version>
-      <scope>compile</scope>
-      <optional>true</optional>
+      <version>0.103.1</version>
     </dependency>
 
     <dependency>
@@ -173,6 +183,11 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

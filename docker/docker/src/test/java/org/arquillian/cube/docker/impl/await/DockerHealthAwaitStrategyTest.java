@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.when;
 
@@ -47,7 +47,7 @@ public class DockerHealthAwaitStrategyTest {
     @BeforeClass
     public static void createDockerClient() {
         if (!System.getenv().containsKey(DOCKER_HOST) || System.getenv(DOCKER_HOST).equals("")){
-            environmentVariables.set(DOCKER_HOST, "unix:///var/run/docker.sock");
+            environmentVariables.set(DOCKER_HOST, "unix:///var/run/podman.sock");
         }
         dockerClient = DockerClientBuilder.getInstance().build();
         healthSuccessImageId = dockerBuild("DockerHealthAwait/HealthSuccess/Dockerfile");

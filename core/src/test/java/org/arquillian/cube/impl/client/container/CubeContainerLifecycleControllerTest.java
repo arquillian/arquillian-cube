@@ -27,8 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -164,7 +165,7 @@ public class CubeContainerLifecycleControllerTest extends AbstractManagerTestBas
         Map<String, String> containerConfig = new HashMap<String, String>();
         containerConfig.put("cubeId", CUBE_ID);
 
-        when(container.getName()).thenReturn(MISSING_CUBE_ID);
+        lenient().when(container.getName()).thenReturn(MISSING_CUBE_ID);
         when(containerDef.getContainerProperties()).thenReturn(containerConfig);
 
         shouldCreateAndStartCubeDuringBeforeStart();

@@ -14,9 +14,9 @@ import org.jboss.arquillian.test.spi.event.suite.AfterSuite;
 import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
@@ -62,7 +62,7 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
         fire(new BeforeSuite());
-        Mockito.verify(executor).createNetwork(Matchers.eq("mynetwork"), Matchers.any(Network.class));
+        Mockito.verify(executor).createNetwork(ArgumentMatchers.eq("mynetwork"), ArgumentMatchers.any(Network.class));
     }
 
     @Test
@@ -101,6 +101,6 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
         bind(ApplicationScoped.class, DockerClientExecutor.class, executor);
 
         fire(new AfterSuite());
-        Mockito.verify(executor).removeNetwork(Matchers.eq("mynetwork"));
+        Mockito.verify(executor).removeNetwork(ArgumentMatchers.eq("mynetwork"));
     }
 }

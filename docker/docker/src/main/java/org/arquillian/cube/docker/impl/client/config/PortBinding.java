@@ -16,6 +16,13 @@ public class PortBinding {
         this.exposed = exposed;
     }
 
+    public PortBinding(final String portBinding) {
+        final PortBinding parsed = valueOf(portBinding);
+        this.host = parsed.host;
+        this.bound = parsed.bound;
+        this.exposed = parsed.exposed;
+    }
+
     public static PortBinding valueOf(String portBinding) {
         ExposedPort exposed;
         int bound;

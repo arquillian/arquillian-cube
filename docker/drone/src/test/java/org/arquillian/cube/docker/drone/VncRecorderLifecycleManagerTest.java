@@ -18,9 +18,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -135,9 +136,9 @@ public class VncRecorderLifecycleManagerTest {
         final File destination = temporaryFolder.newFolder("destination");
         final File video = temporaryFolder.newFile("file.flv");
 
-        when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
-        when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
-        when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod(
+        lenient().when(seleniumContainers.getVideoRecordingFile()).thenReturn(video.toPath());
+        lenient().when(after.getTestClass()).thenReturn(new TestClass(VncRecorderLifecycleManagerTest.class));
+        lenient().when(after.getTestMethod()).thenReturn(VncRecorderLifecycleManagerTest.class.getMethod(
             "should_discard_recording_if_configured_in_only_failing_and_passed_test"));
 
         Map<String, String> conf = new HashMap<>();

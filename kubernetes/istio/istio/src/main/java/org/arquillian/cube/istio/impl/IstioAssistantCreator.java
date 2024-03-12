@@ -1,6 +1,6 @@
 package org.arquillian.cube.istio.impl;
 
-import me.snowdrop.istio.client.IstioClient;
+import io.fabric8.istio.client.IstioClient;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -13,7 +13,7 @@ public class IstioAssistantCreator {
     private InstanceProducer<IstioAssistant> istioAssistantInstanceProducer;
 
     public void createIstioAssistant(@Observes IstioClient istioClient) {
-        IstioAssistant istioAssistant = new IstioAssistant(istioClient);
+        IstioAssistant istioAssistant = new IstioAssistant(new IstioClientAdapter(istioClient));
         istioAssistantInstanceProducer.set(istioAssistant);
     }
 }

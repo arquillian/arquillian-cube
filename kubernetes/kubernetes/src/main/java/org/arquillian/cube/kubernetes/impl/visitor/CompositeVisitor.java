@@ -1,7 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v4_0.TypedVisitor;
-import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
+import io.fabric8.kubernetes.api.builder.TypedVisitor;
+import io.fabric8.kubernetes.api.builder.Visitor;
 import java.lang.reflect.Method;
 import java.util.List;
 

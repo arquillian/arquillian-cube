@@ -47,7 +47,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -195,7 +195,7 @@ public class DockerContainerObjectBuilderTest {
         verify(cubeController, times(1)).create("containerWithNonAnnotatedLink");
         verify(cubeController, times(1)).start("containerWithNonAnnotatedLink");
 
-        verify(cubeContainerObjectTestEnricher, times(1)).enrich(any(TestContainerObjectWithAnnotatedLink.class));
+        verify(cubeContainerObjectTestEnricher, times(1)).enrich(any(TestContainerObjectWithNonAnnotatedLink.class));
     }
 
     @Test

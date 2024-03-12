@@ -23,27 +23,30 @@
 
 package org.arquillian.cube.openshift.impl.fabric8;
 
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.PodCondition;
-import io.fabric8.kubernetes.api.model.v4_0.PodStatus;
-import io.fabric8.kubernetes.clnt.v4_0.Adapters;
-import io.fabric8.kubernetes.clnt.v4_0.internal.SSLUtils;
-import io.fabric8.openshift.clnt.v4_0.NamespacedOpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodCondition;
+import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.internal.SSLUtils;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
+import io.fabric8.openshift.client.NamespacedOpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
-import okhttp3.OkHttpClient;
+import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.openshift.impl.client.CubeOpenShiftConfiguration;
 import org.arquillian.cube.openshift.impl.proxy.AbstractProxy;
-import org.arquillian.cube.openshift.impl.utils.OkHttpClientUtils;
 
 /**
  * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
  */
 public class F8Proxy extends AbstractProxy<Pod> {
     private final OpenShiftClient client;
-    private OkHttpClient httpClient;
+    private HttpClient httpClient;
 
     public F8Proxy(CubeOpenShiftConfiguration configuration, NamespacedOpenShiftClient client) {
         super(configuration);
@@ -58,12 +61,16 @@ public class F8Proxy extends AbstractProxy<Pod> {
         }
     }
 
-    protected synchronized OkHttpClient getHttpClient() {
+    protected synchronized HttpClient getHttpClient() {
         if (httpClient == null) {
-            OkHttpClient okHttpClient = Adapters.get(OkHttpClient.class).adapt(client);
-            OkHttpClient.Builder builder = okHttpClient.newBuilder(); // clone
-            OkHttpClientUtils.applyConnectTimeout(builder, configuration.getHttpClientTimeout());
-            OkHttpClientUtils.applyCookieJar(builder);
+            final Config httpClientConfig = new ClientConfigBuilder().configuration(configuration).build();
+            final HttpClient.Factory httpClientFactory = new JdkHttpClientFactory();
+            HttpClient.Builder builder = httpClientFactory.newBuilder(httpClientConfig);  // clone
+            //Increasing timeout to avoid this issue:
+            //Caused by: io.fabric8.kubernetes.client.KubernetesClientException: Error executing: GET at:
+            //https://localhost:8443/api/v1/namespaces/cearq-jws-tcznhcfw354/pods?labelSelector=deploymentConfig%3Djws-app. Cause: timeout
+            builder.connectTimeout(configuration.getHttpClientTimeout(), TimeUnit.SECONDS);
+            // TODO - TBD - OkHttpClientUtils.applyCookieJar(builder);
             httpClient = builder.build();
         }
         return httpClient;

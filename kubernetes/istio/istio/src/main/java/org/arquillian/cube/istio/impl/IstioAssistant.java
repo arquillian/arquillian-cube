@@ -1,9 +1,17 @@
 package org.arquillian.cube.istio.impl;
 
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
+import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
+import org.awaitility.Awaitility;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,31 +19,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.client.IstioClient;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.arquillian.cube.kubernetes.impl.utils.ResourceFilter;
-import org.awaitility.Awaitility;
 
 public class IstioAssistant {
 
-    private final IstioClient istioClient;
-    private final OkHttpClient httpClient;
+    private final HttpClient.Factory httpClientFactory = new JdkHttpClientFactory();
+    private final HttpClient httpClient;
+    private final IstioClientAdapter istioClientAdapter;
 
-    public IstioAssistant(IstioClient istioClient) {
-        this.istioClient = istioClient;
-        this.httpClient = new OkHttpClient();
+    public IstioAssistant(IstioClientAdapter istioClientAdapter) {
+        this.httpClient = httpClientFactory.newBuilder().build();
+        this.istioClientAdapter = istioClientAdapter;
     }
 
     public List<IstioResource> deployIstioResources(final InputStream inputStream) {
-        return istioClient.registerCustomResources(inputStream);
+        return istioClientAdapter.registerCustomResources(inputStream);
+    }
+
+    public void undeployIstioResource(final IstioResource istioResource) {
+        istioClientAdapter.unregisterCustomResource(istioResource);
     }
 
     public void undeployIstioResources(final List<IstioResource> istioResources) {
         for (IstioResource istioResource : istioResources) {
-            istioClient.unregisterCustomResource(istioResource);
+            undeployIstioResource(istioResource);
         }
     }
 
@@ -112,26 +118,23 @@ public class IstioAssistant {
      * @return
      */
     public List<IstioResource> deployIstioResources(String content) {
-        return istioClient.registerCustomResources(content);
+        return istioClientAdapter.registerCustomResources(content);
     }
 
-    public void await(final URL url, Function<Response, Boolean> checker) {
-        final Request request = new Request.Builder()
-            .url(url)
+    public void await(final URL url, Function<HttpResponse<String>, Boolean> checker) throws URISyntaxException {
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .uri(url.toURI().toString())
             .build();
 
         this.await(request, checker);
     }
 
-    public void await(final Request request, Function<Response, Boolean> checker) {
-
+    public void await(final HttpRequest request, Function<HttpResponse<String>, Boolean> checker) {
         Awaitility.await()
             .atMost(30, TimeUnit.SECONDS)
             .ignoreExceptions()
             .until(() -> {
-                try (Response response = httpClient.newCall(request).execute()) {
-                    return checker.apply(response);
-                }
+                return checker.apply(httpClient.sendAsync(request, String.class).get());
             });
     }
 }

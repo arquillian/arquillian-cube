@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.assertj.core.api.ListAssert;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Eddú Meléndez
  */
@@ -23,7 +21,7 @@ public class ImagesAssert extends ListAssert<Image> {
             imageList.add(image.getId());
         }
 
-        assertThat(this.actual)
+        org.assertj.core.api.Assertions.assertThat(this.actual)
             .extracting("id")
             .overridingErrorMessage("%nExpecting:%n <%s>%nto contain:%n <%s>", imageList, Arrays.asList(imageIds))
             .contains(imageIds);

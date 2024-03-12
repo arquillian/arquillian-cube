@@ -1,11 +1,11 @@
 package org.arquillian.cube.openshift.impl.namespace;
 
-import io.fabric8.kubernetes.api.model.v4_0.Namespace;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClientException;
-import io.fabric8.openshift.api.model.v4_0.ProjectRequest;
-import io.fabric8.openshift.api.model.v4_0.ProjectRequestBuilder;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.ProjectRequest;
+import io.fabric8.openshift.api.model.ProjectRequestBuilder;
+import io.fabric8.openshift.client.OpenShiftClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -76,7 +76,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
                 logger.info("Deleting project: " + namespace + "...");
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
-                Boolean deleted = openShiftClient.projects().withName(namespace).delete();
+                Boolean deleted = openShiftClient.projects().withName(namespace).delete().stream().allMatch(d -> d.getCauses().isEmpty());
                 if (deleted) {
                     logger.info("Project: " + namespace + ", successfully deleted");
                 }

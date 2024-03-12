@@ -1,6 +1,6 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.label;
 
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import org.arquillian.cube.kubernetes.api.LabelProvider;
 import org.jboss.arquillian.core.api.Instance;

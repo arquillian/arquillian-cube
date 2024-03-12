@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Qualifier;
+import jakarta.inject.Qualifier;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 

@@ -2,7 +2,7 @@ package org.arquillian.cube.kubernetes.impl.enricher.external;
 
 import java.lang.annotation.Annotation;
 
-import io.fabric8.kubernetes.api.model.v4_0.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;

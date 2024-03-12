@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_API_VERSION;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.DOCKER_ARCH;
@@ -53,6 +53,7 @@ import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentR
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.NETWORK_TOPOLOGY_SCHEMA;
 import static org.arquillian.reporter.impl.asserts.ReportAssert.assertThatReport;
 import static org.arquillian.reporter.impl.asserts.SectionAssert.assertThatSection;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -105,7 +106,7 @@ public class TakeDockerEnvironmentTest {
         when(version.getApiVersion()).thenReturn("1.12");
         when(version.getArch()).thenReturn("x86");
         when(dockerClientExecutor.dockerHostVersion()).thenReturn(version);
-        when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
+        lenient().when(dockerClientExecutor.isDockerInsideDockerResolution()).thenReturn(true);
     }
 
     private void configureCube() throws IOException {
@@ -113,12 +114,12 @@ public class TakeDockerEnvironmentTest {
         when(cube.getId()).thenReturn(CUBE_ID);
         cubeRegistry.addCube(cube);
         Map<String, StatisticNetworksConfig> networks = getNetworks();
-        when(statistics.getNetworks()).thenReturn(networks);
+        lenient().when(statistics.getNetworks()).thenReturn(networks);
         MemoryStatsConfig memory = getMemory();
-        when(statistics.getMemoryStats()).thenReturn(memory);
+        lenient().when(statistics.getMemoryStats()).thenReturn(memory);
         BlkioStatsConfig ioStats = getIOStats();
-        when(statistics.getBlkioStats()).thenReturn(ioStats);
-        when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
+        lenient().when(statistics.getBlkioStats()).thenReturn(ioStats);
+        lenient().when(dockerClientExecutor.statsContainer(CUBE_ID)).thenReturn(statistics);
     }
 
     private void createTakeDockerEnvironmentAndreportDockerEnvironment() {
@@ -307,9 +308,9 @@ public class TakeDockerEnvironmentTest {
     private Map<String, StatisticNetworksConfig> getNetworks() {
         Map<String, StatisticNetworksConfig> nw = new LinkedHashMap<>();
         StatisticNetworksConfig bytes = mock(StatisticNetworksConfig.class);
-        when(bytes.getRxBytes()).thenReturn(724L);
-        when(bytes.getTxBytes()).thenReturn(418L);
-        when(bytes.getRxPackets()).thenReturn(19L);
+        lenient().when(bytes.getRxBytes()).thenReturn(724L);
+        lenient().when(bytes.getTxBytes()).thenReturn(418L);
+        lenient().when(bytes.getRxPackets()).thenReturn(19L);
         nw.put("eth0", bytes);
 
         return nw;
@@ -317,10 +318,10 @@ public class TakeDockerEnvironmentTest {
 
     private MemoryStatsConfig getMemory() {
         MemoryStatsConfig memory = mock(MemoryStatsConfig.class);
-        when(memory.getUsage()).thenReturn(35135488L);
-        when(memory.getMaxUsage()).thenReturn(35770368L);
-        when(memory.getLimit()).thenReturn(20444532736L);
-        when(memory.getStats()).thenReturn(new StatsConfig());
+        lenient().when(memory.getUsage()).thenReturn(35135488L);
+        lenient().when(memory.getMaxUsage()).thenReturn(35770368L);
+        lenient().when(memory.getLimit()).thenReturn(20444532736L);
+        lenient().when(memory.getStats()).thenReturn(new StatsConfig());
 
         return memory;
     }
@@ -350,8 +351,8 @@ public class TakeDockerEnvironmentTest {
             .withValue(0L);
         io.add(ioServiceSync);
 
-        when(blkIO.getIoServiceBytesRecursive()).thenReturn(io);
-        when(blkIO.getIoTimeRecursive()).thenReturn(new ArrayList<>());
+        lenient().when(blkIO.getIoServiceBytesRecursive()).thenReturn(io);
+        lenient().when(blkIO.getIoTimeRecursive()).thenReturn(new ArrayList<>());
 
         return blkIO;
     }

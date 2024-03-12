@@ -3,7 +3,7 @@
   <parent>
     <artifactId>arquillian-cube-kubernetes-parent</artifactId>
     <groupId>org.arquillian.cube</groupId>
-    <version>1.18.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +16,17 @@
   <artifactId>arquillian-cube-kubernetes-assistant-standalone-ftest</artifactId>
 
   <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>builder-annotations</artifactId>
+      <version>0.103.1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
       <artifactId>arquillian-cube-requirement</artifactId>
@@ -34,6 +45,11 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

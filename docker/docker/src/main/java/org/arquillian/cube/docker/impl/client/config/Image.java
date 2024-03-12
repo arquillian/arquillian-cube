@@ -9,6 +9,12 @@ public class Image {
         this.tag = tag;
     }
 
+    public Image(final String nameAndTag) {
+        final Image parsed = valueOf(nameAndTag);
+        this.name = parsed.name;
+        this.tag = parsed.tag;
+    }
+
     public static Image valueOf(String image) {
         String name = null;
         String tag = null;

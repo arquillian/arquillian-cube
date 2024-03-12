@@ -1,23 +1,26 @@
 package org.arquillian.cube.openshift.standalone;
 
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.util.concurrent.ExecutionException;
+
 import org.arquillian.cube.istio.api.IstioResource;
 import org.arquillian.cube.istio.impl.IstioAssistant;
 import org.arquillian.cube.openshift.impl.enricher.AwaitRoute;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
-import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,6 +39,7 @@ import static org.hamcrest.Matchers.hasKey;
 @Ignore("This test assumes that you have a cluster installed with Istio and BookInfo application deployed. We could make a full test preparing all this, but it will take lot of time, not error safe and test execution would take like 10 minutes")
 public class ReviewsITLegacy {
 
+    private HttpClient.Builder httpClientBuilder = new JdkHttpClientFactory().newBuilder();
     @RouteURL("productpage")
     @AwaitRoute
     private URL url;
@@ -66,62 +70,56 @@ public class ReviewsITLegacy {
     }
 
     @Test
-    public void alex_should_use_reviews_v2_version() throws IOException {
+    public void alex_should_use_reviews_v2_version() throws IOException, ExecutionException, InterruptedException {
 
         // given
         waitUntilRouteIsPopulated();
 
         // when
 
-        // Using okhttp because I have not find any way of making rest assured working when setting the required cookies
-        final Request request = new Request.Builder()
-            .url(url.toString() + "api/v1/products/0/reviews")
-            .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+        final HttpClient httpClient = httpClientBuilder.build();
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .url(new URL(url.toString() + "api/v1/products/0/reviews"))
+            .header("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
             .build();
 
-        final OkHttpClient okHttpClient = new OkHttpClient();
-        try(Response response = okHttpClient.newCall(request).execute()) {
+        HttpResponse<String> response = httpClient.sendAsync(request, String.class).get();
 
-            // then
+        // then
 
-            final String content = response.body().string();
+        final String content = response.body();
 
-            final List<Map<String, Object>> ratings = JsonPath.from(content).getList("reviews.rating");
+        final List<Map<String, Object>> ratings = JsonPath.from(content).getList("reviews.rating");
 
-            final Map<String, Object> expectationStar5 = new HashMap<>();
-            expectationStar5.put("color", "black");
-            expectationStar5.put("stars", 5);
+        final Map<String, Object> expectationStar5 = new HashMap<>();
+        expectationStar5.put("color", "black");
+        expectationStar5.put("stars", 5);
 
-            final Map<String, Object> expectationStar4 = new HashMap<>();
-            expectationStar4.put("color", "black");
-            expectationStar4.put("stars", 4);
+        final Map<String, Object> expectationStar4 = new HashMap<>();
+        expectationStar4.put("color", "black");
+        expectationStar4.put("stars", 4);
 
-            assertThat(ratings)
-                .containsExactlyInAnyOrder(expectationStar4, expectationStar5);
-
-        }
-
+        assertThat(ratings)
+            .containsExactlyInAnyOrder(expectationStar4, expectationStar5);
     }
 
-    private void waitUntilRouteIsPopulated() {
-        final Request request = new Request.Builder()
-            .url(url.toString() + "api/v1/products/0/reviews")
-            .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+    private void waitUntilRouteIsPopulated() throws MalformedURLException {
+        final HttpClient httpClient = httpClientBuilder.build();
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .url(new URL(url.toString() + "api/v1/products/0/reviews"))
+            .header("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
             .build();
 
         istioAssistant.await(request, response -> {
-            try {
-                return response.body().string().contains("stars");
-            } catch (IOException e) {
-                return false;
-            }
+            return response.body().contains("stars");
         });
     }
 
-    private void waitUntilRouteIsPopulated2() {
-        final Request request = new Request.Builder()
-            .url(url.toString() + "api/v1/products/0/reviews")
-            .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+    private void waitUntilRouteIsPopulated2() throws MalformedURLException {
+        final HttpClient httpClient = httpClientBuilder.build();
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .url(new URL(url.toString() + "api/v1/products/0/reviews"))
+            .header("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
             .build();
 
         istioAssistant.await(request, response -> "2.0.0".equals(response.header("version")));

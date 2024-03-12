@@ -1,7 +1,6 @@
 package org.arquillian.cube.openshift.impl.dns;
 
-import io.fabric8.openshift.api.model.v4_0.RouteList;
-import sun.net.spi.nameservice.NameService;
+import io.fabric8.openshift.api.model.RouteList;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,8 +14,7 @@ import java.util.Set;
  * @author Rob Cernich
  * @author fspolti
  */
-public class ArqCubeNameService implements NameService {
-
+public class ArqCubeNameService implements INameService {
     private static final Set<String> hosts = new HashSet<>();
     private static InetAddress routerAddr;
 

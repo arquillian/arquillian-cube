@@ -1,24 +1,29 @@
 package org.arquillian.cube.openshift.standalone;
 
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.http.HttpRequest;
+import io.fabric8.kubernetes.client.http.HttpResponse;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.path.json.JsonPath;
+import io.restassured.specification.RequestSpecification;
+import org.arquillian.cube.istio.impl.IstioAssistant;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasKey;
 
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.path.json.JsonPath;
-import io.restassured.specification.RequestSpecification;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.arquillian.cube.istio.impl.IstioAssistant;
-
 public abstract class AbstractReviewsTest {
+    private HttpClient.Builder httpClientBuilder = new JdkHttpClientFactory().newBuilder();
 
     protected void should_get_v1_if_not_logged(URL url) {
         // given
@@ -38,24 +43,26 @@ public abstract class AbstractReviewsTest {
     }
 
     protected void alex_should_use_reviews_v2_version(URL url,
-        IstioAssistant istioAssistant) throws IOException {
+        IstioAssistant istioAssistant) throws IOException, ExecutionException, InterruptedException {
         // given
         waitUntilRouteIsPopulated(url, istioAssistant);
 
         // when
 
-        // Using okhttp because I have not find any way of making rest assured working when setting the required cookies
-        final Request request = new Request.Builder()
-            .url(url.toString() + "api/v1/products/0/reviews")
-            .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+        // This was previously using okhttp because we didn't find any way of making rest assured working when setting
+        // the required cookies. Now we switch to JdkHttpClient, to see whether we can avoid depending on
+        // okhttp artifacts at all
+        final HttpClient httpClient = httpClientBuilder.build();
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .url(new URL(url.toString() + "api/v1/products/0/reviews"))
+            .header("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
             .build();
 
-        final OkHttpClient okHttpClient = new OkHttpClient();
-        try(Response response = okHttpClient.newCall(request).execute()) {
+        HttpResponse<String> response = httpClient.sendAsync(request, String.class).get();
 
             // then
 
-            final String content = response.body().string();
+            final String content = response.body();
 
             final List<Map<String, Object>> ratings = JsonPath.from(content).getList("reviews.rating");
 
@@ -70,21 +77,18 @@ public abstract class AbstractReviewsTest {
             assertThat(ratings)
                 .containsExactlyInAnyOrder(expectationStar4, expectationStar5);
 
-        }
+
     }
 
-    protected void waitUntilRouteIsPopulated(URL url, IstioAssistant istioAssistant) {
-        final Request request = new Request.Builder()
-            .url(url.toString() + "api/v1/products/0/reviews")
-            .addHeader("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
+    protected void waitUntilRouteIsPopulated(URL url, IstioAssistant istioAssistant) throws MalformedURLException {
+        final HttpClient httpClient = httpClientBuilder.build();
+        final HttpRequest request = httpClient.newHttpRequestBuilder()
+            .url(new URL(url.toString() + "api/v1/products/0/reviews"))
+            .header("Cookie", "user=alex; Domain=" + url.getHost() +"; Path=/")
             .build();
 
         istioAssistant.await(request, response -> {
-            try {
-                return response.body().string().contains("stars");
-            } catch (IOException e) {
-                return false;
-            }
+            return response.body().contains("stars");
         });
     }
 }

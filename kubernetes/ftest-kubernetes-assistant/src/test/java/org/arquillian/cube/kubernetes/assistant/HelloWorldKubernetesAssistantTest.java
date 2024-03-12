@@ -1,8 +1,7 @@
 package org.arquillian.cube.kubernetes.assistant;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import io.fabric8.kubernetes.client.http.HttpClient;
+import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -15,7 +14,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasKey;
 
 // tag::k8_assistant_example[]
 @RunWith(ArquillianConditionalRunner.class)
@@ -36,13 +39,13 @@ public class HelloWorldKubernetesAssistantTest {
         kubernetesAssistant.deployApplication("hello-world");                           // <1>
         Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");    // <2>
 
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().get().url(serviceUrl.get()).build();
-        Response response = okHttpClient.newCall(request).execute();
-
-        assertThat(response).isNotNull();
-        assertThat(response.code()).isEqualTo(200);
-        assertThat(response.body().string()).isEqualTo("Hello OpenShift!\n");
+        given()
+            .when()
+            .get(serviceUrl.get())
+            .then()
+            .assertThat()
+            .statusCode(200)
+            .body(is("Hello OpenShift!\n"));
     }
 }
 // end::k8_assistant_example[]
