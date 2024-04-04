@@ -1,13 +1,13 @@
 package org.arquillian.cube.kubernetes.fabric8.impl.visitor;
 
-import io.fabric8.kubernetes.api.builder.v4_0.Visitor;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectMeta;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectReference;
-import io.fabric8.kubernetes.api.model.v4_0.ObjectReferenceBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.PodBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.PodTemplateSpecBuilder;
-import io.fabric8.kubernetes.api.model.v4_0.Secret;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
+import io.fabric8.kubernetes.api.builder.Visitor;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.fabric8.impl.SecretKeys;
 import org.arquillian.cube.kubernetes.fabric8.impl.utils.Secrets;
@@ -36,12 +36,12 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
 
         if (element instanceof PodBuilder) {
             PodBuilder builder = (PodBuilder) element;
-            serviceAccount = builder.getSpec().getServiceAccountName();
-            secrets.addAll(generateSecrets(builder.getMetadata()));
+            serviceAccount = builder.buildSpec().getServiceAccountName();
+            secrets.addAll(generateSecrets(builder.buildMetadata()));
         } else if (element instanceof PodTemplateSpecBuilder) {
             PodTemplateSpecBuilder builder = (PodTemplateSpecBuilder) element;
-            serviceAccount = builder.getSpec().getServiceAccountName();
-            secrets.addAll(generateSecrets(builder.getMetadata()));
+            serviceAccount = builder.buildSpec().getServiceAccountName();
+            secrets.addAll(generateSecrets(builder.buildMetadata()));
         }
 
     }
@@ -65,16 +65,17 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
 
 
         if (client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).get() == null) {
-            client.serviceAccounts().inNamespace(configuration.getNamespace()).createNew()
+
+            client.serviceAccounts().inNamespace(configuration.getNamespace()).create(new io.fabric8.kubernetes.api.model.ServiceAccountBuilder()
                     .withNewMetadata()
                     .withName(serviceAccount)
                     .endMetadata()
                     .withSecrets(refs)
-                    .done();
+            .build());
         } else {
-            client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).edit()
+            client.serviceAccounts().inNamespace(configuration.getNamespace()).withName(serviceAccount).edit( s -> new io.fabric8.kubernetes.api.model.ServiceAccountBuilder(s)
                     .withSecrets(refs)
-                    .done();
+                    .build());
         }
     }
 
@@ -105,13 +106,12 @@ public class SecretsAndServiceAccountVisitor implements Visitor {
                                 data.put(c, keyType.generate());
                             }
 
-                            secret = client.secrets().inNamespace(configuration.getNamespace()).createNew()
+                            secret = client.secrets().inNamespace(configuration.getNamespace()).create(new io.fabric8.kubernetes.api.model.SecretBuilder()
                                     .withNewMetadata()
                                     .withName(name)
                                     .endMetadata()
                                     .withData(data)
-                                    .done();
-
+                                    .build());
                             secrets.add(secret);
                         }
                     }

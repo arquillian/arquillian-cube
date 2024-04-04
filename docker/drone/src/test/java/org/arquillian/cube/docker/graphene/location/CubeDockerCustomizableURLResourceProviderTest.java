@@ -13,10 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,7 +93,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_resolve_to_docker_host_if_no_url_provided() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn(null);
 
         assertThatThrownBy(() -> {
@@ -104,7 +105,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_resolve_internal_ip_of_container() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn("http://helloworld:80/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
@@ -119,7 +120,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_resolve_internal_ip_of_container_with_default_port() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn("http://helloworld/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
@@ -134,7 +135,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_not_resolve_ip() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn("http://192.168.99.101:80/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
@@ -149,7 +150,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_resolve_docker_host_in_relative_url() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn("http://dockerHost:80/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);
@@ -164,7 +165,7 @@ public class CubeDockerCustomizableURLResourceProviderTest {
     @Test
     public void should_resolve_docker_host_in_relative_url_with_default_port() {
         final DockerCompositions compositions = ConfigUtil.load(SIMPLE_SCENARIO);
-        when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
+        lenient().when(cubeDockerConfiguration.getDockerContainersContent()).thenReturn(compositions);
         when(grapheneConfiguration.getUrl()).thenReturn("http://dockerHost/context");
 
         final URL url = (URL) dockerCubeCustomizableURLResourceProvider.lookup(null);

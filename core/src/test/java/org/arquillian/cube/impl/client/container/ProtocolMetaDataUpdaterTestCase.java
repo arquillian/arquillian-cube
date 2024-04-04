@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
@@ -123,7 +123,7 @@ public class ProtocolMetaDataUpdaterTestCase extends AbstractContainerTestBase {
     public void shouldNotUpdateIfContainerNotMapped() throws Exception {
         Binding binding = new Binding(GATEWAY_IP);
         binding.addPortBinding(EXPOSED_PORT, EXPOSED_PORT);
-        Mockito.when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
+        Mockito.lenient().when(cube.getMetadata(HasPortBindings.class)).thenReturn(new TestPortBindings(binding));
 
         bind(ContainerScoped.class,
             Container.class,

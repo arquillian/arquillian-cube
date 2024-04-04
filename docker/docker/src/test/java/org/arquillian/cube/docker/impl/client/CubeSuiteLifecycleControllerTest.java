@@ -22,8 +22,9 @@ import org.jboss.arquillian.test.spi.event.suite.BeforeSuite;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -111,9 +112,9 @@ public class CubeSuiteLifecycleControllerTest extends AbstractManagerTestBase {
         ContainerRegistry containerRegistry = mock(ContainerRegistry.class);
         List<org.jboss.arquillian.container.spi.Container> containers = new ArrayList<>();
         org.jboss.arquillian.container.spi.Container container = mock(org.jboss.arquillian.container.spi.Container.class);
-        when(container.getName()).thenReturn("a");
+        lenient().when(container.getName()).thenReturn("a");
         containers.add(container);
-        when(containerRegistry.getContainers()).thenReturn(containers);
+        lenient().when(containerRegistry.getContainers()).thenReturn(containers);
 
         bind(ApplicationScoped.class, ContainerRegistry.class, containerRegistry);
 

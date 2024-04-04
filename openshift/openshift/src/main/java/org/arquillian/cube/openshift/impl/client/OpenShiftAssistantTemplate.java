@@ -1,11 +1,10 @@
 package org.arquillian.cube.openshift.impl.client;
 
-import io.fabric8.kubernetes.api.model.v4_0.KubernetesList;
-import io.fabric8.openshift.api.model.v4_0.DoneableTemplate;
-import io.fabric8.openshift.api.model.v4_0.Template;
-import io.fabric8.openshift.clnt.v4_0.OpenShiftClient;
-import io.fabric8.openshift.clnt.v4_0.ParameterValue;
-import io.fabric8.openshift.clnt.v4_0.dsl.TemplateResource;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.client.ParameterValue;
+import io.fabric8.openshift.client.dsl.TemplateResource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +52,7 @@ public class OpenShiftAssistantTemplate {
         List<ParameterValue> list = new ArrayList<>();
 
         try (InputStream stream = templateURL.openStream()) {
-            TemplateResource<Template, KubernetesList, DoneableTemplate> templateHandle =
+            TemplateResource templateHandle =
                 client.templates().inNamespace(client.getNamespace()).load(stream);
 
             list.addAll(parameterValues.entrySet().stream()
@@ -64,7 +63,7 @@ public class OpenShiftAssistantTemplate {
         }
     }
 
-    private KubernetesList createResources(KubernetesList list) {
-        return client.lists().inNamespace(client.getNamespace()).create(list);
+    private List<HasMetadata> createResources(KubernetesList list) {
+        return client.resourceList(list).inNamespace(client.getNamespace()).create();
     }
 }

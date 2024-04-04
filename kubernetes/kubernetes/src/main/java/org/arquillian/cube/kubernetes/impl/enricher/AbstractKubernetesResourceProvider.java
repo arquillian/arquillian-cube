@@ -2,8 +2,7 @@ package org.arquillian.cube.kubernetes.impl.enricher;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.utils.Serialization;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -12,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.fabric8.kubernetes.client.utils.Serialization;
 import org.apache.commons.lang3.StringUtils;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.WithLabel;

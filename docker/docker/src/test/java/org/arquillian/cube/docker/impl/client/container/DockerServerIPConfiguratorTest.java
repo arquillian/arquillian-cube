@@ -1,5 +1,6 @@
 package org.arquillian.cube.docker.impl.client.container;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.Yaml;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -89,7 +90,7 @@ public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
         Map<String, Object> content = (Map<String, Object>) yaml.load(CONTENT);
 
         when(cube.getId()).thenReturn(CUBE_ID);
-        when(cube.configuration()).thenReturn(content);
+        lenient().when(cube.configuration()).thenReturn(content);
         when(container.getName()).thenReturn(CUBE_ID);
         when(container.getDeployableContainer()).thenReturn(deployableContainer);
         when(deployableContainer.getConfigurationClass()).thenReturn(ContainerConfiguration.class);

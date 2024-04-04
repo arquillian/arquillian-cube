@@ -9,6 +9,7 @@ import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.internal.print.RequestPrinter;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseOptions;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.arquillian.cube.docker.restassured.RestAssuredConfiguration;
@@ -30,6 +31,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.LOG_PATH;
 import static org.arquillian.cube.docker.impl.client.reporter.DockerEnvironmentReportKey.REST_REQUEST_LOG;
@@ -63,7 +65,7 @@ public class TakeRestAssuredContent {
             final ByteArrayOutputStream responseLog = new ByteArrayOutputStream();
             final PrintStream stream = new PrintStream(responseLog);
 
-            ResponsePrinter.print(response, response, stream, LogDetail.ALL, true);
+            ResponsePrinter.print((ResponseOptions)response, response, stream, LogDetail.ALL, true, new HashSet<String>());
 
             final File logFile = new File(createLogDirectory(new File(reporterConfiguration.getRootDirectory())), "restassuredResponse.log");
             writeContent(responseLog, logFile);
@@ -112,7 +114,7 @@ public class TakeRestAssuredContent {
             final ByteArrayOutputStream requestLog = new ByteArrayOutputStream();
             final PrintStream stream = new PrintStream(requestLog);
 
-            RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, LogDetail.ALL, stream, true);
+            RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, LogDetail.ALL, new HashSet<String>(), stream, true);
 
             final File logFile = new File(createLogDirectory(new File(reporterConfiguration.getRootDirectory())), "restassuredRequest.log");
             writeContent(requestLog, logFile);

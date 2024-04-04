@@ -1,18 +1,19 @@
 package org.arquillian.cube.kubernetes.impl;
 
-import io.fabric8.kubernetes.api.model.v4_0.EndpointSubset;
-import io.fabric8.kubernetes.api.model.v4_0.Endpoints;
-import io.fabric8.kubernetes.api.model.v4_0.HasMetadata;
-import io.fabric8.kubernetes.api.model.v4_0.Pod;
-import io.fabric8.kubernetes.api.model.v4_0.ReplicationController;
-import io.fabric8.kubernetes.api.model.v4_0.Service;
-import io.fabric8.kubernetes.api.model.v4_0.ServicePort;
-import io.fabric8.kubernetes.api.model.v4_0.apps.Deployment;
-import io.fabric8.kubernetes.clnt.v4_0.ConfigBuilder;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClient;
-import io.fabric8.kubernetes.clnt.v4_0.KubernetesClientException;
-import io.fabric8.kubernetes.clnt.v4_0.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
-import io.fabric8.kubernetes.clnt.v4_0.internal.readiness.Readiness;
+import io.fabric8.kubernetes.api.model.EndpointSubset;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.dsl.NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable;
+import io.fabric8.kubernetes.client.readiness.Readiness;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessor;
 import org.arquillian.cube.kubernetes.impl.portforward.PortForwarder;
@@ -243,7 +244,7 @@ public class KubernetesAssistant {
     }
 
     protected List<? extends HasMetadata> deploy(String name, InputStream element) {
-        NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata, Boolean> declarations = client.load(element);
+        NamespaceListVisitFromServerGetDeleteRecreateWaitApplicable<HasMetadata> declarations = client.load(element);
         List<HasMetadata> entities = declarations.createOrReplace();
 
         this.created.merge(name, entities, (list1, list2) -> Stream.of(list1, list2)
@@ -315,7 +316,7 @@ public class KubernetesAssistant {
 
     private int portForward(String podName, int sourcePort, int targetPort, String namespace) {
         try {
-            final io.fabric8.kubernetes.clnt.v4_0.Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
+            final Config build = new ConfigBuilder(client.getConfiguration()).withNamespace(namespace).build();
             final PortForwarder portForwarder = new PortForwarder(build, podName);
             portForwarder.forwardPort(sourcePort, targetPort);
             return sourcePort;
@@ -379,7 +380,7 @@ public class KubernetesAssistant {
             retryCounter++;
             try {
                 // returns false when successfully deleted
-                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete();
+                deleteUnsucessful = client.resource(metadata).withGracePeriod(0).delete().stream().anyMatch(d -> !d.getCauses().isEmpty());
             } catch (KubernetesClientException e) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
@@ -409,7 +410,7 @@ public class KubernetesAssistant {
      * @param applicationName name of the application to wait for pods readiness
      */
     public void awaitApplicationReadinessOrFail(final String applicationName) {
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
+        org.awaitility.Awaitility.await().atMost(5, TimeUnit.MINUTES).until(() -> {
                 return client
                     .replicationControllers()
                     .inNamespace(this.namespace)
