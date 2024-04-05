@@ -128,9 +128,9 @@ And finally among `cube` dependencies, add the `drone`, `selenium` and `cube-dro
 </dependencies>
 ----
 
-Full source code can be found at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone
+Full source code can be found at: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-drone
 
-Full source code of usign custom image can be found at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-custom
+Full source code of usign custom image can be found at: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-drone-custom
 
 === Graphene
 
@@ -229,6 +229,6 @@ Apart from adding `arquillian`, `arquillian-drone`, `selenium-bom` and `arquilli
 </dependency>
 ----
 
-You can see the same example we used in Drone but using Graphene at https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-graphene
+You can see the same example we used in Drone but using Graphene at https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-graphene
 
 Also you can learn about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/

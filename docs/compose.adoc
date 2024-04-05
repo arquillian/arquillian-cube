@@ -91,4 +91,4 @@ For example in case of using Maven, your `pom.xml` should look like:
 Notice that you don't need to specify _definitionFormat_ since docker compose format is the default one.
 
 And that's all, you can now reuse your existing docker-compose files in Arquillian Cube too.
-You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-docker-compose
+You can see the full example at: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-docker-compose
