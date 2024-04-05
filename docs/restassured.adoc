@@ -168,4 +168,4 @@ public class PingPongTest {
 
 Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
 
-You can see full example at: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-restassured
+You can see full example at: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-restassured

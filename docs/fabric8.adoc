@@ -50,4 +50,4 @@ You can use following configuration options with kubernetes and openshift extens
 - If you have multiple profiles defined in your pom.xml, you can enable profile in which you have
 fabric8-maven-plugin dependency by using `cube.fmp.profiles` in arquillian.xml.
 
-You can see the example using `fabric8-maven-plugin` at: https://github.com/arquillian/arquillian-cube/tree/master/openshift/ftest-openshift-fabric8-maven-plugin
+You can see the example using `fabric8-maven-plugin` at: https://github.com/arquillian/arquillian-cube/tree/main/openshift/ftest-openshift-fabric8-maven-plugin
