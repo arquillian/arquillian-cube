@@ -3,10 +3,17 @@ name: Arquillian-Cube Maven Build
 on:
   push:
     branches:
-      - '**'
+      - main
   pull_request:
     branches:
-      - '**'
+      - main
+    paths-ignore:
+      - 'doc/**'
+      - '.circleci/**'
+      - '.travis/**'
+env:
+  # failsafe.groups configuration depends on the env setup.
+  FAILSAFE_GROUPS: ''
 
 jobs:
   build:
@@ -16,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        java: ['8','11']
+        java: ['11']
 
     steps:
       - name: Setup Minikube
@@ -28,6 +35,8 @@ jobs:
           kubernetes version: 'v1.27.1'
           github token: ${{ secrets.GITHUB_TOKEN }}
           start args: "--memory='4gb' --cpus='2'"
+        env:
+          FAILSAFE_GROUPS: "-Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker"
       - name: Enable minikube registry
         run: |
           minikube addons enable registry
@@ -45,9 +54,12 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
+      - name: Maven pre-fetch dependencies ${{ matrix.java }}
+        run: |
+          ./mvnw verify -q -U -DskipTests # pre-fetch dependencies
       - name: Build with Maven Java ${{ matrix.java }}
         run: |
-          mvn -fae clean install
+          ./mvnw -fae clean package ${{ env.FAILSAFE_GROUPS }}
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
@@ -58,3 +70,6 @@ jobs:
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}
           path: '${{ github.workspace }}/**/*.log'
+      - name: Stop minikube
+        run: |
+          minikube stop
