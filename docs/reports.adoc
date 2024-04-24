@@ -80,10 +80,10 @@ For this reason you have to add following dependency:
 
 === Examples
 
-Arquillian Cube Docker Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-reporter
+Arquillian Cube Docker Reports: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-reporter
 
-Arquillian Cube Docker Drone Reports: https://github.com/arquillian/arquillian-cube/tree/master/docker/ftest-drone-reporter
+Arquillian Cube Docker Drone Reports: https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-drone-reporter
 
-Arquillian Cube Kubernetes Reports: https://github.com/arquillian/arquillian-cube/tree/master/kubernetes/ftest-kubernetes-reporter
+Arquillian Cube Kubernetes Reports: https://github.com/arquillian/arquillian-cube/tree/main/kubernetes/ftest-kubernetes-reporter
 
 Arquillian Reporter for more information: https://github.com/arquillian/arquillian-reporter
