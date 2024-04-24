@@ -10,7 +10,6 @@ on:
     paths-ignore:
       - 'doc/**'
       - '.circleci/**'
-      - '.travis/**'
 env:
   # failsafe.groups configuration depends on the env setup.
   FAILSAFE_GROUPS: ''
