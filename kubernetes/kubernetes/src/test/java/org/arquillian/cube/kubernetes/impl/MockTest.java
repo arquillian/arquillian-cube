@@ -196,11 +196,6 @@ public class MockTest {
         MOCK.expect()
             .get()
             .withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller")
-            .andReturn(404, "")
-            .once();
-        MOCK.expect()
-            .get()
-            .withPath("/api/v1/namespaces/arquillian/replicationcontrollers/test-controller")
             .andReturn(200, testController)
             .always();
         MOCK.expect()
