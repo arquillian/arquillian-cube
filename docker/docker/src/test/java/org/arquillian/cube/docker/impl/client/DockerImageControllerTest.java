@@ -74,7 +74,7 @@ public class DockerImageControllerTest extends AbstractManagerTestBase {
         DockerClientExecutor executor = Mockito.mock(DockerClientExecutor.class);
 
         String config = "pingpong:\n" +
-            "  image: jonmorehouse/ping-pong\n" +
+            "  image: hashicorp/http-echo\n" +
             "  exposedPorts: [8080/tcp]\n" +
             "  portBindings: [8080->8080/tcp]\n";
 

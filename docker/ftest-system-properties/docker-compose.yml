@@ -1,4 +1,4 @@
 helloworld:
-  image: jonmorehouse/ping-pong
+  image: hashicorp/http-echo
   ports:
     - "8080:8080"
