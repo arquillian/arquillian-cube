@@ -28,10 +28,10 @@ Let's see an example:
       links:
         - ping*
     ping*:
-      image: jonmorehouse/ping-pong
+      image: hashicorp/http-echo
       exposedPorts: [8089/tcp]
     pong*:
-      image: jonmorehouse/ping-pong
+      image: hashicorp/http-echo
       exposedPorts: [8089/tcp]
       depends_on:
         - "ping*"
@@ -61,10 +61,10 @@ So for example the result file could look like:
       links:
         - ping_123456
     ping_123456:
-      image: jonmorehouse/ping-pong
+      image: hashicorp/http-echo
       exposedPorts: [8089/tcp]
     pong_123456:
-      image: jonmorehouse/ping-pong
+      image: hashicorp/http-echo
       exposedPorts: [8089/tcp]
       depends_on:
         - "ping_123456"
@@ -89,7 +89,7 @@ Again, adding the special character `*` to the end of the network name will caus
       portBindings: [8080/tcp]
       networkMode: testnetwork*
     ping*:
-      image: jonmorehouse/ping-pong
+      image: hashicorp/http-echo
       exposedPorts: [8089/tcp]
       networks:
         - testnetwork*

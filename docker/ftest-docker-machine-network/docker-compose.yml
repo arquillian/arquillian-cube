@@ -2,7 +2,7 @@ version: '2'
 
 services:
   pingpong:
-    image: jonmorehouse/ping-pong
+    image: hashicorp/http-echo
     ports:
       - "8080:8080"
     networks:
@@ -16,7 +16,7 @@ services:
       back:
 
   pingpong2:
-    image: jonmorehouse/ping-pong
+    image: hashicorp/http-echo
     expose:
       - "8080"
     networks:

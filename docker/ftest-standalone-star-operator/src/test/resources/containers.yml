@@ -1,4 +1,5 @@
 pingpong*:
-  image: jonmorehouse/ping-pong:${PING_PONG_VERSION:-latest}
+  image: hashicorp/http-echo:${ECHO_VERSION:-latest}
   exposedPorts: [8080/tcp]
   portBindings: [8080/tcp]
+  cmd: [-text=OK, -listen=:8080]

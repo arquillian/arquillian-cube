@@ -21,8 +21,9 @@ public class PingPongContainer {
     @CubeDockerFile
     public static Archive<?> createContainer() {
         String dockerDescriptor = Descriptors.create(DockerDescriptor.class)
-            .from("jonmorehouse/ping-pong")
+            .from("hashicorp/http-echo")
             .expose(8080)
+            .cmd("-listen=:8080")
             .exportAsString();
         return ShrinkWrap.create(GenericArchive.class)
             .add(new StringAsset(dockerDescriptor), "Dockerfile");

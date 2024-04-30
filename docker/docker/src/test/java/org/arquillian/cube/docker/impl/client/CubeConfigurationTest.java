@@ -199,7 +199,7 @@ public class CubeConfigurationTest {
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -229,7 +229,7 @@ public class CubeConfigurationTest {
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -260,7 +260,7 @@ public class CubeConfigurationTest {
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -290,7 +290,7 @@ public class CubeConfigurationTest {
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -321,7 +321,7 @@ public class CubeConfigurationTest {
                 "  links:\n" +
                 "    - ping*:bb\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -361,7 +361,7 @@ public class CubeConfigurationTest {
             "  image: tutum/tomcat:8.0\n" +
             "  networkMode: network3*\n" +
             "ping:\n" +
-            "  image: jonmorehouse/ping-pong\n" +
+            "  image: hashicorp/http-echo\n" +
             "  networks:\n" +
             "    - network1*\n" +
             "    - network2\n";

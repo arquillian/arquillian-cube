@@ -20,7 +20,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -42,7 +42,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -63,7 +63,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  portBindings: [8081/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -84,7 +84,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  portBindings: [8081/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -106,7 +106,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  portBindings: [8081/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -128,7 +128,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -149,7 +149,7 @@ public class SinglePortBindResolverTest {
                 "  links:\n" +
                 "    - ping\n" +
                 "ping:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: hashicorp/http-echo\n" +
                 "  portBindings: [8081/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";

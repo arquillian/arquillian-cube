@@ -40,7 +40,7 @@ public class AutomaticResolutionAutostartParserTest {
             +
             "pingpong:\n"
             +
-            "  image: jonmorehouse/ping-pong\n"
+            "  image: hashicorp/http-echo\n"
             +
             "  exposedPorts: [8080/tcp]\n"
             +
@@ -78,7 +78,7 @@ public class AutomaticResolutionAutostartParserTest {
                 +
                 "pingpong:\n"
                 +
-                "  image: jonmorehouse/ping-pong\n"
+                "  image: hashicorp/http-echo\n"
                 +
                 "  exposedPorts: [8080/tcp]\n"
                 +
