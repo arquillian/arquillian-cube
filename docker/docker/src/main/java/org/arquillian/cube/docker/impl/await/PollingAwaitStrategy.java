@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.arquillian.cube.docker.impl.client.config.Await;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
@@ -214,7 +215,12 @@ public class PollingAwaitStrategy extends SleepingAwaitStrategyBase {
     }
 
     private String resolveWaitForItCommand(String containerIp, int port) {
-        return String.format("%s/%s %s:%s -s -- echo %s", CONTAINER_DIRECTORY, WAIT_FOR_IT_SCRIPT, containerIp, port,
+        final long waitForItSleepSeconds = TimeUnit.SECONDS.convert(
+                pollIterations * getSleepTime(),
+                getTimeUnit()
+        );
+        return String.format("%s/%s %s:%s -s -t %s -- echo %s", CONTAINER_DIRECTORY, WAIT_FOR_IT_SCRIPT, containerIp, port,
+            waitForItSleepSeconds,
             MESSAGE);
     }
 
