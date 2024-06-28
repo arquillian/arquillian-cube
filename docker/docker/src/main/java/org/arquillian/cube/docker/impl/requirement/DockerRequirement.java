@@ -10,10 +10,8 @@ import com.google.common.base.Strings;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.arquillian.cube.spi.requirement.Constraint;
@@ -28,8 +26,6 @@ public class DockerRequirement implements Constraint<RequiresDocker> {
     public DockerRequirement() {
         this.commandLineExecutor = new CommandLineExecutor();
         this.resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(commandLineExecutor),
-            new Boot2Docker(commandLineExecutor),
             new DefaultDocker(),
             new OperatingSystemResolver().currentOperatingSystem()
         );
