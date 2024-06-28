@@ -44,9 +44,6 @@ public class CubeDockerConfigurationResolverTest {
     private static OperatingSystemFamilyInterface defaultOperatingSystemFamilyInterface;
 
     @Mock
-    private static CommandLineExecutor boot2dockerCommandLineExecutor;
-
-    @Mock
     private static DefaultDocker defaultDocker;
 
     @Mock
@@ -67,7 +64,7 @@ public class CubeDockerConfigurationResolverTest {
     
     @BeforeClass
     public static void beforeEach() {
-        environmentVariables.clear("DOCKER_HOST", "DOCKER_MACHINE_NAME", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH");
+        environmentVariables.clear("DOCKER_HOST");
     }
 
     @Test

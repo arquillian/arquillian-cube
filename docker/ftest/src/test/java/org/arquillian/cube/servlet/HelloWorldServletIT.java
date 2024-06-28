@@ -13,7 +13,6 @@ import org.arquillian.cube.CubeController;
 import org.arquillian.cube.CubeID;
 import org.arquillian.cube.TopContainer;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.arquillian.cube.requirement.RequiresSystemPropertyOrEnvironmentVariable;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -30,7 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
+@Category({RequiresDocker.class})
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresSystemPropertyOrEnvironmentVariable("docker.tomcat.host")
 public class HelloWorldServletIT {

@@ -3,7 +3,7 @@ package org.arquillian.cube.containerobject;
 import java.io.File;
 import java.nio.file.Files;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,8 +14,8 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDockerMachine.class, RequiresDocker.class})
-@RequiresDockerMachine(name = "dev")
+@Category({ RequiresDocker.class})
+
 @RunWith(ArquillianConditionalRunner.class)
 public class FtpClientIT {
 

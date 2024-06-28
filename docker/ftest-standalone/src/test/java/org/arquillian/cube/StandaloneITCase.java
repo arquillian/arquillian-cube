@@ -1,7 +1,7 @@
 package org.arquillian.cube;
 
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@Category({RequiresDockerMachine.class, RequiresDocker.class})
-@RequiresDockerMachine(name = "dev")
+@Category({ RequiresDocker.class})
+
 @RunWith(ArquillianConditionalRunner.class)
 public class StandaloneITCase {
 
