@@ -1,4 +1,4 @@
-FROM java:7
+FROM java:11
 
 WORKDIR /usr/src/server
 COPY ${deployableFilename} /usr/src/server/${deployableFilename}
