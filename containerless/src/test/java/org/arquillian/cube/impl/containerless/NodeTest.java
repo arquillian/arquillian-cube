@@ -36,6 +36,7 @@ public class NodeTest {
 
     @Test
     public void shouldReturnMessageFromNodeJs(@ArquillianResource URL base) {
+        System.out.println("Node test base url :" + base.toExternalForm());
         try (BufferedReader in = new BufferedReader(new InputStreamReader(
             base.openStream()));) {
             String userInput = in.readLine();
