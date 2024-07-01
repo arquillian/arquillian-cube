@@ -16,7 +16,7 @@ commands:
           steps:   
             - run:
                 name: "Maven build for Docker"
-                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dtest=NodeTest
+                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dsurefire.failIfNoSpecifiedTests=false -Dtest=NodeTest
       - when:
           condition:
             equal: [ kubernetes, << parameters.category >> ]
