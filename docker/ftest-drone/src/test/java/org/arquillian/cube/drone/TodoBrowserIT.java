@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.drone.api.annotation.Drone;
 import org.junit.Test;
@@ -16,8 +16,8 @@ import org.openqa.selenium.WebDriver;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@Category({RequiresDockerMachine.class, RequiresDocker.class})
-@RequiresDockerMachine(name = "dev")
+@Category({ RequiresDocker.class})
+
 @RunWith(ArquillianConditionalRunner.class)
 public class TodoBrowserIT {
 

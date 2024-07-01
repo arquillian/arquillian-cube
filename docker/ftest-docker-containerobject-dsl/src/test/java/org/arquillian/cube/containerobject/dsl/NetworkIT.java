@@ -5,7 +5,7 @@ import java.util.List;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.DockerNetwork;
 import org.arquillian.cube.docker.impl.client.containerobject.dsl.Network;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
@@ -15,8 +15,8 @@ import org.junit.runner.RunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@Category({RequiresDockerMachine.class, RequiresDocker.class})
-@RequiresDockerMachine(name = "dev")
+@Category({ RequiresDocker.class})
+
 @RunWith(ArquillianConditionalRunner.class)
 public class NetworkIT {
 

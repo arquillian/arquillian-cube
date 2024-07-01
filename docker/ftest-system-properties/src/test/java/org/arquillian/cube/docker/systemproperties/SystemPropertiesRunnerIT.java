@@ -1,7 +1,7 @@
 package org.arquillian.cube.docker.systemproperties;
 
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
+
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -11,8 +11,8 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category({RequiresDockerMachine.class, RequiresDocker.class})
-@RequiresDockerMachine(name = "dev")
+@Category({ RequiresDocker.class})
+
 @RunWith(ArquillianConditionalRunner.class)
 public class SystemPropertiesRunnerIT {
 

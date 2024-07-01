@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.UnknownHostException;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
-import org.arquillian.cube.docker.impl.requirement.RequiresDockerMachine;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -22,8 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category({RequiresDocker.class, RequiresDockerMachine.class})
-@RequiresDockerMachine(name = "dev")
+@Category({RequiresDocker.class})
 @RunWith(ArquillianConditionalRunner.class)
 public class NodeTest {
 
@@ -35,14 +33,17 @@ public class NodeTest {
     }
 
     @Test
-    public void shouldReturnMessageFromNodeJs(@ArquillianResource URL base) {
+    public void shouldReturnMessageFromNodeJs(@ArquillianResource URL base) throws Exception {
+
+        base = new URL("http://127.0.0.1:8080");
         try (BufferedReader in = new BufferedReader(new InputStreamReader(
             base.openStream()));) {
             String userInput = in.readLine();
             assertThat(userInput, is("Hello from inside a container!"));
         } catch (UnknownHostException e) {
             fail("Don't know about host ");
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             fail("Couldn't get I/O for the connection to ");
         }
     }

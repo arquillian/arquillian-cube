@@ -4,9 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InfoCmd;
 import com.github.dockerjava.api.model.Info;
 import org.arquillian.cube.docker.impl.util.AbstractCliInternetAddressResolver;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.GitHubUtil;
 import org.arquillian.cube.docker.impl.util.HomeResolverUtil;
 import org.arquillian.cube.docker.impl.util.Machine;
@@ -46,16 +44,12 @@ public class CubeDockerConfigurationResolver {
     private static Random random = new Random();
     private static Logger log = Logger.getLogger(CubeDockerConfigurationResolver.class.getName());
     private final Top top;
-    private final DockerMachine dockerMachine;
-    private final Boot2Docker boot2Docker;
     private final DefaultDocker defaultDocker;
     private final OperatingSystemInterface operatingSystem;
 
-    public CubeDockerConfigurationResolver(Top top, DockerMachine dockerMachine, Boot2Docker boot2Docker,
+    public CubeDockerConfigurationResolver(Top top,
                                            DefaultDocker defaultDocker, OperatingSystemInterface operatingSystem) {
         this.top = top;
-        this.dockerMachine = dockerMachine;
-        this.boot2Docker = boot2Docker;
         this.operatingSystem = operatingSystem;
         this.defaultDocker = defaultDocker;
     }
@@ -70,9 +64,6 @@ public class CubeDockerConfigurationResolver {
         config = resolveSystemEnvironmentVariables(config);
         config = resolveSystemDefaultSetup(config);
         config = resolveDockerInsideDocker(config);
-        config = resolveDownloadDockerMachine(config);
-        config = resolveAutoStartDockerMachine(config);
-        config = resolveDefaultDockerMachine(config);
         config = resolveServerUriByOperativeSystem(config);
         config = resolveServerIp(config);
         config = resolveTlsVerification(config);
@@ -94,98 +85,6 @@ public class CubeDockerConfigurationResolver {
         return cubeConfiguration;
     }
 
-    private Map<String, String> resolveDownloadDockerMachine(Map<String, String> config) {
-        if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-            final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
-            if (!dockerMachine.isDockerMachineInstalled(cliPathExec)) {
-                String machineVersion = GitHubUtil.getDockerMachineLatestVersion();
-                String machineCustomPath = config.get(CubeDockerConfiguration.DOCKER_MACHINE_CUSTOM_PATH);
-                File dockerMachineFile = CubeDockerConfiguration.resolveMachinePath(machineCustomPath, machineVersion);
-
-                boolean dockerMachineFileExist = dockerMachineFile.exists();
-                String dockerMachinePath = dockerMachineFile.getPath();
-
-                String machineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
-                String machineUrl = CubeDockerConfiguration.resolveUrl(machineVersion);
-
-                if (!dockerMachineFileExist) {
-                    final File parentFile = dockerMachineFile.getParentFile();
-                    if(!parentFile.exists() && !parentFile.mkdirs()){
-                        log.log(Level.SEVERE, "Failed to create directory: " + parentFile);
-                    }
-                    Spacelift.task(DownloadTool.class)
-                        .from(machineUrl)
-                        .to(dockerMachineFile)
-                        .execute()
-                        .await();
-                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachinePath);
-
-                    dockerMachine.grantPermissionToDockerMachine(dockerMachinePath);
-
-                    String machineDriver = config.get(CubeDockerConfiguration.DOCKER_MACHINE_DRIVER);
-                    dockerMachine.createMachine(dockerMachinePath, machineDriver, machineName);
-                } else {
-                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_PATH, dockerMachinePath);
-                }
-            }
-        }
-        return config;
-    }
-
-    private Map<String, String> resolveAutoStartDockerMachine(Map<String, String> config) {
-
-        final String cliPathExec = config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH);
-        if (dockerMachine.isDockerMachineInstalled(cliPathExec)) {
-            final Set<Machine> allMachines = dockerMachine.list(cliPathExec);
-
-            Optional<Machine> machine = Optional.empty();
-
-            if (config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-                String configuredMachineName = config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
-
-                machine = allMachines.stream()
-                    .filter(m -> configuredMachineName.equals(m.getName()))
-                    .filter(m -> "Stopped".equalsIgnoreCase(m.getState()))
-                    .findFirst();
-
-            } else {
-                if (allMachines.size() == 1 && "Stopped".equalsIgnoreCase(allMachines.iterator().next().getState())) {
-                    machine = Optional.of(allMachines.iterator().next());
-                }
-            }
-
-            machine.ifPresent(m -> dockerMachine.startDockerMachine(cliPathExec, m.getName()));
-
-        }
-
-        return config;
-    }
-
-    private Map<String, String> resolveDefaultDockerMachine(Map<String, String> config) {
-
-        // if user has not specified Docker URI host not a docker machine
-        // setting DOCKER_URI to avoid using docker machine although it is installed
-        if (!config.containsKey(CubeDockerConfiguration.DOCKER_URI) && !config.containsKey(
-            CubeDockerConfiguration.DOCKER_MACHINE_NAME)) {
-            log.fine(
-                "No DockerUri or DockerMachine has been set, let's see if there is only one Docker Machine Running.");
-            if (dockerMachine.isDockerMachineInstalled(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH))) {
-                // we can inspect if docker machine has one and only one docker machine running, which means that would like to use that one
-                Set<Machine> machines =
-                    this.dockerMachine.list(config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH), "state", "Running");
-
-                // if there is only one machine running we can use that one.
-                // if not Cube will resolve the default URI depending on OS (linux socket, boot2docker, ...)
-                if (machines.size() == 1) {
-                    log.fine(String.format("One Docker Machine is running (%s) and it is going to be used for tests",
-                        machines.iterator().next().getName()));
-                    config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, getFirstMachine(machines).getName());
-                }
-            }
-        }
-
-        return config;
-    }
 
     private Machine getFirstMachine(Set<Machine> machines) {
         return machines.iterator().next();
@@ -199,10 +98,6 @@ public class CubeDockerConfigurationResolver {
         if (!config.containsKey(CubeDockerConfiguration.CERT_PATH) && isDockerCertPathSet()) {
             String dockerCertPath = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_CERT_PATH);
             config.put(CubeDockerConfiguration.CERT_PATH, dockerCertPath);
-        }
-        if (!config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME) && isDockerMachineNameSet()) {
-            String dockerMachineName = SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME);
-            config.put(CubeDockerConfiguration.DOCKER_MACHINE_NAME, dockerMachineName);
         }
 
         if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY) && isDockerTlsVerifySet()) {
@@ -240,14 +135,6 @@ public class CubeDockerConfigurationResolver {
         String dockerServerUri = config.get(CubeDockerConfiguration.DOCKER_URI);
 
         if (containsDockerHostTag(dockerServerUri)) {
-            if (isDockerMachineSet(config)) {
-                dockerServerUri =
-                    resolveDockerMachine(dockerServerUri, config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME),
-                        config.get(CubeDockerConfiguration.DOCKER_MACHINE_PATH));
-            } else {
-                dockerServerUri =
-                    resolveBoot2Docker(dockerServerUri, config.get(CubeDockerConfiguration.BOOT2DOCKER_PATH));
-            }
 
             if (!config.containsKey(CubeDockerConfiguration.TLS_VERIFY)) {
                 config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
@@ -267,10 +154,10 @@ public class CubeDockerConfigurationResolver {
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
 
-        if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
+        /*if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
             config.put(CubeDockerConfiguration.CERT_PATH,
                 HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
-        }
+        }*/
 
         if (scheme.equals(HTTP_SCHEME)) {
             config.remove(CubeDockerConfiguration.TLS_VERIFY);
@@ -306,17 +193,8 @@ public class CubeDockerConfigurationResolver {
 
                 String dockerServerIp = config.get(CubeDockerConfiguration.DOCKER_SERVER_IP);
 
-                if (isDockerMachineSet(config)) {
+                config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
 
-                    if (InetAddress.getLoopbackAddress().getHostAddress().equals(dockerServerIp)
-                        || InetAddress.getLoopbackAddress().getHostName().equals(dockerServerIp)) {
-                        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
-                    } else {
-                        config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(true));
-                    }
-                } else {
-                    config.put(CubeDockerConfiguration.TLS_VERIFY, Boolean.toString(false));
-                }
             }
         }
 
@@ -349,40 +227,7 @@ public class CubeDockerConfigurationResolver {
         return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_TLS_VERIFY));
     }
 
-    private boolean isDockerMachineNameSet() {
-        return Strings.isNotNullOrEmpty(SystemEnvironmentVariables.getEnvironmentOrPropertyVariable(DOCKER_MACHINE_NAME));
-    }
 
-    private boolean isDockerMachineSet(Map<String, String> config) {
-        return config.containsKey(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
-    }
-
-    private String resolveDockerMachine(String tag, String machineName, String dockerMachinePath) {
-        dockerMachine.setMachineName(machineName);
-        return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG,
-            dockerMachine.ip(dockerMachinePath, false));
-    }
-
-    private String resolveBoot2Docker(String tag,
-                                      String boot2DockerPath) {
-        return tag.replaceAll(AbstractCliInternetAddressResolver.DOCKERHOST_TAG, boot2Docker.ip(boot2DockerPath, false));
-    }
-
-    private String getDefaultTlsDirectory(Map<String, String> config) {
-        if (isDockerMachineSet(config)) {
-            return "~"
-                + File.separator
-                + ".docker"
-                + File.separator
-                + "machine"
-                + File.separator
-                + "machines"
-                + File.separator
-                + config.get(CubeDockerConfiguration.DOCKER_MACHINE_NAME);
-        } else {
-            return "~" + File.separator + ".boot2docker" + File.separator + "certs" + File.separator + "boot2docker-vm";
-        }
-    }
 
     private boolean containsCertPath(Map<String, String> cubeConfiguration) {
         return cubeConfiguration.containsKey(CubeDockerConfiguration.CERT_PATH);
@@ -390,13 +235,8 @@ public class CubeDockerConfigurationResolver {
 
     private Map<String, String> resolveServerUriByOperativeSystem(Map<String, String> cubeConfiguration) {
         if (!cubeConfiguration.containsKey(CubeDockerConfiguration.DOCKER_URI)) {
-            if (isDockerMachineSet(cubeConfiguration)) {
-                String serverUri = OperatingSystemFamily.MACHINE.getServerUri();
-                cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
-            } else {
-                String serverUri = operatingSystem.getFamily().getServerUri();
-                cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
-            }
+            String serverUri = operatingSystem.getFamily().getServerUri();
+            cubeConfiguration.put(CubeDockerConfiguration.DOCKER_URI, serverUri);
         }
         return cubeConfiguration;
     }

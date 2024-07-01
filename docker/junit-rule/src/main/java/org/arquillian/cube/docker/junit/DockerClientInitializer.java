@@ -3,10 +3,7 @@ package org.arquillian.cube.docker.junit;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.docker.DockerClientExecutor;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
-import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
 import org.jboss.arquillian.core.api.Injector;
@@ -26,8 +23,6 @@ public class DockerClientInitializer {
         };
 
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(new CommandLineExecutor()),
-            new Boot2Docker(new CommandLineExecutor()),
             new DefaultDocker(),
             new OperatingSystemResolver().currentOperatingSystem());
 
