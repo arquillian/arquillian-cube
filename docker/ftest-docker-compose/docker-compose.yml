@@ -1,7 +1,0 @@
-tomcat:
-  env_file: envs
-  build: src/test/resources/tomcat
-  ports:
-      - "8089:8089"
-      - "8088:8088"
-      - "8081:8080"
