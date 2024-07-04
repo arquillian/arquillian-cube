@@ -64,6 +64,8 @@
   </build>
 
   <properties>
+    <containerless.skip.tests>false</containerless.skip.tests>
+    <skipTests>${containerless.skip.tests}</skipTests>
     <tests.exp.node>**/*Node*</tests.exp.node>
     <tests.exp.undertow>**/*Daytime*</tests.exp.undertow>
     <tests.container.node>node</tests.container.node>
