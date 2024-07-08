@@ -36,7 +36,7 @@ import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
 import org.codehaus.plexus.util.CollectionUtils;
-import org.fabric8.maven.plugin.build.Fabric8MavenPluginResourceGeneratorBuilder;
+import org.eclipse.jkube.maven.plugin.build.KubernetesMavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
 import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
@@ -203,7 +203,7 @@ public class SessionManager implements SessionCreatedListener {
         createNamespace();
 
         if (configuration.isFmpBuildEnabled() || (configuration.isFmpBuildForMavenDisable() && !isRunningFromMaven())) {
-            new Fabric8MavenPluginResourceGeneratorBuilder()
+            new KubernetesMavenPluginResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
                 .debug(configuration.isFmpDebugOutput())
                 .quiet(!configuration.isFmpLogsEnabled())

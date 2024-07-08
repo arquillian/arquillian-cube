@@ -1,4 +1,4 @@
-package org.fabric8.maven.plugin.build;
+package org.eclipse.jkube.maven.plugin.build;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -11,39 +11,39 @@ import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
 
-public class Fabric8MavenPluginResourceGeneratorBuilder {
+public class KubernetesMavenPluginResourceGeneratorBuilder {
 
-    private static final Logger logger = Logger.getLogger(Fabric8MavenPluginResourceGeneratorBuilder.class.getName());
+    private static final Logger logger = Logger.getLogger(KubernetesMavenPluginResourceGeneratorBuilder.class.getName());
 
-    private Path pom;
-    private String[] goals = new String[] {"package", "fabric8:build", "fabric8:resource"};
-    private String namespace;
-    private boolean mvnDebugOutput;
-    private boolean quietMode;
-    private String mavenOpts;
-    private String[] profiles = new String[0];
-    private Map<String, String> properties = new HashMap<>();
+    protected Path pom;
+    private String[] goals = new String[] {"package", "k8s:build", "k8s:resource"};
+    protected String namespace;
+    protected boolean mvnDebugOutput;
+    protected boolean quietMode;
+    protected String mavenOpts;
+    protected String[] profiles = new String[0];
+    protected Map<String, String> properties = new HashMap<>();
 
-    public Fabric8MavenPluginResourceGeneratorBuilder namespace(String namespace) {
+    public KubernetesMavenPluginResourceGeneratorBuilder namespace(String namespace) {
         this.namespace = namespace;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder goals(String[] goals) {
+    public KubernetesMavenPluginResourceGeneratorBuilder goals(String[] goals) {
         this.goals = goals;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder pluginConfigurationIn(Path pom) {
+    public KubernetesMavenPluginResourceGeneratorBuilder pluginConfigurationIn(Path pom) {
         this.pom = pom;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder quiet() {
+    public KubernetesMavenPluginResourceGeneratorBuilder quiet() {
         return quiet(true);
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder quiet(boolean quiet) {
+    public KubernetesMavenPluginResourceGeneratorBuilder quiet(boolean quiet) {
         this.quietMode = quiet;
         return this;
     }
@@ -51,36 +51,36 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
     /**
      * Enables mvn debug output (-X) flag. Implies build logging output.
      */
-    private Fabric8MavenPluginResourceGeneratorBuilder withDebugOutput(boolean debug) {
+    private KubernetesMavenPluginResourceGeneratorBuilder withDebugOutput(boolean debug) {
         this.mvnDebugOutput = debug;
         quiet(!debug);
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder debug(boolean debug) {
+    public KubernetesMavenPluginResourceGeneratorBuilder debug(boolean debug) {
         this.mvnDebugOutput = debug;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
+    public KubernetesMavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
         this.mavenOpts = options;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
+    public KubernetesMavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
         return profiles(profiles.toArray(new String[profiles.size()]));
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder profiles(String... profiles) {
+    public KubernetesMavenPluginResourceGeneratorBuilder profiles(String... profiles) {
         this.profiles = profiles;
         return this;
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder withProperties(List<String> propertiesPairs) {
+    public KubernetesMavenPluginResourceGeneratorBuilder withProperties(List<String> propertiesPairs) {
         return withProperties(propertiesPairs.toArray(new String[propertiesPairs.size()]));
     }
 
-    public Fabric8MavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
+    public KubernetesMavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
         if (propertiesPairs.length % 2 != 0) {
             throw new IllegalArgumentException(
                 String.format("Expecting even amount of variable name - value pairs to be passed. Got %s entries. %s", propertiesPairs.length, Arrays.toString(propertiesPairs)));
@@ -101,7 +101,11 @@ public class Fabric8MavenPluginResourceGeneratorBuilder {
             .setDebug(mvnDebugOutput)
             .setDebugLoggerLevel()
             .setGoals(goals)
-            .addProperty("fabric8.namespace", namespace);
+            .addProperty("jkube.namespace", namespace);
+        this.build(distributionStage);
+    }
+    public void build(ConfigurationDistributionStage distributionStage) {
+
 
         // TODO: https://github.com/arquillian/arquillian-cube/issues/1017
         if (System.getenv("JAVA_HOME") == null) {
