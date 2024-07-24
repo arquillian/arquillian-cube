@@ -29,8 +29,6 @@ include::{asciidoctor-source}/bom.adoc[]
 
 include::{asciidoctor-source}/configuration.adoc[]
 
-include::{asciidoctor-source}/boot2docker-dockermachine.adoc[]
-
 include::{asciidoctor-source}/build-containers.adoc[]
 
 include::{asciidoctor-source}/compose.adoc[]
@@ -56,8 +54,6 @@ include::{asciidoctor-source}/polyglot.adoc[]
 include::{asciidoctor-source}/kubernetes.adoc[]
 
 include::{asciidoctor-source}/fabric8.adoc[]
-
-include::{asciidoctor-source}/forge.adoc[]
 
 endif::generated-doc[]
 
