@@ -154,11 +154,6 @@ public class CubeDockerConfigurationResolver {
         URI serverUri = URI.create(config.get(CubeDockerConfiguration.DOCKER_URI));
         String scheme = serverUri.getScheme();
 
-        /*if (!config.containsKey(CubeDockerConfiguration.CERT_PATH)) {
-            config.put(CubeDockerConfiguration.CERT_PATH,
-                HomeResolverUtil.resolveHomeDirectoryChar(getDefaultTlsDirectory(config)));
-        }*/
-
         if (scheme.equals(HTTP_SCHEME)) {
             config.remove(CubeDockerConfiguration.TLS_VERIFY);
         }

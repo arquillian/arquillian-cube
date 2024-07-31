@@ -104,9 +104,8 @@ public class KubernetesMavenPluginResourceGeneratorBuilder {
             .addProperty("jkube.namespace", namespace);
         this.build(distributionStage);
     }
+
     public void build(ConfigurationDistributionStage distributionStage) {
-
-
         // TODO: https://github.com/arquillian/arquillian-cube/issues/1017
         if (System.getenv("JAVA_HOME") == null) {
             logger.warning(
