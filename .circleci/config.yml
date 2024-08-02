@@ -16,7 +16,7 @@ commands:
           steps:   
             - run:
                 name: "Maven build for Docker"
-                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker
+                command: ./mvnw clean package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dcontainerless.skip.tests=true
       - when:
           condition:
             equal: [ kubernetes, << parameters.category >> ]
@@ -46,7 +46,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.18
+          version: docker24
           docker_layer_caching: true
       - restore_cache:
           key: circleci-arquillian-cube-{{ checksum "pom.xml" }}

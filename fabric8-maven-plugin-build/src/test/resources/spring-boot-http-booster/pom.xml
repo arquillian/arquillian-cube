@@ -111,8 +111,9 @@
     <build>
       <plugins>
         <plugin>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric8-maven-plugin</artifactId>
+          <groupId>org.eclipse.jkube</groupId>
+          <artifactId>openshift-maven-plugin</artifactId>
+          <version>1.16.2</version>
           <executions>
             <execution>
               <id>fmp</id>

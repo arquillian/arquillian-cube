@@ -9,9 +9,7 @@ import org.arquillian.cube.docker.impl.client.config.CubeContainer;
 import org.arquillian.cube.docker.impl.client.config.DockerCompositions;
 import org.arquillian.cube.docker.impl.client.config.Network;
 import org.arquillian.cube.docker.impl.client.config.StarOperator;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystemInterface;
 import org.arquillian.cube.docker.impl.util.OperatingSystemResolver;
 import org.arquillian.cube.docker.impl.util.Top;
@@ -38,11 +36,6 @@ public class CubeDockerConfigurator {
     @ApplicationScoped
     private InstanceProducer<HostIpContext> hostUriContextInstanceProducer;
 
-    @Inject
-    private Instance<Boot2Docker> boot2DockerInstance;
-
-    @Inject
-    private Instance<DockerMachine> dockerMachineInstance;
 
     @Inject
     private Instance<Top> topInstance;
@@ -75,7 +68,7 @@ public class CubeDockerConfigurator {
 
         Map<String, String> config = arquillianDescriptor.extension(EXTENSION_NAME).getExtensionProperties();
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(topInstance.get(),
-            dockerMachineInstance.get(), boot2DockerInstance.get(), new DefaultDocker(),
+            new DefaultDocker(),
             operatingSystemInstanceProducer.get());
         resolver.resolve(config);
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(config, injectorInstance.get());

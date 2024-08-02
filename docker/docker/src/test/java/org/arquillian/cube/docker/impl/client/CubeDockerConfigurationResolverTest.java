@@ -7,10 +7,8 @@ import java.util.Map;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InfoCmd;
 import com.github.dockerjava.api.model.Info;
-import org.arquillian.cube.docker.impl.util.Boot2Docker;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.docker.impl.util.DefaultDocker;
-import org.arquillian.cube.docker.impl.util.DockerMachine;
 import org.arquillian.cube.docker.impl.util.OperatingSystem;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamily;
 import org.arquillian.cube.docker.impl.util.OperatingSystemFamilyInterface;
@@ -46,9 +44,6 @@ public class CubeDockerConfigurationResolverTest {
     private static OperatingSystemFamilyInterface defaultOperatingSystemFamilyInterface;
 
     @Mock
-    private static CommandLineExecutor boot2dockerCommandLineExecutor;
-
-    @Mock
     private static DefaultDocker defaultDocker;
 
     @Mock
@@ -69,7 +64,7 @@ public class CubeDockerConfigurationResolverTest {
     
     @BeforeClass
     public static void beforeEach() {
-        environmentVariables.clear("DOCKER_HOST", "DOCKER_MACHINE_NAME", "DOCKER_TLS_VERIFY", "DOCKER_CERT_PATH");
+        environmentVariables.clear("DOCKER_HOST");
     }
 
     @Test
@@ -77,8 +72,6 @@ public class CubeDockerConfigurationResolverTest {
 
 
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(null),
-            new Boot2Docker(null),
             mockDefaultDocker(),
             operatingSystemInterface);
         when(info.getName()).thenReturn("docker-ce");
@@ -109,33 +102,8 @@ public class CubeDockerConfigurationResolverTest {
     }
 
     @Test
-    public void shouldSkipsInvalidDockerDefault() throws Exception {
-
-        CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(null),
-            new Boot2Docker(boot2dockerCommandLineExecutor),
-            mockDefaultDocker(),
-            operatingSystemInterface);
-        when(boot2dockerCommandLineExecutor.execCommand(anyString(), anyString())).thenReturn("127.0.0.1");
-
-        String sockUri = "unix:///a/path-that/does/not/exist";
-        when(defaultOperatingSystemFamilyInterface.getServerUri()).thenReturn(sockUri);
-        when(operatingSystemInterface.getDefaultFamily()).thenReturn(defaultOperatingSystemFamilyInterface);
-        when(operatingSystemInterface.getFamily()).thenReturn(OperatingSystem.MAC_OSX.getFamily());
-
-        Map<String, String> config = new HashMap<>();
-
-        Map<String, String> resolvedConfig = resolver.resolve(config);
-
-        assertThat(Boolean.valueOf(resolvedConfig.get(CubeDockerConfiguration.TLS_VERIFY)), is(true));
-        assertThat(resolvedConfig.get(CubeDockerConfiguration.DOCKER_URI), is("tcp://127.0.0.1:2376"));
-    }
-
-    @Test
     public void shouldNotSetTlsVerifyForTcpSchemeOnOSX() {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(null),
-            new Boot2Docker(null),
             mockDefaultDocker(),
             operatingSystemInterface);
 
@@ -157,8 +125,6 @@ public class CubeDockerConfigurationResolverTest {
     @Test
     public void shouldNotSetTlsVerifyForTcpSchemeOnLinux() {
         CubeDockerConfigurationResolver resolver = new CubeDockerConfigurationResolver(new Top(),
-            new DockerMachine(null),
-            new Boot2Docker(null),
             mockDefaultDocker(),
             operatingSystemInterface);
         lenient().when(infoCmd.exec()).thenThrow(new ProcessingException("test exception"));
