@@ -40,7 +40,7 @@ public class KubernetesRequirement implements Constraint<RequiresKubernetes> {
             HttpClient httpClient = httpClientFactory.newBuilder(httpClientConfig).build();
             HttpRequest versionRequest =  new StandardHttpRequest.Builder()
                 .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version").toString()))
-                .method("GET", "*/*", null)
+                .method("GET", "application/json", null)
                 .build();
 
             HttpResponse<String> response = httpClient.sendAsync(versionRequest, String.class).get();
