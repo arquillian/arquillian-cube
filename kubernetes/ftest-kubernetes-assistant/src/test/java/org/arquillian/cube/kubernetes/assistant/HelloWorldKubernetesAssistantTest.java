@@ -1,7 +1,5 @@
 package org.arquillian.cube.kubernetes.assistant;
 
-import io.fabric8.kubernetes.client.http.HttpClient;
-import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import org.arquillian.cube.kubernetes.impl.KubernetesAssistant;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -17,8 +15,6 @@ import java.util.Optional;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.hasKey;
 
 // tag::k8_assistant_example[]
 @RunWith(ArquillianConditionalRunner.class)

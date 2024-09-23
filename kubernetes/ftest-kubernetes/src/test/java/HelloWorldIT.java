@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.specification.RequestSpecification;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
@@ -15,12 +13,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasKey;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @Category(RequiresKubernetes.class)
 @RequiresKubernetes
@@ -55,7 +49,7 @@ public class HelloWorldIT {
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .body(contains("Hello OpenShift!\n"));
+                .body(is("Hello OpenShift!\n"));
         }
     }
 }
