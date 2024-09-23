@@ -381,7 +381,7 @@ public class MockTest {
 
         MOCK.expect()
             .get()
-            .withPath("/apis/extensions/v1beta1/namespaces/arquillian/replicasets")
+            .withPath("/apis/apps/v1/namespaces/arquillian/replicasets")
             .andReturn(200, new ReplicaSetBuilder().build())
             .always();
 
