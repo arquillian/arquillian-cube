@@ -283,9 +283,10 @@ public class KubernetesAssistant {
     }
 
     private Optional<URL> createUrlForService(Service service) {
-        final String scheme = (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) ?
+        final boolean useMetadataAnnotations = service.getMetadata().getAnnotations() != null && !service.getMetadata().getAnnotations().isEmpty();
+        final String scheme = (service.getMetadata() != null && useMetadataAnnotations) ?
             service.getMetadata().getAnnotations().get("api.service.kubernetes.io/scheme") : "http";
-        final String path = (service.getMetadata() != null && service.getMetadata().getAnnotations() != null) ?
+        final String path = (service.getMetadata() != null && useMetadataAnnotations) ?
             service.getMetadata().getAnnotations().get("api.service.kubernetes.io/path") : "/";
         final int port = resolvePort(service);
 

@@ -11,8 +11,6 @@ on:
       - 'doc/**'
       - '.circleci/**'
 env:
-  # failsafe.groups configuration depends on the env setup.
-  FAILSAFE_GROUPS: ''
   DOCKER_HOST: 'unix:///var/run/docker.sock'
 
 jobs:
@@ -23,9 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         java: ['11']
-
+        target: ['docker', 'kubernetes']
+    env:
+      # failsafe.groups configuration depends on the env setup.
+      FAILSAFE_GROUPS: ''
     steps:
-      - name: Setup Minikube
+      - name: Setup Minikube # add an if for the kubernetes target only?
         uses: manusa/actions-setup-minikube@v2.10.0
         with:
           driver: docker
@@ -34,8 +35,6 @@ jobs:
           kubernetes version: 'v1.30.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
           start args: "--memory='4gb' --cpus='2'"
-        env:
-          FAILSAFE_GROUPS: "-Dfailsafe.groups=\"org.arquillian.cube.docker.impl.requirement.RequiresDocker,org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes\""
       - name: Enable minikube registry
         run: |
           minikube addons enable registry
@@ -55,10 +54,15 @@ jobs:
           distribution: 'adopt'
       - name: Maven pre-fetch dependencies ${{ matrix.java }}
         run: |
-          ./mvnw verify -q -U -DskipTests # pre-fetch dependencies
-      - name: Build with Maven Java ${{ matrix.java }}
+          ./mvnw clean package -q -U -DskipTests # pre-fetch dependencies
+      - name: Build and run integration tests for Docker target (${{ matrix.java }})
+        if: ${{ matrix.target == 'docker' }}
         run: |
-          ./mvnw -fae clean package ${{ env.FAILSAFE_GROUPS }}
+          ./mvnw package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dcontainerless.skip.tests=true
+      - name: Build and run integration tests for Kubernetes target (${{ matrix.java }})
+        if: ${{ matrix.target  == 'kubernetes' }}
+        run: |
+          ./mvnw verify -Dfailsafe.groups=org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes -Dcontainerless.skip.tests=true
       - uses: actions/upload-artifact@v3
         if: failure()
         with:

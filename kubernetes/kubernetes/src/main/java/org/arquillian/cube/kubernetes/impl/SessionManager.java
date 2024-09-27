@@ -9,8 +9,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.ServicePort;
-import io.fabric8.kubernetes.api.model.extensions.ReplicaSet;
-import io.fabric8.kubernetes.api.model.extensions.ReplicaSetList;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
+import io.fabric8.kubernetes.api.model.apps.ReplicaSetList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import java.io.IOException;
 import java.io.InputStream;
@@ -270,7 +270,7 @@ public class SessionManager implements SessionCreatedListener {
 
     @Override
     public void display() {
-        ReplicaSetList replicaSetList = client.extensions().replicaSets().inNamespace(session.getNamespace()).list();
+        ReplicaSetList replicaSetList = client.apps().replicaSets().inNamespace(session.getNamespace()).list();
         if (replicaSetList.getItems() != null) {
             for (ReplicaSet replicaSet : replicaSetList.getItems()) {
                 session.getLogger().info("ReplicaSet: [" + replicaSet.getMetadata().getName() + "]");

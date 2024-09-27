@@ -47,7 +47,7 @@ public class DockerHealthAwaitStrategyTest {
     @BeforeClass
     public static void createDockerClient() {
         if (!System.getenv().containsKey(DOCKER_HOST) || System.getenv(DOCKER_HOST).equals("")){
-            environmentVariables.set(DOCKER_HOST, "unix:///var/run/podman.sock");
+            environmentVariables.set(DOCKER_HOST, "unix:///var/run/docker.sock");
         }
         dockerClient = DockerClientBuilder.getInstance().build();
         healthSuccessImageId = dockerBuild("DockerHealthAwait/HealthSuccess/Dockerfile");
