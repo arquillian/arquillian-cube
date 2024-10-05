@@ -23,7 +23,7 @@ Let's see an example:
 ----
 <property name="dockerContainers">
     tomcat*:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [8080/tcp]
       links:
         - ping*
@@ -55,7 +55,7 @@ So for example the result file could look like:
 ----
 <property name="dockerContainers">
     tomcat_123456:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [54678 -> 8080/tcp]
       env: [ping_HOSTNAME=ping_123456]
       links:
@@ -85,7 +85,7 @@ Again, adding the special character `*` to the end of the network name will caus
       testnetwork*:
         driver: bridge
     tomcat*:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [8080/tcp]
       networkMode: testnetwork*
     ping*:

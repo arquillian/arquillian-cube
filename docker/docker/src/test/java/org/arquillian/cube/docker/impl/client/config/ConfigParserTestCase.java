@@ -10,7 +10,7 @@ public class ConfigParserTestCase {
 
     private static final String CONTENT =
             "tomcat:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  buildImage:\n" +
             "      dockerfileLocation: src/test/resources/undertow\n" +
             "  exposedPorts: [8089/tcp]\n" +
@@ -26,8 +26,8 @@ public class ConfigParserTestCase {
         DockerCompositions containers = ConfigUtil.load(CONTENT);
         CubeContainer container = containers.get("tomcat");
 
-        Assert.assertEquals("tutum/tomcat", container.getImage().getName());
-        Assert.assertEquals("7.0", container.getImage().getTag());
+        Assert.assertEquals("tomcat", container.getImage().getName());
+        Assert.assertEquals("10.1.30", container.getImage().getTag());
 
         Assert.assertEquals(1, container.getExposedPorts().size());
         ExposedPort exposedPort = container.getExposedPorts().iterator().next();

@@ -35,7 +35,7 @@ import org.yaml.snakeyaml.Yaml;
 public class DockerServerIPConfiguratorTest extends AbstractManagerTestBase {
 
     public static final String CUBE_ID = "test";
-    private static final String CONTENT = "" + "image: tutum/tomcat:7.0\n" + "exposedPorts: [8089/tcp]\n"
+    private static final String CONTENT = "" + "image: tomcat:10.1.30\n" + "exposedPorts: [8089/tcp]\n"
             + "portBindings: [8090->8089/tcp]";
 
     @Mock

@@ -94,7 +94,7 @@ And finally we need to configure _Tomcat_ remote adapter and *Arquillian Cube* i
       <property name="definitionFormat">CUBE</property>
       <property name="dockerContainers"> <!--4-->
           tomcat:
-            image: tutum/tomcat:7.0
+            image: tomcat:10.1.30
             exposedPorts: [8089/tcp]
             await:
               strategy: polling
@@ -127,7 +127,7 @@ Notice that in this case you are using _CUBE_ format as orchestration definition
 Read more at <<Configuration>> section and <<Docker-Compose Format>>.
 
 And that's all.
-Now you can run your test and you will see how _tutum/tomcat:7.0_ image is downloaded and started.
+Now you can run your test and you will see how _tomcat:10.1.30_ image is downloaded and started.
 Ports 8080 (Tomcat standard port) and 8089(JMX port used by Arquillian) are exposed.
 Finally in _env_ section, environment variables are set. Read next link to understand why this is required https://docs.jboss.org/author/display/ARQ/Tomcat+7.0+-+Remote
 

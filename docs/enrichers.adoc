@@ -296,7 +296,7 @@ Suppose you have a _Docker Container_ configuration like:
 ----
 <property name="dockerContainers">
     tomcat_default:
-      image: tutum/tomcat:7.0
+      image: tomcat:10.1.30
       exposedPorts: [8089/tcp]
       await:
         strategy: polling

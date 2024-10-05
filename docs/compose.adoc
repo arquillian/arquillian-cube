@@ -31,7 +31,7 @@ Then you can create a file called `docker-compose.yml` following docker-compose 
 ----
 tomcat:
   env_file: envs
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   ports:
       - "8089:8089"
       - "8088:8088"
