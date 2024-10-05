@@ -2,11 +2,9 @@ package org.arquillian.cube.containerobject;
 
 import com.jcabi.ssh.SSH;
 import com.jcabi.ssh.Shell;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
-import java.io.File;
+
 import java.io.IOException;
-import org.apache.commons.io.FileUtils;
+
 import org.apache.commons.io.IOUtils;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
 
@@ -18,7 +16,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 @Category({ RequiresDocker.class})
-
 @RunWith(ArquillianConditionalRunner.class)
 public class JSchIT {
 
@@ -29,7 +26,7 @@ public class JSchIT {
     SshdContainer sshdContainer;
 
     @Test
-    public void shouldCopyFileToSFtp() throws JSchException, SftpException, IOException {
+    public void shouldExecuteRemoteCommand() throws IOException {
         String privateKey = IOUtils.toString(
             JSchIT.class.getResourceAsStream("/org/arquillian/cube/containerobject/SshdContainer/test_rsa"), "UTF-8");
         System.out.println(privateKey);
@@ -40,11 +37,5 @@ public class JSchIT {
             )
         ).exec("echo 'Hello, world!'");
         System.out.println(hello);
-    }
-
-    private File createFile() throws IOException {
-        final File testFile = folder.newFile("testFile");
-        FileUtils.write(testFile, "Hello World");
-        return testFile;
     }
 }

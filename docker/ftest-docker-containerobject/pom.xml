@@ -24,7 +24,19 @@
       <artifactId>jcabi-ssh</artifactId>
       <version>1.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.jcraft</groupId>
+          <artifactId>jsch</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    <dependency>
+      <groupId>com.github.mwiede</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.2.20</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
