@@ -27,7 +27,7 @@ public class PingPongIT {
     @Test
     public void shouldReturnOkAsPong() throws IOException {
         String pong = ping();
-        assertThat(pong, containsString("OK"));
+        assertThat(pong, is("OK"));
         assertThat(pingPongContainer.getConnectionPort(), is(5000));
     }
 
