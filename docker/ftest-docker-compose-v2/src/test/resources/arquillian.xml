@@ -9,7 +9,7 @@
 
   <extension qualifier="docker">
     <property name="serverVersion">${docker.api.version}</property>
-    <property name="dockerContainersFile">docker-compose.yml</property>
+    <property name="dockerContainersFile">./docker-compose.yml</property>
   </extension>
 
   <container qualifier="tomcat">
