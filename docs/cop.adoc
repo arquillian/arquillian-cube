@@ -146,7 +146,7 @@ public class PingPongContainer {
 
   @CubeDockerFile // <1>
   public static Archive<?> createContainer() { // <2>
-    String dockerDescriptor =   Descriptors.create(DockerDescriptor.class).from("jonmorehouse/ping-pong").exportAsString();
+    String dockerDescriptor =   Descriptors.create(DockerDescriptor.class).from("tsongpon/pingpong").exportAsString();
       return ShrinkWrap.create(GenericArchive.class)
                 .add(new StringAsset(dockerDescriptor), "Dockerfile"); // <3>
   }
@@ -288,7 +288,7 @@ Let's see how to use it following the previous Ping Pong example.
 ----
 @DockerContainer // <1>
 Container pingpong = Container.withContainerName("pingpong") // <2>
-                        .fromImage("jonmorehouse/ping-pong")
+                        .fromImage("tsongpon/pingpong")
                         .withPortBinding(8080)
                         .build();
 

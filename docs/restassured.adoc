@@ -135,7 +135,7 @@ With next docker compose file which starts a ping pong server listening at root 
 .docker-compose.yml
 ----
 helloworld:
-  image: jonmorehouse/ping-pong
+  image: tsongpon/pingpong
   ports:
     - "5000:8080"
 ----
