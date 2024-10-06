@@ -5,4 +5,4 @@ services:
       context: https://github.com/tsongpon/pingpong.git
       dockerfile: Dockerfile
     ports:
-      - "5000:8080"
+      - "5432:8080"

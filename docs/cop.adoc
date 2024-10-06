@@ -47,7 +47,7 @@ The Container Object will be a simple POJO with special annotations:
 ----
 package org.superbiz.containerobject;
 
-@Cube(value = "pingpong", portBinding = "5000->8080/tcp") // <1>
+@Cube(value = "pingpong", portBinding = "5432->8080/tcp") // <1>
 @CubeDockerFile
 public class PingPongContainer {
 
@@ -71,7 +71,7 @@ public class PingPongContainer {
 <3> The Container Object hides how to connect to the PingPong server
 
 The `@Cube` annotation is used to configure a Container Object.
-Its `value` property is used to specify how the started container will be named (in this example `pingpong`) while the `portBinding` property can be used to specify the port binding information for the container instance (in this case `5000->8080/tcp`).
+Its `value` property is used to specify how the started container will be named (in this example `pingpong`) while the `portBinding` property can be used to specify the port binding information for the container instance (in this case `5432->8080/tcp`).
 Notice that `portBinding` can also accept an array, in which case more than one port binding definitions can be specified.
 
 The next annotation is `@CubeDockerFile`, which configures how the container is created.
@@ -85,7 +85,7 @@ This location must be reachable from the ClassLoader creating the container obje
 Any Cube can be enriched with any client side enricher. In the previous example a `@HostIp` enricher is used, but it could be enriched similarly with `@CubeIp` (which works similar to `@HostPort`), or a `DockerClient` instance if the field is annotated with `@ArquillianResource`.
 
 Finally the `@HostPort` is used to translate the exposed port to the bound port.
-In this example the port value will be 5000. Later you will learn briefly why this annotation is important.
+In this example the port value will be 5432. Later you will learn briefly why this annotation is important.
 
 After creating the container object, you can start using it in your test:
 
@@ -102,7 +102,7 @@ public class PingPongTest {
     public void shouldReturnOkAsPong() throws IOException {
         String pong = ping();
         assertThat(pong, containsString("OK"));
-        assertThat(pingPongContainer.getConnectionPort(), is(5000));
+        assertThat(pingPongContainer.getConnectionPort(), is(5432));
     }
 }
 ----
@@ -141,7 +141,7 @@ And in similar way you use `@Deployment` in Arquillian test, you can use `@CubeD
 [source, java]
 .PingPongContainer.java
 ----
-@Cube(value = "pingpong", portBinding = "5000->8080/tcp")
+@Cube(value = "pingpong", portBinding = "5432->8080/tcp")
 public class PingPongContainer {
 
   @CubeDockerFile // <1>
@@ -255,7 +255,7 @@ public class PingPongTest {
         try {
             String pong = ping();
             assertThat(pong, containsString("OK"));
-            assertThat(pingPongContainer.getConnectionPort(), is(5000));
+            assertThat(pingPongContainer.getConnectionPort(), is(5432));
         } finally {
             cubeController.stop("pingpong"); // <3>
             cubeController.destroy("pingpong");

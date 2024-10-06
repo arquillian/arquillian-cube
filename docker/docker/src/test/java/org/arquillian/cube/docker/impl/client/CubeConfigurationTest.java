@@ -50,7 +50,7 @@ public class CubeConfigurationTest {
         "web:\n" +
             "  build: .\n" +
             "  ports:\n" +
-            "   - \"5000:5000\"\n" +
+            "   - \"5432:5000\"\n" +
             "  volumes:\n" +
             "   - .:/code\n" +
             "  links:\n" +
