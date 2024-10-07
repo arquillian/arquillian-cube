@@ -97,19 +97,19 @@ public class CubeConfigurationTest {
     private static final String VERSION_2_WITH_SPACE_SEPERATED_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0";
 
     private static final String VERSION_2_WITH_SPACE_AND_QUOTES_SEPERATED_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: \"/opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0\"";
 
     private static final String VERSION_2_WITH_ARRAY_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: [\"/opt/jboss/wildfly/bin/standalone.sh\", \"-b\", \"0.0.0.0\", \"-bmanagement\", \"0.0.0.0\"]";
 
     @Rule
