@@ -1,9 +1,9 @@
 package org.arquillian.cube.persistence;
 
-import javax.annotation.sql.DataSourceDefinition;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.annotation.sql.DataSourceDefinition;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @DataSourceDefinition(
     name = "java:app/TestDataSource",

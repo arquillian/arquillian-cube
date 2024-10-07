@@ -58,7 +58,7 @@ jobs:
       - name: Build and run integration tests for Docker target (${{ matrix.java }})
         if: ${{ matrix.target == 'docker' }}
         run: |
-          ./mvnw package -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dcontainerless.skip.tests=true
+          ./mvnw verify -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dcontainerless.skip.tests=true
       - name: Build and run integration tests for Kubernetes target (${{ matrix.java }})
         if: ${{ matrix.target  == 'kubernetes' }}
         run: |

@@ -38,7 +38,7 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_COPY_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  beforeStop:\n" +
             "    - copy:\n" +
             "        from: /test\n" +
@@ -46,14 +46,14 @@ public class BeforeStopContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_LOG_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  beforeStop:\n" +
             "    - log:\n" +
             "        to: ";
 
     private static final String CONTAINER_CUSTOM_BEFORE_STOP_ACTION_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  beforeStop:\n" +
             "    - customBeforeStopAction:\n" +
             "        strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl";

@@ -1,4 +1,4 @@
 pingpong*:
-  image: jonmorehouse/ping-pong
+  image: tsongpon/pingpong
   ports:
       - "8080:8080"

@@ -23,8 +23,9 @@ public class PingPongIT {
 
     @DockerContainer
     Container pingpong = Container.withContainerName("pingpong")
-        .fromImage("jonmorehouse/ping-pong")
+        .fromImage("hashicorp/http-echo:alpine")
         .withPortBinding(8080)
+        .withCommand("-text=OK", "-listen=:8080")
         .build();
 
     @Test

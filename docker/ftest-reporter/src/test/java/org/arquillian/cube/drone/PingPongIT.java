@@ -1,5 +1,6 @@
 package org.arquillian.cube.drone;
 
+import org.apache.http.HttpStatus;
 import org.arquillian.cube.HostIp;
 import org.arquillian.cube.HostPort;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
@@ -10,7 +11,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static io.restassured.RestAssured.get;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 @Category({ RequiresDocker.class})
 
@@ -25,6 +26,6 @@ public class PingPongIT {
 
     @Test
     public void shouldDoPingPong() {
-        get("http://" + ip + ":" + port).then().assertThat().body("status", equalTo("OK"));
+        get("http://" + ip + ":" + port + "/ping").then().statusCode(HttpStatus.SC_OK).body(is("pong"));
     }
 }

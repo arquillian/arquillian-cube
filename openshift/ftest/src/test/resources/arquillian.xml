@@ -10,7 +10,7 @@
 
   <container qualifier="hello-openshift" default="true">
     <configuration>
-      <property name="chameleonTarget">wildfly:8.2.0.Final:remote</property>
+      <property name="chameleonTarget">wildfly:33.0.2.Final-jdk11:remote</property>
       <property name="username">admin</property>
       <property name="password">Admin#70365</property>
     </configuration>

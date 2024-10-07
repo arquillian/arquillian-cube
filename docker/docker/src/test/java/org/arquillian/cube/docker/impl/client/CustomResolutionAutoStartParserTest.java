@@ -18,14 +18,14 @@ public class CustomResolutionAutoStartParserTest extends AbstractManagerTestBase
 
     private static final String CONTENT =
         "tomcat:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
             "    strategy: static\n" +
             "    ip: localhost\n" +
             "    ports: [8080, 8089]\n" +
             "go:\n" +
-            "  image: tutum/tomcat:7.0\n";
+            "  image: tomcat:10.1.30\n";
 
     @Override
     protected void addExtensions(List<Class<?>> extensions) {

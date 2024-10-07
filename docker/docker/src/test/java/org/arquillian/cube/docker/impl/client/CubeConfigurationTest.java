@@ -30,7 +30,7 @@ public class CubeConfigurationTest {
 
     private static final String CONTENT =
         "tomcat:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
             "    strategy: static\n" +
@@ -39,7 +39,7 @@ public class CubeConfigurationTest {
 
     private static final String CONTENT2 =
         "tomcat2:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  exposedPorts: [8089/tcp]\n" +
             "  await:\n" +
             "    strategy: static\n" +
@@ -50,7 +50,7 @@ public class CubeConfigurationTest {
         "web:\n" +
             "  build: .\n" +
             "  ports:\n" +
-            "   - \"5000:5000\"\n" +
+            "   - \"5432:5000\"\n" +
             "  volumes:\n" +
             "   - .:/code\n" +
             "  links:\n" +
@@ -60,7 +60,7 @@ public class CubeConfigurationTest {
 
     private static final String OVERRIDE_CUSTOM =
         "tomcat:\n" +
-            "  image: tutum/tomcat:8.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  await:\n" +
             "    strategy: polling\n" +
             "  afterStart: \n" +
@@ -97,19 +97,19 @@ public class CubeConfigurationTest {
     private static final String VERSION_2_WITH_SPACE_SEPERATED_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0";
 
     private static final String VERSION_2_WITH_SPACE_AND_QUOTES_SEPERATED_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: \"/opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0\"";
 
     private static final String VERSION_2_WITH_ARRAY_COMMAND = "version: '2'\n"
             + "services:\n"
             + "  wildfly:\n"
-            + "    image: \"jboss/wildfly\"\n"
+            + "    image: \"quay.io/wildfly/wildfly:33.0.2.Final-jdk11\"\n"
             + "    command: [\"/opt/jboss/wildfly/bin/standalone.sh\", \"-b\", \"0.0.0.0\", \"-bmanagement\", \"0.0.0.0\"]";
 
     @Rule
@@ -194,12 +194,12 @@ public class CubeConfigurationTest {
     public void shouldChangeNamesInParallelizeStarCubes() {
         String content =
             "tomcat*:\n" +
-                "  image: tutum/tomcat:8.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: tsongpon/pingpong\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -224,12 +224,12 @@ public class CubeConfigurationTest {
     public void shouldAddEnvVarsWithHostNameInParallelizeStarCubes() {
         String content =
             "tomcat*:\n" +
-                "  image: tutum/tomcat:8.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: tsongpon/pingpong\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -255,12 +255,12 @@ public class CubeConfigurationTest {
     public void shouldChangePortBindingToPrivatePortsInParallelizeStarCubes() {
         String content =
             "tomcat*:\n" +
-                "  image: tutum/tomcat:8.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: tsongpon/pingpong\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -285,12 +285,12 @@ public class CubeConfigurationTest {
     public void shouldChangeStarLinksInParallelizeStarCubes() {
         String content =
             "tomcat*:\n" +
-                "  image: tutum/tomcat:8.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "  links:\n" +
                 "    - ping*\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: tsongpon/pingpong\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -316,12 +316,12 @@ public class CubeConfigurationTest {
     public void shouldParallelizeStarCubesUsingRemappingAlias() {
         String content =
             "tomcat*:\n" +
-                "  image: tutum/tomcat:8.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  portBindings: [8080/tcp]\n" +
                 "  links:\n" +
                 "    - ping*:bb\n" +
                 "ping*:\n" +
-                "  image: jonmorehouse/ping-pong\n" +
+                "  image: tsongpon/pingpong\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "storage:\n" +
                 "  image: tutum/mongodb";
@@ -358,10 +358,10 @@ public class CubeConfigurationTest {
             "  network3*:\n" +
             "    driver: bridge\n" +
             "tomcat:\n" +
-            "  image: tutum/tomcat:8.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  networkMode: network3*\n" +
             "ping:\n" +
-            "  image: jonmorehouse/ping-pong\n" +
+            "  image: tsongpon/pingpong\n" +
             "  networks:\n" +
             "    - network1*\n" +
             "    - network2\n";
@@ -423,7 +423,7 @@ public class CubeConfigurationTest {
 
         final CubeContainer tomcat = dockerContainersContent.get("tomcat");
         assertThat(tomcat, is(notNullValue()));
-        assertThat(tomcat.getImage().getTag(), is("7.0"));
+        assertThat(tomcat.getImage().getTag(), is("10.1.30"));
         assertThat(tomcat.getAwait().getStrategy(), is("polling"));
         assertThat(tomcat.getAfterStart().size(), is(1));
         assertThat(tomcat.getBeforeStop().size(), is(1));
@@ -489,7 +489,7 @@ public class CubeConfigurationTest {
         assertThat(actualTomcat, is(notNullValue()));
 
         String image = actualTomcat.getImage().toImageRef();
-        assertThat(image, is("tomcat:7.0"));
+        assertThat(image, is("tomcat:10.1.30"));
     }
 
     @Test
@@ -511,7 +511,7 @@ public class CubeConfigurationTest {
         assertThat(actualTomcat, is(notNullValue()));
 
         String image = actualTomcat.getImage().toImageRef();
-        assertThat(image, is("tutum/tomcat:7.0"));
+        assertThat(image, is("tomcat:10.1.30"));
     }
 
     @Test
@@ -540,7 +540,7 @@ public class CubeConfigurationTest {
         assertThat(actualTomcat, is(notNullValue()));
 
         String image = actualTomcat.getImage().toImageRef();
-        assertThat(image, is("tutum/tomcat:7.0"));
+        assertThat(image, is("tomcat:10.1.30"));
         assertThat(dockerContainersContent.get("tomcat2"), is(notNullValue()));
     }
 
@@ -566,7 +566,7 @@ public class CubeConfigurationTest {
         assertThat(actualTomcat, is(notNullValue()));
 
         String image = actualTomcat.getImage().toImageRef();
-        assertThat(image, is("tutum/tomcat:7.0"));
+        assertThat(image, is("tomcat:10.1.30"));
     }
 
     @Test
@@ -587,32 +587,32 @@ public class CubeConfigurationTest {
         assertThat(actualTomcat, is(notNullValue()));
 
         String image = actualTomcat.getImage().toImageRef();
-        assertThat(image, is("tutum/tomcat:7.0"));
+        assertThat(image, is("tomcat:10.1.30"));
     }
 
     @Test
     public void should_be_able_to_extend_and_override_toplevel() throws Exception {
         String config =
-            "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+            "tomcat9:\n" +
+                "  image: tomcat:9.0.95\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "  await:\n" +
                 "    strategy: static\n" +
                 "    ip: localhost\n" +
                 "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "tomcat10:\n" +
+                "  extends: tomcat9\n" +
+                "  image: tomcat:10.1.30\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
         parameters.put("definitionFormat", DefinitionFormat.CUBE.name());
         CubeDockerConfiguration cubeConfiguration = CubeDockerConfiguration.fromMap(parameters, null);
 
-        CubeContainer tomcat7 = cubeConfiguration.getDockerContainersContent().get("tomcat7");
-        Assert.assertEquals("tutum/tomcat:7.0", tomcat7.getImage().toImageRef());
-        Assert.assertTrue(tomcat7.getAwait() != null);
-        Assert.assertEquals("8089/tcp", tomcat7.getExposedPorts().iterator().next().toString());
+        CubeContainer tomcat10 = cubeConfiguration.getDockerContainersContent().get("tomcat10");
+        Assert.assertEquals("tomcat:10.1.30", tomcat10.getImage().toImageRef());
+        Assert.assertTrue(tomcat10.getAwait() != null);
+        Assert.assertEquals("8089/tcp", tomcat10.getExposedPorts().iterator().next().toString());
     }
 
     @Test
@@ -621,16 +621,16 @@ public class CubeConfigurationTest {
             "networks:\n" +
                 "  mynetwork:\n " +
                 "    driver: bridge\n" +
-                "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+                "tomcat9:\n" +
+                "  image: tomcat:9.0.95\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "  await:\n" +
                 "    strategy: static\n" +
                 "    ip: localhost\n" +
                 "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "tomcat10:\n" +
+                "  extends: tomcat9\n" +
+                "  image: tomcat:10.1.30\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
@@ -662,7 +662,7 @@ public class CubeConfigurationTest {
     public void should_container_level_removeVolumes_option_overwrite_global_value() {
         String config1 =
             "tomcat:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  removeVolumes: false";
 
         Map<String, String> parameters = new HashMap<String, String>();
@@ -676,7 +676,7 @@ public class CubeConfigurationTest {
 
         String config2 =
             "tomcat:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+                "  image: tomcat:10.1.30\n" +
                 "  removeVolumes: true";
 
         parameters.put(CubeDockerConfiguration.REMOVE_VOLUMES, "false");

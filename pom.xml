@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>41</version>
+    <version>46</version>
   </parent>
 
   <!-- Model Version -->
@@ -70,7 +70,7 @@
     <version.arquillian_core>1.8.0.Final</version.arquillian_core>
     <version.junit>4.13.2</version.junit>
     <version.hamcrest>2.2</version.hamcrest>
-    <version.docker-java>3.3.4</version.docker-java>
+    <version.docker-java>3.4.0</version.docker-java>
     <version.kubernetes_client>6.9.2</version.kubernetes_client>
     <version.snakeyaml>2.2</version.snakeyaml>
     <version.shrinkwrap_resolver>3.2.1</version.shrinkwrap_resolver>

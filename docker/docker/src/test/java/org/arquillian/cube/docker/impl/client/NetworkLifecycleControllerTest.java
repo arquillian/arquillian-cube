@@ -36,16 +36,16 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
             "networks:\n" +
                 "  mynetwork:\n " +
                 "    driver: bridge\n" +
-                "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+                "tomcat9:\n" +
+                "  image: tomcat:9.0.95\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "  await:\n" +
                 "    strategy: static\n" +
                 "    ip: localhost\n" +
                 "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "tomcat10:\n" +
+                "  extends: tomcat9\n" +
+                "  image: tomcat:10.1.30\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);
@@ -74,16 +74,16 @@ public class NetworkLifecycleControllerTest extends AbstractManagerTestBase {
             "networks:\n" +
                 "  mynetwork:\n " +
                 "    driver: bridge\n" +
-                "tomcat6:\n" +
-                "  image: tutum/tomcat:6.0\n" +
+                "tomcat9:\n" +
+                "  image: tomcat:9.0.95\n" +
                 "  exposedPorts: [8089/tcp]\n" +
                 "  await:\n" +
                 "    strategy: static\n" +
                 "    ip: localhost\n" +
                 "    ports: [8080, 8089]\n" +
-                "tomcat7:\n" +
-                "  extends: tomcat6\n" +
-                "  image: tutum/tomcat:7.0\n";
+                "tomcat10:\n" +
+                "  extends: tomcat9\n" +
+                "  image: tomcat:10.1.30\n";
 
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("dockerContainers", config);

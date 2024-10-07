@@ -7,12 +7,11 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 
 @Cube(value = "ftp",
     portBinding = {FtpContainer.BIND_PORT + "->21/tcp",
-        "37185->37185/tcp", "37186->37186/tcp", "37187->37187/tcp",
-        "37188->37188/tcp", "37189->37189/tcp", "37190->37190/tcp"},
+        "21000->21000/tcp", "21001->21001/tcp", "21002->21002/tcp", "21003->21003/tcp", "21004->21004/tcp", "21005->21005/tcp",
+        "21006->21006/tcp", "21007->21007/tcp", "21008->21008/tcp", "21009->21009/tcp", "21010->21010/tcp"},
     awaitPorts = 21)
-@Image("dipakpawar231/proftpd:v1")
-@Environment(key = "USERNAME", value = FtpContainer.USERNAME)
-@Environment(key = "PASSWORD", value = FtpContainer.PASSWORD)
+@Image("delfer/alpine-ftp-server")
+@Environment(key = "USERS", value = FtpContainer.USERNAME + "|" + FtpContainer.PASSWORD)
 public class FtpContainer {
 
     static final String USERNAME = "alex";
@@ -44,7 +43,7 @@ public class FtpContainer {
     public boolean isFilePresentInContainer(String filename) {
         try (
             final InputStream file = dockerClient.copyArchiveFromContainerCmd("ftp",
-                "/ftp/" + filename).exec()) {
+                "/ftp/" + getUsername() + "/" + filename).exec()) {
             return file != null;
         } catch (Exception e) {
             return false;

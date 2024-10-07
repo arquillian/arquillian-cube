@@ -32,7 +32,7 @@ public class AwaitStrategyTest {
     @Test
     public void should_be_able_to_create_http_await_strategy() {
         String containerDefinition = "tomcat:\n" +
-            "            image: tutum/tomcat:7.0\n" +
+            "            image: tomcat:10.1.30\n" +
             "            exposedPorts: [8089/tcp]\n" +
             "            await:\n" +
             "              strategy: http\n" +
@@ -316,7 +316,7 @@ public class AwaitStrategyTest {
     @Test
     public void should_parse_command() {
         String containerDefinition = "tomcat:\n"
-            + "  image: tutum/tomcat:7.0\n"
+            + "  image: tomcat:10.1.30\n"
             + "  exposedPorts: [8089/tcp]\n"
             + "  await:\n"
             + "    strategy: docker_health\n"

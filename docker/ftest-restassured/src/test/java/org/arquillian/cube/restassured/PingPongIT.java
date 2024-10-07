@@ -3,6 +3,8 @@ package org.arquillian.cube.restassured;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import java.net.MalformedURLException;
+
+import org.apache.http.HttpStatus;
 import org.arquillian.cube.DockerUrl;
 import org.arquillian.cube.HealthCheck;
 import org.arquillian.cube.docker.impl.requirement.RequiresDocker;
@@ -13,7 +15,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 @Category({ RequiresDocker.class})
 
@@ -21,7 +23,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 @HealthCheck
 public class PingPongIT {
 
-    @DockerUrl(containerName = "helloworld", exposedPort = 8080)
+    @DockerUrl(containerName = "helloworld", exposedPort = 8080, context = "/ping")
     @ArquillianResource
     RequestSpecBuilder requestSpecBuilder;
 
@@ -33,6 +35,7 @@ public class PingPongIT {
             .when()
             .get()
             .then()
-            .assertThat().body("status", equalTo("OK"));
+            .statusCode(HttpStatus.SC_OK)
+            .body(is("pong"));
     }
 }

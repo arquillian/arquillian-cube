@@ -31,7 +31,7 @@ public class StandaloneStarOperatorITCase {
     @HostPort(containerName = "pingpong*", value = 8080)
     int port;
 
-    @DockerUrl(containerName = "pingpong*", exposedPort = 8080)
+    @DockerUrl(containerName = "pingpong*", exposedPort = 8080, context = "/ping")
     @ArquillianResource
     private URL url;
 
@@ -52,7 +52,7 @@ public class StandaloneStarOperatorITCase {
     @Test
     public void shouldBeAvailable() throws IOException {
         String pong = ping();
-        assertThat(pong, containsString("OK"));
+        assertThat(pong, is("pong"));
     }
 
     private String ping() throws IOException {

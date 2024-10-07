@@ -1,5 +1,5 @@
 tomcat:
-  image: tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: polling

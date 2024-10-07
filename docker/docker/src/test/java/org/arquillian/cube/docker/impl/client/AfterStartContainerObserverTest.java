@@ -34,7 +34,7 @@ public class AfterStartContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_COPY_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  afterStart:\n" +
             "    - copy:\n" +
             "        to: /test\n" +
@@ -42,7 +42,7 @@ public class AfterStartContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_CUSTOM_AFTER_START_ACTION_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  afterStart:\n" +
             "    - customAfterStartAction:\n" +
             "        strategy: org.arquillian.cube.docker.impl.afterStart.CustomAfterStartActionImpl";

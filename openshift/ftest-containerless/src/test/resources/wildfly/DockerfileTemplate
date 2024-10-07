@@ -1,2 +1,2 @@
-FROM jboss/wildfly:8.2.0.Final
+FROM quay.io/wildfly/wildfly:33.0.2.Final-jdk11
 COPY ${deployableFilename} /opt/jboss/wildfly/standalone/deployments/${deployableFilename}

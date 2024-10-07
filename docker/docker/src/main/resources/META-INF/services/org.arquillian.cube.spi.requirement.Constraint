@@ -1,2 +1,1 @@
-org.arquillian.cube.docker.impl.requirement.DockerMachineRequirement
 org.arquillian.cube.docker.impl.requirement.DockerRequirement
