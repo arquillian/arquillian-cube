@@ -26,8 +26,9 @@ jobs:
       # failsafe.groups configuration depends on the env setup.
       FAILSAFE_GROUPS: ''
     steps:
-      - name: Setup Minikube # add an if for the kubernetes target only?
-        uses: manusa/actions-setup-minikube@v2.10.0
+      - name: Setup Minikube
+        if: ${{ matrix.target  == 'kubernetes' }}
+        uses: manusa/actions-setup-minikube@v2.13.0
         with:
           driver: docker
           container runtime: containerd
@@ -36,6 +37,7 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
           start args: "--memory='4gb' --cpus='2'"
       - name: Enable minikube registry
+        if: ${{ matrix.target  == 'kubernetes' }}
         run: |
           minikube addons enable registry
           kubectl port-forward --namespace kube-system service/registry 5000:80 &
@@ -71,5 +73,6 @@ jobs:
             '${{ github.workspace }}/**/surefire-reports/*.*'
             '${{ github.workspace }}/**/*.log'
       - name: Stop minikube
+        if: ${{ matrix.target  == 'kubernetes' }}
         run: |
           minikube stop
