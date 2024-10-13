@@ -37,7 +37,7 @@
         extends: wildfly
         portBindings: [8082->8080/tcp, 9992->9990/tcp]
       database:
-        image: oscarfonts/h2
+        image: oscarfonts/h2:2.1.214
         exposedPorts: [81/tcp, 1521/tcp]
         await:
           strategy: polling

@@ -12,7 +12,6 @@
     <arquillian.cube.autostart />
     <version.javaee_7>1.1.1.Final</version.javaee_7>
     <version.tomcat>1.2.1.Final</version.tomcat>
-    <docker.api.version>1.43</docker.api.version>
     <docker.api.url>tcp://localhost:2375</docker.api.url>
   </properties>
 
@@ -41,13 +40,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.16</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>2.0.13</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>

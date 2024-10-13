@@ -70,7 +70,6 @@
     <tests.exp.undertow>**/*Daytime*</tests.exp.undertow>
     <tests.container.node>node</tests.container.node>
     <tests.container.undertow>daytime</tests.container.undertow>
-    <docker.api.version>1.43</docker.api.version>
     <docker.api.url>tcp://localhost:2375</docker.api.url>
   </properties>
 

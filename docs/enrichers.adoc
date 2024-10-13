@@ -146,7 +146,7 @@ Suppose you have next Docker Container definition in `dockerContainers` property
 ----
 <property name="dockerContainers">
     manual_database:
-        image: oscarfonts/h2
+        image: oscarfonts/h2:2.1.214
         portBindings: [1521/tcp, 8181->81/tcp]
 </property>
 ----
@@ -184,7 +184,7 @@ An example of orchestration can be:
     links:
       - database:database # <1>
   database:
-    image: oscarfonts/h2
+    image: oscarfonts/h2:2.1.214
     exposedPorts: [81/tcp, 1521/tcp]
     await:
       strategy: polling
