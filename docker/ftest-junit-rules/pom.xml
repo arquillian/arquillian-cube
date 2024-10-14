@@ -11,7 +11,6 @@
   <artifactId>arquillian-cube-docker-junit-rules</artifactId>
 
   <properties>
-    <docker.api.version>1.12</docker.api.version>
     <docker.api.url>tcp://localhost:2375</docker.api.url>
   </properties>
 

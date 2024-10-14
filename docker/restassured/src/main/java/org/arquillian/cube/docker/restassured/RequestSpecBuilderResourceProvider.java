@@ -61,7 +61,7 @@ public class RequestSpecBuilderResourceProvider implements ResourceProvider {
             final int bindPort = getBindingPort(containerName, exposedPort);
 
             if (bindPort > 0) {
-                return requestSpecBuilder.setPort(bindPort);
+                requestSpecBuilder.setPort(bindPort);
             } else {
                 logger.log(Level.WARNING, String.format("There is no container with id %s.", containerName));
             }

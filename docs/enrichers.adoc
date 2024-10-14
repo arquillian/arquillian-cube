@@ -146,7 +146,7 @@ Suppose you have next Docker Container definition in `dockerContainers` property
 ----
 <property name="dockerContainers">
     manual_database:
-        image: zhilvis/h2-db
+        image: oscarfonts/h2:2.1.214
         portBindings: [1521/tcp, 8181->81/tcp]
 </property>
 ----
@@ -184,7 +184,7 @@ An example of orchestration can be:
     links:
       - database:database # <1>
   database:
-    image: zhilvis/h2-db
+    image: oscarfonts/h2:2.1.214
     exposedPorts: [81/tcp, 1521/tcp]
     await:
       strategy: polling
@@ -193,7 +193,7 @@ An example of orchestration can be:
 
 <container qualifier="wildfly_database">
   <configuration>
-    <property name="target">wildfly:8.1.0.Final:remote</property>
+    <property name="target">wildfly:33.0.2.Final-jdk11:remote</property>
     <property name="username">admin</property>
     <property name="password">Admin#70365</property>
   </configuration>
@@ -296,7 +296,7 @@ Suppose you have a _Docker Container_ configuration like:
 ----
 <property name="dockerContainers">
     tomcat_default:
-      image: tutum/tomcat:7.0
+      image: tomcat:10.1.30
       exposedPorts: [8089/tcp]
       await:
         strategy: polling

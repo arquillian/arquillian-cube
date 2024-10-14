@@ -40,7 +40,7 @@ public class AfterStopContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_COPY_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  afterStop:\n" +
             "    - copy:\n" +
             "        from: /test\n" +
@@ -48,7 +48,7 @@ public class AfterStopContainerObserverTest extends AbstractManagerTestBase {
 
     private static final String CONTAINER_LOG_CONFIGURATION =
         "tomcat_default:\n" +
-            "  image: tutum/tomcat:7.0\n" +
+            "  image: tomcat:10.1.30\n" +
             "  afterStop:\n" +
             "    - log:\n" +
             "        to: ";

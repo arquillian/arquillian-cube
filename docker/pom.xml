@@ -16,6 +16,7 @@
     <version.graphene>2.1.0.Final</version.graphene>
     <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
     <version.selenium>2.53.1</version.selenium>
+    <version.slf4j>2.0.16</version.slf4j>
   </properties>
 
   <!-- Artifact Configuration -->
@@ -44,6 +45,20 @@
     </plugins>
   </build>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>commons-lang</groupId>

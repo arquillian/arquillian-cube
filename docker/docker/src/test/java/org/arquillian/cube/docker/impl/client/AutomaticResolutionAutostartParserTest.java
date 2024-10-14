@@ -28,7 +28,7 @@ public class AutomaticResolutionAutostartParserTest {
             +
             "tomcat:\n"
             +
-            "  image: tutum/tomcat:7.0\n"
+            "  image: tomcat:10.1.30\n"
             +
             "  exposedPorts: [8089/tcp]\n"
             +
@@ -40,7 +40,7 @@ public class AutomaticResolutionAutostartParserTest {
             +
             "pingpong:\n"
             +
-            "  image: jonmorehouse/ping-pong\n"
+            "  image: tsongpon/pingpong\n"
             +
             "  exposedPorts: [8080/tcp]\n"
             +
@@ -68,7 +68,7 @@ public class AutomaticResolutionAutostartParserTest {
         String config =
             "tomcat:\n"
                 +
-                "  image: tutum/tomcat:7.0\n"
+                "  image: tomcat:10.1.30\n"
                 +
                 "  exposedPorts: [8089/tcp]\n"
                 +
@@ -78,7 +78,7 @@ public class AutomaticResolutionAutostartParserTest {
                 +
                 "pingpong:\n"
                 +
-                "  image: jonmorehouse/ping-pong\n"
+                "  image: tsongpon/pingpong\n"
                 +
                 "  exposedPorts: [8080/tcp]\n"
                 +

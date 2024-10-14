@@ -9,7 +9,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.descriptor.api.Descriptors;
 import org.jboss.shrinkwrap.descriptor.api.docker.DockerDescriptor;
 
-@Cube(value = "pingpong", portBinding = "5000->8080/tcp")
+@Cube(value = "pingpong", portBinding = "5432->8080/tcp")
 public class PingPongContainer {
 
     @HostIp
@@ -21,8 +21,9 @@ public class PingPongContainer {
     @CubeDockerFile
     public static Archive<?> createContainer() {
         String dockerDescriptor = Descriptors.create(DockerDescriptor.class)
-            .from("jonmorehouse/ping-pong")
+            .from("hashicorp/http-echo:alpine")
             .expose(8080)
+            .cmd("-text=OK", "-listen=:8080")
             .exportAsString();
         return ShrinkWrap.create(GenericArchive.class)
             .add(new StringAsset(dockerDescriptor), "Dockerfile");

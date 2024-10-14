@@ -54,7 +54,7 @@ public class DockerContainerDefinitionParser {
 
     private static DockerCompositions convert(URI uri, DefinitionFormat definitionFormat) throws IOException {
         try {
-            Path definitionFilePath = Paths.get(uri);
+            Path definitionFilePath = uri.getScheme() == null ? Paths.get(uri.toString()).toAbsolutePath() : Paths.get(uri);
             return convert(definitionFilePath, definitionFormat);
         } catch (FileSystemNotFoundException e) {
             String content = "";

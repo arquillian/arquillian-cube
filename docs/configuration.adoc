@@ -123,7 +123,7 @@ NOTE: In YAML adding brackets ("[" "]") is for setting a list.
 [source, yaml]
 ----
 tomcat: # <1>
-  image: tutum/tomcat:7.0 # <2>
+  image: tomcat:10.1.30 # <2>
   exposedPorts: [8089/tcp] # <3>
   await: # <4>
     strategy: polling # <5>
@@ -197,7 +197,7 @@ _Arquillian Cube_ will read it as if it was defined in `arquilllian.xml` file.
 .src/test/resources/cube
 ----
 tomcat:
-  image: tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: polling
@@ -217,7 +217,7 @@ networks: # <1>
    mynetwork: # <2>
        driver: bridge # <3>
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   networkMode: mynetwork # <4>
 ----
@@ -232,7 +232,7 @@ You can also use `networks` to connect to more than one network:
 .src/test/resources/cube
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   networkMode: mynetwork
   networks:
@@ -276,7 +276,7 @@ By default in case you don't specify any _await_ strategy, polling with _ss_ com
 .Example native
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: native
@@ -286,7 +286,7 @@ tomcat:
 .Example polling using ss command by default
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: polling
@@ -300,7 +300,7 @@ tomcat:
 .Example static
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: static
@@ -312,7 +312,7 @@ tomcat:
 .Example sleeping
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: sleeping
@@ -324,7 +324,7 @@ tomcat:
 .Example log
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: log
@@ -344,7 +344,7 @@ tomcat:
 .Example http
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: http
@@ -367,7 +367,7 @@ tomcat:
 .Example docker_health
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: docker_health
@@ -415,7 +415,7 @@ and the configuration comes as:
 .Example.yml
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   exposedPorts: [8089/tcp]
   await:
     strategy: org.arquillian.cube.docker.impl.await.CustomAwaitStrategyImpl
@@ -533,7 +533,7 @@ Next snippet shows how to copy a directory from container to local disk:
 [source, yaml]
 ----
 tomcat_default:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   beforeStop: # <1>
     - copy: # <2>
         from: /test
@@ -599,7 +599,7 @@ and the configuration comes as:
 .Example.yml
 ----
 tomcat:
-  image: tutum/tomcat:7.0
+  image: tomcat:10.1.30
   beforeStop:
     - customBeforeStopAction:
         strategy: org.arquillian.cube.docker.impl.beforeStop.CustomBeforeStopActionImpl

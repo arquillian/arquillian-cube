@@ -11,22 +11,9 @@
   <properties>
     <arquillian.cube.autostart />
     <version.javaee_7>1.1.1.Final</version.javaee_7>
-    <version.tomcat>1.1.0.Final</version.tomcat>
-    <docker.api.version>1.12</docker.api.version>
+    <version.tomcat>1.2.1.Final</version.tomcat>
     <docker.api.url>tcp://localhost:2375</docker.api.url>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-7.0</artifactId>
-        <version>${version.javaee_7}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -51,23 +38,20 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-      <scope>provided</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
-      <scope>provided</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-web-api</artifactId>
+      <version>9.0.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -113,7 +97,7 @@
 
   <profiles>
     <profile>
-      <id>tomcat-7</id>
+      <id>tomcat</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -123,7 +107,7 @@
       <dependencies>
         <dependency>
           <groupId>org.jboss.arquillian.container</groupId>
-          <artifactId>arquillian-tomcat-remote-7</artifactId>
+          <artifactId>arquillian-tomcat-remote-10</artifactId>
           <version>${version.tomcat}</version>
           <scope>test</scope>
         </dependency>

@@ -10,7 +10,7 @@
     <property name="definitionFormat">CUBE</property>
     <property name="dockerContainers">
       database:
-        image: zhilvis/h2-db
+        image: oscarfonts/h2:2.1.214
         exposedPorts: [81/tcp, 1521/tcp]
         await:
           strategy: polling

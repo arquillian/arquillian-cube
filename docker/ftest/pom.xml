@@ -10,23 +10,10 @@
 
   <properties>
     <arquillian.cube.autostart />
-    <version.javaee_7>1.1.1.Final</version.javaee_7>
-    <version.tomcat>1.1.0.Final</version.tomcat>
+    <version.tomcat>1.2.1.Final</version.tomcat>
     <version.wildfly>5.0.1.Final</version.wildfly>
     <version.arquillian_tck>1.0.0.Alpha1</version.arquillian_tck>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jboss.spec</groupId>
-        <artifactId>jboss-javaee-7.0</artifactId>
-        <version>${version.javaee_7}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -51,23 +38,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.ejb</groupId>
-      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.javax.persistence</groupId>
-      <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.annotation</groupId>
-      <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+      <groupId>jakarta.platform</groupId>
+      <artifactId>jakarta.jakartaee-web-api</artifactId>
+      <version>9.0.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -104,7 +77,7 @@
 
   <profiles>
     <profile>
-      <id>tomcat-7-jre8-dockerfile</id>
+      <id>tomcat-dockerfile</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -114,7 +87,7 @@
       <dependencies>
         <dependency>
           <groupId>org.jboss.arquillian.container</groupId>
-          <artifactId>arquillian-tomcat-remote-7</artifactId>
+          <artifactId>arquillian-tomcat-remote-10</artifactId>
           <version>${version.tomcat}</version>
           <scope>test</scope>
         </dependency>
@@ -149,7 +122,7 @@
       </build>
     </profile>
     <profile>
-      <id>wildfly-8</id>
+      <id>wildfly-33</id>
       <properties>
         <arquillian.launch>wildfly</arquillian.launch>
       </properties>
@@ -163,7 +136,7 @@
       </dependencies>
     </profile>
     <profile>
-      <id>wildfly-8-group</id>
+      <id>wildfly-33-group</id>
       <properties>
         <arquillian.launch>wildfly-group</arquillian.launch>
       </properties>
@@ -177,7 +150,7 @@
       </dependencies>
     </profile>
     <profile>
-      <id>wildfly-8-database</id>
+      <id>wildfly-33-database</id>
       <properties>
         <arquillian.launch>wildfly_database</arquillian.launch>
         <arquillian.cube.autostart>database</arquillian.cube.autostart>

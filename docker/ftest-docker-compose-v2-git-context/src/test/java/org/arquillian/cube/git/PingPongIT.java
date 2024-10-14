@@ -31,7 +31,7 @@ public class PingPongIT {
     @Test
     public void should_receive_ok_message() throws IOException {
 
-        URL obj = new URL("http://" + ip + ":" + port);
+        URL obj = new URL("http://" + ip + ":" + port + "/ping");
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
         // optional default is GET
@@ -51,6 +51,6 @@ public class PingPongIT {
         }
         in.close();
 
-        assertThat(response.toString(), is("{  \"status\": \"OK\"}"));
+        assertThat(response.toString(), is("pong"));
     }
 }

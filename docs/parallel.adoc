@@ -23,15 +23,15 @@ Let's see an example:
 ----
 <property name="dockerContainers">
     tomcat*:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [8080/tcp]
       links:
         - ping*
     ping*:
-      image: jonmorehouse/ping-pong
+      image: tsongpon/pingpong
       exposedPorts: [8089/tcp]
     pong*:
-      image: jonmorehouse/ping-pong
+      image: tsongpon/pingpong
       exposedPorts: [8089/tcp]
       depends_on:
         - "ping*"
@@ -55,16 +55,16 @@ So for example the result file could look like:
 ----
 <property name="dockerContainers">
     tomcat_123456:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [54678 -> 8080/tcp]
       env: [ping_HOSTNAME=ping_123456]
       links:
         - ping_123456
     ping_123456:
-      image: jonmorehouse/ping-pong
+      image: tsongpon/pingpong
       exposedPorts: [8089/tcp]
     pong_123456:
-      image: jonmorehouse/ping-pong
+      image: tsongpon/pingpong
       exposedPorts: [8089/tcp]
       depends_on:
         - "ping_123456"
@@ -85,11 +85,11 @@ Again, adding the special character `*` to the end of the network name will caus
       testnetwork*:
         driver: bridge
     tomcat*:
-      image: tutum/tomcat:8.0
+      image: tomcat:10.1.30
       portBindings: [8080/tcp]
       networkMode: testnetwork*
     ping*:
-      image: jonmorehouse/ping-pong
+      image: tsongpon/pingpong
       exposedPorts: [8089/tcp]
       networks:
         - testnetwork*
