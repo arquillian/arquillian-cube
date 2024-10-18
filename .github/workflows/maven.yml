@@ -65,7 +65,7 @@ jobs:
         if: ${{ matrix.target  == 'kubernetes' }}
         run: |
           ./mvnw verify -Dfailsafe.groups=org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes -Dcontainerless.skip.tests=true
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: surefire-reports-jdk-${{ matrix.java }}
