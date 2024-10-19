@@ -13,7 +13,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <properties>
-    <version.graphene>2.1.0.Final</version.graphene>
+    <version.graphene>2.5.4</version.graphene>
     <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
     <version.selenium>2.53.1</version.selenium>
     <version.slf4j>2.0.16</version.slf4j>
