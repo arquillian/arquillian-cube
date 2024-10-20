@@ -43,7 +43,7 @@ jobs:
           kubectl port-forward --namespace kube-system service/registry 5000:80 &
       - name: Checkout arquillian-cube
         uses: actions/checkout@v4
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
