@@ -40,7 +40,7 @@ public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
 
             HttpRequest versionRequest =  httpClient.newHttpRequestBuilder()
                 .url(new URL(URLUtils.join(client.getMasterUrl().toString(), "version").toString()))
-                .method("GET", "*/*", null)
+                .method("GET", "application/json", null)
                 .build();
 
             HttpResponse<String> response = httpClient.sendAsync(versionRequest, String.class).get();
