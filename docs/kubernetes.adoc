@@ -20,7 +20,7 @@ The main modules of this extension are the following:
 
 - Kubernetes
 - Openshift
-- Fabric8 Microservices Platform (Fabric8 label and annotation support)
+- Fabric8 Kubernetes Client integration
 
 === Features
 - Hybrid *(in or out of Kubernetes/Openshift)*
@@ -32,9 +32,8 @@ The main modules of this extension are the following:
     ** Pods
     ** Replication Controllers
     ** Services
-- Integration with Fabric8 Modules:
-    ** link:https://fabric8.io/guide/mavenPlugin.html[Fabric8 Maven Plugin]
-    ** link:https://fabric8.io/guide/fabric8DevOps.html[Microservices Platform]
+- Integration with link:https://eclipse.dev/jkube/docs/kubernetes-maven-plugin/[JKube Kubernetes Maven Plugin]
+- Integration with link:https://eclipse.dev/jkube/docs/openshift-maven-plugin/[JKube OpenShift Maven Plugin]
 - "Bring your own client" support
 
 === Pre-requisites
@@ -856,18 +855,6 @@ Deploying a Wordpress and My SQL application to OpenShift from a Template file a
 Cube Extension for OpenShift and  Fabric8 OpenShift Client.
 
 Source: https://github.com/arquillian-testing-microservices/openshift-deployment-testing[arquillian-testing-microservices/openshift-deployment-testing]
-
-==== Example 3
-
-Building and deploying a sample SpringBoot GuestBook application with zero deployment configuration using
-https://maven.fabric8.io/[Fabric8 Maven Plugin] and
-https://github.com/arquillian/arquillian-cube[Arquillian Cube Extension].
-
-Fabric8 Maven Plugin aids in building Docker images and creating Kubernetes and OpenShift resource
-descriptors for the application that allows for a quick ramp-up with some opinionated defaults and Arquillian
-Cube Extension deploys the application from the generated resource descriptors and then executes deployment tests.
-
-Source: https://github.com/arquillian-testing-microservices/zero-config-deployment-test[arquillian-testing-microservices/zero-config-deployment-test]
 
 === Dealing with version conflicts
 Arquillian Cube Kubernetes and Openshift modules, heavily rely on the Fabric8 Kubernetes/Openshift client.

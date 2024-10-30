@@ -11,7 +11,7 @@
 
   <name>Arquillian Cube Fabric8 Maven Plugin Integration Functional Test</name>
 
-  <artifactId>arquillian-cube-openshift-fmp-ftest</artifactId>
+  <artifactId>arquillian-cube-openshift-jkubemp-ftest</artifactId>
 
   <properties>
     <version.spring.boot>2.1.4.RELEASE</version.spring.boot>
