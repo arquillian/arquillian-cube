@@ -75,9 +75,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Test
     public void shouldFireLifecycleEventsDuringCreateAfterDestroyed() {
         // given calling entire lifecycle to destroy cube
-        cube.create();
-        cube.start();
-        cube.stop();
+        createStartStopCube();
         cube.destroy();
 
         // when
@@ -98,7 +96,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
 
     @Test
     public void shouldFireLifecycleEventsDuringStop() {
-        cube.stop();
+        createStartStopCube();
         assertEventFired(BeforeStop.class, 1);
         assertEventFired(AfterStop.class, 1);
     }
@@ -107,14 +105,14 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     public void shouldFireLifecycleEventsDuringStopWhenContainerNotFound() {
         doThrow(new NotFoundException("container not found"))
             .when(executor).stopContainer(ID);
-        cube.stop();
+        createStartStopCube();
         assertEventFired(BeforeStop.class, 1);
         assertEventFired(AfterStop.class, 1);
     }
 
     @Test
     public void shouldFireLifecycleEventsDuringDestroy() {
-        cube.stop(); // require a stopped Cube to destroy it.
+        createStartStopCube(); // require a stopped Cube to destroy it.
         cube.destroy();
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
@@ -124,7 +122,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     public void shouldFireLifecycleEventsDuringDestroyWhenContainerNotFound() {
         doThrow(new NotFoundException("container not found"))
             .when(executor).removeContainer(ID, false);
-        cube.stop();
+        createStartStopCube();
         cube.destroy();
         assertEventFired(BeforeDestroy.class, 1);
         assertEventFired(AfterDestroy.class, 1);
@@ -133,7 +131,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Test
     public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyDestroyedCube() {
         // given
-        cube.stop();
+        createStartStopCube();
         cube.destroy();
 
         // when
@@ -147,7 +145,7 @@ public class DockerCubeTest extends AbstractManagerTestBase {
     @Test
     public void shouldNotFireLifecycleEventsIfTryingToStopAlreadyStoppedCube() {
         // given
-        cube.stop();
+        createStartStopCube();
 
         // when
         cube.stop();
@@ -163,5 +161,11 @@ public class DockerCubeTest extends AbstractManagerTestBase {
         cube.stop();
         assertEventFired(BeforeStop.class, 0);
         assertEventFired(AfterStop.class, 0);
+    }
+
+    private void createStartStopCube() {
+        cube.create();
+        cube.start();
+        cube.stop();
     }
 }
