@@ -406,12 +406,12 @@ public class F8OpenShiftAdapter extends AbstractOpenShiftAdapter {
         try (InputStream stream = new URL(templateURL).openStream()) {
             TemplateResource templateHandle =
                 client.templates().inNamespace(configuration.getNamespace()).load(stream);
-            Template template = templateHandle.get();
+            Template template = templateHandle.item();
             if (template.getLabels() == null) {
                 template.setLabels(new HashMap<>());
             }
             template.getLabels().putAll(labels);
-            return templateHandle.process(values.toArray(new ParameterValue[values.size()]));
+            return templateHandle.processLocally(values.toArray(new ParameterValue[values.size()]));
         }
     }
 
