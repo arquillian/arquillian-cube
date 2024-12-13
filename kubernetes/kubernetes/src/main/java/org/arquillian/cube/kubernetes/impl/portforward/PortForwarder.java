@@ -110,6 +110,8 @@ public final class PortForwarder implements Closeable {
                 .put(new HttpString("X-Stream-Protocol-Version"), "portforward.k8s.io");
             if (config.getOauthToken() != null) {
                 request.getRequestHeaders().put(Headers.AUTHORIZATION, "Bearer " + config.getOauthToken());
+            } else if (config.getAutoOAuthToken() != null) {
+                request.getRequestHeaders().put(Headers.AUTHORIZATION, "Bearer " + config.getAutoOAuthToken());
             }
             final CountDownLatch latch = new CountDownLatch(1);
             final IOException[] holder = new IOException[1];
