@@ -11,39 +11,41 @@ import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
 
-public class KubernetesMavenPluginResourceGeneratorBuilder {
+public class JKubeMavenPluginResourceGeneratorBuilder {
 
-    private static final Logger logger = Logger.getLogger(KubernetesMavenPluginResourceGeneratorBuilder.class.getName());
+    private static final Logger logger = Logger.getLogger(JKubeMavenPluginResourceGeneratorBuilder.class.getName());
 
     protected Path pom;
-    private String[] goals = new String[] {"package", "k8s:build", "k8s:resource", "k8s:deploy"};
+    private String[] k8sGoals = new String[] {"package", "k8s:build", "k8s:resource", "k8s:deploy"};
+    private String[] openshiftGoals = new String[] {"package", "oc:build", "oc:resource"};
     protected String namespace;
     protected boolean mvnDebugOutput;
     protected boolean quietMode;
     protected String mavenOpts;
     protected String[] profiles = new String[0];
     protected Map<String, String> properties = new HashMap<>();
+    protected boolean forOpenshift = false;
 
-    public KubernetesMavenPluginResourceGeneratorBuilder namespace(String namespace) {
+    public JKubeMavenPluginResourceGeneratorBuilder namespace(String namespace) {
         this.namespace = namespace;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder goals(String[] goals) {
-        this.goals = goals;
+    public JKubeMavenPluginResourceGeneratorBuilder goals(String[] goals) {
+        this.k8sGoals = goals;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder pluginConfigurationIn(Path pom) {
+    public JKubeMavenPluginResourceGeneratorBuilder pluginConfigurationIn(Path pom) {
         this.pom = pom;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder quiet() {
+    public JKubeMavenPluginResourceGeneratorBuilder quiet() {
         return quiet(true);
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder quiet(boolean quiet) {
+    public JKubeMavenPluginResourceGeneratorBuilder quiet(boolean quiet) {
         this.quietMode = quiet;
         return this;
     }
@@ -51,36 +53,36 @@ public class KubernetesMavenPluginResourceGeneratorBuilder {
     /**
      * Enables mvn debug output (-X) flag. Implies build logging output.
      */
-    private KubernetesMavenPluginResourceGeneratorBuilder withDebugOutput(boolean debug) {
+    private JKubeMavenPluginResourceGeneratorBuilder withDebugOutput(boolean debug) {
         this.mvnDebugOutput = debug;
         quiet(!debug);
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder debug(boolean debug) {
+    public JKubeMavenPluginResourceGeneratorBuilder debug(boolean debug) {
         this.mvnDebugOutput = debug;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
+    public JKubeMavenPluginResourceGeneratorBuilder addMavenOpts(String options) {
         this.mavenOpts = options;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
+    public JKubeMavenPluginResourceGeneratorBuilder profiles(List<String> profiles) {
         return profiles(profiles.toArray(new String[profiles.size()]));
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder profiles(String... profiles) {
+    public JKubeMavenPluginResourceGeneratorBuilder profiles(String... profiles) {
         this.profiles = profiles;
         return this;
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder withProperties(List<String> propertiesPairs) {
+    public JKubeMavenPluginResourceGeneratorBuilder withProperties(List<String> propertiesPairs) {
         return withProperties(propertiesPairs.toArray(new String[propertiesPairs.size()]));
     }
 
-    public KubernetesMavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
+    public JKubeMavenPluginResourceGeneratorBuilder withProperties(String... propertiesPairs) {
         if (propertiesPairs.length % 2 != 0) {
             throw new IllegalArgumentException(
                 String.format("Expecting even amount of variable name - value pairs to be passed. Got %s entries. %s", propertiesPairs.length, Arrays.toString(propertiesPairs)));
@@ -93,6 +95,12 @@ public class KubernetesMavenPluginResourceGeneratorBuilder {
         return this;
     }
 
+    public JKubeMavenPluginResourceGeneratorBuilder forOpenshift(boolean forOpenshift) {
+        this.forOpenshift = forOpenshift;
+        return this;
+    }
+
+
     public void build() {
         final ConfigurationDistributionStage distributionStage = EmbeddedMaven
             .forProject(pom.toFile())
@@ -100,7 +108,7 @@ public class KubernetesMavenPluginResourceGeneratorBuilder {
             .useDefaultDistribution()
             .setDebug(mvnDebugOutput)
             .setDebugLoggerLevel()
-            .setGoals(goals)
+            .setGoals(forOpenshift ? openshiftGoals : k8sGoals)
             .addProperty("jkube.namespace", namespace);
         this.build(distributionStage);
     }

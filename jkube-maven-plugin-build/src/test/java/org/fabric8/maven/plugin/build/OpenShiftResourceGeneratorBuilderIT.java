@@ -11,7 +11,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
-import org.eclipse.jkube.maven.plugin.build.OpenshiftMavenPluginResourceGeneratorBuilder;
+import org.eclipse.jkube.maven.plugin.build.JKubeMavenPluginResourceGeneratorBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,13 +47,14 @@ public class OpenShiftResourceGeneratorBuilderIT {
         copyDirectory(Paths.get("src/test/resources/spring-boot"), Paths.get(rootPath));
 
         // when
-        new OpenshiftMavenPluginResourceGeneratorBuilder()
+        new JKubeMavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
             .quiet()
             .profiles("openshift")
             .quiet(false)
             .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
+            .forOpenshift(true)
             .build();
 
         // then

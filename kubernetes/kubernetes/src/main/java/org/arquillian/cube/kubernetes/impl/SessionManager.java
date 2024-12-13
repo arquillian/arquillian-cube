@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -35,8 +36,7 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
-import org.codehaus.plexus.util.CollectionUtils;
-import org.eclipse.jkube.maven.plugin.build.KubernetesMavenPluginResourceGeneratorBuilder;
+import org.eclipse.jkube.maven.plugin.build.JKubeMavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
 import static org.arquillian.cube.impl.util.SystemEnvironmentVariables.propertyToEnvironmentVariableName;
@@ -203,7 +203,7 @@ public class SessionManager implements SessionCreatedListener {
         createNamespace();
 
         if (configuration.isFmpBuildEnabled() || (configuration.isFmpBuildForMavenDisable() && !isRunningFromMaven())) {
-            new KubernetesMavenPluginResourceGeneratorBuilder()
+            new JKubeMavenPluginResourceGeneratorBuilder()
                 .namespace(session.getNamespace())
                 .debug(configuration.isFmpDebugOutput())
                 .quiet(!configuration.isFmpLogsEnabled())
@@ -211,6 +211,7 @@ public class SessionManager implements SessionCreatedListener {
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
                 .profiles(configuration.getFmpProfiles())
                 .withProperties(configuration.getFmpSystemProperties())
+                .forOpenshift(client.isAdaptable(OpenShiftClient.class))
                 .build();
         }
 

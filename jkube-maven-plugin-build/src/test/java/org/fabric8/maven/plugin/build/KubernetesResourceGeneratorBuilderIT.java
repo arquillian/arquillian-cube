@@ -3,10 +3,8 @@ package org.fabric8.maven.plugin.build;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
-import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
-import org.eclipse.jkube.maven.plugin.build.KubernetesMavenPluginResourceGeneratorBuilder;
-import org.eclipse.jkube.maven.plugin.build.OpenshiftMavenPluginResourceGeneratorBuilder;
+import org.eclipse.jkube.maven.plugin.build.JKubeMavenPluginResourceGeneratorBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +48,7 @@ public class KubernetesResourceGeneratorBuilderIT {
         copyDirectory(Paths.get("src/test/resources/spring-boot"), Paths.get(rootPath));
 
         // when
-        new KubernetesMavenPluginResourceGeneratorBuilder()
+        new JKubeMavenPluginResourceGeneratorBuilder()
             .namespace(namespace)
             .quiet()
             .profiles("kubernetes")
