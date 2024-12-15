@@ -9,6 +9,7 @@ import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -45,29 +46,16 @@ public class HelloWorldIT {
     }
 
     @Test
-    public void should_be_able_deploy_resources_using_oc_3_11() {
-        // given
-        assumeThat(ocVersion).contains("v3.11");
+    public void should_be_able_deploy_resources_using_oc() {
+        // TODO - Uncomment. Requires a known oc version. Use cases must be evaluated
+        //assumeThat(ocVersion).contains("4.16");
         String commandToExecute = "oc create -f " + getResource("openshift.json");
 
         // when
         final List<String> resources = commandExecutor.execCommand(commandToExecute);
 
         // then
-        assertThat(resources).contains("service/hello-world created", "deployment.extensions/hello-world created");
-    }
-
-    @Test
-    public void should_be_able_deploy_resources_using_oc_3_9() {
-        // given
-        assumeThat(ocVersion).contains("v3.9");
-        String commandToExecute = "oc create -f " + getResource("openshift.json");
-
-        // when
-        final List<String> resources = commandExecutor.execCommand(commandToExecute);
-
-        // then
-        assertThat(resources).contains("service \"hello-world\" created", "deployment \"hello-world\" created");
+        assertThat(resources).contains("service/hello-world created", "deployment.apps/hello-world created");
     }
 
     @AfterClass
