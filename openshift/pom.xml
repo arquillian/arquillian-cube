@@ -20,8 +20,8 @@
 
   <properties>
     <version.graphene>2.1.0.Final</version.graphene>
-    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-    <version.selenium>2.53.1</version.selenium>
+    <version.arquillian.drone>2.5.4</version.arquillian.drone>
+    <version.selenium>3.13.0</version.selenium>
   </properties>
 
   <modules>
