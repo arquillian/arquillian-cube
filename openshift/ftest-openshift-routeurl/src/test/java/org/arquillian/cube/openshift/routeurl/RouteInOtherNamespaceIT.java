@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 @RunWith(ArquillianConditionalRunner.class)
 public class RouteInOtherNamespaceIT {
 
-    @RouteURL(value = "docker-registry", namespace = "default")
+    @RouteURL(value = "prometheus-k8s", namespace = "openshift-monitoring")
     private URL routeURL;
 
     @Test
@@ -26,7 +26,7 @@ public class RouteInOtherNamespaceIT {
 
     @Test
     public void injectedIntoMethodShouldNotBeNull(
-        @RouteURL(value = "docker-registry", namespace = "default") URL routeURL) {
+        @RouteURL(value = "prometheus-k8s", namespace = "openshift-monitoring") URL routeURL) {
         assertThat(routeURL).isNotNull();
     }
 
