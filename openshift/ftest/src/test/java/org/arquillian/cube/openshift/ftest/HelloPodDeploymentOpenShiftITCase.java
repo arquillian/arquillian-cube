@@ -1,6 +1,8 @@
 package org.arquillian.cube.openshift.ftest;
 
 import java.net.URL;
+
+import org.arquillian.cube.olm.impl.requirement.RequiresOlm;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.remote.requirement.RequiresRemoteResource;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -14,8 +16,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-@Category({RequiresOpenshift.class, RequiresRemoteResource.class})
+@Category({RequiresOpenshift.class, RequiresOlm.class, RequiresRemoteResource.class})
 @RequiresOpenshift
+@RequiresOlm
 @RunWith(ArquillianConditionalRunner.class)
 public class HelloPodDeploymentOpenShiftITCase {
 
