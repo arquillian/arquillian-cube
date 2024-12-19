@@ -1,5 +1,6 @@
 package org.arquillian.cube.openshift.impl;
 
+import java.util.logging.Logger;
 import org.arquillian.cube.impl.client.enricher.StandaloneCubeUrlResourceProvider;
 import org.arquillian.cube.kubernetes.api.ConfigurationFactory;
 import org.arquillian.cube.kubernetes.api.FeedbackProvider;
@@ -41,9 +42,11 @@ import org.jboss.arquillian.test.spi.TestEnricher;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 public class CubeOpenshiftExtension implements LoadableExtension {
+    protected final Logger log = Logger.getLogger(getClass().getName());
 
     @Override
     public void register(ExtensionBuilder builder) {
+        log.info("Registering CubeOpenshiftExtension...");
         builder.observer(OpenShiftClientCreator.class)
             .observer(CubeOpenShiftRegistrar.class)
             .observer(OpenShiftAssistantCreator.class)

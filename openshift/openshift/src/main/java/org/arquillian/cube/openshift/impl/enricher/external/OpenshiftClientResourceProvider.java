@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.enricher.external;
 
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import java.util.logging.Logger;
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -16,14 +17,17 @@ import io.fabric8.openshift.client.OpenShiftClient;
  * A {@link ResourceProvider} for {@link OpenShiftClient}.
  */
 public class OpenshiftClientResourceProvider extends AbstractKubernetesResourceProvider {
+    protected final Logger log = Logger.getLogger(getClass().getName());
 
     @Override
     public boolean canProvide(Class<?> type) {
+        log.info("Executing OpenShiftClient::canProvide...");
         return internalToUserType(OpenShiftClient.class.getName()).equals(type.getName());
     }
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
+        log.info("OpenShiftClient is looking up for resources...");
         KubernetesClient client = getClient();
 
         if (client == null) {
@@ -36,6 +40,7 @@ public class OpenshiftClientResourceProvider extends AbstractKubernetesResourceP
     }
 
     private Object createUserClient(OpenShiftClient client) {
+        log.info("Creating OpenShiftClient...");
         Config config = client.getConfiguration();
 
         Object userConfig = toUsersResource(config);
