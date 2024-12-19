@@ -248,7 +248,6 @@
         <groupId>org.eclipse.jgit</groupId>
         <artifactId>org.eclipse.jgit</artifactId>
         <version>${version.jgit}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>io.github.lukehutch</groupId>
