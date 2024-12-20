@@ -3,11 +3,14 @@ package org.arquillian.cube.openshift.ftest;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.arquillian.cube.kubernetes.impl.utils.CommandExecutor;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,7 +58,12 @@ public class HelloWorldIT {
         final List<String> resources = commandExecutor.execCommand(commandToExecute);
 
         // then
-        assertThat(resources).contains("service/hello-world created", "deployment.apps/hello-world created");
+        Stream<String> ocOutputs = Stream.of("service/hello-world created", "deployment.apps/hello-world created");
+        Stream<String> oc3Outputs = Stream.of("service \"hello-world\" created", "deployment.apps \"hello-world\" created");
+        if (!resources.containsAll(ocOutputs.collect(Collectors.toList())) && !resources.containsAll(oc3Outputs.collect(Collectors.toList()))) {
+            Assert.fail(String.format("Unexpected output from oc command: %s = [%s]",
+                commandToExecute, String.join(", ", resources)));
+        }
     }
 
     @AfterClass
