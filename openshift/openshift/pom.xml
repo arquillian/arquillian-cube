@@ -15,7 +15,7 @@
     <version.jgit>6.7.0.202309050840-r</version.jgit>
     <version.alpn>8.1.13.v20181017</version.alpn>
 
-    <version.graphene>2.1.0.Final</version.graphene>
+    <version.graphene>2.5.4</version.graphene>
   </properties>
   <dependencyManagement>
   <dependencies>
