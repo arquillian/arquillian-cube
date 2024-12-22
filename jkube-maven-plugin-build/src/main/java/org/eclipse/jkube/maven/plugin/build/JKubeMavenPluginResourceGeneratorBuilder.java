@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import com.google.common.base.Strings;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
@@ -15,16 +17,18 @@ public class JKubeMavenPluginResourceGeneratorBuilder {
 
     private static final Logger logger = Logger.getLogger(JKubeMavenPluginResourceGeneratorBuilder.class.getName());
 
-    protected Path pom;
+    private Path pom;
     private String[] k8sGoals = new String[] {"package", "k8s:build", "k8s:resource", "k8s:deploy"};
     private String[] openshiftGoals = new String[] {"package", "oc:build", "oc:resource"};
-    protected String namespace;
-    protected boolean mvnDebugOutput;
-    protected boolean quietMode;
-    protected String mavenOpts;
-    protected String[] profiles = new String[0];
-    protected Map<String, String> properties = new HashMap<>();
-    protected boolean forOpenshift = false;
+    private String namespace;
+    private boolean mvnDebugOutput;
+    private boolean quietMode;
+    private String mavenOpts;
+    private String[] profiles = new String[0];
+    private Map<String, String> properties = new HashMap<>();
+    private boolean forOpenshift = false;
+    private boolean useCustomMaven = false;
+
 
     public JKubeMavenPluginResourceGeneratorBuilder namespace(String namespace) {
         this.namespace = namespace;
@@ -100,16 +104,25 @@ public class JKubeMavenPluginResourceGeneratorBuilder {
         return this;
     }
 
+    public JKubeMavenPluginResourceGeneratorBuilder withMaven(final boolean useCustomMaven) {
+        this.useCustomMaven = useCustomMaven;
+        return this;
+    }
+
 
     public void build() {
         final ConfigurationDistributionStage distributionStage = EmbeddedMaven
             .forProject(pom.toFile())
             .setQuiet(quietMode)
-            .useDefaultDistribution()
             .setDebug(mvnDebugOutput)
             .setDebugLoggerLevel()
             .setGoals(forOpenshift ? openshiftGoals : k8sGoals)
             .addProperty("jkube.namespace", namespace);
+        if (useCustomMaven) {
+            distributionStage.useLocalInstallation();
+        } else {
+            distributionStage.useDefaultDistribution();
+        }
         this.build(distributionStage);
     }
 
