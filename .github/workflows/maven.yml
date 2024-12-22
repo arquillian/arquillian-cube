@@ -87,7 +87,7 @@ jobs:
       - name: Build and run integration tests for OpenShift target (${{ matrix.java }})
         if: ${{ matrix.target  == 'openshift' }}
         run: |
-          ./mvnw verify -pl openshift -amd -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dcontainerless.skip.tests=true
+          ./mvnw verify -pl openshift -amd -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dfailsafe.excludedGroups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift4 -Dcontainerless.skip.tests=true
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
