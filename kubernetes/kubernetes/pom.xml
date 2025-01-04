@@ -36,7 +36,7 @@
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>fabric8-maven-plugin-build</artifactId>
+      <artifactId>jkube-maven-plugin-build</artifactId>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>

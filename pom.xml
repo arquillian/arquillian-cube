@@ -35,7 +35,7 @@
     <module>arquillian-cube-docker-starter</module>
     <module>arquillian-cube-kubernetes-starter</module>
     <module>arquillian-cube-openshift-starter</module>
-    <module>fabric8-maven-plugin-build</module>
+    <module>jkube-maven-plugin-build</module>
   </modules>
 
   <developers>
@@ -169,7 +169,7 @@
       </dependency>
       <dependency>
         <groupId>org.arquillian.cube</groupId>
-        <artifactId>fabric8-maven-plugin-build</artifactId>
+        <artifactId>jkube-maven-plugin-build</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -248,7 +248,6 @@
         <groupId>org.eclipse.jgit</groupId>
         <artifactId>org.eclipse.jgit</artifactId>
         <version>${version.jgit}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>io.github.lukehutch</groupId>

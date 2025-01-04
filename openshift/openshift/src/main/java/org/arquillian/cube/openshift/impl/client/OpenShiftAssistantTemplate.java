@@ -59,7 +59,7 @@ public class OpenShiftAssistantTemplate {
                 .map(entry -> new ParameterValue(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList()));
 
-            return templateHandle.process(list.toArray(new ParameterValue[parameterValues.size()]));
+            return templateHandle.processLocally(list.toArray(new ParameterValue[parameterValues.size()]));
         }
     }
 

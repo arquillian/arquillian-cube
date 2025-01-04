@@ -1,1 +1,3 @@
 org.arquillian.cube.openshift.impl.requirement.OpenshiftRequirement
+org.arquillian.cube.openshift.impl.requirement.Openshift4Requirement
+org.arquillian.cube.openshift.impl.requirement.OpenshiftOlmRequirement

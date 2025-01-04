@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -156,16 +157,17 @@ public class OpenShiftAssistant extends KubernetesAssistant {
 
     /**
      * Awaits at most 5 minutes until all pods of the application are running.
-     * 
+     *
      * @param applicationName name of the application to wait for pods readiness
      */
     @Override
     public void awaitApplicationReadinessOrFail(final String applicationName) {
         await().atMost(5, TimeUnit.MINUTES).until(() -> {
-                return getClient()
-                    .deploymentConfigs()
-                    .inNamespace(this.namespace)
-                    .withName(applicationName).isReady();
+            DeploymentConfig deploymentConfig = getClient()
+                .deploymentConfigs()
+                .inNamespace(this.namespace)
+                .withName(applicationName).get();
+            return Objects.equals(deploymentConfig.getSpec().getReplicas(), deploymentConfig.getStatus().getReadyReplicas());
             }
         );
     }

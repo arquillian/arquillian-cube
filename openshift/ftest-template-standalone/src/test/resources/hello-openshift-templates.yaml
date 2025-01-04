@@ -37,7 +37,7 @@ objects:
     name: hello-openshift-templates
   spec:
     containers:
-    - image: openshift/hello-openshift
+    - image: quay.io/openshift/origin-hello-openshift:latest
       imagePullPolicy: IfNotPresent
       name: hello-openshift-templates
       ports:

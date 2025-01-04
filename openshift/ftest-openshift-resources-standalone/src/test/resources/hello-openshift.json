@@ -38,7 +38,7 @@
         },
         "spec" : {
           "containers" : [ {
-            "image" : "openshift/hello-openshift:v3.6.0",
+            "image" : "quay.io/openshift/origin-hello-openshift:latest",
             "imagePullPolicy": "IfNotPresent",
             "name" : "hello-world-container",
             "ports" : [ {

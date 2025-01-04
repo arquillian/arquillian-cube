@@ -1,5 +1,6 @@
 package org.arquillian.cube.kubernetes.impl.enricher.internal;
 
+import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -15,7 +16,7 @@ public class ClientResourceProvider extends AbstractKubernetesResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return KubernetesClient.class.isAssignableFrom(type);
+        return KubernetesClient.class.isAssignableFrom(type) && !OpenShiftClient.class.isAssignableFrom(type);
     }
 
     @Override

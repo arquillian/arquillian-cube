@@ -29,7 +29,7 @@ public class CubeOpenShiftRegistrar {
             return;
         }
 
-        for (HasMetadata item : client.getClientExt().load(getDefinitionStream(configuration)).get()) {
+        for (HasMetadata item : client.getClientExt().load(getDefinitionStream(configuration)).items()) {
             if (item instanceof Pod) {
                 registry.addCube(injector.inject(new BuildablePodCube((Pod) item, client, configuration)));
             } else if (item instanceof Service) {

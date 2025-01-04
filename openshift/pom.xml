@@ -19,9 +19,9 @@
   <name>Arquillian Cube OpenShift Parent</name>
 
   <properties>
-    <version.graphene>2.1.0.Final</version.graphene>
-    <version.arquillian.drone>2.0.0.Final</version.arquillian.drone>
-    <version.selenium>2.53.1</version.selenium>
+    <version.graphene>2.5.4</version.graphene>
+    <version.arquillian.drone>2.5.4</version.arquillian.drone>
+    <version.selenium>3.13.0</version.selenium>
   </properties>
 
   <modules>
@@ -40,7 +40,7 @@
     <module>ftest-openshift-restassured</module>
     <module>ftest-istio-openshift</module>
     <module>openshift-restassured</module>
-    <module>ftest-openshift-fabric8-maven-plugin</module>
+    <module>ftest-openshift-jkube-maven-plugin</module>
     <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 
