@@ -10,9 +10,10 @@
 :icons: font
 :toc: left
 
-WARNING: 1.0.0.Alpha7 breaks incompatibility with previous versions in some cases. The major difference is that instead of using the _boot2docker_ keyword to refer to the auto resolved boot2docker ip in the _serverUri_ parameter, you should now used _dockerHost_.
-
-IMPORTANT: 1.0.0.Alpha13 changes default format from Cube to Docker Compose. In case you are using Cube format you need to update arquillian.xml with `<property name="definitionFormat">CUBE</property>`
+WARNING: 2.0.0.Alpha1 breaks compatibility with previous versions as _boot2docker_ and _DockerMachine_ support has
+been removed. This means that support for Windows and macOS is removed from 2.x.
+We're in the process of evaluating whether to add such support to the 2.x stream again, or to adopt
+different solutions. In such a case we'd probably release a 1.x version, which would still support such components.
 
 ifndef::generated-doc[]
 To read complete documentation visit http://arquillian.org/arquillian-cube/
@@ -56,10 +57,3 @@ include::{asciidoctor-source}/kubernetes.adoc[]
 include::{asciidoctor-source}/fabric8.adoc[]
 
 endif::generated-doc[]
-
-== Future work
-
-Some configuration parameters will be modified to fix any possible requirements.
-Although we are going to try to not break compatibility with previous versions, we cannot guarantee until _beta_ stage.
-
-Feel free to use it and any missing feature, bug or anything you see , feel free to add a new issue.

@@ -9,8 +9,8 @@ An example of how to make a GET request and validate the JSON or XML response mi
 The problem with Rest Assured is that by default it assumes that host is _localhost_ and port _8080_.
 This might be perfect when not using Docker but when using docker this assumptions might not be the most typical.
 
-For example you may use another bind port rather than _8080_, you can expose 8080 port but bind to another port.
-Also you might run docker host in different ip rather than _localhost_, maybe because you are using docker machine or maybe because you are using an external docker host.
+For example, you may use another bind port rather than _8080_, you can expose 8080 port but bind to another port.
+Also, you might run docker host in different ip rather than _localhost_, maybe because you are using an external docker host.
 
 So in these cases you need to set in every request:
 
@@ -40,7 +40,8 @@ Previous approach works but it has some problems:
 * Requires some development interference of the developer, if it is running in docker machine needs to set one _ip_ which might change in the future, or if running on native linux must be changed to _localhost_.
 * Any change on Rest-Assured configuration properties would make all tests fails.
 
-To fix these problems, you can use Arquillian Cube Docker RestAssured integration which creates a `RequestSpecBuilder` with correct values set.
+To fix these problems, you can use Arquillian Cube Docker RestAssured integration which creates a `RequestSpecBuilder`
+with correct values set.
 
 === Configuration
 
@@ -70,19 +71,24 @@ By default, if your scenario is not complex you don't need to configure anything
 
 |baseUri
 |<schema>://<dockerhost>
-|It is the base uri used in RestAssured. You can set an specific value or not set and let extension to configure it by default using auto-resolution system.
+|It is the base uri used in RestAssured. You can set a specific value or not set and let extension configure it by
+default using auto-resolution system.
 
 |schema
 |http
 |Schema used in case of auto-resolution of baseUri
 
 |port
-|If from all running containers there is only one binding port (notice that exposed ports are not bound if not specified), then this is the value used. If there are more than one binding port then an exception is thrown.
-|Port to be used for communicating with docker host. By default this port must be the exposed port used in port binding. The extension will resolve for given exposed port which is the binding port. If it is not found then exposed port will be assumed as binding port too. For example using -p 8080:80 you need to set this property to 80 and extension will resolve to 8080.
+|If from all running containers there is only one binding port (notice that exposed ports are not bound if not specified),
+then this is the value used. If there are more than one binding port then an exception is thrown.
+|Port to be used for communicating with docker host. By default, this port must be the exposed port used in port binding.
+The extension will resolve for given exposed port which is the binding port. If it is not found then exposed port will
+be assumed as binding port too. For example using -p 8080:80 you need to set this property to 80 and extension will resolve to 8080.
 
 |exclusionContainers
 |
-|If you want to use auto-resolution of the port attribute you might want to exclude that extension searches for binding ports in some containers (for example monitoring containers). This is a CSV property to set container names of al of them.
+|If you want to use auto-resolution of the port attribute you might want to exclude that extension searches for binding
+ports in some containers (for example monitoring containers). This is a CSV property to set container names of al of them.
 
 |basePath
 |
@@ -90,7 +96,8 @@ By default, if your scenario is not complex you don't need to configure anything
 
 |useRelaxedHttpsValidation
 |
-|Configures RestAssured to use relaxed https validation. If attribute is present but with no value then it is applied to all protocols. If you put an string, only this protocol will be applied the relaxed rules.
+|Configures RestAssured to use relaxed https validation. If attribute is present but with no value then it is applied to
+all protocols. If you put a string, only this protocol will be applied the relaxed rules.
 
 |authenticationScheme
 |
@@ -127,9 +134,10 @@ RequestSpecBuilder requestSpecBuilder;
 
 ==== Example
 
-After setting the dependency and configuring the extension if required you can write your Arquillian Cube test as usually and use RestAssured without configuring it:
+After setting the dependency and configuring the extension, if required you can write your Arquillian Cube test as
+usually and use RestAssured without configuring it.
 
-With next docker compose file which starts a ping pong server listening at root context:
+For example, with the following docker compose file which starts a `ping-pong` server listening at root context:
 
 [source, yml]
 .docker-compose.yml
@@ -137,10 +145,10 @@ With next docker compose file which starts a ping pong server listening at root 
 helloworld:
   image: tsongpon/pingpong
   ports:
-    - "5432:8080"
+    - "8080:8080"
 ----
 
-You only need to do:
+you only need to do:
 
 [source, java]
 .PingPongTest.java

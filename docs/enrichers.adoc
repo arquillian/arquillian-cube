@@ -113,8 +113,8 @@ URL will be `http://<docker_host>:<bind_port>/`
 If you are running your tests on your continuous integration/delivery server (for example on Jenkins or GitLab runners) and at the same time the server is running inside Docker. Then the docker containers started for Cube are run inside a Docker container.
 So you effectively face the Docker inside Docker problem - DockerHost is **not** the machine where your test is running.
 
-From Arquillian Cube perspective we cannot do a lot of things, more then adapting to this situation by changing the `serverUri`.
-Basically it ignores any `SERVER_URI`, `Boot2Docker` or `docker-machine` properties and sets the `serverUri` to `unix:///var/run/docker.sock`.
+From Arquillian Cube perspective we cannot do a lot of things, more than adapting to this situation by changing the `serverUri`.
+Basically it ignores any `SERVER_URI`, properties and sets the `serverUri` to `unix:///var/run/docker.sock`.
 
 You can avoid this behaviour by setting `dockerInsideDockerResolution` to false.
 
@@ -330,7 +330,7 @@ NOTE: Automapping only works in case you want to change the default server port 
 
 === DockerServerIp and Containers
 
-If you are using a remote docker server (not on _localhost_) or for example _boot2docker_ you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test.
+If you are using a remote docker server (not on _localhost_) you may want to set that ip to Arquillian remote adapter configuration so it can deploy the archive under test.
 In these cases you can hardcode this ip to Arquillian container adapter configuration or you can use the special tag +dockerServerIp+.
 At runtime these tag will be replaced by _Arquillian Cube_ to docker server ip configured in +serverUri+ parameter.
 This replacement only works in properties that contains the string +host+ or +address+ in property name.
@@ -357,28 +357,7 @@ So for example:
 
 The +host+ property will be replaced automatically to +192.168.0.2+.
 
-NOTE: This also works in case you set +serverUri+ using +boot2docker+ special word or by using the defaults. Read more about it <<boot2docker, Boot2Docker section>> and <<automatic-resolution, Automatic serverUri resolution section>>.
-
-In case of using _unix_ socket +dockerServerUri+ is replaced to _localhost_.
-
-Also _Arquillian Cube_ can help you in another way inferring +boot2docker+ ip.
-In case you are running in _MACOS_ or _Windows_ with +boot2docker+, you may not need to set host property at all nor using +dockerServerIp+.
-_Arquillian Cube_ will inspect any property in configuration class that contains the word _address_ or _host_ that it is not overriden in `arquillian.xml` and it will set the +boot2docker+ server automatically.
-
-So previous example could be modified to:
-
-[source.xml]
-.arquillian.xml
-----
-<container qualifier="tomcat_default">
-  configuration>
-    <property name="user">admin</property>
-    <property name="pass">mypass</property>
-  </configuration>
-</container>
-----
-
-And in case you are running on _Windows_ or _MacOS_, `host`property will be automatically set to the +boot2docker +_ip_.
+In case of using _unix_ socket +dockerServerUri+ is replaced by _localhost_.
 
 === System Properties Injection
 

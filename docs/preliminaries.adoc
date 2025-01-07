@@ -2,12 +2,14 @@
 
 *Arquillian Cube* relies on https://github.com/docker-java/docker-java[docker-java] API.
 
-To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it can be local or not), but probably it will be at local.
+To use *Arquillian Cube* you need a _Docker_ daemon running on a computer (it can be local or not), but probably it will
+be at local.
 
-By default the _Docker_ server uses UNIX sockets for communicating with the _Docker_ client. *Arquillian Cube* will attempt to detect the operating system it is running on and either set _docker-java_ to use UNIX socket on _Linux_ or to <<Boot2Docker>> on _Windows_/_Mac_ as the default URI.
+By default, the _Docker_ server uses UNIX sockets for communicating with the _Docker_ client.
+*Arquillian Cube* will attempt to set _docker-java_ to use UNIX socket on _Linux_.
 
-Further in case of Linux, if you want to use TCP/IP to connect to the Docker server, you'll need to make sure that your
-_Docker_ server is listening on TCP port. To allow _Docker_ server to use TCP set the _Docker daemon options_, the exact
+If you want to use TCP/IP to connect to the Docker server, you'll need to make sure that your
+_Docker_ server is listening on TCP port. To allow _Docker_ server to use TCP, set the _Docker daemon options_, the exact
 process for which varies by the way you launch the Docker daemon and/or the underlying OS:
 
 * systemd (Ubuntu, Debian, RHEL 7, CentOS 7, Fedora, Archlinux) — edit docker.service and change the ExecStart value
@@ -26,8 +28,8 @@ This will create the necessary directory structure under `/etc/systemd/system/do
  ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock
 
 +
-It was necessary to clear out ExecStart using `ExecStart=` before setting it to the override value. This is only
-required for some options and most options in the configuration file would not need to be cleared like this. Using
+In the above example, ExecStart is cleared out - using `ExecStart=` - before setting it to the override value. This is only
+required for some options, while most of them in the configuration file would not need to be cleared like this. Using
 systemctl edit also ensures that the override settings are loaded.
 
 * upstart (Ubuntu 14.04 and older versions) — set DOCKER_OPTS in `/etc/default/docker`

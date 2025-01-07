@@ -1,19 +1,21 @@
 == Parallel Execution
 
-Sometimes using any Mave/Gradle/Jenkins plugin you end up by executing tests in parallel.
-This means that same `docker-compose` file is executed for all tests.
-The problem is that probably _docker host_ is the same.
-So when you start the second test (in parallel) you will get a failure regarding that a container with same name is already started in that docker host.
+Sometimes using any Maven/Gradle/Jenkins plugin you end up by executing tests in parallel.
+This means that the same `docker-compose` file is executed for all tests.
+The problem is that probably _docker host_ is the same, too.
+So when you start the second test (in parallel) you will get a failure regarding that a container with same name is
+already started in that docker host.
 
-So arrived at this point you can do two things:
+In this situation you can do two things:
 
-* You can have one _docker host_ for each parallel test and override `serverUri` property at each case using system property (arq.extension.docker.serverUri).
+* You can have one _docker host_ for each parallel test and override `serverUri` property at each case, using system
+property (arq.extension.docker.serverUri).
 
 * You can reuse the same _docker host_ and use _star operator_.
 
 === Star Operator
 
-Star operator let's you indicate to Arquillian Cube that you want to generate cube names randomly and adapt links as well.
+Star operator lets you indicate to Arquillian Cube that you want to generate *cube* names randomly and adapt links as well.
 In this way when you execute your tests in parallel there will be no conflicts because of names or binding ports.
 
 Let's see an example:
@@ -38,17 +40,17 @@ Let's see an example:
 </property>
 ----
 
-You add the special character `*` to indicate that cube name should be randomized.
+You add the special character `*` to indicate that *cube* name should be randomized.
 
 With previous example Cube will:
 
 . Generate a unique _UUID_.
-. Substitute cube name, links and depends_on using the name + UUID
+. Substitute *cube* name, links and depends_on using the name + UUID
 . In case of using an alias, don't add the `*` since it is extended from the service name
 . Bind port is going to be changed to a random private port (49152 - 65535)
 . Add an environment variable with new hostname. This environment variable is <name>_HOSTNAME
 
-So for example the result file could look like:
+So for example the resulting file could look like this:
 
 [source, yml]
 .arquillian.xml
@@ -71,11 +73,17 @@ So for example the result file could look like:
 </property>
 ----
 
-Since now the ports are unique and names are unique, you can run tests using same orchestration in parallel against same docker host.
+Since now the ports are unique and names are unique, you can run tests using the same orchestration in parallel against
+the same docker host.
 
-The same approach can work for ensuring that each test run has a unique network. As docker allows multiple networks to have the same name, it will not throw an error if two concurrent tests create networks with the same name. However, as cube networks are specified by name in the cube specification, if there are multiple networks with the same name, the cube could end up in any one of them, resulting in hard to debug test failures.
+The same approach can work for ensuring that each test run has a unique network. As docker allows multiple networks to
+have the same name, it will not throw an error if two concurrent tests create networks with the same name.
+However, as *cube* networks are specified by name in the cube specification, if there are multiple networks with the
+same name, the *cube* could end up in any one of them, resulting in hard-to-debug test failures.
 
-Again, adding the special character `*` to the end of the network name will cause a random network name to be used. The name can then be used for a cube's networkMode or in the cube's network list, and it will be substituted correctly when the test runs.
+Again, adding the special character `*` to the end of the network name will cause a random network name to be used.
+The name can then be used for a *cube*'s networkMode or in the *cube*'s network list, and it will be substituted
+correctly when the test runs.
 
 [source, yml]
 .arquillian.xml
@@ -97,8 +105,10 @@ Again, adding the special character `*` to the end of the network name will caus
 ----
 
 
-NOTE: You can use the same approach for _docker-compose_ files not only with _cube_ format. But then your _docker-compose_ will be tight to Arquillian Cube. The best approach if you want to use docker-compose format is using `extends`.
+NOTE: You can use the same approach for _docker-compose_ files, not only with _CUBE_ format.
+But then your _docker-compose_ will be tight to Arquillian Cube.
+The best approach if you want to use docker-compose format is using `extends`.
 
-NOTE: Star operator must also used on enrichers for example:
+NOTE: Star operator can also be used on enrichers, for example:
 `@HostPort(containerName = "tomcat*", value = 8080)` or
 `@DockerUrl(containerName = "tomcat*", exposedPort = 8080)`

@@ -158,7 +158,7 @@ public class PingPongContainer {
 
 As part of Arquillian Cube, we are providing a `org.arquillian.cube.impl.shrinkwrap.asset.CacheUrlAsset` asset.
 This asset is similar to `org.jboss.shrinkwrap.api.asset.UrlAsset`, but the former caches to disk for an amount of time the content that has been downloaded from the URL.
-By default this expiration time is 1 hour, and it is configurable by using the proper constructor.
+By default, this expiration time is 1 hour, and it is configurable by using the proper constructor.
 
 ==== Links
 

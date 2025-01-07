@@ -1,6 +1,6 @@
 == Arquillian Cube BOM - Unified Dependencies
 
-This aims to fulfill requirements of unify naming & versions.
+This aims to fulfill requirements for unifying naming & versions.
 
 === Usage
 

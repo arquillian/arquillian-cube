@@ -5,7 +5,7 @@ But if you think clearly there is nothing that avoid *Arquillian Cube* to deploy
 
 Let's see an example on how you can use *Arquillian Cube* to test a _Node.js_ _hello world_ application.
 
-First thing to do is create the _Node.js_ application.
+The first thing to do is to create the _Node.js_ application.
 
 [source, json]
 .src/main/js/package.json
@@ -53,9 +53,9 @@ EXPOSE 8080
 
 CMD [ "npm", "start" ]
 ----
-<1> We need to use +ADD+ command adding the deployed file instead of +COPY+. We are going to see why below.
+<1> We need to use the +ADD+ command adding the deployed file instead of +COPY+. We are going to see why below.
 
-Finally the +arquillian.xml+ configuration file.
+Finally, the +arquillian.xml+ configuration file:
 
 [source, xml]
 .arquillian.xml
@@ -92,7 +92,9 @@ Finally the +arquillian.xml+ configuration file.
 ----
 <1> This property is used to set which container must be started. In this case +node+.
 
-IMPORTANT: If containerless definition only contains only one image, it is not necessary to use _containerlessDocker_ property. At the same time if the image only exposes one port, it is not necessary to use _embeddedPort_ proeprty to set the port. So in previous example you could avoid using _containerlessDocker_ and _embeddedPort_.
+IMPORTANT: If _containerless_ definition only contains one image, it is not necessary to use _containerlessDocker_ property.
+Similarly, if the image only exposes one port, it is not necessary to use _embeddedPort_ proeprty to set the port.
+So in previous example you could avoid using _containerlessDocker_ and _embeddedPort_.
 
 And finally the *Arquillian* test.
 
@@ -127,4 +129,5 @@ public class NodeTest {
 <2> +GenericArchive+ with +tar+ extension must be created using _Shrinkwrap_.
 <3> Simple test.
 
-NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *Arquillian Cube*. When you use +ADD+ in +Dockerfile+, _Docker_ will untar automatically the file to given location.
+NOTE: +GenericArchive+ must end with +tar+ extension because it is expected by *Arquillian Cube*.
+When you use +ADD+ in +Dockerfile+, _Docker_ will _untar_ automatically the file to given location.
