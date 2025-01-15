@@ -167,7 +167,7 @@ But in case of using *Standalone* mode, since it doesn't know anything from depl
 ----
 <1> Base URL of WebDriver
 
-The problem is that in case of using Docker Cube (and more specifically docker-machine/boot2docker) is that probably you don't know the docker host at configuration time but in runtime.
+The problem is that in case of using Docker Cube is that probably you don't know the docker host at configuration time but in runtime.
 And this is where Docker Cube can help you when using *Standalone* mode.
 
 ==== URL configuration in Standalone mode
@@ -231,4 +231,4 @@ Apart from adding `arquillian`, `arquillian-drone`, `selenium-bom` and `arquilli
 
 You can see the same example we used in Drone but using Graphene at https://github.com/arquillian/arquillian-cube/tree/main/docker/ftest-graphene
 
-Also you can learn about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/
+Also, you can learn about Graphene at http://arquillian.org/guides/functional_testing_using_graphene/

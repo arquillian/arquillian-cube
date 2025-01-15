@@ -9,14 +9,22 @@ Extension is named *Cube* for two reasons:
 
 With this extension you can start a _Docker_ container with a server installed, deploy the required deployable file within it and execute _Arquillian_ tests.
 
-The key point here is that if _Docker_ is used as deployable platform in production, your tests are executed in a the same container as it will be in production, so your tests are even more real than before.
+The key point here is that if _Docker_ is used as deployable platform in production, your tests are executed in the same container as it will be in production, so your tests are even more real than before.
 
 But it also lets you start a container with every required service like database, mail server, ... and instead of stubbing or using fake objects your tests can use real servers.
 
 [WARNING]
 ====
 This extension has been developed and tested on a Linux machine with the _Docker_ server already installed.
-It works with *Boot2Docker* as well in _Windows_ and _MacOS_ machines, but some parameters like _host ip_ must be the _Boot2Docker_ server instead of _localhost_ (in case you have _Docker_ server installed inside your own machine).
 
-One of the best resources to learn about why using _Boot2Docker_ is different from using _Docker_ in Linux can be read here http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide
+The current version is meant to fill a gap in the project maintenance, and to support execution against latest _Docker_,
+_Kubernetes_ and _OpenShift_ versions, but we had to take some decisions about deprecated integration, mainly due to
+capacity reasons:
+
+- *Arquillian Cube 2.0.0 does not support execution on _Windows_ and _macOS_ machines anymore*, since the *Boot2Docker*
+and *Docker machine* integrations have been removed, due to deprecation.
+
+We're aware this might be an issue in some cases, and we're open to community discussion about any options that could
+help mitigate the consequences, like temporarily resuming the integration in a sustaining branch. Feel free to
+log issues or start discussions about this topic.
 ====
