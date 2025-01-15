@@ -50,15 +50,6 @@ The following table summarizes the attributes that are currently supported:
 |certPath
 |Path where certificates are stored. If you are not using _https_ protocol this parameter is not required. This parameter accepts starting with ~ as home directory.
 
-|machineName
-|Sets the machine name in case you are using docker-machine to manage your docker host. This parameter is mandatory when using docker-machine with more than one running machine. In case of having only one docker machine running, it is not necessary to set it since it is auto resolved by cube.
-
-|machineDriver
-|Sets the machine driver in case you are using _docker-machine_. This parameter is mandatory when docker-machine is not installed.
-
-|dockerMachineCustomPath
-|Sets the custom location where _docker-machine_ will be downloaded. Default value: ~/.arquillian/machine.
-
 |dockerInsideDockerResolution
 |Boolean to set if Cube should detect that tests are run inside an already started Docker container, so Docker containers started by Cube could be run using DinD (Docker Inside Docker) or DoD (docker On Docker). Basically it ignores any `SERVER_URI` properties and sets the `serverUri` to `unix:///var/run/docker.sock`. By default, its value is set to true. If you want to use an external dockerhost, then you need to set this property to false.
 
@@ -91,9 +82,6 @@ as well.
 
 |certPath
 |DOCKER_CERT_PATH
-
-|machineName
-|DOCKER_MACHINE_NAME
 |===
 
 
@@ -183,7 +171,7 @@ tomcat: # <1>
 <9> You can extend another configuration. Any top level element and it's children from the target container-id will be copied over to this configuration, unless they have been defined here already.
 <10> You can use `manual` to indicate that this container is going to be started or in the test manually using `CubeController` or started by an extension. This attribute is ingorned in case of arquillian containers (none autostart containers) or in case of a linked container that comes from a none manual container.
 <11> Kills the container instead of stopping it normally. By default, it is set to false, so that containers are stopped.
-<12> Alternate hostname for use with the builtin DNS for https://docs.docker.com/engine/userguide/networking/#user-defined-networks[docker'suser defined networks].
+<12> Alternate hostname for use with the builtin DNS for https://docs.docker.com/engine/network/#user-defined-networks[docker'suser defined networks].
 
 As we've seen in the basic example the definition of the Arquillian Cube scenarios are described in `dockerContainers` property.
 But if you want you can avoid using this property by simply creating a file called `cube` in the root of the classpath of your project.
@@ -520,7 +508,7 @@ STARTORCONNECTANDLEAVE:: it is exactly the same of _STARTORCONNECT_ but if conta
 
 === Before Stop Events
 
-Sometimes when the tests has finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
+Sometimes when the tests have finished and container is stopped you want to inspect some data like container console or getting a file from the container to manual inspecting.
 In these cases you can configure each container to copy console log or copy a file/s from container to local machine just before container is stopped.
 Or if your need is more specific, you can provide a custom implementation
 
@@ -636,7 +624,4 @@ This parameter is not mandatory and in case you don't set it, _Arquillian Cube_ 
 |===
 |Linux
 |unix:///var/run/docker.sock
-
-|Docker Machine
-|tcp://dockerHost:2376
 |===

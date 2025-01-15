@@ -22,7 +22,7 @@ _Kubernetes_ and _OpenShift_ versions, but we had to take some decisions about d
 capacity reasons:
 
 - *Arquillian Cube 2.0.0 does not support execution on _Windows_ and _macOS_ machines anymore*, since the *Boot2Docker*
-and *Docker machine* integrations have been removed, due to deprecation.
+ integration has been removed, and it no longer supports *Docker Machine* integration, due to deprecation.
 
 We're aware this might be an issue in some cases, and we're open to community discussion about any options that could
 help mitigate the consequences, like temporarily resuming the integration in a sustaining branch. Feel free to
