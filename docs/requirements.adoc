@@ -80,7 +80,7 @@ whether _just_ an environment variable or a system property ar set.
 
 === Example with OpenShift 4
 
-The `openshift` module also defines an annotation for checking the environment against a given docker machine existence.
+The `openshift` module also defines an annotation for checking the environment against an OpenShift 4 cluster existence.
 
 [source, java]
 ----
@@ -131,14 +131,17 @@ And the implementation logic:
 public class DockerRequirement implements Requirement<RequiresDockerVersion> {
 
     @Override
-    public void check(RequiresDockerMachine context) throws UnsatisfiedRequirementException {
-        String name = context.name();
-        if (name != null && !name.isEmpty()) {
-            String installedVersion = getDockerVersion();
-
-            if (!name.equals(installedVersion)) {
-                throw new UnsatisfiedRequirementException("Docker version not specified."); // <1>
+    public void check(RequiresDocker context) throws UnsatisfiedRequirementException {
+        try {
+            Map<String, String> config = resolver.resolve(new HashMap<String, String>());
+            String serverUrl = config.get(CubeDockerConfiguration.DOCKER_URI);
+            if (Strings.isNullOrEmpty(serverUrl)) {
+                throw new UnsatisfiedRequirementException("Could not resolve the docker server url."); // <1>
+            } else if (!isDockerRunning(serverUrl)) {
+                throw new UnsatisfiedRequirementException("No server is running on url:[" + serverUrl + "].");
             }
+        } catch (ExecutionException e) {
+            throw new UnsatisfiedRequirementException("Cannot execute docker command.");
         }
     }
 }

@@ -82,11 +82,9 @@ Configure the Cube extension:
 .arquillian.xml
 ----
 <extension qualifier="docker">
-    <property name="machineName">dev</property> <!--1-->
     <property name="dockerContainersFile">docker-compose.yml</property>
 </extension>
 ----
-<1> In case of using more than one docker machine instance, you need to set it manually.
 
 And finally among `cube` dependencies, add the `drone`, `selenium` and `cube-drone` dependencies.
 

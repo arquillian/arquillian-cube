@@ -307,7 +307,7 @@ Suppose you have a _Docker Container_ configuration like:
 <1> Note that the exposed port is the 8081.
 
 Then in theory you should configure the remote _Tomcat_ adapter to port 8081 on your _arquillian.xml_ file.
-But let's say that you are using that remote adapter for a remote local machine _Tomcat_ (outside _Docker_) too, and is configured to use 8080 port.
+But let's say that you are using that remote adapter for a remote local _Tomcat_ (outside _Docker_) too, and is configured to use 8080 port.
 
 [source, xml]
 .arquillian.xml

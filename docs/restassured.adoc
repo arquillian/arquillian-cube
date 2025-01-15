@@ -37,7 +37,8 @@ spec = new RequestSpecBuilder()
 Previous approach works but it has some problems:
 
 * You need to repeat the same configuration properties in all tests you want to use Rest-Assured with Docker.
-* Requires some development interference of the developer, if it is running in docker machine needs to set one _ip_ which might change in the future, or if running on native linux must be changed to _localhost_.
+* Requires some development interference of the developer, if it is running in docker machine one _ip_ must be set which might change in the future,
+ or changed to _localhost_ if running on native linux.
 * Any change on Rest-Assured configuration properties would make all tests fails.
 
 To fix these problems, you can use Arquillian Cube Docker RestAssured integration which creates a `RequestSpecBuilder`

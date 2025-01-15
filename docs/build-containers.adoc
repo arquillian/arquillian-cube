@@ -1,6 +1,6 @@
 == Building containers
 
-To build a container _Docker_ uses a file called `Dockerfile` http://docs.docker.com/reference/builder/.
+To build a container _Docker_ uses a file called `Dockerfile` https://docs.docker.com/reference/dockerfile/.
 *Arquillian Cube* also supports building and running a container from a `Dockerfile`.
 
 To set that *Arquillian Cube* must build the container, the `image` property must be changed to `buildImage` and add the location of `Dockerfile`.
