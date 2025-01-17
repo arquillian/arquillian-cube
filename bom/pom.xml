@@ -155,6 +155,8 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <pushChanges>false</pushChanges>
           <localCheckout>true</localCheckout>
+          <releaseProfiles>gpg-sign</releaseProfiles>
+          <tagNameFormat>@{project.version}</tagNameFormat>
         </configuration>
       </plugin>
     </plugins>
