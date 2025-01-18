@@ -36,6 +36,8 @@
     <module>arquillian-cube-kubernetes-starter</module>
     <module>arquillian-cube-openshift-starter</module>
     <module>jkube-maven-plugin-build</module>
+    <!-- build modules -->
+    <module>build</module>
   </modules>
 
   <developers>
