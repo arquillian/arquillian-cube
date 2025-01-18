@@ -111,7 +111,7 @@ Then include the individual modules as you see fit, by simply depending on the u
 
 [source, xml, indent=0]
 ----
-include::../pom.xml[tag=docker_starter_dependency]
+include::{project_root_dir}/pom.xml[tag=docker_starter_dependency,role=include]
 ----
 
 ==== Arquillian Cube Docker Junit Rule
@@ -184,7 +184,7 @@ include::../pom.xml[tag=docker_starter_dependency]
 
 [source, xml, indent=0]
 ----
-include::../pom.xml[tag=kubernetes_starter_dependency]
+include::{project_root_dir}/pom.xml[tag=kubernetes_starter_dependency]
 ----
 
 ==== Arquillian Cube Kubernetes Reporter
@@ -224,5 +224,5 @@ include::../pom.xml[tag=kubernetes_starter_dependency]
 
 [source, xml, indent=0]
 ----
-include::../pom.xml[tag=openshift_starter_dependency]
+include::{project_root_dir}/pom.xml[tag=openshift_starter_dependency]
 ----

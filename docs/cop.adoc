@@ -343,7 +343,7 @@ To do use it you need to define the container object using `ContainerDsl` class 
 [source, java]
 .RedisTest.java
 ----
-include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/RedisTest.java[tag=docs, indent=0]
+include::{project_root_dir}/docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/RedisTest.java[tag=docs, indent=0]
 ----
 
 If field is static, container is started and stopped just once. If not then it is started and stopped for each test method execution.
@@ -389,7 +389,7 @@ To do use it you need to define the network object using `NetowrkDsl` class and 
 [source, java]
 .NetworkTest.java
 ----
-include::../docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/NetworkTest.java[tag=docs, indent=0]
+include::{project_root_dir}/docker/ftest-docker-junit5/src/test/java/org/arquillian/cube/docker/junit5/NetworkTest.java[tag=docs, indent=0]
 ----
 
 If field is static, network is created and destroyed just once. If not then it is created and destroyed for each test method execution.

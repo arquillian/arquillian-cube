@@ -81,7 +81,7 @@ or
 [source, java]
 .RouterURLEnricher.java
 ----
-include::../openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java[tag=enricher_expression_resolver_example]
+include::{project_root_dir}/openshift/ftest-openshift-resources-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldOpenShiftResourcesIT.java[tag=enricher_expression_resolver_example]
 ----
 
 You can also use an additional annotation `@AwaitRoute` to wait until the route becomes available.

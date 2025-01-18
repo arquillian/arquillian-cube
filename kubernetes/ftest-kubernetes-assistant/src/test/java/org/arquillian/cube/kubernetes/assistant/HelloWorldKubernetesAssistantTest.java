@@ -32,7 +32,7 @@ public class HelloWorldKubernetesAssistantTest {
 
     @Test
     public void should_apply_route_programmatically() throws IOException {
-        kubernetesAssistant.deployApplication("hello-world");                           // <1>
+        kubernetesAssistant.deployApplication("hello-world");                   // <1>
         Optional<URL> serviceUrl = kubernetesAssistant.getServiceUrl("hello-world");    // <2>
 
         given()

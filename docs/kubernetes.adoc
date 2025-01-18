@@ -42,9 +42,9 @@ The main modules of this extension are the following:
 
 === Setup
 
-To use Kubernetes extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-kubernetes:${version}`.
+To use Kubernetes extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-kubernetes:${project_version}`.
 
-To use OpenShift extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-openshift:${version}`.
+To use OpenShift extension you need to register next dependency in your build tool: `org.arquillian.cube:arquillian-cube-openshift:${project_version}`.
 
 === Configuring the extension
 
@@ -187,7 +187,7 @@ You can set a template location viaa a configuration parameter or using `@Templa
 Here's a small example:
 [source, java]
 ----
-include::../openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateIT.java[tag=openshift_template_example]
+include::{project_root_dir}/openshift/ftest-template-standalone/src/test/java/org/arquillian/cube/openshift/standalone/HelloWorldTemplateIT.java[tag=openshift_template_example]
 ----
 
 However, in `@Template`, url can be set using `url = https://git.io/vNRQm` or using
@@ -429,7 +429,7 @@ To control you need to inject into test the `org.arquillian.cube.kubernetes.impl
 
 [source, java]
 ----
-include::../kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
+include::{project_root_dir}/kubernetes/ftest-kubernetes-assistant/src/test/java/org/arquillian/cube/kubernetes/assistant/HelloWorldKubernetesAssistantTest.java[tag=k8_assistant_example]
 ----
 <1> Sets the application name where everything is deployed.
 <2> You can get the url of the deployed service on the cluster.
@@ -625,7 +625,7 @@ Let's see how can you execute `oc` or `kubectl` commands as a part of your test.
 [source, java]
 .OpenshiftAndK8sExample.java
 ----
-include::../openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldIT.java[tag=client_cli_execution]
+include::{project_root_dir}/openshift/ftest-oc-proxy/src/test/java/org/arquillian/cube/openshift/ftest/HelloWorldIT.java[tag=client_cli_execution]
 ----
 
 === OpenShift Integration with Graphene
@@ -723,7 +723,7 @@ treated as is. For example:
 [source, xml]
 .arquillian.xml
 ----
-include::../openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
+include::{project_root_dir}/openshift/ftest-openshift-restassured/src/test/resources/arquillian.xml[tag=restassured_configuration]
 ----
 
 As shown in the above snippet example (1), this integration will try to find an OpenShift route with name hello-world
@@ -754,7 +754,7 @@ to write your Arquillian Cube test as :
 [source, java]
 .HelloOpenShiftRestAssuredIT.java
 ----
-include::../openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/HelloOpenShiftRestAssuredIT.java[tag=openshift_restassured_example]
+include::{project_root_dir}/openshift/ftest-openshift-restassured/src/test/java/org/arquillian/openshift/restassured/HelloOpenShiftRestAssuredIT.java[tag=openshift_restassured_example]
 ----
 
 Notice that no _ip_ nor _port_ configuration are required since everything is managed and configured by Cube.
@@ -775,7 +775,7 @@ To use Istio integration you just need to add next dependency.
 [source, xml]
 .pom.xml
 ----
-include::../pom.xml[indent=0, tag=istio_dependency]
+include::{project_root_dir}/pom.xml[indent=0, tag=istio_dependency]
 ----
 
 TIP: Same dependency can be used for OpenShift
@@ -815,7 +815,7 @@ Notice that both annotations and assistant approaches can be mixed in the same t
 
 [source, java]
 ----
-include::../openshift/ftest-istio-openshift/src/test/java/org/arquillian/cube/openshift/standalone/ReviewsIT.java[indent=0, tag=istio_assistant]
+include::{project_root_dir}/openshift/ftest-istio-openshift/src/test/java/org/arquillian/cube/openshift/standalone/ReviewsIT.java[indent=0, tag=istio_assistant]
 ----
 
 The assistant provides you `deployIstioResources` and `undeployIstioResources` to deploy and undeploy Istio resources.
