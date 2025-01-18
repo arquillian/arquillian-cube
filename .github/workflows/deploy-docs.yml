@@ -1,0 +1,33 @@
+name: Build and Deploy to GitHub Pages
+on:
+  workflow_dispatch:
+    inputs:
+      arquillian-cube-ref:
+        description: 'The Arquillian Cube branch that will be used to build and deploy the documentation'
+        required: false
+        default: "2.0.0.Alpha1"
+        type: string
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.arquillian-cube-ref }}
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+          cache: maven
+      - name: Build with Maven
+        run: ./mvnw --batch-mode --no-transfer-progress clean package -pl build/docs
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: build/docs/target/generated-docs/
+          git-config-name: Alien Ike
+          git-config-email: arquillian-team@lists.jboss.org
