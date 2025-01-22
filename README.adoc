@@ -1,5 +1,4 @@
 = Arquillian Cube
-:asciidoctor-source: https://raw.githubusercontent.com/arquillian/arquillian-cube/main/docs
 :numbered:
 :sectlink:
 :sectanchors:
@@ -20,40 +19,40 @@ To read complete documentation visit http://arquillian.org/arquillian-cube/
 endif::generated-doc[]
 
 ifdef::generated-doc[]
-include::{asciidoctor-source}/what-is-this.adoc[]
+include::what-is-this.adoc[]
 
-include::{asciidoctor-source}/preliminaries.adoc[]
+include::preliminaries.adoc[]
 
-include::{asciidoctor-source}/example.adoc[]
+include::example.adoc[]
 
-include::{asciidoctor-source}/bom.adoc[]
+include::bom.adoc[]
 
-include::{asciidoctor-source}/configuration.adoc[]
+include::configuration.adoc[]
 
-include::{asciidoctor-source}/build-containers.adoc[]
+include::build-containers.adoc[]
 
-include::{asciidoctor-source}/compose.adoc[]
+include::compose.adoc[]
 
-include::{asciidoctor-source}/enrichers.adoc[]
+include::enrichers.adoc[]
 
-include::{asciidoctor-source}/parallel.adoc[]
+include::parallel.adoc[]
 
-include::{asciidoctor-source}/cop.adoc[]
+include::cop.adoc[]
 
-include::{asciidoctor-source}/requirements.adoc[]
+include::requirements.adoc[]
 
-include::{asciidoctor-source}/containerless.adoc[]
+include::containerless.adoc[]
 
-include::{asciidoctor-source}/drone.adoc[]
+include::drone.adoc[]
 
-include::{asciidoctor-source}/restassured.adoc[]
+include::restassured.adoc[]
 
-include::{asciidoctor-source}/reports.adoc[]
+include::reports.adoc[]
 
-include::{asciidoctor-source}/polyglot.adoc[]
+include::polyglot.adoc[]
 
-include::{asciidoctor-source}/kubernetes.adoc[]
+include::kubernetes.adoc[]
 
-include::{asciidoctor-source}/fabric8.adoc[]
+include::fabric8.adoc[]
 
 endif::generated-doc[]

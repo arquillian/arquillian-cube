@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-build</artifactId>
+    <version>2.0.0.Alpha1</version>
+  </parent>
+  <artifactId>arquillian-cube-build-docs</artifactId>
+  <packaging>pom</packaging>
+  <name>Arquillian Cube: Build documentation</name>
+
+  <properties>
+    <project.root.dir>${basedir}/../..</project.root.dir>
+    <documentation.sources.directory>${project.build.directory}/compiled-sources-docs</documentation.sources.directory>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${documentation.sources.directory}"/>
+                <copy todir="${documentation.sources.directory}">
+                  <fileset dir="${project.build.directory}/../../../docs/" includes="*.adoc"/>
+                </copy>
+                <copy file="${project.build.directory}/../../../README.adoc" tofile="${documentation.sources.directory}/index.adoc"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>2.2.6</version>
+        <executions>
+          <execution>
+            <id>output-html-user-guide</id>
+            <phase>package</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+              <backend>html5</backend>
+              <attributes>
+                <toc>left</toc>
+                <linkcss>false</linkcss>
+                <attribute-missing>warn</attribute-missing>
+                <sectnums>true</sectnums>
+                <!-- Attribute used to differentiate between built-tin rendering a GitHub project landing page readme vs building a page for publishing -->
+                <!-- Example: -->
+                <!-- ifdef::generated-doc[] -->
+                <!-- ... -->
+                <!-- endif::generated-doc[] -->
+                <generated-doc>true</generated-doc>
+                <project_version>${project.version}</project_version>
+                <project_root_dir>${project.root.dir}</project_root_dir>
+              </attributes>
+              <sourceDirectory>${documentation.sources.directory}</sourceDirectory>
+              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <logHandler>
+                <failIf>
+                  <severity>WARN</severity>
+                </failIf>
+              </logHandler>
+              <enableVerbose>true</enableVerbose>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

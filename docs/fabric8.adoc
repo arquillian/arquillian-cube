@@ -16,8 +16,8 @@ However, there is way to build images and generate resources using the JKube `ku
 `openshift-maven-plugin` as a part of test execution.
 If you enable `cube.fmp.build` property, cube will build image and generate resources for you by running embedded maven
 build as per options provided in `arquillian.xml` using either:
-- `mvn package k8s:build k8s:resource -Dfabric8.namespace=${namespace_configured_for_cube}`, or
-- `mvn package oc:build oc:resource -Dfabric8.namespace=${namespace_configured_for_cube}`
+- `mvn package k8s:build k8s:resource -Dfabric8.namespace=$+{namespace_configured_for_cube}+`, or
+- `mvn package oc:build oc:resource -Dfabric8.namespace=$+{namespace_configured_for_cube}+`
 
 You can use the following configuration options with Kubernetes and OpenShift extension to enable
 link:https://eclipse.dev/jkube/docs/kubernetes-maven-plugin/[JKube Kubernetes Maven Plugin] or
