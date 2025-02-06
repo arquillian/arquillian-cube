@@ -9,7 +9,7 @@
 :icons: font
 :toc: left
 
-WARNING: 2.0.0.Alpha1 breaks compatibility with previous versions as _boot2docker_ and _DockerMachine_ support has
+WARNING: 2.0.0.Final breaks compatibility with previous versions as _boot2docker_ and _DockerMachine_ support has
 been removed. This means that support for Windows and macOS or the Docker Machine usage is removed from 2.x.
 We're in the process of evaluating whether to add such support to the 2.x stream again, or to adopt
 different solutions. In such a case we'd probably release a 1.x version, which would still support such components.
