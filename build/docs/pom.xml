@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.arquillian.cube</groupId>
     <artifactId>arquillian-cube-build</artifactId>
-    <version>2.0.0.Alpha2-SNAPSHOT</version>
+    <version>2.0.0.Final</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>arquillian-cube-build-docs</artifactId>
@@ -28,11 +28,11 @@
             </goals>
             <configuration>
               <target>
-                <mkdir dir="${documentation.sources.directory}"/>
+                <mkdir dir="${documentation.sources.directory}" />
                 <copy todir="${documentation.sources.directory}">
-                  <fileset dir="${project.build.directory}/../../../docs/" includes="*.adoc"/>
+                  <fileset dir="${project.build.directory}/../../../docs/" includes="*.adoc" />
                 </copy>
-                <copy file="${project.build.directory}/../../../README.adoc" tofile="${documentation.sources.directory}/index.adoc"/>
+                <copy file="${project.build.directory}/../../../README.adoc" tofile="${documentation.sources.directory}/index.adoc" />
               </target>
             </configuration>
           </execution>
