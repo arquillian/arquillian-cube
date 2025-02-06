@@ -5,7 +5,7 @@ on:
       arquillian-cube-ref:
         description: 'The Arquillian Cube branch that will be used to build and deploy the documentation'
         required: false
-        default: "2.0.0.Alpha1"
+        default: "2.0.0.Final"
         type: string
 
 jobs:
