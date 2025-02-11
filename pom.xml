@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>46</version>
+    <version>47</version>
   </parent>
 
   <!-- Model Version -->
@@ -69,14 +69,15 @@
   </issueManagement>
 
   <properties>
-    <version.arquillian_core>1.8.0.Final</version.arquillian_core>
+    <version.arquillian_core>1.9.3.Final</version.arquillian_core>
     <version.junit>4.13.2</version.junit>
     <version.hamcrest>2.2</version.hamcrest>
     <version.docker-java>3.4.0</version.docker-java>
     <version.kubernetes_client>6.9.2</version.kubernetes_client>
     <version.snakeyaml>2.3</version.snakeyaml>
-    <version.shrinkwrap_resolver>3.2.1</version.shrinkwrap_resolver>
+    <version.shrinkwrap_resolver>3.3.1</version.shrinkwrap_resolver>
     <version.shrinkwrap>1.2.6</version.shrinkwrap>
+    <version.shrinkwrap_descriptors>2.0.0</version.shrinkwrap_descriptors>
     <version.mockito>5.7.0</version.mockito>
     <version.fabric8_mockwebserver>6.9.2</version.fabric8_mockwebserver>
     <version.descriptor.docker>1.0.0-alpha-2</version.descriptor.docker>
@@ -459,6 +460,21 @@
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-httpclient-jdk</artifactId>
         <version>${version.kubernetes_client}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.shrinkwrap</groupId>
+        <artifactId>shrinkwrap-api</artifactId>
+        <version>${version.shrinkwrap}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.shrinkwrap</groupId>
+        <artifactId>shrinkwrap-impl-base</artifactId>
+        <version>${version.shrinkwrap}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+        <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
+        <version>${version.shrinkwrap_descriptors}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

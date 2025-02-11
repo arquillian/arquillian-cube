@@ -39,7 +39,7 @@
 
   <properties>
     <version.jkube>1.17.0</version.jkube>
-    <version.arquillian_core>1.8.0.Final</version.arquillian_core>
+    <version.arquillian_core>1.9.3.Final</version.arquillian_core>
     <version.arquillian_cube>${project.version}</version.arquillian_cube>
   </properties>
 
