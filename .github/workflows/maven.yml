@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: ['11']
+        java: ['11','17']
     steps:
       - name: Checkout arquillian-cube
         uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: ['11']
+        java: ['11','17']
     steps:
       - name: Checkout arquillian-cube
         uses: actions/checkout@v4
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: ['11']
+        java: ['11','17']
     steps:
       - name: Checkout arquillian-cube
         uses: actions/checkout@v4
