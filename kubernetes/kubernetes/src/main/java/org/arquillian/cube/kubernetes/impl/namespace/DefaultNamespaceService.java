@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.LabelProvider;
@@ -169,7 +170,7 @@ public class DefaultNamespaceService implements NamespaceService {
             client.pods().inNamespace(namespace).delete();
             client.extensions().ingresses().inNamespace(namespace).delete();
             client.services().inNamespace(namespace).delete();
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
                 client.adapt(OpenShiftClient.class)
                       .securityContextConstraints().withName(namespace).delete();
             }

@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.client.http.HttpRequest;
 import io.fabric8.kubernetes.client.http.HttpResponse;
 import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.fabric8.kubernetes.client.utils.URLUtils;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.OpenShiftClient;
 import java.io.IOException;
 import java.net.URL;
@@ -47,7 +48,7 @@ public class OpenshiftRequirement implements Constraint<RequiresOpenshift> {
             if (!response.isSuccessful()) {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify Openshift version, due to: [" + response.message() + "]");
-            } else if (!client.isAdaptable(OpenShiftClient.class)) {
+            } else if (!client.supports(Project.class)) {
                 throw new UnsatisfiedRequirementException(
                     "A valid Kubernetes environmnet was found, but not Openshift.");
             }
