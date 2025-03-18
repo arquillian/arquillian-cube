@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
-import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.api.model.Project;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.api.DependencyResolver;
@@ -211,7 +211,7 @@ public class SessionManager implements SessionCreatedListener {
                 .pluginConfigurationIn(Paths.get("", configuration.getFmpPomPath()))
                 .profiles(configuration.getFmpProfiles())
                 .withProperties(configuration.getFmpSystemProperties())
-                .forOpenshift(client.isAdaptable(OpenShiftClient.class))
+                .forOpenshift(client.supports(Project.class))
                 .build();
         }
 
