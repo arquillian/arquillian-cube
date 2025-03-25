@@ -1,6 +1,7 @@
 package org.arquillian.cube.openshift.impl.locator;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.locator.DefaultKubernetesResourceLocator;
@@ -29,7 +30,7 @@ public class OpenshiftKubernetesResourceLocator extends DefaultKubernetesResourc
 
     @Override
     protected String[] getResourceNames() {
-        if (!client.get().isAdaptable(OpenShiftClient.class)) {
+        if (!client.get().supports(Project.class)) {
             return super.getResourceNames();
         }
         return RESOURCE_NAMES;
@@ -37,7 +38,7 @@ public class OpenshiftKubernetesResourceLocator extends DefaultKubernetesResourc
 
     @Override
     public Collection<URL> locateAdditionalResources() {
-        if (!client.get().isAdaptable(OpenShiftClient.class)) {
+        if (!client.get().supports(Project.class)) {
             return super.locateAdditionalResources();
         }
 

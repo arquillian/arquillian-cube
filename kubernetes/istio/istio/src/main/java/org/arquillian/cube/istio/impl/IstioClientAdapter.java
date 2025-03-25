@@ -59,6 +59,7 @@ public class IstioClientAdapter implements IstioClient {
         return unwrap().v1alpha3();
     }
 
+    @Deprecated
     @Override
     public <C extends Client> Boolean isAdaptable(Class<C> type) {
         return unwrap().isAdaptable(type);

@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.client.http.HttpRequest;
 import io.fabric8.kubernetes.client.http.HttpResponse;
 import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.fabric8.kubernetes.client.utils.URLUtils;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
@@ -49,7 +50,7 @@ public class OpenshiftOlmRequirement implements Constraint<RequiresOlm> {
                 throw new UnsatisfiedRequirementException(
                     "Failed to verify Openshift version, due to: [" + response.message() + "]");
             } else {
-                if (!client.isAdaptable(OpenShiftClient.class)) {
+                if (!client.supports(Project.class)) {
                     throw new UnsatisfiedRequirementException(
                         "A valid Kubernetes environment was found, but not Openshift.");
                 }

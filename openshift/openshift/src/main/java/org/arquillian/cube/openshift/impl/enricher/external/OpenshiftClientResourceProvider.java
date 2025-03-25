@@ -1,5 +1,6 @@
 package org.arquillian.cube.openshift.impl.enricher.external;
 
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import java.util.logging.Logger;
 import org.arquillian.cube.kubernetes.impl.enricher.AbstractKubernetesResourceProvider;
@@ -32,7 +33,7 @@ public class OpenshiftClientResourceProvider extends AbstractKubernetesResourceP
 
         if (client == null) {
             throw new IllegalStateException("Unable to inject Kubernetes client into test.");
-        } else if (!client.isAdaptable(OpenShiftClient.class)) {
+        } else if (!client.supports(Project.class)) {
             throw new IllegalStateException("Could not adapt to OpenShiftClient.");
         }
 
