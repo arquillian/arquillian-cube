@@ -46,7 +46,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
         @Override
         public Namespace create(String namespace, Map<String, String> annotations) {
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 logger.status("Creating project: " + namespace);
                 ProjectRequest projectRequest = new ProjectRequestBuilder()
@@ -75,7 +75,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
         @Override
         public Boolean delete(String namespace) {
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
 
                 logger.info("Deleting project: " + namespace + "...");
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
@@ -92,7 +92,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
         @Override
         public Boolean exists(String namespace) {
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 try {
                     // It is preferable to iterate on the list of projects as regular user
@@ -117,7 +117,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
 
         @Override
         public Namespace annotate(String namespace, Map<String, String> annotations) {
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
 
                 /* FIXME: Openshift currently doesn't support annotations
@@ -143,7 +143,7 @@ public class OpenshiftNamespaceService extends DefaultNamespaceService {
         @Override
         @Deprecated // The method is redundant (since its called always before destroy).
         public void clean(String namespace) {
-            if (client.isAdaptable(OpenShiftClient.class)) {
+            if (client.supports(Project.class)) {
                 OpenShiftClient openShiftClient = client.adapt(OpenShiftClient.class);
                 openShiftClient.deploymentConfigs().inNamespace(namespace).delete();
             }

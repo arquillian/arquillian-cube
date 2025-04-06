@@ -2,6 +2,7 @@ package org.arquillian.cube.openshift.impl.client;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.openshift.api.model.Project;
 import org.arquillian.cube.kubernetes.api.Configuration;
 import org.arquillian.cube.kubernetes.impl.event.AfterStart;
 import org.jboss.arquillian.core.api.Instance;
@@ -29,7 +30,7 @@ public class OpenShiftClientCreator {
         final CubeOpenShiftConfiguration configuration = (CubeOpenShiftConfiguration) conf;
 
         final KubernetesClient kubernetesClient = kubernetesClientInstance.get();
-        if (kubernetesClient != null && kubernetesClient.isAdaptable(io.fabric8.openshift.client.OpenShiftClient.class)) {
+        if (kubernetesClient != null && kubernetesClient.supports(Project.class)) {
             io.fabric8.openshift.client.OpenShiftClient client = kubernetesClient.adapt(io.fabric8.openshift.client.OpenShiftClient.class);
             openShiftClientProducer.set(
                 createClient(client, client.getConfiguration(), client.getNamespace(), configuration.shouldKeepAliveGitServer()));

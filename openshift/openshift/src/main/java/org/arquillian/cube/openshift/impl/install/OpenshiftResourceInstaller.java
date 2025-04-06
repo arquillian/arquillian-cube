@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -47,7 +48,7 @@ public class OpenshiftResourceInstaller extends DefaultResourceInstaller {
         @Override
         public List<HasMetadata> install(URL url) {
             CompositeVisitor compositeVisitor = new CompositeVisitor(visitors);
-            if (!client.isAdaptable(OpenShiftClient.class)) {
+            if (!client.supports(Project.class)) {
                 return super.install(url);
             }
 
