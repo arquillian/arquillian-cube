@@ -27,7 +27,6 @@
     <module>ftest-kubernetes-reporter</module>
     <module>ftest-kubernetes-assistant</module>
     <module>ftest-kubernetes-resources</module>
-    <module>ftest-kubernetes-wildfly-bootable-jar</module>
   </modules>
 
   <profiles>
