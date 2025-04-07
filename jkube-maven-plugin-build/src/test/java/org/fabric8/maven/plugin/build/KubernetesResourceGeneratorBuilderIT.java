@@ -53,8 +53,10 @@ public class KubernetesResourceGeneratorBuilderIT {
             .quiet()
             .profiles("kubernetes")
             .quiet(false)
-            .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"))
+            .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"),
+                "jkube.docker.push.registry",System.getProperty("jkube.docker.push.registry", ""))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
+            .debug(false)
             .build();
 
         // then

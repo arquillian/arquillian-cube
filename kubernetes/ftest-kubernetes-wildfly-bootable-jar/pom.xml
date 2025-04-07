@@ -121,17 +121,19 @@
         <artifactId>kubernetes-maven-plugin</artifactId>
         <version>${version.jkube-kubernetes-maven-plugin}</version>
         <executions>
-          <execution>
-            <!--
+          <!--
               Just create resource files when packaging, and build the image.
               The Arquillian Cube JKube Kubernetes Maven plugin integration will do its part in the integration-tests
               phase, see the Maven Failsafe plugin configuration below.
-            -->
+
+          <execution>
+
             <goals>
               <goal>resource</goal>
               <goal>build</goal>
             </goals>
           </execution>
+          -->
         </executions>
         <configuration>
           <enricher>
