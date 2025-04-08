@@ -1,6 +1,7 @@
 package org.arquillian.cube.kubernetes.impl.portforward;
 
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.internal.SSLUtils;
 import io.undertow.UndertowOptions;
 import io.undertow.client.ClientCallback;
@@ -180,7 +181,7 @@ public final class PortForwarder implements Closeable {
             }
         }
 
-        final Config config = new Config();
+        final Config config = new ConfigBuilder().build();
         config.setNamespace(namespace);
         final PortForwarder forwarder = new PortForwarder(config, podName);
         forwarder.setPortForwardBindAddress(bindAddress);

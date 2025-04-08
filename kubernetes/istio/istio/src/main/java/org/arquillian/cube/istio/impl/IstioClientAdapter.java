@@ -6,6 +6,7 @@ import io.fabric8.istio.client.V1beta1APIGroupDSL;
 import io.fabric8.kubernetes.api.model.APIGroup;
 import io.fabric8.kubernetes.api.model.APIGroupList;
 import io.fabric8.kubernetes.api.model.APIResourceList;
+import io.fabric8.kubernetes.api.model.APIVersions;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.fabric8.kubernetes.api.model.KubernetesResourceList;
@@ -59,12 +60,6 @@ public class IstioClientAdapter implements IstioClient {
         return unwrap().v1alpha3();
     }
 
-    @Deprecated
-    @Override
-    public <C extends Client> Boolean isAdaptable(Class<C> type) {
-        return unwrap().isAdaptable(type);
-    }
-
     @Override
     public <R extends KubernetesResource> boolean supports(Class<R> type) {
         return unwrap().supports(type);
@@ -113,6 +108,11 @@ public class IstioClientAdapter implements IstioClient {
     @Override
     public void close() {
         unwrap().close();
+    }
+
+    @Override
+    public APIVersions getAPIVersions() {
+        return unwrap().getAPIVersions();
     }
 
     @Override

@@ -34,6 +34,12 @@
       <groupId>org.jboss.arquillian.core</groupId>
       <artifactId>arquillian-core-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.arquillian.reporter</groupId>
       <artifactId>arquillian-reporter-impl</artifactId>
