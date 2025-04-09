@@ -7,11 +7,6 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-  </properties>
-
   <name>Arquillian Cube Kubernetes Assistant Standalone Functional Test</name>
   <artifactId>arquillian-cube-kubernetes-assistant-standalone-ftest</artifactId>
 

@@ -8,11 +8,6 @@
   <modelVersion>4.0.0</modelVersion>
   <name>Arquillian Cube OpenShift Assistant Operational Methods Functional Test</name>
 
-  <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-  </properties>
-
   <artifactId>arquillian-cube-openshift-assistant-operational-methods-ftest</artifactId>
   <dependencies>
     <dependency>

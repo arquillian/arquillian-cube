@@ -58,7 +58,6 @@ jobs:
         uses: manusa/actions-setup-minikube@v2.13.1
         with:
           driver: docker
-          container runtime: containerd
           minikube version: 'v1.32.0'
           kubernetes version: 'v1.30.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
@@ -67,6 +66,12 @@ jobs:
         run: |
           minikube addons enable registry
           kubectl port-forward --namespace kube-system service/registry 5000:80 &
+          sleep 5
+          echo "Checking whether the local (Minikube based) registry is working:"
+          curl http://localhost:5000/v2/_catalog
+      - name: Setup Minikube ingress addon
+        run: |
+          minikube addons enable ingress
       - name: Cache .m2 registry
         uses: actions/cache@v4
         with:
@@ -82,7 +87,7 @@ jobs:
           ./mvnw clean install -q -U -DskipTests
       - name: Build and run integration tests for Kubernetes target (${{ matrix.java }})
         run: |
-          ./mvnw verify -B -Dfailsafe.groups=org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes -Dcontainerless.skip.tests=true
+          ./mvnw verify -B -Djkube.docker.push.registry=localhost:5000 -Djkube.docker.pull.registry=localhost:5000 -Dfailsafe.groups=org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes -Dcontainerless.skip.tests=true
       - uses: actions/upload-artifact@v4
         with:
           name: k8s-it-surefire-reports-jdk-${{ matrix.java }}

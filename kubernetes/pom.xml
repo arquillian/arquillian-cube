@@ -29,4 +29,16 @@
     <module>ftest-kubernetes-resources</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>jdk11-modular</id>
+        <activation>
+          <jdk>[17,)</jdk>
+        </activation>
+        <modules>
+          <module>ftest-kubernetes-wildfly-bootable-jar</module>
+        </modules>
+    </profile>
+  </profiles>
+
 </project>

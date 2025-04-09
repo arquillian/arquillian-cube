@@ -18,7 +18,7 @@ public class JKubeMavenPluginResourceGeneratorBuilder {
     private static final Logger logger = Logger.getLogger(JKubeMavenPluginResourceGeneratorBuilder.class.getName());
 
     private Path pom;
-    private String[] k8sGoals = new String[] {"package", "k8s:build", "k8s:resource", "k8s:deploy"};
+    private String[] k8sGoals = new String[] {"package", "k8s:build", "k8s:resource", "k8s:push", "k8s:apply"};
     private String[] openshiftGoals = new String[] {"package", "oc:build", "oc:resource"};
     private String namespace;
     private boolean mvnDebugOutput;
@@ -35,8 +35,13 @@ public class JKubeMavenPluginResourceGeneratorBuilder {
         return this;
     }
 
-    public JKubeMavenPluginResourceGeneratorBuilder goals(String[] goals) {
+    public JKubeMavenPluginResourceGeneratorBuilder k8sGoals(String[] goals) {
         this.k8sGoals = goals;
+        return this;
+    }
+
+    public JKubeMavenPluginResourceGeneratorBuilder openshiftGoals(String[] goals) {
+        this.openshiftGoals = goals;
         return this;
     }
 

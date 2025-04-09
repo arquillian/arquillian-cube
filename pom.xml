@@ -69,6 +69,7 @@
   </issueManagement>
 
   <properties>
+    <maven.compiler.release>11</maven.compiler.release>
     <version.arquillian_core>1.9.3.Final</version.arquillian_core>
     <version.junit>4.13.2</version.junit>
     <version.hamcrest>2.2</version.hamcrest>
