@@ -7,10 +7,12 @@ import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift4;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+@Ignore("Requires proper OpenShift, rather than CRC which doesn't expose the prometheus route")
 @Category(RequiresOpenshift.class)
 @RequiresOpenshift
 @RunWith(ArquillianConditionalRunner.class)

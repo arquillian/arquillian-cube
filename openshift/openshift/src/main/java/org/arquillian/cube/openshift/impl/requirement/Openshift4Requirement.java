@@ -9,7 +9,6 @@ import io.fabric8.kubernetes.client.http.HttpResponse;
 import io.fabric8.kubernetes.client.jdkhttp.JdkHttpClientFactory;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import io.fabric8.openshift.api.model.Project;
-import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.kubernetes.impl.ClientConfigBuilder;
 import org.arquillian.cube.kubernetes.impl.DefaultConfiguration;
 import org.arquillian.cube.kubernetes.impl.ExtensionRegistrar;

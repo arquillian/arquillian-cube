@@ -99,34 +99,63 @@ jobs:
           minikube stop
 
   openshift-it:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
         java: ['11','17']
+        # There is some problem with latest version of crc configured with okd preset.
+        # It was not possible to run tests successfully on latest version of crc. See linked issue:
+        # https://github.com/crc-org/crc/issues/4382
+        okd: [ v4.14.0 ]
+        oc: [ 4.14.0 ]
+        crc: [ 2.32.0 ]
     steps:
       - name: Checkout arquillian-cube
         uses: actions/checkout@v4
-      - name: Setup OpenShift
-        uses: manusa/actions-setup-openshift@v1.1.5
-        with:
-          oc version: 'v3.10.0'
-          github token: ${{ secrets.GITHUB_TOKEN }}
-      # TODO - there are issues when installing OLM on OpenShift v3, and we're aiming at having CI running on OpenShift 4, actually...
-      #      - name: Setup OLM on OpenShift v3.z
-      #        run: |
-      #          set -x
-      #          # operator-sdk must be installed manually on OpenShift v3
-      #          oc version
-      #          oc create -f https://github.com/operator-framework/operator-lifecycle-manager/tree/master/deploy/upstream/manifests/0.6.0/
-      #          # OR...
-      #          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-      #          export OS=$(uname | awk '{print tolower($0)}')
-      #          export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/v1.37.0
-      #          curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
-      #          chmod +x operator-sdk_${OS}_${ARCH} && sudo mv operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
-      #          operator-sdk olm install
+      - name: Install the OpenShift client
+        run: |
+          wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/${{ matrix.oc }}/openshift-client-linux.tar.gz
+          mkdir oc-4.14.0
+          tar -xvzf openshift-client-linux.tar.gz -C oc-4.14.0
+          sudo cp oc-4.14.0/oc /usr/local/bin/oc
+          oc version
+      - name: Install required virtualization software
+        run: |
+          sudo apt-get update
+          sudo apt install qemu-kvm libvirt-daemon libvirt-daemon-system
+          # This package may not be present depending on Ubuntu version
+          sudo apt install virtiofsd || true
+          sudo adduser $USER libvirt
+          sudo adduser $USER kvm
+          sudo usermod -a -G libvirt $USER
+      - name: Remove unwanted stuff to free up disk image
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          sudo docker image prune --all --force
+
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+      - name: Download CRC
+        run: |
+          wget https://developers.redhat.com/content-gateway/file/pub/openshift-v4/clients/crc/${{ matrix.crc }}/crc-linux-amd64.tar.xz
+          tar -xJf crc-linux-amd64.tar.xz
+          sudo cp crc-linux-${{ matrix.crc }}-amd64/crc /usr/local/bin/crc
+      - name: Set the crc config
+        run: |
+          crc config set preset okd
+          crc config set network-mode user
+      - name: Setup CRC
+        run: sudo -su $USER crc setup
+      - name: Start CRC
+        run: |
+          sudo -su $USER crc start | tee crc-start.log
       - name: Cache .m2 registry
         uses: actions/cache@v4
         with:
@@ -137,12 +166,30 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Login as kubeadmin
+        run: |
+          set +e
+          export TEST_CLUSTER_URL=https://api.crc.testing:6443/
+          export SYSADMIN_USERNAME=kubeadmin
+          export SYSADMIN_PASSWORD_LINE=$(grep -o 'Password:.*-.*' crc-start.log)
+          export SYSADMIN_PASSWORD=$(echo ${SYSADMIN_PASSWORD_LINE:10})
+
+          echo "kubeadmin credentials: ${SYSADMIN_USERNAME}:${SYSADMIN_PASSWORD}"
+          
+          echo "Attempting oc login with kubeadmin multiple times..."
+          counter=0
+          until [[ "$(oc login --insecure-skip-tls-verify "${TEST_CLUSTER_URL}" -u "${SYSADMIN_USERNAME}" -p "${SYSADMIN_PASSWORD}")" =~ "Login successful" ]] || [[ counter++ -ge 80 ]]
+          do
+            sleep 5
+          done          
+          export SYSADMIN_TOKEN=$(oc whoami -t)
+          echo "kubeadmin token: ${SYSADMIN_TOKEN}"
       - name: Maven pre-fetch dependencies ${{ matrix.java }}
         run: |
           ./mvnw clean install -q -U -DskipTests
       - name: Build and run integration tests for OpenShift target (${{ matrix.java }})
         run: |
-          ./mvnw verify -B -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dfailsafe.excludedGroups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift4 -Dcontainerless.skip.tests=true
+          ./mvnw verify -B -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dcontainerless.skip.tests=true
       - uses: actions/upload-artifact@v4
         with:
           name: openshift-it-surefire-reports-jdk-${{ matrix.java }}

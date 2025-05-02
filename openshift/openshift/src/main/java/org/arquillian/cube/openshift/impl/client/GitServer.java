@@ -188,7 +188,8 @@ public class GitServer {
         if (gitea == null) {
             gitea = client.genericKubernetesResources(giteaResourceDefinitionContext)
                 .inNamespace(namespace).load(IOUtils.toInputStream(GITEA_CUSTOM_RESOURCE_RAW_JSON)).create();
-            org.awaitility.Awaitility.await().atMost(5, TimeUnit.MINUTES).until(() -> {
+
+            org.awaitility.Awaitility.await().atMost(10, TimeUnit.MINUTES).until(() -> {
                     List<Pod> pods = client
                         .pods()
                         .inNamespace(namespace)
