@@ -12,10 +12,12 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+@Ignore("Needs the Gitea operator, which Arquillian Cube tries to provision, but it does not work on GitHub CI which uses CRC")
 @Category({RequiresOpenshift.class, RequiresOlm.class, RequiresRemoteResource.class})
 @RequiresOpenshift
 @RequiresOlm

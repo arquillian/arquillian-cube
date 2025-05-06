@@ -12,6 +12,4 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Requires(Constraint.class)
 public @interface RequiresOpenshift4 {
-
-    String name() default "";
 }

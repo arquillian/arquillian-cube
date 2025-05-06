@@ -15,6 +15,4 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Requires(Constraint.class)
 public @interface RequiresOlm {
-
-    String name() default "";
 }
