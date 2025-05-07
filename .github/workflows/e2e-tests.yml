@@ -189,7 +189,7 @@ jobs:
           ./mvnw clean install -q -U -DskipTests
       - name: Build and run integration tests for OpenShift target (${{ matrix.java }})
         run: |
-          ./mvnw verify -B -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dcontainerless.skip.tests=true
+          ./mvnw verify -B  -Djkube.docker.push.registry=image-registry.openshift-image-registry.svc:5000 -Djkube.docker.pull.registry=image-registry.openshift-image-registry.svc:5000  -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dcontainerless.skip.tests=true
       - uses: actions/upload-artifact@v4
         with:
           name: openshift-it-surefire-reports-jdk-${{ matrix.java }}
