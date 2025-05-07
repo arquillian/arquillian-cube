@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.arquillian.cube</groupId>
+    <artifactId>arquillian-cube-openshift-parent</artifactId>
+    <version>2.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <name>Arquillian Cube OpenShift WildFly Bootable JAR Functional Test</name>
+
+  <artifactId>arquillian-cube-openshift-wildfly-bootable-jar-ftest</artifactId>
+  <packaging>war</packaging>
+
+  <properties>
+    <version.wildfly>36.0.0.Final</version.wildfly>
+    <version.jkube-openshift-maven-plugin>1.18.1</version.jkube-openshift-maven-plugin>
+    <jkube.generator.from>registry.access.redhat.com/ubi8/openjdk-17:latest</jkube.generator.from>
+    <plugin.fork.embedded>true</plugin.fork.embedded>
+    <jkube.docker.push.registry/>
+    <jkube.docker.pull.registry/>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.wildfly.bom</groupId>
+        <artifactId>wildfly-ee</artifactId>
+        <version>${version.wildfly}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian.cube</groupId>
+        <artifactId>arquillian-cube-bom</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Import the JAX-RS API, we use provided scope as the API is included in WildFly -->
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-openshift-starter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-openshift-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-requirement</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.wildfly.plugins</groupId>
+        <artifactId>wildfly-jar-maven-plugin</artifactId>
+        <version>12.0.0.Final</version>
+        <configuration>
+          <feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#${version.wildfly}</feature-pack-location>
+          <layers>
+            <layer>cloud-server</layer>
+          </layers>
+          <excluded-layers>
+            <layer>deployment-scanner</layer>
+          </excluded-layers>
+          <cloud/>
+          <plugin-options>
+            <jboss-fork-embedded>${plugin.fork.embedded}</jboss-fork-embedded>
+          </plugin-options>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.jkube</groupId>
+        <artifactId>openshift-maven-plugin</artifactId>
+        <version>${version.jkube-openshift-maven-plugin}</version>
+        <executions>
+          <!--
+              Do not execute when packaging.
+              The Arquillian Cube JKube OpenShift Maven plugin integration will handle that in the integration-tests
+              phase, see the Maven Failsafe plugin configuration below.
+
+          <execution>
+            <goals>
+              <goal>resource</goal>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          -->
+        </executions>
+        <configuration>
+          <enricher>
+            <config>
+              <jkube-service>
+                <name>hello-world-svc</name>
+              </jkube-service>
+            </config>
+          </enricher>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <version.cube>${project.version}</version.cube>
+            <cube.fmp.build>true</cube.fmp.build>
+            <cube.fmp.debug.output>false</cube.fmp.debug.output>
+            <cube.fmp.logs>true</cube.fmp.logs>
+            <cube.fmp.system.properties>jkube.docker.push.registry,${jkube.docker.push.registry},jkube.docker.pull.registry,${jkube.docker.pull.registry}</cube.fmp.system.properties>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+</project>
