@@ -31,7 +31,7 @@
 
   <profiles>
     <profile>
-      <id>jdk11-modular</id>
+      <id>wildfly-jdk17</id>
         <activation>
           <jdk>[17,)</jdk>
         </activation>

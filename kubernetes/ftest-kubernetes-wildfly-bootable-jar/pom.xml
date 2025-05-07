@@ -13,7 +13,7 @@
 
   <name>Arquillian Cube Kubernetes WildFly Bootable JAR Functional Test</name>
 
-  <artifactId>ftest-kubernetes-wildfly-bootable-jar</artifactId>
+  <artifactId>arquillian-cube-kubernetes-wildfly-bootable-jar-ftest</artifactId>
   <packaging>war</packaging>
 
   <properties>
