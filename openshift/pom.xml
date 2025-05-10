@@ -44,4 +44,16 @@
     <module>ftest-openshift-assistant-operational-methods</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>wildfly-jdk17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <modules>
+        <module>ftest-openshift-wildfly-bootable-jar</module>
+      </modules>
+    </profile>
+  </profiles>
+
 </project>
