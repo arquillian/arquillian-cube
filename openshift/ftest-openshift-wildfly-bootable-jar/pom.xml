@@ -6,19 +6,19 @@
 
   <parent>
     <groupId>org.arquillian.cube</groupId>
-    <artifactId>arquillian-cube-kubernetes-parent</artifactId>
+    <artifactId>arquillian-cube-openshift-parent</artifactId>
     <version>2.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <name>Arquillian Cube Kubernetes WildFly Bootable JAR Functional Test</name>
+  <name>Arquillian Cube OpenShift WildFly Bootable JAR Functional Test</name>
 
-  <artifactId>arquillian-cube-kubernetes-wildfly-bootable-jar-ftest</artifactId>
+  <artifactId>arquillian-cube-openshift-wildfly-bootable-jar-ftest</artifactId>
   <packaging>war</packaging>
 
   <properties>
-    <version.wildfly>35.0.1.Final</version.wildfly>
-    <version.jkube-kubernetes-maven-plugin>1.18.1</version.jkube-kubernetes-maven-plugin>
+    <version.wildfly>36.0.0.Final</version.wildfly>
+    <version.jkube-openshift-maven-plugin>1.18.1</version.jkube-openshift-maven-plugin>
     <jkube.generator.from>registry.access.redhat.com/ubi8/openjdk-17:latest</jkube.generator.from>
     <plugin.fork.embedded>true</plugin.fork.embedded>
     <jkube.docker.push.registry/>
@@ -49,7 +49,11 @@
       <artifactId>jakarta.ws.rs-api</artifactId>
       <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
@@ -58,8 +62,12 @@
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
-      <artifactId>arquillian-cube-kubernetes-starter</artifactId>
+      <artifactId>arquillian-cube-openshift-starter</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.cube</groupId>
+      <artifactId>arquillian-cube-openshift-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.arquillian.cube</groupId>
@@ -68,7 +76,7 @@
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
+      <artifactId>openshift-client</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -118,16 +126,15 @@
       </plugin>
       <plugin>
         <groupId>org.eclipse.jkube</groupId>
-        <artifactId>kubernetes-maven-plugin</artifactId>
-        <version>${version.jkube-kubernetes-maven-plugin}</version>
+        <artifactId>openshift-maven-plugin</artifactId>
+        <version>${version.jkube-openshift-maven-plugin}</version>
         <executions>
           <!--
-              Just create resource files when packaging, and build the image.
-              The Arquillian Cube JKube Kubernetes Maven plugin integration will do its part in the integration-tests
+              Do not execute when packaging.
+              The Arquillian Cube JKube OpenShift Maven plugin integration will handle that in the integration-tests
               phase, see the Maven Failsafe plugin configuration below.
 
           <execution>
-
             <goals>
               <goal>resource</goal>
               <goal>build</goal>

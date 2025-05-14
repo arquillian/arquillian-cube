@@ -1,6 +1,7 @@
 package org.arquillian.cube.kubernetes.impl;
 
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +130,9 @@ public class PortForwarderTest {
     //the original method is inside a private inner class, so I am replicating it here.
     private int allocateLocalPort(int port) {
         try {
-            try (ServerSocket serverSocket = new ServerSocket(port, 0, Inet4Address.getLocalHost())) {
+            // TODO - this doesn't seem to work anymore on GitHub runners, so the CI checks fail, hence we need to
+            //  hardcode the loopback IP address to be able and move on...
+            try (ServerSocket serverSocket = new ServerSocket(port, 0, Inet4Address.getLoopbackAddress())) {
                 return serverSocket.getLocalPort();
             }
         } catch (Throwable t) {

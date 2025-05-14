@@ -9,21 +9,16 @@ import io.fabric8.kubernetes.api.model.networking.v1.IngressLoadBalancerIngress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.restassured.RestAssured;
 import org.arquillian.cube.kubernetes.annotations.KubernetesResource;
-import org.arquillian.cube.kubernetes.annotations.Named;
-import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertFalse;
@@ -79,7 +74,7 @@ public class WildflyBootableJarKubernetesIT {
         assertNotNull(ingress.getStatus());
         assertNotNull(ingress.getStatus().getLoadBalancer());
         assertNotNull(ingress.getStatus().getLoadBalancer().getIngress());
-        // wait until one ingress is actually ready, 30 seconds at most currently works for CI...
+        // wait until one ingress is actually ready, 60 seconds at most currently works for CI...
         Awaitility.await()
             .atMost(60, TimeUnit.SECONDS)
             .until(() -> kubernetesClient.network().v1().ingresses().withName(ingressName).get().getStatus().getLoadBalancer().getIngress().size() == 1);

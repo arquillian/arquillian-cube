@@ -2,6 +2,7 @@ package org.arquillian.cube.docker.impl.requirement;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Version;
@@ -19,6 +20,8 @@ import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
 
 public class DockerRequirement implements Constraint<RequiresDocker> {
+
+    private static final Logger log = Logger.getLogger(DockerRequirement.class.getName());
 
     private final CommandLineExecutor commandLineExecutor;
     private final CubeDockerConfigurationResolver resolver;
@@ -57,6 +60,7 @@ public class DockerRequirement implements Constraint<RequiresDocker> {
             DockerClient client = DockerClientBuilder.getInstance(serverUrl).build();
             return client.versionCmd().exec();
         } catch (Exception e) {
+            log.warning("Failed to get docker version: " + e.getMessage());
             return null;
         }
     }

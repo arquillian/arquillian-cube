@@ -9,12 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.arquillian.cube.docker.impl.client.CubeDockerConfiguration;
 import org.arquillian.cube.docker.impl.client.CubeDockerConfigurationResolver;
 import org.arquillian.cube.docker.impl.util.CommandLineExecutor;
 import org.arquillian.cube.spi.requirement.UnsatisfiedRequirementException;
 import org.arquillian.spacelift.execution.ExecutionException;
+import org.awaitility.Awaitility;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -97,7 +99,16 @@ public class DockerRequirementTest {
 
         try {
             DockerRequirement requirement = new DockerRequirement(commandLineExecutor, configResolver);
-            requirement.check(null);
+            Awaitility.await()
+                .atMost(30, TimeUnit.SECONDS)
+                .until( () -> {
+                    try {
+                        requirement.check(null);
+                        return true;
+                    } catch(UnsatisfiedRequirementException e) {
+                        return false;
+                    }
+                } );
         } finally {
             executorService.shutdownNow();
         }
@@ -112,43 +123,39 @@ public class DockerRequirementTest {
         }
 
         public String getConnectionString() {
-            return "tcp://" + serverSocket.getInetAddress()
-                .getHostName() + ":" + serverSocket.getLocalPort();
+            // TODO - this doesn't seem to work anymore on GitHub runners, so the CI checks fail, hence we need to
+            //  hardcode the loopback IP addrress to be able and move on...
+            return "tcp://127.0.0.1"
+                // + serverSocket.getInetAddress().getHostName()
+                + ":" + serverSocket.getLocalPort();
         }
 
         @Override
         public void run() {
-            PrintWriter writer = null;
-            Socket socket = null;
+            PrintWriter writer;
+            Socket socket;
             try {
                 socket = serverSocket.accept();
-                socket.getInputStream()
-                    .read(); // Will hang on windows if stream is not read
-                writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-                String versionJSON = "{\"Client\":{\"Version\":\"0.0.0\",\"ApiVersion\":\"0.00\"}}";
-                writer.println("HTTP/1.1 200 OK");
-                writer.println("Content-Type: application/json");
-                writer.println("Content-Length: " + versionJSON.length());
-                writer.println();
-                writer.println(versionJSON);
-            } catch (IOException e) {
-                writer.println("HTTP/1.1 500");
-                writer.println();
-            } finally {
-                if (writer != null) {
-                    writer.close();
-                }
-
-                if (socket != null) {
+                try {
+                    socket.getInputStream()
+                        .read(); // Will hang on windows if stream is not read
+                    writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
                     try {
-                        socket.close();
-                    } catch (IOException e) {
-                        return;
+                        String versionJSON = "{\"Client\":{\"Version\":\"0.0.0\",\"ApiVersion\":\"0.00\"}}";
+                        writer.println("HTTP/1.1 200 OK");
+                        writer.println("Content-Type: application/json");
+                        writer.println("Content-Length: " + versionJSON.length());
+                        writer.println();
+                        writer.println(versionJSON);
+                    } finally {
+                        writer.close();
                     }
+                } finally {
+                    socket.close();
                 }
+            } catch (Exception e) {
+                throw new IllegalStateException("Couldn't create socket connection " + e.getMessage());
             }
-            return;
         }
     }
 }
