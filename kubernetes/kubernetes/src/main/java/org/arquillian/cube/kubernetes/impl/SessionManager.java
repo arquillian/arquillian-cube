@@ -212,6 +212,7 @@ public class SessionManager implements SessionCreatedListener {
                 .profiles(configuration.getFmpProfiles())
                 .withProperties(configuration.getFmpSystemProperties())
                 .forOpenshift(client.supports(Project.class))
+                .withMaven(configuration.isFmpLocalMaven())
                 .build();
         }
 

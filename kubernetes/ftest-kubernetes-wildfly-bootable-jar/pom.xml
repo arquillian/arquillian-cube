@@ -153,6 +153,7 @@
             <cube.fmp.build>true</cube.fmp.build>
             <cube.fmp.debug.output>false</cube.fmp.debug.output>
             <cube.fmp.logs>true</cube.fmp.logs>
+            <cube.fmp.local.maven>true</cube.fmp.local.maven>
             <cube.fmp.system.properties>jkube.docker.push.registry,${jkube.docker.push.registry},jkube.docker.pull.registry,${jkube.docker.pull.registry}</cube.fmp.system.properties>
           </systemPropertyVariables>
         </configuration>

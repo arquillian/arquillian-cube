@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import com.google.common.base.Strings;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.BuiltProject;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven;
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.pom.equipped.ConfigurationDistributionStage;
