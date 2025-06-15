@@ -1,14 +1,16 @@
-name: Arquillian Cube e2e Tests
+name: Arquillian Cube e2e Scheduled Tests
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
   pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - .github/workflows/e2e-tests-scheduled.yml
+  schedule:
+    - cron: '0 4 * * *' # Every day at 4am
+
+concurrency:
+  group: single-instance-for-crc-okd-cluster
+  cancel-in-progress: true
 
 jobs:
   docker-it:
