@@ -55,6 +55,7 @@ public class OpenShiftResourceGeneratorBuilderIT {
             .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
             .forOpenshift(true)
+            .withMaven(true)
             .build();
 
         // then

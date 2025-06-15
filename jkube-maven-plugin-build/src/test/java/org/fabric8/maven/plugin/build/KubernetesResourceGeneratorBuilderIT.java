@@ -56,6 +56,7 @@ public class KubernetesResourceGeneratorBuilderIT {
             .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"),
                 "jkube.docker.push.registry",System.getProperty("jkube.docker.push.registry", ""))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
+            .withMaven(true)
             .debug(false)
             .build();
 
