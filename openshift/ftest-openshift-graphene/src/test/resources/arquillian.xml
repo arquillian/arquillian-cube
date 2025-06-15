@@ -10,6 +10,10 @@
     <property name="browser">phantomjs</property>
   </extension>
 
+  <extension qualifier="drone">
+    <property name="instantiationTimeoutInSeconds">120</property>
+  </extension>
+
   <extension qualifier="graphene">
     <property name="url">http://hello-world:8080</property>
   </extension>
