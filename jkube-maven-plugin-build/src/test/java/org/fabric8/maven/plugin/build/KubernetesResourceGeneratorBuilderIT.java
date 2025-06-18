@@ -42,7 +42,16 @@ public class KubernetesResourceGeneratorBuilderIT {
     }
 
     @Test
-    public void should_build_images_and_generate_resources() throws IOException {
+    public void should_build_images_and_generate_resources_with_embedded_maven() throws IOException {
+        should_build_images_and_generate_resources(false);
+    }
+
+    @Test
+    public void should_build_images_and_generate_resources_with_local_maven() throws IOException {
+        should_build_images_and_generate_resources(true);
+    }
+
+    private void should_build_images_and_generate_resources(boolean useLocalMaven) throws IOException {
         // given
         final String rootPath = temporaryFolder.getRoot().toString() + "spring-boot";
         copyDirectory(Paths.get("src/test/resources/spring-boot"), Paths.get(rootPath));
@@ -56,6 +65,7 @@ public class KubernetesResourceGeneratorBuilderIT {
             .withProperties("version.cube", System.getProperty("version.cube", "2.0.0-SNAPSHOT"),
                 "jkube.docker.push.registry",System.getProperty("jkube.docker.push.registry", ""))
             .pluginConfigurationIn(Paths.get(rootPath, "pom.xml"))
+            .withMaven(useLocalMaven)
             .debug(false)
             .build();
 

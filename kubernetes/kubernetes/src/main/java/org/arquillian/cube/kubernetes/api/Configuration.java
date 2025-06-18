@@ -69,6 +69,7 @@ public interface Configuration {
     String FMP_PROFILES = "cube.fmp.profiles";
     String FMP_SYSTEM_PROPERTIES = "cube.fmp.system.properties";
     String FMP_BUILD_OPTIONS = "cube.fmp.build.options";
+    String FMP_LOCAL_MAVEN = "cube.fmp.local.maven";
 
     Long DEFAULT_WAIT_TIMEOUT = 8 * 60 * 1000L;
     Long DEFAULT_WAIT_POLL_INTERVAL = 5 * 1000L;
@@ -148,6 +149,8 @@ public interface Configuration {
     String getFmpPomPath();
 
     String getFmpBuildOptions();
+
+    boolean isFmpLocalMaven();
 
     List<String> getFmpProfiles();
 

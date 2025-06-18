@@ -35,6 +35,7 @@ link:https://eclipse.dev/jkube/docs/openshift-maven-plugin/[JKube OpenShift Mave
 | cube.fmp.logs  | Bool (true) | Any | Whether to show logs for generating resources using JKube Kubernetes or OpenShift maven plugin
 | cube.fmp.profiles  | List | Any | Comma-separated list of profiles which you want to activate while generating resources
 | cube.fmp.system.properties  | List | Any | Comma-separated key value pair to use for maven build
+| cube.fmp.local.maven  | Bool (false) | Any | Whether to use the local Maven installation, in which case the `maven.home` system property must be set
 |===
 
 *IMPORTANT*
