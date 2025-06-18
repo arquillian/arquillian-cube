@@ -9,12 +9,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import org.arquillian.cube.impl.util.Strings;
 import org.arquillian.cube.impl.util.SystemEnvironmentVariables;
@@ -45,6 +40,7 @@ public class DefaultConfiguration implements Configuration {
     private final URL environmentConfigUrl;
 
     private final List<URL> environmentDependencies;
+    private final List<String> waitForEnvironmentDependencies;
 
     private final boolean namespaceLazyCreateEnabled;
     private final boolean namespaceCleanupEnabled;
@@ -85,7 +81,7 @@ public class DefaultConfiguration implements Configuration {
     private String token;
 
     public DefaultConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-                                URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
+                                URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, List<String> waitForEnvironmentDependencies, boolean namespaceUseCurrentEnabled,
                                 boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                 boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled,
                                 boolean namespaceDestroyConfirmationEnabled, long namespaceDestroyTimeout, boolean waitEnabled, long waitTimeout,
@@ -99,6 +95,7 @@ public class DefaultConfiguration implements Configuration {
         this.environmentSetupScriptUrl = environmentSetupScriptUrl;
         this.environmentTeardownScriptUrl = environmentTeardownScriptUrl;
         this.environmentDependencies = environmentDependencies;
+        this.waitForEnvironmentDependencies = waitForEnvironmentDependencies;
         this.environmentConfigUrl = environmentConfigUrl;
         this.sessionId = sessionId;
         this.namespace = namespace;
@@ -166,6 +163,8 @@ public class DefaultConfiguration implements Configuration {
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*")))
+                .withWaitForEnvironmentDependencies(
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*"))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))
@@ -367,6 +366,11 @@ public class DefaultConfiguration implements Configuration {
     }
 
     @Override
+    public List<String> getWaitForEnvironmentDependencies() {
+        return waitForEnvironmentDependencies;
+    }
+
+    @Override
     public boolean isNamespaceLazyCreateEnabled() {
         return namespaceLazyCreateEnabled;
     }
@@ -558,6 +562,9 @@ public class DefaultConfiguration implements Configuration {
         }
         if (environmentDependencies != null && !environmentDependencies.isEmpty()) {
             appendPropertyWithValue(content, ENVIRONMENT_DEPENDENCIES, environmentDependencies.toString());
+        }
+        if (waitForEnvironmentDependencies != null && !waitForEnvironmentDependencies.isEmpty()) {
+            appendPropertyWithValue(content, WAIT_FOR_ENVIRONMENT_DEPENDENCIES, waitForEnvironmentDependencies.toString());
         }
 
         appendPropertyWithValue(content, NAMESPACE_LAZY_CREATE_ENABLED, namespaceLazyCreateEnabled);
