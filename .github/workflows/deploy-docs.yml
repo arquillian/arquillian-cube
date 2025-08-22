@@ -17,7 +17,7 @@ jobs:
         with:
           ref: ${{ inputs.arquillian-cube-ref }}
       - name: Set up JDK 11
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 11
