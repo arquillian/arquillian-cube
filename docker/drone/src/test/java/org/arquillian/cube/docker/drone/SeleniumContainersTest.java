@@ -199,6 +199,6 @@ public class SeleniumContainersTest {
         final SeleniumContainers seleniumContainers = SeleniumContainers.create("firefox", conf);
         assertThat(seleniumContainers.getSeleniumContainer().getImage().toString(), startsWith("my.registry/selenium"));
         assertThat(seleniumContainers.getVideoConverterContainer().getImage().toString(), startsWith("my.registry/arquillian"));
-        assertThat(seleniumContainers.getVncContainer().getImage().toString(), startsWith("my.registry/richnorth"));
+        assertThat(seleniumContainers.getVncContainer().getImage().toString(), startsWith("my.registry/testcontainers/vnc-recorder"));
     }
 }
