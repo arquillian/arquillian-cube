@@ -75,7 +75,7 @@
     <version.hamcrest>2.2</version.hamcrest>
     <version.docker-java>3.4.0</version.docker-java>
     <version.kubernetes_client>7.1.0</version.kubernetes_client>
-    <version.snakeyaml>2.4</version.snakeyaml>
+    <version.snakeyaml>2.5</version.snakeyaml>
     <version.shrinkwrap_resolver>3.3.4</version.shrinkwrap_resolver>
     <version.shrinkwrap>1.2.6</version.shrinkwrap>
     <version.shrinkwrap_descriptors>2.0.0</version.shrinkwrap_descriptors>
