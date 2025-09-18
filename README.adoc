@@ -15,7 +15,11 @@ We're in the process of evaluating whether to add such support to the 2.x stream
 different solutions. In such a case we'd probably release a 1.x version, which would still support such components.
 
 ifndef::generated-doc[]
-To read complete documentation visit http://arquillian.org/arquillian-cube/
+See how you can link:GETTING_STARTED.adoc[get started] with Arquillian Cube.
+
+To read the complete documentation visit http://arquillian.org/arquillian-cube/
+
+Finally, refer to the link:CONTRIBUTING.adoc[contribution guidelines] if you wish to contribute to Arquillian Cube.
 endif::generated-doc[]
 
 ifdef::generated-doc[]
