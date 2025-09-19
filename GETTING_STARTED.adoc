@@ -1,0 +1,16 @@
+= Getting started with Arquillian Cube
+
+Complete documentation for Arquillian Cube is available at http://arquillian.org/arquillian-cube/.
+
+The https://arquillian.org/arquillian-cube/#_preliminaries[Preliminaries] section will guide you through the
+required steps to set up your local configuration, at least for Docker container usage.
+
+In order to get started, see the https://arquillian.org/arquillian-cube/#_basic_example[Basic example] and the
+https://arquillian.org/arquillian-cube/#_standalone_example[Standalone example] sections.
+
+https://arquillian.org/arquillian-cube/#_kubernetes[Kubernetes documentation] is available too, and you can find out
+more in the https://arquillian.org/arquillian-cube/#_arquillian_kubernetes_and_openshift_recipes[Arquillian Kubernetes
+and OpenShift Recipes] section.
+
+Finally, don't forget to check the integration tests in each submodule, as they might be a good starting point for
+your own use cases.
