@@ -13,7 +13,7 @@ https://www.apache.org/licenses/LICENSE-2.0[ASL - Apache License], version 2.0 o
 specified as governing the file or directory being modified, such other license.
 
 All contributions are subject to the https://developercertificate.org/[Developer Certificate of Origin (DCO)].
-The DCO text is also included verbatim in the https://github.com/arquillian/arquillian-cube/dco.txt[dco.txt] file in the root directory of the repository.
+The DCO text is also included verbatim in the link:dco.txt[dco.txt] file in the root directory of the repository.
 
 == Reporting an issue
 
