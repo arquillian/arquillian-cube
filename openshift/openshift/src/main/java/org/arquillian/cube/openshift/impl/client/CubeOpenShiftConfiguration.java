@@ -78,7 +78,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
     private OpenShiftClient client;
 
     public CubeOpenShiftConfiguration(String sessionId, URL masterUrl, String namespace, Map<String, String> scriptEnvironmentVariables, URL environmentSetupScriptUrl,
-                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, boolean namespaceUseCurrentEnabled,
+                                      URL environmentTeardownScriptUrl, URL environmentConfigUrl, List<URL> environmentDependencies, List<String> waitForEnvironmentDependencies, boolean namespaceUseCurrentEnabled,
                                       boolean namespaceLazyCreateEnabled, boolean namespaceCleanupEnabled, long namespaceCleanupTimeout,
                                       boolean namespaceCleanupConfirmationEnabled, boolean namespaceDestroyEnabled, long namespaceDestroyTimeout,
                                       boolean namespaceDestroyConfirmationEnabled, boolean waitEnabled, long waitTimeout, long waitPollInterval,
@@ -91,7 +91,7 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                                       String username, String password, String apiVersion, boolean trustCerts, long startupTimeout, long httpClientTimeout,
                                       int awaitRouteRepetitions) {
         super(sessionId, masterUrl, namespace, scriptEnvironmentVariables, environmentSetupScriptUrl, environmentTeardownScriptUrl,
-            environmentConfigUrl, environmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
+            environmentConfigUrl, environmentDependencies, waitForEnvironmentDependencies, namespaceUseCurrentEnabled, namespaceLazyCreateEnabled, namespaceCleanupEnabled,
             namespaceCleanupTimeout, namespaceCleanupConfirmationEnabled, namespaceDestroyEnabled,
             namespaceDestroyConfirmationEnabled, namespaceDestroyTimeout, waitEnabled, waitTimeout, waitPollInterval,
             waitForServiceList, ansiLoggerEnabled, environmentInitEnabled, logCopyEnabled, logPath, kubernetesDomain, dockerRegistry, token, username, password, apiVersion, trustCerts, fmpBuildEnabled,  fmpBuildForMavenDisable, fmpDebugOutput, fmpLogsEnabled, fmpPomPath, fmpProfiles, fmpSystemProperties,  fmpBuildOptions, fmpLocalMaven);
@@ -154,6 +154,8 @@ public class CubeOpenShiftConfiguration extends DefaultConfiguration implements
                 .withEnvironmentConfigUrl(getKubernetesConfigurationUrl(map))
                 .withEnvironmentDependencies(
                     asURL(Strings.splitAndTrimAsList(getStringProperty(ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*")))
+                .withWaitForEnvironmentDependencies(
+                    Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_ENVIRONMENT_DEPENDENCIES, map, ""), "\\s*,\\s*"))
                 .withNamespaceLazyCreateEnabled(
                     getBooleanProperty(NAMESPACE_LAZY_CREATE_ENABLED, map, DEFAULT_NAMESPACE_LAZY_CREATE_ENABLED))
                 .withNamespaceCleanupEnabled(getBooleanProperty(NAMESPACE_CLEANUP_ENABLED, map, true))

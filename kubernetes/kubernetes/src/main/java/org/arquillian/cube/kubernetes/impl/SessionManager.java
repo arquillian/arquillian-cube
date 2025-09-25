@@ -16,15 +16,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
+import io.fabric8.kubernetes.client.dsl.Gettable;
+import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.openshift.api.model.Project;
 import org.arquillian.cube.kubernetes.api.AnnotationProvider;
 import org.arquillian.cube.kubernetes.api.Configuration;
@@ -36,6 +35,7 @@ import org.arquillian.cube.kubernetes.api.NamespaceService;
 import org.arquillian.cube.kubernetes.api.ResourceInstaller;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.kubernetes.api.SessionCreatedListener;
+import org.awaitility.Awaitility;
 import org.eclipse.jkube.maven.plugin.build.JKubeMavenPluginResourceGeneratorBuilder;
 import org.jboss.arquillian.core.spi.Validate;
 
@@ -134,10 +134,38 @@ public class SessionManager implements SessionCreatedListener {
                     }
                 }
 
+                // Let's handle waiting on resources to must be ready after the dependency definition is applied
+                final List<String> waitForEnvironmentDependenciesConfiguration = configuration.getWaitForEnvironmentDependencies();
+                final Map<String, List<String>> dependencyWaitFors = new HashMap<>();
+                // if there are resources that dependency definitions must wait for...
+                if (!waitForEnvironmentDependenciesConfiguration.isEmpty()) {
+                    // let's validate the property value format
+                    if (waitForEnvironmentDependenciesConfiguration.size() % 2 != 0) {
+                        throw new IllegalArgumentException(
+                            String.format("Expecting an even amount of \"definition:resource\" pairs to be passed. Got %s entries: %s",
+                                waitForEnvironmentDependenciesConfiguration.size(), String.join(",", waitForEnvironmentDependenciesConfiguration)));
+                    }
+                    // and then store resources that each definition must wait for
+                    for (int i = 0; i < waitForEnvironmentDependenciesConfiguration.size(); i += 2) {
+                        if (dependencyWaitFors.containsKey(waitForEnvironmentDependenciesConfiguration.get(i))) {
+                            dependencyWaitFors.get(waitForEnvironmentDependenciesConfiguration.get(i)).add(waitForEnvironmentDependenciesConfiguration.get(i + 1));
+                        } else {
+                            List<String> waitFors = new ArrayList<>();
+                            waitFors.add(waitForEnvironmentDependenciesConfiguration.get(i + 1));
+                            dependencyWaitFors.put(waitForEnvironmentDependenciesConfiguration.get(i), waitFors);
+                        }
+                    }
+                }
 
                 for (URL dependencyUrl : dependencyUrls) {
                     log.info("Found dependency: " + dependencyUrl);
-                    resources.addAll(resourceInstaller.install(dependencyUrl));
+                    List<String> waitFors = dependencyWaitFors.get(dependencyUrl.toString());
+                    if (waitFors != null) {
+                        log.info("Found resources that: " + dependencyUrl + " must wait for: " + String.join(",", waitFors));
+                        resources.addAll(resourceInstaller.install(dependencyUrl, waitFors));
+                    } else {
+                        resources.addAll(resourceInstaller.install(dependencyUrl));
+                    }
                 }
 
                 if (configUrl == null) {
