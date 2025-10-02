@@ -2,16 +2,18 @@
 	"apiVersion":"v1",
 	"kind": "Pod",
 	"metadata": {
-		"name": "hello-openshift",
+		"name": "hello-openshift-prebuilt",
 		"labels": {
-			"name": "hello-openshift"
+			"name": "hello-openshift-prebuilt"
 		}
 	},
 	"spec": {
 		"containers": [{
-			"name": "hello-openshift",
-			"image": "arquillian:./src/test/resources/wildfly",
+			"name": "hello-openshift-prebuilt",
+			"image": "quay.io/wildfly/wildfly:33.0.2.Final-jdk11",
       "imagePullPolicy": "IfNotPresent",
+      "command": ["/bin/bash", "-c"],
+      "args": ["/opt/jboss/wildfly/bin/add-user.sh -up mgmt-users.properties admin Admin#70365 --silent && /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0"],
       "ports": [
           {
               "containerPort": 8080,
