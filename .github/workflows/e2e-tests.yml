@@ -20,7 +20,7 @@ jobs:
         java: ['11','17']
     steps:
       - name: Checkout arquillian-cube
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Cache .m2 registry
         uses: actions/cache@v4
         with:
@@ -53,7 +53,7 @@ jobs:
         java: ['11','17']
     steps:
       - name: Checkout arquillian-cube
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Minikube
         uses: manusa/actions-setup-minikube@v2.14.0
         with:
@@ -113,7 +113,7 @@ jobs:
         crc: [ 2.32.0 ]
     steps:
       - name: Checkout arquillian-cube
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install the OpenShift client
         run: |
           wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/${{ matrix.oc }}/openshift-client-linux.tar.gz
