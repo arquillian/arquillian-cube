@@ -1,0 +1,38 @@
+{
+	"apiVersion":"v1",
+	"kind": "Pod",
+	"metadata": {
+		"name": "hello-openshift-prebuilt",
+		"labels": {
+			"name": "hello-openshift-prebuilt"
+		}
+	},
+	"spec": {
+		"containers": [{
+			"name": "hello-openshift-prebuilt",
+			"image": "quay.io/wildfly/wildfly:33.0.2.Final-jdk11",
+      "imagePullPolicy": "IfNotPresent",
+      "command": ["/bin/bash", "-c"],
+      "args": ["/opt/jboss/wildfly/bin/add-user.sh -up mgmt-users.properties admin Admin#70365 --silent && /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0"],
+      "ports": [
+          {
+              "containerPort": 8080,
+              "protocol": "TCP"
+          },
+          {
+              "containerPort": 9990,
+              "protocol": "TCP"
+          }
+      ],
+			"readinessProbe" : {
+				"exec": {
+					"command": [
+					    "/bin/bash",
+					    "-c",
+					    "curl -s --digest -u \"admin:Admin#70365\" -L http://localhost:9990/management --header \"Content-Type: application/json\" -d '{\"operation\":\"read-attribute\",\"name\":\"server-state\",\"json.pretty\":1}' | grep -iq running"
+					]
+				}
+			}
+		}]
+	}
+}
