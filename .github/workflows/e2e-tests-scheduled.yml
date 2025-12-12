@@ -6,7 +6,12 @@ on:
     paths:
       - .github/workflows/e2e-tests-scheduled.yml
   schedule:
-    - cron: '0 4 * * *' # Every day at 4am
+    # Scheduled to run twice weekly instead of daily to reduce load and mitigate
+    # GitHub public runner capacity issues. Times chosen to target lowest-traffic periods:
+    # - Wednesday 2am UTC: Deep off-peak (Tuesday late night US, very early morning EU)
+    # - Sunday 6am UTC: Weekend early morning when runner usage is typically lowest
+    - cron: '0 2 * * 3'  # Wednesday at 2am UTC
+    - cron: '0 6 * * 0'  # Sunday at 6am UTC
 
 concurrency:
   group: single-instance-for-crc-okd-cluster
