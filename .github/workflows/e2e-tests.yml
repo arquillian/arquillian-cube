@@ -22,7 +22,7 @@ jobs:
       - name: Checkout arquillian-cube
         uses: actions/checkout@v6
       - name: Cache .m2 registry
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: docker-it-cache-e2e-${{ github.sha }}-${{ github.run_id }}
@@ -73,7 +73,7 @@ jobs:
         run: |
           minikube addons enable ingress
       - name: Cache .m2 registry
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: k8s-it-cache-e2e-${{ github.sha }}-${{ github.run_id }}
@@ -157,7 +157,7 @@ jobs:
         run: |
           sudo -su $USER crc start | tee crc-start.log
       - name: Cache .m2 registry
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: openshift-it-cache-e2e-${{ github.sha }}-${{ github.run_id }}
