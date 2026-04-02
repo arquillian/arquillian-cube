@@ -43,6 +43,7 @@ public interface Configuration {
     String ENVIRONMENT_CONFIG_URL = "env.config.url";
     String ENVIRONMENT_CONFIG_RESOURCE_NAME = "env.config.resource.name";
     String ENVIRONMENT_DEPENDENCIES = "env.dependencies";
+    String WAIT_FOR_ENVIRONMENT_DEPENDENCIES = "wait.for.env.dependencies";
 
     String WAIT_ENABLED = "wait.enabled";
     String WAIT_TIMEOUT = "wait.timeout";
@@ -93,6 +94,8 @@ public interface Configuration {
     URL getEnvironmentConfigUrl();
 
     List<URL> getEnvironmentDependencies();
+
+    List<String> getWaitForEnvironmentDependencies();
 
     String getSessionId();
 
