@@ -44,7 +44,7 @@ jobs:
       - name: Build and run integration tests for Docker target (${{ matrix.java }})
         run: |
           ./mvnw verify -B -Dfailsafe.groups=org.arquillian.cube.docker.impl.requirement.RequiresDocker -Dcontainerless.skip.tests=true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: docker-it-surefire-reports-jdk-${{ matrix.java }}
           path: |
@@ -95,7 +95,7 @@ jobs:
       - name: Build and run integration tests for Kubernetes target (${{ matrix.java }})
         run: |
           ./mvnw verify -B -Djkube.docker.push.registry=localhost:5000 -Djkube.docker.pull.registry=localhost:5000 -Dfailsafe.groups=org.arquillian.cube.kubernetes.impl.requirement.RequiresKubernetes -Dcontainerless.skip.tests=true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: k8s-it-surefire-reports-jdk-${{ matrix.java }}
           path: |
@@ -197,7 +197,7 @@ jobs:
       - name: Build and run integration tests for OpenShift target (${{ matrix.java }})
         run: |
           ./mvnw verify -B  -Djkube.docker.push.registry=image-registry.openshift-image-registry.svc:5000 -Djkube.docker.pull.registry=image-registry.openshift-image-registry.svc:5000  -Dfailsafe.groups=org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift -Dcontainerless.skip.tests=true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: openshift-it-surefire-reports-jdk-${{ matrix.java }}
           path: |
