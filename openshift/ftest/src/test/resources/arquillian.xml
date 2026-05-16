@@ -4,11 +4,19 @@
   xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
   <extension qualifier="openshift">
-    <property name="definitionsFile">src/test/resources/hello_pod.json</property>
-    <property name="proxiedContainerPorts">hello-openshift:9990</property>
+    <property name="definitionsFile">src/test/resources/hello_pod.json,src/test/resources/hello_pod_prebuilt.json</property>
+    <property name="proxiedContainerPorts">hello-openshift:9990,hello-openshift-prebuilt:9990</property>
   </extension>
 
   <container qualifier="hello-openshift" default="true">
+    <configuration>
+      <property name="target">wildfly:33.0.2.Final-jdk11:remote</property>
+      <property name="username">admin</property>
+      <property name="password">Admin#70365</property>
+    </configuration>
+  </container>
+
+  <container qualifier="hello-openshift-prebuilt">
     <configuration>
       <property name="target">wildfly:33.0.2.Final-jdk11:remote</property>
       <property name="username">admin</property>
